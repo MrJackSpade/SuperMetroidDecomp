@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -45,8 +44,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("FileSelectPresentation", "DrawCursor", "frame") => new(0, 4),
         ("FileSelectPresentation", "DrawHelmet", "frame") => new(0, 8),
         ("FileSelectPresentation", "CursorPosition", "selected") => new(0, 6),
-        ("MotherBrainRoomColorPresentation", "ApplyRecoveryLights", "frame") => new(0, MotherBrainRoomColorDefinitions.RecoveryLightsFrames),
-        ("MotherBrainRoomColorPresentation", "ApplyFlash", "frame") => new(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount),
         ("GameOptionsPresentation", "DrawCursor", "frame") => new(0, 4),
         ("GameOverPresentation", "DrawBaby", "frame") => new(0, 3),
         ("GameOverPresentation", "DrawCursor", "frame") => new(0, 4),
@@ -54,8 +51,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
         ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteFile.SelectionCount),
-        ("DraygonColorCatalog", "ApplyHealthBand", "band") => new(0, DraygonColorDefinitions.HealthBandCount),
-        ("DraygonColorCatalog", "ApplyHurt", "healthBand") => new(0, DraygonColorDefinitions.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorDefinitions.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorDefinitions.FadeOutCount),
@@ -70,9 +65,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount),
         ("MotherBrainRainbowPalettePresentation", "TryReadBeamColor", "index") => new(0,
             MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 1),
-        ("MotherBrainRainbowPalettePresentation", "ApplyRainbow", "frame") => new(0, MotherBrainRainbowPaletteFormat.RainbowFrameCount),
-        ("MotherBrainRainbowPalettePresentation", "ApplyToGrey" or "ApplyFromGrey" or "ApplyFakeDeathFromGrey", "frame") => new(0, MotherBrainRainbowPaletteGeometry.GreyFrameCount),
-        ("MotherBrainRainbowPalettePresentation", "ApplyFakeDeathToGrey", "frame") => new(0, MotherBrainFakeDeathPaletteDefinitions.FrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathColorFile.BodyFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor" or "ExplodedDoorColor", "color") => new(0, MotherBrainDeathDefinitions.BodyColorCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathColorFile.CorpseFadeFrameCount),
@@ -110,13 +102,11 @@ internal static class ClosedPresentationIndexDefinitions
         ("EnemyAuxiliaryColorCatalog", "Resolve", "frame") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.FrameCount)),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "color") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.ColorCount)),
         ("KraidColorCatalog", "Resolve", "index") => new(0, KraidPalettes.ColorCount(KraidPaletteSource.Health)),
-        ("ZebetiteColorCatalog", "Apply", "frame") => new(0, ZebetiteColorFormat.FrameCount),
         ("ShitroidColorCatalog", "NormalColor", "frame") => new(0, ShitroidColorDefinitions.NormalFrameCount),
         ("ShitroidColorCatalog", "NormalColor", "color") => new(0, ShitroidColorDefinitions.NormalColorsPerFrame),
         ("ShitroidColorCatalog", "TargetColor", "color") => new(0, ShitroidColorDefinitions.TargetColorCount),
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorDefinitions.AnimatedFrameCount),
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorDefinitions.ColorsPerFrame),
-        ("MotherBrainHealthPalettePresentation", "Apply", "damageState") => new(0, MotherBrainHealthPaletteFormat.StateCount),
         ("CreditsPresentation", "GetRow", "index") => new(0, CreditsRollDefinitions.ExpectedCompiledRows),
         ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
         ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),

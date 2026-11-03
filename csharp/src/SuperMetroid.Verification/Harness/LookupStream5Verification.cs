@@ -497,7 +497,6 @@ internal static class LookupStream5Verification
         int[] sources = [CrocomireSourceDefinitions.FightBodyColors, CrocomireSourceDefinitions.InitialWallColors,
             CrocomireSourceDefinitions.InitialProjectileColors, CrocomireSourceDefinitions.SkeletonArmColors, CrocomireSourceDefinitions.WallSpikesColors];
         int[] counts = [8, 17, 17, 16, 16];
-        int[] destinations = [112, 160, 208, 144, 176];
         string[] labels = ["fightBody", "initialWall", "initialProjectile", "skeletonArm", "wallSpikes"];
         PaletteRgb5[][] bands = new PaletteRgb5[5][];
         for (int band = 0; band < bands.Length; band++)
@@ -533,11 +532,12 @@ internal static class LookupStream5Verification
             var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
             var result = CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(document)));
             Func<int, RgbColor>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
-            var cgram = new GameplayColours(new SpriteColourSets()); result.ApplyInitial(cgram);
-            for (int band = 1; band <= 2; band++)
-                for (int ink = 0; ink < counts[band]; ink++)
-                    AssertEqual(resolve[band](ink), cgram.Colors[destinations[band] + ink], "Initial seventeen-word copy preserves its independently supplied overlap");
-            result.ApplyFightBody(cgram); result.ApplySkeletonArm(cgram); result.ApplyWallSpikes(cgram);
+            // The encounter's first load shows the wall's colours on the spawned objects' sheets (#1512): the import's wall
+            // shade holds the initial wall's first sixteen colours in the wall's row.
+            SheetShade wall = BossSheetShades.SpawnedObjects(InstalledFixtures.BossArtwork with { CrocomireColors = result })
+                .Single(shade => shade.Shade == SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireShades.Wall);
+            for (int ink = 0; ink < wall.Colours.Length; ink++)
+                AssertEqual(resolve[1](ink), wall.Colours[ink], "Initial wall load preserves its independently supplied colours");
             string expectedHash = SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
             {
                 for (int band = 0; band < bands.Length; band++)
@@ -548,8 +548,6 @@ internal static class LookupStream5Verification
                         PaletteRgb5 rgb = bands[band][color];
                         words[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
                         AssertEqual(words[color], resolve[band](color), "Independent native/edit word");
-                        // Wall's overlapping destination176 is subsequently replaced by the spike transfer.
-                        if (band != 1 || color != 16) AssertEqual(words[color], cgram.Colors[destinations[band] + color], "Calculated paint reaches CGRAM");
                     }
                     content.AppendWords(labels[band], words);
                     int selected = band;
@@ -1170,26 +1168,21 @@ internal static class LookupStream5Verification
             };
             Check(native with { Frames = rows });
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SpriteColourSets().Set(0).Slice(0, 2), -1),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Zebetite pulse lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SpriteColourSets().Set(0).Slice(0, 2), 8),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(8, 0),
             "Zebetite pulse upper frame bound");
         Console.WriteLine("Zebetite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; selected barrier-core paint disposition complete.");
 
         static ZebetiteColorCatalog Check(ZebetiteColorDocument expected)
         {
             var actual = ZebetiteColorFile.Read(new MemoryStream(ZebetiteColorFile.Write(expected), writable: false));
-            var cgram = new GameplayColours(new SpriteColourSets());
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
             for (int frame = 0; frame < packed.Length; frame++)
-            {
-                actual.Apply(ZebetiteDefinitions.PulseColours.In(cgram), frame);
                 for (int color = 0; color < packed[frame].Length; color++)
-                    AssertEqual(packed[frame][color],
-                        cgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + color],
-                        "Zebetite pulse exact selected CGRAM color");
-            }
+                    AssertEqual(packed[frame][color], actual.Resolve(frame, color).ToWord(),
+                        "Zebetite pulse exact selected colour");
             string identity = SelectedPresentationHash.Create("ZebetiteColorCatalog-v1",
                 content => content.AppendWordFrames("frames", packed));
             AssertEqual(identity, actual.ContentIdentity, "Zebetite pulse canonical identity");

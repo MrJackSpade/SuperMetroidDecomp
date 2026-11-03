@@ -3,6 +3,8 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -17,14 +19,20 @@ internal static class MotherBrainHealthPaletteVerification
         foreach (var (health, index) in new VerifyMotherBrainHealthPaletteCase[]
             { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
-            var cgram = new GameplayColours(new SpriteColourSets());
-            MotherBrainHealthPalette.Apply(cgram, health, InstalledFixtures.Maps.MotherBrainHealthPalette);
+            // The band her health selects names the shade the import pre-colours her body layer and sprites in (#1512).
+            int band = MotherBrainHealthPalette.Band(health);
+            AssertEqual(index, band, $"health {health} selects band {index}");
+            ushort[] cgram = BossShadeColours.Filled(0);
+            BossShadeColours.Lay(cgram, MotherBrainSheetShades.Background(InstalledFixtures.Maps, InstalledFixtures.EnemyArtwork.Bosses),
+                MotherBrainShades.Health(band), BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, InstalledFixtures.EnemyArtwork.Bosses, InstalledFixtures.RoomPalettes),
+                MotherBrainShades.Health(band), BossShadeColours.Sprites);
             VerifyCopy(0xade6a2, 65);
             VerifyCopy(0xade6a2, 145);
             VerifyCopy(0xade742, 177);
-            colors.Add(string.Join(',', cgram.Colors.Slice(145, 15).ToArray()));
-            AssertEqual(0, cgram.Colors[144], "health palette leaves transparent color untouched");
-            AssertEqual(0, cgram.Colors[192], "health palette cannot overwrite Samus palette");
+            colors.Add(string.Join(',', cgram.AsSpan(145, 15).ToArray()));
+            AssertEqual(0, cgram[144], "health palette leaves transparent color untouched");
+            AssertEqual(0, cgram[192], "health palette cannot overwrite Samus palette");
 
             void VerifyCopy(int table, int destination)
             {
@@ -32,7 +40,7 @@ internal static class MotherBrainHealthPaletteVerification
                 int source = (0xad0000|bus.ReadCartridgeWord(pointer));
                 for (int color = 0; color < 15; color++)
                     AssertEqual(bus.ReadCartridgeWord(source + color * 2),
-                        cgram.Colors[destination + color], $"health {health} palette {index} color {color}");
+                        cgram[destination + color], $"health {health} palette {index} color {color}");
             }
         }
         AssertEqual(4, colors.Count, "all four native damage palettes are distinct");

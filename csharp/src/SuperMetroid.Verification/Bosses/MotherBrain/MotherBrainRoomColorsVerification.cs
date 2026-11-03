@@ -1,6 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -11,10 +9,9 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
@@ -23,66 +20,44 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-/// <summary>Installed and edited Mother Brain room-color checks across entry, flash, phase two, and recovery-light CGRAM writes.</summary>
+/// <summary>
+/// Mother Brain's room colours (#1512): her encounter's production paths lay the room entry's, flash's, steady grey's,
+/// phase two's and the recovering lights' shades, and the import pre-colours each from the installed colours, which
+/// match the cartridge's, take an override's isolated edits, migrate older overrides and reject malformed ones.
+/// </summary>
 internal static class MotherBrainRoomColorsVerification
 {
-    /// <summary>Compares installed colors with extracted retail rows through production enemy paths, then checks isolated edits, legacy migration, and malformed overrides.</summary>
+    /// <summary>Checks the shades the production paths lay, the import's colours of them against the extracted cartridge rows, isolated edits, legacy migration and malformed overrides.</summary>
     internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
-        string overrides, AreaMapPresentation original,
-        GameplayBasePalette initialPalettes)
+        string overrides, AreaMapPresentation original)
     {
-        var nativeCgram = new SamusColourRig();
-        var installedCgram = new SamusColourRig();
+        ArgumentNullException.ThrowIfNull(original);
         MotherBrainRoomColorPresentation extracted = MotherBrainRoomColorFile.Read(
             new MemoryStream(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom),
                 writable: false));
-        Seed(nativeCgram);
-        Seed(installedCgram);
-        // Independently import the cartridge colors for the comparison path;
-        // the gameplay palette runner has no runtime ROM fallback.
-        var native = CreateEnemy(nativeCgram, extracted);
-        var installed = CreateEnemy(installedCgram,
-            original.MotherBrainRoomColors);
-        native.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
-        installed.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
-        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-            "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
-        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(original.MotherBrainRoomColors, extracted));
-        var nativeState = StagedState(native);
-        nativeState.RoomFlashFrame = 0;
-        var installedState = StagedState(installed);
-        installedState.RoomFlashFrame = 0;
+        // The installed colours' shades are the cartridge's.
+        AssertSameShades(MotherBrainSheetShades.RoomSprites(extracted), MotherBrainSheetShades.RoomSprites(original.MotherBrainRoomColors),
+            "installed Mother Brain room-entry and phase-two sprite colours match the cartridge's");
+        AssertSameShades(MotherBrainSheetShades.RoomBackground(extracted), MotherBrainSheetShades.RoomBackground(original.MotherBrainRoomColors),
+            "installed Mother Brain flash, grey and recovery-light colours match the cartridge's");
+
+        RoomEnemySystem enemies = CreateEnemy();
+        MotherBrainEnemyState state = StagedState(enemies);
+        enemies.MotherBrainEncounter.MotherBrain = state;
+        state.RoomFlashFrame = 0;
         for (int frame = 0; frame < 48; frame++)
         {
-            native.MotherBrainBehavior.RunMotherBrainRoomPalette(nativeState);
-            installed.MotherBrainBehavior.RunMotherBrainRoomPalette(installedState);
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-                $"installed Mother Brain room flash matches full native CGRAM on frame {frame}");
-            AssertEqual(nativeState.RoomFlashFrame,
-                installedState.RoomFlashFrame,
-                "room-flash presentation leaves the flash frame unchanged");
-            AssertEqual(nativeState.RoomFlashTimer,
-                installedState.RoomFlashTimer,
-                "room-flash presentation leaves the flash timer unchanged");
+            enemies.MotherBrainBehavior.RunMotherBrainRoomPalette(state);
+            int shown = state.RoomFlashFrame ?? throw new InvalidOperationException("The room flash stopped on its own.");
+            AssertEqual(MotherBrainShades.Flash(shown), state.Colours.Background.Laid[^1],
+                $"Mother Brain's room flash shows its frame {shown} on update {frame}");
         }
-        native.MotherBrainBehavior.FakeDeath.StopMotherBrainRoomPalette(nativeState);
-        installed.MotherBrainBehavior.FakeDeath.StopMotherBrainRoomPalette(installedState);
-        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-            "installed final grey room colors match all native CGRAM words");
-        AssertEqual(nativeState.RoomFlashFrame,
-            installedState.RoomFlashFrame,
-            "final room palette preserves the flash stop state");
-
-        Seed(nativeCgram);
-        Seed(installedCgram);
-        native.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(nativeState);
-        installed.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(installedState);
-        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-            "installed phase-two attack/rear-leg colors match full native CGRAM");
-        AssertEqual(nativeState.Function, installedState.Function,
-            "phase-two colors do not alter the next body function");
-        AssertEqual(nativeState.EnableUnpauseHook, installedState.EnableUnpauseHook,
-            "phase-two colors do not alter the unpause hook");
+        enemies.MotherBrainBehavior.FakeDeath.StopMotherBrainRoomPalette(state);
+        AssertEqual(MotherBrainShades.FinalRoom, state.Colours.Background.Laid[^1], "stopping the flash shows the steady grey room");
+        AssertEqual(null, state.RoomFlashFrame, "stopping the flash clears its frame");
+        enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.Sprites.Laid[^1], "the ascent loads the phase-two attack and rear-leg colours");
+        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(enemies, state));
 
         string replacement = Path.Combine(overrides, MotherBrainRoomColorFormat.FileName);
         MotherBrainRoomColorDocument document =
@@ -105,19 +80,18 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
-        runtime.Artwork.MapPresentation = edited;
-        AssertTrue(ReferenceEquals(runtime.BossArtwork.MotherBrainRoomColors,
-            edited.MotherBrainRoomColors),
-            "installed Mother Brain room colors reach the production enemy binding");
-        AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,
-            MotherBrainRoomColorDestinations.FirstColor, 1, flash: true);
-        AssertEdited(nameof(MotherBrainFakeDeath.StopMotherBrainRoomPalette), behavior => behavior.FakeDeath.StopMotherBrainRoomPalette, original, edited,
-            MotherBrainRoomColorDestinations.SecondColor, 2);
-        AssertEdited(nameof(MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics), behavior => behavior.Ascent.SetupMotherBrainPhaseTwoGraphics, original, edited,
-            MotherBrainRoomColorDestinations.PhaseTwoAttackColor, 2);
-        AssertRoomEntryEdited(original, edited);
-        AssertRecoveryLightsEdited(original, edited);
+        IReadOnlyList<SheetShade> stockSprites = MotherBrainSheetShades.RoomSprites(original.MotherBrainRoomColors);
+        IReadOnlyList<SheetShade> editedSprites = MotherBrainSheetShades.RoomSprites(edited.MotherBrainRoomColors);
+        IReadOnlyList<SheetShade> stockBackground = MotherBrainSheetShades.RoomBackground(original.MotherBrainRoomColors);
+        IReadOnlyList<SheetShade> editedBackground = MotherBrainSheetShades.RoomBackground(edited.MotherBrainRoomColors);
+        // The flash's first colour, the grey's second slice's first colour and its mirror, both phase-two colours, both
+        // room-entry colours and both recovery-light slices' first colours change; nothing else does.
+        AssertEqual(1, Differences(stockBackground, editedBackground, MotherBrainShades.Flash(0)), "the flash edit changes one colour");
+        AssertEqual(2, Differences(stockBackground, editedBackground, MotherBrainShades.FinalRoom), "the grey edit changes its colour and its mirror");
+        AssertEqual(2, Differences(stockSprites, editedSprites, MotherBrainShades.PhaseTwo), "the phase-two edits change their two colours");
+        AssertEqual(2, Differences(stockSprites, editedSprites, MotherBrainShades.RoomEntry), "the room-entry edits change their two colours");
+        AssertEqual(2, Differences(stockBackground, editedBackground, MotherBrainShades.RecoveryLights(0)), "the recovery-light edits change their two colours");
+        AssertEqual(0, Differences(stockBackground, editedBackground, MotherBrainShades.Flash(1)), "the flash edit leaves its other frames alone");
 
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
@@ -146,17 +120,9 @@ internal static class MotherBrainRoomColorsVerification
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, previousVersion);
         AreaMapPresentation migratedV2 = MapPresentationFiles.Load(stock, overrides);
-        var migratedRecovery = new SamusColourRig();
-        var originalRecovery = new SamusColourRig();
-        migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery.Gameplay, 0);
-        original.MotherBrainRoomColors.ApplyRecoveryLights(originalRecovery.Gameplay, 0);
-        AssertTrue(new CgramPalettes(migratedRecovery).ImageEquals(new CgramPalettes(originalRecovery)),
+        AssertEqual(0, Differences(stockBackground, MotherBrainSheetShades.RoomBackground(migratedV2.MotherBrainRoomColors), MotherBrainShades.RecoveryLights(0)),
             "version-two override inherits new recovery-light colors from stock");
-        var migratedV2Entry = new SamusColourRig();
-        var originalV2Entry = new SamusColourRig();
-        migratedV2.MotherBrainRoomColors.ApplyRoomEntry(migratedV2Entry.Gameplay);
-        original.MotherBrainRoomColors.ApplyRoomEntry(originalV2Entry.Gameplay);
-        AssertTrue(!new CgramPalettes(migratedV2Entry).ImageEquals(new CgramPalettes(originalV2Entry)),
+        AssertTrue(Differences(stockSprites, MotherBrainSheetShades.RoomSprites(migratedV2.MotherBrainRoomColors), MotherBrainShades.RoomEntry) != 0,
             "version-two override keeps its edited room-entry colors");
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
         {
@@ -167,17 +133,9 @@ internal static class MotherBrainRoomColorsVerification
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
         AreaMapPresentation migrated = MapPresentationFiles.Load(stock, overrides);
-        var migratedFlash = new SamusColourRig();
-        var originalFlash = new SamusColourRig();
-        migrated.MotherBrainRoomColors.ApplyFlash(migratedFlash.Gameplay, 0);
-        original.MotherBrainRoomColors.ApplyFlash(originalFlash.Gameplay, 0);
-        AssertTrue(!new CgramPalettes(migratedFlash).ImageEquals(new CgramPalettes(originalFlash)),
+        AssertTrue(Differences(stockBackground, MotherBrainSheetShades.RoomBackground(migrated.MotherBrainRoomColors), MotherBrainShades.Flash(0)) != 0,
             "version-one room-color override retains its existing flash edit");
-        var migratedEntry = new SamusColourRig();
-        var originalEntry = new SamusColourRig();
-        migrated.MotherBrainRoomColors.ApplyRoomEntry(migratedEntry.Gameplay);
-        original.MotherBrainRoomColors.ApplyRoomEntry(originalEntry.Gameplay);
-        AssertTrue(new CgramPalettes(migratedEntry).ImageEquals(new CgramPalettes(originalEntry)),
+        AssertEqual(0, Differences(stockSprites, MotherBrainSheetShades.RoomSprites(migrated.MotherBrainRoomColors), MotherBrainShades.RoomEntry),
             "version-one room-color override inherits only the new room-entry colors from verified stock");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
@@ -187,7 +145,7 @@ internal static class MotherBrainRoomColorsVerification
         File.Delete(replacement);
         AssertEqual(original.ContentIdentity, MapPresentationFiles.Load(stock, overrides)
             .ContentIdentity, "removing Mother Brain room override restores stock identity");
-        Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light palettes match native CGRAM; ROM-free production paths, isolated edits, legacy overrides and strict validation pass.");
+        Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light shades match the cartridge's colours and the production paths that lay them; isolated edits, legacy overrides and strict validation pass.");
 
         // Change one red RGB5 channel while keeping it within the legal zero-to-31 range.
         static PaletteRgb5 Change(PaletteRgb5 color) => color with
@@ -196,76 +154,35 @@ internal static class MotherBrainRoomColorsVerification
         };
     }
 
-    /// <summary>Compares all seven two-slice recovery transfers with retail CGRAM and rejects a nonnative source before copying colors.</summary>
-    private static void VerifyMotherBrainRecoveryLights(MotherBrainRoomColorPresentation installed,
-        MotherBrainRoomColorPresentation extracted)
+    /// <summary>Checks the seven recovery-light steps the Baby's cutscene lays, and that a step past the seventh is refused.</summary>
+    private static void VerifyMotherBrainRecoveryLights(RoomEnemySystem enemies, MotherBrainEnemyState state)
     {
-        var nativeCgram = new SamusColourRig();
-        var installedCgram = new SamusColourRig();
-        Seed(nativeCgram);
-        Seed(installedCgram);
-        var native = CreateEnemy(nativeCgram, extracted);
-        var runtime = CreateEnemy(installedCgram, installed);
-        for (ushort frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
+        for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
         {
-            native.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
-            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-                $"installed Mother Brain recovery-light frame {frame} matches full native CGRAM");
+            enemies.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
+            AssertEqual(MotherBrainShades.RecoveryLights(frame), state.Colours.Background.Laid[^1],
+                $"Mother Brain recovery-light frame {frame} is laid over her room");
         }
-        try
-        {
-            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(MotherBrainRoomColorDefinitions.RecoveryLightsFrames);
-            throw new InvalidOperationException("A Mother Brain recovery-light frame past the seventh was accepted.");
-        }
-        catch (InvalidDataException)
-        {
-            // A frame past the authored images is refused before touching installed colors.
-        }
+        AssertThrows<InvalidDataException>(
+            () => enemies.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(MotherBrainRoomColorDefinitions.RecoveryLightsFrames),
+            "a Mother Brain recovery-light frame past the seventh is refused");
     }
 
-    /// <summary>Checks edits in both recovery-light slices reach exactly two live CGRAM words.</summary>
-    private static void AssertRecoveryLightsEdited(AreaMapPresentation original,
-        AreaMapPresentation edited)
+    /// <summary>Asserts that two lists of the import's shades hold the same shades with the same colours.</summary>
+    private static void AssertSameShades(IReadOnlyList<SheetShade> expected, IReadOnlyList<SheetShade> actual, string label)
     {
-        var stockCgram = new SamusColourRig();
-        var editedCgram = new SamusColourRig();
-        var stock = CreateEnemy(stockCgram,
-            original.MotherBrainRoomColors);
-        var replacement = CreateEnemy(editedCgram,
-            edited.MotherBrainRoomColors);
-        stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
-        replacement.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(0);
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsFirstColor] !=
-            editedCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsFirstColor],
-            "first recovery-light slice edit reaches live CGRAM");
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsSecondColor] !=
-            editedCgram.Colors[MotherBrainRoomColorDestinations.RecoveryLightsSecondColor],
-            "second recovery-light slice edit reaches live CGRAM");
-        AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
-            "recovery-light edits change only two selected CGRAM words");
+        AssertEqual(expected.Count, actual.Count, $"{label}: shade count");
+        foreach (SheetShade shade in expected)
+            AssertEqual(0, Differences(expected, actual, shade.Shade), $"{label}: {shade.Shade.Key} step {shade.Shade.Step}");
     }
 
-    /// <summary>Checks room-entry glass and tube edits change exactly their two selected CGRAM words.</summary>
-    private static void AssertRoomEntryEdited(AreaMapPresentation original,
-        AreaMapPresentation edited)
+    /// <summary>The number of inks whose colour differs between <paramref name="shade"/> among <paramref name="first"/> and among <paramref name="second"/>.</summary>
+    private static int Differences(IReadOnlyList<SheetShade> first, IReadOnlyList<SheetShade> second, PictureShade shade)
     {
-        var stockCgram = new SamusColourRig();
-        var editedCgram = new SamusColourRig();
-        var stockEnemy = CreateEnemy(stockCgram,
-            original.MotherBrainRoomColors);
-        var editedEnemy = CreateEnemy(editedCgram,
-            edited.MotherBrainRoomColors);
-        stockEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
-        editedEnemy.MotherBrainBehavior.Body.LoadMotherBrainRoomEntryColors();
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.InitialGlassShardColor] !=
-            editedCgram.Colors[MotherBrainRoomColorDestinations.InitialGlassShardColor],
-            "room-entry glass edit reaches the production color copy");
-        AssertTrue(stockCgram.Colors[MotherBrainRoomColorDestinations.InitialTubeProjectileColor] !=
-            editedCgram.Colors[MotherBrainRoomColorDestinations.InitialTubeProjectileColor],
-            "room-entry tube edit reaches the production color copy");
-        AssertEqual(2, stockCgram.Colors.CountDifferences(editedCgram.Colors),
-            "room-entry edits change only the two selected CGRAM colors");
+        SheetShade a = first.Single(candidate => candidate.Shade == shade);
+        SheetShade b = second.Single(candidate => candidate.Shade == shade);
+        AssertTrue(a.Inks.SequenceEqual(b.Inks), $"shade {shade.Key} recolours the same inks");
+        return a.Colours.Zip(b.Colours).Count(pair => pair.First != pair.Second);
     }
 
     /// <summary>
@@ -278,55 +195,11 @@ internal static class MotherBrainRoomColorsVerification
             StagedBody = new BossBodyCanvas(BossBodySheetFixtures.Stock.Sheets.Of(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),
         };
 
-    /// <summary>Checks a selected flash/final/phase-two color edit reaches CGRAM without changing body phase or palette-program timing.</summary>
-    private static void AssertEdited(string methodName, Func<MotherBrainBehavior, Action<MotherBrainEnemyState>> select,
-        AreaMapPresentation original,
-        AreaMapPresentation edited, int expectedFirstColor, int expectedDifferences,
-        bool flash = false)
+    /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>
+    private static RoomEnemySystem CreateEnemy()
     {
-        var stockCgram = new SamusColourRig();
-        var editedCgram = new SamusColourRig();
-        var stockEnemy = CreateEnemy(stockCgram,
-            original.MotherBrainRoomColors);
-        var editedEnemy = CreateEnemy(editedCgram,
-            edited.MotherBrainRoomColors);
-        var stockState = StagedState(stockEnemy);
-        var editedState = StagedState(editedEnemy);
-        if (flash)
-        {
-            stockState.RoomFlashFrame = 0;
-            editedState.RoomFlashFrame = 0;
-        }
-        select(stockEnemy.MotherBrainBehavior)(stockState);
-        select(editedEnemy.MotherBrainBehavior)(editedState);
-        AssertTrue(stockCgram.Colors[expectedFirstColor] !=
-            editedCgram.Colors[expectedFirstColor],
-            $"edited {methodName} color reaches live CGRAM");
-        AssertEqual(expectedDifferences, stockCgram.Colors.CountDifferences(editedCgram.Colors),
-            $"edited {methodName} changes only the selected CGRAM destinations");
-        AssertEqual(stockState.Function, editedState.Function,
-            $"edited {methodName} preserves body phase");
-        AssertEqual(stockState.RoomFlashFrame,
-            editedState.RoomFlashFrame,
-            $"edited {methodName} preserves palette-program cursor");
-        AssertEqual(stockState.RoomFlashTimer,
-            editedState.RoomFlashTimer,
-            $"edited {methodName} preserves palette-program timer");
-    }
-
-    /// <summary>Binds one installed room-color catalog and CGRAM destination to a fresh Mother Brain enemy system.</summary>
-    private static RoomEnemySystem CreateEnemy(SamusColourRig cgram,
-        MotherBrainRoomColorPresentation? colors)
-    {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors, BodySheets = BossBodySheetFixtures.Stock.Sheets } };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { BodySheets = BossBodySheetFixtures.Stock.Sheets } };
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;
-    }
-
-    /// <summary>Seeds every CGRAM word with a distinct bounded color so unintended palette writes remain observable.</summary>
-    private static void Seed(SamusColourRig cgram)
-    {
-        for (int index = 0; index < SnesCgram.ColorCount; index++)
-            cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 71 & 0x7fff)));
     }
 }

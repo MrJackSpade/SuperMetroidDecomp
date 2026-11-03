@@ -49,16 +49,12 @@ internal static class EnemyColorPresentationContractChecks
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount - 1);
                     baby.FadeColor(0, 0);
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount);
-                    zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount - 1);
-                    zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount);
                     shitroid.NormalColor(ShitroidColorDefinitions.NormalFrameCount - 1, ShitroidColorDefinitions.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
                     dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorDefinitions.ColorsPerFrame - 1);
                     dachora.Resolve(DachoraPalettePhase.Default, 1, 0);
-                    motherBrain.Apply(cgram, MotherBrainHealthPaletteFormat.StateCount - 1);
-                    motherBrain.Apply(cgram, MotherBrainHealthPaletteFormat.StateCount);
                 }
             }
             """;
@@ -79,9 +75,9 @@ internal static class EnemyColorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 23, "twenty-three calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(report.Classifications.Count == 11 && report.UnresolvedCount == 12 && report.MissingCount == 0 &&
-            report.Consumers.Count == 23, "supported domains qualify but short arrays, zero-based baby fade and invalid constants still fail" + " (" + report.Describe() + ")");
+        Require(before.UnresolvedCount == 19, "nineteen calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(report.Classifications.Count == 9 && report.UnresolvedCount == 10 && report.MissingCount == 0 &&
+            report.Consumers.Count == 19, "supported domains qualify but short arrays, zero-based baby fade and invalid constants still fail" + " (" + report.Describe() + ")");
         foreach (string selected in new[] { "FaceBlock", "DeadSidehopper", "RoomBackdrop", "Default" })
             Require(report.Findings.Any(item => item.Message.Contains("selected " + selected, StringComparison.Ordinal)),
                 "the " + selected + " selection must not borrow another resource's larger dimensions");

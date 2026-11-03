@@ -3036,7 +3036,7 @@ internal static class EnemySpritemapArtworkVerification
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =
             (owner, oam, camera) => owner.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
         AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind,
-                SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite))) is not null,
+                SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Bosses.Draygon.DraygonColours.MaterialSprites)) is not null,
             "installed room sprite object allocated");
         var oam = new OamBuffer();
         draw(enemies, oam, Position16<RoomPixels>.Zero);

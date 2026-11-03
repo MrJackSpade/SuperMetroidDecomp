@@ -40,6 +40,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Bosses;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Enemies;
@@ -879,10 +880,6 @@ internal static void VerifyCeresRidleyRoomEntry()
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
-            CeresRidleyColors = CeresRidleyColorFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
-            CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
             // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
             CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays,
         },
@@ -897,12 +894,12 @@ internal static void VerifyCeresRidleyRoomEntry()
     RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
     // The colours the encounter shows are the import's shades of its installed colours, laid as its AI laid them (#1512).
-    SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = enemies.BossArtworkBinding.CeresRidleyColors
-        ?? throw new InvalidOperationException("Ceres Ridley's fixture installs his colours.");
+    SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = CeresRidleyColorFile.Read(new MemoryStream(
+        SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus)));
     var ridleySprites = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(ceresColours);
     var ridleyRoom = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresRoom(ceresColours,
-        enemies.BossArtworkBinding.CeresRidleyFloorColors ?? throw new InvalidOperationException("Ceres Ridley's fixture installs his floor's colours."),
-        new RgbColor[SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Sprites]);
+        CeresRidleyMode7ColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
+        new RgbColor[BossShadeColours.Sprites]);
     ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");

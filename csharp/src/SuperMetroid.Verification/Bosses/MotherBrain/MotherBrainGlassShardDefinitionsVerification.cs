@@ -32,6 +32,9 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.VerificationServices().NextRandom = () => random.Dequeue();
+                // The glass breaks while her encounter is loaded; its shards draw in the colours it laid (#1512).
+                var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
+                enemies.MotherBrainEncounter.MotherBrain = motherBrain;
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
                     RoomEnemyProjectileKind.MotherBrainGlassShard,
                     direction,
@@ -46,7 +49,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                     $"production Mother Brain glass-shard X {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(0x0080 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce67 + parameter)))), shard.Position.Y.Whole,
                     $"production Mother Brain glass-shard Y {parameter}/{animationIndex}");
-                AssertEqual(MotherBrainGlassShardDefinitions.Graphics, shard.Graphics,
+                AssertEqual(MotherBrainGlassShardDefinitions.Graphics(motherBrain.Colours.SpriteShading), shard.Graphics,
                     $"production Mother Brain glass-shard graphics index {parameter}/{animationIndex}");
                 AssertEqual(0, random.Count,
                     $"production Mother Brain glass-shard RNG count {parameter}/{animationIndex}");

@@ -46,11 +46,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         };
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState()
-        {
-            // Retail Botwoon's head draws in its body's colours, which the health bands rewrite.
-            HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody),
-        };
+        var state = new BotwoonEnemyState();
 
         for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)
         {

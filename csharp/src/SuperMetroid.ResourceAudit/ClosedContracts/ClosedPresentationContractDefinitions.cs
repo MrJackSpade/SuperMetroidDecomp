@@ -67,17 +67,5 @@ internal static class ClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Menus/MenuMissileAnimationDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuMissileSpritemaps.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Menus/MenuCursorParts.cs")]),
-        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
-            ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
-            [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomColorDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainAttackPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRecoveryPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRoomFlashPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainGlassPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainFinalRoomPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDefinitions.cs")]),
     ];
 }

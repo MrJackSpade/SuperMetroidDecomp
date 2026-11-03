@@ -1,3621 +1,3627 @@
-using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
-using SuperMetroid.Diagnostics.Saves;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Verification.Fx.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Verification.Enemies.MaridiaSnails;
-using SuperMetroid.Verification.Enemies.Skree;
-using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using System.Reflection;
-using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
-using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
-using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
-using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBotwoonColorsVerification;
-using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
-using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Verification.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.MaridiaSnails;
-using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Enemies.EyeDoor;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Bosses.Ridley;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.World;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Fx.PaletteFx;
-using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
-namespace SuperMetroid.Verification.Harness;
-
-/// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
-internal static class LookupStream4Verification
-{
-    /// <summary>Background colours 14 and 15, which follow colours 1-11 in the required fade sites.</summary>
-    private static readonly int[] UpperBackgroundColors =
-        [14, 15];
-
-    /// <summary>Checks every foreground explosion palette hold, CGRAM exposure, deletion, and star handoff tick.</summary>
-    internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
-    {
-        Suite(nameof(VerifyZebesExplosionForegroundPaletteFxColorDefinitions), () => VerifyZebesExplosionForegroundPaletteFxColorDefinitions(rom));
-        ushort nativeProgram = rom.ReadCartridgeWord(0x8de1ca);
-        AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxColorDefinitions.ProgramStart, "Native foreground entry");
-        int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
-        var rows = new List<LookupStream4Row>();
-        int cursor = nativeProgram + 4;
-        while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
-        {
-            ushort duration = rom.ReadCartridgeWord((0x8d0000 | cursor));
-            AssertEqual(duration, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(rows.Count), "Every native foreground duration");
-            cursor += 2;
-            var colors = new List<ushort>();
-            while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
-            {
-                colors.Add(rom.ReadCartridgeWord((0x8d0000 | cursor)));
-                cursor += 2;
-            }
-            AssertEqual((ushort)PaletteFxInstruction.Wait, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground wait");
-            cursor += 2;
-            rows.Add(new LookupStream4Row(duration, colors.ToArray()));
-        }
-        AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
-        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
-        var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-        var fxSession = new PaletteFxSessionState();
-        var fx = new RoomPaletteFxSystem(fxSession);
-        var cgram = new SamusColourRig();
-        fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
-        int ticks = 0;
-        foreach (var row in rows)
-        for (int hold = 0; hold < row.Duration; hold++)
-        {
-            fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-            {
-                ushort expected = color >= destination && color < destination + row.Colors.Length
-                    ? row.Colors[color - destination] : (ushort)0;
-                AssertEqual(expected, cgram.Colors[color], "Actual foreground color exposure and untouched CGRAM");
-            }
-            AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
-            ticks++;
-        }
-        AssertEqual(rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
-        AssertEqual(rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0] switch
-        {
-            AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep show => show.Duration,
-            AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.WaitStep wait => wait.Duration,
-            var other => throw new InvalidOperationException($"The stars' first step {other} lasts no updates."),
-        }, "Actual actor program retains the shared native handoff");
-        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
-        fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
-        AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
-        foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(invalid), "Foreground duration domain");
-        Console.WriteLine("Foreground cadence:35 native controls,16 independently decoded durations,144 actual CGRAM exposures plus exact deletion/native star handoff/read guard/bounds pass; color artwork remains required.");
-    }
-
-    /// <summary>Checks title tube and display shades against native words and confirms edited RGB channels propagate independently.</summary>
-    private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
-    {
-        ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-        byte[] json = TitlePaletteExtractor.Extract(rom);
-        TitlePalettePresentation stock = TitlePaletteFile.Read(new MemoryStream(json));
-        var native = new Dictionary<ushort, ushort>();
-        foreach (var program in TitleScreenAmbientPaletteOwners.All)
-        for (int frame = 0; frame < program.FrameCount; frame++)
-        for (int index = 0; index < program.ColorsPerFrame; index++)
-        {
-            ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
-            native.Add(pointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8d0000 | pointer)));
-            AssertTrue(stock.TryReadColor(pointer, out RgbColor value), "calculated title ambient color resolves");
-            AssertEqual(native[pointer], value, "native title ambient color");
-        }
-        var stored = stock.animatedColors;
-        AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
-        AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Count, "title color identity count preserved");
-        AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Distinct().Count(), "title color identities enumerate once");
-        for (int pointer = 0xc7fa; pointer <= 0xc87a; pointer++)
-            AssertEqual(native.ContainsKey((ushort)pointer), stock.TryReadColor((ushort)pointer, out _),
-                "title ambient color domain excludes controls and unaligned bytes");
-        var document = RequiredJson.Deserialize<TitlePaletteDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        document.BabyMetroidTubeLight[0][0] = document.BabyMetroidTubeLight[0][0] with { Red = 20 };
-        document.BabyMetroidTubeLight[2][0] = document.BabyMetroidTubeLight[2][0] with { Green = 12 };
-        document.BabyMetroidTubeLight[7][3] = document.BabyMetroidTubeLight[7][3] with { Blue = 9 };
-        document.FlickeringDisplays[1][1] = document.FlickeringDisplays[1][1] with { Red = 17 };
-        using var changedJson = new MemoryStream();
-        TitlePaletteFile.Write(changedJson, document);
-        changedJson.Position = 0;
-        TitlePalettePresentation changed = TitlePaletteFile.Read(changedJson);
-        foreach (var program in TitleScreenAmbientPaletteOwners.All)
-        for (int frame = 0; frame < program.FrameCount; frame++)
-        for (int index = 0; index < program.ColorsPerFrame; index++)
-        {
-            ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
-            PaletteRgb5 supplied = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
-                ? document.BabyMetroidTubeLight[frame][index] : document.FlickeringDisplays[frame][index];
-            AssertTrue(changed.TryReadColor(pointer, out RgbColor value), "edited ambient color resolves");
-            AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
-        }
-        foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = TitleScreenAmbientPaletteOwners.All[invalid],
-                "title ambient owner list domain");
-    }
-
-    /// <summary>Runs both title ambient loops for two cycles and checks per-tick CGRAM colors without live cartridge reads.</summary>
-    internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
-    {
-        int ticks = 0;
-        foreach (var definition in TitleScreenAmbientPaletteOwners.All)
-        {
-            ushort nativeProgram = rom.ReadCartridgeWord((0x8d0000 | definition.DefinitionPointer + 2));
-            AssertEqual(nativeProgram, definition.ProgramStart, "Native ambient definition selects calculated program");
-            int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
-            var nativeRows = new List<LookupStream4Row>();
-            int cursor = nativeProgram + 4;
-            while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
-            {
-                ushort duration = rom.ReadCartridgeWord((0x8d0000 | cursor));
-                cursor += 2;
-                var colors = new List<ushort>();
-                while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
-                {
-                    colors.Add(rom.ReadCartridgeWord((0x8d0000 | cursor)));
-                    cursor += 2;
-                }
-                AssertEqual((ushort)PaletteFxInstruction.Wait, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native ambient record wait");
-                cursor += 2;
-                nativeRows.Add(new LookupStream4Row(duration, colors.ToArray()));
-            }
-            AssertEqual((ushort)PaletteFxInstruction.Goto, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native ambient terminal loop");
-            AssertEqual((ushort)(nativeProgram + 4), rom.ReadCartridgeWord((0x8d0000 | cursor + 2)), "Native ambient loop target");
-            AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
-            AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
-            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-            var fxSession = new PaletteFxSessionState();
-            var fx = new RoomPaletteFxSystem(fxSession);
-            var cgram = new SamusColourRig();
-            fx.SpawnDefinition(definition.DefinitionPointer, 0);
-            for (int cycle = 0; cycle < 2; cycle++)
-            foreach (var row in nativeRows)
-            for (int hold = 0; hold < row.Duration; hold++)
-            {
-                fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                for (int color = 0; color < SnesCgram.ColorCount; color++)
-                {
-                    ushort expected = color >= destination && color < destination + row.Colors.Length
-                        ? row.Colors[color - destination] : (ushort)0;
-                    AssertEqual(expected, cgram.Colors[color], "Actual ambient shade/dwell/destination and untouched CGRAM");
-                }
-                ticks++;
-            }
-            AssertEqual(0, guarded.ForbiddenReadAttempts, "Ambient mechanics have no live cartridge dependency");
-            AssertTrue(fx.IsDefinitionActive(definition.DefinitionPointer), "Ambient loop stays active");
-        }
-        AssertEqual(164, ticks, "Both exact ambient loops confirmed twice");
-        Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
-    }
-    /// <summary>Combines title ambient palette artwork and mechanics checks through the installed color source.</summary>
-    internal static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
-    {
-        Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
-        byte[] json = TitlePaletteExtractor.Extract(rom);
-        TitlePaletteDocument Document() => RequiredJson.Deserialize<TitlePaletteDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        static ushort Pack(PaletteRgb5 value) => (ushort)(value.Red | value.Green << 5 | value.Blue << 10);
-        static PaletteRgb5 Edit(PaletteRgb5 value, int channel) => channel switch
-        {
-            0 => value with { Red = (value.Red + 1) % 32 },
-            1 => value with { Green = (value.Green + 1) % 32 },
-            _ => value with { Blue = (value.Blue + 1) % 32 },
-        };
-        static TitlePalettePresentation Load(TitlePaletteDocument document)
-        {
-            using var output = new MemoryStream();
-            TitlePaletteFile.Write(output, document);
-            return TitlePaletteFile.Read(new MemoryStream(output.ToArray()));
-        }
-        void Confirm(TitlePaletteDocument document, TitlePalettePresentation selected)
-        {
-            for (int color = 0; color < 256; color++)
-                AssertEqual(Pack(document.Colors[color]), selected.Colors[color], "Independent initial paint remains exact");
-            foreach (var program in TitleScreenAmbientPaletteOwners.All)
-            {
-                var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
-                    ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
-                for (int frame = 0; frame < rows.Length; frame++)
-                for (int index = 0; index < rows[frame].Length; index++)
-                {
-                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out RgbColor actual), "Every supplied ambient word resolves");
-                    AssertEqual(Pack(rows[frame][index]), actual, "Independent initial/animated edits preserve every supplied neighbor");
-                }
-            }
-        }
-        int edits = 0;
-        foreach (int slot in new[] { 3, 19, 42, 43, 44, 45, 46, 47 })
-        for (int channel = 0; channel < 3; channel++)
-        {
-            var document = Document();
-            document.Colors[slot] = Edit(document.Colors[slot], channel);
-            Confirm(document, Load(document));
-            edits++;
-        }
-        foreach (var program in TitleScreenAmbientPaletteOwners.All)
-        for (int frame = 0; frame < program.FrameCount; frame++)
-        for (int index = 0; index < program.ColorsPerFrame; index++)
-        for (int channel = 0; channel < 3; channel++)
-        {
-            var document = Document();
-            var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
-                ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
-            rows[frame][index] = Edit(rows[frame][index], channel);
-            Confirm(document, Load(document));
-            edits++;
-        }
-        AssertEqual(132, edits, "All initial paint and animated channel edits confirmed independently");
-        for (int scenario = 0; scenario < 3; scenario++)
-        {
-            var document = Document();
-            if (scenario == 1) document.Colors[42] = Edit(document.Colors[42], 1);
-            if (scenario == 2) document.BabyMetroidTubeLight[2][0] = Edit(document.BabyMetroidTubeLight[2][0], 1);
-            var selected = Load(document);
-            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
-            var fxSession = new PaletteFxSessionState();
-            var fx = new RoomPaletteFxSystem(fxSession);
-            var cgram = new ScreenPalette();
-            selected.Apply(cgram);
-            foreach (var program in TitleScreenAmbientPaletteOwners.All)
-                fx.SpawnDefinition(program.DefinitionPointer, 0);
-            for (int tick = 0; tick <= 80; tick++)
-            {
-                fx.Step(new ScreenPaletteFxColours(cgram), selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                ushort[] expected = document.Colors.Select(Pack).ToArray();
-                foreach (var program in TitleScreenAmbientPaletteOwners.All)
-                {
-                    var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
-                        ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
-                    int frame = tick / program.FrameDuration % program.FrameCount;
-                    for (int index = 0; index < program.ColorsPerFrame; index++)
-                        expected[program.Colours.CartridgeColour + index] = Pack(rows[frame][index]);
-                }
-                AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
-            }
-            AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
-            AssertEqual(0, guardedPresentationReads.Value, "Installed title colors avoid live reads");
-        }
-        Console.WriteLine("Title ambient complete:36 native words/zero stock overrides,132 independent RGB edits,unchanged256 initial-paint owner,243 actual simultaneous-loop CGRAM states and no live reads pass.");
-    }
-
-    /// <summary>Confirms the ending font preserves cartridge space glyph data and layout boundaries.</summary>
-    internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
-    {
-        byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
-            0x97E7DE, EndingArtworkExtentDefinitions.FloorBytes);
-        byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
-        byte[] png = EndingFontAtlasExtractor.Extract(rom);
-        var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
-        var atlas = EndingFontCharacters.Read(new MemoryStream(png));
-        var stored = atlas.pixels;
-        var footprint = atlas.glyphFootprint;
-        AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
-        AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
-        AssertTrue(native.SequenceEqual(atlas.Characters.Span), "all5120 original ending font bytes match");
-        AssertTrue(native.SequenceEqual(EndingFontCharacters.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
-        AssertEqual((ushort)0x4F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.ResultSmall).PackedWord, "native small text space selects blank tile4F");
-        AssertEqual((ushort)0x7F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.CopyrightLarge).PackedWord, "native large text space selects blank tile7F");
-        var largeDeviations = new HashSet<LargeDeviation>
-        {
-            new LargeDeviation(0x21,5,2),new LargeDeviation(0x21,6,3),new LargeDeviation(0x21,7,4),new LargeDeviation(0x21,7,7),new LargeDeviation(0x21,7,8),new LargeDeviation(0x21,7,13),new LargeDeviation(0x21,6,14),
-            new LargeDeviation(0x23,6,3),new LargeDeviation(0x23,7,5),new LargeDeviation(0x23,7,11),new LargeDeviation(0x23,6,13),new LargeDeviation(0x23,5,14),
-            new LargeDeviation(0x26,4,6),new LargeDeviation(0x26,4,10),new LargeDeviation(0x29,0,13),new LargeDeviation(0x29,7,13),new LargeDeviation(0x29,1,14),new LargeDeviation(0x29,6,14),
-            new LargeDeviation(0x2A,5,2),new LargeDeviation(0x2A,4,3),new LargeDeviation(0x2A,5,8),new LargeDeviation(0x2A,6,9),new LargeDeviation(0x2A,7,10),
-            new LargeDeviation(0x40,7,3),new LargeDeviation(0x41,7,10),new LargeDeviation(0x41,7,11),new LargeDeviation(0x42,7,13),new LargeDeviation(0x42,1,14),new LargeDeviation(0x42,6,14),new LargeDeviation(0x45,6,11),new LargeDeviation(0x45,2,14),
-        };
-        AssertEqual(31, largeDeviations.Count, "precise native large-glyph deviation domain");
-        var edits = new List<int> { image.Pixels.Length - 1 };
-        for (int pixel = 0; pixel < image.Pixels.Length; pixel++)
-        {
-            int tile = pixel / 128 / 8 * 16 + pixel % 128 / 8;
-            int x = pixel % 8, y = pixel / 128 % 8;
-            bool space = tile is 0x4F or 0x7F;
-            bool small = tile < 26;
-            bool large = tile is >= 0x20 and <= 0x3F or >= 0x40 and <= 0x49 or >= 0x50 and <= 0x59
-                or >= 0x60 and <= 0x69 or >= 0x70 and <= 0x79;
-            int top = tile & ~0x10, glyphY = y + ((tile & 0x10) != 0 ? 8 : 0);
-            bool largeDeviation = large && largeDeviations.Contains(new LargeDeviation(top, x, glyphY));
-            bool outlined = small || large;
-            bool cutout = new Cutout(tile, x, y) is (0x0A, 3, 0) or (0x0A, 7, 4) or (0x0C, 4, 1) or (0x19, 7, 3);
-            AssertEqual(space, EndingFontAtlasFormat.IsSpacePixel(pixel), "only the two native semantic blank cells");
-            AssertEqual(small, EndingFontAtlasFormat.IsSmallAlphabetPixel(pixel), "only the native small alphabet cells");
-            AssertEqual(cutout, EndingFontAtlasFormat.IsRequiredSmallGlyphCutout(pixel), "exact four unresolved native cutouts");
-            AssertEqual(largeDeviation, EndingFontAtlasFormat.IsRequiredLargeGlyphDeviation(pixel), "exact31 unresolved native large-glyph sites");
-            AssertEqual(!space && (!outlined || cutout || largeDeviation), stored.ContainsKey(pixel), "exact unresolved source pixel membership");
-            AssertEqual(outlined && image.Pixels[pixel] == 1, footprint.Contains(pixel), "exact independent original glyph footprint positions");
-            bool calculated = EndingFontAtlasFormat.TryCalculatedPixel(pixel, footprint, out int ink);
-            AssertEqual(space || outlined && !cutout && !largeDeviation, calculated, "exact calculated-domain membership");
-            if (calculated) AssertEqual(image.Pixels[pixel], ink, "direct native outline/blank calculation with no stored fallback");
-            if (space || outlined) edits.Add(pixel);
-        }
-        AssertEqual(6401, edits.Count, "all6272 small/large alphabet and digit sites,128 blank sites and one other required pixel edit");
-        foreach (int pixel in edits)
-        {
-            byte[] changedPixels = image.Pixels.ToArray(); changedPixels[pixel] ^= 1;
-            using var changedPng = new MemoryStream();
-            IndexedPng.Write(changedPng, new(128, 80), changedPixels, image.Colours); changedPng.Position = 0;
-            var changed = EndingFontCharacters.Read(changedPng);
-            int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
-            byte[] expected = native.ToArray();
-            expected[tile * 32 + y % 8 * 2] ^= (byte)(1 << (7 - x % 8));
-            AssertTrue(expected.SequenceEqual(changed.Characters.Span), "independent space/source edit changes exactly its native bitplane bit");
-            AssertTrue(expected.SequenceEqual(EndingFontCharacters.FromPlanarBytes(expected).Characters.Span), "edited legacy import preserves the same native bit");
-            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "font edit leaves stock immutable");
-        }
-        foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
-        AssertThrows<InvalidDataException>(() => EndingFontCharacters.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
-        Console.WriteLine("Ending font:5120 native bytes,2026 required footprint positions,3875 required pixels including35 deviations,4339 derived outline/background/space sites and6401 independent native-bit edits pass.");
-    }
-
-    /// <summary>Checks Maridia palette colors and source ownership against the native palette rows.</summary>
-    internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
-    {
-        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
-        var stored = stock.colors;
-        var sites = new List<LookupStream4Site>();
-        for (int owner = 0; owner < 3; owner++)
-        {
-            int frames = owner == 2 ? 8 : 4, colors = owner == 1 ? 4 : 8;
-            int first = owner == 0 ? 0xF4EF : owner == 1 ? 0xF547 : 0xF57F;
-            for (int frame = 0; frame < frames; frame++)
-            for (int color = 0; color < colors; color++)
-            {
-                ushort pointer = (ushort)(first + frame * (colors + 2) * 2 + color * 2);
-                sites.Add(new LookupStream4Site(owner, frame, color, pointer));
-                AssertTrue(MaridiaEnvironmentalColors.TrySourcePointer(pointer, out ushort source), "native rotation domain");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), rom.ReadCartridgeWordFixedBank(0x8D0000 | source), "direct native color rotation relationship");
-                AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
-                AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed environmental color resolves");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "native installed environmental color");
-            }
-        }
-        AssertEqual(112, sites.Count, "native environmental color domain");
-        AssertEqual(16, sites.Count(site => stored.ContainsKey(site.Pointer)), "sixteen required first-row colors");
-        var pointers = stock.ColorPointers.Where(pointer => MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _)).ToArray();
-        AssertEqual(112, pointers.Length, "environmental identities remain published");
-        AssertEqual(112, pointers.Distinct().Count(), "environmental identities remain unique");
-        foreach (var edit in sites)
-        {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
-            var rows = edit.Owner == 0 ? document.MaridiaSandPits : edit.Owner == 1 ? document.MaridiaSandFalls : document.MaridiaBackgroundWaterfalls;
-            rows[edit.Frame][edit.Color] = rows[edit.Frame][edit.Color] with { Red = rows[edit.Frame][edit.Color].Red ^ 1 };
-            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-            foreach (var site in sites)
-            {
-                AssertTrue(changed.TryReadColor(site.Pointer, out RgbColor actual), "edited environmental pointer resolves");
-                AssertEqual((ushort)(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer) ^ (site.Pointer == edit.Pointer ? 1 : 0)), actual, "independent source/rotated/shared color edit");
-                AssertTrue(stock.TryReadColor(site.Pointer, out RgbColor original), "stock environmental pointer resolves");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer), original, "stock environmental colors remain immutable");
-            }
-        }
-        foreach (var definition in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
-        {
-            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
-            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
-                                                                 var installed = new RoomPaletteFxSystem(installedSession);
-            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
-            native.SpawnDefinition(definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(definition.DefinitionPointer, 0);
-            for (int step = 0; step <= definition.CycleFrames; step++)
-            {
-                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
-            }
-            AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
-            AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
-            foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
-                AssertTrue(!MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
-        }
-        Console.WriteLine("Maridia colors:112 native words,16 required inputs,96 rotated/shared colors,all112 independent edits and three actual installed cycles pass.");
-    }
-
-    /// <summary>Checks the planet text glyphs and placement data against cartridge definitions.</summary>
-    internal static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
-    {
-        var all = PlanetZebesTextPaletteFxColorDefinitions.All;
-        AssertEqual(2, all.Count, "two text fade owners");
-        for (int owner = 0; owner < 2; owner++)
-        {
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xE1B2 + owner * 4)), all[owner].ProgramStart, "native text definition target");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].AnimatedColours.CartridgeByteIndex, "native text colours start where the text colour group is placed");
-        }
-        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
-        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
-        var stored = stock.colors;
-        int storedCount = 0;
-        for (int owner = 0; owner < 2; owner++)
-        for (int frame = 0; frame < 8; frame++)
-        for (int color = 0; color < 3; color++)
-        {
-            ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
-            AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
-            AssertTrue(PlanetZebesTextColors.TryCalculate(pointer, stored, out RgbColor calculated), "native text interpolation domain");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), calculated, "direct calculated native text color");
-            bool required = owner == 0 && frame == 7;
-            AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
-            if (stored.ContainsKey(pointer)) storedCount++;
-            AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed text color available");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "installed native text color");
-        }
-        AssertEqual(3, storedCount, "three required selected endpoint colors");
-        var pointers = stock.ColorPointers.Where(pointer => PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _)).ToArray();
-        AssertEqual(48, pointers.Length, "all text pointer identities remain published");
-        AssertEqual(48, pointers.Distinct().Count(), "text pointer identities are unique");
-        for (int edit = 0; edit < 48; edit++)
-        {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
-            var rows = edit < 24 ? document.PlanetZebesTextFadeIn : document.PlanetZebesTextFadeOut;
-            int selected = edit % 24;
-            rows[selected / 3][selected % 3] = rows[selected / 3][selected % 3] with { Red = rows[selected / 3][selected % 3].Red ^ 1 };
-            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-            for (int owner = 0; owner < 2; owner++)
-            for (int frame = 0; frame < 8; frame++)
-            for (int color = 0; color < 3; color++)
-            {
-                ushort pointer = all[owner].ColorPointer(frame, color);
-                AssertTrue(changed.TryReadColor(pointer, out RgbColor actual), "edited text pointer resolves");
-                AssertEqual((ushort)(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) ^ (owner * 24 + frame * 3 + color == edit ? 1 : 0)), actual, "independent text endpoint/derived edit");
-                AssertTrue(stock.TryReadColor(pointer, out RgbColor original), "stock text pointer resolves");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), original, "stock text remains immutable");
-            }
-        }
-        foreach (var definition in all)
-        {
-            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
-            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
-            var nativeSession = new PaletteFxSessionState();
-            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
-                                                                 var installed = new RoomPaletteFxSystem(installedSession);
-            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
-            native.SpawnDefinition(definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(definition.DefinitionPointer, 0);
-            for (int step = 0; step <= 24; step++)
-            {
-                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
-            }
-            AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
-            AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
-        }
-        foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
-        foreach (ushort pointer in new ushort[] { 0xC90E, 0xC912, 0xC91A, 0xC962, 0xC964, 0xC968, 0xC9B8 })
-            AssertTrue(!PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
-        Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
-    }
-
-    /// <summary>Checks Ceres fade phases, native color rows, and installed CGRAM exposure.</summary>
-    internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
-    {
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        foreach (bool eyes in new[] { true, false })
-        {
-            int count = eyes ? 3 : 11, start = eyes ? 0xA6E2AA : 0xA6E30A;
-            ushort Native(int row, int color)
-            {
-                int address = start + (row * count + color) * 2;
-                return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            }
-            if (!eyes)
-                for (int color = 0; color < 8; color++)
-                {
-                    int source = 0x848034 + color * 2;
-                    ushort golden = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
-                    AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
-                    AssertEqual(golden, GoldenTorizoHealthPaint.Color(0, color + 1, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front), "Shared immutable stock endpoint and clipped armor ramp");
-                }
-            var definition = eyes ? stock.selection.EyeFade : stock.selection.BodyFade;
-            AssertEqual(0, definition.overrides.Count, "stock fade never hides residual samples as edit overrides");
-            for (int row = 0; row < 16; row++)
-            for (int color = 0; color < count; color++)
-            {
-                AssertEqual(Native(row, color), definition.Resolve(row, color), "direct stock fade calculation matches native word");
-            }
-            for (int channel = 0; channel < 3; channel++)
-            for (int edit = -1; edit < 16 * count; edit++)
-            {
-                var selected = stock;
-                if (edit >= 0)
-                {
-                    var rows = (eyes ? document.EyeFade : document.BodyFade).Select(row => row.ToArray()).ToArray();
-                    PaletteRgb5 original = rows[edit / count][edit % count];
-                    rows[edit / count][edit % count] = channel switch
-                    {
-                        0 => original with { Red = original.Red ^ 1 },
-                        1 => original with { Green = original.Green ^ 1 },
-                        _ => original with { Blue = original.Blue ^ 1 },
-                    };
-                    var changed = eyes ? document with { EyeFade = rows } : document with { BodyFade = rows };
-                    selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(changed)));
-                }
-                IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
-                for (int row = 0; row < 16; row++)
-                {
-                    ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0), shades,
-                        eyes ? RidleyShades.EyeFade(row) : RidleyShades.BodyFade(row), RidleyLaidColours.Sprites);
-                    for (int color = 0; color < count; color++)
-                    {
-                        ushort expected = (ushort)(Native(row, color) ^ (row * count + color == edit ? 1 << channel * 5 : 0));
-                        AssertEqual(expected, eyes ? selected.ResolveEyeFade(row, color) : selected.ResolveBodyFade(row, color), "independent fade edit preserves every other supplied sample");
-                        AssertEqual(expected, cgram[(eyes ? 252 : 145) + color], "actual fade CGRAM destination");
-                        if (!eyes) AssertEqual(expected, cgram[241 + color], "body fade duplicates its BG colors into OBJ palette");
-                        AssertEqual(Native(row, color), eyes ? stock.ResolveEyeFade(row, color) : stock.ResolveBodyFade(row, color), "stock fade remains immutable");
-                    }
-                    AssertEqual(0, cgram[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
-                    AssertEqual(0, cgram[eyes ? 255 : 156], "following fade CGRAM unchanged");
-                }
-            }
-            foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(row, 0), "fade row bounds");
-            foreach (int color in new[] { -1, count, int.MinValue, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(0, color), "fade color bounds");
-        }
-        Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides,144eye/528body channel edits and10848 actual row applications pass.");
-    }
-
-    /// <summary>Checks Ceres alarm palette timing and color output at its native CGRAM destination.</summary>
-    internal static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
-    {
-        ushort Native(int row, int color)
-        {
-            int address = 0xA6C1DF + (row * 3 + color) * 2;
-            return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-        }
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var definition = stock.selection.Alarm;
-        var inputs = definition.edits;
-        AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
-        for (int row = 0; row < 16; row++)
-        for (int color = 0; color < 3; color++)
-        {
-            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.Phase(row), color), "direct reflected/native relationship");
-
-            AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
-        }
-        for (int edit = -1; edit < 144; edit++)
-        {
-            var selected = stock;
-            if (edit >= 0)
-            {
-                var rows = (document.Alarm ?? throw new InvalidOperationException("Verification requires document.Alarm.")).Select(row => row.ToArray()).ToArray();
-                int word = edit / 3, channel = edit % 3;
-                var original = rows[word / 3][word % 3];
-                rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
-                selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Alarm = rows })));
-            }
-            IReadOnlyList<SheetShade> room = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[RidleyLaidColours.Sprites]);
-            if (edit is -1 or 0 or 143)
-            {
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
-                Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
-                var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
-                for (ushort nmi = 0; nmi < 64; nmi++)
-                {
-                    update(state, nmi);
-                    ushort[] cgram = RidleyLaidColours.Of(state, [], room, 0x1234);
-                    int row = nmi / 4;
-                    AssertEqual((ushort)row, state.CeresEscapePaletteFrame, "actual alarm advances only every fourth NMI and wraps");
-                    for (int color = 0; color < 256; color++)
-                    {
-                        ushort expected = 0x1234;
-                        if (color is >= 97 and <= 99)
-                        {
-                            int word = row * 3 + color - 97;
-                            expected = (ushort)(Native(row, color - 97) ^ (edit >= 0 && word == edit / 3 ? 1 << (edit % 3 * 5) : 0));
-                        }
-                        AssertEqual(expected, cgram[color], "actual gated producer preserves exact row and other CGRAM colors");
-                    }
-                }
-            }
-            for (int row = 0; row < 16; row++)
-            {
-                ushort[] cgram = RidleyLaidColours.Filled(0);
-                cgram[96] = 0x1234; cgram[100] = 0x2345;
-                RidleyLaidColours.Lay(cgram, room, RidleyShades.Alarm(row), RidleyLaidColours.Room);
-                for (int color = 0; color < 3; color++)
-                {
-                    ushort expected = (ushort)(Native(row, color) ^ (edit >= 0 && row * 3 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
-                    AssertEqual(expected, selected.ResolveAlarm(row, color), "independent alarm source/derived edit");
-                    AssertEqual(expected, cgram[97 + color], "actual alarm CGRAM write");
-                    AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "stock alarm remains immutable");
-                }
-                AssertEqual(0x1234, cgram[96], "alarm preceding CGRAM unchanged");
-                AssertEqual(0x2345, cgram[100], "alarm following CGRAM unchanged");
-            }
-        }
-        CeresBabyShadeColorsDocument alarmBabyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
-        // Version two stored the Baby's colours as the cartridge's ordered steps; version one predates them.
-        PaletteRgb5[][] alarmBabySteps = [alarmBabyShades.Resting, alarmBabyShades.HorizontalSquish, alarmBabyShades.Round, alarmBabyShades.VerticalSquish];
-        foreach (int version in new[] { 1, 2 })
-        {
-            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
-                document with { Version = version, Alarm = null, BabyShades = null, Baby = version == 1 ? null : alarmBabySteps }, ArtworkJson.Options);
-            var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
-            for (int row = 0; row < 16; row++)
-            for (int color = 0; color < 3; color++)
-                AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
-        }
-        foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
-        foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
-        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls, legacy fallback and bounds pass.");
-    }
-
-    /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
-    internal static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
-    {
-        var all = MaridiaEnvironmentalPaletteFxColorDefinitions.All;
-        AssertEqual(3, all.Count, "three native environmental owners");
-        int colors = 0;
-        for (int index = 0; index < 3; index++)
-        {
-            var definition = all[index];
-            int pointer = rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xF795 + index * 4 + 2));
-            AssertEqual((ushort)pointer, definition.ProgramStart, "native definition selects calculated setup");
-            AssertEqual((MaridiaEnvironmentalPaletteOwner)index, definition.Owner, "owner order");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), definition.AnimatedColours.CartridgeByteIndex, "native colours start where the definition's colour group is placed");
-            pointer += 4;
-            int frame = 0;
-            while (rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) < 0x8000)
-            {
-                AssertEqual((ushort)pointer, definition.FramePointer(frame), "native timed record stride");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), definition.Duration, "required native cadence");
-                pointer += 2;
-                int color = 0;
-                while (rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) != (ushort)PaletteFxInstruction.Wait)
-                {
-                    AssertEqual((ushort)pointer, definition.ColorPointer(frame, color), "native color identity");
-                    color++; colors++; pointer += 2;
-                }
-                AssertEqual(definition.ColorsPerFrame, color, "native color group extent");
-                pointer += 2; frame++;
-            }
-            AssertEqual(definition.FrameCount, frame, "native rotation cycle extent");
-            AssertEqual((ushort)pointer, definition.LoopInstructionPointer, "native loop opcode location");
-            AssertEqual((ushort)PaletteFxInstruction.Goto, rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), "native goto identity");
-            AssertEqual(definition.FirstFramePointer, rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), "native loop target");
-            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(-1), "negative frame rejection");
-            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(frame), "exhausted frame rejection");
-            AssertThrows<ArgumentOutOfRangeException>(() => definition.ColorPointer(0, color: -1), "negative color rejection");
-            AssertThrows<ArgumentOutOfRangeException>(() => definition.ColorPointer(0, definition.ColorsPerFrame), "exhausted color rejection");
-        }
-        AssertEqual(112, colors, "native presentation words remain independently owned");
-        foreach (int index in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = all[index], "owner selector bounds");
-        Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
-    }
-
-    /// <summary>Checks ending shake displacement and timing data against its native program.</summary>
-    internal static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
-    {
-        int Native(int address)
-        {
-            ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            return unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction));
-        }
-        for (int index = 0; index < 16; index++)
-            AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");
-        for (int index = 0; index < 8; index++)
-            AssertEqual(Native(0x8BDDAD + index * 4), EndingShipShake.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
-        AssertEqual(32768, EndingShipShake.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
-        AssertEqual(-32768, EndingShipShake.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
-        AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingShipShake.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
-        AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingShipShake.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
-        foreach (bool fast in new[] { true, false })
-        {
-            int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(new SuperMetroid.Core.Audio.AudioQueues(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
-            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
-            state.Stage.FloorZoom = 0xC00; state.Stage.PhaseTimer = 100;
-            state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
-            Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
-            uint expected = 100u << 16 | 0xC000;
-            int expectedAngle = 0, expectedZoom = 0xC00;
-            for (int frame = 0; frame <= count; frame++)
-            {
-                expected = unchecked(expected + (uint)Native(address + (frame % count) * 4));
-                if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
-                expectedZoom -= fast ? 8 : 2;
-                step();
-                AssertEqual(RotationAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
-                AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
-                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
-                AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
-                AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
-            }
-            state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndScale : EndingMotionDefinitions.PlanetSlowEndScale;
-            state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
-            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
-            step();
-            uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
-            AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
-            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
-            AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
-            if (!fast)
-            {
-                AssertEqual((short)0, state.Flyaway.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
-                AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
-            }
-        }
-        foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetFastDelta(index), "fast shake bounds");
-        foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetSlowDelta(index), "slow shake bounds");
-        Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
-    }
-
-    /// <summary>Checks Spore Spawn health-dependent palette stages against native colors.</summary>
-    internal static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
-    {
-        ushort[][] native = Enumerable.Range(0, 4)
-            .Select(frame => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + frame * 32 + color * 2))).ToArray())
-            .ToArray();
-        // Independent oracle: colors 0 and 9..15 of rows 1 and 2 interpolate rows 0 and 3.
-        static bool Calculated(int frame, int color) => frame is 1 or 2 && (color == 0 || color >= 9);
-        static ushort Expected(ushort[][] rows, int frame, int color)
-        {
-            if (!Calculated(frame, color)) return rows[frame][color];
-            if (color == 0) return rows[3][0];
-            int value = 0;
-            for (int shift = 0; shift <= 10; shift += 5)
-                value |= ((rows[0][color] >> shift & 31) * (3 - frame) + (rows[3][color] >> shift & 31) * frame + 1) / 3 << shift;
-            return (ushort)value;
-        }
-        for (int frame = 0; frame < 4; frame++)
-        for (int color = 0; color < 16; color++)
-            AssertEqual(native[frame][color], Expected(native, frame, color), $"Native health row {frame} color {color} follows the interpolation");
-
-        byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var rows = stock.selection.Health;
-        var edits = rows.intermediateEdits;
-        AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
-        Check(stock, native);
-        int stored = 0;
-        for (int frame = 0; frame < 4; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            document.Health[frame][color] = document.Health[frame][color] with { Red = document.Health[frame][color].Red ^ 1 };
-            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
-            ushort[][] expected = native.Select(row => (ushort[])row.Clone()).ToArray();
-            expected[frame][color] ^= 1;
-            // Every supplied cell resolves exactly; cells that no longer follow the (edited)
-            // endpoints are kept as stored deviations rather than recalculated.
-            Check(edited, expected);
-            var editedRows = edited.selection.Health;
-            int deviations = ((System.Collections.IDictionary)editedRows.intermediateEdits).Count;
-            int expectedDeviations = 0;
-            for (int step = 1; step <= 2; step++)
-            for (int calculated = 0; calculated < 16; calculated++)
-                if (Calculated(step, calculated) && Expected(expected, step, calculated) != expected[step][calculated])
-                    expectedDeviations++;
-            AssertEqual(expectedDeviations, deviations, $"Edit of row {frame} color {color} stores only non-following cells");
-            stored += deviations;
-        }
-        Console.WriteLine($"Spore health ramp: all64 native colors, 14 calculated intermediate cells with no stored stock values, and all64 single-cell edits ({stored} stored deviations) pass.");
-
-        static void Check(SporeSpawnColorCatalog catalog, ushort[][] expected)
-        {
-            for (int frame = 0; frame < 4; frame++)
-            for (int color = 0; color < 16; color++)
-                AssertEqual(expected[frame][color], catalog.ResolveHealth(frame, color), $"Health row {frame} color {color}");
-        }
-    }
-
-    /// <summary>Checks the healthy Spore Spawn palette aliases the intended native color range.</summary>
-    internal static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
-    {
-        byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.Spores;
-        AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), "Original separate spore and healthy-body rows have identical coloring");
-        Verify(stock, false, false);
-        foreach (bool editSpore in new[] { false, true })
-        {
-            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (editSpore) document.Spores[5] = document.Spores[5] with { Red = document.Spores[5].Red ^ 1 };
-            else document.Health[0][5] = document.Health[0][5] with { Red = document.Health[0][5].Red ^ 1 };
-            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
-            Verify(edited, editSpore, !editSpore);
-            Verify(stock, false, false);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveSpore(invalid), "Spore alias color bounds remain exact");
-        Console.WriteLine("Spore healthy-palette alias: all16 native words, zero stock overrides and separate spore/healthy-body edits pass.");
-
-        void Verify(SporeSpawnColorCatalog catalog, bool editSpore, bool editHealth)
-        {
-            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
-            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
-            ushort[] spores = Read(0xa5e359);
-            ushort[][] health = Rows(0xa5e379, 4);
-            if (editSpore) spores[5] ^= 1;
-            if (editHealth) health[0][5] ^= 1;
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(spores[color], catalog.ResolveSpore(color), "Independent health edit does not recolor spores");
-                for (int frame = 0; frame < 4; frame++)
-                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Independent spore edit leaves all body health rows intact");
-            }
-            string identity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
-            {
-                content.AppendWords("spores", spores);
-                content.AppendWordFrames("health", health);
-                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
-                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
-                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
-            });
-            AssertEqual(identity, catalog.ContentIdentity, "Healthy-palette alias preserves canonical content hash for independent edits");
-        }
-    }
-
-    /// <summary>Checks Spore Spawn level-fade phases and their source palette rows.</summary>
-    internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
-    {
-        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
-        AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
-        byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.DeathLevel;
-        AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
-        for (int color = 0; color < 16; color++)
-        {
-            bool unresolved = color is 0 or 7 or 11 or 15;
-            if (!unresolved)
-            {
-                int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
-                AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
-                    SporeSpawnDeathFade.InitialLevelColor(color), "Level basis matches exact original decoded room color");
-            }
-            for (int frame = 0; frame < 7; frame++)
-            {
-                AssertEqual(frame == 6 || unresolved, values.ContainsKey(new ColourCell(frame, color)), "Only explicit unresolved columns and final colors remain stored");
-                bool calculated = SporeSpawnDeathFade.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
-                AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
-                if (calculated)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), value, "Direct level interpolation matches original native words");
-            }
-        }
-        Verify(stock, -1, -1);
-        foreach (var selected in new[] { new Coordinate(Frame:6, Color:3), new Coordinate(Frame:2, Color:3), new Coordinate(Frame:1, Color:0), new Coordinate(Frame:3, Color:7), new Coordinate(Frame:4, Color:11), new Coordinate(Frame:5, Color:15) })
-        {
-            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            var old = document.DeathLevel[selected.Frame][selected.Color];
-            document.DeathLevel[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
-            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
-            Verify(edited, selected.Frame, selected.Color);
-            Verify(stock, -1, -1);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(invalid, 0), "Level frame bounds remain exact");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(0, invalid), "Level color bounds remain exact");
-        Console.WriteLine("Spore level fade: twelve required room-color sites, forty required death words and72 calculated interiors; native values, exact basis, edits and identity pass.");
-
-        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor)
-        {
-            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
-            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
-            ushort[][] level = Rows(0xa5e4f9, 7);
-            if (editedFrame >= 0) level[editedFrame][editedColor] ^= 1;
-            for (int frame = 0; frame < 7; frame++)
-                for (int color = 0; color < 16; color++)
-                {
-                    AssertEqual(level[frame][color], catalog.ResolveDeathLevel(frame, color), "Calculated and unresolved level edits retain every other selected word");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)), catalog.ResolveDeathBackground(frame, color), "Level edit leaves background layer independent");
-                }
-            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
-            {
-                content.AppendWords("spores", Read(0xa5e359));
-                content.AppendWordFrames("health", Rows(0xa5e379, 4));
-                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
-                content.AppendWordFrames("deathLevel", level);
-                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
-            });
-            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Level calculation preserves canonical selected content identity");
-        }
-    }
-
-    /// <summary>Checks Spore Spawn background-fade stages against native palette words.</summary>
-    internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
-    {
-        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
-        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
-        AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
-        foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
-        {
-            int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
-            AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
-                SporeSpawnDeathFade.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
-        }
-        byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.DeathBackground;
-        AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
-        for (int frame = 0; frame < 7; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(frame == 6, values.ContainsKey(new ColourCell(frame, color)), "Stock background has no interior fallback samples");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
-                    SporeSpawnDeathFade.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
-                    "Direct background calculation matches every original word independently of catalog loading");
-            }
-        Verify(stock, -1, -1);
-        foreach (var selected in new[] { new Coordinate(Frame:6, Color:1), new Coordinate(Frame:6, Color:12), new Coordinate(Frame:0, Color:1), new Coordinate(Frame:3, Color:13) })
-        {
-            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            var old = document.DeathBackground[selected.Frame][selected.Color];
-            document.DeathBackground[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
-            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
-            Verify(edited, selected.Frame, selected.Color);
-            Verify(stock, -1, -1);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(invalid, 0), "Background frame bounds remain exact");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(0, invalid), "Background color bounds remain exact");
-        Console.WriteLine("Spore background fade: thirteen required room-color sites and sixteen final words; all112 native defaults, exact stored basis, independent edits and identities pass.");
-
-        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor)
-        {
-            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
-            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
-            ushort[][] background = Rows(0xa5e5d9, 7);
-            if (editedFrame >= 0) background[editedFrame][editedColor] ^= 1;
-            for (int frame = 0; frame < 7; frame++)
-                for (int color = 0; color < 16; color++)
-                {
-                    AssertEqual(background[frame][color], catalog.ResolveDeathBackground(frame, color), "Final and interior background edits preserve all other selected colors");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), catalog.ResolveDeathLevel(frame, color), "Background edits leave level palette independent");
-                }
-            for (int frame = 0; frame < 8; frame++)
-                for (int color = 0; color < 16; color++)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)), catalog.ResolveDeathSprite(frame, color), "Background edits leave sprite fade independent");
-            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
-            {
-                content.AppendWords("spores", Read(0xa5e359));
-                content.AppendWordFrames("health", Rows(0xa5e379, 4));
-                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
-                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
-                content.AppendWordFrames("deathBackground", background);
-            });
-            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Background fade preserves exact selected canonical identity");
-        }
-    }
-
-    /// <summary>Checks Spore Spawn sprite-fade stages against native palette words.</summary>
-    internal static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
-    {
-        byte[] source = SporeSpawnColorExtractor.Extract(rom);
-        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
-        var values = stock.selection.DeathSprite;
-        AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
-        for (int frame = 0; frame < 8; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(frame == 7, values.ContainsKey(new ColourCell(frame, color)), "Only final endpoint row remains stored in stock fade");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
-                    SporeSpawnColors.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
-                    "Direct channel interpolation equals every original sprite death word without loading fallback samples");
-            }
-        for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3d9 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)), "Death fade starts at original critical-health coloring");
-        var criticalDocument = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        criticalDocument.Health[3][1] = criticalDocument.Health[3][1] with { Red = criticalDocument.Health[3][1].Red ^ 1 };
-        var criticalEdit = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(criticalDocument)));
-        Verify(criticalEdit, -1, -1, criticalEdit: true);
-        Verify(stock, -1, -1);
-        foreach (var selected in new[] { new Coordinate(Frame:0, Color:1), new Coordinate(Frame:7, Color:15), new Coordinate(Frame:3, Color:6) })
-        {
-            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            var old = document.DeathSprite[selected.Frame][selected.Color];
-            document.DeathSprite[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
-            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
-            Verify(edited, selected.Frame, selected.Color);
-            Verify(stock, -1, -1);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(invalid, 0), "Sprite fade frame bounds remain exact");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(0, invalid), "Sprite fade color bounds remain exact");
-        Console.WriteLine("Spore sprite fade: sixteen required final words, shared critical-health endpoint and96 interpolated words; direct native defaults, sparse basis, independent edits and canonical identity pass.");
-
-        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor, bool criticalEdit = false)
-        {
-            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
-            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
-            ushort[][] sprite = Rows(0xa5e3f9, 8);
-            ushort[][] health = Rows(0xa5e379, 4);
-            if (criticalEdit) health[3][1] ^= 1;
-            if (editedFrame >= 0) sprite[editedFrame][editedColor] ^= 1;
-            for (int frame = 0; frame < 8; frame++)
-                for (int color = 0; color < 16; color++)
-                    AssertEqual(sprite[frame][color], catalog.ResolveDeathSprite(frame, color), "Endpoint and intermediate edits preserve every other original selected word");
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), catalog.ResolveSpore(color), "Sprite fade does not modify independent spore palette");
-                for (int frame = 0; frame < 4; frame++)
-                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Sprite fade and health edits remain independent");
-                for (int frame = 0; frame < 7; frame++)
-                {
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), catalog.ResolveDeathLevel(frame, color), "Sprite fade leaves level colors independent");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)), catalog.ResolveDeathBackground(frame, color), "Sprite fade leaves background colors independent");
-                }
-            }
-            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
-            {
-                content.AppendWords("spores", Read(0xa5e359));
-                content.AppendWordFrames("health", health);
-                content.AppendWordFrames("deathSprite", sprite);
-                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
-                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
-            });
-            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Calculated fade retains exact selected canonical identity framing");
-        }
-    }
-    /// <summary>Checks the ending result panel artwork and its installed presentation mapping.</summary>
-    internal static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
-    {
-        byte[] source = EndingTextExtractor.Extract(rom);
-        ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingResultPanel,
-            EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
-        var stock = EndingTextPresentation.Load(new MemoryStream(source));
-        AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Calculated credit lines preserve all288 original producer-panel cells, encoded through the codec");
-        var stockOverrides = stock.resultOverrides;
-        AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
-        for (int cell = 0; cell < native.Length; cell++)
-            AssertEqual(native[cell], EndingTextPanels.ResultTile(cell, "PRODUCED BY").PackedWord, "Direct credit layout agrees with original cell independently of overrides");
-        foreach (int editedCell in new[] { 0, 75, 107, 233 })
-        {
-            var document = RequiredJson.Parse(source);
-            document.Required("resultPanel").Required("template")[editedCell] = EndingTextTileNode(native[editedCell] ^ 0x4000);
-            byte[] selected = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
-            var edited = EndingTextPresentation.Load(new MemoryStream(selected));
-            ushort[] expected = native.ToArray();
-            expected[editedCell] ^= 0x4000;
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(edited.BuildResultPanel())), "Blank, group top/bottom and team edits remain independent of calculated panel cells");
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(selected)), edited.ContentIdentity, "Result layout preserves raw document identity");
-            BackgroundTile[] mutableOutput = edited.BuildResultPanel();
-            mutableOutput[editedCell] = mutableOutput[editedCell] with { Tile = mutableOutput[editedCell].Tile ^ 1 };
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(edited.BuildResultPanel())), "Result output snapshots remain independent of the catalog");
-            AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Independent result edits leave the original catalog immutable");
-        }
-        var changedHeading = RequiredJson.Parse(source);
-        changedHeading.Required("resultPanel")["text"] = "TEST";
-        changedHeading.Required("resultPanel").Required("template")[10] = EndingTextTileNode(0xffff);
-        var heading = EndingTextPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(changedHeading.ToJsonString())));
-        ushort[] expectedHeading = native.ToArray();
-        var region = EndingTextDefinitions.ResultProducedBy;
-        Array.Fill(expectedHeading, EndingTextDefinitions.ResultBlankTile.PackedWord, region.Column, region.Width);
-        for (int letter = 0; letter < 4; letter++)
-            expectedHeading[region.Column + letter] = EndingTextGlyphs.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall).PackedWord;
-        AssertTrue(expectedHeading.SequenceEqual(BackgroundTileWordBytes.Words(heading.BuildResultPanel())), "Provided heading retains original fixed origin, padding and precedence over template words");
-        foreach (int invalid in new[] { -1, native.Length })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextPanels.ResultTile(invalid, "PRODUCED BY"), "Calculated result layout bounds");
-        Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
-    }
-
-    /// <summary>The ending-text document cell holding the tile <paramref name="word"/> places, as the document serializes it.</summary>
-    private static System.Text.Json.Nodes.JsonNode EndingTextTileNode(int word) =>
-        JsonSerializer.SerializeToNode(BackgroundTileWordBytes.Tile(word), ArtworkJson.Options)
-            ?? throw new InvalidOperationException("An ending-text tile serialized to null.");
-
-    /// <summary>Checks ending subtitle glyph selection and layout against imported presentation data.</summary>
-    internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
-    {
-        byte[] source = EndingTextExtractor.Extract(rom);
-        ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingJapaneseSubtitle,
-            EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
-        var stock = EndingTextPresentation.Load(new MemoryStream(source));
-        var stockOverrides = stock.subtitleOverrides;
-        AssertEqual(0, stockOverrides.Count, "Every stock subtitle cell is calculated without fallback samples");
-        for (int cell = 0; cell < native.Length; cell++)
-            AssertEqual(native[cell], EndingTextPanels.SubtitleTile(cell).PackedWord, "Direct subtitle calculation agrees with native independently of overrides");
-        Verify(stock, -1);
-        AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Subtitle conversion preserves complete document identity");
-        foreach (int editedCell in new[] { 0, 9, 14, 41 })
-        {
-            var document = RequiredJson.Parse(source);
-            document.Required("japaneseSubtitle")[editedCell] = EndingTextTileNode(native[editedCell] ^ 0x4000);
-            byte[] editedSource = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
-            var edited = EndingTextPresentation.Load(new MemoryStream(editedSource));
-            Verify(edited, editedCell);
-            Verify(stock, -1);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, native.Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Calculated subtitle preserves indexed bounds");
-        BackgroundTile[] shortBuffer = new BackgroundTile[native.Length - 1];
-        Array.Fill(shortBuffer, BackgroundTileWordBytes.Tile(0x1234));
-        AssertThrows<ArgumentException>(() => stock.JapaneseSubtitle.CopyTo(shortBuffer), "Subtitle rejects short output before writing");
-        AssertTrue(shortBuffer.All(value => value == BackgroundTileWordBytes.Tile(0x1234)), "Failed subtitle copy is atomic");
-        Console.WriteLine("Ending subtitle:64 native cells, atlas wrapping, centered placement, independent blank/top/wrap/bottom edits and actual draw/clear transfer pass.");
-
-        void Verify(EndingTextPresentation presentation, int editedCell)
-        {
-            ushort[] expected = native.ToArray();
-            if (editedCell >= 0) expected[editedCell] ^= 0x4000;
-            AssertEqual(expected.Length, presentation.JapaneseSubtitle.Count, "Subtitle view keeps native dimensions");
-            AssertTrue(expected.SequenceEqual(presentation.JapaneseSubtitle.Select(tile => tile.PackedWord)), "Calculated subtitle enumerates exact native or independently edited cells");
-            BackgroundTile[] copied = Enumerable.Repeat(BackgroundTileWordBytes.Tile(0x5678), expected.Length + 1).ToArray();
-            presentation.JapaneseSubtitle.CopyTo(copied);
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
-            AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
-            // The game shows the subtitle as its installed picture at its cell (#1467); the import pictures these words.
-            var page = new EndingTextPage();
-            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.ItemPercentage });
-            state.InstalledInitialMarkerPending = false;
-            state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
-            var screen = new EndingScreen();
-            state.Step(screen);
-            var subtitle = new ShownEndingText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
-            AssertTrue(screen.ResultPageText.Contains(subtitle), "Actual ending state shows the subtitle picture at its cell");
-            state.FrameHold = WrappingCountdown.Start(1);
-            state.Step(screen);
-            AssertTrue(!screen.ResultPageText.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
-            AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
-        }
-    }
-
-    /// <summary>Checks Ridley tail rest offsets and geometry against native coordinate data.</summary>
-    internal static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
-    {
-        Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
-        for (int link = 0; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailReach.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
-        for (int link = 1; link < 7; link++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
-        Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
-        foreach (int delta in new[] { -1, 0, 1 })
-        {
-            var state = new RidleyEnemyState
-            {
-                TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
-                {
-                    Distance = (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta),
-                }).ToArray(),
-            };
-            update(state);
-            for (int link = 0; link < 7; link++)
-            {
-                int before = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta;
-                ushort expected = (ushort)(before - (link != 0 && delta > 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf8b + (link - 1) * 0x36)) : 0));
-                AssertEqual(expected, state.TailSegments[link].Distance, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
-            }
-        }
-        var extending = new RidleyEnemyState
-        {
-            TailExtensionSpeed = 0xf0,
-            TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
-            {
-                Distance = link == 0 ? (ushort)123 : (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1),
-                TargetDistance = 1,
-            }).ToArray(),
-        };
-        update(extending);
-        for (int link = 1; link < 7; link++)
-        {
-            AssertEqual(0, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.TailSegments[link].Distance, "Actual tail still extends and clamps on the target-clearing frame");
-        }
-        AssertEqual(123, extending.TailSegments[0].Distance, "Tail base stays outside extension updates");
-        Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
-    }
-
-    /// <summary>Checks the Baby Metroid transfer graphics phase at the native VRAM locations.</summary>
-    internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
-    {
-        for (int phase = 0; phase < 4; phase++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimation.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
-        var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        // The getaway draws the capsule's frames over the room's turning floor, which each NMI publishes; it writes no VRAM (#1349, #1467).
-        RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new StandaloneRoomEnemyServices(() => 0) { Floor = map })
-            { BossArtworkBinding = { CeresRidleyFloorColors = colors, CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom))) } };
-        var vram = new SnesVram();
-        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
-        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
-        byte[] untouched = new byte[SnesVram.ByteCount];
-        Array.Fill(untouched, (byte)0x5a);
-        string[] capsulePictures = [.. new[] { CeresFloorAnimationFrame.BabyFrame0, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.BabyFrame2 }
-            .Select(CeresFloorAnimation.PictureOf)];
-        string? Capsule() => map.Drawn.SingleOrDefault(capsulePictures.Contains);
-        int expectedPhase = 0;
-        for (ushort nmi = 0; nmi < 16; nmi++)
-        {
-            vram.LoadBytes(0, untouched);
-            string? before = Capsule();
-            bool advances = (nmi & 3) == 0;
-            if (advances) expectedPhase = (expectedPhase + 1) & 3;
-            tick(state, null, nmi);
-            AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
-            AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
-            AssertEqual(advances ? CeresFloorAnimation.PictureOf(CeresFloorAnimation.BabyFrameForPhase(expectedPhase)) : before, Capsule(),
-                "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
-        }
-        Console.WriteLine("Baby reflected phase: four original pointers and one actual 16-NMI cycle preserve advance-before-select and the drawn capsule frames.");
-    }
-
-    /// <summary>Checks Fly animation frame identities against the cartridge instruction data.</summary>
-    internal static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
-    {
-        NativeEnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
-        AssertEqual(4, flyFrames.Length, "fly calculated frame catalog count");
-        for (int frame = 0; frame < flyFrames.Length; frame++)
-        {
-            AssertEqual((byte)0xa2, flyFrames[frame].Bank, "fly native frame bank");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b015 + frame * 4)), flyFrames[frame].Pointer, "fly native instruction frame identity");
-            AssertEqual($"fly_shared_{frame}", flyFrames[frame].Name, "fly editable frame name");
-            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | flyFrames[frame].Pointer)), "fly native single OAM object");
-        }
-    }
-
-    /// <summary>Checks HUD icon tiles and their source identities against native artwork.</summary>
-    internal static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
-    {
-        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
-        static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
-            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
-        var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
-        {
-            // The stock icons draw the cartridge's icon words at its icon offsets.
-            ushort[] native=Enumerable.Repeat(stock.Blank.PackedWord,96).ToArray();int sourceWord=0;
-            for(int item=0;item<5;item++)
-            {
-                stock.TryApplyIcon(native,item);int width=item==0?3:2;int anchor=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e+item*2)/2;
-                for(int cell=0;cell<width*2;cell++,sourceWord++)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceWord*2),native[anchor+cell/width*32+cell%width],"Stock icon draws the native word at the native offset");
-            }
-        }
-        for(int edit=-1;edit<132;edit++)
-        {
-            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
-            if(edit>=0)
-            {
-                int ordinal=edit/6,item=ordinal<6?0:1+(ordinal-6)/4,cellIndex=ordinal<6?ordinal:(ordinal-6)%4;
-                var cells=document.Icons[GameplayHudDefinitions.IconNames[item]].Cells;var cell=cells[cellIndex];cells[cellIndex]=(edit%6) switch
-                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
-            }
-            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Icon exact document hash");
-            ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();
-            for(int item=0;item<5;item++)
-            {
-                var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;
-                selected.TryApplyIcon(tiles,item);
-                for(int cell=0;cell<width*2;cell++)
-                    AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every independent icon edit");
-            }
-            if(edit is -1 or 0 or 131)
-            {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
-                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
-            }
-            for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
-            for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
-        }
-        for(int item=0;item<5;item++)
-        {
-            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);string name=GameplayHudDefinitions.IconNames[item];var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
-            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);var selected=GameplayHudPresentationFile.Read(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
-            for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
-        }
-        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.TryApplyIcon(new ushort[96],invalid),"Icon item domain");
-        const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
-        for(int item=0;item<5;item++)
-        {
-            int width=item==0?3:2;
-            for(int cell=0;cell<width*2;cell++,sourceIndex++)
-            {
-                int word=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceIndex*2);
-                for(int y=0;y<8;y++)for(int x=0;x<8;x++)
-                {
-                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=MapSourceDefinitions.Artwork.HudCharacters+(word&0x3ff)*16+sy*2;
-                    int ink=(rom.ReadCartridgeByte(address)>>(7-sx)&1)|(rom.ReadCartridgeByte(address+1)>>(7-sx)&1)<<1;
-                    for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[((cell/width*8+y)*scale+dy)*imageWidth+(startX+cell%width*8+x)*scale+dx]=(byte)ink;
-                }
-            }
-            startX+=(width+1)*8;
-        }
-
-        Console.WriteLine("HUD icons:22native words drawn at native offsets,132independent edits/hash/guards,five shifted anchors,three actual inventory initializers/readguard/domains pass;source pictograms exported.");
-    }
-
-    /// <summary>Checks the HUD template cells against their native layout words.</summary>
-    internal static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
-    {
-        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
-        var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
-        {
-            ushort[] native=new ushort[96];stock.ApplyTemplate(native);
-            for(int index=0;index<96;index++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8098cb+index*2),native[index],"Exact native template word");
-        }
-        for(int edit=-1;edit<576;edit++)
-        {
-            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
-            if(edit>=0)
-            {
-                int index=edit/6;GameplayHudCell cell=document.Template[index];document.Template[index]=(edit%6) switch
-                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
-            }
-            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
-            var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Template exact document hash");
-            ushort[] tiles=new ushort[96];selected.ApplyTemplate(tiles);
-            for(int index=0;index<96;index++)
-            {
-                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
-                AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
-            }
-            AssertTrue(selected.TopRowTiles().SequenceEqual(stock.TopRowTiles()),"Template edits leave immutable top row independent");
-            if(edit is -1 or 390 or 570)
-            {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
-                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords[row*32+x],"Actual initializer preserves selected initial minimap and border");
-                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords[64+x],"Actual initializer preserves selected ENERGY typography");
-            }
-        }
-        Console.WriteLine("HUD template:96native words,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence pass.");
-    }
-
-    /// <summary>Checks the installed HUD top row at the native VRAM tile positions.</summary>
-    internal static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
-    {
-        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
-        var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
-        {
-            ushort[] native=BackgroundTileWordBytes.Words(stock.TopRowTiles());
-            for(int column=0;column<32;column++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),native[column],"Native top-row word");
-        }
-        for(int edit=-1;edit<192;edit++)
-        {
-            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
-            if(edit>=0)
-            {
-                int index=edit/6;GameplayHudCell cell=document.TopRow[index];document.TopRow[index]=(edit%6) switch
-                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
-            }
-            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
-            var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
-            ushort[] row=BackgroundTileWordBytes.Words(selected.TopRowTiles());
-            AssertEqual(32,row.Length,"Top row covers every HUD column");
-            for(int column=0;column<32;column++)
-            {
-                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
-                AssertEqual(expected, row[column], "Every supplied top-row cell survives into the shown row");
-            }
-            ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.SequenceEqual(original),"Top-row edits leave mutable template independent");
-        }
-        const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
-        for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
-        {
-            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=MapSourceDefinitions.Artwork.HudCharacters+tile*16+y*2;
-            int ink=(rom.ReadCartridgeByte(address)>>(7-x)&1)|(rom.ReadCartridgeByte(address+1)>>(7-x)&1)<<1;
-            for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
-        }
-
-        Console.WriteLine("HUD top row:32native words,192independent edits/hash/193shown rows/template independence pass; native border source exported.");
-    }
-    /// <summary>Checks the complete auto-reserve HUD display assembled from its component cells.</summary>
-    internal static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
-    {
-        Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
-        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
-        static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
-            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
-        for(int edit=-1;edit<72;edit++)
-        {
-            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
-            if(edit>=0)
-            {
-                int index=edit/6;var cells=index<6?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;index%=6;
-                GameplayHudCell cell=cells[index]; cells[index]=(edit%6) switch
-                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},
-                 3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
-            }
-            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
-            var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"AUTO preserves document content hash");
-            var hud=new HudState();hud.BindPresentation(selected);
-            hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
-            foreach(bool full in new[]{true,false})
-            {
-                ushort[] tiles=Enumerable.Repeat((ushort)0x1234,96).ToArray();selected.ApplyAutoReserve(tiles,full);
-                var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
-                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],"All twelve independently edited AUTO cells");
-                for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
-                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
-            }
-            ushort[] before=hud.TileWords.ToArray();hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()){Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
-            for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudStockCells.AutoReserveCellIndex(cell)],hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
-            hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
-        }
-        Console.WriteLine("HUD AUTO:12native words,72independent glyph-style edits/hash,146 actual state updates,manual nonwrite/clear/readguard/neighbors pass.");
-    }
-
-    /// <summary>Checks auto-reserve HUD cell identities against the cartridge tile words.</summary>
-    internal static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
-    {
-        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
-        ushort[] tiles = new ushort[96];
-        for (int state = 0; state < 2; state++)
-        {
-            stock.ApplyAutoReserve(tiles, state == 0);
-            for (int cell = 0; cell < 6; cell++)
-            {
-                int address = 0x80998b + state * 12 + cell * 2;
-                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(native, tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "AUTO actual native cell draw");
-            }
-        }
-        document.AutoReserve.ContainsEnergy[0] = document.AutoReserve.ContainsEnergy[0] with { Palette = 2 };
-        document.AutoReserve.ContainsEnergy[5] = document.AutoReserve.ContainsEnergy[5] with { TileColumn = 3 };
-        document.AutoReserve.Empty[1] = document.AutoReserve.Empty[1] with { FlipX = true };
-        document.AutoReserve.Empty[4] = document.AutoReserve.Empty[4] with { Priority = false };
-        using var editedJson = new MemoryStream();
-        GameplayHudPresentationFile.Write(editedJson, document);
-        editedJson.Position = 0;
-        GameplayHudArtwork edited = GameplayHudPresentationFile.Read(editedJson);
-        for (int state = 0; state < 2; state++)
-        {
-            edited.ApplyAutoReserve(tiles, state == 0);
-            for (int cell = 0; cell < 6; cell++)
-            {
-                GameplayHudCell supplied = (state == 0 ? document.AutoReserve.ContainsEnergy : document.AutoReserve.Empty)[cell];
-                ushort expected = SnesBgTilemapWord.Create(supplied.TileRow * 32 + supplied.TileColumn, supplied.Palette,
-                    supplied.Priority, (supplied.FlipX ? TileFlip.Horizontal : 0) |
-                    (supplied.FlipY ? TileFlip.Vertical : 0)).Raw;
-                AssertEqual(expected, tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],
-                    "AUTO preserves each independent edit and every unedited neighbor");
-            }
-        }
-    }
-
-    /// <summary>Checks HUD digit tile identities and their native order.</summary>
-    internal static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
-    {
-        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
-        ushort[] tiles = new ushort[96];
-        for (int digit = 0; digit < 10; digit++)
-        {
-            stock.ApplyEnergy(tiles, (ushort)(digit * 11), 99);
-            for (int place = 0; place < 2; place++)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + digit * 2)), tiles[70 + place], "actual stock health digit draw");
-            stock.ApplyAmmo(tiles, 0, (ushort)(digit * 111));
-            for (int place = 0; place < 3; place++)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), tiles[74 + place], "actual stock ammo digit draw");
-        }
-        document.Digits.Health[3] = document.Digits.Health[3] with { Palette = 2 };
-        document.Digits.Ammo[3] = document.Digits.Ammo[3] with { Palette = 4 };
-        using var changedJson = new MemoryStream();
-        GameplayHudPresentationFile.Write(changedJson, document);
-        changedJson.Position = 0;
-        GameplayHudArtwork changed = GameplayHudPresentationFile.Read(changedJson);
-        changed.ApplyEnergy(tiles, 23, 99);
-        changed.ApplyAmmo(tiles, 0, 234);
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + 4)), tiles[70], "unedited health digit unchanged");
-        AssertEqual((ushort)((CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + 6)) & ~0x1c00) | 0x0800), tiles[71], "edited health digit palette applied");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 4)), tiles[74], "unedited leading ammo digit unchanged");
-        AssertEqual((ushort)((CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 6)) & ~0x1c00) | 0x1000), tiles[75], "independent ammo digit palette applied");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 8)), tiles[76], "unedited trailing ammo digit unchanged");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyAmmo(tiles, invalid, 0), "HUD ammunition counter exact domain");
-    }
-
-    /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
-    internal static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
-    {
-        var nativeTitlePointers = new HashSet<int> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
-        foreach (int start in new[] { 0x8ba03d, 0x8ba055, 0x8ba079, 0x8ba09d })
-            for (int entry = start; CartridgeImportSource.Require(rom).ReadCartridgeWord(entry) < 0x8000; entry += 4)
-                if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));
-        AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
-        AssertEqual(TitleGraphicsFormat.Sprites.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
-        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Values),
-            "extraction maps every native title selector to exactly one named composition");
-        AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages.Length, "title baby animation phase count");
-        for (int frame = 0; frame < 4; frame++)
-        {
-            ushort transfer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8ba133 + frame * 4));
-            int nativeSource = CartridgeImportSource.Require(rom).ReadCartridgeLong((0x8b0001 + transfer));
-            int firstSource = CartridgeImportSource.Require(rom).ReadCartridgeLong(0x8ba338);
-            AssertEqual((nativeSource - firstSource) / 256,
-                TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[frame], "native title baby source page");
-            AssertEqual((ushort)256, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0004 + transfer)), "native baby transfer size");
-            AssertEqual((ushort)0x3800, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0006 + transfer)), "native baby transfer destination");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
-        Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
-    }
-
-    /// <summary>Checks title card tile placement and dimensions against cartridge layout data.</summary>
-    internal static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
-    {
-        int steps = SuperMetroid.Verification.Frontend.Title.TitleCardOracle.CompareAll(rom);
-        Console.WriteLine($"Title card layout: {steps} typed title-card steps match their native lists.");
-    }
-
-    /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
-    internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
-    {
-        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObjectSlot?> spriteSpawn =
-            (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
-        int kinds = 0;
-        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
-        {
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
-            AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours));
-            AssertTrue(spawned is not null, "room sprite native case allocates real slot");
-            AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
-            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
-            AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
-            AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
-            AssertEqual(SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours), spawned.Graphics, "room sprite tile base and colouring argument preserved");
-            kinds++;
-        }
-        foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
-                "room sprite native kind domain rejects invalid selector");
-        AssertThrows<KeyNotFoundException>(
-            () => _ = RoomSpriteObjectDefinitions.Programs[RoomSpriteObjectKind.None],
-            "room sprite cleared kind starts no program");
-        Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
-    }
-
-    /// <summary>Checks which Ridley frame pointers are presentation data and which are control words.</summary>
-    private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
-    {
-        var nativeFrames = new List<ushort>();
-        var nativeLists = new SortedSet<ushort>();
-        for (int frame = 0xe983; frame <= 0xead7;)
-        {
-            nativeFrames.Add((ushort)frame);
-            int components = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | frame));
-            for (int component = 0; component < components; component++)
-                nativeLists.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | (frame + 8 + component * 8))));
-            frame += 2 + components * 8;
-        }
-        AssertEqual(nativeFrames.Count, RidleyCollisionDefinitions.FramePointers.Length, "Frame identity count follows native record extents");
-        int ordinal = 0;
-        foreach (ushort frame in RidleyCollisionDefinitions.FramePointers)
-        {
-            AssertEqual(nativeFrames[ordinal], frame, "Frame identity enumeration preserves native record order");
-            AssertEqual(frame, RidleyCollisionDefinitions.FramePointers[ordinal++], "Frame identity indexing preserves order");
-            var components = RidleyCollision.ComponentsAt(frame);
-            foreach (int invalid in new[] { -1, components.Length })
-                AssertThrows<IndexOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
-        }
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollision.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
-        int compiledLists = RidleyCollisionDefinitions.FramePointers
-            .SelectMany(frame =>
-            {
-                var frameComponents = RidleyCollision.ComponentsAt(frame);
-                return Enumerable.Range(0, frameComponents.Length).Select(index => frameComponents[index].Hitboxes);
-            })
-            .Distinct(ReferenceEqualityComparer.Instance)
-            .Count();
-        AssertEqual(nativeLists.Count, compiledLists, "Components select one compiled list per distinct native hitbox list");
-        foreach (int invalid in new[] { -1, nativeFrames.Count })
-            AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
-    }
-
-    /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>
-    internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
-    {
-        byte[] source = BeamPaletteExtractor.Extract(rom);
-        var stock = BeamPaletteFile.Read(new MemoryStream(source));
-        var stored = stock.palettes;
-        AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
-        var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
-        // Every colour outside the beam's starts as a distinct filler, loaded as one image per selection.
-        RgbColor[] filler = [.. Enumerable.Range(0, SnesCgram.ColorCount).Select(index => RgbColor.FromWord((ushort)(index * 31)))];
-        for (int edit = -1; edit < 576; edit++)
-        {
-            var selected = stock;
-            if (edit >= 0)
-            {
-                var document = RequiredJson.Parse(source);
-                int word = edit / 3, channel = edit % 3;
-                var color = document.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
-                string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
-                color[component] = color.Required(component).GetValue<int>() ^ 1;
-                selected = BeamPaletteFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-            }
-            for (int selection = 0; selection < 12; selection++)
-            {
-                var actual = SamusColourRig.Starting(filler);
-                if (edit is -1 or 0 or 575)
-                    SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam,
-                        (SamusBeamFlags)((ushort)(selection | 0x1000)), selected, InstalledFixtures.SamusOverreads.ChainsawColours);
-                else selected.LoadTo(actual.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
-                int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
-                // The rig composes every colour on each read, so the selection's colours are composed once and then compared.
-                RgbColor[] shown = actual.Colors.ToArray();
-                for (int index = 0; index < SnesCgram.ColorCount; index++)
-                {
-                    int color = index - SamusColourNative.BeamFirstCgram;
-                    ushort expected = color is >= 0 and < 16 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)) : (ushort)(index * 31);
-                    if (edit >= 0 && selection * 16 + color == edit / 3 && color is >= 0 and < 16)
-                        expected ^= (ushort)(1 << (edit % 3 * 5));
-                    AssertEqual(expected, shown[index], "Beam paint preserves native selected rows, independent RGB edits and every CGRAM neighbor");
-                }
-            }
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SamusColourRig().Samus.Beam, SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
-        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection producers and read guard pass.");
-    }
-
-    /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
-    private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
-    {
-        ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
-        // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
-        AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab((SamusMovementType)(-1)), "Undefined movement types fail loudly");
-        for (int raw = 0; raw <= byte.MaxValue; raw++)
-        {
-            if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
-            {
-                AssertTrue(raw >= SamusMovementTypeNumbers.Count, "Movement bytes name every movement type in the 28-entry table");
-                continue;
-            }
-            byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);
-            AssertEqual((flags & 0x80) != 0, RidleyGrabs.CanGrab(movement), "Named movement policy preserves each movement type's grabbability");
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
-                RidleyGrabs.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
-        }
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Func<SamusState?, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
-        Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
-        for (int pose = 0; pose <= 0xfc; pose++)
-        {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseNumbering.FromNumber(pose) };
-            byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
-            AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = WrappingCountdown.Start(99) };
-            release(state, samus);
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
-            AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
-            AssertEqual(1, state.TailWhipRequest, "Actual release requests tail whip");
-            AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
-        }
-        AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
-        var absentState = new RidleyEnemyState();
-        release(absentState, null);
-        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer.RawValue, "Missing Samus retains standing release fallback");
-    }
-
-    /// <summary>Checks Ridley tail angle selection data against native table values.</summary>
-    private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
-    {
-        Func<RidleyTailSegment[]> create = RidleyTail.CreateInitialRidleyTailSegments;
-        var segments = create();
-        AssertEqual(7, segments.Length, "Tail initialization retains seven links");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentSpacing, "Tail separation matches the native initializer immediate");
-        for (int index = 0; index < segments.Length; index++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index)), segments[index].Angle, "Actual initialized link angle matches native progression");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance, "Unresolved independent tail distance remains unchanged");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1, segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
-        }
-        var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
-        for (int direction = 0; direction < 16; direction++)
-        {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6dcba + 2 * direction));
-            AssertEqual(expected, RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(direction), "Calculated reversed tail-tip sector preserves native identity");
-            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | expected)), "Each native tail-tip record contains exactly one OAM object");
-            expectedFrames.Add(expected);
-        }
-        for (int frame = 0; frame < 20; frame++)
-        {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6db02 + frame * 2));
-            AssertEqual(expected, RidleySupplementalVisualDefinitionsConstants.WingFrameAt(frame), "Calculated downstroke/upstroke and facing preserve each native wing identity");
-            expectedFrames.Add(expected);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.WingFrameAt(invalid), "Wing phase/facing domain remains exact");
-        AssertTrue(expectedFrames.SequenceEqual(RidleySupplementalVisualDefinitionsConstants.Frames().Select(frame => frame.Pointer)),
-            "Calculated tail-tip source enumeration retains the complete ordered supplemental frame domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
-        foreach (int invalid in new[] { -1, 7 })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
-    }
-
-    /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
-    private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
-    {
-        Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
-        for (int solidRow = 0; solidRow < 2; solidRow++)
-        {
-            RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
-            blocks[solidRow] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new RoomBlockBehavior[2], new RoomBlockAppearance[2]));
-            for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
-            foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
-            {
-                var state = new RidleyEnemyState
-                {
-                    TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment { Position = new Position16<RoomPixels>(256, 0) }).ToArray(),
-                };
-                state.TailSegments[segmentIndex].Position = new Position16<RoomPixels>(0, y);
-                bool expected = false;
-                if (segmentIndex >= 2)
-                {
-                    int operand = 0xa6b7f2 + (6 - segmentIndex) * 0x14;
-                    int nativeOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
-                    expected = (unchecked((ushort)(y + nativeOffset)) >> 4) == solidRow;
-                }
-                AssertEqual(expected, touches(state, level), "Actual tail terrain probes retain each native joint, ADC offset and word wrap");
-            }
-            AssertTrue(!touches(new RidleyEnemyState(), level), "Incomplete tail keeps terrain gate");
-        }
-        AssertTrue(!touches(new RidleyEnemyState(), null), "Missing terrain keeps tail gate");
-    }
-
-    /// <summary>Checks enemy notice-region bounds and their native coordinate ordering.</summary>
-    private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
-    {
-        byte[] bytes = GameplayMessageNoticeExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<GameplayMessageNoticeDocument>(bytes, ArtworkJson.Options);
-        var stock = GameplayMessageNoticePresentation.Load(new MemoryStream(bytes));
-        foreach (var id in GameplayMessageNoticeDefinitions.MessageIds)
-        {
-            var notice = document.Notices[id.ToString()];
-            ExpectedRegion[] expectedRegions = GameplayMessageNotices.IsSaveConfirmation(id)
-                ? [new ExpectedRegion(0, 8, 14), new ExpectedRegion(1, 8, 8), new ExpectedRegion(3, 10, 3), new ExpectedRegion(3, 19, 2)]
-                : [new ExpectedRegion(0, 8, id == GameplayMessageId.MissileRechargeCompleted ? 14 : 15), new ExpectedRegion(2, 10, 10)];
-            AssertTrue(expectedRegions.SequenceEqual(notice.Text.Select(region => new ExpectedRegion(region.Row, region.Column, region.Width))),
-                "Calculated notice rectangles preserve every original row/column/width");
-            AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageTextAlignment.Left),
-                "Calculated notice regions retain left alignment");
-            int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + GameplayMessageNumbers.DefinitionEntry(id) * 6));
-            var expected = new ushort[(notice.RowCount + 2) * 32];
-            for (int column = 0; column < 32; column++)
-                expected[column] = expected[expected.Length - 32 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858040 + column * 2));
-            for (int cell = 0; cell < notice.RowCount * 32; cell++) expected[32 + cell] = CartridgeImportSource.Require(rom).ReadCartridgeWord((source + cell * 2));
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(stock.Build(id))), "Derived notice export reproduces every native border/content word encoded through the codec");
-            var stockMessages = new GameplayMessageArtwork(null, null, stock);
-            var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-            state.Begin(id, 0);
-            if (GameplayMessageNotices.IsSaveConfirmation(id))
-                for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(state.Tilemap(stockMessages))), "Actual notice initial tilemap preserves native YES row and all content");
-            if (!GameplayMessageNotices.IsSaveConfirmation(id)) continue;
-            for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
-            AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
-            // The selector reads the controller only after its two native lag frames ($85:84BA): hold Right until it does.
-            for (int frame = 0; frame < 3 && state.ConfirmationSelectionYes; frame++)
-                state.Step(ControllerButton.Right);
-            AssertTrue(!state.ConfirmationSelectionYes, "Right moves the save selection to NO");
-            for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
-            ushort[] shown = BackgroundTileWordBytes.Words(state.Tilemap(stockMessages));
-            AssertTrue(expected.SequenceEqual(shown), "Actual notice NO selection retains native row and neighboring content; differing cells " +
-                string.Join(", ", Enumerable.Range(0, expected.Length).Where(cell => expected[cell] != shown[cell])
-                    .Select(cell => $"{cell}: expected {expected[cell]:X4}, got {shown[cell]:X4}")));
-        }
-        var editedJson = RequiredJson.Parse(bytes);
-        editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
-        var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
-        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
-        active.Step(0);
-        ushort[] original = BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)));
-        BackgroundTile[] editedWords = active.Tilemap(new GameplayMessageArtwork(null, null, edited));
-        for (int cell = 0; cell < original.Length; cell++)
-        {
-            ushort expected = original[cell];
-            if (cell is >= 40 and < 55)
-            {
-                int textIndex = cell - 40;
-                char character = textIndex < 8 ? "MAP TEST"[textIndex] : ' ';
-                expected = (ushort)((original[40] & 0xfc00) | (character == ' ' ? 0x4e : 0xe0 + character - 'A'));
-            }
-            AssertEqual(expected, editedWords[cell].PackedWord, "Independent notice text edit remains within its original calculated rectangle");
-        }
-        AssertTrue(original.SequenceEqual(BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)))),
-            "Supplied stock notice lays the shown message out with every original word");
-    }
-
-    /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
-    private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
-    {
-        for (int bits = 0; bits <= ushort.MaxValue; bits++)
-        {
-            int winner = 0;
-            while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
-            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyph((ControllerButton)bits).PackedWord, "Native BIT order and all button glyph attributes, encoded through the codec");
-            AssertEqual(expected, GameplayMessageTilemapDefinitions.Glyphs[GameplayMessageButtons.Shown((ControllerButton)bits)].PackedWord,
-                "The button the game names for a binding retains first-match precedence");
-        }
-        GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
-        var panelMessages = new GameplayMessageArtwork(null, panels);
-        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.None),
-            "Message button patch rejects no message");
-        for (int raw = 0; raw <= byte.MaxValue; raw++)
-        {
-            // The native table lists messages one through twenty-seven; its last entry is a dummy no message selects.
-            // The gunship's save prompt beyond the table is rejected, and other numbers name no message.
-            if (!GameplayMessageNumbers.Numbers.TryDecode(raw, out GameplayMessageId id))
-            {
-                AssertTrue(raw is 0 or 27 or > 28, "Message numbers name every message one through twenty-six and the gunship's");
-                continue;
-            }
-            if (raw > 27)
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
-                continue;
-            }
-            int expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
-            AssertEqual(expected, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Native message button placement case");
-            if (!panels.Contains(id))
-                continue;
-            // The panel names the button its binding's glyph shows; every other cell is the panel's own.
-            BackgroundTile[] template = panels.Build(id);
-            BackgroundTile[] cells = panelMessages.Tiles(new ShownMessage(id, GameplayMessageButtons.Shown((ControllerButton)ushort.MaxValue), null));
-            for (int index = 0; index < cells.Length; index++)
-                AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : template[index].PackedWord, cells[index].PackedWord,
-                    "Actual button patch preserves every neighboring cell of the panel");
-        }
-    }
-    /// <summary>Runs the stream-four table checks over installed presentation and behavior definitions.</summary>
-    internal static void VerifyLookupStream4(ISnesAddressSpace rom)
-    {
-        Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
-        Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
-        Suite(nameof(VerifyLookupStream4RidleyMovementPolicy), () => VerifyLookupStream4RidleyMovementPolicy(rom));
-        Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
-        Suite(nameof(VerifyLookupStream4TailTerrain), () => VerifyLookupStream4TailTerrain(rom));
-        Suite(nameof(VerifyLookupStream4MessageDispatch), () => VerifyLookupStream4MessageDispatch(rom));
-        Suite(nameof(VerifyLookupStream4NoticeRegions), () => VerifyLookupStream4NoticeRegions(rom));
-        // The cartridge's hole table holds one eight-byte record per hole, in the compiled holes' order.
-        for (int holeIndex = 0; holeIndex < BotwoonNavigationDefinitions.HoleCount; holeIndex++)
-        {
-            int offset = 8 * holeIndex;
-            var hole = BotwoonNavigation.HoleAt(holeIndex);
-            AssertEqual(new Position16<RoomPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4)), hole.TopLeft, "Botwoon named hole native top-left boundary");
-            AssertEqual(new Position16<RoomPixels>((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0) + 4), (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4) + 4)), hole.Target, "Botwoon named hole center");
-        }
-        Suite(nameof(VerifyLookupStream4DarkLightningColors), () => VerifyLookupStream4DarkLightningColors(rom));
-        Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
-        Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
-        Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
-        Suite(nameof(VerifyLookupStream4RidleyFireballOperands), () => VerifyLookupStream4RidleyFireballOperands());
-        Suite(nameof(VerifyLookupStream4GeometryLayout), () => VerifyLookupStream4GeometryLayout(rom));
-        Suite(nameof(VerifyLookupStream4PowerBombColors), () => VerifyLookupStream4PowerBombColors(rom));
-        Suite(nameof(VerifyLookupStream4SporeAndFly), () => VerifyLookupStream4SporeAndFly(rom));
-        Suite(nameof(VerifyLookupStream4Burial), () => VerifyLookupStream4Burial(rom));
-        Suite(nameof(VerifyLookupStream4StatueColors), () => VerifyLookupStream4StatueColors(rom));
-        Suite(nameof(VerifyLookupStream4Programs), () => VerifyLookupStream4Programs(rom));
-        Suite(nameof(VerifyLookupStream4ProgramConsumers), () => VerifyLookupStream4ProgramConsumers(rom));
-        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
-        {
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe7a7 + 2 * theme));
-            int source = 0x8f0000 | pointer;
-            TilesetDefinition actual = RoomTilesets.Get(theme);
-            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
-            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
-            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
-        }
-        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
-            AssertThrows<InvalidDataException>(() => RoomTilesets.Get(invalid), "tileset exact graphics-theme domain");
-        int Long(int address) => CartridgeImportSource.Require(rom).ReadCartridgeLong(address);
-        int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
-            .Where(instruction => instruction.Command == LibraryBackgroundCommand.Decompress)
-            .Select(instruction => instruction.SourceAddress).Distinct().Order().ToArray();
-        AssertEqual(58, nativeBackgroundSources.Length, "native distinct compressed background source count");
-        AssertEqual(nativeBackgroundSources.Length, Enum.GetValues<RoomBackgroundTilemap>().Length, "one named background tilemap per native source");
-        // Each native decompression source decodes to the named tilemap the extraction table stores there (#1414).
-        foreach (int source in nativeBackgroundSources)
-        {
-            RoomBackgroundTilemap tilemap = LibraryBackgroundOperandDecoding.DecompressedSource(source).Tilemap;
-            AssertEqual(source, RoomBackgroundSourceDefinitions.Tilemaps[tilemap], "background tilemap native source");
-            AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(source + 1),
-                "background source interior byte names no tilemap");
-        }
-        foreach (int invalid in new[] { -1, 0, 0xffffff, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(invalid), "background source absent identity rejected");
-
-        for (int pattern = 0; pattern < 4; pattern++)
-        for (int stage = 0; stage < 6; stage++)
-        {
-            var actual = RidleyPogo.Read(pattern, stage);
-            int x = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b965 + 2 * pattern));
-            int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((y + 2 * stage)), actual.Velocity.Y.RawValue, "stream4 native pogo signed vertical speed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b94d + 2 * stage)), actual.UpwardAcceleration, "stream4 native pogo upward acceleration");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration, "stream4 native pogo downward acceleration");
-        }
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(invalid, 0), "stream4 invalid pogo pattern");
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(0, invalid), "stream4 invalid pogo stage");
-        for (ushort parameter = 0; parameter <= 22; parameter += 2)
-        {
-            var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
-        }
-        for (int orientation = 0; orientation < 16; orientation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
-        foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(invalid), "stream4 invalid breakup parameter");
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
-    }
-
-    /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
-    private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
-    {
-        var program = CrateriaLightningColorDefinitions.DarkProgram;
-        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
-        using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        var stored = original.colors;
-        for (int frame = 0; frame < 14; frame++)
-        for (int index = 0; index < 7; index++)
-        {
-            ushort pointer = program.ColorPointer(frame, index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
-            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "dark lightning installed color exists");
-            AssertEqual(native, actual, "dark lightning calculated native RGB5");
-            AssertEqual(frame == 0, stored.ContainsKey(pointer), "dark lightning stores only unresolved base row");
-            AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
-        }
-        foreach ((int frame, int index) in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(4, 6), new VerifyLookupStream4DarkLightningColorsCase(9, 2), new VerifyLookupStream4DarkLightningColorsCase(13, 5) })
-        {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
-            var source = document.CrateriaUnusedDarkLightning[frame][index];
-            document.CrateriaUnusedDarkLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
-            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentationFile.Read(json);
-            for (int row = 0; row < 14; row++)
-            for (int color = 0; color < 7; color++)
-            {
-                var expected = document.CrateriaUnusedDarkLightning[row][color];
-                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out RgbColor actual), "dark lightning edited color exists");
-                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
-                    "dark lightning independent base/sample edit and neighbors preserved");
-            }
-        }
-        for (int address = 0xec6e; address <= 0xed83; address++)
-        {
-            bool expected = Enumerable.Range(1, 13).Any(frame => Enumerable.Range(0, 7).Any(index => program.ColorPointer(frame, index) == address));
-            AssertEqual(expected, CrateriaLightningColors.TryCalculatedDarkColor((ushort)address, stored, out _), "dark lightning exact calculated address domain");
-        }
-    }
-
-    /// <summary>Checks normal lightning palette rows and their source pointers against native values.</summary>
-    private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
-    {
-        var program = CrateriaLightningColorDefinitions.SurfaceProgram;
-        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
-        using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        var stored = original.colors;
-        for (int frame = 0; frame < 13; frame++)
-        for (int index = 0; index < 8; index++)
-        {
-            ushort pointer = program.ColorPointer(frame, index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
-            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "surface lightning installed color exists");
-            AssertEqual(native, actual, "surface lightning calculated native RGB5");
-            AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
-            AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
-        }
-        foreach ((int frame, int index) in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(4, 7), new VerifyLookupStream4DarkLightningColorsCase(8, 2), new VerifyLookupStream4DarkLightningColorsCase(12, 6) })
-        {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
-            var source = document.CrateriaSurfaceLightning[frame][index];
-            document.CrateriaSurfaceLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
-            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentationFile.Read(json);
-            for (int row = 0; row < 13; row++)
-            for (int color = 0; color < 8; color++)
-            {
-                var expected = document.CrateriaSurfaceLightning[row][color];
-                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out RgbColor actual), "surface lightning edited color exists");
-                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
-                    "surface lightning independent edit and neighbors preserved");
-            }
-        }
-        for (int address = 0xeb3b; address <= 0xec58; address++)
-        {
-            bool expected = Enumerable.Range(0, 13).Any(frame => Enumerable.Range(0, 8).Any(index => program.ColorPointer(frame, index) == address));
-            AssertEqual(expected, CrateriaLightningColors.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
-        }
-    }
-
-    /// <summary>Checks stream-four enemy and projectile instruction words and terminal controls against cartridge programs.</summary>
-    private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
-    {
-
-        for (ushort phase = 0; phase < 4; phase++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Metaree phase program");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Skree phase program");
-        }
-        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => SkreeMetareePrograms.MetareeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
-            AssertThrows<InvalidDataException>(() => SkreeMetareePrograms.SkreeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
-        }
-    }
-
-    /// <summary>Checks projectile instruction consumers select the compiled program words they expect.</summary>
-    private static void VerifyLookupStream4ProgramConsumers(ISnesAddressSpace rom)
-    {
-
-        var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
-        var electricitySystem = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-        electricitySystem.Projectiles.SpawnSaveStationElectricity(42, 16);
-        var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
-        for (int frame = 0; frame < 160; frame++)
-        {
-            electricity.FrameHold = WrappingCountdown.Start(1);
-            electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
-            AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
-            AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
-            AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
-        }
-        electricity.FrameHold = WrappingCountdown.Start(1);
-        electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
-        AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
-        AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
-    }
-
-    /// <summary>Checks statue palette rows and selection data against native colors.</summary>
-    private static void VerifyLookupStream4StatueColors(ISnesAddressSpace rom)
-    {
-
-        var native = new Dictionary<ushort, ushort>();
-        for (int frame = 0; frame < 8; frame++)
-        for (int color = 0; color < 8; color++)
-            native.Add((ushort)(0xe240 + 20 * frame + 2 * color), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8de240 + 20 * frame + 2 * color)));
-        for (int raw = 0xe23e; raw <= 0xe2df; raw++)
-        {
-            ushort pointer = (ushort)raw;
-            bool owned = native.ContainsKey(pointer);
-            AssertEqual(owned, TourianStatueGreyPaint.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
-            bool intermediate = owned && frame is > 0 and < 7;
-            AssertEqual(intermediate, TourianStatueGreyPaint.TryCalculatedColor(pointer, ToColors(native), out RgbColor calculated), "stream4 statue intermediate domain");
-            if (owned) AssertEqual((ushort)(0xe240 + 20 * frame + 2 * color), pointer, "stream4 statue color coordinates");
-            if (intermediate) AssertEqual(native[pointer], calculated, "stream4 every original statue interpolation sample");
-        }
-        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
-        using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        var stored = original.colors;
-        int storedStatueColors = 0;
-        foreach (var pair in native)
-        {
-            AssertTrue(original.TryReadColor(pair.Key, out RgbColor value), "stream4 original statue color remains readable");
-            AssertEqual(pair.Value, value, "stream4 loaded original statue color");
-            if (stored.ContainsKey(pair.Key)) storedStatueColors++;
-        }
-        AssertEqual(16, storedStatueColors, "stream4 only endpoint rows stored, no generated intermediate cache");
-        ushort[] keys = original.ColorPointers.Where(native.ContainsKey).ToArray();
-        AssertEqual(64, keys.Length, "stream4 all statue pointers enumerable");
-        AssertEqual(64, keys.Distinct().Count(), "stream4 statue pointer enumeration has no duplicates");
-        foreach (var edit in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(7, 0), new VerifyLookupStream4DarkLightningColorsCase(0, 2), new VerifyLookupStream4DarkLightningColorsCase(7, 3), new VerifyLookupStream4DarkLightningColorsCase(3, 4), new VerifyLookupStream4DarkLightningColorsCase(4, 0) })
-        {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
-            var source = document.TourianStatueGrey[edit.Frame][edit.Index];
-            document.TourianStatueGrey[edit.Frame][edit.Index] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
-            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-            var edited = RoomPaletteFxPresentationFile.Read(json);
-            for (int frame = 0; frame < 8; frame++)
-            for (int color = 0; color < 8; color++)
-            {
-                var expected = document.TourianStatueGrey[frame][color];
-                AssertTrue(edited.TryReadColor((ushort)(0xe240 + 20 * frame + 2 * color), out RgbColor actual), "stream4 edited statue color readable");
-                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual, "stream4 endpoints and independent intermediate edits preserved");
-            }
-        }
-        AssertTrue(!TourianStatueGreyPaint.TryCalculatedColor(0xe254, ToColors(new Dictionary<ushort, ushort>()), out _), "stream4 absent statue endpoints are not invented");
-    }
-
-    /// <summary>Checks the burial presentation constants against the cartridge layout.</summary>
-    private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
-    {
-
-        for (int entry = 0; entry < 6; entry++)
-        {
-            var actual = DraygonBurialEvirs.ForEntry(entry);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1af + 4 * entry)), actual.SubspeedMagnitude.X.Fraction, "stream4 burial radial X subspeed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c9 + 4 * entry)), actual.Initial.Y, "stream4 burial radial spawn Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), (ushort)actual.Angle.RawValue, "stream4 burial radial angle");
-        }
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => DraygonBurialEvirs.ForEntry(invalid), "stream4 burial exact six-record domain");
-    }
-
-    /// <summary>Checks Spore Spawn and Fly visual identity data against native tables.</summary>
-    private static void VerifyLookupStream4SporeAndFly(ISnesAddressSpace rom)
-    {
-
-        for (ushort index = 0; index < 4; index++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), SporeSpawnProjectiles.StalkYOffset(index), "stream4 original stalk segment spacing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectiles.SpawnerX(index), "stream4 original ceiling emitter spacing");
-        }
-        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.StalkYOffset(invalid), "stream4 stalk spawn domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.SpawnerX(invalid), "stream4 emitter spawn domain");
-        }
-    }
-
-    /// <summary>Checks power-bomb palette color stages against cartridge words.</summary>
-    private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
-    {
-        byte[] original = PowerBombFixedColorExtractor.Extract(rom);
-        var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
-        AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
-        AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
-        foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
-        {
-            int count = PowerBombFixedColorFormat.Count(sequence);
-            for (int index = 0; index < count; index++)
-            {
-                int address = PowerBombColorSources.Start(sequence) + index * 3;
-                var native = new RgbColor(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
-                AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
-                bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
-                AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
-                    "Power Bomb exact calculated versus unresolved domain");
-                if (calculated) AssertEqual(native, color, "Power Bomb direct color calculation");
-            }
-            foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
-        }
-        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombFixedColorSequence)2, 0), "Power Bomb sequence domain");
-        foreach (var edit in new[] { new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.PreExplosion, 0), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.PreExplosion, 12),
-            new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 0), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 18), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 31) })
-        {
-            var document = RequiredJson.Deserialize<PowerBombFixedColorDocument>(original, ArtworkJson.Options);
-            var rows = edit.First == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
-            var before = rows[edit.Second];
-            rows[edit.Second] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
-            var installed = PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document)));
-            foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
-            for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
-            {
-                var source = (sequence == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion)[index];
-                AssertEqual(new RgbColor(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
-                    "Power Bomb supplied JSON color edits remain independent");
-            }
-            AssertEqual(edit.First == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
-            AssertEqual(edit.First == PowerBombFixedColorSequence.Explosion && edit.Second <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
-        }
-    }
-
-    /// <summary>
-    /// Checks eye-door projectile geometry against the cartridge. Since #1414 the eye door's shot origins and sweat
-    /// launches are typed per facing: this asserts that the origin and velocity pairs the retail eye-door operands
-    /// select ($86:B65B shot origins at operands 0 and 20, $86:B6B1 sweat velocities at operands 0 and 4) equal them,
-    /// rather than comparing every word of the tables, whose other entries no retail eye door selects.
-    /// </summary>
-    private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
-    {
-        short NativeWord(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-        // The attack initializer adds eight pixels to the table's X before placing the shot.
-        AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b))), NativeWord(0x86b65d)), EyeDoorEffectDefinitions.LeftShotOrigin, "left eye-door shot origin");
-        AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b + 20))), NativeWord(0x86b65b + 22)), EyeDoorEffectDefinitions.RightShotOrigin, "right eye-door shot origin");
-        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
-        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
-        for (int index = 0; index < 4; index++)
-        {
-            var target = DraygonCannonData.FiringTarget(DraygonCannonData.FiringOrder[index]);
-            AssertEqual(DraygonWallCannonAddresses.Decode((ushort)(0x8804 + 2 * index)), target.Cannon, "Draygon original control-word selection");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), target.Origin.X, "Draygon original cannon X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
-        }
-        for (ushort index = 0; index < 8; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailPrograms.Program(index)), "Oum native action/facing dispatch");
-        for (int slot = 0; slot < 3; slot++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
-        foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
-            AssertThrows<InvalidOperationException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
-        foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailPrograms.Program(invalid), "Oum animation exact domain");
-    }
-
-    /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>
-    private static void VerifyLookupStream4RidleyFireballOperands()
-    {
-        // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
-        // their installed frames keep the native operand addresses in list order.
-        ushort[] operands =
-        [
-            0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,
-            0x9578, 0x957c, 0x9580, 0x9584, 0x9588,
-            0x95a4, 0x95aa, 0x95ae, 0x95b2, 0x95b6,
-            0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
-            0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
-        ];
-        AssertTrue(operands.SequenceEqual(RidleyFireballVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[frame])))),
-            "Ridley fireball frames keep the native operand order");
-    }
-
-    /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>
-    internal static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
-    {
-        // #1283: the typed programs own the frame layout; the oracle matches every frame to its native operand.
-        Suite(nameof(VerifyDraygonAnimations), () => VerifyDraygonAnimations(rom));
-        Console.WriteLine("Draygon presentation layout: every typed frame matches its native operand and duration.");
-    }
-
-    /// <summary>Checks Draygon intro palette phases and installed CGRAM colors against native stages.</summary>
-    internal static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
-    {
-        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        byte[] json = DraygonColorExtractor.Extract(rom);
-        var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var intro = stock.selection.Intro;
-        var primary = intro.primary;
-        var surface = intro.surface;
-        AssertEqual(0,primary.edits.Count,"Intro primary zero native overrides");
-        AssertEqual(0,surface.edits.Count,"Intro surface zero native overrides");
-        AssertEqual<object?>(null,intro.clearEdit,"Intro clear has no native override");
-        for(int edit=-1;edit<75;edit++)
-        {
-            var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
-            if(edit>=0)
-            {
-                var rgb=document.Intro[edit/3]; document.Intro[edit/3]=(edit%3) switch
-                {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
-            }
-            var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
-            string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
-            {
-                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
-                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
-            });
-            AssertEqual(hash,selected.ContentIdentity,"Independent intro content hash");
-            for(int color=0;color<25;color++)
-            {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Native intro word");
-                AssertEqual(Pack(document.Intro[color]),selected.ResolveIntro(color),"Independent intro replacement");
-                if(color>=17)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+(color-17)*2)),stock.ResolveIntro(color),"Canonical escape surface identity");
-            }
-            for(int color=0;color<16;color++)
-            {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Intro edits leave background independent");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Intro edits leave sprite independent");
-            }
-            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
-            selected.ApplyIntro(cgram);
-            for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
-            if(edit is -1 or 0 or 48 or 74)
-            {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SamusColourRig(); var vram=new SnesVram();
-                enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
-                new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
-                for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
-                AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
-            }
-        }
-        ushort[] escape=Enumerable.Range(0,15).Select(index=>CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+index*2))).ToArray();
-        for(int edit=-1;edit<45;edit++)
-        {
-            ushort[] selected=(ushort[])escape.Clone(); if(edit>=0)selected[edit/3]^=(ushort)(1<<(edit%3*5));
-            var paint=CeresDoorPaintRecognition.Escape(ToColors(selected));
-            for(int color=0;color<15;color++)AssertEqual(selected[color],paint.ColorAt(color),"Shared extraction preserves all escape channels and edits");
-            for(int color=0;color<25;color++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
-        }
-        foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");
-        Console.WriteLine("Draygon intro:25native aliases/zero overrides,75RGB edits/hash/76full copies,four actual initializers/readguard,45escape edits/independence/bounds pass.");
-    }
-
-    /// <summary>Checks Draygon sprite palette stages and their installed CGRAM output.</summary>
-    internal static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
-    {
-        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        byte[] json = DraygonColorExtractor.Extract(rom);
-        var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var material = stock.selection.Sprite;
-        AssertEqual(0,material.edits.Count,"Shared native sprite material has zero overrides");
-        for(int edit=-1;edit<48;edit++)
-        {
-            var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
-            if(edit>=0)
-            {
-                var rgb=document.Sprite[edit/3]; document.Sprite[edit/3]=(edit%3) switch
-                {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
-            }
-            var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
-            string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
-            {
-                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
-                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
-            });
-            AssertEqual(hash,selected.ContentIdentity,"Independent sprite channel content hash");
-            for(int color=0;color<16;color++)
-            {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),stock.ResolveSprite(color),"Native sprite source");
-                AssertEqual(Pack(document.Sprite[color]),selected.ResolveSprite(color),"Independent sprite replacement");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Shared owner does not couple background instance");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),selected.ResolveIntro(color),"Shared owner does not couple intro instance");
-            }
-            foreach(bool white in new[]{false,true})
-            {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
-                selected.ApplyHurt(cgram,white,5);
-                for(int color=0;color<256;color++)
-                {
-                    ushort expected=0x1234;
-                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[5][color-89]):Pack(document.Background[color-80]);
-                    if(color>=240)expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
-                    AssertEqual(expected,cgram.Colors[color],"Full sprite/white and independent BG health restore");
-                }
-            }
-            if(edit is -1 or 0 or 47)
-            {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
-                                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
-                foreach(ushort timer in new ushort[]{2,0})
-                {
-                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
-                    for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and independent edited clear/color targets");
-                }
-            }
-        }
-        foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveSprite(invalid),"Original sprite domain");
-        Console.WriteLine("Draygon sprite:16native aliases/zero overrides,48RGB edits/hash,98full normal-white copies,six actual hurt producer calls/readguard/independent background+intro/bounds pass.");
-    }
-
-    /// <summary>Checks Draygon background palette stages and their installed CGRAM output.</summary>
-    internal static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
-    {
-        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        byte[] json = DraygonColorExtractor.Extract(rom);
-        var stock = DraygonColorFile.Read(new MemoryStream(json));
-        var material = stock.selection.Background;
-        AssertEqual(0,material.edits.Count,"All16 background colors calculate without unexplained stock overrides");
-        for (int edit = -1; edit < 48; edit++)
-        {
-            var document = RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
-            if(edit >= 0)
-            {
-                var rgb = document.Background[edit / 3];
-                document.Background[edit / 3] = (edit % 3) switch
-                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
-            }
-            var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
-            string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1",content =>
-            {
-                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
-                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands",document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
-            });
-            AssertEqual(hash,selected.ContentIdentity,"Background source edits preserve canonical identity and independent resources");
-            for(int color=0;color<16;color++)
-            {
-                AssertEqual(Pack(document.Background[color]),selected.ResolveBackground(color),"All independent background channels remain installed");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),stock.ResolveBackground(color),"All16 native material words");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Independent sprite occurrence unaffected");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),selected.ResolveIntro(color),"Independent intro occurrence unaffected");
-            }
-            foreach(bool white in new[]{false,true})
-            {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
-                selected.ApplyHurt(cgram,white,3);
-                for(int color=0;color<256;color++)
-                {
-                    ushort expected= 0x1234;
-                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[3][color-89]):Pack(document.Background[color-80]);
-                    if(color>=240) expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
-                    AssertEqual(expected,cgram.Colors[color],"Full normal/white copy with native belly overwrite order");
-                }
-            }
-            if(edit is -1 or 0 or 47)
-            {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
-                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
-                foreach(ushort timer in new ushort[]{2,0})
-                {
-                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
-                    for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves edited targets and health overlay");
-                }
-            }
-        }
-        foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue}) AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveBackground(invalid),"Original background domain");
-        Console.WriteLine("Draygon background:16native/zero overrides,48RGB edits/hash/independent aliases,98full normal-white copies,six actual hurt producer calls/readguard/belly overwrite/bounds pass.");
-    }
-
-    /// <summary>Checks Draygon health-driven palette selection and installed CGRAM output.</summary>
-    internal static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
-    {
-        Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
-        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        byte[] json = DraygonColorExtractor.Extract(rom);
-        for (int edit = -1; edit < 96; edit++)
-        {
-            var document = RequiredJson.Deserialize<DraygonColorDocument>(json, ArtworkJson.Options);
-            if (edit >= 0)
-            {
-                int word = edit / 3; var rgb = document.HealthBands[word / 4][word % 4];
-                document.HealthBands[word / 4][word % 4] = (edit % 3) switch
-                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
-            }
-            var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
-            string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
-            {
-                content.AppendWords("intro", document.Intro.Select(Pack).ToArray()); content.AppendWords("background", document.Background.Select(Pack).ToArray());
-                content.AppendWords("sprite", document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash", document.WhiteFlash.Select(Pack).ToArray());
-                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
-            });
-            AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
-            for (int band = 0; band < 8; band++)
-            {
-                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-                selected.ApplyHealthBand(cgram, band);
-                for (int color = 0; color < 256; color++)
-                    AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
-                for (int shade = 0; shade < 4; shade++)
-                    AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa596af + (band * 4 + shade) * 2)) ^ (edit >= 0 && edit / 3 == band * 4 + shade ? 1 << (edit % 3 * 5) : 0)),
-                        selected.ResolveHealthBand(band, shade), "All native shades and independent endpoint/intermediate edits");
-            }
-            if (edit is -1 or 0 or 95)
-            {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
-                var cgram = new SamusColourRig();
-                RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
-                Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
-                for (int band = 0; band < 8; band++)
-                {
-                    body.Health = (ushort)((7 - band) * 750); state.HealthPaletteBand = null;
-                    update(state);
-                    AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
-                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
-                    cgram.SetColor(89, RgbColor.FromWord(0x1234)); update(state);
-                    AssertEqual(0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
-                    body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null);
-                    for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = WrappingCountdown.Start(0); hurt(body,state,null);
-                    for (int color = 0; color < 16; color++)
-                    {
-                        AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
-                        AssertEqual(Pack(document.Sprite[color]),cgram.Colors[240 + color],"Separate sprite paint remains independent");
-                    }
-                }
-            }
-        }
-        Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
-    }
-    /// <summary>Checks imported Draygon color rows against the native palette source.</summary>
-    private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
-    {
-        byte[] original = DraygonColorExtractor.Extract(rom);
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var stock = DraygonColorFile.Read(new MemoryStream(original));
-        AssertEqual(0, stock.selection.WhiteFlash.Count, "Draygon stock flash is calculated without stored colors");
-        var health = stock.selection.HealthBands;
-        AssertEqual(0, health.edits.Count, "All native Draygon health colors calculate without overrides");
-        for (int variation = -1; variation < 4; variation++)
-        {
-            var document = RequiredJson.Deserialize<DraygonColorDocument>(original, options);
-            var edited = new PaletteRgb5 { Red = 3, Green = 11, Blue = 21 };
-            if (variation == 0) document.WhiteFlash[0] = edited;
-            if (variation == 1) document.WhiteFlash[9] = edited;
-            if (variation == 2) document.HealthBands[3][2] = edited;
-            if (variation == 3) document.HealthBands[0][1] = edited;
-            var catalog = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
-            ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-            string identity = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
-            {
-                content.AppendWords("intro", document.Intro.Select(Native).ToArray());
-                content.AppendWords("background", document.Background.Select(Native).ToArray());
-                content.AppendWords("sprite", document.Sprite.Select(Native).ToArray());
-                content.AppendWords("whiteFlash", document.WhiteFlash.Select(Native).ToArray());
-                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Native).ToArray()).ToArray());
-            });
-            AssertEqual(identity, catalog.ContentIdentity, "Draygon calculated palette preserves selected content identity");
-            for (int color = 0; color < 16; color++)
-                AssertEqual(Native(document.WhiteFlash[color]), catalog.ResolveWhiteFlash(color), "Draygon native/edited flash remains independent");
-            for (int band = 0; band < 8; band++)
-            {
-                var cgram = new GameplayColours(new SpriteColourSets());
-                catalog.ApplyHealthBand(cgram, band);
-                for (int color = 0; color < 4; color++)
-                {
-                    ushort expected = Native(document.HealthBands[band][color]);
-                    AssertEqual(expected, catalog.ResolveHealthBand(band, color), "Draygon native/edited health color remains independent");
-                    AssertEqual(expected, cgram.Colors[89 + color], "Draygon health interpolation actual CGRAM transfer");
-                }
-            }
-            var flashCgram = new GameplayColours(new SpriteColourSets());
-            catalog.ApplyHurt(flashCgram, true, -1);
-            for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[80 + color], "Draygon flash background transfer");
-                AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[240 + color], "Draygon flash sprite transfer");
-            }
-        }
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
-        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new GameplayColours(new SpriteColourSets()), 8), "Draygon out-of-range health band rejected");
-    }
-
-    /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
-    internal static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
-    {
-        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        byte[] json = NorfairRidleyColorExtractor.Extract(rom);
-        var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
-        var definition = stock.selection.Reveal;
-        AssertEqual(0, definition.edits.Count,
-            "All210 native reveal words calculate without residual samples");
-        byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesets.Get(9).PaletteAddress);
-        for (int color = 0; color < 14; color++)
-        {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
-            AssertEqual(expected, NorfairRidleyRevealPaint.Endpoint(color), "Exact immutable room material endpoint");
-            AssertEqual(expected, LittleEndianBytes.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
-                "Identical room-theme9 occurrence remains separately accounted");
-        }
-        for (int edit = -1; edit < 630; edit++)
-        {
-            var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
-            if (edit >= 0)
-            {
-                int word = edit / 3;
-                var rgb = document.Reveal[word / 14][word % 14];
-                document.Reveal[word / 14][word % 14] = (edit % 3) switch
-                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
-            }
-            var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
-            string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
-            {
-                content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
-                content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
-            });
-            AssertEqual(hash, selected.ContentIdentity, "Every reveal edit preserves canonical content hash");
-            for (int row = 0; row < 15; row++)
-            {
-                ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.NorfairReveal(row), RidleyLaidColours.Room);
-                for (int color = 0; color < 256; color++)
-                    AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
-                        cgram[color], "Every independent reveal edit and full CGRAM copy");
-                for (int color = 0; color < 14; color++)
-                {
-                    AssertEqual(Pack(document.Reveal[row][color]), selected.ResolveReveal(row, color), "Direct revealed color equals supplied sample");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a50b + (row * 14 + color) * 2)), stock.ResolveReveal(row, color), "All native stock rows remain immutable");
-                }
-            }
-            if (edit is -1 or 0 or 629)
-            {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
-                enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
-                RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = WrappingCountdown.Start(0);
-                Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
-                for (int call = 0; call < 46; call++)
-                {
-                    tick(slot, state);
-                    ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
-                    int row = Math.Min(call / 3, 14);
-                    AssertEqual((ushort)(2 - call % 3), state.FunctionTimer.RawValue, "Actual three-call producer cadence preserved");
-                    AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadeStep, "Actual row and zero terminator progression");
-                    for (int color = 0; color < 256; color++)
-                        AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
-                            : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
-                            : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
-                            cgram[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
-                }
-                AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
-                AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
-                AssertEqual((ushort)8, state.WingAnimationTimer.RawValue, "Native wing timer handoff");
-                AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
-            }
-        }
-        foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(row, 0), "Original reveal row domain");
-        }
-        foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
-        Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
-    }
-
-    /// <summary>Checks Norfair initial palette state and its installed CGRAM colors.</summary>
-    internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
-    {
-        ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
-        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        static void NoEdits<TCell>(Dictionary<TCell, RgbColor> edits) where TCell : notnull =>
-            AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
-        byte[] json = NorfairRidleyColorExtractor.Extract(rom);
-        var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
-        var initial = stock.selection.Initial;
-        var armor = initial.armor;
-        var organ = initial.organ;
-        NoEdits(initial.edits); NoEdits(armor.edits); NoEdits(organ.edits);
-        NoEdits(armor.warm.edits);
-        for (int color = 0; color < 15; color++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e + color * 2)), stock.ResolveInitial(color + 1), "Exact escape material occurrence");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6e1f1 + color * 2)), stock.ResolveInitial(color + 17), "Exact Baby material occurrence");
-        }
-        for (int edit = -1; edit < 96; edit++)
-        {
-            var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
-            if (edit >= 0)
-            {
-                int color = edit / 3;
-                var rgb = document.Initial[color];
-                document.Initial[color] = (edit % 3) switch
-                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
-            }
-            var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
-            string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
-            {
-                content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
-                content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
-            });
-            AssertEqual(hash, selected.ContentIdentity, "Initial hash preserves exact supplied words and separate reveal");
-            ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), RidleySheetShades.NorfairSprites(selected), RidleyShades.NorfairStart, RidleyLaidColours.Sprites);
-            for (int color = 0; color < 256; color++)
-                AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160]) : (ushort)0x1234,
-                    cgram[color], "Initial full CGRAM copy and independent channel edits");
-            for (int color = 0; color < 32; color++)
-            {
-                AssertEqual(Pack(document.Initial[color]), selected.ResolveInitial(color), "Initial supplied value preserved");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6e1cf + color * 2)), stock.ResolveInitial(color), "Stock instance immutable");
-            }
-            for (int row = 0; row < 15; row++) for (int color = 0; color < 14; color++)
-                AssertEqual(Pack(original.Reveal[row][color]), selected.ResolveReveal(row, color), "Independent reveal remains unchanged");
-            if (edit is -1 or 0 or 95)
-            {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
-                var guard = NewProjectileCompositionForbiddenBus();
-                enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
-                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
-                ushort[] shown = RidleyLaidColours.Of(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
-                    RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
-                for (int color = 0; color < 256; color++)
-                    AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
-                        : color is >= 113 and <= 127 or >= 241 and <= 255 ? (ushort)0 : (ushort)0x1234,
-                        shown[color], "Actual initializer copies both targets then clears separate reveal ranges");
-            }
-        }
-        ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
-        var normalStock = CeresDoorPaintRecognition.Normal(ToColors(normalWords));
-        NoEdits(normalStock.edits); NoEdits(normalStock.WarmTargets.edits);
-        for (int edit = -1; edit < 90; edit++)
-        {
-            ushort[] normal = normalWords.ToArray(), escape = escapeWords.ToArray();
-            if (edit >= 0)
-            {
-                int local = edit % 45;
-                (edit < 45 ? normal : escape)[local / 3] ^= (ushort)(1 << (local % 3 * 5));
-            }
-            var normalProvider = CeresDoorPaintRecognition.Normal(ToColors(normal));
-            var dependentEscape = CeresDoorPaintRecognition.Escape(ToColors(escape), normalProvider);
-            var standaloneEscape = CeresDoorPaintRecognition.Escape(ToColors(escape));
-            for (int color = 0; color < 15; color++)
-            {
-                AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction preserves independent edits");
-                AssertEqual(escape[color], dependentEscape.ColorAt(color), "Normal source edits do not leak into escape occurrence");
-                AssertEqual(escape[color], standaloneEscape.ColorAt(color), "Standalone escape operation preserves exact colors");
-            }
-        }
-        foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
-        Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
-    }
-
-    /// <summary>Checks Botwoon color progression and installed CGRAM slots against native rows.</summary>
-    internal static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
-    {
-        byte[] original = BotwoonColorExtractor.Extract(rom);
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var stock = BotwoonColorFile.Read(new MemoryStream(original));
-        var paint = stock.health;
-        int stored = paint.edits.Count;
-        AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(0, color), "native initial/header alias remains exact");
-        for (int edit = -1; edit < 384; edit++)
-        {
-            var document = RequiredJson.Deserialize<BotwoonColorDocument>(original, options);
-            if (edit >= 0)
-            {
-                int word = edit / 3, channel = edit % 3;
-                var rgb = document.Health[word / 16][word % 16];
-                document.Health[word / 16][word % 16] = channel switch
-                {
-                    0 => rgb with { Red = rgb.Red ^ 1 },
-                    1 => rgb with { Green = rgb.Green ^ 1 },
-                    _ => rgb with { Blue = rgb.Blue ^ 1 },
-                };
-            }
-            var catalog = BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(document)));
-            ushort Expected(int band, int color) => (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2))
-                ^ (edit >= 0 && band * 16 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
-            ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-            string identity = SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
-                content.AppendWordFrames("health", document.Health.Select(row => row.Select(Native).ToArray()).ToArray()));
-            AssertEqual(identity, catalog.ContentIdentity, "Botwoon selected identity preserves every independently edited channel");
-            for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
-            {
-                AssertEqual(Expected(band, color), catalog.HealthColor(band, color), "native/edited endpoint, intermediate and copied metadata channels");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2)), stock.HealthColor(band, color), "stock owner remains immutable");
-            }
-            if (edit is -1 or 0 or 383)
-            {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-                var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
-                var cgram = new SamusColourRig();
-                var guard = NewBotwoonColorReadGuard(rom);
-                Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
-                RoomEnemySlot head = enemies.SlotTable.Slots[0];
-                var state = new BotwoonEnemyState() { HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody) };
-                for (int band = 0; band < 8; band++)
-                {
-                    for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
-                    state.PalettePhase = band;
-                    head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
-                    update(head, state);
-                    AssertEqual(band, state.PalettePhase, "exact threshold does not advance");
-                    for (int color = 0; color < 256; color++) AssertEqual(0x1234, cgram.Colors[color], "exact threshold preserves CGRAM");
-                    head.Health--;
-                    update(head, state);
-                    AssertEqual(band + 1, state.PalettePhase, "below threshold advances exactly one band");
-                    for (int color = 0; color < 256; color++)
-                        AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram.Colors[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
-                }
-                RgbColor[] completed = cgram.Colors.ToArray(); update(head, state);
-                for (int color = 0; color < 256; color++) AssertEqual(completed[color], cgram.Colors[color], "completed palette remains unchanged");
-                AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
-            }
-        }
-        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(invalid, 0), "Botwoon health band domain");
-        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
-        Console.WriteLine("Botwoon complete paint:128 native outputs,16 initial aliases,zero stock overrides,384 RGB edits/hash identities,51 actual threshold/copy/completed calls and native-read guard pass.");
-    }
-
-    /// <summary>Checks Oum instruction-list boundaries and pointer order against the cartridge.</summary>
-    internal static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
-    {
-        var nativeFrames = new Dictionary<ushort, ushort>();
-        for (int frame = 0xcb87; frame <= 0xcca9; frame += 10)
-            nativeFrames.Add((ushort)frame, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | (frame + 8))));
-        AssertEqual(nativeFrames.Count, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
-        int ordinal = 0;
-        foreach (ushort expectedFrame in nativeFrames.Keys)
-            AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
-        foreach (int invalid in new[] { int.MinValue, -1, nativeFrames.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
-        var selectedLists = new HashSet<ushort>();
-        int rectangles = 0;
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort frame = (ushort)raw;
-            bool valid = nativeFrames.TryGetValue(frame, out ushort expected);
-            AssertEqual(valid, MaridiaLargeSnailCollisionDefinitions.HasFrame(frame), "Oum frame domain remains exact");
-            if (!valid)
-            {
-                AssertThrows<InvalidDataException>(() => MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame), "Oum rejects every non-frame pointer");
-                continue;
-            }
-            ushort actual = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame);
-            AssertEqual(expected, actual, "Calculated Oum record identity matches original frame operand");
-            selectedLists.Add(actual);
-            var boxes = MaridiaLargeSnailCollisionDefinitions.HitboxesAt(actual);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | expected)), boxes.Length, "Calculated Oum pointer reaches the native rectangle count");
-            for (int index = 0; index < boxes.Length; index++)
-            {
-                int pointer = 0xa20000 | (expected + 2 + index * 12);
-                var box = boxes[index];
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer)), box.Left, "Oum selected left bound");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 2))), box.Top, "Oum selected top bound");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 4))), box.Right, "Oum selected right bound");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 6))), box.Bottom, "Oum selected bottom bound");
-                AssertEqual(EnemyReactionAccess.Of(0xa2, CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 8)), shot: false), (EnemyReaction?)box.Touch, "Oum selected touch callback");
-                AssertEqual(EnemyReactionAccess.Of(0xa2, CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 10)), shot: true), (EnemyReaction?)box.Shot, "Oum selected shot callback");
-                rectangles++;
-            }
-        }
-        AssertTrue(nativeFrames.Keys.SequenceEqual(MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
-        AssertTrue(selectedLists.SetEquals(MaridiaLargeSnailCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
-        Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
-    }
-
-    /// <summary>Checks the authored breakup phase sequence against native instruction order.</summary>
-    internal static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
-    {
-        ushort[] expected = Enumerable.Range(0, 12).Select(index =>
-            CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6c933 + index * 7) + 12)))).ToArray();
-        foreach (int freeSlots in new[] { 12, 2, 0 })
-        {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.Bind((EnemyDefinitionId)0xffff, slot.Definition);
-            for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
-            int randomCalls = 0;
-            enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
-            Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnNorfairRidleyBreakupActors;
-            var state = new RidleyEnemyState
-            {
-                TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
-                {
-                    Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index)),
-                }).ToArray(),
-            };
-            // Each part's initialization AI starts it from the encounter's shared Ridley state.
-            enemies.RidleyEncounter.Ridley = state;
-            if (freeSlots < expected.Length)
-                AssertThrows<InvalidOperationException>(() => spawn(state), "Breakup preserves partial allocation before pool exhaustion");
-            else spawn(state);
-            AssertTrue(state.DeathBreakupSpawned, "Breakup commits its one-shot guard before allocation");
-            AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
-            for (int index = 0; index < freeSlots; index++)
-            {
-                RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyExplosion, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
-                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-                    ?? throw new InvalidOperationException("A spawned fragment has no state.");
-                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.RawValue, "Actual breakup preserves each unresolved native lifetime");
-            }
-            spawn(state);
-            AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");
-        }
-        Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
-    }
-
-    /// <summary>Checks beam tile geometry and installed VRAM words against native layouts.</summary>
-    internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
-    {
-        int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
-        if (diagonalX >= 0x100) diagonalX -= 0x200;
-        AssertEqual(diagonalX, SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX, "shared diagonal origin matches original component");
-        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D112)), SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY, "shared diagonal Y remains exact source input");
-        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D6EE)), SpazerCompositionGeometryDefinitions.HorizontalStripOriginY, "horizontal strip centers the native small OBJ");
-        AssertEqual(0x32, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x1FF, "first H-flipped diagonal component is raw tile2");
-        AssertEqual(0x31, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x1FF, "second H-flipped diagonal component is raw tile1");
-        AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x4000, "diagonal first component horizontal flip");
-        AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x4000, "diagonal second component horizontal flip");
-        AssertEqual(16, SpazerCompositionGeometryDefinitions.DiagonalStripWidth, "two adjacent small cells form the strip width");
-        AssertEqual(2, BeamTileAtlasDefinitions.SpazerRibbonThickness, "required horizontal artwork thickness stays explicit");
-        var files = BeamTileExtractor.Extract(rom);
-        var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
-        var catalog = BeamTileCatalog.Load(files, palettes);
-        int derivedTotal = 0;
-        int runtimeBasisTotal = 0;
-        var compiled = catalog.sheets;
-        for (int selection = 0; selection < 12; selection++)
-        {
-            int sourceAddress = 0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2));
-            byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadCartridgeByte(sourceAddress + offset)).ToArray();
-            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinations.FromTableIndex(selection));
-            var stored = atlas.pixels;
-            int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 181, _ => 299 };
-            AssertEqual(expectedBasis, stored.Count, "Beam sheet stores exactly its required pixel basis with no stock derived fallbacks");
-            for (int pixel = 0; pixel < 512; pixel++)
-            {
-                bool derived = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinations.FromTableIndex(selection), pixel, out int sourcePixel);
-                if (selection is >= 4 and <= 7 && pixel % 64 / 8 is 1 or 2)
-                    AssertEqual(pixel is not (9 or 74 or 139 or 140 or 399), derived,
-                        "Spazer diagonal geometry and texture retain exactly five original ink seeds");
-                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out int selectedInk);
-                AssertEqual((selection & 8) != 0 && pixel is 192 or 193 or 195 or 256 or 257, ink,
-                    "Only the five independently reviewed original Plasma seed positions have retained pen values");
-                AssertEqual(!derived && !ink, stored.ContainsKey(pixel), "Every calculated stock pixel is absent from stored basis");
-                if (derived || ink)
-                {
-                    derivedTotal++;
-                    AssertEqual(ReadPixel(native, pixel), ink ? selectedInk : sourcePixel < 0 ? (byte)0 : ReadPixel(native, sourcePixel),
-                        "Direct transpose, quarter-turn or transparency equals independently decoded native pixels");
-                }
-            }
-            int canonical = BeamTileAtlasDefinitions.CanonicalSelection(SamusBeamCombinations.FromTableIndex(selection)).TableIndex;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + canonical * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2)), "Canonical beam family matches original native source-pointer identity");
-            var compiledPixels = compiled[selection].pixels;
-            int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 10, 8 => 299, _ => 0 };
-            AssertEqual(expectedRuntimeBasis, compiledPixels.Count, "Runtime catalog stores only independent primary-family artwork pixels");
-            runtimeBasisTotal += compiledPixels.Count;
-            int sharedSelection = BeamTileAtlasDefinitions.SharedTileSourceSelection(SamusBeamCombinations.FromTableIndex(selection))?.TableIndex ?? -1;
-            byte[] sharedNative = sharedSelection < 0 ? [] : Enumerable.Range(0, 256)
-                .Select(offset => rom.ReadCartridgeByte((0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + sharedSelection * 2))) + offset)).ToArray();
-            for (int pixel = 0; pixel < 512; pixel++)
-            {
-                bool shared = BeamTileAtlasDefinitions.IsSharedTilePixel(SamusBeamCombinations.FromTableIndex(selection), pixel);
-                bool geometry = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinations.FromTableIndex(selection), pixel, out _) ||
-                    BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out _);
-                AssertEqual(selection == canonical && !shared && !geometry, compiledPixels.ContainsKey(pixel),
-                    "No shared-source, rotation or blank stock pixel is hidden in runtime storage");
-                if (shared)
-                    AssertEqual(ReadPixel(native, pixel), ReadPixel(sharedNative, pixel), "Shared tile relationship matches both independent original ROM sheets");
-            }
-            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Calculated DMA view matches all256 original bytes per beam selection");
-            var directVram = new SnesVram();
-            atlas.LoadTo(directVram);
-            AssertTrue(native.SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
-            VerifyQueued(catalog, selection, native);
-            var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
-            foreach (int editedPixel in new[] { 0, 7, 16, 24, 32, 40, 192, 193, 195, 256, 257, 320, 296, 303, 304, 311, 312, 511, 96, 127, 289, 295, 160, 164, 8, 9, 466, 467, 74, 139, 140, 399, 141, 204, 416, 224, 352 })
-            {
-                byte[] pixels = image.Pixels.ToArray();
-                pixels[editedPixel] ^= 1;
-                using var changedPng = new MemoryStream();
-                IndexedPng.Write(changedPng, new(64, 8), pixels, image.Colours);
-                byte[] changed = changedPng.ToArray();
-                var edited = BeamTileAtlas.Load(new MemoryStream(changed), SamusBeamCombinations.FromTableIndex(selection));
-                byte[] expected = native.ToArray();
-                int tile = editedPixel % 64 / 8;
-                int y = editedPixel / 64;
-                int x = editedPixel % 8;
-                expected[tile * 32 + y * 2] ^= (byte)(1 << (7 - x));
-                AssertTrue(expected.SequenceEqual(edited.Characters.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
-                var editedFiles = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = changed };
-                var editedCatalog = BeamTileCatalog.Load(editedFiles, palettes);
-                VerifyQueued(editedCatalog, selection, expected);
-                for (int other = 0; other < 12; other++)
-                    if (other != selection)
-                        AssertTrue(catalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span.SequenceEqual(editedCatalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span),
-                            "Shared native beam shapes remain independently editable per installed selection");
-                AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Pixel edits do not mutate original calculated atlas");
-            }
-        }
-        AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
-        AssertEqual(2912, derivedTotal, "Twelve standalone selections calculate exactly2912 orientation, row-pattern, blank and approved pen occurrences");
-        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinations.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
-        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage, independent edits and the bound projectile page pass.");
-
-        // The projectile page the selection binds shows the calculated characters where `$90:AC8D`'s DMA put them
-        // (native immediates: $0100 bytes at VMADD $6300), and leaves the characters around them alone.
-        void VerifyQueued(BeamTileCatalog selected, int selection, byte[] expected)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
-            int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
-            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.TrailTiles);
-            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)selection)).Characters;
-            AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
-                "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");
-            AssertEqual((byte)0, page[first * SpriteArtwork.CharacterByteCount - 1], "Beam characters leave the preceding character alone");
-        }
-
-        static byte ReadPixel(byte[] native, int pixel)
-        {
-            int tile = pixel % 64 / 8, x = pixel % 8, y = pixel / 64, result = 0;
-            for (int plane = 0; plane < 4; plane++)
-                result |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
-            return (byte)result;
-        }
-    }
-
-    /// <summary>Checks Ceres starting palette state and installed CGRAM colors.</summary>
-    internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
-    {
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        for (int color = 0; color < 32; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + color * 2)), stock.ResolveStart(color), "Complete native additional palette");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6F4EC + color * 2)), stock.ResolveStart(color), "Native normal door material occurrence");
-        for (int color = 0; color < 15; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)), stock.ResolveStart(17 + color), "Native Baby initial identity");
-        var definition = stock.selection.Start;
-        var edits = definition.edits;
-        AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
-        for (int channel = 0; channel < 3; channel++)
-        for (int edit = -1; edit < 47; edit++)
-        {
-            var starts = document.Start.ToArray();
-            var babyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
-            var resting = babyShades.Resting.ToArray();
-            if (edit >= 0)
-            {
-                PaletteRgb5 source = edit < 32 ? starts[edit] : resting[edit - 32];
-                PaletteRgb5 changed = channel switch
-                {
-                    0 => source with { Red = source.Red ^ 1 },
-                    1 => source with { Green = source.Green ^ 1 },
-                    _ => source with { Blue = source.Blue ^ 1 },
-                };
-                if (edit < 32) starts[edit] = changed; else resting[edit - 32] = changed;
-            }
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, BabyShades = babyShades with { Resting = resting } })));
-            IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
-            ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), shades, RidleyShades.CeresStart, RidleyLaidColours.Sprites);
-            for (int color = 0; color < 256; color++)
-            {
-                ushort expected = color is >= 160 and < 192
-                    ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + (color - 160) * 2)) ^ (edit == color - 160 ? 1 << (channel * 5) : 0))
-                    : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Exact full start copy and untouched neighbors");
-                if (color is >= 160 and < 192)
-                    AssertEqual(expected, selected.ResolveStart(color - 160), "Independent supplied start word");
-            }
-            RidleyLaidColours.Lay(cgram, shades, RidleyShades.Baby(CeresBabyShade.Resting), RidleyLaidColours.Sprites);
-            for (int color = 0; color < 15; color++)
-                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
-                    cgram[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
-        }
-        foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
-        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
-    }
-
-    /// <summary>Checks Ceres Baby palette phases and installed CGRAM colors.</summary>
-    internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
-    {
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        ushort Native(int row, int color)
-        {
-            int a = 0xa6e1f1 + (row * 15 + color) * 2;
-            return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
-        }
-        // Each shade shows the native Baby row of the same rank: resting, then the horizontal, round and vertical poses.
-        CeresBabyShade[] shadeOfRow = [CeresBabyShade.Resting, CeresBabyShade.HorizontalSquish, CeresBabyShade.Round, CeresBabyShade.VerticalSquish];
-        CeresBabyShadeColorsDocument babyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
-        PaletteRgb5[][] NativeOrderedRows() => [.. shadeOfRow.Select(shade => babyShades.Of(shade).ToArray())];
-        var definition = stock.selection.Baby;
-        var overrides = definition.edits;
-        AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
-        for (int color = 0; color < 3; color++)
-        {
-            int address = 0xa6e464 + color * 2;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), Native(0, color + 4), "Exact native membrane/organ source identities");
-        }
-        foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, BabyShades = null }, ArtworkJson.Options);
-        var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
-        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), legacy.ResolveBaby(shadeOfRow[row], color), "Legacy document preserves the independently installed Baby owner");
-        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 native Baby colors calculate");
-        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 63; edit++)
-        {
-            var rows = NativeOrderedRows();
-            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            if (edit >= 0)
-            {
-                PaletteRgb5 original = edit < 60 ? rows[edit / 15][edit % 15] : body[15][8 + edit - 60];
-                PaletteRgb5 replacement = channel switch
-                {
-                    0 => original with { Red = original.Red ^ 1 },
-                    1 => original with { Green = original.Green ^ 1 },
-                    _ => original with { Blue = original.Blue ^ 1 },
-                };
-                if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
-            }
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(rows), BodyFade = body })));
-            for (int row = 0; row < 4; row++)
-            {
-                ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), RidleySheetShades.CeresSprites(selected), RidleyShades.Baby(shadeOfRow[row]), RidleyLaidColours.Sprites);
-                for (int color = 0; color < 256; color++)
-                {
-                    ushort expected = color is >= 177 and < 192
-                        ? (ushort)(Native(row, color - 177) ^ (edit == row * 15 + color - 177 ? 1 << (channel * 5) : 0))
-                        : (ushort)0x1234;
-                    AssertEqual(expected, cgram[color], "Baby actual copy preserves independent source/row edits and neighbors");
-                }
-                for (int color = 0; color < 32; color++)
-                    AssertEqual(stock.ResolveStart(color), selected.ResolveStart(color), "Body/Baby changes cannot alter supplied startup palette");
-            }
-        }
-        foreach (int variation in new[] { -1, 0, 1 })
-        {
-            var bodyRows = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            var babyRows = NativeOrderedRows();
-            if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
-            if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(babyRows), BodyFade = bodyRows })));
-            IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(selected);
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
-            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
-            for (int phase = 0; phase < 12; phase++)
-            {
-                int cursor = 0xbf5d + phase * 8;
-                int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
-                // The expressive loop's palette command for this phase is step 1 + 2 * phase, its pose the next step.
-                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyFrameHold = 1, BabyVerticalVelocity = 1 };
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
-                AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
-                AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
-                ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
-                for (int color = 0; color < 15; color++)
-                    AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), shown[177 + color], "Actual pose-selected palette preserves independent edits");
-            }
-        }
-        foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(CeresBabyShade.Resting, color), "Baby color domain");
-        Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
-    }
-
-    /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>
-    internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
-    {
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var stored = stock.selection.RetreatShared;
-        AssertEqual(0, stored.Count, "No native retreat shared paints retained");
-        for (int color = 0; color < 8; color++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + color * 2)), stock.ResolveRetreatShared(color), "Native shared retreat colors");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6e171 + color * 2)), stock.ResolveRetreatShared(color), "Native startup material identity");
-        }
-        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 16; edit++)
-        {
-            var starts = document.Start.ToArray();
-            var shared = document.RetreatShared.ToArray();
-            if (edit >= 0)
-            {
-                var old = edit < 8 ? shared[edit] : starts[edit - 7];
-                var replacement = channel switch { 0 => old with { Red = old.Red ^ 1 }, 1 => old with { Green = old.Green ^ 1 }, _ => old with { Blue = old.Blue ^ 1 } };
-                if (edit < 8) shared[edit] = replacement; else starts[edit - 7] = replacement;
-            }
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, RetreatShared = shared })));
-            ushort[] cgram = RidleyLaidColours.Filled(0x1234);
-            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[RidleyLaidColours.Sprites]);
-            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, RidleyLaidColours.Room);
-            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, RidleyLaidColours.Room);
-            RidleyLaidColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, RidleyLaidColours.Sprites);
-            for (int color = 0; color < 256; color++)
-            {
-                int sharedColor = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
-                ushort expected = sharedColor >= 0 ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + sharedColor * 2)) ^ (edit == sharedColor ? 1 << (channel * 5) : 0))
-                    : color is >= 81 and < 96 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Exact retreat BG/OBJ copies and independent source edits");
-            }
-        }
-        foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatShared(color), "Retreat shared domain");
-        Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
-    }
-
-    /// <summary>Checks Ceres zoom and retreat palette phases in their native order.</summary>
-    internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
-    {
-        byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
-        var zoomDocument = RequiredJson.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, ArtworkJson.Options);
-        var zoomStock = CeresRidleyMode7ColorFile.Read(new MemoryStream(zoomJson));
-        var ceresStock = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorExtractor.Extract(rom)));
-        var zoomDefinition = zoomStock.steps;
-        var zoomEdits = zoomDefinition.edits;
-        AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x848050), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), GoldenTorizoHealthPaint.Color(0, 15, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front), "Existing immutable neutral source owner");
-        static PaletteRgb5 Change(PaletteRgb5 original, int channel) => channel switch
-        {
-            0 => original with { Red = original.Red ^ 1 },
-            1 => original with { Green = original.Green ^ 1 },
-            _ => original with { Blue = original.Blue ^ 1 },
-        };
-        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 135; edit++)
-        {
-            var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
-            if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
-            var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
-            var ridley = new RidleyEnemyState();
-            enemies.RidleyEncounter.Ridley = ridley;
-            IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected, new RgbColor[RidleyLaidColours.Sprites]);
-            Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
-            for (int row = 0; row < 9; row++)
-            {
-                apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));
-                ushort[] cgram = RidleyLaidColours.Of(ridley, [], zoomRoom, 0x1234);
-                for (int color = 0; color < 256; color++)
-                {
-                    ushort expected = color is >= 81 and < 96
-                        ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b107 + row * 32 + (color - 81) * 2)) ^ (edit == row * 15 + color - 81 ? 1 << (channel * 5) : 0))
-                        : (ushort)0x1234;
-                    AssertEqual(expected, cgram[color], "Actual native high-byte zoom selection and independent edits");
-                    if (color is >= 81 and < 96) AssertEqual(expected, selected.Resolve(row, color - 81), "Calculated zoom resolver matches actual copy");
-                }
-            }
-        }
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        var retreatEdits = stock.selection.RetreatBg;
-        AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
-        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
-        {
-            var retreat = document.RetreatBg.ToArray();
-            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            var eyes = document.EyeFade.Select(row => row.ToArray()).ToArray();
-            if (edit is >= 0 and < 15) retreat[edit] = Change(retreat[edit], channel);
-            else if (edit is >= 15 and < 26) body[1][edit - 15] = Change(body[1][edit - 15], channel);
-            else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
-            ushort[] cgram = RidleyLaidColours.Filled(0x1234);
-            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock, new RgbColor[RidleyLaidColours.Sprites]);
-            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, RidleyLaidColours.Room);
-            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, RidleyLaidColours.Room);
-            RidleyLaidColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, RidleyLaidColours.Sprites);
-            for (int color = 0; color < 256; color++)
-            {
-                int shared = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
-                ushort expected = color is >= 81 and < 96
-                    ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) ^ (edit == color - 81 ? 1 << (channel * 5) : 0))
-                    : shared >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + shared * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Retreat near-black source independence and exact BG/OBJ destinations");
-            }
-        }
-        foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(invalid, 0), "Zoom row domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, invalid), "Zoom color domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(invalid), "Retreat color domain");
-        }
-        AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(9, 0), "Zoom upper row bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, 15), "Zoom upper color bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(15), "Retreat upper color bound");
-        Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
-    }
-
-    /// <summary>Checks Ceres health-dependent palette phases and installed CGRAM output.</summary>
-    internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
-    {
-        byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
-        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
-        ushort Native(int row, int color)
-        {
-            int a = 0xa6e46a + (row * 14 + color) * 2;
-            return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
-        }
-        var definition = stock.selection.Health;
-        var overrides = definition.edits;
-        AssertEqual(0, overrides.Count, "All42 native health colors calculate");
-        static PaletteRgb5 Change(PaletteRgb5 value, int channel) => channel switch
-        { 0 => value with { Red = value.Red ^ 1 }, 1 => value with { Green = value.Green ^ 1 }, _ => value with { Blue = value.Blue ^ 1 } };
-        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 56; edit++)
-        {
-            var rows = document.Health.Select(row => row.ToArray()).ToArray();
-            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            var eyes = document.EyeFade.Select(row => row.ToArray()).ToArray();
-            if (edit is >= 0 and < 42) rows[edit / 14][edit % 14] = Change(rows[edit / 14][edit % 14], channel);
-            else if (edit is >= 42 and < 53) body[15][edit - 42] = Change(body[15][edit - 42], channel);
-            else if (edit >= 53) eyes[0][edit - 53] = Change(eyes[0][edit - 53], channel);
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
-            IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
-            for (int row = 0; row < 3; row++)
-            {
-                ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), shades, RidleyShades.Health(row), RidleyLaidColours.Sprites);
-                for (int color = 0; color < 256; color++)
-                {
-                    ushort expected = color is >= 241 and < 255
-                        ? (ushort)(Native(row, color - 241) ^ (edit == row * 14 + color - 241 ? 1 << (channel * 5) : 0)) : (ushort)0x1234;
-                    AssertEqual(expected, cgram[color], "Health copy preserves every independent source/output edit and neighbor");
-                }
-            }
-        }
-        for (int variation = -1; variation < 2; variation++)
-        {
-            var rows = document.Health.Select(row => row.ToArray()).ToArray();
-            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
-            if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
-            if (variation == 1) body[15][9] = Change(body[15][9], 1);
-            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
-            IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
-            Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
-            Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
-            void Check(RidleyEnemyState shown, int row)
-            {
-                ushort[] cgram = RidleyLaidColours.Of(shown, healthShades, [], 0x1234);
-                for (int color = 0; color < 256; color++)
-                {
-                    ushort expected = row >= 0 && color is >= 241 and < 255
-                        ? (ushort)(Native(row, color - 241) ^ (variation == 0 && row == 1 && color == 246 ? 1 << 10 : 0)) : (ushort)0x1234;
-                    AssertEqual(expected, cgram[color], "Actual encounter health/shot selection preserves installed paint and exact copy");
-                }
-            }
-            foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
-            {
-                enemies.SlotTable.Slots[0].Health = health;
-                var state = new RidleyEnemyState(); norfair(enemies.SlotTable.Slots[0], state);
-                int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
-                AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(state, row);
-            }
-            foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
-            {
-                var hit = new RidleyEnemyState { FightMode = fight, HitCounter = hits };
-                ceres(hit);
-                Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
-            }
-        }
-        foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(row, 0), "Health row bounds");
-        foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, color), "Health color bounds");
-        Console.WriteLine("Ridley health:42 native words,zero stock overrides,126 output/42 source RGB edits,513 actual copies,54 actual encounter selections and bounds/null pass.");
-    }
-
-    /// <summary>Checks HUD anchor coordinates and cell placement against native layout data.</summary>
-    internal static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
-    {
-        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
-        for (int tank = 0; tank < 14; tank++)
-        {
-            int native = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2));
-            AssertEqual(native / 2, GameplayHudStockCells.EnergyTankCell(tank), "native HUD tank offset");
-            AssertEqual(native / 2, document.EnergyTanks.Anchors[tank].Y * 32 + document.EnergyTanks.Anchors[tank].X,
-                "extracted native HUD tank anchor");
-        }
-        for (int item = 0; item < 5; item++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e + item * 2) / 2, GameplayHudStockCells.ItemCell(item), "native HUD item offset");
-        for (int cell = 0; cell < 6; cell++)
-        {
-            int native = (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809b65 + cell * 7)) - 0xc608) / 2;
-            AssertEqual(native, GameplayHudStockCells.AutoReserveCellIndex(cell), "native AUTO store destination");
-        }
-        ushort[] tiles = new ushort[96];
-        stock.ApplyEnergy(tiles, 100, 1400);
-        for (int tank = 0; tank < 14; tank++)
-            AssertEqual((tank == 0 ? stock.FilledEnergyTank : stock.EmptyEnergyTank).PackedWord,
-                tiles[CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2)) / 2], "native tank draw destination");
-        stock.ApplyAutoReserve(tiles, containsEnergy: true);
-        for (int cell = 0; cell < 6; cell++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x80998b + cell * 2)), tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "native AUTO draw destination");
-        stock.ClearAutoReserve(tiles);
-        for (int cell = 0; cell < 6; cell++)
-            AssertEqual(stock.Blank.PackedWord, tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "native AUTO clear destination");
-
-        {
-            var held0 = document.EnergyTanks.Anchors[1];
-            var held1 = document.EnergyTanks.Anchors[0];
-            document.EnergyTanks.Anchors[0] = held0;
-            document.EnergyTanks.Anchors[1] = held1;
-        }
-        {
-            var held0 = document.AutoReserve.Anchors[1];
-            var held1 = document.AutoReserve.Anchors[0];
-            document.AutoReserve.Anchors[0] = held0;
-            document.AutoReserve.Anchors[1] = held1;
-        }
-        using var editedJson = new MemoryStream();
-        GameplayHudPresentationFile.Write(editedJson, document);
-        editedJson.Position = 0;
-        GameplayHudArtwork edited = GameplayHudPresentationFile.Read(editedJson);
-        edited.ApplyEnergy(tiles, 100, 1400);
-        AssertEqual(edited.FilledEnergyTank.PackedWord, tiles[0x44 / 2], "edited first tank moves to second native anchor");
-        AssertEqual(edited.EmptyEnergyTank.PackedWord, tiles[0x42 / 2], "edited second tank moves to first native anchor");
-        edited.ApplyAutoReserve(tiles, containsEnergy: false);
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809997), tiles[9], "edited AUTO first cell follows override");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809999), tiles[8], "edited AUTO second cell follows override");
-        for (int cell = 2; cell < 6; cell++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809997 + cell * 2)), tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "unedited AUTO anchors unchanged");
-        document.AutoReserve.Anchors[0] = document.AutoReserve.Anchors[1];
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(new MemoryStream(), document),
-            "HUD anchor compilation rejects overlap");
-        foreach (int invalid in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.EnergyTankCell(invalid), "tank exact domain");
-        foreach (int invalid in new[] { -1, 5, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.ItemCell(invalid), "item exact domain");
-        foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.AutoReserveCellIndex(invalid), "AUTO exact domain");
-    }
-
-    /// <summary>Runs the beam geometry verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream-4-beam-geometry")]
-    internal static int LookupStream4BeamGeometryCommand()
-    {
-        Suite(nameof(VerifyLookupStream4BeamTileGeometry), () => VerifyLookupStream4BeamTileGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the auto-reserve cell verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-hud-auto-cells")]
-    internal static int LookupStream4HudAutoCellsCommand()
-    {
-        Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the HUD anchor verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-hud-anchors")]
-    internal static int LookupStream4HudAnchorsCommand()
-    {
-        Suite(nameof(VerifyLookupStream4HudAnchors), () => VerifyLookupStream4HudAnchors(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the HUD digit verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-hud-digits")]
-    internal static int LookupStream4HudDigitsCommand()
-    {
-        Suite(nameof(VerifyLookupStream4HudDigits), () => VerifyLookupStream4HudDigits(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the title sprite identity verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-title-identities")]
-    internal static int LookupStream4TitleIdentitiesCommand()
-    {
-        Suite(nameof(VerifyTitleSpriteIdentities), () => VerifyTitleSpriteIdentities(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the title card layout verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-title-card")]
-    internal static int LookupStream4TitleCardCommand()
-    {
-        Suite(nameof(VerifyTitleCardLayout), () => VerifyTitleCardLayout(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the room sprite dispatch verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-sprite-dispatch")]
-    internal static int LookupStream4SpriteDispatchCommand()
-    {
-        Suite(nameof(VerifyRoomSpriteDispatch), () => VerifyRoomSpriteDispatch(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the Fly escape frame verification against a pinned cartridge image.</summary>
-    [VerificationCommand("--lookup-stream4-fly-escape")]
-    internal static int LookupStream4FlyEscapeCommand()
-    {
-        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyFlyFrameIdentities), () => VerifyFlyFrameIdentities(source));
-        Suite(nameof(VerifyZebesEscapeExplosionDefinitions), () => VerifyZebesEscapeExplosionDefinitions(source));
-        return 0;
-    }
-}
+using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.Diagnostics.Saves;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Verification.Fx.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Verification.Enemies.MaridiaSnails;
+using SuperMetroid.Verification.Enemies.Skree;
+using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core;
+using SuperMetroid.Tooling;
+using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using SuperMetroid.Core.Assets;
+using System.Reflection;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
+using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
+using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBotwoonColorsVerification;
+using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Verification.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.MaridiaSnails;
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Verification.Bosses;
+namespace SuperMetroid.Verification.Harness;
+
+/// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
+internal static class LookupStream4Verification
+{
+    /// <summary>Background colours 14 and 15, which follow colours 1-11 in the required fade sites.</summary>
+    private static readonly int[] UpperBackgroundColors =
+        [14, 15];
+
+    /// <summary>Checks every foreground explosion palette hold, CGRAM exposure, deletion, and star handoff tick.</summary>
+    internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
+    {
+        Suite(nameof(VerifyZebesExplosionForegroundPaletteFxColorDefinitions), () => VerifyZebesExplosionForegroundPaletteFxColorDefinitions(rom));
+        ushort nativeProgram = rom.ReadCartridgeWord(0x8de1ca);
+        AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxColorDefinitions.ProgramStart, "Native foreground entry");
+        int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
+        var rows = new List<LookupStream4Row>();
+        int cursor = nativeProgram + 4;
+        while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
+        {
+            ushort duration = rom.ReadCartridgeWord((0x8d0000 | cursor));
+            AssertEqual(duration, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(rows.Count), "Every native foreground duration");
+            cursor += 2;
+            var colors = new List<ushort>();
+            while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
+            {
+                colors.Add(rom.ReadCartridgeWord((0x8d0000 | cursor)));
+                cursor += 2;
+            }
+            AssertEqual((ushort)PaletteFxInstruction.Wait, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground wait");
+            cursor += 2;
+            rows.Add(new LookupStream4Row(duration, colors.ToArray()));
+        }
+        AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
+        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
+        var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
+        var fxSession = new PaletteFxSessionState();
+        var fx = new RoomPaletteFxSystem(fxSession);
+        var cgram = new SamusColourRig();
+        fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
+        int ticks = 0;
+        foreach (var row in rows)
+        for (int hold = 0; hold < row.Duration; hold++)
+        {
+            fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            {
+                ushort expected = color >= destination && color < destination + row.Colors.Length
+                    ? row.Colors[color - destination] : (ushort)0;
+                AssertEqual(expected, cgram.Colors[color], "Actual foreground color exposure and untouched CGRAM");
+            }
+            AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
+            ticks++;
+        }
+        AssertEqual(rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
+        AssertEqual(rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0] switch
+        {
+            AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep show => show.Duration,
+            AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.WaitStep wait => wait.Duration,
+            var other => throw new InvalidOperationException($"The stars' first step {other} lasts no updates."),
+        }, "Actual actor program retains the shared native handoff");
+        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
+        fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
+        foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(invalid), "Foreground duration domain");
+        Console.WriteLine("Foreground cadence:35 native controls,16 independently decoded durations,144 actual CGRAM exposures plus exact deletion/native star handoff/read guard/bounds pass; color artwork remains required.");
+    }
+
+    /// <summary>Checks title tube and display shades against native words and confirms edited RGB channels propagate independently.</summary>
+    private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
+    {
+        ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+        byte[] json = TitlePaletteExtractor.Extract(rom);
+        TitlePalettePresentation stock = TitlePaletteFile.Read(new MemoryStream(json));
+        var native = new Dictionary<ushort, ushort>();
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
+            native.Add(pointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8d0000 | pointer)));
+            AssertTrue(stock.TryReadColor(pointer, out RgbColor value), "calculated title ambient color resolves");
+            AssertEqual(native[pointer], value, "native title ambient color");
+        }
+        var stored = stock.animatedColors;
+        AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
+        AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Count, "title color identity count preserved");
+        AssertEqual(36, TitlePalettePresentationTooling.ColorPointers.Distinct().Count(), "title color identities enumerate once");
+        for (int pointer = 0xc7fa; pointer <= 0xc87a; pointer++)
+            AssertEqual(native.ContainsKey((ushort)pointer), stock.TryReadColor((ushort)pointer, out _),
+                "title ambient color domain excludes controls and unaligned bytes");
+        var document = RequiredJson.Deserialize<TitlePaletteDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        document.BabyMetroidTubeLight[0][0] = document.BabyMetroidTubeLight[0][0] with { Red = 20 };
+        document.BabyMetroidTubeLight[2][0] = document.BabyMetroidTubeLight[2][0] with { Green = 12 };
+        document.BabyMetroidTubeLight[7][3] = document.BabyMetroidTubeLight[7][3] with { Blue = 9 };
+        document.FlickeringDisplays[1][1] = document.FlickeringDisplays[1][1] with { Red = 17 };
+        using var changedJson = new MemoryStream();
+        TitlePaletteFile.Write(changedJson, document);
+        changedJson.Position = 0;
+        TitlePalettePresentation changed = TitlePaletteFile.Read(changedJson);
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
+            PaletteRgb5 supplied = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                ? document.BabyMetroidTubeLight[frame][index] : document.FlickeringDisplays[frame][index];
+            AssertTrue(changed.TryReadColor(pointer, out RgbColor value), "edited ambient color resolves");
+            AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
+        }
+        foreach (int invalid in new[] { -1, 2, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = TitleScreenAmbientPaletteOwners.All[invalid],
+                "title ambient owner list domain");
+    }
+
+    /// <summary>Runs both title ambient loops for two cycles and checks per-tick CGRAM colors without live cartridge reads.</summary>
+    internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
+    {
+        int ticks = 0;
+        foreach (var definition in TitleScreenAmbientPaletteOwners.All)
+        {
+            ushort nativeProgram = rom.ReadCartridgeWord((0x8d0000 | definition.DefinitionPointer + 2));
+            AssertEqual(nativeProgram, definition.ProgramStart, "Native ambient definition selects calculated program");
+            int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
+            var nativeRows = new List<LookupStream4Row>();
+            int cursor = nativeProgram + 4;
+            while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
+            {
+                ushort duration = rom.ReadCartridgeWord((0x8d0000 | cursor));
+                cursor += 2;
+                var colors = new List<ushort>();
+                while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
+                {
+                    colors.Add(rom.ReadCartridgeWord((0x8d0000 | cursor)));
+                    cursor += 2;
+                }
+                AssertEqual((ushort)PaletteFxInstruction.Wait, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native ambient record wait");
+                cursor += 2;
+                nativeRows.Add(new LookupStream4Row(duration, colors.ToArray()));
+            }
+            AssertEqual((ushort)PaletteFxInstruction.Goto, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native ambient terminal loop");
+            AssertEqual((ushort)(nativeProgram + 4), rom.ReadCartridgeWord((0x8d0000 | cursor + 2)), "Native ambient loop target");
+            AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
+            AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
+            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
+            var fxSession = new PaletteFxSessionState();
+            var fx = new RoomPaletteFxSystem(fxSession);
+            var cgram = new SamusColourRig();
+            fx.SpawnDefinition(definition.DefinitionPointer, 0);
+            for (int cycle = 0; cycle < 2; cycle++)
+            foreach (var row in nativeRows)
+            for (int hold = 0; hold < row.Duration; hold++)
+            {
+                fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                for (int color = 0; color < SnesCgram.ColorCount; color++)
+                {
+                    ushort expected = color >= destination && color < destination + row.Colors.Length
+                        ? row.Colors[color - destination] : (ushort)0;
+                    AssertEqual(expected, cgram.Colors[color], "Actual ambient shade/dwell/destination and untouched CGRAM");
+                }
+                ticks++;
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts, "Ambient mechanics have no live cartridge dependency");
+            AssertTrue(fx.IsDefinitionActive(definition.DefinitionPointer), "Ambient loop stays active");
+        }
+        AssertEqual(164, ticks, "Both exact ambient loops confirmed twice");
+        Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
+    }
+    /// <summary>Combines title ambient palette artwork and mechanics checks through the installed color source.</summary>
+    internal static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
+    {
+        Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
+        byte[] json = TitlePaletteExtractor.Extract(rom);
+        TitlePaletteDocument Document() => RequiredJson.Deserialize<TitlePaletteDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        static ushort Pack(PaletteRgb5 value) => (ushort)(value.Red | value.Green << 5 | value.Blue << 10);
+        static PaletteRgb5 Edit(PaletteRgb5 value, int channel) => channel switch
+        {
+            0 => value with { Red = (value.Red + 1) % 32 },
+            1 => value with { Green = (value.Green + 1) % 32 },
+            _ => value with { Blue = (value.Blue + 1) % 32 },
+        };
+        static TitlePalettePresentation Load(TitlePaletteDocument document)
+        {
+            using var output = new MemoryStream();
+            TitlePaletteFile.Write(output, document);
+            return TitlePaletteFile.Read(new MemoryStream(output.ToArray()));
+        }
+        void Confirm(TitlePaletteDocument document, TitlePalettePresentation selected)
+        {
+            for (int color = 0; color < 256; color++)
+                AssertEqual(Pack(document.Colors[color]), selected.Colors[color], "Independent initial paint remains exact");
+            foreach (var program in TitleScreenAmbientPaletteOwners.All)
+            {
+                var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                    ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
+                for (int frame = 0; frame < rows.Length; frame++)
+                for (int index = 0; index < rows[frame].Length; index++)
+                {
+                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out RgbColor actual), "Every supplied ambient word resolves");
+                    AssertEqual(Pack(rows[frame][index]), actual, "Independent initial/animated edits preserve every supplied neighbor");
+                }
+            }
+        }
+        int edits = 0;
+        foreach (int slot in new[] { 3, 19, 42, 43, 44, 45, 46, 47 })
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var document = Document();
+            document.Colors[slot] = Edit(document.Colors[slot], channel);
+            Confirm(document, Load(document));
+            edits++;
+        }
+        foreach (var program in TitleScreenAmbientPaletteOwners.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var document = Document();
+            var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
+            rows[frame][index] = Edit(rows[frame][index], channel);
+            Confirm(document, Load(document));
+            edits++;
+        }
+        AssertEqual(132, edits, "All initial paint and animated channel edits confirmed independently");
+        for (int scenario = 0; scenario < 3; scenario++)
+        {
+            var document = Document();
+            if (scenario == 1) document.Colors[42] = Edit(document.Colors[42], 1);
+            if (scenario == 2) document.BabyMetroidTubeLight[2][0] = Edit(document.BabyMetroidTubeLight[2][0], 1);
+            var selected = Load(document);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
+            var fxSession = new PaletteFxSessionState();
+            var fx = new RoomPaletteFxSystem(fxSession);
+            var cgram = new ScreenPalette();
+            selected.Apply(cgram);
+            foreach (var program in TitleScreenAmbientPaletteOwners.All)
+                fx.SpawnDefinition(program.DefinitionPointer, 0);
+            for (int tick = 0; tick <= 80; tick++)
+            {
+                fx.Step(new ScreenPaletteFxColours(cgram), selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                ushort[] expected = document.Colors.Select(Pack).ToArray();
+                foreach (var program in TitleScreenAmbientPaletteOwners.All)
+                {
+                    var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                        ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
+                    int frame = tick / program.FrameDuration % program.FrameCount;
+                    for (int index = 0; index < program.ColorsPerFrame; index++)
+                        expected[program.Colours.CartridgeColour + index] = Pack(rows[frame][index]);
+                }
+                AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
+            AssertEqual(0, guardedPresentationReads.Value, "Installed title colors avoid live reads");
+        }
+        Console.WriteLine("Title ambient complete:36 native words/zero stock overrides,132 independent RGB edits,unchanged256 initial-paint owner,243 actual simultaneous-loop CGRAM states and no live reads pass.");
+    }
+
+    /// <summary>Confirms the ending font preserves cartridge space glyph data and layout boundaries.</summary>
+    internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
+    {
+        byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
+            0x97E7DE, EndingArtworkExtentDefinitions.FloorBytes);
+        byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
+        byte[] png = EndingFontAtlasExtractor.Extract(rom);
+        var image = IndexedPng.Read(new MemoryStream(png), new(128, 80));
+        var atlas = EndingFontCharacters.Read(new MemoryStream(png));
+        var stored = atlas.pixels;
+        var footprint = atlas.glyphFootprint;
+        AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
+        AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
+        AssertTrue(native.SequenceEqual(atlas.Characters.Span), "all5120 original ending font bytes match");
+        AssertTrue(native.SequenceEqual(EndingFontCharacters.FromPlanarBytes(native).Characters.Span), "legacy native import uses same calculated representation");
+        AssertEqual((ushort)0x4F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.ResultSmall).PackedWord, "native small text space selects blank tile4F");
+        AssertEqual((ushort)0x7F, EndingTextGlyphs.CompileGlyph(' ', EndingTextStyle.CopyrightLarge).PackedWord, "native large text space selects blank tile7F");
+        var largeDeviations = new HashSet<LargeDeviation>
+        {
+            new LargeDeviation(0x21,5,2),new LargeDeviation(0x21,6,3),new LargeDeviation(0x21,7,4),new LargeDeviation(0x21,7,7),new LargeDeviation(0x21,7,8),new LargeDeviation(0x21,7,13),new LargeDeviation(0x21,6,14),
+            new LargeDeviation(0x23,6,3),new LargeDeviation(0x23,7,5),new LargeDeviation(0x23,7,11),new LargeDeviation(0x23,6,13),new LargeDeviation(0x23,5,14),
+            new LargeDeviation(0x26,4,6),new LargeDeviation(0x26,4,10),new LargeDeviation(0x29,0,13),new LargeDeviation(0x29,7,13),new LargeDeviation(0x29,1,14),new LargeDeviation(0x29,6,14),
+            new LargeDeviation(0x2A,5,2),new LargeDeviation(0x2A,4,3),new LargeDeviation(0x2A,5,8),new LargeDeviation(0x2A,6,9),new LargeDeviation(0x2A,7,10),
+            new LargeDeviation(0x40,7,3),new LargeDeviation(0x41,7,10),new LargeDeviation(0x41,7,11),new LargeDeviation(0x42,7,13),new LargeDeviation(0x42,1,14),new LargeDeviation(0x42,6,14),new LargeDeviation(0x45,6,11),new LargeDeviation(0x45,2,14),
+        };
+        AssertEqual(31, largeDeviations.Count, "precise native large-glyph deviation domain");
+        var edits = new List<int> { image.Pixels.Length - 1 };
+        for (int pixel = 0; pixel < image.Pixels.Length; pixel++)
+        {
+            int tile = pixel / 128 / 8 * 16 + pixel % 128 / 8;
+            int x = pixel % 8, y = pixel / 128 % 8;
+            bool space = tile is 0x4F or 0x7F;
+            bool small = tile < 26;
+            bool large = tile is >= 0x20 and <= 0x3F or >= 0x40 and <= 0x49 or >= 0x50 and <= 0x59
+                or >= 0x60 and <= 0x69 or >= 0x70 and <= 0x79;
+            int top = tile & ~0x10, glyphY = y + ((tile & 0x10) != 0 ? 8 : 0);
+            bool largeDeviation = large && largeDeviations.Contains(new LargeDeviation(top, x, glyphY));
+            bool outlined = small || large;
+            bool cutout = new Cutout(tile, x, y) is (0x0A, 3, 0) or (0x0A, 7, 4) or (0x0C, 4, 1) or (0x19, 7, 3);
+            AssertEqual(space, EndingFontAtlasFormat.IsSpacePixel(pixel), "only the two native semantic blank cells");
+            AssertEqual(small, EndingFontAtlasFormat.IsSmallAlphabetPixel(pixel), "only the native small alphabet cells");
+            AssertEqual(cutout, EndingFontAtlasFormat.IsRequiredSmallGlyphCutout(pixel), "exact four unresolved native cutouts");
+            AssertEqual(largeDeviation, EndingFontAtlasFormat.IsRequiredLargeGlyphDeviation(pixel), "exact31 unresolved native large-glyph sites");
+            AssertEqual(!space && (!outlined || cutout || largeDeviation), stored.ContainsKey(pixel), "exact unresolved source pixel membership");
+            AssertEqual(outlined && image.Pixels[pixel] == 1, footprint.Contains(pixel), "exact independent original glyph footprint positions");
+            bool calculated = EndingFontAtlasFormat.TryCalculatedPixel(pixel, footprint, out int ink);
+            AssertEqual(space || outlined && !cutout && !largeDeviation, calculated, "exact calculated-domain membership");
+            if (calculated) AssertEqual(image.Pixels[pixel], ink, "direct native outline/blank calculation with no stored fallback");
+            if (space || outlined) edits.Add(pixel);
+        }
+        AssertEqual(6401, edits.Count, "all6272 small/large alphabet and digit sites,128 blank sites and one other required pixel edit");
+        foreach (int pixel in edits)
+        {
+            byte[] changedPixels = image.Pixels.ToArray(); changedPixels[pixel] ^= 1;
+            using var changedPng = new MemoryStream();
+            IndexedPng.Write(changedPng, new(128, 80), changedPixels, image.Colours); changedPng.Position = 0;
+            var changed = EndingFontCharacters.Read(changedPng);
+            int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
+            byte[] expected = native.ToArray();
+            expected[tile * 32 + y % 8 * 2] ^= (byte)(1 << (7 - x % 8));
+            AssertTrue(expected.SequenceEqual(changed.Characters.Span), "independent space/source edit changes exactly its native bitplane bit");
+            AssertTrue(expected.SequenceEqual(EndingFontCharacters.FromPlanarBytes(expected).Characters.Span), "edited legacy import preserves the same native bit");
+            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "font edit leaves stock immutable");
+        }
+        foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
+        AssertThrows<InvalidDataException>(() => EndingFontCharacters.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
+        Console.WriteLine("Ending font:5120 native bytes,2026 required footprint positions,3875 required pixels including35 deviations,4339 derived outline/background/space sites and6401 independent native-bit edits pass.");
+    }
+
+    /// <summary>Checks Maridia palette colors and source ownership against the native palette rows.</summary>
+    internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
+    {
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
+        var stored = stock.colors;
+        var sites = new List<LookupStream4Site>();
+        for (int owner = 0; owner < 3; owner++)
+        {
+            int frames = owner == 2 ? 8 : 4, colors = owner == 1 ? 4 : 8;
+            int first = owner == 0 ? 0xF4EF : owner == 1 ? 0xF547 : 0xF57F;
+            for (int frame = 0; frame < frames; frame++)
+            for (int color = 0; color < colors; color++)
+            {
+                ushort pointer = (ushort)(first + frame * (colors + 2) * 2 + color * 2);
+                sites.Add(new LookupStream4Site(owner, frame, color, pointer));
+                AssertTrue(MaridiaEnvironmentalColors.TrySourcePointer(pointer, out ushort source), "native rotation domain");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), rom.ReadCartridgeWordFixedBank(0x8D0000 | source), "direct native color rotation relationship");
+                AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
+                AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed environmental color resolves");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "native installed environmental color");
+            }
+        }
+        AssertEqual(112, sites.Count, "native environmental color domain");
+        AssertEqual(16, sites.Count(site => stored.ContainsKey(site.Pointer)), "sixteen required first-row colors");
+        var pointers = stock.ColorPointers.Where(pointer => MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _)).ToArray();
+        AssertEqual(112, pointers.Length, "environmental identities remain published");
+        AssertEqual(112, pointers.Distinct().Count(), "environmental identities remain unique");
+        foreach (var edit in sites)
+        {
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
+            var rows = edit.Owner == 0 ? document.MaridiaSandPits : edit.Owner == 1 ? document.MaridiaSandFalls : document.MaridiaBackgroundWaterfalls;
+            rows[edit.Frame][edit.Color] = rows[edit.Frame][edit.Color] with { Red = rows[edit.Frame][edit.Color].Red ^ 1 };
+            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            foreach (var site in sites)
+            {
+                AssertTrue(changed.TryReadColor(site.Pointer, out RgbColor actual), "edited environmental pointer resolves");
+                AssertEqual((ushort)(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer) ^ (site.Pointer == edit.Pointer ? 1 : 0)), actual, "independent source/rotated/shared color edit");
+                AssertTrue(stock.TryReadColor(site.Pointer, out RgbColor original), "stock environmental pointer resolves");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer), original, "stock environmental colors remain immutable");
+            }
+        }
+        foreach (var definition in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
+        {
+            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
+            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
+                                                                 var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
+            native.SpawnDefinition(definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, 0);
+            for (int step = 0; step <= definition.CycleFrames; step++)
+            {
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
+            }
+            AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
+            AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
+            foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
+                AssertTrue(!MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
+        }
+        Console.WriteLine("Maridia colors:112 native words,16 required inputs,96 rotated/shared colors,all112 independent edits and three actual installed cycles pass.");
+    }
+
+    /// <summary>Checks the planet text glyphs and placement data against cartridge definitions.</summary>
+    internal static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
+    {
+        var all = PlanetZebesTextPaletteFxColorDefinitions.All;
+        AssertEqual(2, all.Count, "two text fade owners");
+        for (int owner = 0; owner < 2; owner++)
+        {
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xE1B2 + owner * 4)), all[owner].ProgramStart, "native text definition target");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].AnimatedColours.CartridgeByteIndex, "native text colours start where the text colour group is placed");
+        }
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        var stock = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
+        var stored = stock.colors;
+        int storedCount = 0;
+        for (int owner = 0; owner < 2; owner++)
+        for (int frame = 0; frame < 8; frame++)
+        for (int color = 0; color < 3; color++)
+        {
+            ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
+            AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
+            AssertTrue(PlanetZebesTextColors.TryCalculate(pointer, stored, out RgbColor calculated), "native text interpolation domain");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), calculated, "direct calculated native text color");
+            bool required = owner == 0 && frame == 7;
+            AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
+            if (stored.ContainsKey(pointer)) storedCount++;
+            AssertTrue(stock.TryReadColor(pointer, out RgbColor installed), "installed text color available");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), installed, "installed native text color");
+        }
+        AssertEqual(3, storedCount, "three required selected endpoint colors");
+        var pointers = stock.ColorPointers.Where(pointer => PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _)).ToArray();
+        AssertEqual(48, pointers.Length, "all text pointer identities remain published");
+        AssertEqual(48, pointers.Distinct().Count(), "text pointer identities are unique");
+        for (int edit = 0; edit < 48; edit++)
+        {
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
+            var rows = edit < 24 ? document.PlanetZebesTextFadeIn : document.PlanetZebesTextFadeOut;
+            int selected = edit % 24;
+            rows[selected / 3][selected % 3] = rows[selected / 3][selected % 3] with { Red = rows[selected / 3][selected % 3].Red ^ 1 };
+            var changed = RoomPaletteFxPresentationFile.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            for (int owner = 0; owner < 2; owner++)
+            for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 3; color++)
+            {
+                ushort pointer = all[owner].ColorPointer(frame, color);
+                AssertTrue(changed.TryReadColor(pointer, out RgbColor actual), "edited text pointer resolves");
+                AssertEqual((ushort)(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) ^ (owner * 24 + frame * 3 + color == edit ? 1 : 0)), actual, "independent text endpoint/derived edit");
+                AssertTrue(stock.TryReadColor(pointer, out RgbColor original), "stock text pointer resolves");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), original, "stock text remains immutable");
+            }
+        }
+        foreach (var definition in all)
+        {
+            var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
+            var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
+            var nativeSession = new PaletteFxSessionState();
+            var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
+                                                                 var installed = new RoomPaletteFxSystem(installedSession);
+            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
+            native.SpawnDefinition(definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, 0);
+            for (int step = 0; step <= 24; step++)
+            {
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
+            }
+            AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
+            AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
+        }
+        foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
+        foreach (ushort pointer in new ushort[] { 0xC90E, 0xC912, 0xC91A, 0xC962, 0xC964, 0xC968, 0xC9B8 })
+            AssertTrue(!PlanetZebesTextColors.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
+        Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
+    }
+
+    /// <summary>Checks Ceres fade phases, native color rows, and installed CGRAM exposure.</summary>
+    internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        foreach (bool eyes in new[] { true, false })
+        {
+            int count = eyes ? 3 : 11, start = eyes ? 0xA6E2AA : 0xA6E30A;
+            ushort Native(int row, int color)
+            {
+                int address = start + (row * count + color) * 2;
+                return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            }
+            if (!eyes)
+                for (int color = 0; color < 8; color++)
+                {
+                    int source = 0x848034 + color * 2;
+                    ushort golden = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
+                    AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
+                    AssertEqual(golden, GoldenTorizoHealthPaint.Color(0, color + 1, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front), "Shared immutable stock endpoint and clipped armor ramp");
+                }
+            var definition = eyes ? stock.selection.EyeFade : stock.selection.BodyFade;
+            AssertEqual(0, definition.overrides.Count, "stock fade never hides residual samples as edit overrides");
+            for (int row = 0; row < 16; row++)
+            for (int color = 0; color < count; color++)
+            {
+                AssertEqual(Native(row, color), definition.Resolve(row, color), "direct stock fade calculation matches native word");
+            }
+            for (int channel = 0; channel < 3; channel++)
+            for (int edit = -1; edit < 16 * count; edit++)
+            {
+                var selected = stock;
+                if (edit >= 0)
+                {
+                    var rows = (eyes ? document.EyeFade : document.BodyFade).Select(row => row.ToArray()).ToArray();
+                    PaletteRgb5 original = rows[edit / count][edit % count];
+                    rows[edit / count][edit % count] = channel switch
+                    {
+                        0 => original with { Red = original.Red ^ 1 },
+                        1 => original with { Green = original.Green ^ 1 },
+                        _ => original with { Blue = original.Blue ^ 1 },
+                    };
+                    var changed = eyes ? document with { EyeFade = rows } : document with { BodyFade = rows };
+                    selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(changed)));
+                }
+                IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
+                for (int row = 0; row < 16; row++)
+                {
+                    ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0), shades,
+                        eyes ? RidleyShades.EyeFade(row) : RidleyShades.BodyFade(row), BossShadeColours.Sprites);
+                    for (int color = 0; color < count; color++)
+                    {
+                        ushort expected = (ushort)(Native(row, color) ^ (row * count + color == edit ? 1 << channel * 5 : 0));
+                        AssertEqual(expected, eyes ? selected.ResolveEyeFade(row, color) : selected.ResolveBodyFade(row, color), "independent fade edit preserves every other supplied sample");
+                        AssertEqual(expected, cgram[(eyes ? 252 : 145) + color], "actual fade CGRAM destination");
+                        if (!eyes) AssertEqual(expected, cgram[241 + color], "body fade duplicates its BG colors into OBJ palette");
+                        AssertEqual(Native(row, color), eyes ? stock.ResolveEyeFade(row, color) : stock.ResolveBodyFade(row, color), "stock fade remains immutable");
+                    }
+                    AssertEqual(0, cgram[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
+                    AssertEqual(0, cgram[eyes ? 255 : 156], "following fade CGRAM unchanged");
+                }
+            }
+            foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(row, 0), "fade row bounds");
+            foreach (int color in new[] { -1, count, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(0, color), "fade color bounds");
+        }
+        Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides,144eye/528body channel edits and10848 actual row applications pass.");
+    }
+
+    /// <summary>Checks Ceres alarm palette timing and color output at its native CGRAM destination.</summary>
+    internal static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
+    {
+        ushort Native(int row, int color)
+        {
+            int address = 0xA6C1DF + (row * 3 + color) * 2;
+            return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        }
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
+        var definition = stock.selection.Alarm;
+        var inputs = definition.edits;
+        AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
+        for (int row = 0; row < 16; row++)
+        for (int color = 0; color < 3; color++)
+        {
+            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColors.Phase(row), color), "direct reflected/native relationship");
+
+            AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
+        }
+        for (int edit = -1; edit < 144; edit++)
+        {
+            var selected = stock;
+            if (edit >= 0)
+            {
+                var rows = (document.Alarm ?? throw new InvalidOperationException("Verification requires document.Alarm.")).Select(row => row.ToArray()).ToArray();
+                int word = edit / 3, channel = edit % 3;
+                var original = rows[word / 3][word % 3];
+                rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
+                selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Alarm = rows })));
+            }
+            IReadOnlyList<SheetShade> room = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
+            if (edit is -1 or 0 or 143)
+            {
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
+                Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
+                var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
+                for (ushort nmi = 0; nmi < 64; nmi++)
+                {
+                    update(state, nmi);
+                    ushort[] cgram = RidleyLaidColours.Of(state, [], room, 0x1234);
+                    int row = nmi / 4;
+                    AssertEqual((ushort)row, state.CeresEscapePaletteFrame, "actual alarm advances only every fourth NMI and wraps");
+                    for (int color = 0; color < 256; color++)
+                    {
+                        ushort expected = 0x1234;
+                        if (color is >= 97 and <= 99)
+                        {
+                            int word = row * 3 + color - 97;
+                            expected = (ushort)(Native(row, color - 97) ^ (edit >= 0 && word == edit / 3 ? 1 << (edit % 3 * 5) : 0));
+                        }
+                        AssertEqual(expected, cgram[color], "actual gated producer preserves exact row and other CGRAM colors");
+                    }
+                }
+            }
+            for (int row = 0; row < 16; row++)
+            {
+                ushort[] cgram = BossShadeColours.Filled(0);
+                cgram[96] = 0x1234; cgram[100] = 0x2345;
+                BossShadeColours.Lay(cgram, room, RidleyShades.Alarm(row), BossShadeColours.Room);
+                for (int color = 0; color < 3; color++)
+                {
+                    ushort expected = (ushort)(Native(row, color) ^ (edit >= 0 && row * 3 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
+                    AssertEqual(expected, selected.ResolveAlarm(row, color), "independent alarm source/derived edit");
+                    AssertEqual(expected, cgram[97 + color], "actual alarm CGRAM write");
+                    AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "stock alarm remains immutable");
+                }
+                AssertEqual(0x1234, cgram[96], "alarm preceding CGRAM unchanged");
+                AssertEqual(0x2345, cgram[100], "alarm following CGRAM unchanged");
+            }
+        }
+        CeresBabyShadeColorsDocument alarmBabyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+        // Version two stored the Baby's colours as the cartridge's ordered steps; version one predates them.
+        PaletteRgb5[][] alarmBabySteps = [alarmBabyShades.Resting, alarmBabyShades.HorizontalSquish, alarmBabyShades.Round, alarmBabyShades.VerticalSquish];
+        foreach (int version in new[] { 1, 2 })
+        {
+            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
+                document with { Version = version, Alarm = null, BabyShades = null, Baby = version == 1 ? null : alarmBabySteps }, ArtworkJson.Options);
+            var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
+            for (int row = 0; row < 16; row++)
+            for (int color = 0; color < 3; color++)
+                AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
+        }
+        foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
+        foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
+        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls, legacy fallback and bounds pass.");
+    }
+
+    /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
+    internal static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
+    {
+        var all = MaridiaEnvironmentalPaletteFxColorDefinitions.All;
+        AssertEqual(3, all.Count, "three native environmental owners");
+        int colors = 0;
+        for (int index = 0; index < 3; index++)
+        {
+            var definition = all[index];
+            int pointer = rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xF795 + index * 4 + 2));
+            AssertEqual((ushort)pointer, definition.ProgramStart, "native definition selects calculated setup");
+            AssertEqual((MaridiaEnvironmentalPaletteOwner)index, definition.Owner, "owner order");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), definition.AnimatedColours.CartridgeByteIndex, "native colours start where the definition's colour group is placed");
+            pointer += 4;
+            int frame = 0;
+            while (rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) < 0x8000)
+            {
+                AssertEqual((ushort)pointer, definition.FramePointer(frame), "native timed record stride");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), definition.Duration, "required native cadence");
+                pointer += 2;
+                int color = 0;
+                while (rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer) != (ushort)PaletteFxInstruction.Wait)
+                {
+                    AssertEqual((ushort)pointer, definition.ColorPointer(frame, color), "native color identity");
+                    color++; colors++; pointer += 2;
+                }
+                AssertEqual(definition.ColorsPerFrame, color, "native color group extent");
+                pointer += 2; frame++;
+            }
+            AssertEqual(definition.FrameCount, frame, "native rotation cycle extent");
+            AssertEqual((ushort)pointer, definition.LoopInstructionPointer, "native loop opcode location");
+            AssertEqual((ushort)PaletteFxInstruction.Goto, rom.ReadCartridgeWordFixedBank(0x8D0000 | pointer), "native goto identity");
+            AssertEqual(definition.FirstFramePointer, rom.ReadCartridgeWordFixedBank(0x8D0000 | (pointer + 2)), "native loop target");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(-1), "negative frame rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(frame), "exhausted frame rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.ColorPointer(0, color: -1), "negative color rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.ColorPointer(0, definition.ColorsPerFrame), "exhausted color rejection");
+        }
+        AssertEqual(112, colors, "native presentation words remain independently owned");
+        foreach (int index in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = all[index], "owner selector bounds");
+        Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
+    }
+
+    /// <summary>Checks ending shake displacement and timing data against its native program.</summary>
+    internal static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
+    {
+        int Native(int address)
+        {
+            ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
+            return unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction));
+        }
+        for (int index = 0; index < 16; index++)
+            AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");
+        for (int index = 0; index < 8; index++)
+            AssertEqual(Native(0x8BDDAD + index * 4), EndingShipShake.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
+        AssertEqual(32768, EndingShipShake.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
+        AssertEqual(-32768, EndingShipShake.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
+        AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingShipShake.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
+        AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingShipShake.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
+        foreach (bool fast in new[] { true, false })
+        {
+            int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
+            var state = new EndingCreditsState(new SuperMetroid.Core.Audio.AudioQueues(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
+            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(100).WithFractionX(0xC000);
+            state.Stage.FloorZoom = 0xC00; state.Stage.PhaseTimer = 100;
+            state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
+            Action step = fast ? state.Flyaway.StepPlanetEscapeFast : state.Flyaway.StepPlanetEscapeSlow;
+            uint expected = 100u << 16 | 0xC000;
+            int expectedAngle = 0, expectedZoom = 0xC00;
+            for (int frame = 0; frame <= count; frame++)
+            {
+                expected = unchecked(expected + (uint)Native(address + (frame % count) * 4));
+                if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
+                expectedZoom -= fast ? 8 : 2;
+                step();
+                AssertEqual(RotationAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
+                AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
+                AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
+                AssertEqual((ushort)((frame + 1) % count), state.Flyaway.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
+            }
+            state.Stage.FloorZoom = fast ? EndingMotionDefinitions.PlanetFastEndScale : EndingMotionDefinitions.PlanetSlowEndScale;
+            state.Flyaway.PlanetMotionIndex = (ushort)(count - 1);
+            state.Stage.FloorPosition = state.Stage.FloorPosition.WithWholeX(0).WithFractionX(0x4000);
+            step();
+            uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)finalPosition)), state.Stage.FloorPosition.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, state.Stage.FloorPosition.X.Fraction, "terminal fraction is preserved before handoff");
+            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Stage.Phase, "native zoom boundary chooses next phase after selected motion");
+            AssertEqual(0, state.Flyaway.PlanetMotionIndex, "handoff preserves wrapped/reset index");
+            if (!fast)
+            {
+                AssertEqual((short)0, state.Flyaway.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
+                AssertEqual((ushort)0x8000, state.Flyaway.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
+            }
+        }
+        foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetFastDelta(index), "fast shake bounds");
+        foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingShipShake.PlanetSlowDelta(index), "slow shake bounds");
+        Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
+    }
+
+    /// <summary>Checks Spore Spawn health-dependent palette stages against native colors.</summary>
+    internal static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
+    {
+        ushort[][] native = Enumerable.Range(0, 4)
+            .Select(frame => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + frame * 32 + color * 2))).ToArray())
+            .ToArray();
+        // Independent oracle: colors 0 and 9..15 of rows 1 and 2 interpolate rows 0 and 3.
+        static bool Calculated(int frame, int color) => frame is 1 or 2 && (color == 0 || color >= 9);
+        static ushort Expected(ushort[][] rows, int frame, int color)
+        {
+            if (!Calculated(frame, color)) return rows[frame][color];
+            if (color == 0) return rows[3][0];
+            int value = 0;
+            for (int shift = 0; shift <= 10; shift += 5)
+                value |= ((rows[0][color] >> shift & 31) * (3 - frame) + (rows[3][color] >> shift & 31) * frame + 1) / 3 << shift;
+            return (ushort)value;
+        }
+        for (int frame = 0; frame < 4; frame++)
+        for (int color = 0; color < 16; color++)
+            AssertEqual(native[frame][color], Expected(native, frame, color), $"Native health row {frame} color {color} follows the interpolation");
+
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
+        var rows = stock.selection.Health;
+        var edits = rows.intermediateEdits;
+        AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
+        Check(stock, native);
+        int stored = 0;
+        for (int frame = 0; frame < 4; frame++)
+        for (int color = 0; color < 16; color++)
+        {
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            document.Health[frame][color] = document.Health[frame][color] with { Red = document.Health[frame][color].Red ^ 1 };
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
+            ushort[][] expected = native.Select(row => (ushort[])row.Clone()).ToArray();
+            expected[frame][color] ^= 1;
+            // Every supplied cell resolves exactly; cells that no longer follow the (edited)
+            // endpoints are kept as stored deviations rather than recalculated.
+            Check(edited, expected);
+            var editedRows = edited.selection.Health;
+            int deviations = ((System.Collections.IDictionary)editedRows.intermediateEdits).Count;
+            int expectedDeviations = 0;
+            for (int step = 1; step <= 2; step++)
+            for (int calculated = 0; calculated < 16; calculated++)
+                if (Calculated(step, calculated) && Expected(expected, step, calculated) != expected[step][calculated])
+                    expectedDeviations++;
+            AssertEqual(expectedDeviations, deviations, $"Edit of row {frame} color {color} stores only non-following cells");
+            stored += deviations;
+        }
+        Console.WriteLine($"Spore health ramp: all64 native colors, 14 calculated intermediate cells with no stored stock values, and all64 single-cell edits ({stored} stored deviations) pass.");
+
+        static void Check(SporeSpawnColorCatalog catalog, ushort[][] expected)
+        {
+            for (int frame = 0; frame < 4; frame++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(expected[frame][color], catalog.ResolveHealth(frame, color), $"Health row {frame} color {color}");
+        }
+    }
+
+    /// <summary>Checks the healthy Spore Spawn palette aliases the intended native color range.</summary>
+    internal static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
+    {
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
+        var values = stock.selection.Spores;
+        AssertEqual(0, values.Count, "Stock spores retain no duplicate healthy-body colors");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), "Original separate spore and healthy-body rows have identical coloring");
+        Verify(stock, false, false);
+        foreach (bool editSpore in new[] { false, true })
+        {
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (editSpore) document.Spores[5] = document.Spores[5] with { Red = document.Spores[5].Red ^ 1 };
+            else document.Health[0][5] = document.Health[0][5] with { Red = document.Health[0][5].Red ^ 1 };
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
+            Verify(edited, editSpore, !editSpore);
+            Verify(stock, false, false);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveSpore(invalid), "Spore alias color bounds remain exact");
+        Console.WriteLine("Spore healthy-palette alias: all16 native words, zero stock overrides and separate spore/healthy-body edits pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, bool editSpore, bool editHealth)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[] spores = Read(0xa5e359);
+            ushort[][] health = Rows(0xa5e379, 4);
+            if (editSpore) spores[5] ^= 1;
+            if (editHealth) health[0][5] ^= 1;
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(spores[color], catalog.ResolveSpore(color), "Independent health edit does not recolor spores");
+                for (int frame = 0; frame < 4; frame++)
+                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Independent spore edit leaves all body health rows intact");
+            }
+            string identity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", spores);
+                content.AppendWordFrames("health", health);
+                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
+                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
+                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "Healthy-palette alias preserves canonical content hash for independent edits");
+        }
+    }
+
+    /// <summary>Checks Spore Spawn level-fade phases and their source palette rows.</summary>
+    internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
+    {
+        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
+        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
+        AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
+        var values = stock.selection.DeathLevel;
+        AssertEqual(40, values.Count, "Level fade stores28 unresolved trajectory words and12 other final colors");
+        for (int color = 0; color < 16; color++)
+        {
+            bool unresolved = color is 0 or 7 or 11 or 15;
+            if (!unresolved)
+            {
+                int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
+                AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
+                    SporeSpawnDeathFade.InitialLevelColor(color), "Level basis matches exact original decoded room color");
+            }
+            for (int frame = 0; frame < 7; frame++)
+            {
+                AssertEqual(frame == 6 || unresolved, values.ContainsKey(new ColourCell(frame, color)), "Only explicit unresolved columns and final colors remain stored");
+                bool calculated = SporeSpawnDeathFade.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
+                AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
+                if (calculated)
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), value, "Direct level interpolation matches original native words");
+            }
+        }
+        Verify(stock, -1, -1);
+        foreach (var selected in new[] { new Coordinate(Frame:6, Color:3), new Coordinate(Frame:2, Color:3), new Coordinate(Frame:1, Color:0), new Coordinate(Frame:3, Color:7), new Coordinate(Frame:4, Color:11), new Coordinate(Frame:5, Color:15) })
+        {
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var old = document.DeathLevel[selected.Frame][selected.Color];
+            document.DeathLevel[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
+            Verify(edited, selected.Frame, selected.Color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(invalid, 0), "Level frame bounds remain exact");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathLevel(0, invalid), "Level color bounds remain exact");
+        Console.WriteLine("Spore level fade: twelve required room-color sites, forty required death words and72 calculated interiors; native values, exact basis, edits and identity pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[][] level = Rows(0xa5e4f9, 7);
+            if (editedFrame >= 0) level[editedFrame][editedColor] ^= 1;
+            for (int frame = 0; frame < 7; frame++)
+                for (int color = 0; color < 16; color++)
+                {
+                    AssertEqual(level[frame][color], catalog.ResolveDeathLevel(frame, color), "Calculated and unresolved level edits retain every other selected word");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)), catalog.ResolveDeathBackground(frame, color), "Level edit leaves background layer independent");
+                }
+            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", Read(0xa5e359));
+                content.AppendWordFrames("health", Rows(0xa5e379, 4));
+                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
+                content.AppendWordFrames("deathLevel", level);
+                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Level calculation preserves canonical selected content identity");
+        }
+    }
+
+    /// <summary>Checks Spore Spawn background-fade stages against native palette words.</summary>
+    internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
+    {
+        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
+        RgbColor[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
+        AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
+        foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
+        {
+            int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
+            AssertEqual(LittleEndianBytes.Word(palette[offset], palette[offset + 1]),
+                SporeSpawnDeathFade.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
+        }
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
+        var values = stock.selection.DeathBackground;
+        AssertEqual(16, values.Count, "Stock background fade stores exactly sixteen required final words");
+        for (int frame = 0; frame < 7; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(frame == 6, values.ContainsKey(new ColourCell(frame, color)), "Stock background has no interior fallback samples");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
+                    SporeSpawnDeathFade.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
+                    "Direct background calculation matches every original word independently of catalog loading");
+            }
+        Verify(stock, -1, -1);
+        foreach (var selected in new[] { new Coordinate(Frame:6, Color:1), new Coordinate(Frame:6, Color:12), new Coordinate(Frame:0, Color:1), new Coordinate(Frame:3, Color:13) })
+        {
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var old = document.DeathBackground[selected.Frame][selected.Color];
+            document.DeathBackground[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
+            Verify(edited, selected.Frame, selected.Color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(invalid, 0), "Background frame bounds remain exact");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathBackground(0, invalid), "Background color bounds remain exact");
+        Console.WriteLine("Spore background fade: thirteen required room-color sites and sixteen final words; all112 native defaults, exact stored basis, independent edits and identities pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[][] background = Rows(0xa5e5d9, 7);
+            if (editedFrame >= 0) background[editedFrame][editedColor] ^= 1;
+            for (int frame = 0; frame < 7; frame++)
+                for (int color = 0; color < 16; color++)
+                {
+                    AssertEqual(background[frame][color], catalog.ResolveDeathBackground(frame, color), "Final and interior background edits preserve all other selected colors");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), catalog.ResolveDeathLevel(frame, color), "Background edits leave level palette independent");
+                }
+            for (int frame = 0; frame < 8; frame++)
+                for (int color = 0; color < 16; color++)
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)), catalog.ResolveDeathSprite(frame, color), "Background edits leave sprite fade independent");
+            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", Read(0xa5e359));
+                content.AppendWordFrames("health", Rows(0xa5e379, 4));
+                content.AppendWordFrames("deathSprite", Rows(0xa5e3f9, 8));
+                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
+                content.AppendWordFrames("deathBackground", background);
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Background fade preserves exact selected canonical identity");
+        }
+    }
+
+    /// <summary>Checks Spore Spawn sprite-fade stages against native palette words.</summary>
+    internal static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
+    {
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorFile.Read(new MemoryStream(source));
+        var values = stock.selection.DeathSprite;
+        AssertEqual(16, values.Count, "Stock sprite fade stores only sixteen final colors; initial colors share required critical-health row");
+        for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(frame == 7, values.ContainsKey(new ColourCell(frame, color)), "Only final endpoint row remains stored in stock fade");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
+                    SporeSpawnColors.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
+                    "Direct channel interpolation equals every original sprite death word without loading fallback samples");
+            }
+        for (int color = 0; color < 16; color++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3d9 + color * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)), "Death fade starts at original critical-health coloring");
+        var criticalDocument = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        criticalDocument.Health[3][1] = criticalDocument.Health[3][1] with { Red = criticalDocument.Health[3][1].Red ^ 1 };
+        var criticalEdit = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(criticalDocument)));
+        Verify(criticalEdit, -1, -1, criticalEdit: true);
+        Verify(stock, -1, -1);
+        foreach (var selected in new[] { new Coordinate(Frame:0, Color:1), new Coordinate(Frame:7, Color:15), new Coordinate(Frame:3, Color:6) })
+        {
+            var document = RequiredJson.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var old = document.DeathSprite[selected.Frame][selected.Color];
+            document.DeathSprite[selected.Frame][selected.Color] = old with { Red = old.Red ^ 1 };
+            var edited = SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(document)));
+            Verify(edited, selected.Frame, selected.Color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(invalid, 0), "Sprite fade frame bounds remain exact");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveDeathSprite(0, invalid), "Sprite fade color bounds remain exact");
+        Console.WriteLine("Spore sprite fade: sixteen required final words, shared critical-health endpoint and96 interpolated words; direct native defaults, sparse basis, independent edits and canonical identity pass.");
+
+        void Verify(SporeSpawnColorCatalog catalog, int editedFrame, int editedColor, bool criticalEdit = false)
+        {
+            ushort[] Read(int address) => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + color * 2))).ToArray();
+            ushort[][] Rows(int address, int count) => Enumerable.Range(0, count).Select(frame => Read(address + frame * 32)).ToArray();
+            ushort[][] sprite = Rows(0xa5e3f9, 8);
+            ushort[][] health = Rows(0xa5e379, 4);
+            if (criticalEdit) health[3][1] ^= 1;
+            if (editedFrame >= 0) sprite[editedFrame][editedColor] ^= 1;
+            for (int frame = 0; frame < 8; frame++)
+                for (int color = 0; color < 16; color++)
+                    AssertEqual(sprite[frame][color], catalog.ResolveDeathSprite(frame, color), "Endpoint and intermediate edits preserve every other original selected word");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e359 + color * 2)), catalog.ResolveSpore(color), "Sprite fade does not modify independent spore palette");
+                for (int frame = 0; frame < 4; frame++)
+                    AssertEqual(health[frame][color], catalog.ResolveHealth(frame, color), "Sprite fade and health edits remain independent");
+                for (int frame = 0; frame < 7; frame++)
+                {
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), catalog.ResolveDeathLevel(frame, color), "Sprite fade leaves level colors independent");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)), catalog.ResolveDeathBackground(frame, color), "Sprite fade leaves background colors independent");
+                }
+            }
+            string expectedIdentity = SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
+            {
+                content.AppendWords("spores", Read(0xa5e359));
+                content.AppendWordFrames("health", health);
+                content.AppendWordFrames("deathSprite", sprite);
+                content.AppendWordFrames("deathLevel", Rows(0xa5e4f9, 7));
+                content.AppendWordFrames("deathBackground", Rows(0xa5e5d9, 7));
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "Calculated fade retains exact selected canonical identity framing");
+        }
+    }
+    /// <summary>Checks the ending result panel artwork and its installed presentation mapping.</summary>
+    internal static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
+    {
+        byte[] source = EndingTextExtractor.Extract(rom);
+        ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingResultPanel,
+            EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
+        var stock = EndingTextPresentation.Load(new MemoryStream(source));
+        AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Calculated credit lines preserve all288 original producer-panel cells, encoded through the codec");
+        var stockOverrides = stock.resultOverrides;
+        AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
+        for (int cell = 0; cell < native.Length; cell++)
+            AssertEqual(native[cell], EndingTextPanels.ResultTile(cell, "PRODUCED BY").PackedWord, "Direct credit layout agrees with original cell independently of overrides");
+        foreach (int editedCell in new[] { 0, 75, 107, 233 })
+        {
+            var document = RequiredJson.Parse(source);
+            document.Required("resultPanel").Required("template")[editedCell] = EndingTextTileNode(native[editedCell] ^ 0x4000);
+            byte[] selected = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
+            var edited = EndingTextPresentation.Load(new MemoryStream(selected));
+            ushort[] expected = native.ToArray();
+            expected[editedCell] ^= 0x4000;
+            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(edited.BuildResultPanel())), "Blank, group top/bottom and team edits remain independent of calculated panel cells");
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(selected)), edited.ContentIdentity, "Result layout preserves raw document identity");
+            BackgroundTile[] mutableOutput = edited.BuildResultPanel();
+            mutableOutput[editedCell] = mutableOutput[editedCell] with { Tile = mutableOutput[editedCell].Tile ^ 1 };
+            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(edited.BuildResultPanel())), "Result output snapshots remain independent of the catalog");
+            AssertTrue(native.SequenceEqual(BackgroundTileWordBytes.Words(stock.BuildResultPanel())), "Independent result edits leave the original catalog immutable");
+        }
+        var changedHeading = RequiredJson.Parse(source);
+        changedHeading.Required("resultPanel")["text"] = "TEST";
+        changedHeading.Required("resultPanel").Required("template")[10] = EndingTextTileNode(0xffff);
+        var heading = EndingTextPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(changedHeading.ToJsonString())));
+        ushort[] expectedHeading = native.ToArray();
+        var region = EndingTextDefinitions.ResultProducedBy;
+        Array.Fill(expectedHeading, EndingTextDefinitions.ResultBlankTile.PackedWord, region.Column, region.Width);
+        for (int letter = 0; letter < 4; letter++)
+            expectedHeading[region.Column + letter] = EndingTextGlyphs.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall).PackedWord;
+        AssertTrue(expectedHeading.SequenceEqual(BackgroundTileWordBytes.Words(heading.BuildResultPanel())), "Provided heading retains original fixed origin, padding and precedence over template words");
+        foreach (int invalid in new[] { -1, native.Length })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextPanels.ResultTile(invalid, "PRODUCED BY"), "Calculated result layout bounds");
+        Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
+    }
+
+    /// <summary>The ending-text document cell holding the tile <paramref name="word"/> places, as the document serializes it.</summary>
+    private static System.Text.Json.Nodes.JsonNode EndingTextTileNode(int word) =>
+        JsonSerializer.SerializeToNode(BackgroundTileWordBytes.Tile(word), ArtworkJson.Options)
+            ?? throw new InvalidOperationException("An ending-text tile serialized to null.");
+
+    /// <summary>Checks ending subtitle glyph selection and layout against imported presentation data.</summary>
+    internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
+    {
+        byte[] source = EndingTextExtractor.Extract(rom);
+        ushort[] native = ReadEndingWords(rom, EndingSourceDefinitions.EndingJapaneseSubtitle,
+            EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
+        var stock = EndingTextPresentation.Load(new MemoryStream(source));
+        var stockOverrides = stock.subtitleOverrides;
+        AssertEqual(0, stockOverrides.Count, "Every stock subtitle cell is calculated without fallback samples");
+        for (int cell = 0; cell < native.Length; cell++)
+            AssertEqual(native[cell], EndingTextPanels.SubtitleTile(cell).PackedWord, "Direct subtitle calculation agrees with native independently of overrides");
+        Verify(stock, -1);
+        AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Subtitle conversion preserves complete document identity");
+        foreach (int editedCell in new[] { 0, 9, 14, 41 })
+        {
+            var document = RequiredJson.Parse(source);
+            document.Required("japaneseSubtitle")[editedCell] = EndingTextTileNode(native[editedCell] ^ 0x4000);
+            byte[] editedSource = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
+            var edited = EndingTextPresentation.Load(new MemoryStream(editedSource));
+            Verify(edited, editedCell);
+            Verify(stock, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, native.Length, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Calculated subtitle preserves indexed bounds");
+        BackgroundTile[] shortBuffer = new BackgroundTile[native.Length - 1];
+        Array.Fill(shortBuffer, BackgroundTileWordBytes.Tile(0x1234));
+        AssertThrows<ArgumentException>(() => stock.JapaneseSubtitle.CopyTo(shortBuffer), "Subtitle rejects short output before writing");
+        AssertTrue(shortBuffer.All(value => value == BackgroundTileWordBytes.Tile(0x1234)), "Failed subtitle copy is atomic");
+        Console.WriteLine("Ending subtitle:64 native cells, atlas wrapping, centered placement, independent blank/top/wrap/bottom edits and actual draw/clear transfer pass.");
+
+        void Verify(EndingTextPresentation presentation, int editedCell)
+        {
+            ushort[] expected = native.ToArray();
+            if (editedCell >= 0) expected[editedCell] ^= 0x4000;
+            AssertEqual(expected.Length, presentation.JapaneseSubtitle.Count, "Subtitle view keeps native dimensions");
+            AssertTrue(expected.SequenceEqual(presentation.JapaneseSubtitle.Select(tile => tile.PackedWord)), "Calculated subtitle enumerates exact native or independently edited cells");
+            BackgroundTile[] copied = Enumerable.Repeat(BackgroundTileWordBytes.Tile(0x5678), expected.Length + 1).ToArray();
+            presentation.JapaneseSubtitle.CopyTo(copied);
+            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
+            AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
+            // The game shows the subtitle as its installed picture at its cell (#1467); the import pictures these words.
+            var page = new EndingTextPage();
+            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.ItemPercentage });
+            state.InstalledInitialMarkerPending = false;
+            state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
+            var screen = new EndingScreen();
+            state.Step(screen);
+            var subtitle = new ShownEndingText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
+            AssertTrue(screen.ResultPageText.Contains(subtitle), "Actual ending state shows the subtitle picture at its cell");
+            state.FrameHold = WrappingCountdown.Start(1);
+            state.Step(screen);
+            AssertTrue(!screen.ResultPageText.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
+            AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
+        }
+    }
+
+    /// <summary>Checks Ridley tail rest offsets and geometry against native coordinate data.</summary>
+    internal static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
+    {
+        Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
+        for (int link = 0; link < 7; link++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)), RidleyTailReach.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
+        for (int link = 1; link < 7; link++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailReach.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
+        Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
+        foreach (int delta in new[] { -1, 0, 1 })
+        {
+            var state = new RidleyEnemyState
+            {
+                TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
+                {
+                    Distance = (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta),
+                }).ToArray(),
+            };
+            update(state);
+            for (int link = 0; link < 7; link++)
+            {
+                int before = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + link * 2)) + delta;
+                ushort expected = (ushort)(before - (link != 0 && delta > 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf8b + (link - 1) * 0x36)) : 0));
+                AssertEqual(expected, state.TailSegments[link].Distance, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
+            }
+        }
+        var extending = new RidleyEnemyState
+        {
+            TailExtensionSpeed = 0xf0,
+            TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
+            {
+                Distance = link == 0 ? (ushort)123 : (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)) - 1),
+                TargetDistance = 1,
+            }).ToArray(),
+        };
+        update(extending);
+        for (int link = 1; link < 7; link++)
+        {
+            AssertEqual(0, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.TailSegments[link].Distance, "Actual tail still extends and clamps on the target-clearing frame");
+        }
+        AssertEqual(123, extending.TailSegments[0].Distance, "Tail base stays outside extension updates");
+        Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
+    }
+
+    /// <summary>Checks the Baby Metroid transfer graphics phase at the native VRAM locations.</summary>
+    internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
+    {
+        for (int phase = 0; phase < 4; phase++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimation.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
+        var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
+        // The getaway draws the capsule's frames over the room's turning floor, which each NMI publishes; it writes no VRAM (#1349, #1467).
+        RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new StandaloneRoomEnemyServices(() => 0) { Floor = map })
+            { BossArtworkBinding = { CeresRidleyFloorColors = colors, CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom))) } };
+        var vram = new SnesVram();
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
+        Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
+        var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
+        byte[] untouched = new byte[SnesVram.ByteCount];
+        Array.Fill(untouched, (byte)0x5a);
+        string[] capsulePictures = [.. new[] { CeresFloorAnimationFrame.BabyFrame0, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.BabyFrame2 }
+            .Select(CeresFloorAnimation.PictureOf)];
+        string? Capsule() => map.Drawn.SingleOrDefault(capsulePictures.Contains);
+        int expectedPhase = 0;
+        for (ushort nmi = 0; nmi < 16; nmi++)
+        {
+            vram.LoadBytes(0, untouched);
+            string? before = Capsule();
+            bool advances = (nmi & 3) == 0;
+            if (advances) expectedPhase = (expectedPhase + 1) & 3;
+            tick(state, null, nmi);
+            AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
+            AssertEqual((ushort)expectedPhase, state.GetawayBabyFrame, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual(advances ? CeresFloorAnimation.PictureOf(CeresFloorAnimation.BabyFrameForPhase(expectedPhase)) : before, Capsule(),
+                "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
+        }
+        Console.WriteLine("Baby reflected phase: four original pointers and one actual 16-NMI cycle preserve advance-before-select and the drawn capsule frames.");
+    }
+
+    /// <summary>Checks Fly animation frame identities against the cartridge instruction data.</summary>
+    internal static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
+    {
+        NativeEnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
+        AssertEqual(4, flyFrames.Length, "fly calculated frame catalog count");
+        for (int frame = 0; frame < flyFrames.Length; frame++)
+        {
+            AssertEqual((byte)0xa2, flyFrames[frame].Bank, "fly native frame bank");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b015 + frame * 4)), flyFrames[frame].Pointer, "fly native instruction frame identity");
+            AssertEqual($"fly_shared_{frame}", flyFrames[frame].Name, "fly editable frame name");
+            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | flyFrames[frame].Pointer)), "fly native single OAM object");
+        }
+    }
+
+    /// <summary>Checks HUD icon tiles and their source identities against native artwork.</summary>
+    internal static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
+    {
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
+            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+        var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
+        {
+            // The stock icons draw the cartridge's icon words at its icon offsets.
+            ushort[] native=Enumerable.Repeat(stock.Blank.PackedWord,96).ToArray();int sourceWord=0;
+            for(int item=0;item<5;item++)
+            {
+                stock.TryApplyIcon(native,item);int width=item==0?3:2;int anchor=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e+item*2)/2;
+                for(int cell=0;cell<width*2;cell++,sourceWord++)
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceWord*2),native[anchor+cell/width*32+cell%width],"Stock icon draws the native word at the native offset");
+            }
+        }
+        for(int edit=-1;edit<132;edit++)
+        {
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
+            if(edit>=0)
+            {
+                int ordinal=edit/6,item=ordinal<6?0:1+(ordinal-6)/4,cellIndex=ordinal<6?ordinal:(ordinal-6)%4;
+                var cells=document.Icons[GameplayHudDefinitions.IconNames[item]].Cells;var cell=cells[cellIndex];cells[cellIndex]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Icon exact document hash");
+            ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();
+            for(int item=0;item<5;item++)
+            {
+                var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;
+                selected.TryApplyIcon(tiles,item);
+                for(int cell=0;cell<width*2;cell++)
+                    AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every independent icon edit");
+            }
+            if(edit is -1 or 0 or 131)
+            {
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.TileWords[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
+            }
+            for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
+            for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconNames[item]];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
+        }
+        for(int item=0;item<5;item++)
+        {
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);string name=GameplayHudDefinitions.IconNames[item];var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
+            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);var selected=GameplayHudPresentationFile.Read(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
+            for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
+        }
+        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.TryApplyIcon(new ushort[96],invalid),"Icon item domain");
+        const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
+        for(int item=0;item<5;item++)
+        {
+            int width=item==0?3:2;
+            for(int cell=0;cell<width*2;cell++,sourceIndex++)
+            {
+                int word=CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8099a3+sourceIndex*2);
+                for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+                {
+                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=MapSourceDefinitions.Artwork.HudCharacters+(word&0x3ff)*16+sy*2;
+                    int ink=(rom.ReadCartridgeByte(address)>>(7-sx)&1)|(rom.ReadCartridgeByte(address+1)>>(7-sx)&1)<<1;
+                    for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[((cell/width*8+y)*scale+dy)*imageWidth+(startX+cell%width*8+x)*scale+dx]=(byte)ink;
+                }
+            }
+            startX+=(width+1)*8;
+        }
+
+        Console.WriteLine("HUD icons:22native words drawn at native offsets,132independent edits/hash/guards,five shifted anchors,three actual inventory initializers/readguard/domains pass;source pictograms exported.");
+    }
+
+    /// <summary>Checks the HUD template cells against their native layout words.</summary>
+    internal static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
+    {
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
+        {
+            ushort[] native=new ushort[96];stock.ApplyTemplate(native);
+            for(int index=0;index<96;index++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8098cb+index*2),native[index],"Exact native template word");
+        }
+        for(int edit=-1;edit<576;edit++)
+        {
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
+            if(edit>=0)
+            {
+                int index=edit/6;GameplayHudCell cell=document.Template[index];document.Template[index]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
+            var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Template exact document hash");
+            ushort[] tiles=new ushort[96];selected.ApplyTemplate(tiles);
+            for(int index=0;index<96;index++)
+            {
+                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+                AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
+            }
+            AssertTrue(selected.TopRowTiles().SequenceEqual(stock.TopRowTiles()),"Template edits leave immutable top row independent");
+            if(edit is -1 or 390 or 570)
+            {
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
+                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.TileWords[row*32+x],"Actual initializer preserves selected initial minimap and border");
+                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.TileWords[64+x],"Actual initializer preserves selected ENERGY typography");
+            }
+        }
+        Console.WriteLine("HUD template:96native words,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence pass.");
+    }
+
+    /// <summary>Checks the installed HUD top row at the native VRAM tile positions.</summary>
+    internal static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
+    {
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        var stock=GameplayHudPresentationFile.Read(new MemoryStream(json));
+        {
+            ushort[] native=BackgroundTileWordBytes.Words(stock.TopRowTiles());
+            for(int column=0;column<32;column++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),native[column],"Native top-row word");
+        }
+        for(int edit=-1;edit<192;edit++)
+        {
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
+            if(edit>=0)
+            {
+                int index=edit/6;GameplayHudCell cell=document.TopRow[index];document.TopRow[index]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
+            var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
+            ushort[] row=BackgroundTileWordBytes.Words(selected.TopRowTiles());
+            AssertEqual(32,row.Length,"Top row covers every HUD column");
+            for(int column=0;column<32;column++)
+            {
+                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+                AssertEqual(expected, row[column], "Every supplied top-row cell survives into the shown row");
+            }
+            ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.SequenceEqual(original),"Top-row edits leave mutable template independent");
+        }
+        const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
+        for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+        {
+            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=MapSourceDefinitions.Artwork.HudCharacters+tile*16+y*2;
+            int ink=(rom.ReadCartridgeByte(address)>>(7-x)&1)|(rom.ReadCartridgeByte(address+1)>>(7-x)&1)<<1;
+            for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
+        }
+
+        Console.WriteLine("HUD top row:32native words,192independent edits/hash/193shown rows/template independence pass; native border source exported.");
+    }
+    /// <summary>Checks the complete auto-reserve HUD display assembled from its component cells.</summary>
+    internal static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
+    {
+        Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
+            (cell.FlipX?TileFlip.Horizontal:0)|(cell.FlipY?TileFlip.Vertical:0)).Raw;
+        for(int edit=-1;edit<72;edit++)
+        {
+            var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
+            if(edit>=0)
+            {
+                int index=edit/6;var cells=index<6?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;index%=6;
+                GameplayHudCell cell=cells[index]; cells[index]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},
+                 3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
+            var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"AUTO preserves document content hash");
+            var hud=new HudState();hud.BindPresentation(selected);
+            hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
+            foreach(bool full in new[]{true,false})
+            {
+                ushort[] tiles=Enumerable.Repeat((ushort)0x1234,96).ToArray();selected.ApplyAutoReserve(tiles,full);
+                var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
+                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],"All twelve independently edited AUTO cells");
+                for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
+                hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
+                for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
+            }
+            ushort[] before=hud.TileWords.ToArray();hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()){Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
+            for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudStockCells.AutoReserveCellIndex(cell)],hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
+            hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
+        }
+        Console.WriteLine("HUD AUTO:12native words,72independent glyph-style edits/hash,146 actual state updates,manual nonwrite/clear/readguard/neighbors pass.");
+    }
+
+    /// <summary>Checks auto-reserve HUD cell identities against the cartridge tile words.</summary>
+    internal static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
+    {
+        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        AssertTrue(!MetadataShape.DeclaresField(typeof(GameplayHudPresentation), "autoReserveBasis", flags), "AUTO no longer stores whole-word basis cells");
+        ushort[] tiles = new ushort[96];
+        for (int state = 0; state < 2; state++)
+        {
+            stock.ApplyAutoReserve(tiles, state == 0);
+            for (int cell = 0; cell < 6; cell++)
+            {
+                int address = 0x80998b + state * 12 + cell * 2;
+                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                AssertEqual(native, tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "AUTO actual native cell draw");
+            }
+        }
+        document.AutoReserve.ContainsEnergy[0] = document.AutoReserve.ContainsEnergy[0] with { Palette = 2 };
+        document.AutoReserve.ContainsEnergy[5] = document.AutoReserve.ContainsEnergy[5] with { TileColumn = 3 };
+        document.AutoReserve.Empty[1] = document.AutoReserve.Empty[1] with { FlipX = true };
+        document.AutoReserve.Empty[4] = document.AutoReserve.Empty[4] with { Priority = false };
+        using var editedJson = new MemoryStream();
+        GameplayHudPresentationFile.Write(editedJson, document);
+        editedJson.Position = 0;
+        GameplayHudArtwork edited = GameplayHudPresentationFile.Read(editedJson);
+        for (int state = 0; state < 2; state++)
+        {
+            edited.ApplyAutoReserve(tiles, state == 0);
+            for (int cell = 0; cell < 6; cell++)
+            {
+                GameplayHudCell supplied = (state == 0 ? document.AutoReserve.ContainsEnergy : document.AutoReserve.Empty)[cell];
+                ushort expected = SnesBgTilemapWord.Create(supplied.TileRow * 32 + supplied.TileColumn, supplied.Palette,
+                    supplied.Priority, (supplied.FlipX ? TileFlip.Horizontal : 0) |
+                    (supplied.FlipY ? TileFlip.Vertical : 0)).Raw;
+                AssertEqual(expected, tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],
+                    "AUTO preserves each independent edit and every unedited neighbor");
+            }
+        }
+    }
+
+    /// <summary>Checks HUD digit tile identities and their native order.</summary>
+    internal static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
+    {
+        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
+        ushort[] tiles = new ushort[96];
+        for (int digit = 0; digit < 10; digit++)
+        {
+            stock.ApplyEnergy(tiles, (ushort)(digit * 11), 99);
+            for (int place = 0; place < 2; place++)
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + digit * 2)), tiles[70 + place], "actual stock health digit draw");
+            stock.ApplyAmmo(tiles, 0, (ushort)(digit * 111));
+            for (int place = 0; place < 3; place++)
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + digit * 2)), tiles[74 + place], "actual stock ammo digit draw");
+        }
+        document.Digits.Health[3] = document.Digits.Health[3] with { Palette = 2 };
+        document.Digits.Ammo[3] = document.Digits.Ammo[3] with { Palette = 4 };
+        using var changedJson = new MemoryStream();
+        GameplayHudPresentationFile.Write(changedJson, document);
+        changedJson.Position = 0;
+        GameplayHudArtwork changed = GameplayHudPresentationFile.Read(changedJson);
+        changed.ApplyEnergy(tiles, 23, 99);
+        changed.ApplyAmmo(tiles, 0, 234);
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + 4)), tiles[70], "unedited health digit unchanged");
+        AssertEqual((ushort)((CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dbf + 6)) & ~0x1c00) | 0x0800), tiles[71], "edited health digit palette applied");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 4)), tiles[74], "unedited leading ammo digit unchanged");
+        AssertEqual((ushort)((CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 6)) & ~0x1c00) | 0x1000), tiles[75], "independent ammo digit palette applied");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809dd3 + 8)), tiles[76], "unedited trailing ammo digit unchanged");
+        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyAmmo(tiles, invalid, 0), "HUD ammunition counter exact domain");
+    }
+
+    /// <summary>Checks title screen sprite identities against the native artwork pointers.</summary>
+    internal static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
+    {
+        var nativeTitlePointers = new HashSet<int> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
+        foreach (int start in new[] { 0x8ba03d, 0x8ba055, 0x8ba079, 0x8ba09d })
+            for (int entry = start; CartridgeImportSource.Require(rom).ReadCartridgeWord(entry) < 0x8000; entry += 4)
+                if (CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)) != 0) nativeTitlePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 2)));
+        AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
+        AssertEqual(TitleGraphicsFormat.Sprites.Count, Enum.GetValues<TitleSprite>().Length, "title composition domain is complete");
+        AssertTrue(nativeTitlePointers.SetEquals(SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(rom).Values),
+            "extraction maps every native title selector to exactly one named composition");
+        AssertEqual(4, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages.Length, "title baby animation phase count");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            ushort transfer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8ba133 + frame * 4));
+            int nativeSource = CartridgeImportSource.Require(rom).ReadCartridgeLong((0x8b0001 + transfer));
+            int firstSource = CartridgeImportSource.Require(rom).ReadCartridgeLong(0x8ba338);
+            AssertEqual((nativeSource - firstSource) / 256,
+                TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[frame], "native title baby source page");
+            AssertEqual((ushort)256, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0004 + transfer)), "native baby transfer size");
+            AssertEqual((ushort)0x3800, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0006 + transfer)), "native baby transfer destination");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
+        Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
+    }
+
+    /// <summary>Checks title card tile placement and dimensions against cartridge layout data.</summary>
+    internal static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
+    {
+        int steps = SuperMetroid.Verification.Frontend.Title.TitleCardOracle.CompareAll(rom);
+        Console.WriteLine($"Title card layout: {steps} typed title-card steps match their native lists.");
+    }
+
+    /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
+    internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
+    {
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObjectSlot?> spriteSpawn =
+            (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
+        int kinds = 0;
+        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
+        {
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
+            AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours));
+            AssertTrue(spawned is not null, "room sprite native case allocates real slot");
+            AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
+            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
+            AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
+            AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
+            AssertEqual(SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours), spawned.Graphics, "room sprite tile base and colouring argument preserved");
+            kinds++;
+        }
+        foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
+            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
+                "room sprite native kind domain rejects invalid selector");
+        AssertThrows<KeyNotFoundException>(
+            () => _ = RoomSpriteObjectDefinitions.Programs[RoomSpriteObjectKind.None],
+            "room sprite cleared kind starts no program");
+        Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
+    }
+
+    /// <summary>Checks which Ridley frame pointers are presentation data and which are control words.</summary>
+    private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
+    {
+        var nativeFrames = new List<ushort>();
+        var nativeLists = new SortedSet<ushort>();
+        for (int frame = 0xe983; frame <= 0xead7;)
+        {
+            nativeFrames.Add((ushort)frame);
+            int components = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | frame));
+            for (int component = 0; component < components; component++)
+                nativeLists.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | (frame + 8 + component * 8))));
+            frame += 2 + components * 8;
+        }
+        AssertEqual(nativeFrames.Count, RidleyCollisionDefinitions.FramePointers.Length, "Frame identity count follows native record extents");
+        int ordinal = 0;
+        foreach (ushort frame in RidleyCollisionDefinitions.FramePointers)
+        {
+            AssertEqual(nativeFrames[ordinal], frame, "Frame identity enumeration preserves native record order");
+            AssertEqual(frame, RidleyCollisionDefinitions.FramePointers[ordinal++], "Frame identity indexing preserves order");
+            var components = RidleyCollision.ComponentsAt(frame);
+            foreach (int invalid in new[] { -1, components.Length })
+                AssertThrows<IndexOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollision.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
+        int compiledLists = RidleyCollisionDefinitions.FramePointers
+            .SelectMany(frame =>
+            {
+                var frameComponents = RidleyCollision.ComponentsAt(frame);
+                return Enumerable.Range(0, frameComponents.Length).Select(index => frameComponents[index].Hitboxes);
+            })
+            .Distinct(ReferenceEqualityComparer.Instance)
+            .Count();
+        AssertEqual(nativeLists.Count, compiledLists, "Components select one compiled list per distinct native hitbox list");
+        foreach (int invalid in new[] { -1, nativeFrames.Count })
+            AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
+    }
+
+    /// <summary>Checks beam palette relations and installed CGRAM and VRAM output against native data.</summary>
+    internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
+    {
+        byte[] source = BeamPaletteExtractor.Extract(rom);
+        var stock = BeamPaletteFile.Read(new MemoryStream(source));
+        var stored = stock.palettes;
+        AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
+        var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
+        // Every colour outside the beam's starts as a distinct filler, loaded as one image per selection.
+        RgbColor[] filler = [.. Enumerable.Range(0, SnesCgram.ColorCount).Select(index => RgbColor.FromWord((ushort)(index * 31)))];
+        for (int edit = -1; edit < 576; edit++)
+        {
+            var selected = stock;
+            if (edit >= 0)
+            {
+                var document = RequiredJson.Parse(source);
+                int word = edit / 3, channel = edit % 3;
+                var color = document.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(word / 16))).Required(word % 16);
+                string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
+                color[component] = color.Required(component).GetValue<int>() ^ 1;
+                selected = BeamPaletteFile.Read(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+            }
+            for (int selection = 0; selection < 12; selection++)
+            {
+                var actual = SamusColourRig.Starting(filler);
+                if (edit is -1 or 0 or 575)
+                    SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam,
+                        (SamusBeamFlags)((ushort)(selection | 0x1000)), selected, InstalledFixtures.SamusOverreads.ChainsawColours);
+                else selected.LoadTo(actual.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
+                int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
+                // The rig composes every colour on each read, so the selection's colours are composed once and then compared.
+                RgbColor[] shown = actual.Colors.ToArray();
+                for (int index = 0; index < SnesCgram.ColorCount; index++)
+                {
+                    int color = index - SamusColourNative.BeamFirstCgram;
+                    ushort expected = color is >= 0 and < 16 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)) : (ushort)(index * 31);
+                    if (edit >= 0 && selection * 16 + color == edit / 3 && color is >= 0 and < 16)
+                        expected ^= (ushort)(1 << (edit % 3 * 5));
+                    AssertEqual(expected, shown[index], "Beam paint preserves native selected rows, independent RGB edits and every CGRAM neighbor");
+                }
+            }
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SamusColourRig().Samus.Beam, SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
+        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection producers and read guard pass.");
+    }
+
+    /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
+    private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
+    {
+        ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
+        // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
+        AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab((SamusMovementType)(-1)), "Undefined movement types fail loudly");
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
+            {
+                AssertTrue(raw >= SamusMovementTypeNumbers.Count, "Movement bytes name every movement type in the 28-entry table");
+                continue;
+            }
+            byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);
+            AssertEqual((flags & 0x80) != 0, RidleyGrabs.CanGrab(movement), "Named movement policy preserves each movement type's grabbability");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
+                RidleyGrabs.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
+        }
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        Func<SamusState?, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
+        Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
+        for (int pose = 0; pose <= 0xfc; pose++)
+        {
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseNumbering.FromNumber(pose) };
+            byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
+            AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
+            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = WrappingCountdown.Start(99) };
+            release(state, samus);
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
+            AssertEqual(1, state.TailWhipRequest, "Actual release requests tail whip");
+            AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
+        }
+        AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
+        var absentState = new RidleyEnemyState();
+        release(absentState, null);
+        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer.RawValue, "Missing Samus retains standing release fallback");
+    }
+
+    /// <summary>Checks Ridley tail angle selection data against native table values.</summary>
+    private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
+    {
+        Func<RidleyTailSegment[]> create = RidleyTail.CreateInitialRidleyTailSegments;
+        var segments = create();
+        AssertEqual(7, segments.Length, "Tail initialization retains seven links");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentSpacing, "Tail separation matches the native initializer immediate");
+        for (int index = 0; index < segments.Length; index++)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d38a + 2 * index)), segments[index].Angle, "Actual initialized link angle matches native progression");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d37c + 2 * index)), segments[index].Distance, "Unresolved independent tail distance remains unchanged");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6d36e + 2 * index)), segments[index].Clockwise ? (ushort)0x8000 : (ushort)0, "Initial rotation direction remains unchanged");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe) + 1, segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
+        }
+        var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
+        for (int direction = 0; direction < 16; direction++)
+        {
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6dcba + 2 * direction));
+            AssertEqual(expected, RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(direction), "Calculated reversed tail-tip sector preserves native identity");
+            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | expected)), "Each native tail-tip record contains exactly one OAM object");
+            expectedFrames.Add(expected);
+        }
+        for (int frame = 0; frame < 20; frame++)
+        {
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6db02 + frame * 2));
+            AssertEqual(expected, RidleySupplementalVisualDefinitionsConstants.WingFrameAt(frame), "Calculated downstroke/upstroke and facing preserve each native wing identity");
+            expectedFrames.Add(expected);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.WingFrameAt(invalid), "Wing phase/facing domain remains exact");
+        AssertTrue(expectedFrames.SequenceEqual(RidleySupplementalVisualDefinitionsConstants.Frames().Select(frame => frame.Pointer)),
+            "Calculated tail-tip source enumeration retains the complete ordered supplemental frame domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
+        foreach (int invalid in new[] { -1, 7 })
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailReach.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
+    }
+
+    /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
+    private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
+    {
+        Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
+        for (int solidRow = 0; solidRow < 2; solidRow++)
+        {
+            RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
+            blocks[solidRow] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new RoomBlockBehavior[2], new RoomBlockAppearance[2]));
+            for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
+            foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
+            {
+                var state = new RidleyEnemyState
+                {
+                    TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment { Position = new Position16<RoomPixels>(256, 0) }).ToArray(),
+                };
+                state.TailSegments[segmentIndex].Position = new Position16<RoomPixels>(0, y);
+                bool expected = false;
+                if (segmentIndex >= 2)
+                {
+                    int operand = 0xa6b7f2 + (6 - segmentIndex) * 0x14;
+                    int nativeOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
+                    expected = (unchecked((ushort)(y + nativeOffset)) >> 4) == solidRow;
+                }
+                AssertEqual(expected, touches(state, level), "Actual tail terrain probes retain each native joint, ADC offset and word wrap");
+            }
+            AssertTrue(!touches(new RidleyEnemyState(), level), "Incomplete tail keeps terrain gate");
+        }
+        AssertTrue(!touches(new RidleyEnemyState(), null), "Missing terrain keeps tail gate");
+    }
+
+    /// <summary>Checks enemy notice-region bounds and their native coordinate ordering.</summary>
+    private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
+    {
+        byte[] bytes = GameplayMessageNoticeExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<GameplayMessageNoticeDocument>(bytes, ArtworkJson.Options);
+        var stock = GameplayMessageNoticePresentation.Load(new MemoryStream(bytes));
+        foreach (var id in GameplayMessageNoticeDefinitions.MessageIds)
+        {
+            var notice = document.Notices[id.ToString()];
+            ExpectedRegion[] expectedRegions = GameplayMessageNotices.IsSaveConfirmation(id)
+                ? [new ExpectedRegion(0, 8, 14), new ExpectedRegion(1, 8, 8), new ExpectedRegion(3, 10, 3), new ExpectedRegion(3, 19, 2)]
+                : [new ExpectedRegion(0, 8, id == GameplayMessageId.MissileRechargeCompleted ? 14 : 15), new ExpectedRegion(2, 10, 10)];
+            AssertTrue(expectedRegions.SequenceEqual(notice.Text.Select(region => new ExpectedRegion(region.Row, region.Column, region.Width))),
+                "Calculated notice rectangles preserve every original row/column/width");
+            AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageTextAlignment.Left),
+                "Calculated notice regions retain left alignment");
+            int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + GameplayMessageNumbers.DefinitionEntry(id) * 6));
+            var expected = new ushort[(notice.RowCount + 2) * 32];
+            for (int column = 0; column < 32; column++)
+                expected[column] = expected[expected.Length - 32 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858040 + column * 2));
+            for (int cell = 0; cell < notice.RowCount * 32; cell++) expected[32 + cell] = CartridgeImportSource.Require(rom).ReadCartridgeWord((source + cell * 2));
+            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(stock.Build(id))), "Derived notice export reproduces every native border/content word encoded through the codec");
+            var stockMessages = new GameplayMessageArtwork(null, null, stock);
+            var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+            state.Begin(id, 0);
+            if (GameplayMessageNotices.IsSaveConfirmation(id))
+                for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
+            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(state.Tilemap(stockMessages))), "Actual notice initial tilemap preserves native YES row and all content");
+            if (!GameplayMessageNotices.IsSaveConfirmation(id)) continue;
+            for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
+            AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
+            // The selector reads the controller only after its two native lag frames ($85:84BA): hold Right until it does.
+            for (int frame = 0; frame < 3 && state.ConfirmationSelectionYes; frame++)
+                state.Step(ControllerButton.Right);
+            AssertTrue(!state.ConfirmationSelectionYes, "Right moves the save selection to NO");
+            for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
+            ushort[] shown = BackgroundTileWordBytes.Words(state.Tilemap(stockMessages));
+            AssertTrue(expected.SequenceEqual(shown), "Actual notice NO selection retains native row and neighboring content; differing cells " +
+                string.Join(", ", Enumerable.Range(0, expected.Length).Where(cell => expected[cell] != shown[cell])
+                    .Select(cell => $"{cell}: expected {expected[cell]:X4}, got {shown[cell]:X4}")));
+        }
+        var editedJson = RequiredJson.Parse(bytes);
+        editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
+        var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
+        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
+        active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
+        active.Step(0);
+        ushort[] original = BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)));
+        BackgroundTile[] editedWords = active.Tilemap(new GameplayMessageArtwork(null, null, edited));
+        for (int cell = 0; cell < original.Length; cell++)
+        {
+            ushort expected = original[cell];
+            if (cell is >= 40 and < 55)
+            {
+                int textIndex = cell - 40;
+                char character = textIndex < 8 ? "MAP TEST"[textIndex] : ' ';
+                expected = (ushort)((original[40] & 0xfc00) | (character == ' ' ? 0x4e : 0xe0 + character - 'A'));
+            }
+            AssertEqual(expected, editedWords[cell].PackedWord, "Independent notice text edit remains within its original calculated rectangle");
+        }
+        AssertTrue(original.SequenceEqual(BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)))),
+            "Supplied stock notice lays the shown message out with every original word");
+    }
+
+    /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
+    private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
+    {
+        for (int bits = 0; bits <= ushort.MaxValue; bits++)
+        {
+            int winner = 0;
+            while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
+            AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyph((ControllerButton)bits).PackedWord, "Native BIT order and all button glyph attributes, encoded through the codec");
+            AssertEqual(expected, GameplayMessageTilemapDefinitions.Glyphs[GameplayMessageButtons.Shown((ControllerButton)bits)].PackedWord,
+                "The button the game names for a binding retains first-match precedence");
+        }
+        GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
+        var panelMessages = new GameplayMessageArtwork(null, panels);
+        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.None),
+            "Message button patch rejects no message");
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            // The native table lists messages one through twenty-seven; its last entry is a dummy no message selects.
+            // The gunship's save prompt beyond the table is rejected, and other numbers name no message.
+            if (!GameplayMessageNumbers.Numbers.TryDecode(raw, out GameplayMessageId id))
+            {
+                AssertTrue(raw is 0 or 27 or > 28, "Message numbers name every message one through twenty-six and the gunship's");
+                continue;
+            }
+            if (raw > 27)
+            {
+                AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
+                continue;
+            }
+            int expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
+            AssertEqual(expected, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Native message button placement case");
+            if (!panels.Contains(id))
+                continue;
+            // The panel names the button its binding's glyph shows; every other cell is the panel's own.
+            BackgroundTile[] template = panels.Build(id);
+            BackgroundTile[] cells = panelMessages.Tiles(new ShownMessage(id, GameplayMessageButtons.Shown((ControllerButton)ushort.MaxValue), null));
+            for (int index = 0; index < cells.Length; index++)
+                AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : template[index].PackedWord, cells[index].PackedWord,
+                    "Actual button patch preserves every neighboring cell of the panel");
+        }
+    }
+    /// <summary>Runs the stream-four table checks over installed presentation and behavior definitions.</summary>
+    internal static void VerifyLookupStream4(ISnesAddressSpace rom)
+    {
+        Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
+        Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
+        Suite(nameof(VerifyLookupStream4RidleyMovementPolicy), () => VerifyLookupStream4RidleyMovementPolicy(rom));
+        Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
+        Suite(nameof(VerifyLookupStream4TailTerrain), () => VerifyLookupStream4TailTerrain(rom));
+        Suite(nameof(VerifyLookupStream4MessageDispatch), () => VerifyLookupStream4MessageDispatch(rom));
+        Suite(nameof(VerifyLookupStream4NoticeRegions), () => VerifyLookupStream4NoticeRegions(rom));
+        // The cartridge's hole table holds one eight-byte record per hole, in the compiled holes' order.
+        for (int holeIndex = 0; holeIndex < BotwoonNavigationDefinitions.HoleCount; holeIndex++)
+        {
+            int offset = 8 * holeIndex;
+            var hole = BotwoonNavigation.HoleAt(holeIndex);
+            AssertEqual(new Position16<RoomPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4)), hole.TopLeft, "Botwoon named hole native top-left boundary");
+            AssertEqual(new Position16<RoomPixels>((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0) + 4), (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4) + 4)), hole.Target, "Botwoon named hole center");
+        }
+        Suite(nameof(VerifyLookupStream4DarkLightningColors), () => VerifyLookupStream4DarkLightningColors(rom));
+        Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
+        Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
+        Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
+        Suite(nameof(VerifyLookupStream4RidleyFireballOperands), () => VerifyLookupStream4RidleyFireballOperands());
+        Suite(nameof(VerifyLookupStream4GeometryLayout), () => VerifyLookupStream4GeometryLayout(rom));
+        Suite(nameof(VerifyLookupStream4PowerBombColors), () => VerifyLookupStream4PowerBombColors(rom));
+        Suite(nameof(VerifyLookupStream4SporeAndFly), () => VerifyLookupStream4SporeAndFly(rom));
+        Suite(nameof(VerifyLookupStream4Burial), () => VerifyLookupStream4Burial(rom));
+        Suite(nameof(VerifyLookupStream4StatueColors), () => VerifyLookupStream4StatueColors(rom));
+        Suite(nameof(VerifyLookupStream4Programs), () => VerifyLookupStream4Programs(rom));
+        Suite(nameof(VerifyLookupStream4ProgramConsumers), () => VerifyLookupStream4ProgramConsumers(rom));
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe7a7 + 2 * theme));
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesets.Get(theme);
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesets.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => CartridgeImportSource.Require(rom).ReadCartridgeLong(address);
+        int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
+            .Where(instruction => instruction.Command == LibraryBackgroundCommand.Decompress)
+            .Select(instruction => instruction.SourceAddress).Distinct().Order().ToArray();
+        AssertEqual(58, nativeBackgroundSources.Length, "native distinct compressed background source count");
+        AssertEqual(nativeBackgroundSources.Length, Enum.GetValues<RoomBackgroundTilemap>().Length, "one named background tilemap per native source");
+        // Each native decompression source decodes to the named tilemap the extraction table stores there (#1414).
+        foreach (int source in nativeBackgroundSources)
+        {
+            RoomBackgroundTilemap tilemap = LibraryBackgroundOperandDecoding.DecompressedSource(source).Tilemap;
+            AssertEqual(source, RoomBackgroundSourceDefinitions.Tilemaps[tilemap], "background tilemap native source");
+            AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(source + 1),
+                "background source interior byte names no tilemap");
+        }
+        foreach (int invalid in new[] { -1, 0, 0xffffff, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => LibraryBackgroundOperandDecoding.DecompressedSource(invalid), "background source absent identity rejected");
+
+        for (int pattern = 0; pattern < 4; pattern++)
+        for (int stage = 0; stage < 6; stage++)
+        {
+            var actual = RidleyPogo.Read(pattern, stage);
+            int x = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b965 + 2 * pattern));
+            int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((y + 2 * stage)), actual.Velocity.Y.RawValue, "stream4 native pogo signed vertical speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b94d + 2 * stage)), actual.UpwardAcceleration, "stream4 native pogo upward acceleration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration, "stream4 native pogo downward acceleration");
+        }
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(invalid, 0), "stream4 invalid pogo pattern");
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(0, invalid), "stream4 invalid pogo stage");
+        for (ushort parameter = 0; parameter <= 22; parameter += 2)
+        {
+            var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
+        }
+        for (int orientation = 0; orientation < 16; orientation++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), RidleyNativeProgramOracle.BreakupList(RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
+        foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(invalid), "stream4 invalid breakup parameter");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyBreakup.SelectTailFrame(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
+    }
+
+    /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
+    private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
+    {
+        var program = CrateriaLightningColorDefinitions.DarkProgram;
+        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
+        using var originalStream = new MemoryStream(originalJson);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
+        var stored = original.colors;
+        for (int frame = 0; frame < 14; frame++)
+        for (int index = 0; index < 7; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
+            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "dark lightning installed color exists");
+            AssertEqual(native, actual, "dark lightning calculated native RGB5");
+            AssertEqual(frame == 0, stored.ContainsKey(pointer), "dark lightning stores only unresolved base row");
+            AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
+        }
+        foreach ((int frame, int index) in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(4, 6), new VerifyLookupStream4DarkLightningColorsCase(9, 2), new VerifyLookupStream4DarkLightningColorsCase(13, 5) })
+        {
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
+            var source = document.CrateriaUnusedDarkLightning[frame][index];
+            document.CrateriaUnusedDarkLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+            var edited = RoomPaletteFxPresentationFile.Read(json);
+            for (int row = 0; row < 14; row++)
+            for (int color = 0; color < 7; color++)
+            {
+                var expected = document.CrateriaUnusedDarkLightning[row][color];
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out RgbColor actual), "dark lightning edited color exists");
+                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
+                    "dark lightning independent base/sample edit and neighbors preserved");
+            }
+        }
+        for (int address = 0xec6e; address <= 0xed83; address++)
+        {
+            bool expected = Enumerable.Range(1, 13).Any(frame => Enumerable.Range(0, 7).Any(index => program.ColorPointer(frame, index) == address));
+            AssertEqual(expected, CrateriaLightningColors.TryCalculatedDarkColor((ushort)address, stored, out _), "dark lightning exact calculated address domain");
+        }
+    }
+
+    /// <summary>Checks normal lightning palette rows and their source pointers against native values.</summary>
+    private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
+    {
+        var program = CrateriaLightningColorDefinitions.SurfaceProgram;
+        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
+        using var originalStream = new MemoryStream(originalJson);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
+        var stored = original.colors;
+        for (int frame = 0; frame < 13; frame++)
+        for (int index = 0; index < 8; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
+            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "surface lightning installed color exists");
+            AssertEqual(native, actual, "surface lightning calculated native RGB5");
+            AssertTrue(!stored.ContainsKey(pointer), "surface lightning stock words are not stored");
+            AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "surface lightning audit identity enumerates once");
+        }
+        foreach ((int frame, int index) in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(4, 7), new VerifyLookupStream4DarkLightningColorsCase(8, 2), new VerifyLookupStream4DarkLightningColorsCase(12, 6) })
+        {
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
+            var source = document.CrateriaSurfaceLightning[frame][index];
+            document.CrateriaSurfaceLightning[frame][index] = source with { Red = (source.Red + 9) & 31 };
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+            var edited = RoomPaletteFxPresentationFile.Read(json);
+            for (int row = 0; row < 13; row++)
+            for (int color = 0; color < 8; color++)
+            {
+                var expected = document.CrateriaSurfaceLightning[row][color];
+                AssertTrue(edited.TryReadColor(program.ColorPointer(row, color), out RgbColor actual), "surface lightning edited color exists");
+                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
+                    "surface lightning independent edit and neighbors preserved");
+            }
+        }
+        for (int address = 0xeb3b; address <= 0xec58; address++)
+        {
+            bool expected = Enumerable.Range(0, 13).Any(frame => Enumerable.Range(0, 8).Any(index => program.ColorPointer(frame, index) == address));
+            AssertEqual(expected, CrateriaLightningColors.TryCalculatedColor((ushort)address, out _), "surface lightning exact color address domain");
+        }
+    }
+
+    /// <summary>Checks stream-four enemy and projectile instruction words and terminal controls against cartridge programs.</summary>
+    private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
+    {
+
+        for (ushort phase = 0; phase < 4; phase++)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Metaree phase program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Skree phase program");
+        }
+        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => SkreeMetareePrograms.MetareeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
+            AssertThrows<InvalidDataException>(() => SkreeMetareePrograms.SkreeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
+        }
+    }
+
+    /// <summary>Checks projectile instruction consumers select the compiled program words they expect.</summary>
+    private static void VerifyLookupStream4ProgramConsumers(ISnesAddressSpace rom)
+    {
+
+        var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
+        var electricitySystem = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        electricitySystem.Projectiles.SpawnSaveStationElectricity(42, 16);
+        var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
+        for (int frame = 0; frame < 160; frame++)
+        {
+            electricity.FrameHold = WrappingCountdown.Start(1);
+            electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
+            AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
+            AssertEqual((ushort)1, electricity.FrameHold.RawValue, "stream4 electricity one-frame timing");
+            AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
+        }
+        electricity.FrameHold = WrappingCountdown.Start(1);
+        electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
+        AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
+        AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
+    }
+
+    /// <summary>Checks statue palette rows and selection data against native colors.</summary>
+    private static void VerifyLookupStream4StatueColors(ISnesAddressSpace rom)
+    {
+
+        var native = new Dictionary<ushort, ushort>();
+        for (int frame = 0; frame < 8; frame++)
+        for (int color = 0; color < 8; color++)
+            native.Add((ushort)(0xe240 + 20 * frame + 2 * color), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8de240 + 20 * frame + 2 * color)));
+        for (int raw = 0xe23e; raw <= 0xe2df; raw++)
+        {
+            ushort pointer = (ushort)raw;
+            bool owned = native.ContainsKey(pointer);
+            AssertEqual(owned, TourianStatueGreyPaint.TryCoordinates(pointer, out int frame, out int color), "stream4 statue exact color domain");
+            bool intermediate = owned && frame is > 0 and < 7;
+            AssertEqual(intermediate, TourianStatueGreyPaint.TryCalculatedColor(pointer, ToColors(native), out RgbColor calculated), "stream4 statue intermediate domain");
+            if (owned) AssertEqual((ushort)(0xe240 + 20 * frame + 2 * color), pointer, "stream4 statue color coordinates");
+            if (intermediate) AssertEqual(native[pointer], calculated, "stream4 every original statue interpolation sample");
+        }
+        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
+        using var originalStream = new MemoryStream(originalJson);
+        var original = RoomPaletteFxPresentationFile.Read(originalStream);
+        var stored = original.colors;
+        int storedStatueColors = 0;
+        foreach (var pair in native)
+        {
+            AssertTrue(original.TryReadColor(pair.Key, out RgbColor value), "stream4 original statue color remains readable");
+            AssertEqual(pair.Value, value, "stream4 loaded original statue color");
+            if (stored.ContainsKey(pair.Key)) storedStatueColors++;
+        }
+        AssertEqual(16, storedStatueColors, "stream4 only endpoint rows stored, no generated intermediate cache");
+        ushort[] keys = original.ColorPointers.Where(native.ContainsKey).ToArray();
+        AssertEqual(64, keys.Length, "stream4 all statue pointers enumerable");
+        AssertEqual(64, keys.Distinct().Count(), "stream4 statue pointer enumeration has no duplicates");
+        foreach (var edit in new[] { new VerifyLookupStream4DarkLightningColorsCase(0, 0), new VerifyLookupStream4DarkLightningColorsCase(7, 0), new VerifyLookupStream4DarkLightningColorsCase(0, 2), new VerifyLookupStream4DarkLightningColorsCase(7, 3), new VerifyLookupStream4DarkLightningColorsCase(3, 4), new VerifyLookupStream4DarkLightningColorsCase(4, 0) })
+        {
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(originalJson, ArtworkJson.Options);
+            var source = document.TourianStatueGrey[edit.Frame][edit.Index];
+            document.TourianStatueGrey[edit.Frame][edit.Index] = source with { Red = (source.Red + 9) & 31, Blue = (source.Blue + 5) & 31 };
+            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+            var edited = RoomPaletteFxPresentationFile.Read(json);
+            for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 8; color++)
+            {
+                var expected = document.TourianStatueGrey[frame][color];
+                AssertTrue(edited.TryReadColor((ushort)(0xe240 + 20 * frame + 2 * color), out RgbColor actual), "stream4 edited statue color readable");
+                AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual, "stream4 endpoints and independent intermediate edits preserved");
+            }
+        }
+        AssertTrue(!TourianStatueGreyPaint.TryCalculatedColor(0xe254, ToColors(new Dictionary<ushort, ushort>()), out _), "stream4 absent statue endpoints are not invented");
+    }
+
+    /// <summary>Checks the burial presentation constants against the cartridge layout.</summary>
+    private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
+    {
+
+        for (int entry = 0; entry < 6; entry++)
+        {
+            var actual = DraygonBurialEvirs.ForEntry(entry);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1af + 4 * entry)), actual.SubspeedMagnitude.X.Fraction, "stream4 burial radial X subspeed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1b1 + 4 * entry)), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c7 + 4 * entry)), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1c9 + 4 * entry)), actual.Initial.Y, "stream4 burial radial spawn Y");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1df + 4 * entry)), (ushort)actual.Angle.RawValue, "stream4 burial radial angle");
+        }
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => DraygonBurialEvirs.ForEntry(invalid), "stream4 burial exact six-record domain");
+    }
+
+    /// <summary>Checks Spore Spawn and Fly visual identity data against native tables.</summary>
+    private static void VerifyLookupStream4SporeAndFly(ISnesAddressSpace rom)
+    {
+
+        for (ushort index = 0; index < 4; index++)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), SporeSpawnProjectiles.StalkYOffset(index), "stream4 original stalk segment spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectiles.SpawnerX(index), "stream4 original ceiling emitter spacing");
+        }
+        foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.StalkYOffset(invalid), "stream4 stalk spawn domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectiles.SpawnerX(invalid), "stream4 emitter spawn domain");
+        }
+    }
+
+    /// <summary>Checks power-bomb palette color stages against cartridge words.</summary>
+    private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
+    {
+        byte[] original = PowerBombFixedColorExtractor.Extract(rom);
+        var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
+        AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
+        AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
+        foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
+        {
+            int count = PowerBombFixedColorFormat.Count(sequence);
+            for (int index = 0; index < count; index++)
+            {
+                int address = PowerBombColorSources.Start(sequence) + index * 3;
+                var native = new RgbColor(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
+                AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
+                bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
+                AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
+                    "Power Bomb exact calculated versus unresolved domain");
+                if (calculated) AssertEqual(native, color, "Power Bomb direct color calculation");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombFixedColorSequence)2, 0), "Power Bomb sequence domain");
+        foreach (var edit in new[] { new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.PreExplosion, 0), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.PreExplosion, 12),
+            new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 0), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 18), new VerifyLookupStream4PowerBombColorsCase(PowerBombFixedColorSequence.Explosion, 31) })
+        {
+            var document = RequiredJson.Deserialize<PowerBombFixedColorDocument>(original, ArtworkJson.Options);
+            var rows = edit.First == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion;
+            var before = rows[edit.Second];
+            rows[edit.Second] = before with { Red = (before.Red + 3) & 31, Green = (before.Green + 7) & 31, Blue = (before.Blue + 11) & 31 };
+            var installed = PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document)));
+            foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
+            for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
+            {
+                var source = (sequence == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion)[index];
+                AssertEqual(new RgbColor(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
+                    "Power Bomb supplied JSON color edits remain independent");
+            }
+            AssertEqual(edit.First == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
+            AssertEqual(edit.First == PowerBombFixedColorSequence.Explosion && edit.Second <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
+        }
+    }
+
+    /// <summary>
+    /// Checks eye-door projectile geometry against the cartridge. Since #1414 the eye door's shot origins and sweat
+    /// launches are typed per facing: this asserts that the origin and velocity pairs the retail eye-door operands
+    /// select ($86:B65B shot origins at operands 0 and 20, $86:B6B1 sweat velocities at operands 0 and 4) equal them,
+    /// rather than comparing every word of the tables, whose other entries no retail eye door selects.
+    /// </summary>
+    private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
+    {
+        short NativeWord(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+        // The attack initializer adds eight pixels to the table's X before placing the shot.
+        AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b))), NativeWord(0x86b65d)), EyeDoorEffectDefinitions.LeftShotOrigin, "left eye-door shot origin");
+        AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b + 20))), NativeWord(0x86b65b + 22)), EyeDoorEffectDefinitions.RightShotOrigin, "right eye-door shot origin");
+        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
+        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
+        for (int index = 0; index < 4; index++)
+        {
+            var target = DraygonCannonData.FiringTarget(DraygonCannonData.FiringOrder[index]);
+            AssertEqual(DraygonWallCannonAddresses.Decode((ushort)(0x8804 + 2 * index)), target.Cannon, "Draygon original control-word selection");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), target.Origin.X, "Draygon original cannon X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
+        }
+        for (ushort index = 0; index < 8; index++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + index * 2)), NativeEnemyProgramOracle.EntryOf(MaridiaLargeSnailNativeListAddresses.Entries, MaridiaLargeSnailPrograms.Program(index)), "Oum native action/facing dispatch");
+        for (int slot = 0; slot < 3; slot++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x81812b + slot * 2)), SaveRamLayout.SlotOffset(slot), "native SRAM slot origins");
+        foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
+            AssertThrows<InvalidOperationException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
+        foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailPrograms.Program(invalid), "Oum animation exact domain");
+    }
+
+    /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>
+    private static void VerifyLookupStream4RidleyFireballOperands()
+    {
+        // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
+        // their installed frames keep the native operand addresses in list order.
+        ushort[] operands =
+        [
+            0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,
+            0x9578, 0x957c, 0x9580, 0x9584, 0x9588,
+            0x95a4, 0x95aa, 0x95ae, 0x95b2, 0x95b6,
+            0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
+            0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
+        ];
+        AssertTrue(operands.SequenceEqual(RidleyFireballVisualDefinitions.ProjectileFrames.Select((frame => EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[frame])))),
+            "Ridley fireball frames keep the native operand order");
+    }
+
+    /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>
+    internal static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
+    {
+        // #1283: the typed programs own the frame layout; the oracle matches every frame to its native operand.
+        Suite(nameof(VerifyDraygonAnimations), () => VerifyDraygonAnimations(rom));
+        Console.WriteLine("Draygon presentation layout: every typed frame matches its native operand and duration.");
+    }
+
+    /// <summary>Checks Draygon intro palette phases and installed CGRAM colors against native stages.</summary>
+    internal static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
+    {
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        var stock = DraygonColorFile.Read(new MemoryStream(json));
+        var intro = stock.selection.Intro;
+        var primary = intro.primary;
+        var surface = intro.surface;
+        AssertEqual(0,primary.edits.Count,"Intro primary zero native overrides");
+        AssertEqual(0,surface.edits.Count,"Intro surface zero native overrides");
+        AssertEqual<object?>(null,intro.clearEdit,"Intro clear has no native override");
+        for(int edit=-1;edit<75;edit++)
+        {
+            var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
+            if(edit>=0)
+            {
+                var rgb=document.Intro[edit/3]; document.Intro[edit/3]=(edit%3) switch
+                {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
+            }
+            var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
+            string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
+            {
+                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash,selected.ContentIdentity,"Independent intro content hash");
+            for(int color=0;color<25;color++)
+            {
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Native intro word");
+                AssertEqual(Pack(document.Intro[color]),selected.ResolveIntro(color),"Independent intro replacement");
+                if(color>=17)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+(color-17)*2)),stock.ResolveIntro(color),"Canonical escape surface identity");
+            }
+            for(int color=0;color<16;color++)
+            {
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Intro edits leave background independent");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Intro edits leave sprite independent");
+            }
+            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
+            selected.ApplyIntro(cgram);
+            for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
+            if(edit is -1 or 0 or 48 or 74)
+            {
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
+                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SamusColourRig(); var vram=new SnesVram();
+                enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
+                new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
+                for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
+                AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
+            }
+        }
+        ushort[] escape=Enumerable.Range(0,15).Select(index=>CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+index*2))).ToArray();
+        for(int edit=-1;edit<45;edit++)
+        {
+            ushort[] selected=(ushort[])escape.Clone(); if(edit>=0)selected[edit/3]^=(ushort)(1<<(edit%3*5));
+            var paint=CeresDoorPaintRecognition.Escape(ToColors(selected));
+            for(int color=0;color<15;color++)AssertEqual(selected[color],paint.ColorAt(color),"Shared extraction preserves all escape channels and edits");
+            for(int color=0;color<25;color++)AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
+        }
+        foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");
+        Console.WriteLine("Draygon intro:25native aliases/zero overrides,75RGB edits/hash/76full copies,four actual initializers/readguard,45escape edits/independence/bounds pass.");
+    }
+
+    /// <summary>Checks Draygon sprite palette stages and their installed CGRAM output.</summary>
+    internal static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
+    {
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        var stock = DraygonColorFile.Read(new MemoryStream(json));
+        var material = stock.selection.Sprite;
+        AssertEqual(0,material.edits.Count,"Shared native sprite material has zero overrides");
+        for(int edit=-1;edit<48;edit++)
+        {
+            var document=RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
+            if(edit>=0)
+            {
+                var rgb=document.Sprite[edit/3]; document.Sprite[edit/3]=(edit%3) switch
+                {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
+            }
+            var selected=DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
+            string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
+            {
+                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash,selected.ContentIdentity,"Independent sprite channel content hash");
+            for(int color=0;color<16;color++)
+            {
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),stock.ResolveSprite(color),"Native sprite source");
+                AssertEqual(Pack(document.Sprite[color]),selected.ResolveSprite(color),"Independent sprite replacement");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Shared owner does not couple background instance");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),selected.ResolveIntro(color),"Shared owner does not couple intro instance");
+            }
+            foreach(bool white in new[]{false,true})
+            {
+                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
+                selected.ApplyHurt(cgram,white,5);
+                for(int color=0;color<256;color++)
+                {
+                    ushort expected=0x1234;
+                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[5][color-89]):Pack(document.Background[color-80]);
+                    if(color>=240)expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
+                    AssertEqual(expected,cgram.Colors[color],"Full sprite/white and independent BG health restore");
+                }
+            }
+            if(edit is -1 or 0 or 47)
+            {
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
+                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
+                                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                foreach(ushort timer in new ushort[]{2,0})
+                {
+                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
+                    for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and independent edited clear/color targets");
+                }
+            }
+        }
+        foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveSprite(invalid),"Original sprite domain");
+        Console.WriteLine("Draygon sprite:16native aliases/zero overrides,48RGB edits/hash,98full normal-white copies,six actual hurt producer calls/readguard/independent background+intro/bounds pass.");
+    }
+
+    /// <summary>Checks Draygon background palette stages and their installed CGRAM output.</summary>
+    internal static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
+    {
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        var stock = DraygonColorFile.Read(new MemoryStream(json));
+        var material = stock.selection.Background;
+        AssertEqual(0,material.edits.Count,"All16 background colors calculate without unexplained stock overrides");
+        for (int edit = -1; edit < 48; edit++)
+        {
+            var document = RequiredJson.Deserialize<DraygonColorDocument>(json,ArtworkJson.Options);
+            if(edit >= 0)
+            {
+                var rgb = document.Background[edit / 3];
+                document.Background[edit / 3] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
+            string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1",content =>
+            {
+                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash,selected.ContentIdentity,"Background source edits preserve canonical identity and independent resources");
+            for(int color=0;color<16;color++)
+            {
+                AssertEqual(Pack(document.Background[color]),selected.ResolveBackground(color),"All independent background channels remain installed");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),stock.ResolveBackground(color),"All16 native material words");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Independent sprite occurrence unaffected");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a217+color*2)),selected.ResolveIntro(color),"Independent intro occurrence unaffected");
+            }
+            foreach(bool white in new[]{false,true})
+            {
+                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
+                selected.ApplyHurt(cgram,white,3);
+                for(int color=0;color<256;color++)
+                {
+                    ushort expected= 0x1234;
+                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[3][color-89]):Pack(document.Background[color-80]);
+                    if(color>=240) expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
+                    AssertEqual(expected,cgram.Colors[color],"Full normal/white copy with native belly overwrite order");
+                }
+            }
+            if(edit is -1 or 0 or 47)
+            {
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
+                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
+                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                foreach(ushort timer in new ushort[]{2,0})
+                {
+                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
+                    for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves edited targets and health overlay");
+                }
+            }
+        }
+        foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue}) AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveBackground(invalid),"Original background domain");
+        Console.WriteLine("Draygon background:16native/zero overrides,48RGB edits/hash/independent aliases,98full normal-white copies,six actual hurt producer calls/readguard/belly overwrite/bounds pass.");
+    }
+
+    /// <summary>Checks Draygon health-driven palette selection and installed CGRAM output.</summary>
+    internal static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
+    {
+        Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        for (int edit = -1; edit < 96; edit++)
+        {
+            var document = RequiredJson.Deserialize<DraygonColorDocument>(json, ArtworkJson.Options);
+            if (edit >= 0)
+            {
+                int word = edit / 3; var rgb = document.HealthBands[word / 4][word % 4];
+                document.HealthBands[word / 4][word % 4] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
+            string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
+            {
+                content.AppendWords("intro", document.Intro.Select(Pack).ToArray()); content.AppendWords("background", document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite", document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash", document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
+            for (int band = 0; band < 8; band++)
+            {
+                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
+                selected.ApplyHealthBand(cgram, band);
+                for (int color = 0; color < 256; color++)
+                    AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
+                for (int shade = 0; shade < 4; shade++)
+                    AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa596af + (band * 4 + shade) * 2)) ^ (edit >= 0 && edit / 3 == band * 4 + shade ? 1 << (edit % 3 * 5) : 0)),
+                        selected.ResolveHealthBand(band, shade), "All native shades and independent endpoint/intermediate edits");
+            }
+            if (edit is -1 or 0 or 95)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
+                var cgram = new SamusColourRig();
+                RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
+                Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                for (int band = 0; band < 8; band++)
+                {
+                    body.Health = (ushort)((7 - band) * 750); state.HealthPaletteBand = null;
+                    update(state);
+                    AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
+                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
+                    cgram.SetColor(89, RgbColor.FromWord(0x1234)); update(state);
+                    AssertEqual(0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
+                    body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null);
+                    for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
+                    body.FlashTimer = WrappingCountdown.Start(0); hurt(body,state,null);
+                    for (int color = 0; color < 16; color++)
+                    {
+                        AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
+                        AssertEqual(Pack(document.Sprite[color]),cgram.Colors[240 + color],"Separate sprite paint remains independent");
+                    }
+                }
+            }
+        }
+        Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
+    }
+    /// <summary>Checks imported Draygon color rows against the native palette source.</summary>
+    private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
+    {
+        byte[] original = DraygonColorExtractor.Extract(rom);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var stock = DraygonColorFile.Read(new MemoryStream(original));
+        AssertEqual(0, stock.selection.WhiteFlash.Count, "Draygon stock flash is calculated without stored colors");
+        var health = stock.selection.HealthBands;
+        AssertEqual(0, health.edits.Count, "All native Draygon health colors calculate without overrides");
+        for (int variation = -1; variation < 4; variation++)
+        {
+            var document = RequiredJson.Deserialize<DraygonColorDocument>(original, options);
+            var edited = new PaletteRgb5 { Red = 3, Green = 11, Blue = 21 };
+            if (variation == 0) document.WhiteFlash[0] = edited;
+            if (variation == 1) document.WhiteFlash[9] = edited;
+            if (variation == 2) document.HealthBands[3][2] = edited;
+            if (variation == 3) document.HealthBands[0][1] = edited;
+            var catalog = DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(document)));
+            ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            string identity = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
+            {
+                content.AppendWords("intro", document.Intro.Select(Native).ToArray());
+                content.AppendWords("background", document.Background.Select(Native).ToArray());
+                content.AppendWords("sprite", document.Sprite.Select(Native).ToArray());
+                content.AppendWords("whiteFlash", document.WhiteFlash.Select(Native).ToArray());
+                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Native).ToArray()).ToArray());
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "Draygon calculated palette preserves selected content identity");
+            for (int color = 0; color < 16; color++)
+                AssertEqual(Native(document.WhiteFlash[color]), catalog.ResolveWhiteFlash(color), "Draygon native/edited flash remains independent");
+            for (int band = 0; band < 8; band++)
+            {
+                var cgram = new GameplayColours(new SpriteColourSets());
+                catalog.ApplyHealthBand(cgram, band);
+                for (int color = 0; color < 4; color++)
+                {
+                    ushort expected = Native(document.HealthBands[band][color]);
+                    AssertEqual(expected, catalog.ResolveHealthBand(band, color), "Draygon native/edited health color remains independent");
+                    AssertEqual(expected, cgram.Colors[89 + color], "Draygon health interpolation actual CGRAM transfer");
+                }
+            }
+            var flashCgram = new GameplayColours(new SpriteColourSets());
+            catalog.ApplyHurt(flashCgram, true, -1);
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[80 + color], "Draygon flash background transfer");
+                AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[240 + color], "Draygon flash sprite transfer");
+            }
+        }
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
+        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new GameplayColours(new SpriteColourSets()), 8), "Draygon out-of-range health band rejected");
+    }
+
+    /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
+    internal static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
+    {
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = NorfairRidleyColorExtractor.Extract(rom);
+        var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
+        var definition = stock.selection.Reveal;
+        AssertEqual(0, definition.edits.Count,
+            "All210 native reveal words calculate without residual samples");
+        byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesets.Get(9).PaletteAddress);
+        for (int color = 0; color < 14; color++)
+        {
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
+            AssertEqual(expected, NorfairRidleyRevealPaint.Endpoint(color), "Exact immutable room material endpoint");
+            AssertEqual(expected, LittleEndianBytes.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
+                "Identical room-theme9 occurrence remains separately accounted");
+        }
+        for (int edit = -1; edit < 630; edit++)
+        {
+            var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
+            if (edit >= 0)
+            {
+                int word = edit / 3;
+                var rgb = document.Reveal[word / 14][word % 14];
+                document.Reveal[word / 14][word % 14] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
+            string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+            {
+                content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
+                content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash, selected.ContentIdentity, "Every reveal edit preserves canonical content hash");
+            for (int row = 0; row < 15; row++)
+            {
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.NorfairReveal(row), BossShadeColours.Room);
+                for (int color = 0; color < 256; color++)
+                    AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
+                        cgram[color], "Every independent reveal edit and full CGRAM copy");
+                for (int color = 0; color < 14; color++)
+                {
+                    AssertEqual(Pack(document.Reveal[row][color]), selected.ResolveReveal(row, color), "Direct revealed color equals supplied sample");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a50b + (row * 14 + color) * 2)), stock.ResolveReveal(row, color), "All native stock rows remain immutable");
+                }
+            }
+            if (edit is -1 or 0 or 629)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
+                enemies.VerificationServices().IsAreaBossDefeated = () => false;
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
+                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
+                RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
+                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = WrappingCountdown.Start(0);
+                Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
+                for (int call = 0; call < 46; call++)
+                {
+                    tick(slot, state);
+                    ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
+                    int row = Math.Min(call / 3, 14);
+                    AssertEqual((ushort)(2 - call % 3), state.FunctionTimer.RawValue, "Actual three-call producer cadence preserved");
+                    AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadeStep, "Actual row and zero terminator progression");
+                    for (int color = 0; color < 256; color++)
+                        AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
+                            : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
+                            : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
+                            cgram[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
+                }
+                AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
+                AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
+                AssertEqual((ushort)8, state.WingAnimationTimer.RawValue, "Native wing timer handoff");
+                AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
+            }
+        }
+        foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(row, 0), "Original reveal row domain");
+        }
+        foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
+        Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
+    }
+
+    /// <summary>Checks Norfair initial palette state and its installed CGRAM colors.</summary>
+    internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
+    {
+        ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        static void NoEdits<TCell>(Dictionary<TCell, RgbColor> edits) where TCell : notnull =>
+            AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
+        byte[] json = NorfairRidleyColorExtractor.Extract(rom);
+        var original = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = NorfairRidleyColorFile.Read(new MemoryStream(json));
+        var initial = stock.selection.Initial;
+        var armor = initial.armor;
+        var organ = initial.organ;
+        NoEdits(initial.edits); NoEdits(armor.edits); NoEdits(organ.edits);
+        NoEdits(armor.warm.edits);
+        for (int color = 0; color < 15; color++)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e + color * 2)), stock.ResolveInitial(color + 1), "Exact escape material occurrence");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6e1f1 + color * 2)), stock.ResolveInitial(color + 17), "Exact Baby material occurrence");
+        }
+        for (int edit = -1; edit < 96; edit++)
+        {
+            var document = RequiredJson.Deserialize<NorfairRidleyColorDocument>(json, ArtworkJson.Options);
+            if (edit >= 0)
+            {
+                int color = edit / 3;
+                var rgb = document.Initial[color];
+                document.Initial[color] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = NorfairRidleyColorFile.Read(new MemoryStream(NorfairRidleyColorFile.Write(document)));
+            string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+            {
+                content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
+                content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash, selected.ContentIdentity, "Initial hash preserves exact supplied words and separate reveal");
+            ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.NorfairSprites(selected), RidleyShades.NorfairStart, BossShadeColours.Sprites);
+            for (int color = 0; color < 256; color++)
+                AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160]) : (ushort)0x1234,
+                    cgram[color], "Initial full CGRAM copy and independent channel edits");
+            for (int color = 0; color < 32; color++)
+            {
+                AssertEqual(Pack(document.Initial[color]), selected.ResolveInitial(color), "Initial supplied value preserved");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6e1cf + color * 2)), stock.ResolveInitial(color), "Stock instance immutable");
+            }
+            for (int row = 0; row < 15; row++) for (int color = 0; color < 14; color++)
+                AssertEqual(Pack(original.Reveal[row][color]), selected.ResolveReveal(row, color), "Independent reveal remains unchanged");
+            if (edit is -1 or 0 or 95)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
+                var guard = NewProjectileCompositionForbiddenBus();
+                enemies.VerificationServices().IsAreaBossDefeated = () => false;
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+                slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
+                new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
+                ushort[] shown = RidleyLaidColours.Of(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
+                    RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
+                for (int color = 0; color < 256; color++)
+                    AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
+                        : color is >= 113 and <= 127 or >= 241 and <= 255 ? (ushort)0 : (ushort)0x1234,
+                        shown[color], "Actual initializer copies both targets then clears separate reveal ranges");
+            }
+        }
+        ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
+        var normalStock = CeresDoorPaintRecognition.Normal(ToColors(normalWords));
+        NoEdits(normalStock.edits); NoEdits(normalStock.WarmTargets.edits);
+        for (int edit = -1; edit < 90; edit++)
+        {
+            ushort[] normal = normalWords.ToArray(), escape = escapeWords.ToArray();
+            if (edit >= 0)
+            {
+                int local = edit % 45;
+                (edit < 45 ? normal : escape)[local / 3] ^= (ushort)(1 << (local % 3 * 5));
+            }
+            var normalProvider = CeresDoorPaintRecognition.Normal(ToColors(normal));
+            var dependentEscape = CeresDoorPaintRecognition.Escape(ToColors(escape), normalProvider);
+            var standaloneEscape = CeresDoorPaintRecognition.Escape(ToColors(escape));
+            for (int color = 0; color < 15; color++)
+            {
+                AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction preserves independent edits");
+                AssertEqual(escape[color], dependentEscape.ColorAt(color), "Normal source edits do not leak into escape occurrence");
+                AssertEqual(escape[color], standaloneEscape.ColorAt(color), "Standalone escape operation preserves exact colors");
+            }
+        }
+        foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
+        Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
+    }
+
+    /// <summary>Checks Botwoon color progression and installed CGRAM slots against native rows.</summary>
+    internal static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
+    {
+        byte[] original = BotwoonColorExtractor.Extract(rom);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var stock = BotwoonColorFile.Read(new MemoryStream(original));
+        var paint = stock.health;
+        int stored = paint.edits.Count;
+        AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39319 + color * 2)), stock.HealthColor(0, color), "native initial/header alias remains exact");
+        for (int edit = -1; edit < 384; edit++)
+        {
+            var document = RequiredJson.Deserialize<BotwoonColorDocument>(original, options);
+            if (edit >= 0)
+            {
+                int word = edit / 3, channel = edit % 3;
+                var rgb = document.Health[word / 16][word % 16];
+                document.Health[word / 16][word % 16] = channel switch
+                {
+                    0 => rgb with { Red = rgb.Red ^ 1 },
+                    1 => rgb with { Green = rgb.Green ^ 1 },
+                    _ => rgb with { Blue = rgb.Blue ^ 1 },
+                };
+            }
+            var catalog = BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(document)));
+            ushort Expected(int band, int color) => (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2))
+                ^ (edit >= 0 && band * 16 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
+            ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            string identity = SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
+                content.AppendWordFrames("health", document.Health.Select(row => row.Select(Native).ToArray()).ToArray()));
+            AssertEqual(identity, catalog.ContentIdentity, "Botwoon selected identity preserves every independently edited channel");
+            for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(Expected(band, color), catalog.HealthColor(band, color), "native/edited endpoint, intermediate and copied metadata channels");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2)), stock.HealthColor(band, color), "stock owner remains immutable");
+            }
+            if (edit is -1 or 0 or 383)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
+                var guard = NewBotwoonColorReadGuard(rom);
+                Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
+                RoomEnemySlot head = enemies.SlotTable.Slots[0];
+                var state = new BotwoonEnemyState();
+                // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
+                IReadOnlyList<SheetShade> botwoonShades = BossSheetShades.OwnRow(artworkBosses, EnemyDefinitionId.Botwoon, 7 * 16);
+                ushort[] Shown() => BossShadeColours.Laid(state.BodyShading.Shades, botwoonShades, BossShadeColours.Sprites, 0x1234);
+                for (int band = 0; band < 8; band++)
+                {
+                    state.PalettePhase = band;
+                    head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
+                    ushort[] before = Shown();
+                    update(head, state);
+                    AssertEqual(band, state.PalettePhase, "exact threshold does not advance");
+                    ushort[] held = Shown();
+                    for (int color = 0; color < 256; color++) AssertEqual(before[color], held[color], "exact threshold preserves CGRAM");
+                    head.Health--;
+                    update(head, state);
+                    AssertEqual(band + 1, state.PalettePhase, "below threshold advances exactly one band");
+                    ushort[] cgram = Shown();
+                    for (int color = 0; color < 256; color++)
+                        AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
+                }
+                ushort[] completed = Shown(); update(head, state);
+                ushort[] after = Shown();
+                for (int color = 0; color < 256; color++) AssertEqual(completed[color], after[color], "completed palette remains unchanged");
+                AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
+            }
+        }
+        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(invalid, 0), "Botwoon health band domain");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
+        Console.WriteLine("Botwoon complete paint:128 native outputs,16 initial aliases,zero stock overrides,384 RGB edits/hash identities,51 actual threshold/copy/completed calls and native-read guard pass.");
+    }
+
+    /// <summary>Checks Oum instruction-list boundaries and pointer order against the cartridge.</summary>
+    internal static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
+    {
+        var nativeFrames = new Dictionary<ushort, ushort>();
+        for (int frame = 0xcb87; frame <= 0xcca9; frame += 10)
+            nativeFrames.Add((ushort)frame, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | (frame + 8))));
+        AssertEqual(nativeFrames.Count, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
+        int ordinal = 0;
+        foreach (ushort expectedFrame in nativeFrames.Keys)
+            AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
+        foreach (int invalid in new[] { int.MinValue, -1, nativeFrames.Count, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
+        var selectedLists = new HashSet<ushort>();
+        int rectangles = 0;
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        {
+            ushort frame = (ushort)raw;
+            bool valid = nativeFrames.TryGetValue(frame, out ushort expected);
+            AssertEqual(valid, MaridiaLargeSnailCollisionDefinitions.HasFrame(frame), "Oum frame domain remains exact");
+            if (!valid)
+            {
+                AssertThrows<InvalidDataException>(() => MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame), "Oum rejects every non-frame pointer");
+                continue;
+            }
+            ushort actual = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame);
+            AssertEqual(expected, actual, "Calculated Oum record identity matches original frame operand");
+            selectedLists.Add(actual);
+            var boxes = MaridiaLargeSnailCollisionDefinitions.HitboxesAt(actual);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | expected)), boxes.Length, "Calculated Oum pointer reaches the native rectangle count");
+            for (int index = 0; index < boxes.Length; index++)
+            {
+                int pointer = 0xa20000 | (expected + 2 + index * 12);
+                var box = boxes[index];
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer)), box.Left, "Oum selected left bound");
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 2))), box.Top, "Oum selected top bound");
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 4))), box.Right, "Oum selected right bound");
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 6))), box.Bottom, "Oum selected bottom bound");
+                AssertEqual(EnemyReactionAccess.Of(0xa2, CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 8)), shot: false), (EnemyReaction?)box.Touch, "Oum selected touch callback");
+                AssertEqual(EnemyReactionAccess.Of(0xa2, CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 10)), shot: true), (EnemyReaction?)box.Shot, "Oum selected shot callback");
+                rectangles++;
+            }
+        }
+        AssertTrue(nativeFrames.Keys.SequenceEqual(MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
+        AssertTrue(selectedLists.SetEquals(MaridiaLargeSnailCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
+        Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
+    }
+
+    /// <summary>Checks the authored breakup phase sequence against native instruction order.</summary>
+    internal static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
+    {
+        ushort[] expected = Enumerable.Range(0, 12).Select(index =>
+            CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6c933 + index * 7) + 12)))).ToArray();
+        foreach (int freeSlots in new[] { 12, 2, 0 })
+        {
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.Bind((EnemyDefinitionId)0xffff, slot.Definition);
+            for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
+            int randomCalls = 0;
+            enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
+            Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.Death.SpawnNorfairRidleyBreakupActors;
+            var state = new RidleyEnemyState
+            {
+                TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
+                {
+                    Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index)),
+                }).ToArray(),
+            };
+            // Each part's initialization AI starts it from the encounter's shared Ridley state.
+            enemies.RidleyEncounter.Ridley = state;
+            if (freeSlots < expected.Length)
+                AssertThrows<InvalidOperationException>(() => spawn(state), "Breakup preserves partial allocation before pool exhaustion");
+            else spawn(state);
+            AssertTrue(state.DeathBreakupSpawned, "Breakup commits its one-shot guard before allocation");
+            AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
+            for (int index = 0; index < freeSlots; index++)
+            {
+                RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyExplosion, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
+                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
+                    ?? throw new InvalidOperationException("A spawned fragment has no state.");
+                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.RawValue, "Actual breakup preserves each unresolved native lifetime");
+            }
+            spawn(state);
+            AssertEqual(freeSlots, randomCalls, "Breakup retry after success or failure does not repeat allocation or RNG");
+        }
+        Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
+    }
+
+    /// <summary>Checks beam tile geometry and installed VRAM words against native layouts.</summary>
+    internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
+    {
+        int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
+        if (diagonalX >= 0x100) diagonalX -= 0x200;
+        AssertEqual(diagonalX, SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX, "shared diagonal origin matches original component");
+        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D112)), SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY, "shared diagonal Y remains exact source input");
+        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D6EE)), SpazerCompositionGeometryDefinitions.HorizontalStripOriginY, "horizontal strip centers the native small OBJ");
+        AssertEqual(0x32, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x1FF, "first H-flipped diagonal component is raw tile2");
+        AssertEqual(0x31, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x1FF, "second H-flipped diagonal component is raw tile1");
+        AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x4000, "diagonal first component horizontal flip");
+        AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x4000, "diagonal second component horizontal flip");
+        AssertEqual(16, SpazerCompositionGeometryDefinitions.DiagonalStripWidth, "two adjacent small cells form the strip width");
+        AssertEqual(2, BeamTileAtlasDefinitions.SpazerRibbonThickness, "required horizontal artwork thickness stays explicit");
+        var files = BeamTileExtractor.Extract(rom);
+        var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
+        var catalog = BeamTileCatalog.Load(files, palettes);
+        int derivedTotal = 0;
+        int runtimeBasisTotal = 0;
+        var compiled = catalog.sheets;
+        for (int selection = 0; selection < 12; selection++)
+        {
+            int sourceAddress = 0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2));
+            byte[] native = Enumerable.Range(0, 256).Select(offset => rom.ReadCartridgeByte(sourceAddress + offset)).ToArray();
+            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinations.FromTableIndex(selection));
+            var stored = atlas.pixels;
+            int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 181, _ => 299 };
+            AssertEqual(expectedBasis, stored.Count, "Beam sheet stores exactly its required pixel basis with no stock derived fallbacks");
+            for (int pixel = 0; pixel < 512; pixel++)
+            {
+                bool derived = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinations.FromTableIndex(selection), pixel, out int sourcePixel);
+                if (selection is >= 4 and <= 7 && pixel % 64 / 8 is 1 or 2)
+                    AssertEqual(pixel is not (9 or 74 or 139 or 140 or 399), derived,
+                        "Spazer diagonal geometry and texture retain exactly five original ink seeds");
+                bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out int selectedInk);
+                AssertEqual((selection & 8) != 0 && pixel is 192 or 193 or 195 or 256 or 257, ink,
+                    "Only the five independently reviewed original Plasma seed positions have retained pen values");
+                AssertEqual(!derived && !ink, stored.ContainsKey(pixel), "Every calculated stock pixel is absent from stored basis");
+                if (derived || ink)
+                {
+                    derivedTotal++;
+                    AssertEqual(ReadPixel(native, pixel), ink ? selectedInk : sourcePixel < 0 ? (byte)0 : ReadPixel(native, sourcePixel),
+                        "Direct transpose, quarter-turn or transparency equals independently decoded native pixels");
+                }
+            }
+            int canonical = BeamTileAtlasDefinitions.CanonicalSelection(SamusBeamCombinations.FromTableIndex(selection)).TableIndex;
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + canonical * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + selection * 2)), "Canonical beam family matches original native source-pointer identity");
+            var compiledPixels = compiled[selection].pixels;
+            int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 10, 8 => 299, _ => 0 };
+            AssertEqual(expectedRuntimeBasis, compiledPixels.Count, "Runtime catalog stores only independent primary-family artwork pixels");
+            runtimeBasisTotal += compiledPixels.Count;
+            int sharedSelection = BeamTileAtlasDefinitions.SharedTileSourceSelection(SamusBeamCombinations.FromTableIndex(selection))?.TableIndex ?? -1;
+            byte[] sharedNative = sharedSelection < 0 ? [] : Enumerable.Range(0, 256)
+                .Select(offset => rom.ReadCartridgeByte((0x9a0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3b1 + sharedSelection * 2))) + offset)).ToArray();
+            for (int pixel = 0; pixel < 512; pixel++)
+            {
+                bool shared = BeamTileAtlasDefinitions.IsSharedTilePixel(SamusBeamCombinations.FromTableIndex(selection), pixel);
+                bool geometry = BeamTileAtlasDefinitions.TryDerivedPixelSource(SamusBeamCombinations.FromTableIndex(selection), pixel, out _) ||
+                    BeamTileAtlasDefinitions.TryStockPlasmaInk(SamusBeamCombinations.FromTableIndex(selection), pixel, out _);
+                AssertEqual(selection == canonical && !shared && !geometry, compiledPixels.ContainsKey(pixel),
+                    "No shared-source, rotation or blank stock pixel is hidden in runtime storage");
+                if (shared)
+                    AssertEqual(ReadPixel(native, pixel), ReadPixel(sharedNative, pixel), "Shared tile relationship matches both independent original ROM sheets");
+            }
+            AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Calculated DMA view matches all256 original bytes per beam selection");
+            var directVram = new SnesVram();
+            atlas.LoadTo(directVram);
+            AssertTrue(native.SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
+            VerifyQueued(catalog, selection, native);
+            var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
+            foreach (int editedPixel in new[] { 0, 7, 16, 24, 32, 40, 192, 193, 195, 256, 257, 320, 296, 303, 304, 311, 312, 511, 96, 127, 289, 295, 160, 164, 8, 9, 466, 467, 74, 139, 140, 399, 141, 204, 416, 224, 352 })
+            {
+                byte[] pixels = image.Pixels.ToArray();
+                pixels[editedPixel] ^= 1;
+                using var changedPng = new MemoryStream();
+                IndexedPng.Write(changedPng, new(64, 8), pixels, image.Colours);
+                byte[] changed = changedPng.ToArray();
+                var edited = BeamTileAtlas.Load(new MemoryStream(changed), SamusBeamCombinations.FromTableIndex(selection));
+                byte[] expected = native.ToArray();
+                int tile = editedPixel % 64 / 8;
+                int y = editedPixel / 64;
+                int x = editedPixel % 8;
+                expected[tile * 32 + y * 2] ^= (byte)(1 << (7 - x));
+                AssertTrue(expected.SequenceEqual(edited.Characters.Span), "Editing basis, transpose, rotation or transparent sites changes only the supplied native pixel bit");
+                var editedFiles = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = changed };
+                var editedCatalog = BeamTileCatalog.Load(editedFiles, palettes);
+                VerifyQueued(editedCatalog, selection, expected);
+                for (int other = 0; other < 12; other++)
+                    if (other != selection)
+                        AssertTrue(catalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span.SequenceEqual(editedCatalog.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(other))).Span),
+                            "Shared native beam shapes remain independently editable per installed selection");
+                AssertTrue(native.SequenceEqual(atlas.Characters.Span), "Pixel edits do not mutate original calculated atlas");
+            }
+        }
+        AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
+        AssertEqual(2912, derivedTotal, "Twelve standalone selections calculate exactly2912 orientation, row-pattern, blank and approved pen occurrences");
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinations.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
+        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage, independent edits and the bound projectile page pass.");
+
+        // The projectile page the selection binds shows the calculated characters where `$90:AC8D`'s DMA put them
+        // (native immediates: $0100 bytes at VMADD $6300), and leaves the characters around them alone.
+        void VerifyQueued(BeamTileCatalog selected, int selection, byte[] expected)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
+            int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
+            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.TrailTiles);
+            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)selection)).Characters;
+            AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
+                "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");
+            AssertEqual((byte)0, page[first * SpriteArtwork.CharacterByteCount - 1], "Beam characters leave the preceding character alone");
+        }
+
+        static byte ReadPixel(byte[] native, int pixel)
+        {
+            int tile = pixel % 64 / 8, x = pixel % 8, y = pixel / 64, result = 0;
+            for (int plane = 0; plane < 4; plane++)
+                result |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
+            return (byte)result;
+        }
+    }
+
+    /// <summary>Checks Ceres starting palette state and installed CGRAM colors.</summary>
+    internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        for (int color = 0; color < 32; color++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + color * 2)), stock.ResolveStart(color), "Complete native additional palette");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6F4EC + color * 2)), stock.ResolveStart(color), "Native normal door material occurrence");
+        for (int color = 0; color < 15; color++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)), stock.ResolveStart(17 + color), "Native Baby initial identity");
+        var definition = stock.selection.Start;
+        var edits = definition.edits;
+        AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
+        for (int channel = 0; channel < 3; channel++)
+        for (int edit = -1; edit < 47; edit++)
+        {
+            var starts = document.Start.ToArray();
+            var babyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+            var resting = babyShades.Resting.ToArray();
+            if (edit >= 0)
+            {
+                PaletteRgb5 source = edit < 32 ? starts[edit] : resting[edit - 32];
+                PaletteRgb5 changed = channel switch
+                {
+                    0 => source with { Red = source.Red ^ 1 },
+                    1 => source with { Green = source.Green ^ 1 },
+                    _ => source with { Blue = source.Blue ^ 1 },
+                };
+                if (edit < 32) starts[edit] = changed; else resting[edit - 32] = changed;
+            }
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, BabyShades = babyShades with { Resting = resting } })));
+            IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
+            ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), shades, RidleyShades.CeresStart, BossShadeColours.Sprites);
+            for (int color = 0; color < 256; color++)
+            {
+                ushort expected = color is >= 160 and < 192
+                    ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + (color - 160) * 2)) ^ (edit == color - 160 ? 1 << (channel * 5) : 0))
+                    : (ushort)0x1234;
+                AssertEqual(expected, cgram[color], "Exact full start copy and untouched neighbors");
+                if (color is >= 160 and < 192)
+                    AssertEqual(expected, selected.ResolveStart(color - 160), "Independent supplied start word");
+            }
+            BossShadeColours.Lay(cgram, shades, RidleyShades.Baby(CeresBabyShade.Resting), BossShadeColours.Sprites);
+            for (int color = 0; color < 15; color++)
+                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
+                    cgram[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
+        }
+        foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
+        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
+    }
+
+    /// <summary>Checks Ceres Baby palette phases and installed CGRAM colors.</summary>
+    internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        ushort Native(int row, int color)
+        {
+            int a = 0xa6e1f1 + (row * 15 + color) * 2;
+            return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
+        }
+        // Each shade shows the native Baby row of the same rank: resting, then the horizontal, round and vertical poses.
+        CeresBabyShade[] shadeOfRow = [CeresBabyShade.Resting, CeresBabyShade.HorizontalSquish, CeresBabyShade.Round, CeresBabyShade.VerticalSquish];
+        CeresBabyShadeColorsDocument babyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
+        PaletteRgb5[][] NativeOrderedRows() => [.. shadeOfRow.Select(shade => babyShades.Of(shade).ToArray())];
+        var definition = stock.selection.Baby;
+        var overrides = definition.edits;
+        AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
+        for (int color = 0; color < 3; color++)
+        {
+            int address = 0xa6e464 + color * 2;
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), Native(0, color + 4), "Exact native membrane/organ source identities");
+        }
+        foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, BabyShades = null }, ArtworkJson.Options);
+        var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
+        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
+            AssertEqual(Native(row, color), legacy.ResolveBaby(shadeOfRow[row], color), "Legacy document preserves the independently installed Baby owner");
+        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
+            AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 native Baby colors calculate");
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 63; edit++)
+        {
+            var rows = NativeOrderedRows();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            if (edit >= 0)
+            {
+                PaletteRgb5 original = edit < 60 ? rows[edit / 15][edit % 15] : body[15][8 + edit - 60];
+                PaletteRgb5 replacement = channel switch
+                {
+                    0 => original with { Red = original.Red ^ 1 },
+                    1 => original with { Green = original.Green ^ 1 },
+                    _ => original with { Blue = original.Blue ^ 1 },
+                };
+                if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
+            }
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(rows), BodyFade = body })));
+            for (int row = 0; row < 4; row++)
+            {
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.CeresSprites(selected), RidleyShades.Baby(shadeOfRow[row]), BossShadeColours.Sprites);
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = color is >= 177 and < 192
+                        ? (ushort)(Native(row, color - 177) ^ (edit == row * 15 + color - 177 ? 1 << (channel * 5) : 0))
+                        : (ushort)0x1234;
+                    AssertEqual(expected, cgram[color], "Baby actual copy preserves independent source/row edits and neighbors");
+                }
+                for (int color = 0; color < 32; color++)
+                    AssertEqual(stock.ResolveStart(color), selected.ResolveStart(color), "Body/Baby changes cannot alter supplied startup palette");
+            }
+        }
+        foreach (int variation in new[] { -1, 0, 1 })
+        {
+            var bodyRows = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            var babyRows = NativeOrderedRows();
+            if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
+            if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(babyRows), BodyFade = bodyRows })));
+            IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(selected);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
+            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
+            for (int phase = 0; phase < 12; phase++)
+            {
+                int cursor = 0xbf5d + phase * 8;
+                int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
+                // The expressive loop's palette command for this phase is step 1 + 2 * phase, its pose the next step.
+                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyFrameHold = 1, BabyVerticalVelocity = 1 };
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
+                AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
+                AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
+                ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
+                for (int color = 0; color < 15; color++)
+                    AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), shown[177 + color], "Actual pose-selected palette preserves independent edits");
+            }
+        }
+        foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(CeresBabyShade.Resting, color), "Baby color domain");
+        Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
+    }
+
+    /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>
+    internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
+        var stored = stock.selection.RetreatShared;
+        AssertEqual(0, stored.Count, "No native retreat shared paints retained");
+        for (int color = 0; color < 8; color++)
+        {
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + color * 2)), stock.ResolveRetreatShared(color), "Native shared retreat colors");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6e171 + color * 2)), stock.ResolveRetreatShared(color), "Native startup material identity");
+        }
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 16; edit++)
+        {
+            var starts = document.Start.ToArray();
+            var shared = document.RetreatShared.ToArray();
+            if (edit >= 0)
+            {
+                var old = edit < 8 ? shared[edit] : starts[edit - 7];
+                var replacement = channel switch { 0 => old with { Red = old.Red ^ 1 }, 1 => old with { Green = old.Green ^ 1 }, _ => old with { Blue = old.Blue ^ 1 } };
+                if (edit < 8) shared[edit] = replacement; else starts[edit - 7] = replacement;
+            }
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, RetreatShared = shared })));
+            ushort[] cgram = BossShadeColours.Filled(0x1234);
+            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
+            BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, BossShadeColours.Sprites);
+            for (int color = 0; color < 256; color++)
+            {
+                int sharedColor = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                ushort expected = sharedColor >= 0 ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + sharedColor * 2)) ^ (edit == sharedColor ? 1 << (channel * 5) : 0))
+                    : color is >= 81 and < 96 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) : (ushort)0x1234;
+                AssertEqual(expected, cgram[color], "Exact retreat BG/OBJ copies and independent source edits");
+            }
+        }
+        foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatShared(color), "Retreat shared domain");
+        Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
+    }
+
+    /// <summary>Checks Ceres zoom and retreat palette phases in their native order.</summary>
+    internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
+    {
+        byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
+        var zoomDocument = RequiredJson.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, ArtworkJson.Options);
+        var zoomStock = CeresRidleyMode7ColorFile.Read(new MemoryStream(zoomJson));
+        var ceresStock = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorExtractor.Extract(rom)));
+        var zoomDefinition = zoomStock.steps;
+        var zoomEdits = zoomDefinition.edits;
+        AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x848050), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6b123), GoldenTorizoHealthPaint.Color(0, 15, SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthFacing.Front), "Existing immutable neutral source owner");
+        static PaletteRgb5 Change(PaletteRgb5 original, int channel) => channel switch
+        {
+            0 => original with { Red = original.Red ^ 1 },
+            1 => original with { Green = original.Green ^ 1 },
+            _ => original with { Blue = original.Blue ^ 1 },
+        };
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 135; edit++)
+        {
+            var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
+            if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
+            var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
+            var ridley = new RidleyEnemyState();
+            enemies.RidleyEncounter.Ridley = ridley;
+            IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected, new RgbColor[BossShadeColours.Sprites]);
+            Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
+            for (int row = 0; row < 9; row++)
+            {
+                apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));
+                ushort[] cgram = RidleyLaidColours.Of(ridley, [], zoomRoom, 0x1234);
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = color is >= 81 and < 96
+                        ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b107 + row * 32 + (color - 81) * 2)) ^ (edit == row * 15 + color - 81 ? 1 << (channel * 5) : 0))
+                        : (ushort)0x1234;
+                    AssertEqual(expected, cgram[color], "Actual native high-byte zoom selection and independent edits");
+                    if (color is >= 81 and < 96) AssertEqual(expected, selected.Resolve(row, color - 81), "Calculated zoom resolver matches actual copy");
+                }
+            }
+        }
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        var retreatEdits = stock.selection.RetreatBg;
+        AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
+        {
+            var retreat = document.RetreatBg.ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            var eyes = document.EyeFade.Select(row => row.ToArray()).ToArray();
+            if (edit is >= 0 and < 15) retreat[edit] = Change(retreat[edit], channel);
+            else if (edit is >= 15 and < 26) body[1][edit - 15] = Change(body[1][edit - 15], channel);
+            else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
+            ushort[] cgram = BossShadeColours.Filled(0x1234);
+            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock, new RgbColor[BossShadeColours.Sprites]);
+            BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, BossShadeColours.Sprites);
+            for (int color = 0; color < 256; color++)
+            {
+                int shared = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                ushort expected = color is >= 81 and < 96
+                    ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) ^ (edit == color - 81 ? 1 << (channel * 5) : 0))
+                    : shared >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + shared * 2)) : (ushort)0x1234;
+                AssertEqual(expected, cgram[color], "Retreat near-black source independence and exact BG/OBJ destinations");
+            }
+        }
+        foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(invalid, 0), "Zoom row domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, invalid), "Zoom color domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(invalid), "Retreat color domain");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(9, 0), "Zoom upper row bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, 15), "Zoom upper color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(15), "Retreat upper color bound");
+        Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
+    }
+
+    /// <summary>Checks Ceres health-dependent palette phases and installed CGRAM output.</summary>
+    internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
+        var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        ushort Native(int row, int color)
+        {
+            int a = 0xa6e46a + (row * 14 + color) * 2;
+            return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
+        }
+        var definition = stock.selection.Health;
+        var overrides = definition.edits;
+        AssertEqual(0, overrides.Count, "All42 native health colors calculate");
+        static PaletteRgb5 Change(PaletteRgb5 value, int channel) => channel switch
+        { 0 => value with { Red = value.Red ^ 1 }, 1 => value with { Green = value.Green ^ 1 }, _ => value with { Blue = value.Blue ^ 1 } };
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 56; edit++)
+        {
+            var rows = document.Health.Select(row => row.ToArray()).ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            var eyes = document.EyeFade.Select(row => row.ToArray()).ToArray();
+            if (edit is >= 0 and < 42) rows[edit / 14][edit % 14] = Change(rows[edit / 14][edit % 14], channel);
+            else if (edit is >= 42 and < 53) body[15][edit - 42] = Change(body[15][edit - 42], channel);
+            else if (edit >= 53) eyes[0][edit - 53] = Change(eyes[0][edit - 53], channel);
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
+            IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
+            for (int row = 0; row < 3; row++)
+            {
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), shades, RidleyShades.Health(row), BossShadeColours.Sprites);
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = color is >= 241 and < 255
+                        ? (ushort)(Native(row, color - 241) ^ (edit == row * 14 + color - 241 ? 1 << (channel * 5) : 0)) : (ushort)0x1234;
+                    AssertEqual(expected, cgram[color], "Health copy preserves every independent source/output edit and neighbor");
+                }
+            }
+        }
+        for (int variation = -1; variation < 2; variation++)
+        {
+            var rows = document.Health.Select(row => row.ToArray()).ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
+            if (variation == 1) body[15][9] = Change(body[15][9], 1);
+            var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
+            IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
+            Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
+            Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
+            void Check(RidleyEnemyState shown, int row)
+            {
+                ushort[] cgram = RidleyLaidColours.Of(shown, healthShades, [], 0x1234);
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = row >= 0 && color is >= 241 and < 255
+                        ? (ushort)(Native(row, color - 241) ^ (variation == 0 && row == 1 && color == 246 ? 1 << 10 : 0)) : (ushort)0x1234;
+                    AssertEqual(expected, cgram[color], "Actual encounter health/shot selection preserves installed paint and exact copy");
+                }
+            }
+            foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
+            {
+                enemies.SlotTable.Slots[0].Health = health;
+                var state = new RidleyEnemyState(); norfair(enemies.SlotTable.Slots[0], state);
+                int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
+                AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(state, row);
+            }
+            foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
+            {
+                var hit = new RidleyEnemyState { FightMode = fight, HitCounter = hits };
+                ceres(hit);
+                Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
+            }
+        }
+        foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(row, 0), "Health row bounds");
+        foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, color), "Health color bounds");
+        Console.WriteLine("Ridley health:42 native words,zero stock overrides,126 output/42 source RGB edits,513 actual copies,54 actual encounter selections and bounds/null pass.");
+    }
+
+    /// <summary>Checks HUD anchor coordinates and cell placement against native layout data.</summary>
+    internal static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
+    {
+        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
+        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        GameplayHudArtwork stock = GameplayHudPresentationFile.Read(new MemoryStream(json));
+        for (int tank = 0; tank < 14; tank++)
+        {
+            int native = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2));
+            AssertEqual(native / 2, GameplayHudStockCells.EnergyTankCell(tank), "native HUD tank offset");
+            AssertEqual(native / 2, document.EnergyTanks.Anchors[tank].Y * 32 + document.EnergyTanks.Anchors[tank].X,
+                "extracted native HUD tank anchor");
+        }
+        for (int item = 0; item < 5; item++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e + item * 2) / 2, GameplayHudStockCells.ItemCell(item), "native HUD item offset");
+        for (int cell = 0; cell < 6; cell++)
+        {
+            int native = (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809b65 + cell * 7)) - 0xc608) / 2;
+            AssertEqual(native, GameplayHudStockCells.AutoReserveCellIndex(cell), "native AUTO store destination");
+        }
+        ushort[] tiles = new ushort[96];
+        stock.ApplyEnergy(tiles, 100, 1400);
+        for (int tank = 0; tank < 14; tank++)
+            AssertEqual((tank == 0 ? stock.FilledEnergyTank : stock.EmptyEnergyTank).PackedWord,
+                tiles[CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2)) / 2], "native tank draw destination");
+        stock.ApplyAutoReserve(tiles, containsEnergy: true);
+        for (int cell = 0; cell < 6; cell++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x80998b + cell * 2)), tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "native AUTO draw destination");
+        stock.ClearAutoReserve(tiles);
+        for (int cell = 0; cell < 6; cell++)
+            AssertEqual(stock.Blank.PackedWord, tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "native AUTO clear destination");
+
+        {
+            var held0 = document.EnergyTanks.Anchors[1];
+            var held1 = document.EnergyTanks.Anchors[0];
+            document.EnergyTanks.Anchors[0] = held0;
+            document.EnergyTanks.Anchors[1] = held1;
+        }
+        {
+            var held0 = document.AutoReserve.Anchors[1];
+            var held1 = document.AutoReserve.Anchors[0];
+            document.AutoReserve.Anchors[0] = held0;
+            document.AutoReserve.Anchors[1] = held1;
+        }
+        using var editedJson = new MemoryStream();
+        GameplayHudPresentationFile.Write(editedJson, document);
+        editedJson.Position = 0;
+        GameplayHudArtwork edited = GameplayHudPresentationFile.Read(editedJson);
+        edited.ApplyEnergy(tiles, 100, 1400);
+        AssertEqual(edited.FilledEnergyTank.PackedWord, tiles[0x44 / 2], "edited first tank moves to second native anchor");
+        AssertEqual(edited.EmptyEnergyTank.PackedWord, tiles[0x42 / 2], "edited second tank moves to first native anchor");
+        edited.ApplyAutoReserve(tiles, containsEnergy: false);
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809997), tiles[9], "edited AUTO first cell follows override");
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809999), tiles[8], "edited AUTO second cell follows override");
+        for (int cell = 2; cell < 6; cell++)
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809997 + cell * 2)), tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "unedited AUTO anchors unchanged");
+        document.AutoReserve.Anchors[0] = document.AutoReserve.Anchors[1];
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(new MemoryStream(), document),
+            "HUD anchor compilation rejects overlap");
+        foreach (int invalid in new[] { -1, 14, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.EnergyTankCell(invalid), "tank exact domain");
+        foreach (int invalid in new[] { -1, 5, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.ItemCell(invalid), "item exact domain");
+        foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.AutoReserveCellIndex(invalid), "AUTO exact domain");
+    }
+
+    /// <summary>Runs the beam geometry verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream-4-beam-geometry")]
+    internal static int LookupStream4BeamGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream4BeamTileGeometry), () => VerifyLookupStream4BeamTileGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the auto-reserve cell verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-hud-auto-cells")]
+    internal static int LookupStream4HudAutoCellsCommand()
+    {
+        Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the HUD anchor verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-hud-anchors")]
+    internal static int LookupStream4HudAnchorsCommand()
+    {
+        Suite(nameof(VerifyLookupStream4HudAnchors), () => VerifyLookupStream4HudAnchors(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the HUD digit verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-hud-digits")]
+    internal static int LookupStream4HudDigitsCommand()
+    {
+        Suite(nameof(VerifyLookupStream4HudDigits), () => VerifyLookupStream4HudDigits(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the title sprite identity verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-title-identities")]
+    internal static int LookupStream4TitleIdentitiesCommand()
+    {
+        Suite(nameof(VerifyTitleSpriteIdentities), () => VerifyTitleSpriteIdentities(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the title card layout verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-title-card")]
+    internal static int LookupStream4TitleCardCommand()
+    {
+        Suite(nameof(VerifyTitleCardLayout), () => VerifyTitleCardLayout(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the room sprite dispatch verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-sprite-dispatch")]
+    internal static int LookupStream4SpriteDispatchCommand()
+    {
+        Suite(nameof(VerifyRoomSpriteDispatch), () => VerifyRoomSpriteDispatch(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    /// <summary>Runs the Fly escape frame verification against a pinned cartridge image.</summary>
+    [VerificationCommand("--lookup-stream4-fly-escape")]
+    internal static int LookupStream4FlyEscapeCommand()
+    {
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyFlyFrameIdentities), () => VerifyFlyFrameIdentities(source));
+        Suite(nameof(VerifyZebesEscapeExplosionDefinitions), () => VerifyZebesEscapeExplosionDefinitions(source));
+        return 0;
+    }
+}

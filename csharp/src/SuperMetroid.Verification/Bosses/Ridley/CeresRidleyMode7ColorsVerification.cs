@@ -69,16 +69,10 @@ internal static class CeresRidleyMode7ColorsVerification
             "Ceres Mode-7 color edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
-        AssertTrue(ReferenceEquals(edited.CeresRidleyFloorColors,
-            runtime.BossArtwork.CeresRidleyFloorColors),
-            "installed runtime binds Ceres Mode-7 colors to enemy owner");
         runtime.Artwork.MapPresentation = original;
-        AssertTrue(ReferenceEquals(original.CeresRidleyFloorColors,
-            runtime.BossArtwork.CeresRidleyFloorColors),
-            "runtime rebind drops old Ceres Mode-7 colors");
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var ridley = new RidleyEnemyState();
         enemies.RidleyEncounter.Ridley = ridley;
         Action<ushort> select = selectedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(selectedZoom);

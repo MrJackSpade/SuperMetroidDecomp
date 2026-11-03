@@ -48,11 +48,6 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidStockBand.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidHealthBands.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidColors.cs")]),
-        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.ZebetiteColorCatalog", "zebetite-complete-pulse-colors", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetiteColorCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetitePulse.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetitePulsePaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetitePulsePaint.cs")]),
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.ShitroidColorCatalog", "shitroid-complete-live-color-images", ["NormalColor", "TargetColor"],
             [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ShitroidColorCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ShitroidColorSelection.cs"),
@@ -73,9 +68,5 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/DachoraColorSelection.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/DachoraColors.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraColorDefinitions.cs")]),
-        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainHealthPalettePresentation", "mother-brain-complete-health-colors", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPalettePresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainHealthPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRainbowPaletteDefinitions.cs")]),
     ];
 }

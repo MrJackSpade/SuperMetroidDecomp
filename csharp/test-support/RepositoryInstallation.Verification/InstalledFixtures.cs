@@ -108,6 +108,12 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
     internal static AreaMapPresentation Maps => maps.Value;
 
+    /// <summary>The tilesets' installed colours, loaded once for the checks that colour from them.</summary>
+    internal static SuperMetroid.Core.Rooms.Artwork.RoomStaticPalettes RoomPalettes => roomPalettes.Value;
+
+    /// <summary>The tilesets' installed colours, loaded on first use.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Rooms.Artwork.RoomStaticPalettes> roomPalettes = new(() => RepositoryInstallation.Installation.LoadRoomPalettes());
+
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
 

@@ -48,7 +48,6 @@ internal static class SpeedBoosterStageFiveResidueVerification
         {
             BossArtworkBinding =
             {
-                CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))),
                 CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus))),
             },
         };

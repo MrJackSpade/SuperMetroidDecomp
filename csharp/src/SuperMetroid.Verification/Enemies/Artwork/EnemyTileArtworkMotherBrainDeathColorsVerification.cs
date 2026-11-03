@@ -12,6 +12,9 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Verification.Bosses;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -123,46 +126,49 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     < (MotherBrainSourceDefinitions.Death.ExplodedDoorColors +
                         MotherBrainDeathDefinitions.BodyColorCount * sizeof(ushort)),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
-        var cgram = new SamusColourRig();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-        Type type = typeof(RoomEnemySystem);
-        cgram.SetColor(MotherBrainDeathColorDestinations.BodyColors - 1, RgbColor.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathColorDestinations.BrainColors - 1, RgbColor.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathColorDestinations.LegColors - 1, RgbColor.FromWord(0x1234));
-        cgram.SetColor(MotherBrainDeathColorDestinations.CorpseColors - 1, RgbColor.FromWord(0x1234));
+        // The import pre-colours her body layer and her sprites in each death fade step, her detached brain in each step of
+        // the corpse's fade, and her brain in the exploded door's colours, from the edited colours (#1512).
+        IReadOnlyList<SheetShade> background = MotherBrainSheetShades.Background(InstalledFixtures.Maps, edited.Bosses);
+        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, edited.Bosses, InstalledFixtures.RoomPalettes);
+        ushort[] Shown(PictureShade shade)
+        {
+            ushort[] colours = BossShadeColours.Filled(0x1234);
+            if (background.Any(candidate => candidate.Shade == shade))
+                BossShadeColours.Lay(colours, background, shade, BossShadeColours.Room);
+            return BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
+        }
         for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
         {
-            enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathBodyFade(frame);
+            ushort[] cgram = Shown(MotherBrainShades.DeathBody(frame));
             for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
             {
-                RgbColor shared = colors.BodyColor(frame, color);
-                AssertEqual(shared, cgram.Colors[MotherBrainDeathColorDestinations.BodyColors + color],
+                ushort shared = colors.BodyColor(frame, color).ToWord();
+                AssertEqual(shared, cgram[MotherBrainDeathColorDestinations.BodyColors + color],
                     $"live Mother Brain body death frame {frame} color {color}");
-                AssertEqual(shared, cgram.Colors[MotherBrainDeathColorDestinations.BrainColors + color],
+                AssertEqual(shared, cgram[MotherBrainDeathColorDestinations.BrainColors + color],
                     $"live Mother Brain brain death frame {frame} color {color}");
-                AssertEqual(colors.LegColor(frame, color),
-                    cgram.Colors[MotherBrainDeathColorDestinations.LegColors + color],
+                AssertEqual(colors.LegColor(frame, color).ToWord(),
+                    cgram[MotherBrainDeathColorDestinations.LegColors + color],
                     $"live Mother Brain leg death frame {frame} color {color}");
             }
+            foreach (int destination in new[] { MotherBrainDeathColorDestinations.BodyColors,
+                MotherBrainDeathColorDestinations.BrainColors, MotherBrainDeathColorDestinations.LegColors })
+                AssertEqual(0x1234, cgram[destination - 1],
+                    $"Mother Brain death palette preserves adjacent color {destination - 1}");
         }
         for (int frame = 0; frame < MotherBrainDeathColorFile.CorpseFadeFrameCount; frame++)
         {
-            enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathCorpseFade(frame);
+            ushort[] cgram = Shown(MotherBrainShades.CorpseFade(frame));
             for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)
-                AssertEqual(colors.CorpseColor(frame, color),
-                    cgram.Colors[MotherBrainDeathColorDestinations.CorpseColors + color],
-                    $"live Mother Brain corpse death frame {frame} color {color}");
+                AssertEqual(colors.CorpseColor(frame, color).ToWord(),
+                    cgram[MotherBrainDeathColorDestinations.BrainColors + color],
+                    $"live Mother Brain corpse death frame {frame} color {color}, shown over her brain's pictures");
         }
-        enemies.MotherBrainBehavior.RainbowAndDeath.LoadMotherBrainDeathDoorPalette();
+        ushort[] door = Shown(MotherBrainShades.ExplodedDoor);
         for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
-            AssertEqual(colors.ExplodedDoorColor(color),
-                cgram.Colors[MotherBrainDeathColorDestinations.BrainColors + color],
+            AssertEqual(colors.ExplodedDoorColor(color).ToWord(),
+                door[MotherBrainDeathColorDestinations.BrainColors + color],
                 $"live Mother Brain exploded-door color {color}");
-        foreach (int destination in new[] { MotherBrainDeathColorDestinations.BodyColors,
-            MotherBrainDeathColorDestinations.BrainColors, MotherBrainDeathColorDestinations.LegColors,
-            MotherBrainDeathColorDestinations.CorpseColors })
-            AssertEqual(0x1234, cgram.Colors[destination - 1],
-                $"Mother Brain death palette preserves adjacent color {destination - 1}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Mother Brain death palettes avoid migrated RGB5/selector ROM reads");
 

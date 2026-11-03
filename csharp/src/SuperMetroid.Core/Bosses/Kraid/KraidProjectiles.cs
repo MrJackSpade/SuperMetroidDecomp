@@ -49,7 +49,7 @@ internal sealed class KraidProjectiles
         }
         KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
         KraidEncounterAccess.AttachKraidPart(lint, state);
-        lint.Colouring = _slotTable.Slots[0].Colouring;
+        lint.Shading = _slotTable.Slots[0].Shading;
         lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
@@ -67,7 +67,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(nail);
         KraidEncounterAccess.EnsureKraidSlot(nail, expectedSlot, "fingernail");
         KraidEncounterAccess.AttachKraidPart(nail, state);
-        nail.Colouring = _slotTable.Slots[0].Colouring;
+        nail.Shading = _slotTable.Slots[0].Shading;
         KraidPartState nailPart = state.Parts[nail.SlotIndex];
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
@@ -437,9 +437,9 @@ internal sealed class KraidProjectiles
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.Colouring = _access.Part(lint).FunctionTimer.IsInAlternatePhase(1)
-            ? new GraphicsSetMemberColouring(EnemyDefinitionId.Kraid)
-            : SharedSpriteColouring.Common;
+        lint.Shading = _access.Part(lint).FunctionTimer.IsInAlternatePhase(1)
+            ? _access.RequireKraidState(lint).Colours.Parts
+            : EnemyShades.HitFlashed;
         lint.Position = lint.Position.WithWrappedWholeX(
             _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel);
         CountdownStep charge = _access.Part(lint).FunctionTimer.Decrement();

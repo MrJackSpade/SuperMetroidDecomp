@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -99,12 +100,12 @@ internal sealed class EnemyDrawList
                         ((slot.FrameCounter & 2) != 0 ? -1 : 1)));
                     slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
-                SpriteColouring drawColouring =SelectCommonEnemyDrawColouring(slot);
+                PictureShading drawShading = SelectCommonEnemyDrawShading(slot);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawColouring, frame, null, null));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, frame, null, null));
                     continue;
                 }
 
@@ -116,7 +117,7 @@ internal sealed class EnemyDrawList
                     // and collision programs.
                     EnemyFrameId selected = _room.Artwork.ExtendedFramePlacements.GetDisplayFrame(shown);
                     _instructions.DrawBossBodyFrame(slot, selected);
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawColouring, null, shown, installed));
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, null, shown, installed));
                     continue;
                 }
 
@@ -168,8 +169,8 @@ internal sealed class EnemyDrawList
                     if (frame == EnemyFrameId.Empty)
                         continue;
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(frame),
-                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.Colouring,
-                        (slot.Entity as IShowsCorpseRot)?.ShownRot));
+                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y),
+                        (slot.Entity as IShowsCorpseRot)?.ShownRot) { Shading = draw.Shading });
                     continue;
                 }
 
@@ -187,8 +188,8 @@ internal sealed class EnemyDrawList
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId,
                         EnemySheetDefinitions.ComponentFrameName(draw.ExtendedFrame ?? throw new InvalidOperationException(
                             "An extended enemy draw was prepared without its frame."), index),
-                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), draw.Colouring,
-                        (slot.Entity as IShowsCorpseRot)?.ShownRot));
+                        new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y),
+                        (slot.Entity as IShowsCorpseRot)?.ShownRot) { Shading = draw.Shading });
                 }
             }
 
@@ -209,12 +210,12 @@ internal sealed class EnemyDrawList
     /// <param name="Slot">The enemy.</param>
 
     /// <param name="Origin">Its shaken screen origin.</param>
-    /// <param name="Colouring">The colours the common draw selected for this frame.</param>
+    /// <param name="Shading">The shading the common draw selected for this frame (#1512).</param>
     /// <param name="Frame">An ordinary enemy's frame; null for an extended enemy.</param>
     /// <param name="ExtendedFrame">The extended frame an extended enemy shows, which names its components' sheet frames; null for an ordinary enemy.</param>
     /// <param name="Components">Where an extended enemy's installed components are placed; null for an ordinary enemy.</param>
     private readonly record struct PreparedEnemyDraw(int Layer, RoomEnemySlot Slot,
-        Position16<ScreenPixels> Origin, SpriteColouring Colouring, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
+        Position16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId? Frame, EnemyFrameId? ExtendedFrame,
         ReadOnlyMemory<EnemyExtendedComponentPlacement>? Components);
 
     /// <summary>
@@ -231,21 +232,21 @@ internal sealed class EnemyDrawList
     /// Ridley's translated AI already publishes the exact common-writer colouring because
     /// its body, wings, and tail must share one latched phase.
     /// </remarks>
-    private SpriteColouring SelectCommonEnemyDrawColouring(RoomEnemySlot slot)
+    private PictureShading SelectCommonEnemyDrawShading(RoomEnemySlot slot)
     {
-        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawColouring() is { } owned)
+        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawShading() is { } owned)
             return owned;
 
         // A hit flash shows the common sprite colours on alternate phases.
         if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
-            return SharedSpriteColouring.Common;
+            return EnemyShades.HitFlashed;
 
         if (!slot.FrozenTimer.IsZero &&
             (slot.FrozenTimer.IsAtLeast(90) || slot.FrozenTimer.IsInAlternatePhase(2)))
         {
-            return SharedSpriteColouring.Frozen;
+            return EnemyShades.FrozenLook;
         }
 
-        return slot.Colouring;
+        return slot.Shading;
     }
 }

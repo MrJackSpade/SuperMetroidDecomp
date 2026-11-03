@@ -547,7 +547,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         get
         {
             if (KraidBehavior.Access.Kraid is { } kraid)
+            {
                 yield return kraid.Backdrop;
+                yield return kraid.Colours;
+            }
         }
     }
 

@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public sealed class KraidEnemyState
 {
+    /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
+    internal KraidColours Colours { get; } = new();
+
     /// <summary>The colours Kraid's room backdrop shows (#1512).</summary>
     internal KraidBackdropColours Backdrop { get; } = new();
 

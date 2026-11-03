@@ -13,6 +13,9 @@ public static class KraidPalettes
     /// <summary>Colours in one Kraid palette band.</summary>
     public const int BandColors = 16;
 
+    /// <summary>The first of a band's colours that are Kraid's eyes, which glow after a hit (#1512).</summary>
+    public const int FirstEyeColour = 1;
+
     /// <summary>
     /// The colours of one named palette: a single band, or a flash-plus-eight-health sequence.
     /// </summary>

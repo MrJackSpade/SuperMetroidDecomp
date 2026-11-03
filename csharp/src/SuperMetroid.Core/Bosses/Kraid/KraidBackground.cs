@@ -73,12 +73,12 @@ internal sealed class KraidBackground
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
-            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
+            graphics: SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
         rock.Velocity = rock.Velocity.WithX(new SignedEightEight(0));
         rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped((_access.ReadKraidRandomNumber() & 63) + 64));
-        rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
+        rock.Graphics = SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading);
         return true;
     }
 }

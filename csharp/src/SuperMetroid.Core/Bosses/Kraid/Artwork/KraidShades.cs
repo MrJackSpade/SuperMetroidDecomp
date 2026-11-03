@@ -12,6 +12,18 @@ public static class KraidShades
     /// <summary>The shades of each backdrop fade: one per counter value its steps take, zero through thirteen.</summary>
     public const int BackdropFadeShades = 14;
 
+    /// <summary>
+    /// Kraid's colours for health band <paramref name="band"/>, zero through seven, or the hurt flash's for minus one: his
+    /// body's on layer 2 and his sprite parts' (#1512).
+    /// </summary>
+    public static PictureShade Health(int band) => new("kraid-health", band + 1);
+
+    /// <summary>His body's colours as he dies, with his arm drawn into them.</summary>
+    public static PictureShade DeathArm { get; } = new("kraid-death-arm", 0);
+
+    /// <summary>The colours his ceiling rocks and spat rocks draw in, which his initialization loads.</summary>
+    public static PictureShade Rocks { get; } = new("kraid-rocks", 0);
+
     /// <summary>Kraid's backdrop colours, as his defeated room shows them.</summary>
     public static PictureShade Backdrop { get; } = new("kraid-backdrop", 0);
 

@@ -103,9 +103,8 @@ internal sealed class KraidRise
         state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(64);
         state.Parts[0].NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
 
-        // Background palette three's target colors are written at palette eleven in
-        // target-palette storage. The software renderer exposes that buffer directly.
-        LoadKraidColorBand(KraidPaletteSource.InitialTarget, _presentation.BossColours().KraidSprites);
+        // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
+        state.Colours.EyeGlow.ShowBand(_head.BandEyes(_head.InitialBand(body, state)));
         _earthquake.EarthquakeType = 5;
     }
 
@@ -133,13 +132,6 @@ internal sealed class KraidRise
         state.BodyAppearance = state.BodyAppearance == KraidBodyAppearance.BehindSprites
             ? KraidBodyAppearance.InFrontOfSprites
             : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
-
-    /// <summary>Copies one Kraid palette source band to its colour run.</summary>
-    internal void LoadKraidColorBand(KraidPaletteSource source, ColourRun destination)
-    {
-        for (int color = 0; color < KraidPalettes.BandColors; color++)
-            destination.Write(color, _background.ReadKraidColor(source, color));
-    }
 
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
@@ -313,7 +305,7 @@ internal sealed class KraidRise
         if (rock is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
@@ -323,7 +315,7 @@ internal sealed class KraidRise
             randomOffset = CoordinateAxis.AsSigned(~randomOffset);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
         rock.Velocity = new(SignedEightEight.Wrapped(random & 1008), SignedEightEight.FromSignedRaw(-1280));
-        rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
+        rock.Graphics = SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading);
         state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }

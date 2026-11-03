@@ -80,8 +80,7 @@ internal static class RoomFxLayer3TilemapsVerification
             InstalledAreaMapPresentation.RoomFxPagesOf(baseline).Resolve(RoomFxType.Lava).Span),
             "room-FX BG3 edit changes the selected tilemap words");
         ushort[] plane = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
-            InstalledAreaMapPresentation.RoomFxPagesOf(edited), edited.RoomFxPaletteBlends,
-            out CartridgeReadGuard guarded);
+            InstalledAreaMapPresentation.RoomFxPagesOf(edited), out CartridgeReadGuard guarded);
         ushort editedWord = BitConverter.ToUInt16(
             InstalledAreaMapPresentation.RoomFxPagesOf(edited).ResolveBytes(RoomFxType.Lava).AsSpan(0, sizeof(ushort)));
         AssertEqual(editedWord, plane[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],

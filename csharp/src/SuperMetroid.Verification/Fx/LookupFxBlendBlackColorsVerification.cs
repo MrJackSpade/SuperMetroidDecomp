@@ -31,9 +31,8 @@ internal static class LookupFxBlendBlackColorsVerification
             int expected = (ReadVerificationWord(rom, 0x89aa06 + id) >> shift) & 31;
             AssertEqual(expected, ((RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")).ToWord() >> shift) & 31, "Original third-color component");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> shift) & 31, "Resolved third-color component");
-            var cgram = new GameplayColours(new SpriteColourSets());
-            stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
-            AssertEqual(expected, (cgram.Colors[27].ToWord() >> shift) & 31, "Applied third-color component");
+            RgbColor ink = stock.Inks(FxNativeWords.PaletteBlend(id))[2];
+            AssertEqual(expected, shift switch { 0 => ink.Red, 5 => ink.Green, _ => ink.Blue }, "Layer 3's third blend ink shows the third-color component");
         }
     }
 

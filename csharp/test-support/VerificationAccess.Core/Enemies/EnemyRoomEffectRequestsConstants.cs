@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyRoomEffectRequestsConstants
 {
     /// <summary>No requests.</summary>
-    public static EnemyRoomEffectRequests None { get; } = new(null, null, [], [], null, 0, [], []);
+    public static EnemyRoomEffectRequests None { get; } = new(null, null, [], [], null, 0, [], [], null);
 }

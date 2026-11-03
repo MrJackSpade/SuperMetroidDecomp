@@ -20,8 +20,7 @@ internal static class LookupFxWeatherBlueVerification
             int expected = (native >> 5) & 31;
             AssertEqual(expected, (RoomFxPaletteBlendRules.CalculatedThirdGreen(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdGreen(FxNativeWords.PaletteBlend(id)).")), "Native weather third green");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> 5) & 31, "Installed weather third green");
-            var cgram = new GameplayColours(new SpriteColourSets()); stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
-            AssertEqual(expected, (cgram.Colors[27].ToWord() >> 5) & 31, "Applied weather third green");
+            AssertEqual(expected, stock.Inks(FxNativeWords.PaletteBlend(id))[2].Green, "Layer 3's third blend ink shows the weather third green");
             var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(native)));
             AssertTrue(owner.greenOverride is null, "Stock weather third green is not stored");
             _ = owner.CreateColor();
@@ -36,7 +35,7 @@ internal static class LookupFxWeatherBlueVerification
                 AssertTrue(RoomFxPaletteBlendRules.CalculatedThirdGreen(FxNativeWords.PaletteBlend(id)) is null, "Liquid override green remains independent");
         }
     }
-    /// <summary>Confirms weather blue reaches CGRAM slot 27, remains uncached, and permits all RGB5 third-color edits to round-trip.</summary>
+    /// <summary>Confirms weather blue reaches layer 3's third blend ink, remains uncached, and permits all RGB5 third-color edits to round-trip.</summary>
     internal static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxBlendInks stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })
@@ -45,9 +44,7 @@ internal static class LookupFxWeatherBlueVerification
             int expected = (native >> 10) & 31;
             AssertEqual(expected, (RoomFxPaletteBlendRules.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), native & 31) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), native & 31).")), "Native weather third blue");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> 10) & 31, "Installed weather third blue");
-            var cgram = new GameplayColours(new SpriteColourSets());
-            stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
-            AssertEqual(expected, (cgram.Colors[27].ToWord() >> 10) & 31, "Applied weather third blue");
+            AssertEqual(expected, stock.Inks(FxNativeWords.PaletteBlend(id))[2].Blue, "Layer 3's third blend ink shows the weather third blue");
             var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(native)));
             AssertTrue(owner.blueOverride is null, "Stock weather third blue is not stored");
             _ = owner.CreateColor();

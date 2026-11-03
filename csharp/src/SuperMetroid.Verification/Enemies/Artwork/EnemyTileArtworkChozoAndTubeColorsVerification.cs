@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -17,7 +18,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Chozo statue and n00b-tube palette bands against native RGB5 data and live CGRAM initialization.</summary>
+/// <summary>Checks installed Chozo statue and n00b-tube palette bands against native RGB5 data and the shading their live initializers publish.</summary>
 internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 {
     /// <summary>JSON options: Case-insensitive property matching.</summary>
@@ -66,12 +67,13 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         // instruction identity and native PLM requests remain engine-owned.
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
-        Suite(nameof(VerifyLive), () => VerifyLive(0, colors.ResolveTubeCracks,
-            "n00b-tube cracks", (enemies, _) => enemies.ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
-        Suite(nameof(VerifyLive), () => VerifyLive(0, colors.ResolveWreckedShip,
+        // The tube's crack colours are the shade its pieces draw in, so its initializer leaves the slot's shading alone.
+        Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Standard,
+            "n00b-tube cracks", (_, _) => ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
+        Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
             "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueProgram.WreckedShipInitial));
-        Suite(nameof(VerifyLive), () => VerifyLive(2, colors.ResolveLowerNorfair,
+        Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
             "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueProgram.LowerNorfairInitial));
 
@@ -102,18 +104,15 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                     $"installed {name} color {color} preserves native RGB5");
         }
 
-        void VerifyLive(ushort variant, Func<int, RgbColor> resolve, string name,
+        void VerifyLive(ushort variant, PictureShading expectedShading, string name,
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
-            var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
             initialize(enemies, statue);
-            for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-                AssertEqual(resolve(color),
-                    cgram.Colors[ChozoAndTubeColorTransfer.Destination + color],
-                    $"live {name} CGRAM color {color}");
+            // The import pre-colours each shade from the installed band whose words VerifyBand matched to the cartridge.
+            AssertEqual(expectedShading, statue.Shading, $"live {name} shows its installed shade");
             if (expectedProgram is not null)
             {
                 AssertEqual(AnimationProgramCursor<ChozoStatueProgram>.Start(expectedProgram.Value),

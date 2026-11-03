@@ -23,11 +23,11 @@ internal static class LookupFxPairColorsVerification
         _ => 0,
     };
 
-    /// <summary>Compares calculated red channels with native, installed, and applied CGRAM colors.</summary>
+    /// <summary>Compares calculated red channels with native, installed, and layer-3 blend ink colors.</summary>
     internal static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxPairComponent(rom, stock, 0);
-    /// <summary>Compares calculated green channels with native, installed, and applied CGRAM colors.</summary>
+    /// <summary>Compares calculated green channels with native, installed, and layer-3 blend ink colors.</summary>
     internal static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxPairComponent(rom, stock, 5);
-    /// <summary>Compares calculated blue channels with native, installed, and applied CGRAM colors.</summary>
+    /// <summary>Compares calculated blue channels with native, installed, and layer-3 blend ink colors.</summary>
     internal static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxBlendInks stock) => VerifyFxPairComponent(rom, stock, 10);
 
     /// <summary>Checks one RGB5 channel wherever the native blend rule derives it.</summary>
@@ -47,9 +47,8 @@ internal static class LookupFxPairColorsVerification
             };
             AssertEqual(expected, (calculated ?? throw new InvalidOperationException("Verification requires calculated.")), "Native paired-color component rule");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[color].ToWord() >> shift) & 31, "Installed paired-color component");
-            var cgram = new GameplayColours(new SpriteColourSets());
-            stock.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
-            AssertEqual(expected, (cgram.Colors[25 + color].ToWord() >> shift) & 31, "Applied paired-color component");
+            RgbColor ink = stock.Inks(FxNativeWords.PaletteBlend(id))[color];
+            AssertEqual(expected, shift switch { 0 => ink.Red, 5 => ink.Green, _ => ink.Blue }, "Layer 3's paired blend ink shows the component");
         }
     }
 

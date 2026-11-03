@@ -30,4 +30,7 @@ internal interface IHostFrameDriver
 
     /// <summary>The timeline's position for the host's status text.</summary>
     string Progress { get; }
+
+    /// <summary>How the host spaces this timeline's frames.</summary>
+    HostFramePacing Pacing { get; }
 }

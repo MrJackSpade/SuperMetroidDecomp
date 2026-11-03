@@ -608,10 +608,37 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
+    /// Runs frames back to back for one timer interval and presents the last one, so an unpaced timeline
+    /// advances as fast as the host steps while the window's message pump keeps running between ticks.
+    /// </summary>
+    private void AdvanceUnpaced()
+    {
+        long budget = Stopwatch.Frequency * playbackTimer.Interval / 1000;
+        long started = Stopwatch.GetTimestamp();
+        FrontendFrame? last = null;
+        PlaybackBatchResult batch;
+        do
+        {
+            batch = PlaybackFrameBatch.Run(
+                MaximumCatchUpFrames, BuildControllerWord, input => AdvanceOneFrame(input), CanAdvanceAudioFrame);
+            last = batch.LastFrame ?? last;
+        }
+        while (batch.CompletedFrames == MaximumCatchUpFrames && Stopwatch.GetTimestamp() - started < budget);
+        if (last is { } frame)
+            RefreshFrame(frame);
+    }
+
+    /// <summary>
     /// Advances the translated dispatcher according to measured wall-clock time.
     /// </summary>
     private void AdvancePlaybackClock()
     {
+        if (driver?.Pacing == HostFramePacing.Unpaced)
+        {
+            AdvanceUnpaced();
+            return;
+        }
+
         double elapsedSeconds = playbackClock.Elapsed.TotalSeconds;
         playbackClock.Restart();
 

@@ -441,7 +441,7 @@
     {
       "module": "csharp/src/SuperMetroid.Desktop",
       "role": "production",
-      "files": 44,
+      "files": 45,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -79943,6 +79943,15 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Desktop/Window/HostControlHelp.cs",
+      "module": "csharp/src/SuperMetroid.Desktop",
+      "role": "production",
+      "namespace": "SuperMetroid.Desktop.Window",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Desktop/Window/HostFramePacing.cs",
       "module": "csharp/src/SuperMetroid.Desktop",
       "role": "production",
       "namespace": "SuperMetroid.Desktop.Window",

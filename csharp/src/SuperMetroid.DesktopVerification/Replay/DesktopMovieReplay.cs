@@ -30,8 +30,8 @@ internal static class DesktopMovieReplay
 
     /// <summary>
     /// Runs the movie to its end through the host and prints its final report. The first divergence, gameplay
-    /// failure or renderer fault is thrown to the process boundary. There is no time bound: the command waits for
-    /// the movie to end.
+    /// failure or renderer fault is thrown to the process boundary. The movie runs unpaced (#1511); the verifier's
+    /// 30-minute run limit is the only bound.
     /// </summary>
     internal static async Task Run(ReplayMovieId movie)
     {

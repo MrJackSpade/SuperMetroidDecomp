@@ -35,6 +35,10 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     /// <inheritdoc/>
     public string Progress => $"movie update {InputsSupplied}";
 
+    /// <inheritdoc/>
+    /// <remarks>A movie replay checks gameplay, not timing, so it runs as fast as the host can step and present (#1511).</remarks>
+    public HostFramePacing Pacing => HostFramePacing.Unpaced;
+
     /// <summary>Hands the host the session's game, which the session created by the movie's one initial-state import.</summary>
     /// <remarks>The host's installed content is not used: the session imports the movie's initial state itself. A
     /// second start would need a second import, which full-movie parity forbids, so a restart fails.</remarks>

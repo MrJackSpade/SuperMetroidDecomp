@@ -34,6 +34,9 @@ internal sealed class RecordingFrameDriver : IHostFrameDriver
     /// <inheritdoc/>
     public string Progress => $"replay {InputsSupplied}/{recording.ControllerInputs.Length}";
 
+    /// <inheritdoc/>
+    public HostFramePacing Pacing => HostFramePacing.WallClock;
+
     /// <summary>Rejects a different ROM revision, reports content differences, then creates the game from the recording's saves.</summary>
     public SuperMetroidGame Start(HostSessionStart start)
     {

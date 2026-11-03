@@ -128897,6 +128897,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Desktop.Window.HostFramePacing",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Window/HostFramePacing.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Desktop.Window.HostSessionStart",
       "kind": "record",
       "scope": "product",

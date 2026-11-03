@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// (red into green, green into blue, blue lost), as the game's addition of one level to all three channels of a packed
 /// colour does, and the brightening ends on the first step that changes nothing; each fade step moves every channel of
 /// every colour one level toward the fade's target and ends on the first step that changes no channel. The AI consults
-/// the step results every update of its brightening, materializing and vanishing phases. Evidence: the ghost's
-/// brightening and fade routines (bank $A8), whose end conditions the Wrecked Ship ghost replays confirm.
+/// the step results every update of its brightening, materializing and vanishing phases. Evidence: the original game's
+/// brightening and fade routines for the ghost, whose end conditions the Wrecked Ship ghost replays confirm.
 /// </para>
 /// <para>
 /// The colours themselves are shown as shades the import pre-coloured by running this value along the ghost's one
@@ -40,13 +40,13 @@ public sealed class WreckedShipGhostFade
     internal readonly RgbColor[] target = new RgbColor[ColourCount];
 
     /// <summary>The effect the colours were last changed by.</summary>
-    private string effect = WreckedShipGhostShades.DarkEffect;
+    private WreckedShipGhostColourEffect effect = WreckedShipGhostColourEffect.Dark;
 
     /// <summary>The steps of <see cref="effect"/> that changed the colours.</summary>
     private int steps;
 
     /// <summary>The fade the next step toward the target belongs to.</summary>
-    private string fade = WreckedShipGhostShades.DarkEffect;
+    private WreckedShipGhostColourEffect fade = WreckedShipGhostColourEffect.Dark;
 
     /// <summary>The colours the ghost shows, colour zero first.</summary>
     public ReadOnlySpan<RgbColor> Shown => shown;
@@ -55,15 +55,15 @@ public sealed class WreckedShipGhostFade
     /// The shade naming the colours the ghost shows: the effect that last changed them and how many of its steps did.
     /// A step that changes nothing leaves the name, as it leaves the colours.
     /// </summary>
-    public PictureShade Shade => new(effect, steps);
+    public PictureShade Shade => new(ShadeEffect(effect), steps);
 
     /// <summary>Darkens every colour, shown and targeted, to black, as the ghost's initialization leaves its palette.</summary>
     public void Darken()
     {
         Array.Fill(shown, RgbColor.Black);
         Array.Fill(target, RgbColor.Black);
-        fade = WreckedShipGhostShades.DarkEffect;
-        effect = WreckedShipGhostShades.DarkEffect;
+        fade = WreckedShipGhostColourEffect.Dark;
+        effect = WreckedShipGhostColourEffect.Dark;
         steps = 0;
     }
 
@@ -83,7 +83,7 @@ public sealed class WreckedShipGhostFade
             changed++;
         }
         if (changed != 0)
-            Changed(WreckedShipGhostShades.BrighteningEffect);
+            Changed(WreckedShipGhostColourEffect.Brightening);
         return changed;
     }
 
@@ -92,14 +92,14 @@ public sealed class WreckedShipGhostFade
     {
         for (int colour = 0; colour < ColourCount; colour++)
             target[colour] = WreckedShipGhostAppearance.PaletteColor(colour);
-        fade = WreckedShipGhostShades.MaterializingEffect;
+        fade = WreckedShipGhostColourEffect.Materializing;
     }
 
     /// <summary>Starts the fade toward white, which vanishes it.</summary>
     public void BeginVanishing()
     {
         Array.Fill(target, RgbColor.White);
-        fade = WreckedShipGhostShades.VanishingEffect;
+        fade = WreckedShipGhostColourEffect.Vanishing;
     }
 
     /// <summary>Moves every channel of every colour one level toward the target and gives how many channels moved.</summary>
@@ -126,16 +126,27 @@ public sealed class WreckedShipGhostFade
         return moved;
     }
 
-    /// <summary>Records one more step of <paramref name="name"/> that changed the colours, its first if another effect changed them last.</summary>
-    private void Changed(string name)
+    /// <summary>Records one more step of <paramref name="change"/> that changed the colours, its first if another effect changed them last.</summary>
+    private void Changed(WreckedShipGhostColourEffect change)
     {
-        if (effect != name)
+        if (effect != change)
         {
-            effect = name;
+            effect = change;
             steps = 0;
         }
         steps++;
     }
+
+    /// <summary>The name the import gives <paramref name="change"/>'s shades.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="change"/> is not a defined effect.</exception>
+    private static string ShadeEffect(WreckedShipGhostColourEffect change) => change switch
+    {
+        WreckedShipGhostColourEffect.Dark => WreckedShipGhostShades.DarkEffect,
+        WreckedShipGhostColourEffect.Brightening => WreckedShipGhostShades.BrighteningEffect,
+        WreckedShipGhostColourEffect.Materializing => WreckedShipGhostShades.MaterializingEffect,
+        WreckedShipGhostColourEffect.Vanishing => WreckedShipGhostShades.VanishingEffect,
+        _ => throw new ArgumentOutOfRangeException(nameof(change), change, "The Wrecked Ship ghost's colours change by a defined effect."),
+    };
 
     /// <summary>
     /// <paramref name="colour"/> one level brighter in each channel, a channel passing full wrapping to zero and carrying

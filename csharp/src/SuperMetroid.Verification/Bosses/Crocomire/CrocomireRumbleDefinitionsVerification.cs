@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -15,6 +13,10 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks Crocomire's wall-rumble cursor records and death-sequence timing against retail data.</summary>
 internal static class CrocomireRumbleDefinitionsVerification

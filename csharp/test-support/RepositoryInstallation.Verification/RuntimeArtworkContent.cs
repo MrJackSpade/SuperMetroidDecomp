@@ -34,9 +34,8 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     public BossSourceArtwork BossTiles =>
         (BossSourceArtwork?)runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
 
-    /// <inheritdoc/>
-    public AreaSourceArtwork AreaTiles =>
-        (AreaSourceArtwork?)runtime.AreaArtwork.Artwork ?? throw new InvalidOperationException("No area artwork is installed.");
+    /// <summary>The installation's area artwork, which only the import reads; the runtime binds none (#1512).</summary>
+    public AreaSourceArtwork AreaTiles => InstalledFixtures.AreaArtwork;
 
     /// <summary>The characters a typed asset names, from the standard OBJ sheet, the gunship's takeoff pages or the map presentation's escape-timer characters.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No bound catalog holds characters for the asset.</exception>

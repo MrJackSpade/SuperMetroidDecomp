@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
@@ -55,8 +54,6 @@ internal sealed class RoomLoader
     /// <summary>The session's installed boss artwork, which each room's bosses read.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
-    /// <summary>The session's installed area artwork, which each room's area actors read.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Installs escape-specific room behavior when entering the relevant room.</summary>
@@ -106,7 +103,6 @@ internal sealed class RoomLoader
         _doorTransition = dependencies.DoorTransition;
         _enemySession = dependencies.EnemySession;
         _bossArtwork = dependencies.BossArtwork;
-        _areaArtwork = dependencies.AreaArtwork;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeEffects = dependencies.EscapeEffects;
         _gameTime = dependencies.GameTime;
@@ -1004,7 +1000,7 @@ internal sealed class RoomLoader
         // The destination's enemies load with the door-transition gates clear; their projectile places start from what
         // the outgoing room's left (RoomHandOver).
         var enemies = new RoomEnemySystem(_enemySession, CompiledRoomEnemyDefinitions.Instance, areaServices,
-            _bossArtwork, _areaArtwork);
+            _bossArtwork);
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);

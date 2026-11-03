@@ -128,7 +128,7 @@ internal static class FrontendRomFreeVerification
             {
                 EnemyTileArtwork = enemyArtwork.Enemies,
                 BossArtwork = enemyArtwork.Bosses,
-                AreaArtwork = enemyArtwork.Areas,
+                
             };
         // An already-finished intro is deliberately not rebound for the isolated gameplay-room census: its restored DMA
         // side effect would test a retired cinematic, not the room under examination.

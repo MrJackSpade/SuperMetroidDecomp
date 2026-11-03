@@ -17,7 +17,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     internal static void VerifyInstalledCrocomireTongueVisualSelectors(InstalledEnemyArtwork stock)
     {
         var denied = NewCrocomireTongueNoReadBus();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

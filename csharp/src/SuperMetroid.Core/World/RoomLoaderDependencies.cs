@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -43,9 +42,6 @@ internal sealed record RoomLoaderDependencies
 
     /// <summary>The session's installed boss artwork, which each room's bosses read.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
-
-    /// <summary>The session's installed area artwork, which each room's area actors read.</summary>
-    public required AreaArtworkBinding AreaArtwork { get; init; }
 
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }

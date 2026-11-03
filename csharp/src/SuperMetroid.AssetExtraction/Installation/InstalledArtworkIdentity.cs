@@ -15,12 +15,14 @@ public static class InstalledArtworkIdentity
 {
     /// <summary>Fingerprints an already loaded set; nothing is read here. Every catalog must be bound.</summary>
     /// <param name="artwork">The bound artwork set.</param>
+    /// <param name="enemies">The installed enemy directory the set's enemy and boss artwork was bound from, whose area artwork only the import reads (#1512).</param>
     /// <param name="standardObjects">The installed standard object characters, which only the import reads (#1484).</param>
     /// <param name="roomPalettes">The tilesets' installed colours, which only the import reads (#1512).</param>
-    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, RoomCharacterAtlas standardObjects,
-        RoomStaticPalettes roomPalettes)
+    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, InstalledEnemyArtwork enemies,
+        RoomCharacterAtlas standardObjects, RoomStaticPalettes roomPalettes)
     {
         Ensure.NotNull(artwork);
+        Ensure.NotNull(enemies);
         Ensure.NotNull(standardObjects);
         Ensure.NotNull(roomPalettes);
         return RoomPresentationIdentity.Create(roomPalettes, Require(artwork.RoomVisualLayouts))
@@ -63,8 +65,7 @@ public static class InstalledArtworkIdentity
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, Require(artwork.EnemySheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.RoomBlockSheetDirectoryName, Require(artwork.RoomBlockSheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.BossBodySheetDirectoryName, Require(artwork.BossBodySheets).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, InstalledEnemyArtwork.DirectoryIdentity(
-                Require(artwork.EnemyTileArtwork), Require(artwork.BossArtwork), Require(artwork.AreaArtwork))));
+            .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, enemies.DirectoryIdentity));
     }
 
     /// <summary>Fails identity collection when a bound installation omits any required artwork catalog.</summary>

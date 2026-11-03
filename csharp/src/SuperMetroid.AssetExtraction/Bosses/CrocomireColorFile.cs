@@ -1,9 +1,8 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

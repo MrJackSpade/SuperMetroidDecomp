@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
@@ -164,9 +163,6 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>Every boss's pre-assembled body frames (#1466).</summary>
     public BossBodySheets? BossBodySheets { get; init; }
-
-    /// <summary>The Ceres door and escape overlay and the Tourian statues' colors.</summary>
-    public AreaArtworkBundle? AreaArtwork { get; init; }
 
     /// <summary>The compatibility services reproducing what Samus's glitch paths read, decoded from the player's game data.</summary>
     public SamusOverreadServices? SamusOverreads { get; init; }

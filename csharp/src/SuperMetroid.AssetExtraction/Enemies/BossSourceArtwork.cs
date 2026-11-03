@@ -11,6 +11,8 @@ using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -23,6 +25,32 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public sealed record BossSourceArtwork : BossArtworkCatalog
 {
+    /// <summary>Five editable Crocomire transfer images, which the import pre-colours Crocomire's sheets in (#1512); fight and death phases stay compiled.</summary>
+    public CrocomireColorCatalog? CrocomireColors { get; init; }
+
+    /// <summary>
+    /// Kraid's installed colours, which the import pre-colours his sheets and room in (#1512); setting them also sets the
+    /// eye colours gameplay reads back. Null only for constructed fixtures.
+    /// </summary>
+    public KraidColorCatalog? KraidColors
+    {
+        get;
+        init
+        {
+            field = value;
+            KraidEyes = value?.Eyes();
+        }
+    }
+
+    /// <summary>Editable Mother Brain death-fade and exploded-door colours, which the import pre-colours her sheets in (#1512).</summary>
+    public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; init; }
+
+    /// <summary>Editable initial and fade-to-black colours of the Mother Brain cutscene Baby, which the import pre-colours its sheet in (#1512).</summary>
+    public BabyMetroidCutsceneColorCatalog? BabyMetroidCutsceneColors { get; init; }
+
+    /// <summary>Editable live-Shitroid normal-cycle and target colours, which the import pre-colours its sheet in (#1512).</summary>
+    public ShitroidColorCatalog? ShitroidColors { get; init; }
+
     /// <summary>Editable Phantoon health, fade-out and Wrecked Ship power-on colours, which the import pre-colours Phantoon's sheets and room in (#1512).</summary>
     public PhantoonColorCatalog? PhantoonColors { get; init; }
 

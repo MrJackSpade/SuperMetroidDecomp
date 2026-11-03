@@ -1,8 +1,9 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire;
 
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 

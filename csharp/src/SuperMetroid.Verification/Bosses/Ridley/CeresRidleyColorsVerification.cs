@@ -95,7 +95,7 @@ internal static class CeresRidleyColorsVerification
         {
             TileArtwork = fixtureAssets.EnemyTiles.Enemies,
             BossArtwork = fixtureAssets.EnemyTiles.Bosses,
-            AreaArtwork = fixtureAssets.EnemyTiles.Areas,
+            
         };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;

@@ -8,9 +8,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.SporeSpawn;
@@ -36,6 +33,10 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Enemies;
 

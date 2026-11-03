@@ -1,7 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 

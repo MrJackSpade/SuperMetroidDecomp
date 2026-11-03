@@ -4,9 +4,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -20,6 +18,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// <summary>Checks installed Crocomire palette bands against native RGB5 data
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>
 internal static class EnemyTileArtworkCrocomireColorsVerification
@@ -87,7 +88,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                 < (CrocomireSourceDefinitions.WallSpikesColors +
                     CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;

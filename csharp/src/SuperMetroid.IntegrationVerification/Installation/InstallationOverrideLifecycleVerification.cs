@@ -194,7 +194,7 @@ internal static class InstallationOverrideLifecycleVerification
                 InstalledProjectilePresentation projectile => projectile.SelectedSha256,
                 RoomStaticPalettes palettes => RoomTilesetSources.PaletteIdentity(palettes),
                 // The enemy directory's identity is the one a host records for it (#1463).
-                InstalledEnemyArtwork enemyDirectory => InstalledEnemyArtwork.DirectoryIdentity(enemyDirectory.Enemies, enemyDirectory.Bosses, enemyDirectory.Areas),
+                InstalledEnemyArtwork enemyDirectory => enemyDirectory.DirectoryIdentity,
                 // The game's catalogs carry no identity of their own: the import pipeline identifies them (#1502).
                 GameplayBasePalette installed => installed.ContentIdentity,
                 InstalledSpriteSheets installed => installed.ContentIdentity,

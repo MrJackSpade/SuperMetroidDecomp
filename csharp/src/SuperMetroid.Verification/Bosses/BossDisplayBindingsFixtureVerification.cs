@@ -63,7 +63,7 @@ internal static class BossDisplayBindingsFixtureVerification
             _slot = slot;
             Enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
-                TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas,
+                TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, 
             };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             bodyOwner = BodyOwnerOf(definition);

@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Areas;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
@@ -13,15 +9,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Areas">The Ceres door and escape artwork and the Tourian statues' colors.</param>
 public sealed record InstalledEnemyArtwork(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas)
 {
-    /// <summary>The selected presentation of a whole enemy directory bound as the catalogs gameplay reads.</summary>
-    /// <param name="enemies">The ordinary enemies' artwork.</param>
-    /// <param name="bosses">The bosses' artwork.</param>
-    /// <param name="areas">The areas' artwork.</param>
-    public static string DirectoryIdentity(EnemyTileArtworkCatalog enemies, BossArtworkCatalog bosses, AreaArtworkBundle areas) =>
+    /// <summary>The selected presentation of the whole enemy directory: an edit to any of its enemy, boss or area artwork changes it.</summary>
+    public string DirectoryIdentity =>
         SelectedPresentationHash.Create("enemy-directory-v1", content =>
         {
-            content.AppendIdentity("enemies", enemies.ContentIdentity);
-            content.AppendIdentity("bosses", bosses.ContentIdentity);
-            content.AppendIdentity("areas", areas.ContentIdentity);
+            content.AppendIdentity("enemies", Enemies.ContentIdentity);
+            content.AppendIdentity("bosses", Bosses.ContentIdentity);
+            content.AppendIdentity("areas", Areas.ContentIdentity);
         });
 }

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -168,7 +167,4 @@ internal interface IGameplayArtwork
 
     /// <summary>Every boss's pre-assembled body frames (#1466).</summary>
     BossBodySheets? BossBodySheets { get; }
-
-    /// <summary>The Ceres door and escape overlay and the Tourian statues' colors.</summary>
-    AreaArtworkBundle? AreaArtwork { get; }
 }

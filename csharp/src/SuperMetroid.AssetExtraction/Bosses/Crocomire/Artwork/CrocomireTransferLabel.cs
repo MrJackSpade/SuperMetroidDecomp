@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 

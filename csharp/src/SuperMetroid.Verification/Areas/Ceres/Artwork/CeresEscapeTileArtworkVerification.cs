@@ -48,7 +48,7 @@ internal static class CeresEscapeTileArtworkVerification
         var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies,
-            AreaArtwork = stock.Areas,
+            
         };
         foreach (CeresEscapePageCursor start in new[] { CeresEscapePageCursor.Objects, CeresEscapePageCursor.Backgrounds })
         {
@@ -119,7 +119,7 @@ internal static class CeresEscapeTileArtworkVerification
         var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = edited.Enemies,
-            AreaArtwork = edited.Areas,
+            
         };
         // The cursor starts at the first warning-text page, part-way through the timer-sprite list.
         int firstWarningPage = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>

@@ -24,7 +24,6 @@ using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVer
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -63,8 +62,9 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>

@@ -23,6 +23,6 @@ internal static class InstalledGameBindings
         Ensure.NotNull(installation);
         return ReferenceEquals(installation, RepositoryInstallation.Installation)
             ? RepositoryInstallation.Artwork
-            : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles());
+            : installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles());
     }
 }

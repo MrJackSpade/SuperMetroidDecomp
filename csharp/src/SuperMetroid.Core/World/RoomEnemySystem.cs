@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Tourian;
@@ -593,13 +592,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The original game-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
-    /// <param name="areaArtwork">The session's installed area artwork, or null for a system with its own, empty binding.</param>
     internal RoomEnemySystem(EnemySession session,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
-        BossArtworkBinding? bossArtwork = null, AreaArtworkBinding? areaArtwork = null)
+        BossArtworkBinding? bossArtwork = null)
     {
         BossArtworkBinding = bossArtwork ?? new();
-        AreaArtworkBinding = areaArtwork ?? new();
         Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
@@ -851,16 +848,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
     /// <summary>The bosses' installed artwork, read through the session's binding.</summary>
     internal BossArtworkBinding BossArtworkBinding { get; }
-
-    /// <summary>The areas' installed artwork, read through the session's binding.</summary>
-    internal AreaArtworkBinding AreaArtworkBinding { get; }
-
-    /// <summary>The areas' installed artwork; setting it rebinds the session's area artwork.</summary>
-    public AreaArtworkBundle? AreaArtwork
-    {
-        get => AreaArtworkBinding.Artwork;
-        set => AreaArtworkBinding.Artwork = value;
-    }
     /// <summary>Whether <see cref="Load"/> has loaded this room's population; a room loads it once.</summary>
     private bool _populationLoaded;
 

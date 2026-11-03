@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -18,15 +17,6 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the artwork bundles the game reads through Core types; only the import pipeline's own bundles carry one (#1502).</summary>
 internal static class InstalledArtworkBundleIdentity
 {
-    /// <summary>The installed content identity of the area artwork.</summary>
-    extension(AreaArtworkBundle artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="AreaSourceArtwork"/>.</summary>
-        /// <exception cref="InvalidDataException">The area artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is AreaSourceArtwork installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The area artwork was not read from installed artwork.");
-    }
-
     /// <summary>The installed content identity of the boss artwork.</summary>
     extension(BossArtworkCatalog artwork)
     {

@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -20,6 +18,8 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

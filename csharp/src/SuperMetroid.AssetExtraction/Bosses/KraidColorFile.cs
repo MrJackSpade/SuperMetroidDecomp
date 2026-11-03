@@ -3,9 +3,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Kraid;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

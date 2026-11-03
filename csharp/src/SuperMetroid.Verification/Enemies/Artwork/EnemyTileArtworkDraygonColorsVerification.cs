@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     < (DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));

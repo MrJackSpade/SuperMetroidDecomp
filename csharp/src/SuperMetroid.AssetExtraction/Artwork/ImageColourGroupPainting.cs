@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// How the import pipeline records the colour groups it paints an installed image with (#1464): the group each ink was
-/// coloured from, the groups a frame's pixels use, and whether a part follows a drawn colouring or keeps its own.
+/// coloured from and the groups a frame's pixels use.
 /// </summary>
 internal static class ImageColourGroupPainting
 {
@@ -35,15 +35,5 @@ internal static class ImageColourGroupPainting
 
         /// <summary>The groups either this set or <paramref name="other"/> holds.</summary>
         internal ImageColourGroups Union(ImageColourGroups other) => new(groups.ManifestMembers | other.ManifestMembers);
-    }
-
-    /// <summary>The part group a painted pixel belongs to.</summary>
-    extension(PartColourGroup)
-    {
-        /// <summary>A part of colour group <paramref name="group"/> that follows its draw's colouring.</summary>
-        internal static PartColourGroup Following(ImageColourGroup group) => PartColourGroup.FromCode(group.Number);
-
-        /// <summary>A part of colour group <paramref name="group"/> that keeps its own colours under any drawn colouring.</summary>
-        internal static PartColourGroup Keeping(ImageColourGroup group) => PartColourGroup.FromCode(group.Number + ImageColourGroup.Count);
     }
 }

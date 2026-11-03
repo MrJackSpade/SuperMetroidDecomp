@@ -206,12 +206,8 @@ internal sealed class SpriteSheetLayout
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
             SpriteFramePart part = source.Frame.Parts[partIndex];
-            // A part taking its draw's palette is coloured in the frame's and has no group bits of its own, so a drawn
-            // colouring replaces it; a part naming its own keeps it under a colouring when the family says so.
+            // A part taking its draw's palette is coloured in the frame's, with the family's palette bits ORed in.
             int paletteRow = (part.Palette ?? framePalette) | sources.PaletteBits;
-            PartColourGroup partGroup = part.Palette is not int own ? PartColourGroup.Following(ImageColourGroup.Every[0])
-                : sources.PartsKeepOwnRows ? PartColourGroup.Keeping(ImageColourGroup.Numbered(own))
-                : PartColourGroup.Following(ImageColourGroup.Numbered(own));
             groups = groups.With(ImageColourGroup.Numbered(paletteRow));
             for (int row = 0; row < part.Size.Y; row++)
             {
@@ -226,7 +222,6 @@ internal sealed class SpriteSheetLayout
                     planes.PaletteIndices[at] = (byte)(paletteRow * RowColours + colour);
                     // Parts are laid back to front, so each pixel ends with the priority of the part in front.
                     planes.Priorities[at] = (byte)(part.Priority ?? priority);
-                    planes.PartGroups[at] = (byte)partGroup.Code;
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(paletteRow * RowColours + colour, part.Palette ?? framePalette, colour);

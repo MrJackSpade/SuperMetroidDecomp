@@ -58,17 +58,24 @@ internal static class UploadedPictureChecks
         }
         foreach (ImageSpriteDraw image in images)
         {
+            // A shaded draw's selection shade ORs its row into each part's own, as the cartridge does (#1512): each pixel's
+            // row is the one the draw's composition places it in under that selection.
+            Dictionary<(int X, int Y), int>? selectedRows = image.Shading is { } shading && SpriteColouringAccess.SelectedRow(shading) is not null
+                ? RowsOf(SheetFrameSources.CharacterDraw(image)) : null;
             for (ushort y = 0; y < image.Image.Size.Y; y++)
             for (ushort x = 0; x < image.Image.Size.X; x++)
             {
                 var cell = new Position16<ScreenPixels>(x, y);
                 int entry = image.PaletteIndexAt(cell);
-                // A shaded draw's selection shade ORs its row into each following part's own, as the cartridge does (#1512).
-                if (entry != 0 && image.Shading is { } shading && SpriteColouringAccess.SelectedRow(shading) is int selected
-                    && !image.PartGroupAt(cell).KeepsOwnColours)
-                    entry = (image.PartGroupAt(cell).Group.Number | selected) * 16 + entry % 16;
+                int screenX = image.Corner.X + x, screenY = image.Corner.Y + y;
+                if (entry != 0 && selectedRows is not null)
+                {
+                    int row = selectedRows.TryGetValue((screenX, screenY), out int placed) ? placed
+                        : throw new InvalidOperationException($"{message}: {image} inks screen pixel ({screenX},{screenY}), which its composition leaves blank.");
+                    entry = row * 16 + entry % 16;
+                }
                 if (entry != 0)
-                    Ink(actual, image.Corner.X + x, image.Corner.Y + y, entry, image.PriorityAt(cell));
+                    Ink(actual, screenX, screenY, entry, image.PriorityAt(cell));
             }
         }
         foreach ((int X, int Y) pixel in expected.Keys.Union(actual.Keys))
@@ -81,6 +88,24 @@ internal static class UploadedPictureChecks
         if (requirePixels)
             AssertTrue(expected.Count > 0, $"{message}: paints pixels");
         return expected.Count;
+
+        // The palette row of the frontmost inked part at each screen pixel the draw covers.
+        static Dictionary<(int X, int Y), int> RowsOf(CharacterSpriteDraw draw)
+        {
+            Dictionary<(int X, int Y), int> rows = [];
+            for (int part = 0; part < draw.Frame.Parts.Length; part++)
+            {
+                SpriteScreenPart placed = draw.Place(part);
+                for (ushort y = 0; y < placed.Size.Y; y++)
+                for (ushort x = 0; x < placed.Size.X; x++)
+                {
+                    int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
+                    if (draw.Artwork.ColorIndex(character, within) != 0)
+                        rows.TryAdd((placed.Position.X + x, placed.Position.Y + y), placed.Palette);
+                }
+            }
+            return rows;
+        }
 
         // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
         static void Ink(Dictionary<(int X, int Y), (int Entry, int Priority)> inks, int x, int y, int entry, int priority)

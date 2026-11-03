@@ -29,7 +29,7 @@ internal static class EscapeTimerDrawChecks
     {
         ComposedSpriteSheet composed = EscapeTimerSheetComposer.Compose(bus);
         return SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false),
-            SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer], composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
+            SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer], composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities);
     }
 
     /// <summary>Draws the timer into a fresh sprite frame and returns its finalized draws.</summary>

@@ -23,8 +23,7 @@ internal static class SpriteSheetComposer
         var pixels = new RgbaPixel[area];
         var paletteIndices = new byte[area];
         var priorities = new byte[area];
-        var partGroups = new byte[area];
-        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, paletteIndices, priorities, partGroups));
-        return new ComposedSpriteSheet(size, pixels, paletteIndices, priorities, partGroups, manifest);
+        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, paletteIndices, priorities));
+        return new ComposedSpriteSheet(size, pixels, paletteIndices, priorities, manifest);
     }
 }

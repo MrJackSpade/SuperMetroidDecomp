@@ -42,7 +42,6 @@ internal static class SpriteDrawSmokeTests
             var sheetPixels = new RgbaPixel[size.X * size.Y];
             var indices = new byte[sheetPixels.Length];
             var priorities = new byte[sheetPixels.Length];
-            var partGroups = new byte[sheetPixels.Length];
             for (int frame = 0; frame < Frames; frame++)
             for (int y = 0; y < Side; y++)
             for (int x = 0; x < Side; x++)
@@ -52,11 +51,10 @@ internal static class SpriteDrawSmokeTests
                 int pixel = y * size.X + frame * Side + x;
                 indices[pixel] = (byte)(frame * 16 + 1);
                 priorities[pixel] = 3;
-                partGroups[pixel] = (byte)PartColourGroup.Following(ImageColourGroup.Numbered(frame)).Code;
                 sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgbaPixel();
             }
             var sheet = new SpriteImage("Ordering", size, sheetPixels, indices,
-                new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities, partGroups);
+                new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities);
             SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default,
                 ImageColourGroups.Of(ImageColourGroup.Numbered(frame)), []);
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
@@ -105,21 +103,16 @@ internal static class SpriteDrawSmokeTests
             var sheetPixels = new RgbaPixel[64 * 48];
             var sheetIndices = new byte[64 * 48];
             var sheetPriorities = new byte[64 * 48];
-            var sheetPartGroups = new byte[64 * 48];
             for (int pixel = 0; pixel < sheetPixels.Length; pixel++)
             {
                 if (random.Next(3) == 0)
                     continue;
                 sheetIndices[pixel] = (byte)(random.Next(8) * 16 + random.Next(1, 16));
                 sheetPriorities[pixel] = (byte)random.Next(4);
-                // A part's own group is part of the group it was coloured with, the rest being the draw's ORed bits; a part
-                // naming its group may have kept it when the import composed it.
-                sheetPartGroups[pixel] = (byte)(random.Next(4) == 0 ? PartColourGroup.Keeping(ImageColourGroup.OfInk(sheetIndices[pixel]))
-                    : PartColourGroup.Following(ImageColourGroup.Numbered(sheetIndices[pixel] / 16 & random.Next(8)))).Code;
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();
             }
             var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
-                sheetPriorities, sheetPartGroups);
+                sheetPriorities);
             for (int index = random.Next(1, 6); index > 0; index--)
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));

@@ -15,7 +15,7 @@ internal static class NativeColouredPictures
 
     /// <summary>
     /// A copy of <paramref name="picture"/> whose standard colours are the colours its inks show in
-    /// <paramref name="nativeColours"/>; its name, pixels, inks, priorities and part groups are kept, so fixtures that pair
+    /// <paramref name="nativeColours"/>; its name, pixels, inks and priorities are kept, so fixtures that pair
     /// an installed frame with its composition by name find the copy's too, and it has no shades.
     /// </summary>
     /// <exception cref="ArgumentException">The image does not hold 256 colours.</exception>
@@ -32,7 +32,6 @@ internal static class NativeColouredPictures
         var shown = new RgbaPixel[pixels.Length];
         var indices = new byte[pixels.Length];
         var priorities = new byte[pixels.Length];
-        var partGroups = new byte[pixels.Length];
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
             SpriteImageInk ink = inks[pixel];
@@ -40,10 +39,9 @@ internal static class NativeColouredPictures
             shown[pixel] = pixels[pixel].A == 0 ? pixels[pixel] : standard[ink.PaletteIndex].ToRgbaPixel() with { A = pixels[pixel].A };
             indices[pixel] = checked((byte)ink.PaletteIndex);
             priorities[pixel] = checked((byte)ink.Priority);
-            partGroups[pixel] = checked((byte)ink.PartGroup.Code);
         }
         return new SpriteImage(picture.Name, picture.Size, shown, indices,
-            new SpriteImagePalette(picture.Colours, [.. standard]), priorities, partGroups);
+            new SpriteImagePalette(picture.Colours, [.. standard]), priorities);
     }
 
     /// <summary><paramref name="frame"/> and its parts cut from <paramref name="picture"/>, a native-coloured copy of its sheet.</summary>

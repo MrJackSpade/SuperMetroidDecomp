@@ -24,6 +24,6 @@ internal static class GameplayShadingProbe
         {
             Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new ShadeInks([], [])),
         };
-        return frame.Build(new SpriteImage("Room", new(1, 1), [default], [0], palette, [0], [0])).Of(pictures);
+        return frame.Build(new SpriteImage("Room", new(1, 1), [default], [0], palette, [0])).Of(pictures);
     }
 }

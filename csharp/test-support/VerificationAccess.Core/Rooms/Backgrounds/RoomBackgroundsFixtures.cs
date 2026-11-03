@@ -285,7 +285,6 @@ internal static class RoomBackgroundsFixtures
         var image = new RgbaPixel[pixels];
         var indices = new byte[pixels];
         var priorities = new byte[pixels];
-        var partGroups = new byte[pixels];
         for (int pixel = 0; pixel < pixels; pixel++)
         {
             // A two-bit pixel keeps its row times four plus its colour, colour zero included and transparent.
@@ -296,17 +295,15 @@ internal static class RoomBackgroundsFixtures
                 priorities[pixel] = (byte)random.Next(2);
                 if (colour == 0)
                     continue;
-                partGroups[pixel] = (byte)PartColourGroup.Keeping(ImageColourGroup.OfInk(indices[pixel])).Code;
                 image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
                 continue;
             }
             if (random.Next(3) == 0)
                 continue;
-            // A full-palette pixel names any of the 256 colours and has no part group.
+            // A full-palette pixel names any of the 256 colours.
             int row = random.Next(fullPalette ? 16 : 8);
             indices[pixel] = (byte)(row * 16 + random.Next(1, 16));
             priorities[pixel] = fullPalette ? (byte)0 : (byte)random.Next(2);
-            partGroups[pixel] = fullPalette ? (byte)0 : (byte)PartColourGroup.Keeping(ImageColourGroup.Numbered(row)).Code;
             image[pixel] = RgbColor.FromWord(standard[indices[pixel]]).ToRgbaPixel();
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>();
@@ -334,7 +331,7 @@ internal static class RoomBackgroundsFixtures
             PartImages = [],
         };
         return SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
-            indices, priorities, partGroups);
+            indices, priorities);
     }
 
     /// <summary>

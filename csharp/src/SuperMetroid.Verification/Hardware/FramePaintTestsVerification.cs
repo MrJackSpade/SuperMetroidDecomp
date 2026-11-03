@@ -18,7 +18,7 @@ internal static class FramePaintTestsVerification
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 97)));
         var image = new SpriteImage("Fixture", new(8, 8), new RgbaPixel[64], new byte[64],
-            new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]), new byte[64], new byte[64]);
+            new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]), new byte[64]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(8, 8), default,
             ImageColourGroups.None, []), new(10, 20), SpriteMirror.None));

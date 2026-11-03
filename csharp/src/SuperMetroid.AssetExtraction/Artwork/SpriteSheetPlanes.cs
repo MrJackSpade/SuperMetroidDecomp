@@ -11,9 +11,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="pixels">Each pixel's colour; zero alpha is transparent.</param>
 /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</param>
 /// <param name="priorities">Each pixel's priority against the backgrounds.</param>
-/// <param name="partGroups">Each pixel's <see cref="PartColourGroup.Code"/>.</param>
 internal readonly ref struct SpriteSheetPlanes(Extent16<ImagePixels> size, Span<RgbaPixel> pixels, Span<byte> paletteIndices,
-    Span<byte> priorities, Span<byte> partGroups)
+    Span<byte> priorities)
 {
     /// <summary>The sheet's width and height.</summary>
     internal Extent16<ImagePixels> Size { get; } = size;
@@ -26,7 +25,4 @@ internal readonly ref struct SpriteSheetPlanes(Extent16<ImagePixels> size, Span<
 
     /// <summary>Each pixel's priority against the backgrounds.</summary>
     internal Span<byte> Priorities { get; } = priorities;
-
-    /// <summary>Each pixel's <see cref="PartColourGroup.Code"/>.</summary>
-    internal Span<byte> PartGroups { get; } = partGroups;
 }

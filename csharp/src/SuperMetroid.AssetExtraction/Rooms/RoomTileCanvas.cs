@@ -37,9 +37,6 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>Each pixel's tile priority.</summary>
     internal byte[] Priorities { get; } = new byte[size.X * size.Y];
 
-    /// <summary>Each pixel's <see cref="PartColourGroup.Code"/>: its colour group, which no drawn colouring replaces.</summary>
-    internal byte[] PartGroups { get; } = new byte[size.X * size.Y];
-
     /// <summary>
     /// Paints <paramref name="tile"/> over <paramref name="character"/>'s 32 bytes with its top-left pixel at
     /// (<paramref name="left"/>, <paramref name="top"/>), and returns the colour groups it was coloured from.
@@ -71,7 +68,6 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 Pixels[pixel] = colours[index].ToRgbaPixel();
                 Priorities[pixel] = word.HasPriority ? (byte)1 : (byte)0;
                 ImageColourGroup group = ImageColourGroup.Numbered(word.PaletteIndex);
-                PartGroups[pixel] = (byte)PartColourGroup.Keeping(group).Code;
                 groups = groups.With(group);
             }
         }
@@ -109,12 +105,10 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
                 if (colour == 0)
                 {
                     Pixels[pixel] = default;
-                    PartGroups[pixel] = 0;
                     continue;
                 }
                 Pixels[pixel] = colours[index].ToRgbaPixel();
                 ImageColourGroup group = ImageColourGroup.OfInk(index);
-                PartGroups[pixel] = (byte)PartColourGroup.Keeping(group).Code;
                 groups = groups.With(group);
             }
         }
@@ -123,8 +117,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 
     /// <summary>
     /// Paints one pixel of colour <paramref name="index"/> at <paramref name="at"/>, as a Mode 7 tile
-    /// names its colours directly from all 256; colour zero is transparent. Such a pixel has no part group, as no drawn
-    /// colouring replaces a background's colours.
+    /// names its colours directly from all 256; colour zero is transparent.
     /// </summary>
     internal void PaintIndex(Position16<ImagePixels> at, int index, RgbColor[] colours)
     {
@@ -159,7 +152,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
     private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) =>
-        new(Size, Pixels, PaletteIndices, Priorities, PartGroups, new SpriteSheetDocument
+        new(Size, Pixels, PaletteIndices, Priorities, new SpriteSheetDocument
         {
             Version = SpriteSheetFile.Version,
             Palette = kind,

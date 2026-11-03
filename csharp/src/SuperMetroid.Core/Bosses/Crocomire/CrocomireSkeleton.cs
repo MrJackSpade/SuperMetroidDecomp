@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -29,14 +28,11 @@ internal sealed class CrocomireSkeleton
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access)
     {
-        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _presentation = presentation;

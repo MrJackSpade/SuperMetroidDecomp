@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 

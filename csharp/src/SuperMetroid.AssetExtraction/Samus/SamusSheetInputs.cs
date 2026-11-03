@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -6,7 +7,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -23,10 +23,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="SamusBody">Samus's body characters, bound to the body's frame selections and spritemaps.</param>
 /// <param name="DeathTiles">The characters of Samus's suit explosion.</param>
 /// <param name="ShadeSources">The colour tables her shades are pre-coloured from.</param>
-/// <param name="Overruns">The colours Gravity Speed Booster and the Chainsaw beam read past their tables.</param>
 internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, IntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
-    SamusDeathTileAtlas DeathTiles, SamusShadeSources ShadeSources, SamusOverrunColours Overruns)
+    SamusDeathTileAtlas DeathTiles, SamusShadeSources ShadeSources)
 {
     /// <summary>The shades every one of her sheets is pre-coloured in, computed once.</summary>
     private IReadOnlyList<SheetShade>? shades;
@@ -40,24 +39,27 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName), null);
         GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null);
         IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null);
+        // Her colour tables are the ones the map presentation was read with, edits included.
+        AreaMapPresentation maps = MapPresentationFiles.Load(map, null);
+        SamusMapColourTables tables = InstalledAreaMapPresentation.SamusColoursOf(maps);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName));
         var sources = new SamusShadeSources(
             palettes.Starting,
             [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
             [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
-            Read(map, SamusSuitColorFile.FileName, SamusSuitColorFile.Read),
-            Read(map, SamusChargeColorFormat.FileName, json => SamusChargeColorFile.Read(json).ToColours()),
-            Read(map, SamusHyperBeamColorFormat.FileName, json => SamusHyperBeamColorFile.Read(json).ToColours()),
-            Read(map, SamusFullBodyCycleColorFormat.FileName, json => SamusFullBodyCycleColorFile.Read(json).ToColours()),
+            tables.Suits,
+            tables.Charge,
+            tables.HyperBeam,
+            tables.FullBodyCycles,
             overruns.SpeedBooster,
-            Read(map, SamusHurtColorFile.FileName, SamusHurtColorFile.Read),
-            Read(map, SamusVisorColorFile.FileName, SamusVisorColorFile.Read),
+            tables.Hurt,
+            tables.Visor,
             projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Samus's sheets require the installed beam palettes."),
             overruns.Chainsaw,
-            Read(map, CrystalFlashColorFile.FileName, CrystalFlashColorFile.Read),
+            tables.CrystalFlash,
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
             SamusDeathPaletteArtworkFiles.Load(samusBody, null),
-            MapPresentationFiles.Load(map, null).RoomPaletteFx);
+            maps.RoomPaletteFx);
         return new(
             projectiles,
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
@@ -66,15 +68,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             intro,
             SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
             SamusDeathTileArtworkFiles.Load(samusBody, null),
-            sources,
-            overruns);
-    }
-
-    /// <summary>Reads one validated colour table the map installation holds.</summary>
-    private static T Read<T>(string directory, string fileName, Func<Stream, T> read)
-    {
-        using FileStream json = File.OpenRead(Path.Combine(directory, fileName));
-        return read(json);
+            sources);
     }
 
     /// <summary>The shades every one of Samus's sheets is pre-coloured in (#1512).</summary>

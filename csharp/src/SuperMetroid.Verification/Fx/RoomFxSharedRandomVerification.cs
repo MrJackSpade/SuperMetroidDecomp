@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;

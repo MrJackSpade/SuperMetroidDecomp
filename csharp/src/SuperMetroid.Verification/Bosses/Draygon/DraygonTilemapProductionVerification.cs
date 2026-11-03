@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

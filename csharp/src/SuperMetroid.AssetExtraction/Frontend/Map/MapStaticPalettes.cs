@@ -49,9 +49,6 @@ public sealed class MapStaticPalettes
     public ReadOnlySpan<RgbColor> World(AreaId selectedArea) => world.TryGetValue(selectedArea, out RgbColor[]? colours)
         ? colours : throw new ArgumentOutOfRangeException(nameof(selectedArea), "World map palettes cover the six Zebes areas.");
 
-    /// <summary>The Zebes areas whose world-map colours these hold.</summary>
-    public IEnumerable<AreaId> WorldAreas => world.Keys;
-
     /// <summary>The solid colour each screen shows where nothing is drawn, as the game publishes it (#1512).</summary>
     public MenuBackdrops Backdrops() => new(pause[BackdropColour], fileSelect[BackdropColour],
         world.ToDictionary(pair => pair.Key, pair => pair.Value[BackdropColour]));

@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>

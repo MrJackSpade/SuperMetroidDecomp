@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;

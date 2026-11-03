@@ -5,13 +5,11 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks suit-indexed full-body palette lists and their live CGRAM cycles.</summary>
 internal static class FullBodyPalettePointerListsVerification

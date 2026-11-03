@@ -44,7 +44,6 @@ using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
 using SuperMetroid.Core.Enemies.SaveStation.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

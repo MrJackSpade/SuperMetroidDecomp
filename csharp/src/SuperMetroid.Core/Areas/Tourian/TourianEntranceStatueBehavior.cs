@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Areas.Tourian;

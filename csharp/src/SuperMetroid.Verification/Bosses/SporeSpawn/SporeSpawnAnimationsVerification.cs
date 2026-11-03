@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;

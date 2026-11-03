@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -5,7 +6,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;

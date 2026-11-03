@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 

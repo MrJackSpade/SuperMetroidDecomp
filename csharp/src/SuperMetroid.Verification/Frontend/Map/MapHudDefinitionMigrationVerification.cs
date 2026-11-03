@@ -9,7 +9,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

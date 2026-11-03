@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.Verification.Enemies.Artwork;

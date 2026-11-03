@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -18,20 +16,17 @@ internal sealed class KraidHead
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyPresentation presentation, KraidEncounterAccess access, KraidBackground background)
+    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, KraidEncounterAccess access, KraidBackground background)
     {
         _room = room;
         _projectiles = projectiles;
         _slotTable = slotTable;
-        _presentation = presentation;
         _access = access;
         _background = background;
     }
@@ -77,7 +72,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>The health band his colours start in, before any update: the band of his health as he initializes.</summary>
-    internal int InitialBand(RoomEnemySlot body, KraidEnemyState state) => HealthBand(body, state);
+    internal static int InitialBand(RoomEnemySlot body, KraidEnemyState state) => HealthBand(body, state);
 
     /// <summary>The band a hurt flash shows, which shows the hurt flash's colours in place of a health band's.</summary>
     private const int HurtBand = -1;

@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
 namespace SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Maps Mother Brain's native body, brain, neck, and rainbow-sequence WRAM into a loaded encounter.</summary>
 internal static class NativeSnapshotMotherBrainImport

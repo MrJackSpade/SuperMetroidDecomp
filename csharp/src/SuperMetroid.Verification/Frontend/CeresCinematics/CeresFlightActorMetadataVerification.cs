@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Checks front and rear Ceres flight actor metadata against the native setup instructions.</summary>

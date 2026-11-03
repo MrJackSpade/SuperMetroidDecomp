@@ -3,7 +3,6 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Diagnostics.Saves;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -56,7 +55,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -2416,7 +2414,7 @@ internal static class LookupStream4Verification
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
-                LayDraygonShading(actual, selected, (enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Colours);
+                LayDraygonShading(actual, selected, enemies.DraygonBehavior.Parts.Draygon.Colours);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
                 AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
             }

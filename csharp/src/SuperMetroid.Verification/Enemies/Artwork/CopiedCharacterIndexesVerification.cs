@@ -7,7 +7,6 @@ using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms;

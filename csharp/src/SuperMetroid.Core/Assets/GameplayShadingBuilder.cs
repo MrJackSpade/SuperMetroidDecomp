@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// Gathers a gameplay frame's shading as it is published (#1512): each owner of a colour effect lays the shades its
@@ -24,16 +23,6 @@ public sealed class GameplayShadingBuilder
     /// <summary>Applies <paramref name="effect"/> to <paramref name="pictures"/> after their effects.</summary>
     public void Affect(GameplayPictures pictures, ColourEffect effect) =>
         shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(effect));
-
-    /// <summary>Lays <paramref name="shading"/>'s shades over <paramref name="pictures"/>' and applies its effects after theirs.</summary>
-    public void Show(GameplayPictures pictures, PictureShading shading)
-    {
-        Ensure.NotNull(shading);
-        foreach (PictureShade shade in shading.Shades)
-            Shade(pictures, shade);
-        foreach (ColourEffect effect in shading.Effects)
-            Affect(pictures, effect);
-    }
 
     /// <summary>Fades the whole display with <paramref name="displayFade"/>: one fade runs at a time.</summary>
     /// <exception cref="InvalidOperationException">Another fade of the display already runs.</exception>

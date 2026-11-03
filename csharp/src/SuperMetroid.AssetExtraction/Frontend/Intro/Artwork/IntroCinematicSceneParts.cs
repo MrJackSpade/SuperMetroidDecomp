@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 

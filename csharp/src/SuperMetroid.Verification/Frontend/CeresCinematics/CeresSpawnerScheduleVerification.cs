@@ -2,7 +2,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 

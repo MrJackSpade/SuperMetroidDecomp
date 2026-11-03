@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;

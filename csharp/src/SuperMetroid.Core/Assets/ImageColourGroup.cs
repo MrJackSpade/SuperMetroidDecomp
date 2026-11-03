@@ -32,7 +32,4 @@ public readonly record struct ImageColourGroup
 
     /// <summary>The group's place among the image's standard colours, which the installed image's inks store.</summary>
     internal int Number { get; }
-
-    /// <summary>Where the group's colours start among the image's standard colours.</summary>
-    internal int FirstColour => Number * Colours;
 }

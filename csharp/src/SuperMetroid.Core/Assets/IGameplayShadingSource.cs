@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// An owner of a colour effect gameplay's background pictures show (#1512): a room's palette effects, its layer-3

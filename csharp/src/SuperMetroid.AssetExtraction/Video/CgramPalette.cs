@@ -41,14 +41,6 @@ public readonly struct CgramPalette
     /// <summary>Writes one colour.</summary>
     public void Write(int index, RgbColor color) => cgram.SetColor(first + Index(index), color);
 
-    /// <summary>Writes <paramref name="colors"/> starting at <paramref name="start"/>.</summary>
-    public void CopyFrom(ReadOnlySpan<RgbColor> colors, int start = 0)
-    {
-        CheckSpan(start, colors.Length);
-        for (int index = 0; index < colors.Length; index++)
-            cgram.SetColor(first + start + index, colors[index]);
-    }
-
     /// <summary>
     /// Streams little-endian colour words through the CGDATA port ($2122) starting at
     /// <paramref name="start"/>; bit 15 of each word is not stored, as on hardware.
@@ -74,7 +66,7 @@ public readonly struct CgramPalette
         : throw new ArgumentOutOfRangeException(nameof(index), index, $"The palette range holds {Count} colours.");
 
     /// <summary>Guards a requested color span against the bounds of this palette view.</summary>
-    private void CheckSpan(int start, int count)
+    internal void CheckSpan(int start, int count)
     {
         if (start < 0 || count < 0 || start + count > Count)
             throw new ArgumentOutOfRangeException(nameof(start), start, $"Colours {start}+{count} exceed the {Count}-colour range.");

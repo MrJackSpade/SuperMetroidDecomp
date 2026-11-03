@@ -1,12 +1,10 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;

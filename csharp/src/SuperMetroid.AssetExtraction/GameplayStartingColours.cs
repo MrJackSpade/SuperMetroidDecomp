@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction;
 public sealed class GameplayStartingColours
 {
     /// <summary>The background colours, in the cartridge's order.</summary>
-    private readonly RgbColor[] backgroundColours;
+    internal readonly RgbColor[] backgroundColours;
 
     /// <summary>The sprite colours, in the cartridge's order.</summary>
     private readonly RgbColor[] spriteColours;
@@ -47,9 +47,6 @@ public sealed class GameplayStartingColours
         this.samusBeams = samusBeams;
         this.enemyProjectiles = enemyProjectiles;
     }
-
-    /// <summary>The background colours, in the cartridge's order.</summary>
-    public ReadOnlySpan<RgbColor> BackgroundColours => backgroundColours;
 
     /// <summary>The sprite colours, in the cartridge's order, those Samus's draws show over among them.</summary>
     public ReadOnlySpan<RgbColor> SpriteColours => spriteColours;

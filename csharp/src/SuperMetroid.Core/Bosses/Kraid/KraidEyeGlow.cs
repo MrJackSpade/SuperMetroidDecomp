@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's eyes as they glow and fade after a hit (#1512), a compatibility service: the game reads its eye colours back to
 /// decide when the glow has peaked and when the eyes are back to his health band's, which times his roar, so this owns
-/// the three eye colours and evolves them exactly as the cartridge does. A glow raises each eye's red and green one step
+/// the three eye colours and evolves them exactly as the game does. A glow raises each eye's red and green one step
 /// an update, a glow that starts mid-fade starting from the colours the fade left, and the fade lowers each channel
 /// toward the band's, wrapping within its five bits. A health colour update shows the band's eyes at once.
 /// </summary>
@@ -21,13 +21,10 @@ internal sealed class KraidEyeGlow
     private const int NearPeak = 30;
 
     /// <summary>The eye colours shown now.</summary>
-    private readonly RgbColor[] shown = new RgbColor[Eyes];
+    internal readonly RgbColor[] shown = new RgbColor[Eyes];
 
     /// <summary>The colours the eyes' inks show under Kraid's health band, which the shown colours replace while they differ.</summary>
     private readonly RgbColor[] band = new RgbColor[Eyes];
-
-    /// <summary>The eye colours shown now.</summary>
-    internal ReadOnlySpan<RgbColor> Shown => shown;
 
     /// <summary>Shows <paramref name="bandEyes"/>, his health band's eye colours, at once, as a health colour update writes them.</summary>
     internal void ShowBand(ReadOnlySpan<RgbColor> bandEyes)
@@ -86,5 +83,5 @@ internal sealed class KraidEyeGlow
     /// null while they are the band's.
     /// </summary>
     internal ColourSubstitution? Effect() =>
-        shown.AsSpan().SequenceEqual(band) ? null : new ColourSubstitution([.. band], [.. shown]);
+        shown.SequenceEqual(band) ? null : new ColourSubstitution([.. band], [.. shown]);
 }

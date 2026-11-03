@@ -397,23 +397,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
 
     }
-    /// <summary>Common frame geometry for straight and revival-specific fade models.</summary>
-    private interface IPaletteFade
-    {
-        /// <summary>Number of authored phases in the fade.</summary>
-        int Length { get; }
-        /// <summary>Body/brain inks written for each phase.</summary>
-        int BodyCount { get; }
-        /// <summary>Rear-leg inks written for each phase.</summary>
-        int LegCount { get; }
-        /// <summary>Reads a phase's body/brain ink.</summary>
-        RgbColor Body(int frame, int color);
-        /// <summary>Reads a phase's rear-leg ink.</summary>
-        RgbColor Leg(int frame, int color);
-    }
 
     /// <summary>Revival rounds endpoint RGB5 channels to nearest, retaining sparse authored exceptions including a stock tissue hold.</summary>
-    internal sealed class RevivalPaletteFade : IPaletteFade
+    internal sealed class RevivalPaletteFade
     {
         /// <summary>Drained starting colors for interpolation.</summary>
         internal readonly PaletteFrame first;
@@ -475,7 +461,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
     }
     /// <summary>Straight RGB5 endpoint fade that keeps every authored frame for independent edits.</summary>
-    internal sealed class PaletteFade : IPaletteFade
+    internal sealed class PaletteFade
     {
         /// <summary>First phase supplying one endpoint for every color.</summary>
         internal readonly PaletteFrame first;

@@ -9,7 +9,6 @@ namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
-using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks title-artwork selector coverage and editable OAM without entering gameplay.</summary>
 internal static class TitleArtworkReferencesVerification

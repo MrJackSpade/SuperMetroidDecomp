@@ -152,10 +152,6 @@ public sealed class SpriteImage
     public ShadeInks Shade(PictureShade shade) => Shades.TryGetValue(shade, out ShadeInks? inks) ? inks
         : throw new InvalidDataException($"Image {Name} was not pre-coloured in shade {shade.Key}.");
 
-    /// <summary>The standard colours of the image's colour group <paramref name="group"/>.</summary>
-    internal ReadOnlySpan<RgbColor> StandardColoursOf(ImageColourGroup group) =>
-        StandardColours.Slice(group.FirstColour, ImageColourGroup.Colours);
-
     /// <summary>Names the image with its size.</summary>
     public override string ToString() => $"{Name} ({Size.X}x{Size.Y})";
 }

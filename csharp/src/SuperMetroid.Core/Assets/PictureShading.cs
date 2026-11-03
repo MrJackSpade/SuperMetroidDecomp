@@ -24,9 +24,6 @@ public sealed record PictureShading
     /// <summary>The picture under one shade.</summary>
     public static PictureShading Shaded(PictureShade shade) => new([shade], []);
 
-    /// <summary>The picture under one colour effect.</summary>
-    public static PictureShading Affected(ColourEffect effect) => new([], [Ensure.NotNull(effect)]);
-
     /// <summary>The installed shades laid over the standard colours, in order.</summary>
     public ImmutableArray<PictureShade> Shades { get; }
 

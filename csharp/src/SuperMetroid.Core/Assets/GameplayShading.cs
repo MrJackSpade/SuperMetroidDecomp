@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// How a published gameplay frame's background pictures are coloured (#1512): the solid colour shown where nothing is

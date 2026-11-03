@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;

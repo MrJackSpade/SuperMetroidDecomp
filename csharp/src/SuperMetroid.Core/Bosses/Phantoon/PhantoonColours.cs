@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 

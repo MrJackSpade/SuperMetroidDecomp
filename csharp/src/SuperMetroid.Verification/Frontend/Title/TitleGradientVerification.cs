@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;

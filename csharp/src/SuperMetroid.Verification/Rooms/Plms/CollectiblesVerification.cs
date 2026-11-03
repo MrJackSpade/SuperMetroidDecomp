@@ -21,13 +21,11 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -37,7 +35,6 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
 internal static class CollectiblesVerification

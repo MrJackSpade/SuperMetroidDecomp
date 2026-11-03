@@ -14,7 +14,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -157,7 +156,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertTrue(greyBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves Tourian statue override");
         InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        AssertEqual((editedGrey.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires editedGrey.TourianStatueColors.")).ResolveGrey(1),
+        AssertEqual(editedGrey.Areas.TourianStatueColors.ResolveGrey(1),
             (reloaded.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires reloaded.TourianStatueColors.")).ResolveGrey(1),
             "Tourian statue grey edit survives reload");
         File.WriteAllText(overridePath, "broken");

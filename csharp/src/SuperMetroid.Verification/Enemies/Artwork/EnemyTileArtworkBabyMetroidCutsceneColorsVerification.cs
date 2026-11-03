@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;

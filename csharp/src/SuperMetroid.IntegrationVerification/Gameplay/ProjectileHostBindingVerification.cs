@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.IntegrationVerification.Gameplay;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Samus.Artwork;

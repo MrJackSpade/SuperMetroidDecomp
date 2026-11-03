@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;

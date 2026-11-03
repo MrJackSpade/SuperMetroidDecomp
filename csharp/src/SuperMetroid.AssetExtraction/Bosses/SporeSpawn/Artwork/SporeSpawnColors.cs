@@ -78,16 +78,6 @@ internal static class SporeSpawnColors
         return SporeSpawnDeathFade.BackgroundColor(finalColor, frame, color);
     }
 
-    /// <summary>Resolves one death-script layer's packed RGB5 ink without writing a palette.</summary>
-    internal static RgbColor Death(SporeSpawnColorCatalog colors, SporeSpawnDeathPaletteLayer layer, int frame, int color) =>
-        layer switch
-        {
-            SporeSpawnDeathPaletteLayer.Sprite => colors.ResolveDeathSprite(frame, color),
-            SporeSpawnDeathPaletteLayer.Level => colors.ResolveDeathLevel(frame, color),
-            SporeSpawnDeathPaletteLayer.Background => colors.ResolveDeathBackground(frame, color),
-            _ => throw new ArgumentOutOfRangeException(nameof(layer)),
-        };
-
     /// <summary>Checks a palette phase before its packed frame/color key is used.</summary>
     private static int CheckFrame(int frame, int count) =>
         (uint)frame < count ? frame : throw new ArgumentOutOfRangeException(nameof(frame));

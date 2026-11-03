@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 

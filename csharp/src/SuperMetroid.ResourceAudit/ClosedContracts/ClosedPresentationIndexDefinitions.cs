@@ -26,7 +26,6 @@ using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

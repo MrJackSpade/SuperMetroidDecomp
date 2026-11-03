@@ -1,10 +1,10 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.World;
 

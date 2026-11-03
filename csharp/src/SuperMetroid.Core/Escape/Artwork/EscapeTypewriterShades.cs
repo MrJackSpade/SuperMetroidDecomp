@@ -11,7 +11,4 @@ public static class EscapeTypewriterShades
 {
     /// <summary>The typewriter text in the room's colours.</summary>
     public static PictureShade Text { get; } = new("escape-typewriter-text", 0);
-
-    /// <summary>A draw of the typewriter text in the room's colours.</summary>
-    public static PictureShading InRoomColours { get; } = PictureShading.Shaded(Text);
 }

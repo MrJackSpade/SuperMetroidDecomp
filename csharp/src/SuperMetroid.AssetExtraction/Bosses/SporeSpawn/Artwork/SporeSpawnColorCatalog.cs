@@ -29,11 +29,4 @@ public sealed class SporeSpawnColorCatalog
     public RgbColor ResolveDeathLevel(int frame, int color) => SporeSpawnColors.DeathLevel(selection.DeathLevel, frame, color);
     /// <summary>Gets packed RGB5 ink 0–15 from background death phase 0–6, assigned to background palette 7 by the death-script owner.</summary>
     public RgbColor ResolveDeathBackground(int frame, int color) => SporeSpawnColors.DeathBackground(selection.DeathBackground, frame, color);
-
-    /// <summary>Resolves one death-script layer's packed RGB5 ink without writing a palette; the caller chooses current colours or target-image ownership.</summary>
-    /// <param name="layer">Mutually exclusive sprite, level, or background colour set.</param>
-    /// <param name="frame">Zero-based phase, not a byte offset: 0–7 for sprite, 0–6 for level/background.</param>
-    /// <param name="color">Ink index 0–15, including the colour set's retained transparent-slot word.</param>
-    public RgbColor ResolveDeath(SporeSpawnDeathPaletteLayer layer, int frame, int color) =>
-        SporeSpawnColors.Death(this, layer, frame, color);
 }

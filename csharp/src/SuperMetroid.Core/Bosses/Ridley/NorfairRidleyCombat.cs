@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;

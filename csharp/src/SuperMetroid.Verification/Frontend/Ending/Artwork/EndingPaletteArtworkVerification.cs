@@ -4,7 +4,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -554,10 +553,8 @@ internal static class EndingPaletteArtworkVerification
             if (stockState.Stage.Phase != EndingCreditsPhase.Credits || stockState.Stage.Brightness == 0 ||
                 frame % 19 != 0) continue;
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
-            RgbColor[] changedColours = EndingShownColours.Of(editedState);
             byte[] changedVram = editedState.ShownVram();
             LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
-            RgbColor[] originalColours = EndingShownColours.Of(stockState);
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "credits palette edit does not alter graphics VRAM");
@@ -605,10 +602,8 @@ internal static class EndingPaletteArtworkVerification
             if (stockState.Stage.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
                 continue;
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
-            RgbColor[] changedColours = EndingShownColours.Of(editedState);
             byte[] changedVram = editedState.ShownVram();
             LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
-            RgbColor[] originalColours = EndingShownColours.Of(stockState);
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "logo fade color edit does not alter graphics VRAM");

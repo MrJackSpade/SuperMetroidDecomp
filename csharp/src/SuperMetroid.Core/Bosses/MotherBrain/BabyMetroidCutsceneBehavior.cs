@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,7 +6,6 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -250,7 +248,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>
     internal void LoadBabyMetroidCutsceneFadePalette(int shade)
     {
-        if (shade < 1 || shade > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
+        if (shade is < 1 or > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
             throw new ArgumentOutOfRangeException(nameof(shade), shade, "The Baby's fade has six shades.");
         _motherBrainEncounter.Colours.Sprites.Lay(MotherBrainShades.BabyFade(shade));
     }

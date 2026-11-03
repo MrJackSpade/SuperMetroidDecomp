@@ -496,7 +496,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs Mother Brain's room flash: each of its fourteen frames stays two updates, the timer counting
     /// up from one, and the last loops to the first.
     /// </summary>
-    internal void RunMotherBrainRoomPalette(MotherBrainEnemyState state)
+    internal static void RunMotherBrainRoomPalette(MotherBrainEnemyState state)
     {
         if (state.RoomFlashFrame is not int frame)
             return;

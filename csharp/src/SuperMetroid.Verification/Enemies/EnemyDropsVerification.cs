@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
@@ -13,7 +12,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies;
@@ -22,8 +20,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exercises native enemy drop selection, pickup effects, collision timing, and death conversion.</summary>
 internal static class EnemyDropsVerification

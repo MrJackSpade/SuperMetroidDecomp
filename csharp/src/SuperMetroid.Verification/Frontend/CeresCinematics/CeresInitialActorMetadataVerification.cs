@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Checks the three Ceres destruction startup actors against their spawn operands and native definitions.</summary>

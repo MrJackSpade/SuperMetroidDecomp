@@ -13,7 +13,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Bosses;
 

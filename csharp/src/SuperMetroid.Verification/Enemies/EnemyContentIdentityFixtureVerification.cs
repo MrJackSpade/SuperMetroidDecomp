@@ -14,7 +14,6 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;

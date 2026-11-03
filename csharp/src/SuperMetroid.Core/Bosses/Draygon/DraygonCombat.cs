@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Rooms;
@@ -14,29 +13,23 @@ internal sealed class DraygonCombat
 {
     /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Evaluates Samus and projectile contacts against Draygon's linked parts.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
     private readonly DraygonParts _parts;
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     private readonly DraygonGrab _grab;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
     /// <summary>The room's sprite objects, among them the Evirs that show his sprite shading.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyCollision collision, DraygonParts parts, DraygonGrab grab, BossArtworkBinding bossArtwork,
+    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyCollision collision, DraygonParts parts, DraygonGrab grab,
         RoomSpriteObjectPool spriteObjects)
     {
         _spriteObjects = spriteObjects;
-        _bossArtwork = bossArtwork;
         _projectiles = projectiles;
-        _presentation = presentation;
         _collision = collision;
         _parts = parts;
         _grab = grab;
@@ -203,7 +196,7 @@ internal sealed class DraygonCombat
         ?? throw new InvalidOperationException("Draygon has no installed health palette band.");
 
     /// <summary>Copies the selected installed health palette band into the live colours.</summary>
-    internal void CopyDraygonHealthColors(DraygonEnemyState state)
+    internal static void CopyDraygonHealthColors(DraygonEnemyState state)
     {
         state.Colours.ShowBand(RequireHealthPaletteBand(state));
     }

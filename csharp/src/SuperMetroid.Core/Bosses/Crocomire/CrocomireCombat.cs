@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -16,8 +14,6 @@ internal sealed class CrocomireCombat
 {
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing and room effects to Crocomire AI.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
@@ -26,16 +22,12 @@ internal sealed class CrocomireCombat
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireCombat(EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyFrameContext frameContext, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal CrocomireCombat(EnemyProjectileEngine projectiles, EnemyFrameContext frameContext, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access)
     {
-        _bossArtwork = bossArtwork;
         _projectiles = projectiles;
-        _presentation = presentation;
         _frameContext = frameContext;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;

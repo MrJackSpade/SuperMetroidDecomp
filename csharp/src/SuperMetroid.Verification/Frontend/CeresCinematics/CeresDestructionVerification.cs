@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Frontend;
 
 /// <summary>Synthetic-map verification of the complete Ceres destruction cinematic and its native transition order.</summary>
 internal static class CeresDestructionVerification

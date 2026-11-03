@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -36,14 +35,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Locates the head in physical enemy slot zero for body flashing.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Updates Botwoon's health-band OBJ colors.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Runs common touch behavior before Botwoon's special death tail.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the chance table.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives Botwoon's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -51,13 +46,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds Botwoon's head, body, palette, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _spriteObjects = dependencies.SpriteObjects;
         _slotTable = dependencies.SlotTable;
-        _presentation = dependencies.Presentation;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _audio = dependencies.Audio;
@@ -672,7 +665,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows the next health band's colours when Botwoon's health crosses its threshold (#1512): his head and body take
     /// the import's shade of the band.
     /// </summary>
-    internal void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
+    internal static void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.PalettePhase == BotwoonHealthPaletteDefinitions.CompletePhase)
             return;

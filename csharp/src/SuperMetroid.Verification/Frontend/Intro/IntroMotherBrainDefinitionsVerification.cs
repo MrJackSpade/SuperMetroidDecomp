@@ -1,17 +1,13 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Programs;
-using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks intro Mother Brain actor and explosion definitions against retail timing and placements.</summary>
 internal static class IntroMotherBrainDefinitionsVerification

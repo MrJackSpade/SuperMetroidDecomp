@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using static SuperMetroid.Verification.Fx.LookupAtmosphereTilemapsVerification;
@@ -9,7 +8,6 @@ using static SuperMetroid.Verification.Fx.LookupSporeTilemapVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>One editable RGB5 palette file per distinct graphics-set color source.</summary>

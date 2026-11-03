@@ -5,7 +5,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 using SuperMetroid.Core.Progression;

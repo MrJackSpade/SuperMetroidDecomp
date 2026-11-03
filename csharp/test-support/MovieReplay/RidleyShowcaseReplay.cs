@@ -9,7 +9,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;

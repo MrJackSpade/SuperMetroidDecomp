@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Fx;
 

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Ending.EndingCloudMotionVerifica
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingPostShotVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;

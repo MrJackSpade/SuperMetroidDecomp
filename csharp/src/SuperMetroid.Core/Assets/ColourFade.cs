@@ -6,16 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed record ColourFade : ColourEffect
 {
-    /// <summary>Keeps a fade's colour and progress.</summary>
-    /// <param name="toward">The colour the fade ends in.</param>
-    /// <param name="step">How far the fade has gone, from zero (no change) to <paramref name="steps"/> (all <paramref name="toward"/>).</param>
-    /// <param name="steps">The fade's steps, at least one.</param>
-    public ColourFade(RgbColor toward, int step, int steps)
-    {
-        Steps = Ensure.BetweenInclusive(1, int.MaxValue, steps);
-        Step = Ensure.BetweenInclusive(0, steps, step);
-        Toward = toward;
-    }
 
     /// <summary>The colour the fade ends in.</summary>
     public RgbColor Toward { get; }

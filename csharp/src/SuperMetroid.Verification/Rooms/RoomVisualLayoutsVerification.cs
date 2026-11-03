@@ -104,7 +104,6 @@ internal static class RoomVisualLayoutsVerification
         // Exercise the real room loader for every selectable state, not merely
         // representative addresses. Each state's compressed level source is
         // forbidden, so an accidental ROM fallback fails at its first read.
-        RoomStaticPalettes palettes = installed.LoadRoomPalettes();
         int stateCount = 0;
         int slopeBlocks = 0;
         int spikeBlocks = 0;

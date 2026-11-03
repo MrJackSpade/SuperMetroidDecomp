@@ -18,7 +18,7 @@ public sealed class EndingPalette
     private const int CrossfadeColours = EndingLogoDefinitions.PaletteSteps * 2 * CrossfadeLayerColours;
 
     /// <summary>The colours in resource order.</summary>
-    private readonly ImmutableArray<RgbColor> colours;
+    internal readonly ImmutableArray<RgbColor> colours;
     /// <summary>What the colours are: a whole screen's, a run's or the logo crossfade's.</summary>
     private readonly Kind kind;
 
@@ -54,18 +54,11 @@ public sealed class EndingPalette
     /// <summary>Whether this resource is a whole screen's colours.</summary>
     public bool IsScreen => kind == Kind.Screen;
 
-    /// <summary>Whether this resource is the logo crossfade's colours by step and layer.</summary>
-    public bool IsLogoCrossfade => kind == Kind.LogoCrossfade;
-
     /// <summary>
     /// The colours in resource order: a whole screen's background colours, then its sprite colours; a run's in order; the
     /// crossfade's steps in order, each step's background colours before its sprite colours.
     /// </summary>
     public ImmutableArray<RgbColor> Colours => colours;
-
-    /// <summary>A whole screen's background colours.</summary>
-    /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
-    public ReadOnlySpan<RgbColor> Backgrounds => RequireScreen().AsSpan(0, SpriteImage.SpriteColourCount);
 
     /// <summary>A whole screen's sprite colours.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
@@ -74,9 +67,6 @@ public sealed class EndingPalette
     /// <summary>The solid colour a whole screen shows behind every layer once it is loaded: its first background colour.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
     public RgbColor Backdrop => RequireScreen()[0];
-
-    /// <summary>Number of colours in the complete resource, including all 512 ordered colours of the sixteen-step logo crossfade.</summary>
-    public int ColorCount => colours.Length;
 
     /// <summary>The logo crossfade's colour <paramref name="colour"/> of <paramref name="layer"/> at crossfade step <paramref name="step"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The step, layer or colour is outside the crossfade.</exception>

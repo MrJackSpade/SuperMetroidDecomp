@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Skree;

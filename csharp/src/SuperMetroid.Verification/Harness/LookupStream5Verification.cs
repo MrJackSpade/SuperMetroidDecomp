@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -30,7 +29,6 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkPhantoonB
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -2097,7 +2095,7 @@ internal static class LookupStream5Verification
                 system.SlotTable.Slots[0].FrameCounter = (ushort)counter; tick();
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
-                AssertEqual((int?)row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
+                AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {

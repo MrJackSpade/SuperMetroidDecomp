@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -39,7 +38,4 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
 
     /// <inheritdoc/>
     public void SpawnDescentDust() => unlock.SpawnTourianDescentDust();
-
-    /// <inheritdoc/>
-    public void ShowStatueLook(PictureShade look) => statue.ShowStatueLook(look);
 }

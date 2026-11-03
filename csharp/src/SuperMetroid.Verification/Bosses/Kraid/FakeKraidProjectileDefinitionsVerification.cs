@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

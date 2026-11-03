@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -36,14 +36,25 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     internal void Step(KraidBackdropFade fade, int step)
     {
         Ensure.BetweenInclusive(0, KraidShades.BackdropFadeShades - 1, step);
-        KraidBackdropShows fading = (fade, Shows) switch
+        KraidBackdropShows fading = fade switch
         {
-            (KraidBackdropFade.ToRoomColors, KraidBackdropShows.RoomColours) => KraidBackdropShows.FadingInFromRoomColours,
-            (KraidBackdropFade.ToRoomColors, KraidBackdropShows.Black) => KraidBackdropShows.FadingInFromBlack,
-            (KraidBackdropFade.ToRoomColors, KraidBackdropShows.FadingInFromRoomColours or KraidBackdropShows.FadingInFromBlack) => Shows,
-            (KraidBackdropFade.ToBlack, KraidBackdropShows.KraidColours) => KraidBackdropShows.FadingOut,
-            (KraidBackdropFade.ToBlack, KraidBackdropShows.FadingOut) => Shows,
-            _ => throw new InvalidOperationException($"Kraid's backdrop cannot fade {fade} while it shows {Shows}."),
+            KraidBackdropFade.ToRoomColors => Shows switch
+            {
+                KraidBackdropShows.RoomColours => KraidBackdropShows.FadingInFromRoomColours,
+                KraidBackdropShows.Black => KraidBackdropShows.FadingInFromBlack,
+                KraidBackdropShows.FadingInFromRoomColours or KraidBackdropShows.FadingInFromBlack => Shows,
+                KraidBackdropShows.KraidColours or KraidBackdropShows.FadingOut => throw CannotFade(fade),
+                _ => throw CannotFade(fade),
+            },
+            KraidBackdropFade.ToBlack => Shows switch
+            {
+                KraidBackdropShows.KraidColours => KraidBackdropShows.FadingOut,
+                KraidBackdropShows.FadingOut => Shows,
+                KraidBackdropShows.RoomColours or KraidBackdropShows.Black or KraidBackdropShows.FadingInFromRoomColours
+                    or KraidBackdropShows.FadingInFromBlack => throw CannotFade(fade),
+                _ => throw CannotFade(fade),
+            },
+            _ => throw new ArgumentOutOfRangeException(nameof(fade), fade, "Kraid's backdrop fades only to black or to the room's colours."),
         };
         Steps = step;
         Shows = fading;
@@ -57,10 +68,16 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         {
             KraidBackdropShows.FadingInFromRoomColours or KraidBackdropShows.FadingInFromBlack => KraidBackdropShows.KraidColours,
             KraidBackdropShows.FadingOut => KraidBackdropShows.Black,
+            KraidBackdropShows.RoomColours or KraidBackdropShows.KraidColours or KraidBackdropShows.Black =>
+                throw new InvalidOperationException($"Kraid's backdrop completes a fade while it shows {Shows}."),
             _ => throw new InvalidOperationException($"Kraid's backdrop completes a fade while it shows {Shows}."),
         };
         Steps = 0;
     }
+
+    /// <summary>The error for a fade toward <paramref name="fade"/>'s colours the backdrop cannot start from what it shows.</summary>
+    private InvalidOperationException CannotFade(KraidBackdropFade fade) =>
+        new($"Kraid's backdrop cannot fade {fade} while it shows {Shows}.");
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)

@@ -64,5 +64,9 @@ internal static class SamusColoursAccess
 
         /// <summary>The colour her grapple flare shows.</summary>
         internal RgbColor ShownGrappleFlare(SamusShadeSources sources) => self.ShownInks(sources)[SamusSheetInks.GrappleFlare];
+        /// <summary>The shades laid over the suit's, oldest first.</summary>
+        public IReadOnlyList<PictureShade> SuitOverlays => self.suitOverlays;
+        /// <summary>The shades laid over the beams', oldest first.</summary>
+        public IReadOnlyList<PictureShade> BeamOverlays => self.beamOverlays;
     }
 }

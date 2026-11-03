@@ -11,7 +11,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Frontend;
 
 /// <summary>Retail comparison and ROM-read boundary for intro Baby actor definitions, discovery instructions and demo input.</summary>
 internal static class IntroBabyActorDefinitionsVerification

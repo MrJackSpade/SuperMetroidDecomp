@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;

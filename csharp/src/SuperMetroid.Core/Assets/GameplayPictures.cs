@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The groups of gameplay's background pictures that each show one shading at a time (#1512): a colour effect of the

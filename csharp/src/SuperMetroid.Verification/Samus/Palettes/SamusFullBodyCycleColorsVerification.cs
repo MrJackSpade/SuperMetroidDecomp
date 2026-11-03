@@ -5,11 +5,8 @@ using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -18,7 +15,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -103,7 +99,7 @@ internal static class SamusFullBodyCycleColorsVerification
         {
             AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
             var cgram = new SamusColours();
-            nativeColours.Apply(cgram, pointer);
+            SamusPaletteNative.ShowFullBodyCycle(cgram, pointer);
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));

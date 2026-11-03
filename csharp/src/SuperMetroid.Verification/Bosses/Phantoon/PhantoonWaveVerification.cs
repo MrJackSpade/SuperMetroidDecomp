@@ -90,10 +90,10 @@ internal static class PhantoonWaveVerification
         // and the old extra-step denominator without requiring the local CPU trace.
         foreach (var (current, target, expected) in new[] { new VerifyPhantoonFadeColorsCase(14, 0, 12), new VerifyPhantoonFadeColorsCase(9692, 0, 8601), new VerifyPhantoonFadeColorsCase(0, 14, 1), new VerifyPhantoonFadeColorsCase(0, 9692, 34) })
         {
-            RgbColor actual = PhantoonPresentation.CalculatePhantoonTransitionColor(1, 12, RgbColor.FromWord((ushort)current), RgbColor.FromWord((ushort)target));
+            RgbColor actual = PhantoonPresentationConstants.CalculatePhantoonTransitionColor(1, 12, RgbColor.FromWord((ushort)current), RgbColor.FromWord((ushort)target));
             AssertEqual(expected, actual, "original-CPU Phantoon fixed-point palette component rounding");
         }
-        AssertEqual(0, PhantoonPresentation.CalculatePhantoonTransitionColor(1, 1, RgbColor.FromWord(14), RgbColor.Black),
+        AssertEqual(0, PhantoonPresentationConstants.CalculatePhantoonTransitionColor(1, 1, RgbColor.FromWord(14), RgbColor.Black),
             "fast fade reaches target on first interpolated update");
     }
 

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

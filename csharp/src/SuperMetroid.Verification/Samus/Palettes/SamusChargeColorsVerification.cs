@@ -6,7 +6,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;

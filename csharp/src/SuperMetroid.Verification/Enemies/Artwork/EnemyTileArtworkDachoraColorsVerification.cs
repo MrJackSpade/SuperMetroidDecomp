@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -12,7 +10,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Animals.Artwork;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
@@ -24,13 +23,6 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
 
     /// <summary>The complete 256-colour image, in CGRAM order.</summary>
     public ReadOnlySpan<RgbColor> Image => All.Colors;
-
-    /// <summary>Replaces the complete image with <paramref name="colors"/> (exactly 256 colours).</summary>
-    public void LoadImage(ReadOnlySpan<RgbColor> colors)
-    {
-        Ensure.LengthEqual(colors, ColorCount);
-        All.CopyFrom(colors);
-    }
 
     /// <summary>Background palette row <paramref name="row"/> (0-7).</summary>
     public CgramPalette BackgroundRow(int row) => Background.Slice(RowStart(row), PpuMemoryLayout.ColorsPerRow);

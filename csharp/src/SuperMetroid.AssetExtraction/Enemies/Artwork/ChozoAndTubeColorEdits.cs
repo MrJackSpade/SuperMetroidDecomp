@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.AssetExtraction.Artwork;
 

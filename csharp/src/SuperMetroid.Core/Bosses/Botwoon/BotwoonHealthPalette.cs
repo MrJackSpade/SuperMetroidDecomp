@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>Botwoon's health-band palette progression: when its health has fallen past the next band's threshold.</summary>
 internal static class BotwoonHealthPalette
 {
+    /// <summary>The health band last shown after <paramref name="bandsPassed"/> thresholds were passed, or null before the first.</summary>
+    internal static int? LastBandShown(int bandsPassed) => bandsPassed > 0 ? bandsPassed - 1 : null;
+
     /// <summary>
     /// Returns whether the current health is below the threshold of palette phase <paramref name="phase"/>, zero
     /// through seven. The signed subtraction matches the original game's comparison.

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -19,9 +18,6 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
 
     /// <summary>Whether the running fade keeps Samus's draws lit.</summary>
     private bool sparesSamus;
-
-    /// <summary>Whether a fade runs or has completed and still shows.</summary>
-    internal bool IsShown => steps is not null;
 
     /// <summary>Starts fading the display toward <paramref name="colour"/> over <paramref name="denominator"/> steps.</summary>
     /// <param name="colour">The colour the fade ends in.</param>

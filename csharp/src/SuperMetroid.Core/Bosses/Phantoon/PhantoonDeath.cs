@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -6,7 +5,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;

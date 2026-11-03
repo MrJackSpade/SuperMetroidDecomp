@@ -5,8 +5,6 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 

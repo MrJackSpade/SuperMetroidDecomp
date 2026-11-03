@@ -595,11 +595,6 @@ internal static class FrontendRomFreeVerification
                         if (nativeVram[offset] != installedVram[offset]) changed++;
                     if (changed != 0) changedVramPages.Add($"${page:X4}:{changed}");
                 }
-                ReadOnlySpan<RgbColor> nativeColors = native.GameplayRuntimeForVerification.Colours.Colors;
-                ReadOnlySpan<RgbColor> installedColors = installed.GameplayRuntimeForVerification.Colours.Colors;
-                int changedColors = 0;
-                for (int color = 0; color < nativeColors.Length; color++)
-                    if (nativeColors[color] != installedColors[color]) changedColors++;
                 throw new InvalidOperationException(
                     $"Installed {room.RoomName} pixels differ at frame {frame}: " +
                     $"{count} pixels, bounds ({minX},{minY})..({maxX},{maxY}), " +
@@ -607,8 +602,7 @@ internal static class FrontendRomFreeVerification
                     $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"first loaded VRAM difference byte ${firstLoadVram:X4}, " +
                     $"first displayed VRAM difference byte ${firstVram:X4}; " +
-                    $"VRAM pages=[{string.Join(", ", changedVramPages)}], " +
-                    $"CGRAM changed colors={changedColors}.");
+                    $"VRAM pages=[{string.Join(", ", changedVramPages)}].");
             }
             if (room.Room == RoomHeaderDefinitions.Draygon && frame == 0)
             {

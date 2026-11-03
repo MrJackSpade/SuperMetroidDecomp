@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;

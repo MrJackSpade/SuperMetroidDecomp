@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;

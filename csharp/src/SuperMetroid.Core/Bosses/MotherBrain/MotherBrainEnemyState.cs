@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

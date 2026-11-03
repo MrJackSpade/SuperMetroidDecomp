@@ -14,7 +14,6 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification

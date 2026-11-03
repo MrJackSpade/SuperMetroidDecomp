@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;

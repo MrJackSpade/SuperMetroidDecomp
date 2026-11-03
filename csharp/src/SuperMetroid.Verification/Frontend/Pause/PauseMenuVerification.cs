@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.InvalidBeamSelectionVer
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseMenuFixtureVerification;

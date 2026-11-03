@@ -11,7 +11,6 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 

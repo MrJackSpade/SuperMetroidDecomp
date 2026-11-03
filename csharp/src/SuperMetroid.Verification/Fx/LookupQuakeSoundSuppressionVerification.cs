@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;

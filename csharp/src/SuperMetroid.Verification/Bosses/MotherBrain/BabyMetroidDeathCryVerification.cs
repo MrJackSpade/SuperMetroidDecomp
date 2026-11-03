@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;

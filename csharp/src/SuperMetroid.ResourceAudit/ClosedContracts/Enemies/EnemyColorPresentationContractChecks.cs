@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;

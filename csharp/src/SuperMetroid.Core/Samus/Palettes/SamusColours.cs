@@ -17,10 +17,10 @@ namespace SuperMetroid.Core.Samus.Palettes;
 public sealed class SamusColours
 {
     /// <summary>The shades laid over the suit's, in the order they were laid; the last covers the others.</summary>
-    private readonly List<PictureShade> suitOverlays = [];
+    internal readonly List<PictureShade> suitOverlays = [];
 
     /// <summary>The shades laid over the beams', in the order they were laid; the last covers the others.</summary>
-    private readonly List<PictureShade> beamOverlays = [];
+    internal readonly List<PictureShade> beamOverlays = [];
 
     /// <summary>The shading her draws show, until her colours change.</summary>
     private PictureShading? shading;
@@ -28,14 +28,8 @@ public sealed class SamusColours
     /// <summary>The shade the suit shows.</summary>
     public PictureShade Suit { get; private set; } = SamusShades.StartingSuit;
 
-    /// <summary>The shades laid over the suit's, oldest first.</summary>
-    public IReadOnlyList<PictureShade> SuitOverlays => suitOverlays;
-
     /// <summary>The shade the beams show.</summary>
     public PictureShade Beams { get; private set; } = SamusShades.StartingBeams;
-
-    /// <summary>The shades laid over the beams', oldest first.</summary>
-    public IReadOnlyList<PictureShade> BeamOverlays => beamOverlays;
 
     /// <summary>The shade her body without the suit shows, or null for its own colours.</summary>
     public PictureShade? Suitless { get; private set; }

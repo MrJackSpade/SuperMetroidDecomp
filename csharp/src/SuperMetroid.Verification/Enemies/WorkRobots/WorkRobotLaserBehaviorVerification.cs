@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 

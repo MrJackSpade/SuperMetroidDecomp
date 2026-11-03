@@ -1,5 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Frontend.Title;
-
+﻿
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Development-tool members of <see cref="TitlePalettePresentation"/>; never linked by player hosts.</summary>

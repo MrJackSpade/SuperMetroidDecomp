@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Runtime;

@@ -31,7 +31,7 @@ internal static class SceneShownColours
             RgbColor[] inks = shading.InkColours(picture);
             for (int ink = 0; ink < inks.Length; ink++)
             {
-                if (SuperMetroid.AssetExtraction.Artwork.InstalledPictureColours.CartridgeColourOf(picture, ink) == place)
+                if (SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(picture, ink) == place)
                     shown.Add(inks[ink]);
             }
         }
@@ -54,6 +54,13 @@ internal static class SceneShownColours
                     foreach (PlacedPlanePicture placed in plane.Plane.Pictures)
                         Add(shown, placed.Picture.Sheet, placed.Shading);
                     break;
+                case AddedPicturedPlaneLayer added:
+                    foreach (PlacedPlanePicture placed in added.Plane.Pictures)
+                        Add(shown, placed.Picture.Sheet, placed.Shading);
+                    break;
+                case ColourAddWindowLayer or ScreenGradientLayer or ScreenTintLayer or SpriteDepthLayer or SpritesLayer:
+                    // These layers draw colours and depths, not pictures; the sprite draws are read from the paint below.
+                    break;
                 case PictureGridLayer grid:
                     foreach (GridPicture? cell in grid.Grid.Cells)
                     {
@@ -71,6 +78,8 @@ internal static class SceneShownColours
                     break;
                 case GameplaySceneLayer or GameplayBlendLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or InsetSceneLayer:
                     throw new InvalidOperationException($"Layer {layer.GetType().Name} shows pictures a frontend scene's colours do not describe.");
+                default:
+                    throw new InvalidOperationException($"Layer {layer.GetType().Name} is not one this check knows the pictures of.");
             }
         }
         foreach (SpriteDraw draw in scene.Paint.SpriteDraws)

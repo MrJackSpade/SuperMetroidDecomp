@@ -192,10 +192,10 @@ internal static class SamusPaletteNative
     {
         /// <summary>One color of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
         internal RgbColor Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
-
-        /// <summary>Shows the shade of the cycle palette at bank-$9B <paramref name="pointer"/> as Samus's suit's (#1512).</summary>
-        internal void Apply(SamusColours colours, ushort pointer) => colours.ShowSuit(SamusShades.FullBodyCycle(Palette(pointer)));
     }
+
+    /// <summary>Shows the shade of the cycle palette at bank-$9B <paramref name="pointer"/> as Samus's suit's (#1512).</summary>
+    internal static void ShowFullBodyCycle(SamusColours colours, ushort pointer) => colours.ShowSuit(SamusShades.FullBodyCycle(Palette(pointer)));
 
     /// <summary>The charge and Hyper-shot lists by bank-$9B palette address.</summary>
     extension(SamusChargePaletteDefinitions)

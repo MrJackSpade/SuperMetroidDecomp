@@ -1,10 +1,8 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -16,23 +14,6 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the artwork bundles the game reads through Core types; only the import pipeline's own bundles carry one (#1502).</summary>
 internal static class InstalledArtworkBundleIdentity
 {
-    /// <summary>The installed content identity of the boss artwork.</summary>
-    extension(BossArtworkCatalog artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="BossSourceArtwork"/>.</summary>
-        /// <exception cref="InvalidDataException">The boss artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is BossSourceArtwork installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The boss artwork was not read from installed artwork.");
-    }
-
-    /// <summary>The installed content identity of the enemy artwork.</summary>
-    extension(EnemyTileArtworkCatalog artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="EnemyTileSourceArtwork"/>.</summary>
-        /// <exception cref="InvalidDataException">The enemy artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is EnemyTileSourceArtwork installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The enemy artwork was not read from installed artwork.");
-    }
 
     /// <summary>The installed content identity of the Ceres flight artwork.</summary>
     extension(CeresFlightArtwork artwork)

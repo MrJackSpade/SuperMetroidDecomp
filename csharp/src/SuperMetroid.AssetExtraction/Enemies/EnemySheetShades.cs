@@ -18,12 +18,10 @@ using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
@@ -31,7 +29,6 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

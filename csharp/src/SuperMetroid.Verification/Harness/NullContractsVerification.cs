@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;

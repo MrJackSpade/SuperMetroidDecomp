@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A fade of the whole gameplay display (#1512): a door's fade or the death fade, one colour effect the backend applies

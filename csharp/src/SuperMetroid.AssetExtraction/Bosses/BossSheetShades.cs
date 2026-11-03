@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid;

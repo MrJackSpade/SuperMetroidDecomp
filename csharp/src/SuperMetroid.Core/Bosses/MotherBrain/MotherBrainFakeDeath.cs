@@ -1,12 +1,10 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Assets;
 
@@ -541,7 +539,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Restores the combat palette after the gray fake-death phase.</summary>
-    internal void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
+    internal static void TransitionMotherBrainFromGray(MotherBrainEnemyState state)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;

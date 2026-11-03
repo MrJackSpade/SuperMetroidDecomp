@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;

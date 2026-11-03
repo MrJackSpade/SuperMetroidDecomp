@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
@@ -35,7 +36,6 @@ using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hoppers;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Inert;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.KiHunters;

@@ -37,7 +37,7 @@ public sealed class WreckedShipGhostFade
     private readonly RgbColor[] shown = new RgbColor[ColourCount];
 
     /// <summary>The colours the current fade moves toward.</summary>
-    private readonly RgbColor[] target = new RgbColor[ColourCount];
+    internal readonly RgbColor[] target = new RgbColor[ColourCount];
 
     /// <summary>The effect the colours were last changed by.</summary>
     private string effect = WreckedShipGhostShades.DarkEffect;
@@ -50,9 +50,6 @@ public sealed class WreckedShipGhostFade
 
     /// <summary>The colours the ghost shows, colour zero first.</summary>
     public ReadOnlySpan<RgbColor> Shown => shown;
-
-    /// <summary>The colours the current fade moves toward.</summary>
-    public ReadOnlySpan<RgbColor> Target => target;
 
     /// <summary>
     /// The shade naming the colours the ghost shows: the effect that last changed them and how many of its steps did.

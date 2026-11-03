@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Assets;
 internal static class NativeColouredPictures
 {
     /// <summary>The colours of a native colour image.</summary>
-    internal const int ColorCount = InstalledPictureColours.CartridgeColourCount;
+    internal const int ColorCount = InstalledPictureColoursConstants.CartridgeColourCount;
 
     /// <summary>
     /// A copy of <paramref name="picture"/> whose standard colours are the colours its inks show in
@@ -26,7 +26,7 @@ internal static class NativeColouredPictures
         Ensure.LengthEqual(nativeColours, ColorCount);
         var standard = new RgbColor[picture.StandardColours.Length];
         for (int ink = 0; ink < standard.Length; ink++)
-            standard[ink] = nativeColours[InstalledPictureColours.CartridgeColourOf(picture, ink)];
+            standard[ink] = nativeColours[InstalledPictureColoursConstants.CartridgeColourOf(picture, ink)];
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
         ReadOnlySpan<SpriteImageInk> inks = picture.Inks;
         var shown = new RgbaPixel[pixels.Length];
@@ -63,7 +63,7 @@ internal static class NativeColouredPictures
         RgbColor[] inks = Ensure.NotNull(shading).InkColours(picture);
         var image = new RgbColor[ColorCount];
         for (int ink = 0; ink < inks.Length; ink++)
-            image[InstalledPictureColours.CartridgeColourOf(picture, ink)] = inks[ink];
+            image[InstalledPictureColoursConstants.CartridgeColourOf(picture, ink)] = inks[ink];
         return image;
     }
 

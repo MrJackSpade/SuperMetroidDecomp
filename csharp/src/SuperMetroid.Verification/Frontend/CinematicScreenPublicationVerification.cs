@@ -43,7 +43,7 @@ internal static class CinematicScreenPublicationVerification
         for (int index = 0; index < ScreenSprites.Capacity + 2; index++)
         {
             var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
-            raw.AddObjectImage(star, position);
+            raw.AddObjectImage(star, position, PictureShading.Standard);
             oam.AddRawSmallSprite(position, SnesObjAttributeWord.From(SuperMetroid.AssetExtraction.Frontend.Ending.EndingShootingStarParts.Appearance(EndingShootingStarDefinitions.FullStarFrame)));
         }
         raw.FinishFrame();

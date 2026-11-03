@@ -15,7 +15,6 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

@@ -53,10 +53,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Access = dependencies.Access;
         BodyLayer = new CrocomireBodyLayer(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access);
         Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, BodyLayer = BodyLayer, Access = Access , BossArtwork = _bossArtwork });
-        Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access, _bossArtwork);
+        Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, BodyLayer, Access);
         Melting = new CrocomireMelting(dependencies.Presentation.Surfaces, BodyLayer, Access, _bossArtwork);
-        Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access, _bossArtwork);
+        Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access);
     }
 
     /// <summary>Body X threshold at which Crocomire begins breaking the arena bridge.</summary>

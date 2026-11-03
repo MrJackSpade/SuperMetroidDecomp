@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

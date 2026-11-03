@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;

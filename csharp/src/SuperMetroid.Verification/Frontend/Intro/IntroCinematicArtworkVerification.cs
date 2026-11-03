@@ -506,8 +506,8 @@ internal static class IntroCinematicArtworkVerification
                 IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 transfer(edited).Span.CopyTo(expected.AsSpan(destination));
-                byte[] editedShown = CreateRetailIntroFixture(characterArtwork: edited).ShownVram();
-                AssertTrue(!expected.SequenceEqual(nativeVram) && editedShown.SequenceEqual(expected),
+                byte[] editedVram = CreateRetailIntroFixture(characterArtwork: edited).ShownVram();
+                AssertTrue(!expected.SequenceEqual(nativeVram) && editedVram.SequenceEqual(expected),
                     $"edited {name} reaches only its initial cinematic VRAM page");
                 var restoredEarly = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredEarly.BindFixtureIntroArtwork(edited);

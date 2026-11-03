@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;

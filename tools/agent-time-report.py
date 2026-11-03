@@ -7,10 +7,12 @@ times. Every gap between consecutive transcript records is classified:
   tool       a foreground tool call was in flight (the gap lies between a tool call and its result)
   idle       the agent's turn had ended and the gap ends at a task notification, wake-up, goal check-in or hook
              prompt, i.e. the agent was sitting on background work or a timer
+  delegated  as idle, but a subagent the session launched or resumed was running: the coordinator's work was being
+             done by its agents, which AGENTS.md "Agent use" requires it to wait on, so this is agent time, not waiting
   user       the agent's turn had ended and the gap ends at a genuine human message (the user's time, excluded)
   system     anything else, such as context compaction (excluded)
 
-"Waiting" is tool + idle. Tool and idle time are also broken down by what was running (verify-all, build, focused
+"Waiting" is tool + idle; agent time is working + delegated + waiting. Tool and idle time are also broken down by what was running (verify-all, build, focused
 checks, audit, and so on), taken from the command text of the in-flight foreground call or the running background job.
 
 Usage: python tools/agent-time-report.py [--hours 24]
@@ -74,8 +76,11 @@ def load_sessions(transcript_dirs, start):
                 record = json.loads(line)
                 stamp = record.get("timestamp")
                 # Only conversation records bound a gap; housekeeping records (turn durations, queue operations,
-                # attachments) sit inside gaps and would otherwise split an idle wait into "working".
-                if stamp is None or record.get("isSidechain") or record.get("type") not in ("assistant", "user"):
+                # attachments) sit inside gaps and would otherwise split an idle wait into "working". A queued task
+                # notification is kept, but only to end the background job or subagent it reports (see session_gaps).
+                if stamp is None or record.get("isSidechain"):
+                    continue
+                if record.get("type") not in ("assistant", "user") and not is_queued_notification(record):
                     continue
                 when = parse_time(stamp)
                 if when >= start - timedelta(hours=6):
@@ -104,9 +109,16 @@ def committing_session(sessions, previous, when):
     return None if best is None else best[1]
 
 
+def is_queued_notification(record):
+    """Whether a record is the queue's enqueue of a task notification, which is how a subagent's completion arrives."""
+    return (record.get("type") == "queue-operation" and record.get("operation") == "enqueue"
+            and "<task-notification>" in str(record.get("content", "")))
+
+
 def session_gaps(records):
-    """Every gap of one session's timeline."""
-    return list(classify_gaps(records, background_jobs(records)))
+    """Every gap of one session's timeline. Queued notifications end jobs but do not bound gaps."""
+    conversation = [(when, record) for when, record in records if record.get("type") in ("assistant", "user")]
+    return list(classify_gaps(conversation, background_jobs(records)))
 
 
 def content_parts(record):
@@ -115,25 +127,38 @@ def content_parts(record):
 
 
 def text_of(record):
+    if record.get("type") == "queue-operation":
+        return str(record.get("content", ""))
     content = (record.get("message") or {}).get("content")
     if isinstance(content, str):
         return content
     return " ".join(part.get("text", "") for part in content_parts(record) if isinstance(part, dict))
 
 
+#: The label of a background job that is a subagent the session launched or resumed.
+AGENTS_LABEL = "agents"
+
+
 def background_jobs(records):
-    """Each background job's (start, end, label), matching launches to their completion notifications."""
+    """Each background job's (start, end, label), matching launches to their completion notifications. A subagent
+    launched by the Agent tool or resumed by SendMessage is a job too: it runs until its task notification."""
     launches = {}
     by_tool_use = {}
     for when, record in records:
         for part in content_parts(record):
-            if isinstance(part, dict) and part.get("type") == "tool_use" and part.get("input", {}).get("run_in_background"):
+            if not (isinstance(part, dict) and part.get("type") == "tool_use"):
+                continue
+            if part.get("name") in ("Agent", "SendMessage"):
+                by_tool_use[part["id"]] = (when, AGENTS_LABEL)
+            elif part.get("input", {}).get("run_in_background"):
                 by_tool_use[part["id"]] = (when, classify_command(part["name"], part["input"]))
+        for part in content_parts(record):
             if isinstance(part, dict) and part.get("type") == "tool_result" and part.get("tool_use_id") in by_tool_use:
                 result = part.get("content")
                 result_text = result if isinstance(result, str) else " ".join(
                     item.get("text", "") for item in result or [] if isinstance(item, dict))
-                match = re.search(r"with ID: (\w+)", result_text)
+                match = (re.search(r"with ID: (\w+)", result_text) or re.search(r"agentId: (\w+)", result_text)
+                         or re.search(r'"resumedAgentId":"(\w+)"', result_text))
                 if match:
                     launches[match.group(1)] = by_tool_use[part["tool_use_id"]]
     jobs = []
@@ -171,7 +196,10 @@ def classify_gaps(records, jobs):
             yield start, end, "user", "user"
         elif turn_ended and following.get("type") == "user":
             running = [label for began, finished, label in jobs if began <= start and finished >= end]
-            yield start, end, "idle", running[0] if running else "timer or hook"
+            if AGENTS_LABEL in running:
+                yield start, end, "delegated", AGENTS_LABEL
+            else:
+                yield start, end, "idle", running[0] if running else "timer or hook"
         else:
             yield start, end, "working", "working"
 
@@ -209,8 +237,9 @@ def split_interval(gaps, previous, when):
 
 
 def waiting_share(kinds):
-    """Waiting as a percentage of agent time (working + waiting), or None when the agent did nothing."""
-    counted = kinds["working"] + kinds["tool"] + kinds["idle"]
+    """Waiting as a percentage of agent time (working, delegated to subagents, and waiting), or None when the agent
+    did nothing."""
+    counted = kinds["working"] + kinds["delegated"] + kinds["tool"] + kinds["idle"]
     return 100 * (kinds["tool"] + kinds["idle"]) / counted if counted else None
 
 
@@ -242,7 +271,8 @@ def head_check(revision):
         print("agent time check: no agent activity since the previous commit.", file=sys.stderr)
         return
     causes = ", ".join(f"{label} {seconds / 60:.1f} min" for label, seconds in waits.most_common(5)) or "none"
-    summary = (f"agent time since the previous commit: working {kinds['working'] / 60:.1f} min, waiting "
+    summary = (f"agent time since the previous commit: working {kinds['working'] / 60:.1f} min, delegated to "
+               f"subagents {kinds['delegated'] / 60:.1f} min, waiting "
                f"{(kinds['tool'] + kinds['idle']) / 60:.1f} min ({share:.0f}% waiting). Waiting by cause: {causes}.")
     if share > AGGRESSIVE_PERCENT:
         bar = "!" * 100
@@ -287,7 +317,8 @@ def main():
     def minutes(seconds):
         return f"{seconds / 60:6.1f}"
 
-    header = f"{'commit':9} {'subject':46} {'span':>6} {'work':>6} {'tool':>6} {'idle':>6} {'user':>6} {'wait%':>6}  top waits (min)"
+    header = (f"{'commit':9} {'subject':46} {'span':>6} {'work':>6} {'agents':>6} {'tool':>6} {'idle':>6} {'user':>6} "
+              f"{'wait%':>6}  top waits (min)")
     print(header)
     print("-" * len(header))
     totals = collections.Counter()
@@ -301,11 +332,13 @@ def main():
         share = waiting_share(kinds) or 0
         top = ", ".join(f"{label} {seconds / 60:.1f}" for label, seconds in waits.most_common(3))
         span = (when - previous).total_seconds()
-        print(f"{short:9} {subject[:46]:46} {minutes(span)} {minutes(kinds['working'])} {minutes(kinds['tool'])} "
+        print(f"{short:9} {subject[:46]:46} {minutes(span)} {minutes(kinds['working'])} {minutes(kinds['delegated'])} "
+              f"{minutes(kinds['tool'])} "
               f"{minutes(kinds['idle'])} {minutes(kinds['user'])} {share:5.0f}%  {top}")
 
     print("-" * len(header))
     print(f"Totals over {len(edges) - 1} commits: working {totals['working'] / 60:.0f} min, "
+          f"delegated to subagents {totals['delegated'] / 60:.0f} min, "
           f"waiting {(totals['tool'] + totals['idle']) / 60:.0f} min "
           f"(foreground tools {totals['tool'] / 60:.0f}, idle on background or timers {totals['idle'] / 60:.0f}); "
           f"waiting is {waiting_share(totals) or 0:.0f}% of agent time. "

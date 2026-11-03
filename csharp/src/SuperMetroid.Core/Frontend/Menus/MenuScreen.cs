@@ -8,17 +8,21 @@ namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
 /// The shared menu screen <c>LoadInitialMenuTiles</c> sets up for file select, options, game over and the
-/// file-select maps (#1358): the installed artwork it draws, its palette and its sprite entries; its pages are installed
-/// pictures it places (#1467). It publishes these; the capture composes them, so no menu owns display memory.
+/// file-select maps (#1358): the installed artwork it draws, its backdrop and its sprite entries; its pages are installed
+/// pictures it places (#1467), each in the colours the import pre-coloured it in (#1512). It publishes these; the capture
+/// composes them, so no menu owns display memory.
 /// </summary>
 internal sealed class MenuScreen
 {
-    /// <summary>Installs the shared world and palette artwork, and the sheets its backgrounds draw from.</summary>
-    public MenuScreen(MapStaticPalettes? mapPalettes, WorldMapArtwork? worldArtwork, InstalledSpriteSheets? sheets)
+    /// <summary>Installs the shared world artwork, the screen's backdrop, and the sheets its backgrounds draw from.</summary>
+    /// <param name="backdrop">The solid colour the screen shows where nothing is drawn (#1512).</param>
+    /// <param name="worldArtwork">The installed world-map characters.</param>
+    /// <param name="sheets">The installed sheets the screen's pictures come from.</param>
+    public MenuScreen(RgbColor backdrop, WorldMapArtwork? worldArtwork, InstalledSpriteSheets? sheets)
     {
         WorldArtwork = RequireWorldArtwork(worldArtwork);
         Objects = new ScreenSprites();
-        BindMapPalettes(mapPalettes);
+        Backdrop = backdrop;
         BindScreenTiles(sheets);
     }
 
@@ -59,40 +63,34 @@ internal sealed class MenuScreen
         return new PicturedPlane(PageSize, [.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Cell))]);
     }
 
-    /// <summary><paramref name="picture"/> placed at page cell <paramref name="cell"/>, its origin on the cell's corner.</summary>
+    /// <summary>
+    /// <paramref name="picture"/> placed at page cell <paramref name="cell"/>, its origin on the cell's corner, in the
+    /// standard colours the import pre-coloured it in under the menu's colours (#1512).
+    /// </summary>
     private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell) =>
-        PlacedPlanePicture.AtCell(picture, cell, PageSize);
+        PlacedPlanePicture.AtCell(picture, cell, PageSize).ShadedIn(PictureShading.Standard);
 
     /// <summary>The installed world-map characters.</summary>
     [AllowNull]
     public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are bound when the game is bound to its installed content."); private set; }
 
-
-    /// <summary>The menu's palette.</summary>
-    public ScreenPalette Palette { get; } = new();
+    /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
+    public RgbColor Backdrop { get; set; }
 
     /// <summary>The menu's sprite entries over the installed menu OBJ page.</summary>
     public ScreenSprites Objects { get; }
 
-    /// <summary>Rebinds the world characters, keeping tilemaps and ongoing palette state.</summary>
+    /// <summary>Rebinds the world characters, keeping tilemaps and the screen's backdrop.</summary>
     public void BindWorldArtwork(WorldMapArtwork? worldArtwork)
     {
         WorldArtwork = RequireWorldArtwork(worldArtwork);
     }
 
 
-    /// <summary>Loads the file-select palette image.</summary>
-    public void BindMapPalettes(MapStaticPalettes? mapPalettes)
-    {
-        MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException("Menus require installed palettes.");
-        palettes.FileSelect.LoadTo(Palette);
-    }
-
     /// <summary>The installed world-map characters, which a menu cannot draw without.</summary>
     private static WorldMapArtwork RequireWorldArtwork(WorldMapArtwork? worldArtwork) =>
         worldArtwork ?? throw new InvalidOperationException("Menus require installed world-map artwork.");
 
-
-    /// <summary>What the screen paints with: its palette and sprite entries.</summary>
-    internal FramePaint Paint() => new(Palette.Shown(), Objects.Draws);
+    /// <summary>What the screen paints with: its backdrop and sprite entries, each sprite in the shading it names (#1512).</summary>
+    internal FramePaint Paint() => new(Backdrop, Objects.Draws);
 }

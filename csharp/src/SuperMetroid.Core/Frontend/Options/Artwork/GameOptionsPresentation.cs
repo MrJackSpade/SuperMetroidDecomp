@@ -55,10 +55,10 @@ public abstract class GameOptionsPresentation
             : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<SpritePixels> origin = new(checked(point.X), CoordinateAxis.Wrap(point.Y - verticalScroll));
-        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin, shading: PictureShading.Standard);
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
     internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Position16<SpritePixels> point) =>
-        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point);
+        sprites.AddImage(sheet.Frame(GameOptionsNames.CursorSpriteName(frame)), point, shading: PictureShading.Standard);
 }

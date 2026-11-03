@@ -78,7 +78,9 @@ internal static class MenuScreenPublicationVerification
             filePage[0].Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PageFrame(FileSelectPage.MainWithData))) &&
             filePage.Any(placed => placed.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PatchFrame(FileSelectPatch.Energy)))),
             "file select shows the main page with the saved slot's ENERGY field");
-        AssertTrue(fileSelectScene.Paint.Colors.SequenceEqual(fileSelect.screen.Palette.Colors), "file select draws its own palette");
+        AssertEqual(maps.Backdrops.FileSelect, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
+        AssertTrue(fileSelectScene.Layers.OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
+            "file select's pictures show the colours the import pre-coloured them in");
         AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.Paint.SpriteDraws, fileSelect.screen.Objects.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
@@ -96,7 +98,9 @@ internal static class MenuScreenPublicationVerification
             Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).All(region =>
                 ReferenceEquals(page[1 + region].Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(region, japanese: false)))),
             "options shows the primary page with its language rows highlighting English");
-        AssertTrue(optionsScene.Paint.Colors.SequenceEqual(options.screen.Palette.Colors), "options draws its own palette");
+        AssertEqual(maps.Backdrops.FileSelect, optionsScene.Paint.Backdrop, "options shows its own backdrop");
+        AssertTrue(optionsScene.Paint.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),
+            "options' sprites show the colours the import pre-coloured them in");
         AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.Paint.SpriteDraws, options.screen.Objects.Draws), "options draws its own sprite entries");
 
         InstalledSpriteSheets gameOverSheets = MenuSheetFixtures.For(maps);
@@ -108,9 +112,12 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } gameOverPage] } &&
             ReferenceEquals(gameOverPage.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
             gameOverPage.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
-        AssertTrue(gameOverScene.Paint.Colors.SequenceEqual(gameOver.screen.Palette.Colors), "game over draws its own palette");
+        AssertEqual(maps.Backdrops.FileSelect, gameOverScene.Paint.Backdrop, "game over shows its own backdrop");
+        AssertTrue(gameOverScene.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Any(draw =>
+            draw.Shading == PictureShading.Shaded(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverBabyShades.Colours(gameOver.BabyColours))),
+            "game over draws the Baby in the colours its pose program names");
         AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.Paint.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
-        Console.WriteLine("  Menu screens: file select, options and game over publish their pages' pictures, palette and sprite entries.");
+        Console.WriteLine("  Menu screens: file select, options and game over publish their pages' pictures, backdrop and sprite entries.");
     }
 
     /// <summary>Runs the screen sprite placement and menu screen publication checks.</summary>

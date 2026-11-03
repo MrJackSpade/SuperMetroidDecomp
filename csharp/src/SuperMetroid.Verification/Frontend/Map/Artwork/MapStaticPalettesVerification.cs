@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -31,15 +29,18 @@ internal static class MapStaticPalettesVerification
         var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Artwork.PauseColors);
-        AssertTrue(palette.Colors.SequenceEqual(ScreenColourImage.Encode(original.Palettes.Pause)), "all static pause colors match cartridge");
+        MapStaticPalettes installed = InstalledAreaMapPresentation.PalettesOf(original);
+        AssertTrue(palette.Colors.SequenceEqual(installed.Pause), "all static pause colors match cartridge");
+        AssertEqual(palette.Colors[0], original.Backdrops.Pause, "the pause backdrop is the cartridge's backdrop colour");
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);
-        AssertTrue(palette.Colors.SequenceEqual(ScreenColourImage.Encode(original.Palettes.FileSelect)), "all static file-select colors match cartridge");
-        var nativeWorld = new FileSelectAreaMapGraphics(0, original.Palettes, original.WorldArtwork, MenuSheetFixtures.For(original));
-        var world = new FileSelectAreaMapGraphics(0, original.Palettes, original.WorldArtwork, MenuSheetFixtures.For(original));
+        AssertTrue(palette.Colors.SequenceEqual(installed.FileSelect), "all static file-select colors match cartridge");
+        AssertEqual(palette.Colors[0], original.Backdrops.FileSelect, "the file-select backdrop is the cartridge's backdrop colour");
+        var nativeWorld = new FileSelectAreaMapGraphics(0, original.Backdrops, original.WorldArtwork, MenuSheetFixtures.For(original));
+        var world = new FileSelectAreaMapGraphics(0, original.Backdrops, original.WorldArtwork, MenuSheetFixtures.For(original));
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
-            AssertTrue(new CgramPalettes(nativeWorld.screen.Palette).ImageEquals(new CgramPalettes(world.screen.Palette)), "named world-selection palette matches native copy programs");
+            AssertEqual(installed.World(AreaIds.At(area))[0], world.screen.Backdrop, "the selected area shows its world-map backdrop");
             AssertTrue(nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "all six stock world selections render identical pixels");
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -70,21 +71,8 @@ internal static class MapStaticPalettesVerification
         pause.BindFixtureArtwork(original); room.BindFixtureArtwork(original); world.BindFixtureArtwork(original);
         AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "restored pause accepts current static colors without stale edited state");
         AssertTrue(roomBefore.SequenceEqual(room.RenderBackgrounds(new(0, 0))), "room map rebind restores original colors");
-        AssertTrue(new CgramPalettes(nativeWorld.screen.Palette).ImageEquals(new CgramPalettes(world.screen.Palette)), "world rebind restores complete original colors");
-
-        var entry = new FileSelectMapEntry(original.Palettes);
-        var controlEntry = new FileSelectMapEntry(original.Palettes);
-        for (int tick = 0; tick < 5; tick++) { entry.Step(); controlEntry.Step(); }
-        entry.BindPalettes(edited.Palettes);
-        for (int tick = 0; tick < 48; tick++)
-        {
-            entry.Step(); controlEntry.Step();
-            AssertEqual(controlEntry.Phase, entry.Phase, "palette replacement does not restart entry fade or reveal");
-        }
-        RgbColor[] editedFileSelect = ScreenColourImage.Encode(edited.Palettes.FileSelect);
-        RgbColor[] entryColours = entry.Palette.Colors.ToArray();
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual(color is 14 or 30 ? RgbColor.Black : editedFileSelect[color], entryColours[color], "ongoing fade reaches newly bound palette target");
+        AssertEqual(nativeWorld.screen.Backdrop, world.screen.Backdrop, "world rebind restores the original backdrop");
+        AssertTrue(nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "world rebind restores the original pixels");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "static palette override survives stock replacement");

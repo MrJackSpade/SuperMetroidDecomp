@@ -21,6 +21,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Sprites">The map and menu sprite compositions, pictured into the map sprite sheet and the menu sheets.</param>
 /// <param name="SamusColours">Samus's selected colour tables, which her sheets are pre-coloured from (#1512).</param>
 /// <param name="HighlightColours">The map highlight cycle with its colours, which the map sprite sheet's highlight shades are pre-coloured from (#1512).</param>
+/// <param name="Palettes">The colours each map and menu screen loads, which the screens' sheets and their drawn shades are pre-coloured from (#1512).</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -31,4 +32,5 @@ internal sealed record InstalledPresentationSources(
     PauseScreenArtwork Pause,
     MapSpriteCompositions Sprites,
     SamusMapColourTables SamusColours,
-    MapPaletteCycle HighlightColours);
+    MapPaletteCycle HighlightColours,
+    MapStaticPalettes Palettes);

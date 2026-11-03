@@ -32,7 +32,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         HiddenCells = parts.HiddenCells;
         ContentIdentity = parts.ContentIdentity;
         HighlightCycle = parts.HighlightCycle;
-        Palettes = parts.Palettes;
+        Backdrops = parts.Backdrops;
         Labels = parts.Labels;
         Stations = parts.Stations;
         Landmarks = parts.Landmarks;
@@ -41,7 +41,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
         WorldArtwork = parts.WorldArtwork;
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
-        PauseReserveArrow = parts.PauseReserveArrow;
         EscapeTimer = parts.EscapeTimer;
         EscapeTimerTiles = parts.EscapeTimerTiles;
         GameplayHud = parts.GameplayHud;
@@ -75,8 +74,8 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public AreaMapHiddenCells HiddenCells { get; }
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public MapHighlightCycle HighlightCycle { get; }
-    /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
-    public MapStaticPalettes Palettes { get; }
+    /// <summary>The solid colour the pause, file-select and world-map screens show where nothing is drawn (#1512).</summary>
+    public MenuBackdrops Backdrops { get; }
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public WorldMapLabelPositions Labels { get; }
     /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
@@ -93,8 +92,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }
-    /// <summary>The reserve arrow's solid and pulse colours; its labels, digits and tiles are the pause sheet's pictures (#1467).</summary>
-    public PauseReserveArrowColours PauseReserveArrow { get; }
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
     /// <summary>Selected character bytes for the two escape-timer artwork loads.</summary>

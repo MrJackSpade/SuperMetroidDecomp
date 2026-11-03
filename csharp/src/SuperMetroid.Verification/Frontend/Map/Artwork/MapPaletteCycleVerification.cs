@@ -25,6 +25,9 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
 internal static class MapPaletteCycleVerification
 {
+    /// <summary>The first of the sixteen sprite colours, colour group three, the highlight shade recolours.</summary>
+    private const int HighlightColours = 176;
+
     /// <summary>Compares native animation cadence and CGRAM, then checks override rebinding and visible palette isolation.</summary>
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentation original, ImportedAreaMap[] rules)
@@ -83,11 +86,14 @@ internal static class MapPaletteCycleVerification
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
-            var editedMemory = pause.CaptureRenderSnapshot().Paint;
-            var stockMemory = nativePause.CaptureRenderSnapshot().Paint;
-            cycleColorsChanged |= !editedMemory.Colors.Slice(ScreenColourPositions.Of(ScreenColourGroup.MapHighlight), 16)
-                .SequenceEqual(stockMemory.Colors.Slice(ScreenColourPositions.Of(ScreenColourGroup.MapHighlight), 16));
-            AssertTrue(editedMemory.Colors.Slice(240, 16).SequenceEqual(stockMemory.Colors.Slice(240, 16)),
+            // The pause screen holds no colours (#1512): its highlighted sprites show the import's highlight shade at the
+            // cycle frame it names, laid over the pause colours.
+            _ = pause.CaptureRenderSnapshot();
+            _ = nativePause.CaptureRenderSnapshot();
+            ReadOnlySpan<RgbColor> editedMemory = PauseShownColours.Of(pause);
+            ReadOnlySpan<RgbColor> stockMemory = PauseShownColours.Of(nativePause);
+            cycleColorsChanged |= !editedMemory.Slice(HighlightColours, 16).SequenceEqual(stockMemory.Slice(HighlightColours, 16));
+            AssertTrue(editedMemory.Slice(240, 16).SequenceEqual(stockMemory.Slice(240, 16)),
                 "highlight edit leaves the native palette-seven pause cursor colors unchanged");
             // Since #1251 the pause-map scroll arrows draw with OBJ palette 3 as on the cartridge,
             // so the highlight edit may recolor them. Every differing pixel must therefore show a
@@ -96,8 +102,8 @@ internal static class MapPaletteCycleVerification
             var stockPalette3 = new HashSet<RgbaPixel>();
             for (int color = 0; color < 16; color++)
             {
-                editedPalette3.Add(editedMemory.Colors[ScreenColourPositions.Of(ScreenColourGroup.MapHighlight) + color].ToRgbaPixel());
-                stockPalette3.Add(stockMemory.Colors[ScreenColourPositions.Of(ScreenColourGroup.MapHighlight) + color].ToRgbaPixel());
+                editedPalette3.Add(editedMemory[HighlightColours + color].ToRgbaPixel());
+                stockPalette3.Add(stockMemory[HighlightColours + color].ToRgbaPixel());
             }
             var editedPixels = pause.Render();
             var stockPixels = nativePause.Render();

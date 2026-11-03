@@ -25,7 +25,10 @@ internal static class AreaMapPictures
     /// <summary>The frame name of an area's world-map background page in its world-map sheet.</summary>
     internal const string WorldBackgroundFrame = "World.Background";
 
-    /// <summary>The grid of <paramref name="map"/>'s cells, each pictured from <paramref name="sheet"/>.</summary>
+    /// <summary>
+    /// The grid of <paramref name="map"/>'s cells, each pictured from <paramref name="sheet"/> in the standard colours the
+    /// import pre-coloured it in under its screen's colours (#1512).
+    /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures no such cell.</exception>
     internal static PictureGrid Grid(ShownAreaMap map, SpriteSheet sheet)
     {
@@ -33,7 +36,7 @@ internal static class AreaMapPictures
         Ensure.NotNull(sheet);
         var cells = ImmutableArray.CreateBuilder<GridPicture?>(map.Cells.Length);
         foreach (ShownMapCell shown in map.Cells)
-            cells.Add(new GridPicture(sheet.Frame(FrameName(shown)), shown.Cell.Mirroring));
+            cells.Add(new GridPicture(sheet.Frame(FrameName(shown)), shown.Cell.Mirroring, PictureShading.Standard));
         return new PictureGrid(new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), cells.MoveToImmutable());
     }
 }

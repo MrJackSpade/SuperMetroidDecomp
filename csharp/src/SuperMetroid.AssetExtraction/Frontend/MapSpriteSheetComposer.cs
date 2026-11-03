@@ -3,11 +3,9 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
@@ -32,8 +30,9 @@ internal static class MapSpriteSheetComposer
         MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
         List<SheetFrameSource> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
             new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page, FrontendSheetPalette.FrameColourGroup.Number))];
-        RgbColor[] fileSelect = SpriteColoursOf(maps.Palettes.FileSelect);
-        RgbColor[] pause = SpriteColoursOf(maps.Palettes.Pause);
+        MapStaticPalettes palettes = InstalledAreaMapPresentation.PalettesOf(maps);
+        RgbColor[] fileSelect = palettes.FileSelect[SpriteColours..].ToArray();
+        RgbColor[] pause = palettes.Pause[SpriteColours..].ToArray();
         // A frame's palette-inheriting parts are coloured in its frame group's inks; each shade recolours those inks.
         var shades = new List<SheetShade>();
         foreach (MapSpriteColouring colouring in Enum.GetValues<MapSpriteColouring>())
@@ -56,14 +55,6 @@ internal static class MapSpriteSheetComposer
 
     /// <summary>The first ink of the frame group that a map sprite's palette-inheriting parts are coloured in.</summary>
     private static int FrameInk => FrontendSheetPalette.FrameColourGroup.Number * GroupColours;
-
-    /// <summary>The sprite colours a map screen loads, as the sheet's sprite inks hold them.</summary>
-    private static RgbColor[] SpriteColoursOf(ScreenColours screen)
-    {
-        var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(screen));
-        return cgram.Colors[SpriteColours..].ToArray();
-    }
 
     /// <summary>The shade that shows a frame's palette-inheriting parts in sprite set <paramref name="set"/> of <paramref name="sprites"/>.</summary>
     private static SheetShade Drawn(PictureShade shade, RgbColor[] sprites, int set) =>

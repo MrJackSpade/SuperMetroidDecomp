@@ -13,18 +13,6 @@ public enum ScreenColourGroup
     /// <summary>The colours of Samus's beams on a screen that shows her.</summary>
     SamusBeams,
 
-    /// <summary>The map's highlight colours, which the map highlight cycle animates on the pause and file-select maps.</summary>
-    MapHighlight,
-
-    /// <summary>The reserve-tank arrow's darker bevel colour, which its pulse animates.</summary>
-    PauseReserveArrowShade,
-
-    /// <summary>The reserve-tank arrow's lighter bevel colour, which its pulse animates.</summary>
-    PauseReserveArrowLight,
-
-    /// <summary>The file-copy arrows' visible colours, which rotate while a copy destination is chosen.</summary>
-    FileCopyArrows,
-
     /// <summary>The title copyright glyph's white.</summary>
     TitleCopyrightWhite,
 
@@ -42,9 +30,6 @@ public enum ScreenColourGroup
 
     /// <summary>The title's green paint whose colour the displays show when dim.</summary>
     TitleDimGreenPaint,
-
-    /// <summary>The game-over baby Metroid's colours, which its glow animates.</summary>
-    GameOverBaby,
 
     /// <summary>The opening's Mother Brain colours, which her hurt flash replaces.</summary>
     IntroMotherBrain,

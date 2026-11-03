@@ -409,7 +409,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             PlacedHudPicture placed = pictures[index];
             int record = offset + 1 + index * HudPictureWords;
-            upload[record] = (uint)pictureWords[new(placed.Picture)];
+            upload[record] = (uint)pictureWords[new(placed.Picture, placed.Shading)];
             upload[record + 1] = D3D11ConstantPacking.Halves(checked((ushort)(placed.Cell.X * GameplayHudDefinitions.CellPixels)),
                 checked((ushort)(placed.Cell.Y * GameplayHudDefinitions.CellPixels)));
         }
@@ -501,7 +501,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
             yield return (part.Picture, D3D11PictureColouring.Frame, null);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
-            yield return (placed.Picture, D3D11PictureColouring.Frame, null);
+            yield return (placed.Picture, D3D11PictureColouring.Frame, placed.Shading);
         foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])
         {
             foreach (PlacedPlanePicture placed in plane.Pictures)

@@ -29,7 +29,16 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         Sprites = Ensure.NotNull(sources.Sprites);
         SamusColours = Ensure.NotNull(sources.SamusColours);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
+        Palettes = Ensure.NotNull(sources.Palettes);
     }
+
+    /// <summary>The colours each map and menu screen loads, which only the import reads to pre-colour the screens' sheets (#1512).</summary>
+    public MapStaticPalettes Palettes { get; }
+
+    /// <summary>The screen colours the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static MapStaticPalettes PalettesOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Palettes
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no screen colours.");
 
     /// <summary>The map highlight cycle with each frame's colours, which only the import reads (#1512).</summary>
     public MapPaletteCycle HighlightColours { get; }

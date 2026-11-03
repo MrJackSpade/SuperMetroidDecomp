@@ -7,7 +7,6 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
@@ -41,8 +40,6 @@ internal static class GameOptionsSheetComposer
             string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
-        var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, InstalledAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 }

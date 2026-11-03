@@ -31,8 +31,8 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
     public required MapHighlightCycle HighlightCycle { get; init; }
 
-    /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
-    public required MapStaticPalettes Palettes { get; init; }
+    /// <summary>The solid colour the pause, file-select and world-map screens show where nothing is drawn (#1512).</summary>
+    public required MenuBackdrops Backdrops { get; init; }
 
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public required WorldMapLabelPositions Labels { get; init; }
@@ -58,9 +58,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public required PauseReserveTankPresentation PauseReserveTanks { get; init; }
-
-    /// <summary>The reserve arrow's solid and pulse colours; its labels, digits and tiles are the pause sheet's pictures (#1467).</summary>
-    public required PauseReserveArrowColours PauseReserveArrow { get; init; }
 
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }

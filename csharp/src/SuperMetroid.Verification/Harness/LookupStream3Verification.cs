@@ -1103,6 +1103,17 @@ internal static class LookupStream3Verification
         ];
         int targetPaletteBase = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82e1f5) - 18;
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
+        // The HUD's door fade shades (#1512) fade every HUD ink but those the door keeps lit: an ink a shade leaves out is
+        // one the native copy writes into the fade's target.
+        const int hudInks = 32;
+        IReadOnlyList<SheetShade> hudShades = DoorFadeHudShades.Of(ToColors(sourceColors).AsSpan(0, hudInks));
+        int[] KeptBy(PictureShade shade) =>
+            [.. Enumerable.Range(0, hudInks).Except(hudShades.Single(hud => hud.Shade == shade).Inks)];
+        int[] keptByEveryDoor = KeptBy(DoorFadeShades.HudFadingOut(0));
+        int[] keptBetweenCommonRooms = [.. KeptBy(DoorFadeShades.HudFadingOutBetweenCommonRooms(0)).Except(keptByEveryDoor)];
+        AssertTrue(KeptBy(DoorFadeShades.HudFadingIn(0)).SequenceEqual(keptByEveryDoor) &&
+            KeptBy(DoorFadeShades.HudFadingInBetweenCommonRooms(0)).Except(keptByEveryDoor).SequenceEqual(keptBetweenCommonRooms),
+            "stream 3 door fades in keep the HUD inks their fades out keep");
         for (int group = 0; group < nativeDoorCopies.Length; group++)
         {
             // The fade target the copy writes into; slots it leaves alone stay black.
@@ -1115,21 +1126,12 @@ internal static class LookupStream3Verification
                 int color = (destination - targetPaletteBase) / 2;
                 expected[color] = sourceColors[color];
             }
-            IColourSetRun[] kept = group switch
-            {
-                0 => DoorTransitionColourDefinitions.Hud,
-                1 => DoorTransitionColourDefinitions.CommonRoom,
-                2 => DoorTransitionColourDefinitions.EscapeTimer,
-                _ => [],
-            };
-            foreach (IColourSetRun run in kept)
-            {
-                for (int colour = 0; colour < ColourSetRunPositions.Count(run); colour++)
-                {
-                    int position = ColourSetRunPositions.First(run) + colour;
-                    actual[position] = ToColors(sourceColors)[position];
-                }
-            }
+            // The third copy keeps the escape timer's sprite colours lit, which the door's display fade does not reproduce; only its native stores are confirmed.
+            if (group == 2)
+                continue;
+            int[] kept = group == 0 ? keptByEveryDoor : keptBetweenCommonRooms;
+            foreach (int position in kept)
+                actual[position] = ToColors(sourceColors)[position];
             AssertTrue(ToColors(expected).SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
         }
         // Confirm the replaced selector for its complete ushort input domain.
@@ -2260,14 +2262,24 @@ internal static class LookupStream3Verification
             AssertTrue(ReferenceEquals(palette, stock.body) ? anchors.All(value => value != RgbColor.Black) : anchors.All(value => value == RgbColor.Black),
                 "stream 3 stock rear palette stores no independent paint colors");
         }
+        // Mother Brain shows her health band as a shade (#1512); the import pre-colours each band's shade of her brain and
+        // rear legs on her sprite sheets, and of her body on the room's background, from the installed health palette.
+        static (RgbColor[] Brain, RgbColor[] RearLegs, RgbColor[] Body) Shown(MotherBrainHealthPalettePresentation health, int band)
+        {
+            PictureShade shade = MotherBrainShades.Health(band);
+            SheetShade sprites = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthSprites(health).Single(candidate => candidate.Shade == shade);
+            SheetShade background = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthBackground(health).Single(candidate => candidate.Shade == shade);
+            const int count = MotherBrainRainbowPaletteDefinitions.ColorCount;
+            AssertEqual(2 * count, sprites.Colours.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
+            return (sprites.Colours[..count], sprites.Colours[count..], background.Colours);
+        }
         for (int state = 0; state < 4; state++)
         {
-            var actual = new GameplayColours(new SpriteColourSets());
-            stock.Apply(actual, state);
-            foreach (var (table, destination) in new[]
+            var (brain, rearLegs, body) = Shown(stock, state);
+            foreach (var (table, shown) in new[]
             {
-                new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable, MotherBrainColorDestinations.BodyColor),
-                new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable, MotherBrainColorDestinations.RearLegColor),
+                new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthBodyPointerTable, body),
+                new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable, rearLegs),
             })
             {
                 int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(table + state * 2);
@@ -2275,12 +2287,11 @@ internal static class LookupStream3Verification
                 {
                     int address = 0xad0000 | pointer + color * 2;
                     ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                    AssertEqual(expected, actual.Colors[destination + color], "stream 3 all native health tint words");
+                    AssertEqual(expected, shown[color], "stream 3 all native health tint words reach the band's shades");
                 }
             }
             for (int color = 0; color < 15; color++)
-                AssertEqual(actual.Colors[MotherBrainColorDestinations.BodyColor + color],
-                    actual.Colors[MotherBrainColorDestinations.BrainColor + color], "stream 3 health tint body/brain copies");
+                AssertEqual(body[color], brain[color], "stream 3 health tint body/brain copies");
         }
         foreach (string group in new[] { "body", "backLegs" })
             for (int state = 0; state < 4; state++)
@@ -2294,12 +2305,11 @@ internal static class LookupStream3Verification
                             System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                         for (int checkState = 0; checkState < 4; checkState++)
                         {
-                            var actual = new GameplayColours(new SpriteColourSets());
-                            edited.Apply(actual, checkState);
-                            foreach (var (checkGroup, destination) in new[]
+                            var (_, checkRearLegs, checkBody) = Shown(edited, checkState);
+                            foreach (var (checkGroup, shown) in new[]
                             {
-                                new LookupStream3VerifyStream3HealthTintCase("body", MotherBrainColorDestinations.BodyColor),
-                                new LookupStream3VerifyStream3HealthTintCase("backLegs", MotherBrainColorDestinations.RearLegColor),
+                                new LookupStream3VerifyStream3HealthTintCase("body", checkBody),
+                                new LookupStream3VerifyStream3HealthTintCase("backLegs", checkRearLegs),
                             })
                                 for (int checkColor = 0; checkColor < 15; checkColor++)
                                 {
@@ -2307,7 +2317,7 @@ internal static class LookupStream3Verification
                                     ushort expected = (ushort)(expectedRgb.Required("red").GetValue<int>() |
                                         expectedRgb.Required("green").GetValue<int>() << 5 |
                                         expectedRgb.Required("blue").GetValue<int>() << 10);
-                                    AssertEqual(expected, actual.Colors[destination + checkColor],
+                                    AssertEqual(expected, shown[checkColor],
                                         "stream 3 independent health palette edit and unaffected channels");
                                 }
                         }

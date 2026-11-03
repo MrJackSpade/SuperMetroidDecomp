@@ -777,11 +777,11 @@ internal static void VerifySamusDeathSequence()
     AssertTrue(!samus.DeathSequence.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
-    var cgram = new SamusColourRig();
+    var samusColours = new SamusColours();
     var deathSources = InstalledFixtures.SamusShadeSources with { Death = artwork };
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(samus, cgram.Samus, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -791,7 +791,7 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(samus, cgram.Samus, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
@@ -800,15 +800,15 @@ internal static void VerifySamusDeathSequence()
         "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
-    AssertEqual(0x0100, cgram.Samus.ShownSuit(deathSources)[0], "finish restores suit palette zero");
-    AssertEqual(0x0400, cgram.Samus.ShownSuitless(deathSources)[0], "finish restores suitless palette zero");
+    AssertEqual(0x0100, samusColours.ShownSuit(deathSources)[0], "finish restores suit palette zero");
+    AssertEqual(0x0400, samusColours.ShownSuitless(deathSources)[0], "finish restores suitless palette zero");
 
     // The remaining literal timers total 135 calls. The terminal call increments index
     // eight to nine, forces white shade 21, and deliberately emits no tenth spritemap.
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(samus, cgram.Samus, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }
@@ -820,10 +820,10 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(0x0015, samus.DeathSequence.AnimationCounter,
         "death terminal whiteout shade index");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
-    AssertEqual(0x7fff, cgram.Samus.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
-    AssertEqual(0x0220, cgram.Samus.ShownSuit(deathSources)[0],
+    AssertEqual(0x7fff, samusColours.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
+    AssertEqual(0x0220, samusColours.ShownSuit(deathSources)[0],
         "whiteout preserves final Samus suit palette nine");
-    AssertEqual(0x0520, cgram.Samus.ShownSuitless(deathSources)[0],
+    AssertEqual(0x0520, samusColours.ShownSuitless(deathSources)[0],
         "whiteout preserves final suitless palette nine");
     AssertEqual(0, guardedBus.ForbiddenReadAttempts,
         "production death sequence performs no explosion-timer ROM reads");

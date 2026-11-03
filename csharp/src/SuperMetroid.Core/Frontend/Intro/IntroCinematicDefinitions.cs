@@ -28,26 +28,29 @@ public static class IntroCinematicDefinitions
         public const int FinalLineFirstCell = 768;
     }
 
-    /// <summary>The colour runs the repeating flashback and narration crossfades fade.</summary>
+    /// <summary>The colours the repeating flashback and narration crossfades fade.</summary>
     public static class Palette
     {
         /// <summary>The crossfade counter's starting value.</summary>
         public const int CrossfadeInitialCounter = 127;
         /// <summary>Updates per crossfade colour step.</summary>
         public const int CrossfadeStepFrames = 4;
-        /// <summary>The screen colours faded for the gameplay flashback.</summary>
-        public static IReadOnlyList<ScreenColourGroup> Gameplay { get; } =
-            [ScreenColourGroup.IntroGameplayBackground, ScreenColourGroup.IntroGameplayEnvironment, ScreenColourGroup.IntroGameplaySamus];
-        /// <summary>The screen colours cleared when the gameplay flashback begins.</summary>
-        public static IReadOnlyList<ScreenColourGroup> GameplayClear { get; } =
-            [ScreenColourGroup.IntroGameplayClearedBackground, ScreenColourGroup.IntroGameplayEnvironment, ScreenColourGroup.IntroGameplaySamus];
-        /// <summary>The screen colours faded for the narration screens.</summary>
-        public static IReadOnlyList<ScreenColourGroup> Narration { get; } =
-            [ScreenColourGroup.IntroNarrationText, ScreenColourGroup.IntroNarrationBackground,
-                ScreenColourGroup.IntroNarrationPortrait, ScreenColourGroup.IntroNarrationObjects];
-        /// <summary>The screen colours faded for the Metroid discovery scene.</summary>
-        public static IReadOnlyList<ScreenColourGroup> Discovery { get; } =
-            [ScreenColourGroup.IntroDiscoveryBackground, ScreenColourGroup.IntroDiscoveryScientists];
+        /// <summary>The colours faded out as a scene replaces the narration.</summary>
+        public static IntroFadeColours Gameplay { get; } = new(
+            [IntroBackgroundFade.GameplayBackground, IntroBackgroundFade.Environment], [IntroSpriteFade.Samus]);
+        /// <summary>The colours cleared and faded back in as the narration returns from a scene.</summary>
+        public static IntroFadeColours GameplayClear { get; } = new(
+            [IntroBackgroundFade.ClearedBackground, IntroBackgroundFade.Environment], [IntroSpriteFade.Samus]);
+        /// <summary>The Mother Brain scene's colours, faded in and out with it.</summary>
+        public static IntroFadeColours Narration { get; } = new(
+            [IntroBackgroundFade.NarrationText, IntroBackgroundFade.NarrationBackground],
+            [IntroSpriteFade.NarrationPortrait, IntroSpriteFade.NarrationObjects]);
+        /// <summary>The Metroid discovery scenes' colours, faded in and out with them.</summary>
+        public static IntroFadeColours Discovery { get; } = new(
+            [IntroBackgroundFade.DiscoveryBackground], [IntroSpriteFade.DiscoveryScientists]);
+        /// <summary>The background groups that hold the narration text's colours, of which a transition moves at most one.</summary>
+        public static IReadOnlyList<IntroBackgroundFade> NarrationColours { get; } =
+            [IntroBackgroundFade.GameplayBackground, IntroBackgroundFade.ClearedBackground];
     }
 
     /// <summary>The music the opening's scene changes start.</summary>

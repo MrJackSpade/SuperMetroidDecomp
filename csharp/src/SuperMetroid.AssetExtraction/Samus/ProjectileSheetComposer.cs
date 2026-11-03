@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core;
@@ -55,7 +56,7 @@ internal static class ProjectileSheetComposer
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
             // The intro loads the beam palette, then its whole palette over it.
-            colours = intro.Palette.Colours.Sprites.ToArray();
+            colours = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
         }
         else
         {

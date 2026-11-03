@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -30,6 +31,7 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         SamusColours = Ensure.NotNull(sources.SamusColours);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
         Palettes = Ensure.NotNull(sources.Palettes);
+        TitlePalette = Ensure.NotNull(sources.TitlePalette);
     }
 
     /// <summary>The colours each map and menu screen loads, which only the import reads to pre-colour the screens' sheets (#1512).</summary>
@@ -39,6 +41,14 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
     public static MapStaticPalettes PalettesOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Palettes
         ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no screen colours.");
+
+    /// <summary>The title's selected colours, which only the import reads to pre-colour the title's sheets (#1512).</summary>
+    public TitlePalettePresentation TitlePalette { get; }
+
+    /// <summary>The title colours the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static TitlePalettePresentation TitlePaletteOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.TitlePalette
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no title colours.");
 
     /// <summary>The map highlight cycle with each frame's colours, which only the import reads (#1512).</summary>
     public MapPaletteCycle HighlightColours { get; }

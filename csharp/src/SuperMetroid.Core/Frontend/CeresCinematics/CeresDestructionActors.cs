@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using static SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionActorDefinitions;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
@@ -95,7 +96,7 @@ internal static class CeresDestructionActors
 wait,
             ZebesStarSheets[quadrant],
             new(WordWrap.Unsigned(48 + 160 * (quadrant & 1)), WordWrap.Unsigned(47 + 160 * (quadrant >> 1))),
-            ScreenColourGroup.CeresFlightSpaceObjects, 0, false, 32,
+            CeresSpriteColouring.SpaceObjects, 0, false, 32,
             completesScene ? CinematicSpriteFrameBehavior.ZebesStarsCompletionSlideSceneAway : CinematicSpriteFrameBehavior.ZebesStarsSlideSceneAway,
             completesScene);
     }

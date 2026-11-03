@@ -6,6 +6,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Checks the three Ceres destruction startup actors against their spawn operands and native definitions.</summary>
 internal static class CeresInitialActorMetadataVerification
@@ -35,7 +36,7 @@ internal static class CeresInitialActorMetadataVerification
             CeresDestructionActors.InitialActor(2);
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfa6), vortex.Position.X, "destruction vortex X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), ScreenColourGroups.SpriteSet(vortex.Colouring),
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(vortex.Colouring),
             "destruction vortex attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActiveFrameBehavior.NativeAddress,
             "destruction vortex no-op callback override");
@@ -74,7 +75,7 @@ internal static class CeresInitialActorMetadataVerification
         {
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), ScreenColourGroups.SpriteSet(actor.Colouring),
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");

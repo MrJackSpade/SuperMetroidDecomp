@@ -37,7 +37,7 @@ internal static void VerifyCeresDestructionCinematic()
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
     // to the program's counted loops and must remain untouched.
-    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), ScreenColourGroup.CeresExplosions, CinematicSpriteProgram.CeresSmallExplosion);
+    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteProgram.CeresSmallExplosion);
     delayedExplosion.DelayFirstInstruction(3);
     delayedExplosion.Step();
     delayedExplosion.Step();
@@ -83,7 +83,7 @@ internal static void VerifyCeresDestructionCinematic()
         RepositoryInstallation.Installation.IntroCinematicDirectory, overrideRoot);
     var presentation = RetailPresentationFixture();
     var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
-        paletteFxColors: presentation.RoomPaletteFx, spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
+        spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)
     {

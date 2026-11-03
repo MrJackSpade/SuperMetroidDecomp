@@ -42,9 +42,17 @@ public static class ScreenColourImage
     }
 
     /// <summary>The image of <paramref name="colours"/> as little-endian colour words, as installed palettes store them.</summary>
-    public static byte[] Words(ScreenColours colours)
+    public static byte[] Words(ScreenColours colours) => Words(Encode(colours));
+
+    /// <summary>
+    /// The image of a screen's <paramref name="backgrounds"/> and <paramref name="sprites"/> as little-endian colour words,
+    /// as installed palettes store them (#1512).
+    /// </summary>
+    public static byte[] Words(ReadOnlySpan<RgbColor> backgrounds, ReadOnlySpan<RgbColor> sprites) => Words(Encode(backgrounds, sprites));
+
+    /// <summary>The colour words of <paramref name="image"/>, little-endian.</summary>
+    private static byte[] Words(RgbColor[] image)
     {
-        RgbColor[] image = Encode(colours);
         var words = new byte[image.Length * RgbColor.ByteCount];
         for (int color = 0; color < image.Length; color++)
             BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(color * RgbColor.ByteCount), image[color].ToWord());

@@ -14,9 +14,17 @@ public abstract class TitleGraphicsPresentation
     {
     }
 
-    /// <summary>Places one title frame of the title sheet, its parts in the title's colours <paramref name="colouring"/>.</summary>
+    /// <summary>Places one title frame of the title sheet, its parts drawn in <paramref name="colouring"/> (#1512).</summary>
     public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin,
-        ScreenColourGroup colouring) =>
+        TitleSpriteColouring colouring) =>
+        DrawSprite(sheet, sprite, sprites, origin, PictureShading.Shaded(TitleShades.Drawn(colouring)));
+
+    /// <summary>Places one title frame of the title sheet in <paramref name="shading"/> (#1512).</summary>
+    public static void DrawSprite(SpriteSheet sheet, TitleSprite sprite, ScreenSprites sprites, Position16<SpritePixels> origin,
+        PictureShading shading)
+    {
+        Ensure.NotNull(shading);
         Ensure.NotNull(sprites).AddImage(Ensure.NotNull(sheet).Frame(TitleSpriteDefinitions.FrameName(sprite)), origin,
-            ScreenSpriteColouring.Drawn(colouring));
+            shading: shading);
+    }
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>One Ceres cinematic actor definition plus its fixed initializer result.</summary>
@@ -7,7 +8,7 @@ internal readonly record struct CeresFlightActorDefinition(
     CinematicSpriteFrameBehavior ActiveFrameBehavior,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
-    ScreenColourGroup Colouring,
+    CeresSpriteColouring Colouring,
     int InitialTimer,
     int HorizontalDelta,
     bool WrapX);

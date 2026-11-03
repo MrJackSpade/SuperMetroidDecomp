@@ -15,7 +15,6 @@ internal static class ScreenPaletteFxColourDefinitions
         {
             [PaletteFxColours.BabyMetroidTubeLight] = ScreenColourGroup.TitleTubeLight,
             [PaletteFxColours.TitleScreenDisplays] = ScreenColourGroup.TitleDisplays,
-            [PaletteFxColours.CutsceneGunshipEngine] = ScreenColourGroup.CinematicGunshipEngine,
             [PaletteFxColours.CeresNavigationLightsBackground] = ScreenColourGroup.CeresNavigationLights,
             [PaletteFxColours.OldMotherBrainBackgroundLights] = ScreenColourGroup.IntroOldMotherBrainLights,
             [PaletteFxColours.WideZebesExplosionForeground] = ScreenColourGroup.EndingWideExplosionForeground,

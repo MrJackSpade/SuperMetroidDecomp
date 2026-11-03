@@ -71,6 +71,10 @@ internal static class SheetFrameSources
         FrameSource source = Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         TileFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
+        // A frontend draw's drawn shade places the parts that take their draw's palette in the row its colours are the
+        // cartridge's of, and leaves the others (#1512).
+        if (source.PartsKeepOwnRows && DrawnShadeRows.RowOf(draw.Shading) is { } shaded)
+            return new CharacterSpriteDraw(draw.Source, source.Frame, characters ?? source.Page, draw.Origin, flip, shaded, 0);
         // A frontend draw's override places the parts that take their draw's palette in its row and leaves the others.
         if (source.PartsKeepOwnRows && draw.Colouring is { } frontend)
             return new CharacterSpriteDraw(draw.Source, source.Frame, characters ?? source.Page, draw.Origin, flip, frontend.HoldingRow, 0);

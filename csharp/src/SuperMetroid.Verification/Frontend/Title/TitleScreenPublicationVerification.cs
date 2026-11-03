@@ -24,7 +24,7 @@ internal static class TitleScreenPublicationVerification
     {
         var maps = InstalledFixtures.Maps;
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
+            titleBackdrop: maps.TitleBackdrop, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
         SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(maps.TitleGraphics).Get(SpriteSheetId.Title);
         byte[] baby = maps.TitleGraphics.BabyCharacters.ToArray();
         int pageBytes = TitleFloorTileDefinitions.BabyCharacterPageByteCount;
@@ -40,12 +40,12 @@ internal static class TitleScreenPublicationVerification
             int page = Enumerable.Range(0, 3).Single(candidate => baby.AsSpan(candidate * pageBytes, pageBytes).SequenceEqual(shownBytes));
             if (shownPages.Count == 0 || shownPages[^1] != page)
                 shownPages.Add(page);
-            AssertTrue(snapshot.Paint.Colors.SequenceEqual(title.palette.Colors), $"frame {frame} draws the title's own palette");
+            AssertEqual(maps.TitleBackdrop, snapshot.Paint.Backdrop, $"frame {frame} shows the title's own backdrop");
             AssertTrue(PaintedSpriteEntries.AreOwn(snapshot.Paint.SpriteDraws, title.objects.Draws),
                 $"frame {frame} draws the title's own sprite entries");
             foreach (var draw in snapshot.Paint.SpriteDraws)
-                AssertTrue(draw is ImageSpriteDraw image && ReferenceEquals(titleSheet.Image, image.Image.Sheet),
-                    $"frame {frame} sprite entries draw from the title sheet");
+                AssertTrue(draw is ImageSpriteDraw { Shading: not null } image && ReferenceEquals(titleSheet.Image, image.Image.Sheet),
+                    $"frame {frame} sprite entries draw from the title sheet in a shading they name");
             drewSprites |= snapshot.Paint.SpriteDraws.Length > 0;
             title.Step(0);
         }
@@ -59,7 +59,7 @@ internal static class TitleScreenPublicationVerification
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<TitleSequenceState>(state);
         restored.BindTitleGradient(maps.TitleGradient);
-        restored.BindTitlePalette(maps.TitlePalette);
+        restored.BindTitleBackdrop(maps.TitleBackdrop);
         restored.BindFixtureTitleGraphics(maps.TitleGraphics);
         AssertTrue(shown.SequenceEqual(DisplayRendering.Render(new DisplayPacket(0, restored.CaptureRenderSnapshot()))),
             "a restored title shows the same frame once its artwork is rebound");

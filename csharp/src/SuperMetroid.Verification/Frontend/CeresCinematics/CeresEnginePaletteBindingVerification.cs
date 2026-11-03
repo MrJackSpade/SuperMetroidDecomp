@@ -32,8 +32,7 @@ internal static class CeresEnginePaletteBindingVerification
         AreaMapPresentation stock = MapPresentationFiles.Load(installation.MapDirectory, null);
         IntroCinematicArtwork artwork = installation.LoadIntroCinematicArt();
         InstalledSpriteSheets sheets = installation.LoadSpriteSheets();
-        int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
-        ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
+        RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
         {
@@ -54,7 +53,7 @@ internal static class CeresEnginePaletteBindingVerification
         for (int frame = 0; frame < 4; frame++)
         {
             game.Step(0);
-            AssertEqual(nativeColors[frame % nativeColors.Length], Colors(scene)[destination],
+            AssertEqual(nativeColors[frame % nativeColors.Length], EngineColour(scene, CinematicSheetFixtures.CeresFloor(stock.RoomPaletteFx)),
                 $"#1150 stock engine color and native one-frame cadence, tick {frame}");
         }
 
@@ -86,13 +85,15 @@ internal static class CeresEnginePaletteBindingVerification
                 SpriteSheets = sheets,
             });
             CeresDestructionCinematicState restoredScene = Scene(restored);
-            ushort[] replacementColors = [31, 31 << 5];
+            RgbColor[] replacementColors = [new(31, 0, 0), new(0, 31, 0)];
             for (int frame = 0; frame < 4; frame++)
             {
                 game.Step(0);
                 restored.Step(0);
-                AssertEqual(replacementColors[frame % replacementColors.Length], Colors(restoredScene)[destination],
-                    $"#1150 restored scene uses rebound edited colors, tick {frame}");
+                AssertEqual(scene.EngineShading, restoredScene.EngineShading, "palette rebind preserves the flicker's record");
+                AssertEqual(replacementColors[frame % replacementColors.Length],
+                    EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(edited.RoomPaletteFx)),
+                    $"#1150 the edited installation's floor is pre-coloured in the edited colours, tick {frame}");
                 AssertEqual(scene.Phase, restoredScene.Phase, "palette rebind preserves cinematic phase");
                 AssertEqual(scene.Zoom, restoredScene.Zoom, "palette rebind preserves camera scale");
                 AssertEqual(scene.Background.X.Whole, restoredScene.Background.X.Whole, "palette rebind preserves camera X");
@@ -104,20 +105,27 @@ internal static class CeresEnginePaletteBindingVerification
             // Its reconstruction must receive the rebound provider too.
             restoredScene.PaletteFx = null;
             restored.Step(0);
-            AssertEqual(replacementColors[0], Colors(restoredScene)[destination],
-                "#1150 reconstructed palette owner receives installed colors");
+            AssertEqual(replacementColors[0], EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(edited.RoomPaletteFx)),
+                "#1150 reconstructed palette owner shows the program's first record again");
         }
         finally
         {
             Directory.Delete(edits, recursive: true);
         }
-        Console.WriteLine("#1150: stock engine flicker, edited-color state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
+        Console.WriteLine("#1150: stock engine flicker record cadence, edited installation's floor shades, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
             (owner.Session.ScreenAs<CeresDestructionCinematicState>() ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
-        static RgbColor[] Colors(CeresDestructionCinematicState owner) =>
-            owner.palette.Colors.ToArray();
+        // The scene names the record the flicker last showed (#1512); the colour that record shows is the one the import
+        // pre-coloured the floor's engine ink in for it.
+        static RgbColor EngineColour(CeresDestructionCinematicState owner, SpriteSheet floor)
+        {
+            PictureShade shade = owner.EngineShading.Shades.Single();
+            AssertEqual(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, new PaletteFxFrame(0)).Effect, shade.Effect,
+                "the floor's shading names the gunship engine flicker's record");
+            return floor.Image.Shade(shade).Colours.Single();
+        }
     }
 
     /// <summary>Runs the focused Ceres engine palette binding regression against the installed artwork.</summary>

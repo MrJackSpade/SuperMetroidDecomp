@@ -15,9 +15,9 @@ internal sealed class CeresSceneSpriteSheet(SpriteSheet sheet) : IIntroCinematic
     private static readonly HashSet<CinematicSpritePose> DestructionPoses =
         [.. CeresDestructionSpriteDefinitions.Poses];
 
-    /// <summary>Dispatches a scene frame to the destruction family's frames or the shared Ceres flight family's.</summary>
+    /// <summary>Dispatches a scene frame to the destruction family's frames or the shared Ceres flight family's, in its drawn shade (#1512).</summary>
     public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<SpritePixels> origin,
-        ScreenColourGroup colouring, bool originIsOnScreen) =>
+        PictureShade drawn, bool originIsOnScreen) =>
         new CinematicSpriteSheet(sheet, DestructionPoses.Contains(pose) ? CinematicSpriteFamily.CeresDestruction : CinematicSpriteFamily.CeresFlight)
-            .Draw(pose, objects, origin, colouring, originIsOnScreen);
+            .Draw(pose, objects, origin, drawn, originIsOnScreen);
 }

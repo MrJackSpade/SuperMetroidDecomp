@@ -96,7 +96,7 @@ internal static class PauseMenuFixtureVerification
             EndingText = stock.EndingText,
             EndingFont = stock.EndingFont,
             TitleGraphics = stock.TitleGraphics,
-            TitlePalette = stock.TitlePalette,
+            TitleBackdrop = stock.TitleBackdrop,
             TitleGradient = stock.TitleGradient,
             RoomPaletteFx = stock.RoomPaletteFx,
             MotherBrainHealthPalette = stock.MotherBrainHealthPalette,
@@ -119,6 +119,7 @@ internal static class PauseMenuFixtureVerification
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
-            InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes));
+            InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.TitlePaletteOf(stock),
+            InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes));
     }
 }

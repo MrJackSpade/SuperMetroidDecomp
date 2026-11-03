@@ -1,11 +1,13 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// One six-byte cinematic-object definition together with the fixed position and
-/// sprite colour set written by its initialization callback.
+/// colouring its initialization callback draws it in (#1512).
 /// </summary>
 internal readonly record struct IntroBabyActorDefinition(
     CinematicSpriteFrameBehavior FrameBehavior,
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
-    ScreenColourGroup Colouring);
+    IntroSpriteColouring Colouring);

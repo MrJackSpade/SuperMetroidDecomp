@@ -2,9 +2,10 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -16,12 +17,8 @@ internal static class ScreenPaletteColours
 {
 
     /// <summary>The title's palette.</summary>
-    internal static ReadOnlySpan<RgbColor> TitleColours(TitlePalettePresentation palette)
-    {
-        var colours = new ScreenPalette();
-        Ensure.NotNull(palette).Apply(colours);
-        return ScreenColourImage.Encode(colours);
-    }
+    internal static ReadOnlySpan<RgbColor> TitleColours(TitlePalettePresentation palette) =>
+        Ensure.NotNull(palette).Colours.AsSpan();
 
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
     internal static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteSet palettes, EndingPaletteId palette)
@@ -30,8 +27,6 @@ internal static class ScreenPaletteColours
     }
 
     /// <summary>The Ceres flight's palette.</summary>
-    internal static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight)
-    {
-        return ScreenColourImage.Encode(flight.Palette.Colours);
-    }
+    internal static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight) =>
+        CeresFlightCharacters.Of(flight).Palette.Colours.AsSpan();
 }

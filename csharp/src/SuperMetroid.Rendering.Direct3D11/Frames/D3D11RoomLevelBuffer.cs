@@ -276,7 +276,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         // The floor image draws from its pictures directly, so they hold colour slots but no place in the image texture.
         foreach (SpriteSheetFrame sheet in mode7?.Pictures ?? [])
-            slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, D3D11PictureColouring.Frame), slots.Count);
+            slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, D3D11PictureColouring.Frame, mode7!.Shading), slots.Count);
         if (words > Upload.Length)
         {
             Dispose();
@@ -345,7 +345,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             ImmutableArray<SpriteSheetFrame> sheets = mode7.Pictures;
             for (int sheet = 0; sheet < sheets.Length; sheet++)
-                upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, D3D11PictureColouring.Frame)];
+                upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, D3D11PictureColouring.Frame, mode7.Shading)];
         }
         upload[XrayRevealWord] = (uint)revealOffset;
         if (reveal is not null)

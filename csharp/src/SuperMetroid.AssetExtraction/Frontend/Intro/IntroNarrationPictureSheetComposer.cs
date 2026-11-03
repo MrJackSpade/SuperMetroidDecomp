@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
@@ -13,13 +12,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// <summary>
 /// Composes the opening narration's pictures once (#1467) from the narration font under the cinematic's palette, each pixel
 /// in the priority tier its tile gave it: the first card over the whole font, as the cinematic shows it before the first
-/// illustrated page; the final line and each letter in each glow colour over the font with its Japanese glyphs blanked, as
+/// illustrated page; the final line and each letter, with a shade for each colour variant the letters' typing or glow gives
+/// them (#1512), over the font with its Japanese glyphs blanked, as
 /// <c>BlankOut_JapanText_Tiles</c> leaves it for the pages. A tile naming a character the font does not hold shows nothing.
 /// </summary>
 internal static class IntroNarrationPictureSheetComposer
 {
-    /// <summary>The colour variants a letter shows: the variant it is typed in and each its glow gives it.</summary>
-    internal const int LetterColourVariants = CinematicTextGlowDefinitions.FinalPalette + 1;
 
     /// <summary>Each letter the narration types: its alphabet without the space, which types none.</summary>
     internal static IEnumerable<char> Letters => IntroNarrationGlyphs.Alphabet.Where(static letter => letter != ' ');
@@ -28,7 +26,7 @@ internal static class IntroNarrationPictureSheetComposer
     internal static IEnumerable<string> FrameNames =>
     [
         IntroNarrationPictures.FirstCard, IntroNarrationPictures.FinalLine,
-        .. Letters.SelectMany(static letter => Enumerable.Range(0, LetterColourVariants).Select(variant => IntroNarrationPictures.Letter(letter, variant))),
+        .. Letters.Select(IntroNarrationPictures.Letter),
     ];
 
     /// <summary>Pixels along each side of a character.</summary>
@@ -44,29 +42,26 @@ internal static class IntroNarrationPictureSheetComposer
         byte[] whole = new byte[IntroTileSetDefinitions.FontFirstTile * CharacterBytes + IntroFontAtlasFormat.ByteCount];
         IntroFontCharacters.Of(Ensure.NotNull(font)).Characters.Span[..IntroFontAtlasFormat.ByteCount].CopyTo(whole.AsSpan(IntroTileSetDefinitions.FontFirstTile * CharacterBytes));
         byte[] blanked = Blanked(whole);
-        RgbColor[] colours = ScreenColourImage.Encode(intro.Palette.Colours)[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = [.. IntroCinematicSourceArtwork.Of(intro).Palette.BackgroundColours];
         int cells = IntroNarrationPictures.PlaneCells;
         int finalRows = IntroArtworkExtentDefinitions.FinalLineWordCount / cells;
         char[] letters = [.. IntroNarrationPictureSheetComposer.Letters];
-        int variants = IntroNarrationPictureSheetComposer.LetterColourVariants;
         int letterTop = cells + finalRows;
-        int letterRows = (letters.Length + cells - 1) / cells * variants;
+        int letterRows = (letters.Length + cells - 1) / cells;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(cells * CharacterPixels)), checked((ushort)((letterTop + letterRows) * CharacterPixels))));
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [IntroNarrationPictures.FirstCard] = PaintRect(canvas, 0, 0, cells, IntroCinematicSourceArtwork.Of(intro).InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells], whole, colours),
             [IntroNarrationPictures.FinalLine] = PaintRect(canvas, 0, cells, cells, IntroCinematicSourceArtwork.Of(intro).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount], blanked, colours),
         };
-        for (int variant = 0; variant < variants; variant++)
+        // Each letter is composed in the first colour variant; the variant its typing or glow gives it is a shade (#1512).
+        for (int index = 0; index < letters.Length; index++)
         {
-            for (int index = 0; index < letters.Length; index++)
-            {
-                BackgroundTile glyph = IntroNarrationGlyphTiles.CompileGlyph(letters[index]) with { ColourVariant = variant };
-                int row = letterTop + variant * (letterRows / variants) + index / cells;
-                frames.Add(IntroNarrationPictures.Letter(letters[index], variant), PaintRect(canvas, index % cells, row, 1, [glyph], blanked, colours));
-            }
+            BackgroundTile glyph = IntroNarrationGlyphTiles.CompileGlyph(letters[index]) with { ColourVariant = 0 };
+            frames.Add(IntroNarrationPictures.Letter(letters[index]), PaintRect(canvas, index % cells, letterTop + index / cells, 1, [glyph], blanked, colours));
         }
-        return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
+        ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
+        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents(IntroSheetShades.Glow(colours)) } };
     }
 
     /// <summary>
@@ -97,6 +92,10 @@ internal static class IntroNarrationPictureSheetComposer
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int cell = 0; cell < tiles.Length; cell++)
         {
+            // The narration shows its cross-fade level as one effect over all its colours, so it may draw in no colour
+            // outside the narration's own (#1512).
+            if (tiles[cell].ColourVariant > CinematicTextGlowDefinitions.FinalPalette)
+                throw new InvalidDataException($"Narration cell {cell} draws in colour variant {tiles[cell].ColourVariant}, outside the narration's colours.");
             int start = tiles[cell].Tile * CharacterBytes;
             if (start + CharacterBytes <= characters.Length)
                 coloured = coloured.Union(canvas.PaintTwoBppTile((left + cell % columns) * CharacterPixels, (top + cell / columns) * CharacterPixels, tiles[cell],

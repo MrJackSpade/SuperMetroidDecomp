@@ -277,7 +277,7 @@ internal static class LookupStream4Verification
         void Confirm(TitlePaletteDocument document, TitlePalettePresentation selected)
         {
             for (int color = 0; color < 256; color++)
-                AssertEqual(Pack(document.Colors[color]), selected.Colors[color], "Independent initial paint remains exact");
+                AssertEqual(Pack(document.Colors[color]), selected.Colours[color], "Independent initial paint remains exact");
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight

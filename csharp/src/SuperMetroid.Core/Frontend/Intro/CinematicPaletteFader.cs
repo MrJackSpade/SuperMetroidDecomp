@@ -1,82 +1,125 @@
-using SuperMetroid.Core.Rendering;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The opening's cinematic palette cross-fader: each screen colour sits at a fade level between black and its target,
-/// and every step moves a group's colours one level toward black or toward the target.
+/// The opening's cinematic cross-fader (#1512): each faded colour group sits at a level between black and its installed
+/// colours, and every step moves a group one level toward black or toward its colours. The pictures that show a group
+/// name the shade of its level, which the import pre-colours; the narration text, which lies in one group, shows its
+/// level as a colour effect.
 /// </summary>
 /// <remarks>
-/// <see cref="Levels"/> steps separate black from a target, and a colour at level <c>n</c> shows each channel of its
-/// target scaled by <c>n / Levels</c>, rounded down. That is the rounding the original's per-channel fixed-point
-/// accumulators produce, so an early fade-in step can still show black. The fader holds one level per screen colour,
-/// by the owner that holds the colour, and addresses them by the screen's colour groups (#1464).
+/// <see cref="Levels"/> steps separate black from a colour, and a colour at level <c>n</c> shows each channel scaled by
+/// <c>n / Levels</c>, rounded down. That is the rounding the original's per-channel fixed-point accumulators produce, so
+/// an early fade-in step can still show black. A fader is made for each transition, which starts every colour at full.
+/// Two groups may hold some of the same colours, but no transition moves both, so a group below full is the one moving
+/// those colours.
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
-    /// <summary>The steps between black and a target colour.</summary>
+    /// <summary>The steps between black and a colour.</summary>
     internal const int Levels = 32;
 
-    /// <summary>The colour each screen colour fades toward.</summary>
-    private readonly PerScreenColour<RgbColor> targets = new();
-    /// <summary>Each screen colour's fade level, from zero (black) to <see cref="Levels"/> (its target).</summary>
-    private readonly PerScreenColour<int> levels = new();
+    /// <summary>Each background group's level, from zero (black) to <see cref="Levels"/> (its colours).</summary>
+    private readonly Dictionary<IntroBackgroundFade, int> backgrounds =
+        Enum.GetValues<IntroBackgroundFade>().ToDictionary(static colours => colours, static _ => Levels);
+    /// <summary>Each sprite group's level, from zero (black) to <see cref="Levels"/> (its colours).</summary>
+    private readonly Dictionary<IntroSpriteFade, int> sprites =
+        Enum.GetValues<IntroSpriteFade>().ToDictionary(static colours => colours, static _ => Levels);
 
-    /// <summary>Ports <c>DecomposePaletteDataForFading</c>: every colour starts at its target.</summary>
-    /// <param name="target">The screen colours the fade reaches.</param>
-    public CinematicPaletteFader(ScreenColours target)
-    {
-        Ensure.NotNull(target);
-        target.Backgrounds.CopyTo(targets.Backgrounds);
-        target.Sprites.CopyTo(targets.Sprites);
-        levels.Backgrounds.Fill(Levels);
-        levels.Sprites.Fill(Levels);
-    }
-
-    /// <summary>Ports <c>ClearYColorsFromIndexX</c>: the group's colours become black.</summary>
-    /// <param name="group">The colours to clear.</param>
-    internal void Clear(ScreenColourGroup group) => ScreenColourGroups.In(levels, group).Clear();
-
-    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c>: the group's colours take one step toward black.</summary>
-    /// <param name="group">The colours to fade.</param>
-    internal void FadeOut(ScreenColourGroup group)
-    {
-        Span<int> groupLevels = ScreenColourGroups.In(levels, group);
-        for (int color = 0; color < groupLevels.Length; color++)
-            groupLevels[color]--;
-    }
-
-    /// <summary>Ports <c>FadeInYColorsFromIndexX</c>: the group's colours take one step toward their target.</summary>
-    /// <param name="group">The colours to fade.</param>
-    internal void FadeIn(ScreenColourGroup group)
-    {
-        Span<int> groupLevels = ScreenColourGroups.In(levels, group);
-        for (int color = 0; color < groupLevels.Length; color++)
-            groupLevels[color]++;
-    }
-
-    /// <summary>Ports <c>ComposeFadingPalettes</c> into the screen's colours.</summary>
-    /// <exception cref="InvalidOperationException">A colour was faded past black or past its target.</exception>
-    public void ComposeInto(ScreenPalette colours)
+    /// <summary>Ports <c>ClearYColorsFromIndexX</c>: the groups' colours become black.</summary>
+    /// <param name="colours">The colours to clear.</param>
+    internal void Clear(IntroFadeColours colours)
     {
         Ensure.NotNull(colours);
-        Compose(targets.Backgrounds, levels.Backgrounds, colours.BackgroundSets.All);
-        Compose(targets.Sprites, levels.Sprites, colours.SpriteSets.All);
+        foreach (IntroBackgroundFade group in colours.Backgrounds)
+            backgrounds[group] = 0;
+        foreach (IntroSpriteFade group in colours.Sprites)
+            sprites[group] = 0;
     }
 
-    /// <summary>Writes the visible colour of each of one owner's colours to that owner's colours.</summary>
-    private static void Compose(ReadOnlySpan<RgbColor> targetColours, ReadOnlySpan<int> fadeLevels, ColourRun owner)
+    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c>: the groups' colours take one step toward black.</summary>
+    /// <param name="colours">The colours to fade.</param>
+    /// <exception cref="InvalidOperationException">A group was faded past black.</exception>
+    internal void FadeOut(IntroFadeColours colours) => Step(colours, -1);
+
+    /// <summary>Ports <c>FadeInYColorsFromIndexX</c>: the groups' colours take one step toward their installed colours.</summary>
+    /// <param name="colours">The colours to fade.</param>
+    /// <exception cref="InvalidOperationException">A group was faded past its installed colours.</exception>
+    internal void FadeIn(IntroFadeColours colours) => Step(colours, 1);
+
+    /// <summary>The level <paramref name="colours"/> shows.</summary>
+    internal int LevelOf(IntroBackgroundFade colours) => backgrounds[colours];
+
+    /// <summary>The level <paramref name="colours"/> shows.</summary>
+    internal int LevelOf(IntroSpriteFade colours) => sprites[colours];
+
+    /// <summary>
+    /// The level the narration's colours show: that of the narration group below full, as no transition moves both
+    /// groups that hold them.
+    /// </summary>
+    internal int NarrationLevel => IntroCinematicDefinitions.Palette.NarrationColours.Min(colours => LevelOf(colours));
+
+    /// <summary>
+    /// The narration text's shading (#1512): the narration's level as a colour effect over its glow colours, or its glow
+    /// colours alone at full.
+    /// </summary>
+    internal PictureShading NarrationShading(PictureShading glow) =>
+        NarrationLevel == Levels ? Ensure.NotNull(glow) : Ensure.NotNull(glow).With(new ColourLevel(NarrationLevel, Levels));
+
+    /// <summary>A scene picture's shading: the shade of each background group's level below full.</summary>
+    internal PictureShading SceneShading
     {
-        for (int color = 0; color < targetColours.Length; color++)
-            owner.Write(color, Faded(targetColours[color], fadeLevels[color]));
+        get
+        {
+            ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>();
+            foreach ((IntroBackgroundFade group, int level) in backgrounds)
+            {
+                if (level < Levels)
+                    shades.Add(IntroShades.Faded(group, level));
+            }
+            return new PictureShading(shades.ToImmutable(), []);
+        }
     }
 
-    /// <summary><paramref name="target"/> at fade <paramref name="level"/>: each channel scaled by the level, rounded down.</summary>
-    /// <exception cref="InvalidOperationException">The level lies outside black through the target.</exception>
-    private static RgbColor Faded(RgbColor target, int level)
+    /// <summary>
+    /// An actor's shading: <paramref name="drawn"/>, then each sprite group's level below full over the actor's own-palette
+    /// parts and over the parts its drawn shade colours.
+    /// </summary>
+    internal PictureShading ActorShading(PictureShade drawn)
     {
-        if ((uint)level > Levels)
-            throw new InvalidOperationException($"A cinematic colour was faded to level {level}, outside 0 through {Levels}.");
-        return new RgbColor(target.Red * level / Levels, target.Green * level / Levels, target.Blue * level / Levels);
+        ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>();
+        shades.Add(drawn);
+        foreach ((IntroSpriteFade group, int level) in sprites)
+        {
+            if (level >= Levels)
+                continue;
+            shades.Add(IntroShades.Faded(group, level));
+            shades.Add(IntroShades.Faded(group, level, drawn));
+        }
+        return new PictureShading(shades.ToImmutable(), []);
+    }
+
+    /// <summary>Moves every group of <paramref name="colours"/> by <paramref name="step"/> levels.</summary>
+    /// <exception cref="InvalidOperationException">A group was faded past black or past its installed colours.</exception>
+    private void Step(IntroFadeColours colours, int step)
+    {
+        Ensure.NotNull(colours);
+        foreach (IntroBackgroundFade group in colours.Backgrounds)
+            backgrounds[group] = Moved(backgrounds[group], step, group.ToString());
+        foreach (IntroSpriteFade group in colours.Sprites)
+            sprites[group] = Moved(sprites[group], step, group.ToString());
+    }
+
+    /// <summary><paramref name="level"/> moved by <paramref name="step"/>.</summary>
+    /// <exception cref="InvalidOperationException">The level leaves black through full.</exception>
+    private static int Moved(int level, int step, string group)
+    {
+        int moved = level + step;
+        if ((uint)moved > Levels)
+            throw new InvalidOperationException($"The opening's {group} colours were faded to level {moved}, outside 0 through {Levels}.");
+        return moved;
     }
 }

@@ -3,8 +3,6 @@ using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
@@ -19,10 +17,10 @@ public static class CeresFlightPaletteFile
         CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
             json, ArtworkJson.Options, "Ceres flight palette");
         if (document.Version != CeresFlightPaletteFormat.Version ||
-            document.Colors is not { Length: ScreenColourImage.ColorCount })
+            document.Colors is not { Length: CeresFlightPalette.ColourCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
 
-        var compiled = new RgbColor[ScreenColourImage.ColorCount];
+        var compiled = new RgbColor[CeresFlightPalette.ColourCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -32,7 +30,7 @@ public static class CeresFlightPaletteFile
                     $"Ceres flight palette color {index} requires red, green and blue in 0..31.");
             compiled[index] = color.ToRgbColor();
         }
-        return new CeresFlightPalette(ScreenColourImage.Decode(compiled));
+        return new CeresFlightPalette(compiled);
     }
 
     /// <summary>Serializes a palette document with the presentation JSON options and validates it through <see cref="Read"/> before writing any bytes to the destination.</summary>

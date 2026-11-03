@@ -11,8 +11,8 @@ internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly AudioQueues audio;
-    /// <summary>The flight's colors, loaded from the installed palette (#1358).</summary>
-    internal readonly ScreenPalette palette = new();
+    /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
+    internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed flight artwork the frame is drawn from, rebound whenever the game is bound to its installed content.</summary>
@@ -80,7 +80,7 @@ internal sealed class IntroCeresFlightState
 
         // Setup loads the floor's front view and the sprite characters; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
-        content.Palette.LoadTo(palette);
+        Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.
         // The display setup itself runs as the next dispatch's cinematic function.
         Phase = IntroCeresFlightPhase.Initial;
@@ -96,13 +96,13 @@ internal sealed class IntroCeresFlightState
     /// <summary>The installed sheets the floor's views and the caption are pictured in (#1467); artwork, never saved.</summary>
     private InstalledSpriteSheets? floorSheets;
 
-    /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
+    /// <summary>Reapplies current external art and backdrop without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtwork? artwork)
     {
         actorLayout = artwork?.Actors;
         Artwork = artwork;
         if (artwork is null) return;
-        artwork.Palette.LoadTo(palette);
+        Backdrop = artwork.Backdrop;
     }
 
     /// <summary>Current cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
@@ -212,7 +212,7 @@ internal sealed class IntroCeresFlightState
         {
             layers.Add(new ScreenTintLayer(Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity)));
         }
-        return new(new FramePaint(palette.Shown(), objects.Draws), layers.ToArray(), brightness);
+        return new(new FramePaint(Backdrop, objects.Draws), layers.ToArray(), brightness);
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
@@ -265,7 +265,7 @@ internal sealed class IntroCeresFlightState
     {
         var actor = new IntroDiscoverySprite(
             definition.Position,
-            definition.Colouring,
+            CeresShades.Drawn(definition.Colouring),
             definition.Program)
         {
             GeneralTimer = definition.InitialTimer,

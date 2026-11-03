@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -53,7 +54,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         EndingText = parts.EndingText;
         EndingFont = parts.EndingFont;
         TitleGraphics = parts.TitleGraphics;
-        TitlePalette = parts.TitlePalette;
+        TitleBackdrop = parts.TitleBackdrop;
         TitleGradient = parts.TitleGradient;
         RoomPaletteFx = parts.RoomPaletteFx;
         MotherBrainHealthPalette = parts.MotherBrainHealthPalette;
@@ -116,8 +117,11 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public EndingFontAtlas EndingFont { get; }
     /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public TitleGraphicsPresentation TitleGraphics { get; }
-    /// <summary>Title-screen palette colors, separate from the title gradient and graphics transfers.</summary>
-    public TitlePalettePresentation TitlePalette { get; }
+    /// <summary>
+    /// The colour the title shows behind its floor and objects (#1512); the title's other colours are pre-coloured into its
+    /// sheets by the import.
+    /// </summary>
+    public RgbColor TitleBackdrop { get; }
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public TitleGradientPresentation TitleGradient { get; }
     /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>

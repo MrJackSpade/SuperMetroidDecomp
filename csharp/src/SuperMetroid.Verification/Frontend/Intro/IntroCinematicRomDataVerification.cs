@@ -3,6 +3,8 @@ using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerif
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -131,14 +133,27 @@ internal static class IntroCinematicRomDataVerification
     /// <summary>Reads a cartridge byte to validate a named cinematic code or list pointer.</summary>
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that each faded screen colour group of a cinematic fade is nonempty and lies among the screen's colours.</summary>
+    /// <summary>
+    /// Checks that a cinematic fade moves some colour group, and that the import places each group it moves as a nonempty
+    /// run among the opening's background or sprite colours, which its fade shades recolour (#1512).
+    /// </summary>
     private static void AssertIntroPaletteSpans(
-        IReadOnlyList<ScreenColourGroup> groups,
+        IntroFadeColours groups,
         string context)
     {
-        AssertTrue(groups.Count != 0, $"intro {context} colour group list is nonempty");
-        var screen = new ScreenPalette();
-        foreach (ScreenColourGroup group in groups)
-            AssertTrue(screen.Colours(group).Count > 0, $"intro {context} colour group {group} is nonempty and inside the screen's colours");
+        AssertTrue(groups.Backgrounds.Length + groups.Sprites.Length != 0, $"intro {context} colour group list is nonempty");
+        const int ownerColours = ImageColourGroup.Count * ImageColourGroup.Colours;
+        foreach (IntroBackgroundFade group in groups.Backgrounds)
+        {
+            int[] inks = [.. IntroSheetInks.Background(group)];
+            AssertTrue(inks.Length > 0 && inks.All(ink => ink is >= 0 and < ownerColours),
+                $"intro {context} background group {group} is nonempty and inside the opening's colours");
+        }
+        foreach (IntroSpriteFade group in groups.Sprites)
+        {
+            int[] inks = [.. IntroSheetInks.Sprite(group)];
+            AssertTrue(inks.Length > 0 && inks.All(ink => ink is >= 0 and < ownerColours),
+                $"intro {context} sprite group {group} is nonempty and inside the opening's colours");
+        }
     }
 }

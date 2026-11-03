@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Exact intro paint composition. Reviewed categorical material/endpoints and policies
 /// specify this exact painting; all duplicated slots and described shade relationships calculate. Pixel, timing and gameplay scope is excluded.</summary>

@@ -28,6 +28,8 @@ public sealed class RoomPaletteFxSystem
     internal readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
+    /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
+    private readonly PaletteFxShown shown = new();
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
@@ -150,7 +152,26 @@ public sealed class RoomPaletteFxSystem
         Ensure.NotNull(owners);
         Ensure.NotNull(colors);
         audioPowerBomb = powerBomb;
+        RunHandler(conditions, (slot, frame) => WritePaletteRecord(owners, colors, slot, frame));
+    }
 
+    /// <summary>
+    /// Runs one <c>PaletteFXObject_Handler</c> pass for a frontend screen (#1512): each record shown is recorded as its colour
+    /// group's last, which the screen shades its pictures with, and no owner's colours are written.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
+    internal void StepScreen(PaletteFxConditions conditions)
+    {
+        audioPowerBomb = null;
+        RunHandler(conditions, ShowScreenRecord);
+    }
+
+    /// <summary>The record <paramref name="colours"/> last showed, or null while it has shown none (#1512).</summary>
+    internal PaletteFxFrame? RecordOf(PaletteFxColours colours) => shown.RecordOf(colours);
+
+    /// <summary>Runs the slots in descending order, handing each record a slot's program shows to <paramref name="show"/>.</summary>
+    private void RunHandler(PaletteFxConditions conditions, Action<PaletteFxSlot, PaletteFxFrame> show)
+    {
         // PaletteFXObject_Handler owns a new publication window on every game frame.
         // Requests are momentary calls into the shared queues, not persistent object state.
         soundRequests.Clear();
@@ -172,7 +193,7 @@ public sealed class RoomPaletteFxSystem
             if (!slot.FrameHold.IsZero)
                 continue;
 
-            ExecuteProgram(owners, colors, slot);
+            ExecuteProgram(slot, show);
         }
     }
 
@@ -340,10 +361,7 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>Runs the slot's typed program until it shows its next timed colour record or deletes the object.</summary>
-    private void ExecuteProgram(
-        IPaletteFxColourOwners owners,
-        IPaletteFxColorSource colors,
-        PaletteFxSlot slot)
+    private void ExecuteProgram(PaletteFxSlot slot, Action<PaletteFxSlot, PaletteFxFrame> show)
     {
         AnimationProgramCursor<PaletteFxProgram> cursor = slot.Cursor;
         WrappingCountdown timer = slot.Timer;
@@ -359,7 +377,7 @@ public sealed class RoomPaletteFxSystem
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
                 slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
-                WritePaletteRecord(owners, colors, slot, shown.Frame);
+                show(slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
                 slot.Clear();
@@ -398,6 +416,20 @@ public sealed class RoomPaletteFxSystem
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PaletteFxCueKind)} {cue}.");
         }
+    }
+
+    /// <summary>
+    /// Records one timed colour record as the last its colour group showed on a frontend screen (#1512). A program names
+    /// its colours before its first record, so a record shown before that is a defect in the program.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The record is shown before its colours are named, or in colours no screen shows.</exception>
+    private void ShowScreenRecord(PaletteFxSlot slot, PaletteFxFrame frame)
+    {
+        PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
+            $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
+        if (!PaletteFxScreenColourDefinitions.ScreenColours.Contains(animated))
+            throw new InvalidOperationException($"Palette-FX object {slot.Object} showed {animated}, which no frontend screen shows.");
+        shown.Show(animated, frame);
     }
 
     /// <summary>

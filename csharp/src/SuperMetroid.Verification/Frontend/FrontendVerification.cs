@@ -11,6 +11,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -403,12 +404,10 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     // removes four on an odd frame, oscillating around eight rather than around zero.
     for (int hit = 0; hit < 4; hit++)
         motherBrain.RecordMissileHit();
-    var cgram = new ScreenPalette();
-    ScreenColours introPalette = ScreenColourImage.Decode(ToColors(new ushort[SnesCgram.ColorCount]));
-    motherBrain.RunFrameBehavior(cgram, introPalette, cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
+    motherBrain.RunFrameBehavior(cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
     AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
-    motherBrain.RunFrameBehavior(cgram, introPalette, cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
+    motherBrain.RunFrameBehavior(cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
     AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
     AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");
@@ -417,44 +416,43 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 }
 
 /// <summary>
-/// Checks group clearing and fixed-point fade rounding over 32 cinematic palette steps on the narration text's colours: the
-/// fade is asserted on the group's first colour, whose target is the only non-black one.
+/// Checks group clearing and fixed-point fade rounding over 32 cinematic steps on the Mother Brain room's lit colours
+/// (#1512): the fader's level for the group, the shade of that level the scene pictures name, and the colour that level
+/// shows for a colour of channel four, where the rounding boundary is easy to see.
 /// </summary>
 internal static void VerifyCinematicPaletteFader()
 {
-    var target = new ushort[SnesCgram.ColorCount];
-    // Component four produces step $0020, making the fixed-point rounding boundary easy
-    // to see: seven calls compose to zero and the eighth composes to component one.
-    target[ScreenColourPositions.Of(ScreenColourGroup.IntroNarrationText)] = 0x1084;
-    var cgram = new ScreenPalette();
-    var fader = new CinematicPaletteFader(ScreenColourImage.Decode(ToColors(target)));
+    var fader = new CinematicPaletteFader();
+    var lit = new IntroFadeColours([IntroBackgroundFade.NarrationText], []);
+    var target = new RgbColor(4, 4, 4);
+    AssertTrue(fader.SceneShading.IsStandard, "every cinematic colour starts at full, so the scene pictures name no fade shade");
 
-    // $8B:B018 clears incoming range $28/$03, the narration text's three colours.
-    fader.Clear(ScreenColourGroup.IntroNarrationText);
-    fader.ComposeInto(cgram);
-    AssertEqual(0x0000, NarrationText(cgram), "cinematic clear blackens the narration text's first colour");
+    // $8B:B018 clears incoming range $28/$03, the Mother Brain room's three lit colours.
+    fader.Clear(lit);
+    AssertEqual(0, fader.LevelOf(IntroBackgroundFade.NarrationText), "cinematic clear blackens the lit colours");
+    AssertTrue(fader.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroBackgroundFade.NarrationText, 0)]),
+        "the scene pictures name the cleared group's level-zero shade and no other");
 
     // One retail step adds component four << 3 = $0020. Compose takes the high byte,
     // so the first seven calls remain black and the eighth produces component one.
     for (int step = 0; step < 7; step++)
-        fader.FadeIn(ScreenColourGroup.IntroNarrationText);
-    fader.ComposeInto(cgram);
-    AssertEqual(0x0000, NarrationText(cgram), "8.8 cinematic fade preserves early rounding");
-    fader.FadeIn(ScreenColourGroup.IntroNarrationText);
-    fader.ComposeInto(cgram);
-    AssertEqual(0x0421, NarrationText(cgram), "eighth fade step reaches BGR component one");
+        fader.FadeIn(lit);
+    AssertEqual(RgbColor.Black, Shown(fader), "8.8 cinematic fade preserves early rounding");
+    fader.FadeIn(lit);
+    AssertEqual(new RgbColor(1, 1, 1), Shown(fader), "eighth fade step reaches component one");
+    AssertTrue(fader.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroBackgroundFade.NarrationText, 8)]),
+        "the scene pictures name the shade of the group's current level");
 
     for (int step = 8; step < 32; step++)
-        fader.FadeIn(ScreenColourGroup.IntroNarrationText);
-    fader.ComposeInto(cgram);
-    AssertEqual(0x1084, NarrationText(cgram), "32 fade-in calls reach exact target");
+        fader.FadeIn(lit);
+    AssertTrue(fader.SceneShading.IsStandard, "32 fade-in calls reach the installed colours, which name no shade");
 
     for (int step = 0; step < 32; step++)
-        fader.FadeOut(ScreenColourGroup.IntroNarrationText);
-    fader.ComposeInto(cgram);
-    AssertEqual(0x0000, NarrationText(cgram), "32 fade-out calls reach exact black");
+        fader.FadeOut(lit);
+    AssertEqual(0, fader.LevelOf(IntroBackgroundFade.NarrationText), "32 fade-out calls reach black");
 
-    static RgbColor NarrationText(ScreenPalette colours) => colours.Colours(ScreenColourGroup.IntroNarrationText)[0];
+    RgbColor Shown(CinematicPaletteFader shown) =>
+        new ColourLevel(shown.LevelOf(IntroBackgroundFade.NarrationText), CinematicPaletteFader.Levels).Apply(target);
 }
 
 /// <summary>Checks the Mother Brain flashback's typed demo program: held and new input edges, record timing and its end routine.</summary>

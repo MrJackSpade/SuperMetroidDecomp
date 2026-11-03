@@ -24,13 +24,20 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(palette, actors, objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
+        : base(palette.Backdrop, actors, objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
     {
         FloorCharacters = floorCharacters;
         FloorMaps = floorMaps;
         ObjectCharacters = objectCharacters;
+        Palette = palette;
         Sprites = sprites;
     }
+
+    /// <summary>
+    /// The approach's selected 256 colours, separate from the PNGs' transport palettes, which the import pre-colours the
+    /// Ceres scenes' pictures and actors in (#1512).
+    /// </summary>
+    public CeresFlightPalette Palette { get; }
 
     /// <summary>Selected six-frame compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction scene's sheets.</summary>
     public CeresFlightSpritePresentation Sprites { get; }
@@ -54,7 +61,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         content.Append("mode7-characters", FloorCharacters.Span);
         content.Append("mode7-maps", FloorMaps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
-        content.Append("palette", ScreenColourImage.Words(Palette.Colours));
+        content.Append("palette", ScreenColourImage.Words(Palette.BackgroundColours.AsSpan(), Palette.SpriteColours.AsSpan()));
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
     });

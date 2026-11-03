@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx.PaletteFx;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Title;
 
-/// <summary>The title sequence's definitions: its console lights, music, cards, floor scenes, sprite placement, installed graphics extents, skip colours and timing.</summary>
+/// <summary>The title sequence's definitions: its console lights, music, cards, floor scenes, sprite placement, installed graphics extents and timing.</summary>
 public static class TitleSequenceDefinitions
 {
     /// <summary>The console lights title setup and the skip path start.</summary>
@@ -31,16 +32,16 @@ public static class TitleSequenceDefinitions
     {
         /// <summary>The year card.</summary>
         public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, new(129, 112), ScreenColourGroup.TitleText);
+            new(TitleSequencePhase.YearText, new(129, 112), TitleSpriteColouring.Text);
         /// <summary>The Nintendo card.</summary>
         public static readonly TitleTextSequenceDefinition Nintendo =
-            new(TitleSequencePhase.NintendoText, new(129, 112), ScreenColourGroup.TitleText);
+            new(TitleSequencePhase.NintendoText, new(129, 112), TitleSpriteColouring.Text);
         /// <summary>The Presents card.</summary>
         public static readonly TitleTextSequenceDefinition Presents =
-            new(TitleSequencePhase.PresentsText, new(129, 112), ScreenColourGroup.TitleText);
+            new(TitleSequencePhase.PresentsText, new(129, 112), TitleSpriteColouring.Text);
         /// <summary>The Metroid 3 card.</summary>
         public static readonly TitleTextSequenceDefinition MetroidThree =
-            new(TitleSequencePhase.MetroidThreeText, new(129, 112), ScreenColourGroup.TitleText);
+            new(TitleSequencePhase.MetroidThreeText, new(129, 112), TitleSpriteColouring.Text);
     }
 
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
@@ -86,15 +87,6 @@ public static class TitleSequenceDefinitions
     {
         /// <summary>The Baby Metroid's four-phase page cycle 0, 1, 2, 1.</summary>
         public static TitleBabyPageSequence BabyAnimationSourcePages => default;
-    }
-
-    /// <summary>The colours only the skip path installs.</summary>
-    public static class Palette
-    {
-        /// <summary>The copyright's white on the skipped-to title screen.</summary>
-        public static RgbColor CopyrightWhite => RgbColor.White;
-        /// <summary>The skip-only copyright colour, kept under its historical Red name.</summary>
-        public static RgbColor CopyrightRed => new RgbColor(0, 12, 31);
     }
 
     /// <summary>Holds, fades and the buttons that skip.</summary>

@@ -29,7 +29,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.Show(new TitleSequenceState(
             session.audio,
             session.Artwork.MapPresentation?.TitleGradient,
-            session.Artwork.MapPresentation?.TitlePalette,
+            session.Artwork.MapPresentation?.TitleBackdrop,
             session.Artwork.MapPresentation?.TitleGraphics,
             session.Artwork.SpriteSheets));
         session.ForgetQueuedAudio();
@@ -292,7 +292,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.ApplySelectedGameOptions();
         session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, spriteSheets: session.Artwork.SpriteSheets));
+            session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets));
         session.GameState = SuperMetroidGameState.CeresGoesBoom;
         session.display.PublishBlack();
     }

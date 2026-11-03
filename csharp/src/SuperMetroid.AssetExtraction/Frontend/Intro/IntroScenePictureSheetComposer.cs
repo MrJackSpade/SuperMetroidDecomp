@@ -6,14 +6,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
 /// Composes the opening cinematic's scene pictures once (#1467): each scene page, Samus's portrait and each eye frame, over
 /// the scene characters under the cinematic's palette, each pixel in the priority tier its tile gave it. A tile naming a
-/// character past those the cinematic loads shows nothing, as the scene planes showed nothing there.
+/// character past those the cinematic loads shows nothing, as the scene planes showed nothing there. The sheet holds a shade
+/// for every cross-fade level of each faded colour group (#1512).
 /// </summary>
 internal static class IntroScenePictureSheetComposer
 {
@@ -29,7 +29,7 @@ internal static class IntroScenePictureSheetComposer
     {
         Ensure.NotNull(intro);
         byte[] characters = IntroCinematicSourceArtwork.Of(intro).BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
-        RgbColor[] colours = ScreenColourImage.Encode(intro.Palette.Colours)[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = [.. IntroCinematicSourceArtwork.Of(intro).Palette.BackgroundColours];
         int cells = IntroScenePictures.PlaneCells;
         int planeCells = cells * cells;
         IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();
@@ -49,7 +49,9 @@ internal static class IntroScenePictureSheetComposer
         for (int frame = 0; frame < eyes.Length; frame++)
             frames.Add(IntroScenePictures.Eye(eyes[frame]),
                 PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(frame), characters, colours));
-        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512).
+        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents(IntroSheetShades.Scene(colours)) } };
     }
 
     /// <summary>

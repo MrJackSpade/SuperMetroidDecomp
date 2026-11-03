@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
@@ -71,7 +72,7 @@ internal static class CeresDestructionArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CeresDestructionSprites).Draw(frame.Pose, installedOam,
-                    new(120, y), ScreenColourGroup.CeresFlightSpaceObjects, onScreen);
+                    new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects), onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&
                         installedOam.LastFinalizedSpriteCount == nativeOam.LastFinalizedSpriteCount,

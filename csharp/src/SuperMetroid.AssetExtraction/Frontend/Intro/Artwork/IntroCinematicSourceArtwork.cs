@@ -15,13 +15,20 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// </summary>
 public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
 {
+    /// <summary>
+    /// The opening's selected colours, which only the import reads to pre-colour the opening's sheets (#1512); the game
+    /// keeps their backdrop.
+    /// </summary>
+    public IntroCinematicPalette Palette { get; }
+
     /// <summary>Validates and retains the selected opening artwork.</summary>
     /// <param name="parts">The opening's scene artwork, character atlases and sprite compositions.</param>
     /// <exception cref="ArgumentNullException">A required atlas, presentation, palette, or page collection is null.</exception>
     /// <exception cref="InvalidDataException">The scene pages, portrait or narration tilemaps are malformed.</exception>
     public IntroCinematicSourceArtwork(IntroCinematicArtworkParts parts)
-        : base(Ensure.NotNull(parts).Palette, parts.CeresFlight, parts.CeresDestruction)
+        : base(Ensure.NotNull(Ensure.NotNull(parts).Palette).Backdrop, parts.CeresFlight, parts.CeresDestruction)
     {
+        Palette = parts.Palette;
         Ensure.NotNull(parts.BackgroundPages);
         if (parts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
             throw new InvalidDataException("Opening cinematic requires four ordered BG tilemap pages.");
@@ -132,7 +139,7 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
         content.Append("egg-sprites", Convert.FromHexString(EggEffectSprites.ContentIdentity));
         content.Append("discovery-sprites", Convert.FromHexString(DiscoveryActorSprites.ContentIdentity));
         content.Append("scientist-sprites", Convert.FromHexString(ScientistSprites.ContentIdentity));
-        content.Append("palette", ScreenColourImage.Words(Palette.Colours));
+        content.Append("palette", ScreenColourImage.Words(Palette.BackgroundColours.AsSpan(), Palette.SpriteColours.AsSpan()));
         content.Append("ceres-flight", Convert.FromHexString(CeresFlight.ContentIdentity));
         content.Append("ceres-destruction", Convert.FromHexString(CeresDestructionIdentity));
         content.Append("ceres-destruction-sprites", Convert.FromHexString(CeresDestructionSprites.ContentIdentity));

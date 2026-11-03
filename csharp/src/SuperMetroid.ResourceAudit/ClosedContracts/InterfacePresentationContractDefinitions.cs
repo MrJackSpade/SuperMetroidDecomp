@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Gameplay;
@@ -27,7 +27,10 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColorFrames.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteInputView.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitlePalettePresentation.cs")]),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitlePalettePresentation.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColors.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColorDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleSheetInks.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation", "cinematic-interface-complete-owned-frame-domains", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IIntroCinematicSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteSheet.cs"),

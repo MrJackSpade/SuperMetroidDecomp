@@ -1,11 +1,10 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
@@ -91,7 +90,7 @@ public static class TitlePaletteFile
             }
         }
 
-        ScreenColours screen = ScreenColourImage.Decode(colors);
+        ImmutableArray<RgbColor> screen = [.. colors];
         DropCalculatedAmbientColors(screen, animatedColors);
         return new TitlePalettePresentation(screen, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
@@ -99,9 +98,9 @@ public static class TitlePaletteFile
     }
 
     /// <summary>Drops each selected ambient colour the shared ambient calculation already produces from <paramref name="colours"/>.</summary>
-    /// <param name="colours">The selected screen colours by owner.</param>
+    /// <param name="colours">The selected initial colours in the cartridge's order.</param>
     /// <param name="animatedColors">Every selected ambient-program colour; calculated ones are removed.</param>
-    private static void DropCalculatedAmbientColors(ScreenColours colours, Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
+    private static void DropCalculatedAmbientColors(ImmutableArray<RgbColor> colours, Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
     {
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
         for (int frame = 0; frame < program.FrameCount; frame++)

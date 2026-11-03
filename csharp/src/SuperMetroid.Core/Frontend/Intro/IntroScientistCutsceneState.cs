@@ -21,7 +21,7 @@ internal sealed class IntroScientistCutsceneState
         // The delivered and examined babies' definitions use separate laboratory pages and mirrored pan axes.
         baby = new IntroDiscoverySprite(
             definition.Position,
-            definition.Colouring,
+            IntroShades.Drawn(definition.Colouring),
             definition.Program);
         baby.InstallFrameBehavior(definition.FrameBehavior);
         Background = delivery ? new(32, 8) : new(0, WordWrap.Unsigned(-24));

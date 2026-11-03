@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Input;
 using SuperMetroid.Core.Input;
@@ -61,7 +62,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 $"intro baby actor {index} initializer X immediate");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 7)), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), ScreenColourGroups.SpriteSet(actual.Colouring),
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(actual.Colouring)),
                 $"intro baby actor {index} initializer palette immediate");
         }
 

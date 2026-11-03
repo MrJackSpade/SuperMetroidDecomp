@@ -90,7 +90,11 @@ internal static class CinematicScreenPublicationVerification
         restoredIntro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
         restoredIntro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
         AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.ShownVram()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
-        AssertTrue(intro.palette.Colors.SequenceEqual(restoredIntro.palette.Colors), "a restored intro keeps its palette");
+        // The intro publishes its faded backdrop and its pictures' shading, not a palette (#1512).
+        LayeredScene introFrame = intro.CaptureTranslatedRenderSnapshot(), restoredFrame = restoredIntro.CaptureTranslatedRenderSnapshot();
+        AssertEqual(introFrame.Paint.Backdrop, restoredFrame.Paint.Backdrop, "a restored intro keeps its backdrop");
+        AssertTrue(PlacedSpritePart.Of(introFrame.Paint.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredFrame.Paint.SpriteDraws)),
+            "a restored intro places the same sprite entries");
         Console.WriteLine("  Cinematic screens: the rear view shows its map, and the flight, destruction and intro survive a debugger round trip.");
     }
 
@@ -103,11 +107,11 @@ internal static class CinematicScreenPublicationVerification
         return DebuggerObjectGraphSerializer.Deserialize<T>(stream);
     }
 
-    /// <summary>Asserts that two captured frames show the same image, palette and sprite parts, the images their scenes composed.</summary>
+    /// <summary>Asserts that two captured frames show the same image, backdrop and sprite parts, the images their scenes composed.</summary>
     private static void AssertSameFrame(byte[] expectedVram, FramePaint expected, byte[] actualVram, FramePaint actual, string scene)
     {
         AssertTrue(expectedVram.SequenceEqual(actualVram), $"a restored {scene} shows the same image");
-        AssertTrue(expected.Colors.SequenceEqual(actual.Colors), $"a restored {scene} shows the same palette");
+        AssertEqual(expected.Backdrop, actual.Backdrop, $"a restored {scene} shows the same backdrop");
         AssertTrue(PlacedSpritePart.Of(expected.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(actual.SpriteDraws)),
             $"a restored {scene} places the same sprite entries");
     }

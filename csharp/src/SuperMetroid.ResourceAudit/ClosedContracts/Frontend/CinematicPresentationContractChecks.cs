@@ -30,7 +30,7 @@ internal static class CinematicPresentationContractChecks
             using SuperMetroid.Core.Frontend.Title;
             using SuperMetroid.Core.Frontend.Title.Artwork;
             class CinematicConsumer {
-                void Inspect(TitlePalettePresentation palette, TitleGradientPresentation gradient,
+                void Inspect(TitleGradientPresentation gradient,
                     TitleGraphicsPresentation title, IntroEyeTilemapPresentation eye,
                     CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
                     CinematicSpriteSheet explosions, CeresDoorVisuals door,
@@ -38,19 +38,18 @@ internal static class CinematicPresentationContractChecks
                     EscapeTimer countdown, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
-                    palette.Apply(screen);
                     gradient.Resolve(ushort.MaxValue);
-                    TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.ScreenColourGroup.TitleLogo);
-                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.ScreenColourGroup.TitleLogo);
-                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.ScreenColourGroup.TitleLogo);
+                    TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
+                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
+                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
-                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroCrossFadeObjects);
-                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(999), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroCrossFadeObjects);
-                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(0), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroMotherBrain);
-                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroMotherBrain);
-                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroExplosions);
-                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroExplosions);
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(999), oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(0), oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
                     door.LoadNormalColors(screen.SpriteSets.Set(2));
                     door.LoadEscapeColors(screen.SpriteSets.Set(7));
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationStepCount - 1);
@@ -78,9 +77,9 @@ internal static class CinematicPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "CinematicPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 18, "eighteen constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 11 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
-            after.Consumers.Count == 18, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 17, "seventeen constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
+            after.Consumers.Count == 17, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
             "undefined title compositions must not be accepted as loaded title compositions");
     }

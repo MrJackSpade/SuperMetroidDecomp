@@ -189,9 +189,9 @@ internal static class InstalledFixtures
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
     internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
 
-    /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
+    /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>
-        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx,
+        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
@@ -232,10 +232,10 @@ internal static class InstalledFixtures
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
     internal static TitleSequenceState CreateTitle(AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
-        TitlePalettePresentation? titlePalettePresentation = null,
+        RgbColor? titleBackdrop = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null) =>
         new(audio, titleGradientPresentation ?? Maps.TitleGradient,
-            titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics,
+            titleBackdrop ?? Maps.TitleBackdrop, titleGraphicsPresentation ?? Maps.TitleGraphics,
             MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? Maps.TitleGraphics));
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>

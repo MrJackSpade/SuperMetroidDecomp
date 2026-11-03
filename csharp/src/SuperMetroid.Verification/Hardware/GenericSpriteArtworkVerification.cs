@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;
@@ -44,7 +46,7 @@ internal static class GenericSpriteArtworkVerification
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
+            titleBackdrop: maps.TitleBackdrop, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);
@@ -56,9 +58,9 @@ internal static class GenericSpriteArtworkVerification
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
         // Two title colourings, whose sprite sets the cartridge oracle takes as its palette bits.
-        foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.TitleText, ScreenColourGroup.TitleLogo })
+        foreach (TitleSpriteColouring colouring in new[] { TitleSpriteColouring.Text, TitleSpriteColouring.Logo })
         {
-            int palette = ScreenColourGroups.SpriteSet(colouring);
+            int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
             title.ActiveSprite = frame.Sprite;
             title.ActiveOrigin = new(x, y);
             title.ActiveObjectColouring = colouring;
@@ -79,7 +81,7 @@ internal static class GenericSpriteArtworkVerification
             (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank,
                 FrontendSourceDefinitions.TitleCopyrightSpritemap),
             new(TitleSequenceDefinitions.Sprites.CopyrightOrigin.X, TitleSequenceDefinitions.Sprites.CopyrightOrigin.Y),
-            SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.TitleCopyright), 0).PaletteBits);
+            SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Copyright), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
@@ -100,7 +102,7 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
-            new(caret.Caret.X, caret.Caret.Y), SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.IntroCrossFadeObjects), 0).PaletteBits);
+            new(caret.Caret.X, caret.Caret.Y), SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects)), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
@@ -117,7 +119,7 @@ internal static class GenericSpriteArtworkVerification
         DrawImportedSpritemap(reference, motherBrainOam,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
-            SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits);
+            SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits);
         motherBrainOam.FinalizeFrame();
         expectedFrame.FinalizeFrame();
         EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects))],
@@ -138,7 +140,7 @@ internal static class GenericSpriteArtworkVerification
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, pointer),
                 new(actor.Position.X, actor.Position.Y),
-                SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.IntroExplosions), 0).PaletteBits);
+                SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.Explosions)), 0).PaletteBits);
         }
         expected.FinalizeFrame();
         EqualSprites(expected, actual, "intro explosion owner preserves native placements and ordering");

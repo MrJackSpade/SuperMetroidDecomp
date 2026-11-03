@@ -1,12 +1,13 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The opening narration's pictures (#1467): the first card, the final line, and each letter of the narration's alphabet
-/// in each colour variant its glow shows, which the import composes once from the narration font under the cinematic's
+/// The opening narration's pictures (#1467): the first card, the final line, and each letter of the narration's alphabet,
+/// whose colour variants its glow shows are shades (#1512), which the import composes once from the narration font under the cinematic's
 /// palette. The cinematic places them on the narration plane its text state shows.
 /// </summary>
 public static class IntroNarrationPictures
@@ -23,27 +24,31 @@ public static class IntroNarrationPictures
     /// <summary>The plane row the final line's picture starts at.</summary>
     internal const int FinalLineRow = IntroCinematicDefinitions.Text.FinalLineFirstCell / IntroCinematicDefinitions.Planes.Width;
 
-    /// <summary>The name of <paramref name="letter"/>'s picture in colour variant <paramref name="colourVariant"/>.</summary>
-    internal static string Letter(char letter, int colourVariant) => $"letter-{(int)letter:x2}-{colourVariant}";
+    /// <summary>The name of <paramref name="letter"/>'s picture, which shows each colour variant as a shade (#1512).</summary>
+    internal static string Letter(char letter) => $"letter-{(int)letter:x2}";
 
-    /// <summary>The plane showing the first card.</summary>
-    internal static PicturedPlane FirstCardPlane(InstalledSpriteSheets sheets) =>
-        Plane([new PlacedPlanePicture(Sheet(sheets).Frame(FirstCard), default)]);
+    /// <summary>The plane showing the first card in <paramref name="shading"/> (#1512).</summary>
+    internal static PicturedPlane FirstCardPlane(InstalledSpriteSheets sheets, PictureShading shading) =>
+        Plane([new PlacedPlanePicture(Sheet(sheets).Frame(FirstCard), default, Ensure.NotNull(shading))]);
 
-    /// <summary>The plane showing the narration pages: the final line, and each letter <paramref name="text"/> shows at its cell.</summary>
-    internal static PicturedPlane PagesPlane(InstalledSpriteSheets sheets, IntroNarrationText text)
+    /// <summary>
+    /// The plane showing the narration pages: the final line, and each letter <paramref name="text"/> shows at its cell in
+    /// the shade of its colour variant, each as <paramref name="shown"/> shows its own colours (#1512).
+    /// </summary>
+    internal static PicturedPlane PagesPlane(InstalledSpriteSheets sheets, IntroNarrationText text, Func<PictureShading, PictureShading> shown)
     {
         Ensure.NotNull(text);
         SpriteSheet sheet = Sheet(sheets);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
-        placed.Add(new(sheet.Frame(FinalLine), At(0, FinalLineRow)));
+        Ensure.NotNull(shown);
+        placed.Add(new(sheet.Frame(FinalLine), At(0, FinalLineRow), shown(PictureShading.Standard)));
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
             for (int column = 0; column < IntroNarrationText.RowCells; column++)
             {
                 IntroTextCell cell = text.ShownAt(column, row);
                 if (cell.Letter is { } letter)
-                    placed.Add(new(sheet.Frame(Letter(letter, cell.ColourVariant)), At(column, row)));
+                    placed.Add(new(sheet.Frame(Letter(letter)), At(column, row), shown(PictureShading.Shaded(IntroShades.Glow(cell.ColourVariant)))));
             }
         }
         return Plane(placed.ToImmutable());

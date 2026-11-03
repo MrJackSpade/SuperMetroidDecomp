@@ -4,15 +4,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
 /// Composes the opening's cinematic sheets (#1392): every family's composition of each pose over its screen's OBJ page,
-/// its palette-inheriting parts in the sheet's frame palette, coloured as the screen loads its palette. The intro sheet
+/// its palette-inheriting parts in the sheet's frame palette, coloured in the screen's colours with a shade for each colouring its actors draw in (#1512). The intro sheet
 /// holds the intro's families; the Ceres flight sheet holds the flight's.
 /// </summary>
 internal static class IntroSpriteSheetComposer
@@ -44,7 +44,10 @@ internal static class IntroSpriteSheetComposer
     internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
-        return Compose(families, IntroObjectPage.Of(intro), intro.Palette.LoadTo);
+        // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
+        RgbColor[] sprites = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
+        return Compose(families, IntroObjectPage.Of(intro), sprites,
+            IntroSheetShades.Sprites(sprites, FrontendSheetPalette.FrameColourGroup.Number * IntroSheetInks.SetColours));
     }
 
     /// <summary>What the Ceres flight sheet of <paramref name="flight"/> composes.</summary>
@@ -52,7 +55,7 @@ internal static class IntroSpriteSheetComposer
     {
         Ensure.NotNull(flight);
         CeresFlightCharacters characters = CeresFlightCharacters.Of(flight);
-        return Compose([characters.Sprites], characters.ObjectPage, flight.Palette.LoadTo);
+        return CeresSources([characters.Sprites], characters.ObjectPage, characters.Palette);
     }
 
     /// <summary>
@@ -70,7 +73,7 @@ internal static class IntroSpriteSheetComposer
     private static SpriteSheetSources DestructionSources(IntroCinematicArtwork intro, byte[] characters)
     {
         SpriteArtwork page = CeresDestructionObjectPage.Of(characters);
-        return Compose(CeresDestructionFamilies(intro), page, intro.CeresFlight.Palette.LoadTo);
+        return CeresSources(CeresDestructionFamilies(intro), page, CeresFlightCharacters.Of(intro.CeresFlight).Palette);
     }
 
     /// <summary>The frames the Ceres destruction scene's sheets hold.</summary>
@@ -85,16 +88,26 @@ internal static class IntroSpriteSheetComposer
         FrameNames([CeresFlightCharacters.Of(Ensure.NotNull(flight)).Sprites]);
 
     /// <summary>
-    /// Each family's composition of every pose over <paramref name="page"/>, coloured as <paramref name="loadColours"/>
-    /// loads them, at the menus' object sizes the intro and Ceres scenes draw at.
+    /// Each Ceres family's composition of every pose over <paramref name="page"/>, coloured in the flight's sprite colours
+    /// with a drawn shade for each colouring a Ceres actor draws in (#1512). The engine flicker recolours a background
+    /// colour, which no sprite shows, so the sprite sheets need no palette-effect shade.
     /// </summary>
-    private static SpriteSheetSources Compose(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, Action<ScreenPalette> loadColours)
+    private static SpriteSheetSources CeresSources(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, CeresFlightPalette palette)
     {
-        var colours = new ScreenPalette();
-        loadColours(colours);
+        RgbColor[] sprites = [.. Ensure.NotNull(palette).SpriteColours];
+        return Compose(families, page, sprites,
+            CeresSheetInks.DrawnShades(sprites, FrontendSheetPalette.FrameColourGroup.Number * CeresSheetInks.SetColours));
+    }
+
+    /// <summary>
+    /// Each family's composition of every pose over <paramref name="page"/>, coloured in <paramref name="sprites"/> with
+    /// <paramref name="shades"/>, at the menus' object sizes the intro and Ceres scenes draw at.
+    /// </summary>
+    private static SpriteSheetSources Compose(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, RgbColor[] sprites,
+        IReadOnlyList<SheetShade> shades)
+    {
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
-        return new SpriteSheetSources([.. Frames(families, page, sizes)], colours.SpriteSets.All.Colors.ToArray(), sizes,
-            PartsKeepOwnRows: true);
+        return new SpriteSheetSources([.. Frames(families, page, sizes)], sprites, sizes, PartsKeepOwnRows: true) { Shades = shades };
     }
 
     /// <summary>

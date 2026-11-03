@@ -92,7 +92,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                         session.Show(TitleSequenceState.ReturnFromDemo(
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
-                            session.Artwork.MapPresentation?.TitlePalette,
+                            session.Artwork.MapPresentation?.TitleBackdrop,
                             session.Artwork.MapPresentation?.TitleGraphics,
                             session.Artwork.SpriteSheets));
                     else
@@ -101,7 +101,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                         session.Show(new TitleSequenceState(
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
-                            session.Artwork.MapPresentation?.TitlePalette,
+                            session.Artwork.MapPresentation?.TitleBackdrop,
                             session.Artwork.MapPresentation?.TitleGraphics,
                             session.Artwork.SpriteSheets));
                     }

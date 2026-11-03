@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Title tube shading and display paint bindings.</summary>
 /// <remarks>The initial palette remains the independent paint owner. The selected three-unit

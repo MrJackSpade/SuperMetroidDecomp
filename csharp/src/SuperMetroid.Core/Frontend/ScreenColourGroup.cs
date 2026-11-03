@@ -13,59 +13,11 @@ public enum ScreenColourGroup
     /// <summary>The colours of Samus's beams on a screen that shows her.</summary>
     SamusBeams,
 
-    /// <summary>The title copyright glyph's white.</summary>
-    TitleCopyrightWhite,
-
-    /// <summary>The title copyright glyph's red.</summary>
-    TitleCopyrightRed,
-
     /// <summary>The colours of the baby Metroid's tube on the title, which the tube light dims and brightens.</summary>
     TitleTubeLight,
 
     /// <summary>The colours of the title's flickering displays.</summary>
     TitleDisplays,
-
-    /// <summary>The title's warm paint whose colour the displays show when dim.</summary>
-    TitleDimWarmPaint,
-
-    /// <summary>The title's green paint whose colour the displays show when dim.</summary>
-    TitleDimGreenPaint,
-
-    /// <summary>The opening's Mother Brain colours, which her hurt flash replaces.</summary>
-    IntroMotherBrain,
-
-    /// <summary>The gameplay flashback's background colours: its first background colour set and the first colours of the next.</summary>
-    IntroGameplayBackground,
-
-    /// <summary>The gameplay flashback's first background colour set, which the flashback clears as it begins.</summary>
-    IntroGameplayClearedBackground,
-
-    /// <summary>The gameplay flashback's room colours.</summary>
-    IntroGameplayEnvironment,
-
-    /// <summary>Samus's colours in the gameplay flashback.</summary>
-    IntroGameplaySamus,
-
-    /// <summary>The narration text's colours.</summary>
-    IntroNarrationText,
-
-    /// <summary>The narration screens' background colours.</summary>
-    IntroNarrationBackground,
-
-    /// <summary>The narration portrait's colours.</summary>
-    IntroNarrationPortrait,
-
-    /// <summary>The narration screens' object colours.</summary>
-    IntroNarrationObjects,
-
-    /// <summary>The Metroid discovery scene's background colours.</summary>
-    IntroDiscoveryBackground,
-
-    /// <summary>The Metroid discovery scene's scientists' colours.</summary>
-    IntroDiscoveryScientists,
-
-    /// <summary>The Ceres destruction's explosions' colours.</summary>
-    CeresExplosions,
 
     /// <summary>The ending clear-time digits' and colon's colours.</summary>
     EndingClearTimeDigits,
@@ -141,50 +93,6 @@ public enum ScreenColourGroup
 
     /// <summary>The post-credits shot graphic's colours, which fade out as it turns.</summary>
     EndingShot,
-
-    /// <summary>
-    /// The colours the opening's discovery actors draw in: the Metroid egg, the hatched baby, the egg's particles and
-    /// slime, the Rinkas, and the flashback's Mother Brain.
-    /// </summary>
-    IntroDiscoveryActors,
-
-    /// <summary>
-    /// The opening's cross-fade colours, which the laboratory scenes' scientists and baby and the narration caret draw in.
-    /// </summary>
-    IntroCrossFadeObjects,
-
-    /// <summary>
-    /// The opening narration's neutral ramp: after its transparent colour, a four-shade neutral cycle stepping down from
-    /// one foreground colour.
-    /// </summary>
-    IntroNarrationNeutralRamp,
-
-    /// <summary>The colours the opening's explosions draw in.</summary>
-    IntroExplosions,
-
-    /// <summary>The colours the Ceres approach's asteroids, stars and vortex draw in.</summary>
-    CeresFlightSpaceObjects,
-
-    /// <summary>The colours the Ceres station draws in as the approach shows it under attack.</summary>
-    CeresFlightStation,
-
-    /// <summary>The colours planet Zebes draws in as the Ceres destruction's escape reaches it.</summary>
-    CeresDestructionZebes,
-
-    /// <summary>The colours of the planet's name shown as the Ceres destruction's escape reaches Zebes.</summary>
-    CeresDestructionTitle,
-
-    /// <summary>The colours the title's opening text cards draw in.</summary>
-    TitleText,
-
-    /// <summary>The colours the title logo draws in.</summary>
-    TitleLogo,
-
-    /// <summary>The colours the title's copyright line draws in, among them its white and red glyph colours.</summary>
-    TitleCopyright,
-
-    /// <summary>The colours of the gunship's engine in the opening cutscene, which its flicker animates.</summary>
-    CinematicGunshipEngine,
 
     /// <summary>The colours of Ceres station's background-drawn navigation lights, which their blink animates.</summary>
     CeresNavigationLights,

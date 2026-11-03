@@ -223,7 +223,6 @@ internal static class MapPresentationVerification
     {
         /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
         private readonly RoomCharacterAtlases roomCharacters;
-        /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
 
         /// <summary>The pre-coloured block pictures room loads draw from (#1392).</summary>
         private readonly InstalledRoomArtwork roomBlockSheets;

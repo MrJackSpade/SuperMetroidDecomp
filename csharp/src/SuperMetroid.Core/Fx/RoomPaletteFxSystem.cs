@@ -30,9 +30,9 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
     private readonly PaletteFxShown shown = new();
     /// <summary>The records Samus's suit groups showed during the current handler pass, in order (#1512).</summary>
-    private readonly List<(PaletteFxColours Colours, PaletteFxFrame Record)> suitShown = [];
+    private readonly List<ShownPaletteFxRecord> suitShown = [];
     /// <summary>The records the enemies' groups showed during the current handler pass, in order (#1512).</summary>
-    private readonly List<(PaletteFxColours Colours, PaletteFxFrame Record)> enemyShown = [];
+    private readonly List<ShownPaletteFxRecord> enemyShown = [];
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
@@ -454,13 +454,13 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// The records Samus's suit groups showed during the last handler pass, in order (#1512): she lays the shade of each over
     /// her suit, as each record overwrote her suit's colours then.
     /// </summary>
-    internal IReadOnlyList<(PaletteFxColours Colours, PaletteFxFrame Record)> SuitShown => suitShown;
+    internal IReadOnlyList<ShownPaletteFxRecord> SuitShown => suitShown;
 
     /// <summary>
     /// The records the enemies' groups showed during the last handler pass, in order (#1512): each enemy lays the shade of
     /// each over its draws, as each record overwrote its colours then.
     /// </summary>
-    internal IReadOnlyList<(PaletteFxColours Colours, PaletteFxFrame Record)> EnemyShown => enemyShown;
+    internal IReadOnlyList<ShownPaletteFxRecord> EnemyShown => enemyShown;
 
     /// <summary>The record <paramref name="colours"/> last showed in this room, or null while it has shown none (#1512).</summary>
     internal PaletteFxFrame? RecordOf(PaletteFxColours colours) => shown.RecordOf(colours);
@@ -497,12 +497,12 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             return;
         if (PaletteFxSamusColourDefinitions.SuitColours.Contains(animated))
         {
-            suitShown.Add((animated, frame));
+            suitShown.Add(new ShownPaletteFxRecord(animated, frame));
             return;
         }
         if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(animated))
         {
-            enemyShown.Add((animated, frame));
+            enemyShown.Add(new ShownPaletteFxRecord(animated, frame));
             return;
         }
         throw new InvalidOperationException($"Palette-FX object {slot.Object} showed {animated}, which no gameplay picture shows.");

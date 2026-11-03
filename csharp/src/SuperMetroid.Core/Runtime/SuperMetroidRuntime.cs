@@ -607,43 +607,12 @@ internal sealed class SuperMetroidRuntime
                 Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, record));
             // The enemies' groups show over their owners' own colours as the records that wrote them (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.EnemyShown)
-                ShowEnemyPaletteFx(colours, record);
+                Room.LoadedScope.Enemies.PaletteFxShows.Show(colours, record);
         }
         // Hyper Beam's palette object lives in the same pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)
         {
             Player.Samus?.Drained.HyperBeamPaletteFx.Step(Player.Colours);
-        }
-    }
-
-    /// <summary>
-    /// Hands one record of an enemy's palette-FX group to the enemy that shows it (#1512): the Torizos lay their belly
-    /// glow, Tourian's sprite statues their grey-out, and Mother Brain and the destroyable shutters the escape's shutter
-    /// flash. The shutter flash shows on whichever of them the room holds, and on nothing once both shutters are destroyed,
-    /// as the record's colours are then shown by no draw.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The group names no enemy that shows it, or its owner is not loaded.</exception>
-    private void ShowEnemyPaletteFx(PaletteFxColours colours, PaletteFxFrame record)
-    {
-        RoomEnemySystem enemies = Room.LoadedScope.Enemies;
-        switch (colours)
-        {
-            case PaletteFxColours.TorizoBelly:
-                enemies.BombTorizoBehavior.ShowBellyGlow(record);
-                return;
-            case PaletteFxColours.RidleyStatue:
-            case PaletteFxColours.PhantoonStatue:
-                enemies.TourianEntranceStatueBehavior.ShowStatueGreyOut(colours, record);
-                return;
-            case PaletteFxColours.TourianShutters:
-                // The flash recolours the first enemy colours' nine to fourteen: Mother Brain's exploded door in her room,
-                // the destroyable shutters in the first escape room, whose FX record also starts the flash.
-                if (enemies.MotherBrainEncounter.MotherBrain is not null)
-                    enemies.MotherBrainEncounter.ShowEscapeShutterFlash(record);
-                enemies.ShuttersBehavior.ShowEscapeShutterFlash(enemies.SlotTable.Slots, record);
-                return;
-            default:
-                throw new InvalidOperationException($"Palette-FX colours {colours} name no enemy that shows them.");
         }
     }
 

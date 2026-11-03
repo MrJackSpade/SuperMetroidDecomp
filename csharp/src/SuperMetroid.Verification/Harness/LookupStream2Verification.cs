@@ -45,6 +45,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -272,7 +273,7 @@ internal static class LookupStream2Verification
             var actualSession = new PaletteFxSessionState();
             var actual = new RoomPaletteFxSystem(actualSession);
             actual.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
-            var cgram = new SamusColourRig();
+            var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
             int frameIndex = 0, elapsed = 0;
             for (int tick = 0; tick <= cycle; tick++)
@@ -1878,16 +1879,16 @@ internal static class LookupStream2Verification
             source, ArtworkJson.Options);
         var stock = CrystalFlashColorFile.Read(new MemoryStream(source));
         AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
-        var cgram = new SamusColourRig();
+        var samus = new SamusColours();
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
             ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.CrystalFlashBodyRecords.Value + frame * 4);
-            cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
+            samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
                 AssertEqual(expected, stock.ResolveBody(frame, color), "Original Crystal Flash body RGB5 word");
-                AssertEqual(expected, cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[color], "Calculated body color reaches the body shade");
+                AssertEqual(expected, samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[color], "Calculated body color reaches the body shade");
                 var rows = document.Body.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
                 rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
                 var changedDocument = document with { Body = rows };
@@ -1895,8 +1896,8 @@ internal static class LookupStream2Verification
                 AssertTrue(changed.body is not null, "Independent supplied body edit retains its rows");
                 for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
                 {
-                    cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBody(verifyFrame));
-                    RgbColor[] changedBeams = cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = changed });
+                    samus.LayOverBeams(SamusShades.CrystalFlashBody(verifyFrame));
+                    RgbColor[] changedBeams = samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = changed });
                     for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
                     {
                         var rgb = rows[verifyFrame][verifyColor];
@@ -1906,28 +1907,28 @@ internal static class LookupStream2Verification
                     }
                 }
                 // Show the original frame's shade again for the remaining checks.
-                cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
+                samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
             }
         }
         var residuals = stock.bubble;
         AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
-        AssertEqual(0x7fff, residuals[new ColourCell(0, 30)], "Final-frame leading white remains supplied data");
+        AssertEqual(0x7fff, residuals[new PaintColour(0, 30)], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {
             ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.BubblePointers.Value + frame * 2);
             ushort original = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
             AssertEqual(original, stock.ResolveBubble(frame, color), "Original bubble payload preserved");
-            cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBubble(frame));
-            AssertEqual(original, cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color], "Original bubble color reaches the bubble shade");
+            samus.LayOverBeams(SamusShades.CrystalFlashBubble(frame));
+            AssertEqual(original, samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color], "Original bubble color reaches the bubble shade");
             var rows = document.Bubble.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
             rows[frame][color] = rows[frame][color] with { Green = (rows[frame][color].Green + 1) % 32 };
             var changedDocument = document with { Bubble = rows };
             var changed = CrystalFlashColorFile.Read(new MemoryStream(CrystalFlashColorFile.Write(changedDocument)));
             for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
             {
-                cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBubble(verifyFrame));
-                RgbColor[] changedBubble = cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = changed });
+                samus.LayOverBeams(SamusShades.CrystalFlashBubble(verifyFrame));
+                RgbColor[] changedBubble = samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = changed });
                 for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
                 {
                     var rgb = rows[verifyFrame][verifyColor];

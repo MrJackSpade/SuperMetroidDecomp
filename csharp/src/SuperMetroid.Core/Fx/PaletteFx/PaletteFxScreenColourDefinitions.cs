@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxScreenColourDefinitions
 {
-    /// <summary>The groups the frontend screens' pictures show.</summary>
-    internal static ImmutableHashSet<PaletteFxColours> ScreenColours { get; } =
+    /// <summary>The groups the title, cinematic and ending screens' pictures show.</summary>
+    internal static ImmutableHashSet<PaletteFxColours> FrontendScreenGroups { get; } =
     [
         PaletteFxColours.TitleLogo,
         PaletteFxColours.NintendoBootLogo,

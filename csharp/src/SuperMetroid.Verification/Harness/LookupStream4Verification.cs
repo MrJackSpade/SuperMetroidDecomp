@@ -125,7 +125,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
-        var cgram = new SamusColourRig();
+        var cgram = new SnesCgram();
         fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
         foreach (var row in rows)
@@ -239,7 +239,7 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
-            var cgram = new SamusColourRig();
+            var cgram = new SnesCgram();
             fx.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
             foreach (var row in nativeRows)
@@ -473,7 +473,7 @@ internal static class LookupStream4Verification
             var nativeSession = new PaletteFxSessionState();
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
-            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
+            var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
@@ -549,7 +549,7 @@ internal static class LookupStream4Verification
             var nativeSession = new PaletteFxSessionState();
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
-            var nativeCgram = new SamusColourRig(); var installedCgram = new SamusColourRig();
+            var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.SpawnDefinition(definition.DefinitionPointer, 0);
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
@@ -970,7 +970,7 @@ internal static class LookupStream4Verification
             }
             for (int frame = 0; frame < 7; frame++)
             {
-                AssertEqual(frame == 6 || unresolved, values.ContainsKey(new ColourCell(frame, color)), "Only explicit unresolved columns and final colors remain stored");
+                AssertEqual(frame == 6 || unresolved, values.ContainsKey(new PaintColour(frame, color)), "Only explicit unresolved columns and final colors remain stored");
                 bool calculated = SporeSpawnDeathFade.TryLevelColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out RgbColor value);
                 AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
                 if (calculated)
@@ -1038,7 +1038,7 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 7; frame++)
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(frame == 6, values.ContainsKey(new ColourCell(frame, color)), "Stock background has no interior fallback samples");
+                AssertEqual(frame == 6, values.ContainsKey(new PaintColour(frame, color)), "Stock background has no interior fallback samples");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
                     SporeSpawnDeathFade.BackgroundColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
                     "Direct background calculation matches every original word independently of catalog loading");
@@ -1097,7 +1097,7 @@ internal static class LookupStream4Verification
         for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(frame == 7, values.ContainsKey(new ColourCell(frame, color)), "Only final endpoint row remains stored in stock fade");
+                AssertEqual(frame == 7, values.ContainsKey(new PaintColour(frame, color)), "Only final endpoint row remains stored in stock fade");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
                     SporeSpawnColors.CalculateDeathSpriteColor(RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), RgbColor.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
                     "Direct channel interpolation equals every original sprite death word without loading fallback samples");
@@ -1747,13 +1747,13 @@ internal static class LookupStream4Verification
             }
             for (int selection = 0; selection < 12; selection++)
             {
-                var actual = new SamusColourRig();
+                var actual = new SamusColours();
                 // The beams name the selection's shade (#1512); the import resolves it from the selected palettes.
                 if (edit is -1 or 0 or 575)
-                    SamusProjectileSystem.LoadBeamPalette(actual.Samus, (SamusBeamFlags)((ushort)(selection | 0x1000)));
-                else actual.Samus.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(selection)));
+                    SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)((ushort)(selection | 0x1000)));
+                else actual.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(selection)));
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
-                RgbColor[] shown = actual.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = selected });
+                RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = selected });
                 for (int color = 0; color < 16; color++)
                 {
                     ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2));
@@ -2405,17 +2405,19 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a277+color*2)),selected.ResolveBackground(color),"Intro edits leave background independent");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5a1f7+color*2)),selected.ResolveSprite(color),"Intro edits leave sprite independent");
             }
-            var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
+            var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,RgbColor.FromWord(0x1234));
             selected.ApplyIntro(cgram);
             for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
             if(edit is -1 or 0 or 48 or 74)
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SamusColourRig(); var vram=new SnesVram();
+                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SnesCgram(); var vram=new SnesVram();
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
-                for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
+                // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
+                LayDraygonShading(actual, selected, (enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Colours);
+                for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
                 AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
             }
         }
@@ -2464,7 +2466,7 @@ internal static class LookupStream4Verification
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++)cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
+                var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,RgbColor.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,5);
                 for(int color=0;color<256;color++)
                 {
@@ -2478,12 +2480,12 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
+                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SnesCgram();
                                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
+                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and independent edited clear/color targets");
                 }
             }
@@ -2526,7 +2528,7 @@ internal static class LookupStream4Verification
             }
             foreach(bool white in new[]{false,true})
             {
-                var cgram=new GameplayColours(new SpriteColourSets()); for(int color=0;color<256;color++) cgram.AsPaletteColors().SetColor(color,RgbColor.FromWord(0x1234));
+                var cgram=new SnesCgram(); for(int color=0;color<256;color++) cgram.SetColor(color,RgbColor.FromWord(0x1234));
                 selected.ApplyHurt(cgram,white,3);
                 for(int color=0;color<256;color++)
                 {
@@ -2540,12 +2542,12 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
-                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
+                var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SnesCgram();
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
+                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves edited targets and health overlay");
                 }
             }
@@ -2579,7 +2581,7 @@ internal static class LookupStream4Verification
             AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
             for (int band = 0; band < 8; band++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets()); for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
+                var cgram = new SnesCgram(); for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 selected.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
@@ -2592,21 +2594,21 @@ internal static class LookupStream4Verification
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
-                var cgram = new SamusColourRig();
+                var cgram = new SnesCgram();
                 RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
                 Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthPaletteBand = null;
-                    update(state);
+                    update(state); LayDraygonShading(cgram, selected, state.Colours);
                     AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
-                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
-                    cgram.SetColor(89, RgbColor.FromWord(0x1234)); update(state);
-                    AssertEqual(0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
-                    body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null);
+                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
+                    PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
+                    AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
+                    body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = WrappingCountdown.Start(0); hurt(body,state,null);
+                    body.FlashTimer = WrappingCountdown.Start(0); hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
@@ -2649,7 +2651,7 @@ internal static class LookupStream4Verification
                 AssertEqual(Native(document.WhiteFlash[color]), catalog.ResolveWhiteFlash(color), "Draygon native/edited flash remains independent");
             for (int band = 0; band < 8; band++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets());
+                var cgram = new SnesCgram();
                 catalog.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 4; color++)
                 {
@@ -2658,7 +2660,7 @@ internal static class LookupStream4Verification
                     AssertEqual(expected, cgram.Colors[89 + color], "Draygon health interpolation actual CGRAM transfer");
                 }
             }
-            var flashCgram = new GameplayColours(new SpriteColourSets());
+            var flashCgram = new SnesCgram();
             catalog.ApplyHurt(flashCgram, true, -1);
             for (int color = 0; color < 16; color++)
             {
@@ -2670,7 +2672,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
-        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new GameplayColours(new SpriteColourSets()), 8), "Draygon out-of-range health band rejected");
+        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 8), "Draygon out-of-range health band rejected");
     }
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>
@@ -3620,5 +3622,30 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyFlyFrameIdentities), () => VerifyFlyFrameIdentities(source));
         Suite(nameof(VerifyZebesEscapeExplosionDefinitions), () => VerifyZebesEscapeExplosionDefinitions(source));
         return 0;
+    }
+
+    /// <summary>Every shade Draygon's colours can lay over his room's pictures: his material colours, their white flash and each health band.</summary>
+    private static readonly SuperMetroid.Core.Assets.PictureShade[] DraygonRoomShades =
+    [
+        SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Background,
+        SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.BackgroundWhite,
+        .. Enumerable.Range(0, 8).Select(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Health),
+    ];
+
+    /// <summary>The shading Draygon's colours give his room's pictures, which share his background colours (#1512).</summary>
+    private static PictureShading DraygonRoomShading(DraygonColours colours) =>
+        GameplayShadingProbe.ShadingOf(colours, GameplayPictures.Room, DraygonRoomShades);
+
+    /// <summary>
+    /// Lays the shading Draygon's colours publish over <paramref name="cgram"/> as <paramref name="catalog"/>'s imported
+    /// shades colour it (#1512): his room's shades over the background colours, then his sprites' over the sprite colours,
+    /// each in the order he shows them.
+    /// </summary>
+    private static void LayDraygonShading(SnesCgram cgram, SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork.DraygonColorCatalog catalog, DraygonColours colours)
+    {
+        foreach (SuperMetroid.Core.Assets.PictureShade shade in DraygonRoomShading(colours).Shades)
+            catalog.ShowImported(cgram, shade);
+        foreach (SuperMetroid.Core.Assets.PictureShade shade in colours.Sprites.Shades)
+            catalog.ShowImported(cgram, shade);
     }
 }

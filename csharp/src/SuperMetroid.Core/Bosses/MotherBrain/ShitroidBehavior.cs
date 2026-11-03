@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;

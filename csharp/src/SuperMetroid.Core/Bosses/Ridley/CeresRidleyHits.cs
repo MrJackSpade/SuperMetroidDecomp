@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;

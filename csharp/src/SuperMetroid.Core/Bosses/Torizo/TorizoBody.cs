@@ -10,18 +10,15 @@ internal sealed class TorizoBody
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Exposes the live body and belly colours Torizo's body colouring loads.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
     /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
     private readonly TorizoAttacks _attacks;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal TorizoBody(EnemyRoomBinding room, EnemyPresentation presentation, TorizoEncounterAccess access, TorizoAttacks attacks)
+    internal TorizoBody(EnemyRoomBinding room, TorizoEncounterAccess access, TorizoAttacks attacks)
     {
         _room = room;
-        _presentation = presentation;
         _access = access;
         _attacks = attacks;
     }

@@ -181,7 +181,7 @@ internal sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
-        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
+        FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});

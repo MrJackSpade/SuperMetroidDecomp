@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -21,20 +19,17 @@ internal sealed class TorizoMovement
     private readonly EnemyTerrain _terrain;
     /// <summary>Receives the impact quake when a falling or jumping statue lands.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal TorizoMovement(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPresentation presentation, TorizoBody body, TorizoEncounterAccess access)
+    internal TorizoMovement(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, TorizoBody body, TorizoEncounterAccess access)
     {
         _room = room;
         _terrain = terrain;
         _earthquake = earthquake;
-        _presentation = presentation;
         _body = body;
         _access = access;
     }

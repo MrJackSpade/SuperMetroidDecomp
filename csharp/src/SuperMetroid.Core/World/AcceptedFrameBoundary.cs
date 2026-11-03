@@ -28,8 +28,6 @@ internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
-    /// <summary>Publishes rebound beam art after the frame's accepted artwork transfers.</summary>
-    private readonly RuntimeArtwork _artwork;
     /// <summary>Captures the BG1 and BG2 scroll registers visible with the frame boundary.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains the frame-boundary display latch.</summary>
@@ -72,7 +70,6 @@ internal sealed class AcceptedFrameBoundary
     internal AcceptedFrameBoundary(AcceptedFrameBoundaryDependencies dependencies)
     {
         _input = dependencies.Input;
-        _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
         _displayedSprites = dependencies.DisplayedSprites;

@@ -3,8 +3,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

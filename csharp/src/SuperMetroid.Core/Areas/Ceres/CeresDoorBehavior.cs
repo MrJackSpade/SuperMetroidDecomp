@@ -9,7 +9,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

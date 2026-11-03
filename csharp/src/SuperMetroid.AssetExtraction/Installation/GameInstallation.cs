@@ -425,7 +425,6 @@ public sealed record GameInstallation(string Root)
             EndingFloorArt = LoadEndingMode7Art(),
             EndingObjectArt = LoadEndingObjectArt(),
             EndingPaletteArt = LoadEndingPalettes(),
-            RoomPaletteArt = LoadRoomPalettes(),
             RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),
             RoomLevelStreams = LoadRoomLevelStreams(),

@@ -124,8 +124,8 @@ internal static class RoomAssetRomDataVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            LoadedRoomAssets native = LoadFixtureRoomAssets(header, palettes, layouts);
-            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, palettes, layouts);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header, layouts);
+            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             // The common room elements' characters are the catalog's for every room (#1466), so only the tileset's are compared.

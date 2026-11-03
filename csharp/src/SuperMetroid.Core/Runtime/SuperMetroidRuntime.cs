@@ -235,7 +235,6 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
         Bind(a => a.GameplayBasePalettes, value => Artwork.InitialPaletteArt = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
-        Bind(a => a.RoomPaletteArt, value => Artwork.RoomPaletteArt = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);

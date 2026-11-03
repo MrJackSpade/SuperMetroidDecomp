@@ -37,7 +37,7 @@ internal static class DraygonTilemapProductionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Draygon.Pointer);
         var installation = RepositoryInstallation.Installation;
-        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
+        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState();
         random.SetRandomNumber(0x1234);

@@ -224,7 +224,6 @@ internal static class MapPresentationVerification
         /// <summary>Installed room-specific character sheets bound before room initialization.</summary>
         private readonly RoomCharacterAtlases roomCharacters;
         /// <summary>Installed room palette data used instead of cartridge graphics fallback.</summary>
-        private readonly RoomStaticPalettes roomPalettes;
 
         /// <summary>The pre-coloured block pictures room loads draw from (#1392).</summary>
         private readonly InstalledRoomArtwork roomBlockSheets;
@@ -250,7 +249,6 @@ internal static class MapPresentationVerification
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
             roomCharacters = installation.LoadRoomCharacters();
-            roomPalettes = installation.LoadRoomPalettes();
             roomBlockSheets = installation.LoadRoomBlockSheets();
             visualLayouts = installation.LoadRoomVisualLayouts();
             levelStreams = installation.LoadRoomLevelStreams();
@@ -266,7 +264,6 @@ internal static class MapPresentationVerification
         public void Bind(SuperMetroidRuntime runtime)
         {
             runtime.Artwork.RoomCharacterArt = roomCharacters;
-            runtime.Artwork.RoomPaletteArt = roomPalettes;
             runtime.Artwork.RoomBlockSheets = roomBlockSheets;
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
@@ -1369,7 +1366,6 @@ internal static class MapPresentationVerification
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
-
 
     /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
     internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, ImportedAreaMap[] maps)

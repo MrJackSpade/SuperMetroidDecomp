@@ -122,7 +122,6 @@ internal static class RoomVisualLayoutsVerification
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
                 RoomLevelData loaded = LoadFixtureRoomAssets(room,
-                    paletteArt: palettes,
                     visualLayouts: stock, levelStreams: levelStreams).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
                     $"room ${header.Pointer:X4} state ${statePointer:X4} physical allocation");

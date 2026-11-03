@@ -184,11 +184,8 @@ internal sealed class RuntimeArtwork
         pendingBeamPalette = null;
     }
 
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
-    /// <summary>Installed base room palettes, rebound when a saved game state is restored.</summary>
-    public RoomStaticPalettes? RoomPaletteArt { get; set; }
 
     /// <summary>Installed visual room layouts, rebound when a saved game state is restored.</summary>
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }

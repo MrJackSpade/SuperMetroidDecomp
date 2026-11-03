@@ -1256,11 +1256,11 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        _artwork.RoomPaletteArt is { } palettes && _artwork.RoomVisualLayouts is { } layouts &&
+        _artwork.RoomVisualLayouts is { } layouts &&
         _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(palettes, layouts, levelStreams, blockSheets)
+            ? new RoomAssetCatalogs(layouts, levelStreams, blockSheets)
             : throw new InvalidOperationException(
-                "Room loading requires installed palette, visual-layout, level-stream and block-sheet assets.");
+                "Room loading requires installed visual-layout, level-stream and block-sheet assets.");
 
 
     /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>

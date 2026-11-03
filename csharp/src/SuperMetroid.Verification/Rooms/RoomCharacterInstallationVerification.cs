@@ -103,8 +103,7 @@ internal static class RoomCharacterInstallationVerification
         string paletteOverridePath = Path.Combine(installed.RoomPaletteOverrideDirectory, paletteName);
         File.WriteAllText(paletteOverridePath, paletteDocument.ToJsonString());
         RoomStaticPalettes editedPalettes = installed.LoadRoomPalettes();
-        LoadedRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing,
-            paletteArt: editedPalettes);
+        LoadedRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing);
         // A room's pictures carry its palette's colours, which the import pre-colours them in (#1512): the installed
         // override changes the palette the import composes from, colour for colour.
         AssertEqual(editedPaletteRoom.Tileset, native.Tileset, "the edited palette's room loads");
@@ -251,8 +250,7 @@ internal static class RoomCharacterInstallationVerification
             "scrolling-sky stock is restored while its override survives repair");
         AssertTrue(repaired.LoadRoomCharacters().GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
             "repaired installation restores the stock room characters");
-        LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
-            paletteArt: repaired.LoadRoomPalettes());
+        LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing);
         AssertEqual(repairedPaletteRoom.Tileset, native.Tileset, "the repaired palette's room loads");
         AssertTrue(RoomStaticPaletteImage.Colours(repaired.LoadRoomPalettes().GetAt(paletteSource)).AsSpan().SequenceEqual(editedColours),
             "repaired installation retains the selected user room palette");

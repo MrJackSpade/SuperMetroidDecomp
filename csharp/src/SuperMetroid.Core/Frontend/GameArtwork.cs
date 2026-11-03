@@ -62,9 +62,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Ending palettes.</summary>
     public EndingPaletteSet? EndingPaletteArt { get; init; }
 
-    /// <summary>Room static palettes.</summary>
-    public RoomStaticPalettes? RoomPaletteArt { get; init; }
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork? RoomBlockSheets { get; init; }
 

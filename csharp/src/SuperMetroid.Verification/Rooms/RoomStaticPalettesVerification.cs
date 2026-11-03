@@ -53,9 +53,9 @@ internal static class RoomStaticPalettesVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            // The room loads from the installed palettes with source reads blocked; its pictures carry the palette's
-            // colours, so the load colours nothing (#1512).
-            LoadedRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
+            // The room loads with source reads blocked; its pictures carry the palette's colours, which only the import
+            // reads, so the load colours nothing (#1512).
+            LoadedRoomAssets installed = LoadFixtureRoomAssets(header);
             AssertEqual(RoomTilesets.Get(header.State.GraphicsSet), installed.Tileset,
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }

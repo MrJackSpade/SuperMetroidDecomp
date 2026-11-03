@@ -27,13 +27,13 @@ internal static class PhantoonColors
         return edits.GetValueOrDefault(new ColourCell(0, color));
     }
 
-    /// <summary>Resolves one powered-ship colour of a faded set from its edit or the calculated paint.</summary>
-    internal static RgbColor PowerOn(Dictionary<BackgroundSetColour, RgbColor> edits, BackgroundColourSet set, int color)
+    /// <summary>Resolves one powered-ship colour of a faded part from its edit or the calculated paint.</summary>
+    internal static RgbColor PowerOn(Dictionary<WreckedShipPoweredColour, RgbColor> edits, WreckedShipPoweredPart part, int color)
     {
-        if (!PhantoonColorDefinitions.PowerOnSets.Contains(set))
-            throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on does not fade this set.");
+        if (!PhantoonColorDefinitions.PoweredParts.Contains(part))
+            throw new ArgumentOutOfRangeException(nameof(part), part, "The Wrecked Ship's power-on does not fade this part.");
         if ((uint)color >= ColourSets.SetColours) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new BackgroundSetColour(set, color), out RgbColor edit) ? edit : WreckedShipPowerPaint.Color(set, color);
+        return edits.TryGetValue(new WreckedShipPoweredColour(part, color), out RgbColor edit) ? edit : WreckedShipPowerPaint.Color(part, color);
     }
 
     /// <summary>Rejects a health palette index outside the eight Phantoon bands.</summary>

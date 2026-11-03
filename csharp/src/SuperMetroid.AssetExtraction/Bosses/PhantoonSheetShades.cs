@@ -55,10 +55,11 @@ internal static class PhantoonSheetShades
     internal static IReadOnlyList<SheetShade> PowerOn(BossArtworkCatalog bosses, ReadOnlySpan<RgbColor> standard)
     {
         PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon's room is shaded from the installed Phantoon colours.");
-        int inks = PhantoonColorDefinitions.PowerOnSets.Length * GroupColours;
+        // The parts the power fades are the room's first colour groups, in order.
+        int inks = PhantoonColorDefinitions.PoweredParts.Length * GroupColours;
         RgbColor[] start = standard[..inks].ToArray();
         RgbColor[] goal = [.. Enumerable.Range(0, inks).Select(ink =>
-            phantoon.ResolvePowerOn(PhantoonColorDefinitions.PowerOnSets[ink / GroupColours], ink % GroupColours))];
+            phantoon.ResolvePowerOn(PhantoonColorDefinitions.PoweredParts[ink / GroupColours], ink % GroupColours))];
         return [.. Enumerable.Range(0, PhantoonShades.PowerOnDenominator + 2).Select(numerator =>
             SheetShade.Run(PhantoonShades.PowerOn(numerator), 0, Faded(start, goal, PhantoonShades.PowerOnDenominator, numerator)))];
     }

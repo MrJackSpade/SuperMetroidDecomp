@@ -29,14 +29,4 @@ public sealed class DraygonColorCatalog
 
     /// <summary>Gets one of the four selected colors of one of Draygon's eight health bands.</summary>
     public RgbColor ResolveHealthBand(int band, int color) => DraygonPalette.HealthBand(selection.HealthBands, band, color);
-
-    /// <summary>Installs the selected opening colors in their place among the colours.</summary>
-    public void ApplyIntro(GameplayColours colours) => DraygonPalette.ApplyIntro(this, colours);
-
-    /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
-    public void ApplyHurt(GameplayColours colours, bool whiteFrame, int healthBand) =>
-        DraygonPalette.ApplyHurt(this, colours, whiteFrame, healthBand);
-
-    /// <summary>Installs the four-color health band 0-7.</summary>
-    public void ApplyHealthBand(GameplayColours colours, int band) => DraygonPalette.ApplyHealthBand(this, colours, band);
 }

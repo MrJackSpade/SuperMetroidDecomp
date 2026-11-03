@@ -89,7 +89,6 @@ internal static class NativeSnapshotImport
             level.SetBehavior(index, new RoomBlockBehavior(memory[NativeSnapshotMemory.Bts + index]));
         }
 
-        runtime.Colours.AsPaletteColors().LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, CgramPalettes.ByteCount));
         var initialPaletteSlots = runtime.RoomPaletteFx.slots;
         for (int slot = 0; slot < initialPaletteSlots.Length; slot++)
         {

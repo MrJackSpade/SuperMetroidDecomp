@@ -165,9 +165,7 @@ internal sealed class SuperMetroidRuntime
             "Gameplay requires the installed Samus overread services.");
         System = new SharedGameState(session.Random, session.EarthquakeSoundDelay, session.StoredExploredMaps);
         Display = new GameplayDisplayState();
-        var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState();
-        Colours = new GameplayColours(spriteSets);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -199,13 +197,11 @@ internal sealed class SuperMetroidRuntime
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Colours = Colours, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
 
-        // Gameplay starts from the installed initial palette.
-        (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
-            "Gameplay requires the installed initial palette catalog.")).LoadInitial(Colours);
+        // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
     }
 
@@ -326,12 +322,6 @@ internal sealed class SuperMetroidRuntime
     /// <exception cref="InvalidOperationException">No frame boundary has latched the HUD yet.</exception>
     public ShownHud AcceptedHud =>
         Display.Latched.Hud ?? throw new InvalidOperationException("No frame boundary has latched the HUD.");
-
-    /// <summary>
-    /// Gameplay's colours, initialized from the installed initial palette; the positions Samus holds are her colours
-    /// (#1405).
-    /// </summary>
-    public GameplayColours Colours { get; }
 
     /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
     public PaletteFxSessionState PaletteFxSession { get; } = new();

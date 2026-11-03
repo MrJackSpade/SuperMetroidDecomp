@@ -27,7 +27,6 @@ internal static class NativeSnapshotPauseImport
             "pause import covers the stable pause menu");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
-        runtime.Colours.AsPaletteColors().LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, MapPresentation = game.Artwork.MapPresentation, SpriteSheets = game.Artwork.SpriteSheets ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });

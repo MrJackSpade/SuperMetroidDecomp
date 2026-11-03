@@ -41,9 +41,8 @@ internal static class GameplayBasePalettesVerification
 
             var guarded = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: baseline);
-            AssertTrue(runtime.Colours.Colors.SequenceEqual(baseline.Initial.ToArray()),
-                "runtime construction consumes installed starting colors without cartridge reads");
+            // Runtime construction binds the installed palettes without cartridge reads; it writes no colours (#1512).
+            _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: baseline);
 
             var document = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(
                 File.ReadAllBytes(Path.Combine(stock, GameplayBasePaletteFormat.ArtworkFileName)),
@@ -57,11 +56,7 @@ internal static class GameplayBasePalettesVerification
             string overridePath = Path.Combine(overrides, GameplayBasePaletteFormat.ArtworkFileName);
             File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
             GameplayBasePalette edited = GameplayBasePaletteFiles.Load(stock, overrides);
-            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: edited);
-            AssertEqual(edited.Initial[1], editedRuntime.Colours.Colors[1],
-                "edited starting color reaches live CGRAM");
-            AssertTrue(editedRuntime.Colours.Colors[1] != runtime.Colours.Colors[1],
-                "edited starting color differs from stock");
+            AssertTrue(edited.Initial[1] != baseline.Initial[1], "edited starting color differs from stock");
 
             document.Initial[1] = document.Initial[1] with { Red = 32 };
             File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,

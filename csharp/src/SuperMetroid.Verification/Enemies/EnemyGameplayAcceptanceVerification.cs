@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
 using System.Reflection;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
@@ -85,7 +84,7 @@ internal static class EnemyGameplayAcceptanceVerification
             .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
-        (RoomEnemySystem baseline, byte[] beforeCharacters, SamusColourRig beforeColors) = Load(stock);
+        (RoomEnemySystem baseline, byte[] beforeCharacters) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
         AssertEqual(population.Records.Length < EnemySlotOrder.Capacity ? baseline.SlotTable.Slots[population.Records.Length] : null,
             baseline.SlotTable.FindFreeSlot(), "a spawn takes the slot after the compiled population");
@@ -124,7 +123,7 @@ internal static class EnemyGameplayAcceptanceVerification
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
-        (RoomEnemySystem changed, byte[] afterCharacters, SamusColourRig afterColors) = Load(edited);
+        (RoomEnemySystem changed, byte[] afterCharacters) = Load(edited);
         RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
         SpriteArtworkPlacement[] uploads = [.. baseline.Room.Session.SpriteLooks.Uploads];
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
@@ -142,7 +141,10 @@ internal static class EnemyGameplayAcceptanceVerification
         }
         AssertEqual(ChangedOffsets(beforeCharacters, expectedCharacters), ChangedOffsets(beforeCharacters, afterCharacters),
             "PNG replacement changes exactly the authored pixel where its upload lands on the OBJ characters");
-        AssertTrue(new CgramPalettes(beforeColors).ImageEquals(new CgramPalettes(afterColors)), "PNG replacement does not change enemy colors");
+        // An enemy's colours are the shading its slot publishes over the colours the import installs (#1512).
+        for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
+            AssertEqual(baseline.SlotTable.Slots[index].Shading, changed.SlotTable.Slots[index].Shading,
+                $"PNG replacement does not change slot {index}'s shading");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "PNG replacement changes selected presentation identity");
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stockPath, overridePath).ContentIdentity,
             "enemy replacement persists through a fresh catalog load");
@@ -162,13 +164,13 @@ internal static class EnemyGameplayAcceptanceVerification
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-            var vram = new SnesVram(); var colors = new SamusColourRig();
+            var vram = new SnesVram();
             enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram)));
             // The room's enemy tile set reaches the OBJ characters as named transfers.
             var transfers = new EnemyTileTransfers(artwork);
             enemies.GraphicsSet.ShowGraphics();
             byte[] characters = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, transfers).Characters.ToArray();
-            return new LoadResult(enemies, characters, colors);
+            return new LoadResult(enemies, characters);
         }
 
         static bool IsKiHunterPairList(ushort pointer)

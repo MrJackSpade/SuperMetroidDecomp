@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -45,8 +44,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal RoomLevelData Level { get; }
         /// <summary>Fixture VRAM receiving enemy tile presentation.</summary>
         internal SnesVram Vram { get; } = new();
-        /// <summary>Fixture palette memory receiving enemy colors.</summary>
-        internal SamusColourRig Colors { get; } = new();
         /// <summary>Current deterministic RNG word supplied to enemy behavior.</summary>
         internal ushort RandomWord { get; private set; } = 1;
         /// <summary>Number of RNG steps consumed by the running actor.</summary>

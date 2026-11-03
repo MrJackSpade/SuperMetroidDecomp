@@ -706,7 +706,8 @@ internal static class CollectiblesVerification
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory());
-        var cgram = new SamusColourRig();
+        // Samus's suit colours are the suit shade she names, which the import pre-colours from the suit tables (#1512).
+        var suitColours = new SamusColours();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -715,7 +716,7 @@ internal static class CollectiblesVerification
             EquippedItems = SamusEquipmentFlags.VariaSuit,
             CollectedItems = SamusEquipmentFlags.VariaSuit,
         };
-        SamusNormalSuitPalette.LoadPower(cgram.Samus);
+        SamusNormalSuitPalette.LoadPower(suitColours);
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
@@ -729,7 +730,7 @@ internal static class CollectiblesVerification
             "suit transformation centers Samus horizontally");
         AssertEqual((ushort)(0x0200 + 136), samus.Position.Y.Whole,
             "suit transformation centers Samus vertically");
-        AssertEqual(0x001f, cgram.Colors[192],
+        AssertEqual(SamusShades.Suit(SamusSuit.Power), suitColours.Suit,
             "suit palette is not revealed at transformation setup");
 
         // Begin publishes an empty beam. The first stage call lights exactly eight
@@ -742,12 +743,12 @@ internal static class CollectiblesVerification
         // stage pre-instruction ($91:D5A2): neither changes the window table.
         for (int installCall = 0; installCall < 2; installCall++)
         {
-            pickup.Step(samus, cgram.Samus);
+            pickup.Step(samus, suitColours);
             AssertEqual(SamusSuitPickupBeam.None, pickup.Beam,
                 "instruction-list setup calls leave the beam empty");
             AssertEqual(SamusSuitPickupStage.LightBeamAppears, pickup.Stage, "instruction-list setup calls stay in stage zero");
         }
-        pickup.Step(samus, cgram.Samus);
+        pickup.Step(samus, suitColours);
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.GrowingFromEdges, 120, 120, 8), pickup.Beam,
             "stage zero publishes eight grown scanlines of the X=120 beam");
         AssertEqual(new ScreenWindow([WindowRectangle.Spanning(120, 0, 120, 7), WindowRectangle.Spanning(120, 248, 120, 255)]),
@@ -764,7 +765,7 @@ internal static class CollectiblesVerification
         var flashes = new List<SamusSuitPickupFlash> { (pickup.Flash ?? throw new InvalidOperationException("Verification requires pickup.Flash.")) };
         while (pickup.IsActive && transformationFrames < 2000)
         {
-            pickup.Step(samus, cgram.Samus);
+            pickup.Step(samus, suitColours);
             transformationFrames++;
             if (pickup.Flash is { } flash)
             {
@@ -777,8 +778,8 @@ internal static class CollectiblesVerification
                 observedReveal = true;
                 AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose,
                     "stage three installs suited front-facing pose");
-                AssertEqual(0x03e0, cgram.Colors[192],
-                    "stage three loads Varia palette from ROM");
+                AssertEqual(SamusShades.Suit(SamusSuit.Varia), suitColours.Suit,
+                    "stage three shows the Varia Suit");
             }
         }
         AssertTrue(observedReveal, "Varia transformation reaches stage-three reveal");
@@ -793,8 +794,8 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
-        SamusNormalSuitPalette.Load(cgram.Samus, samus.EquippedItems);
-        AssertEqual(0x7c00, cgram.Colors[192],
+        SamusNormalSuitPalette.Load(suitColours, samus.EquippedItems);
+        AssertEqual(SamusShades.Suit(SamusSuit.Gravity), suitColours.Suit,
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
@@ -898,8 +899,8 @@ internal static class CollectiblesVerification
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
             AssertEqual(initialMetadata, history.PreviousMovement, "suit entry commits front metadata");
             int frames = 0;
-            var cgram = new SamusColourRig();
-            while (pickup.Stage != SamusSuitPickupStage.LightBeamShrinks && frames++ < 2000) pickup.Step(samus, cgram.Samus);
+            var samusColours = new SamusColours();
+            while (pickup.Stage != SamusSuitPickupStage.LightBeamShrinks && frames++ < 2000) pickup.Step(samus, samusColours);
             AssertEqual(SamusSuitPickupStage.LightBeamShrinks, pickup.Stage, "suit history fixture reaches reveal");
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentMovement, "suit reveal shifts initial metadata");

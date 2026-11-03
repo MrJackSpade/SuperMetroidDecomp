@@ -53,12 +53,12 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             "Crystal Flash timing production fixture begins");
 
         var guard = NewCrystalFlashPaletteTimingReadGuard(rom);
-        var cgram = new SamusColourRig();
+        var samusColours = new SamusColours();
         int callCount = CrystalFlashPaletteTimingDefinitions.RecordCount *
             CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         for (int call = 0; call < callCount; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(cgram.Samus, samus),
+            AssertTrue(samus.CrystalFlash.UpdatePalette(samusColours, samus),
                 $"Crystal Flash timing call {call} retains palette ownership");
 
             ushort expectedTimer = unchecked((ushort)(

@@ -22,11 +22,11 @@ internal static class SamusPaletteDefinitionsVerification
     internal static void VerifySamusPaletteRomData()
     {
         // Samus's visor shade, laid over her suit, recolours the ink the native X-ray catalog names (#1512).
-        var visorRig = new SamusColourRig();
-        visorRig.Samus.ShowVisor(SamusShades.Visor(0));
-        AssertEqual(SamusShades.Visor(0), visorRig.Samus.VisorShade, "the visor shows the shade laid over it");
+        var visorColours = new SamusColours();
+        visorColours.ShowVisor(SamusShades.Visor(0));
+        AssertEqual(SamusShades.Visor(0), visorColours.VisorShade, "the visor shows the shade laid over it");
         AssertEqual(InstalledFixtures.SamusShadeSources.Visor.Resolve(0),
-            visorRig.Samus.ShownSuit(InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex - 192],
+            visorColours.ShownSuit(InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex - 192],
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount,

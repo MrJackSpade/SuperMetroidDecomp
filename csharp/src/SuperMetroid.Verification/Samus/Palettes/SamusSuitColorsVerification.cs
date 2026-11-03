@@ -90,20 +90,20 @@ internal static class SamusSuitColorsVerification
         var sources = InstalledFixtures.SamusShadeSources with { Suits = colors };
         for (int suit = 0; suit < equipment.Length; suit++)
         {
-            var cgram = new SamusColourRig();
-            SamusNormalSuitPalette.Load(cgram.Samus, SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]));
+            var samusColours = new SamusColours();
+            SamusNormalSuitPalette.Load(samusColours, SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]));
             for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
                 AssertEqual(
                     (ushort)(ReadNativeSuitColor(cartridge, sourceAddresses[suit], color) & 0x7fff),
-                    cgram.Samus.ShownSuit(sources)[color],
+                    samusColours.ShownSuit(sources)[color],
                     $"suit {suit} color {color} is installed without a runtime bus");
         }
 
-        var power = new SamusColourRig();
-        SamusNormalSuitPalette.LoadPower(power.Samus);
+        var powerColours = new SamusColours();
+        SamusNormalSuitPalette.LoadPower(powerColours);
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
             AssertEqual(colors.Resolve(SamusSuit.Power, color),
-                power.Samus.ShownSuit(sources)[color],
+                powerColours.ShownSuit(sources)[color],
                 $"Power Suit color {color} is installed without a runtime bus");
 
         Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers and the Power shade pass without a runtime bus.");
@@ -148,7 +148,7 @@ internal static class SamusSuitColorsVerification
             "Samus suit color override changes installed-content identity");
 
         var guard = NewSuitColorReadGuard(bus);
-        var cgram = new SamusColourRig();
+        var samusColours = new SamusColours();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         // The edited catalog reaches Samus through the shades the import makes from it (#1512).
         var editedSources = InstalledFixtures.SamusShadeSources with { Suits = InstalledAreaMapPresentation.SamusColoursOf(edited).Suits };
@@ -161,11 +161,11 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
-            SamusNormalSuitPalette.Load(cgram.Samus, samus.EquippedItems);
+            SamusNormalSuitPalette.Load(samusColours, samus.EquippedItems);
             AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(offsets[suit], 1),
-                cgram.Samus.ShownSuit(editedSources)[1],
+                samusColours.ShownSuit(editedSources)[1],
                 $"edited suit {suit} reaches live Samus CGRAM");
-            AssertTrue(cgram.Samus.ShownSuit(editedSources)[1] !=
+            AssertTrue(samusColours.ShownSuit(editedSources)[1] !=
                 InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(offsets[suit], 1),
                 $"edited suit {suit} differs from stock");
         }
@@ -173,28 +173,28 @@ internal static class SamusSuitColorsVerification
         samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[1]);
         samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                cgram.Samus, samus.EquippedItems),
+                samusColours, samus.EquippedItems),
             "momentum cancellation admits installed normal suit restoration");
         AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Varia, 1),
-            cgram.Samus.ShownSuit(editedSources)[1],
+            samusColours.ShownSuit(editedSources)[1],
             "momentum cancellation preserves edited Varia color");
 
         samus.HurtFlashCounter = 2;
         // Show another shade first so only a real normal-suit reload passes.
-        cgram.Samus.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
+        samusColours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
         SamusHurtFlashPalette.Update(
-            cgram.Samus, samus, controllerInput: 0);
-        AssertEqual(SamusShades.Suit(SamusSuit.Varia), cgram.Samus.Suit,
+            samusColours, samus, controllerInput: 0);
+        AssertEqual(SamusShades.Suit(SamusSuit.Varia), samusColours.Suit,
             "even hurt-flash frame restores the normal suit's shade");
         AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Varia, 1),
-            cgram.Samus.ShownSuit(editedSources)[1],
+            samusColours.ShownSuit(editedSources)[1],
             "hurt-flash recovery preserves edited Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
+        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
             "Screw Attack recovery frame restores the normal suit");
         AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Varia, 1),
-            cgram.Samus.ShownSuit(editedSources)[1],
+            samusColours.ShownSuit(editedSources)[1],
             "Screw Attack recovery preserves edited Varia color");
 
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);

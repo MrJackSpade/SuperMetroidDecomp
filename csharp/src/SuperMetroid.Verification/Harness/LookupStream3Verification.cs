@@ -1766,7 +1766,7 @@ internal static class LookupStream3Verification
                 new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)), stock);
         void Check(MotherBrainRainbowPalettePresentation palette)
         {
-            var cgram = new GameplayColours(new SpriteColourSets());
+            var cgram = new SnesCgram();
             var bus = new TestAddressSpace();
             for (int frame = 0; frame < 8; frame++)
             {
@@ -1809,7 +1809,7 @@ internal static class LookupStream3Verification
         Check(stock);
         void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
         {
-            var cgram = new GameplayColours(new SpriteColourSets());
+            var cgram = new SnesCgram();
             for (int frame = 0; frame <= 10; frame++)
             {
                 var expected = frame == 10 ? document.Normal : rainbow[frame];
@@ -1826,11 +1826,11 @@ internal static class LookupStream3Verification
         void CheckRevival(MotherBrainRainbowPalettePresentation palette)
         {
             var bus = new TestAddressSpace();
-            var cgram = new GameplayColours(new SpriteColourSets());
+            var cgram = new SnesCgram();
             for (int frame = 0; frame < 8; frame++)
             {
-                cgram.AsPaletteColors().SetColor(0x4e, new RgbColor(27, 3, 0));
-                cgram.AsPaletteColors().SetColor(0x9e, new RgbColor(27, 3, 0));
+                cgram.SetColor(0x4e, new RgbColor(27, 3, 0));
+                cgram.SetColor(0x9e, new RgbColor(27, 3, 0));
                 palette.ApplyFromGrey(cgram, frame);
                 for (int color = 0; color < 13; color++)
                 {
@@ -1940,7 +1940,7 @@ internal static class LookupStream3Verification
             row[index] = original;
         }
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new GameplayColours(new SpriteColourSets()), invalid), "stream 3 rainbow bounds");
+            AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
         foreach (var fade in new[] { stock.toGrey, stock.fakeDeathToGrey })
             AssertTrue(fade.supplied is null, "stream 3 drain stock intermediate rows discarded");
         Check(Load(document with { Version = 2, FakeDeathToGrey = null }, stock));
@@ -1968,8 +1968,8 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new GameplayColours(new SpriteColourSets()), invalid), "stream 3 drain bounds");
-            AssertThrows<InvalidDataException>(() => stock.ApplyFakeDeathToGrey(new GameplayColours(new SpriteColourSets()), invalid), "stream 3 fake-death bounds");
+            AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new SnesCgram(), invalid), "stream 3 drain bounds");
+            AssertThrows<InvalidDataException>(() => stock.ApplyFakeDeathToGrey(new SnesCgram(), invalid), "stream 3 fake-death bounds");
         }
     }
 
@@ -2382,7 +2382,7 @@ internal static class LookupStream3Verification
             "stream 3 reviewed recovery paints reside only in their domain catalog");
         for (int frame = 0; frame < 7; frame++)
         {
-            var actual = new GameplayColours(new SpriteColourSets());
+            var actual = new SnesCgram();
             stock.ApplyRecoveryLights(actual, frame);
             for (int color = 0; color < 28; color++)
             {
@@ -2404,7 +2404,7 @@ internal static class LookupStream3Verification
                         System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                     for (int checkFrame = 0; checkFrame < 7; checkFrame++)
                     {
-                        var actual = new GameplayColours(new SpriteColourSets());
+                        var actual = new SnesCgram();
                         edited.ApplyRecoveryLights(actual, checkFrame);
                         for (int checkColor = 0; checkColor < 28; checkColor++)
                         {
@@ -2428,18 +2428,18 @@ internal static class LookupStream3Verification
                     System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                 for (int frame = 0; frame < 7; frame++)
                 {
-                    var expected = new GameplayColours(new SpriteColourSets());
-                    var actual = new GameplayColours(new SpriteColourSets());
+                    var expected = new SnesCgram();
+                    var actual = new SnesCgram();
                     stock.ApplyRecoveryLights(expected, frame);
                     edited.ApplyRecoveryLights(actual, frame);
-                    AssertTrue(new CgramPalettes(expected.AsPaletteColors()).ImageEquals(new CgramPalettes(actual.AsPaletteColors())),
+                    AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                         "stream 3 independent final-room edit cannot change recovery content");
                     for (int phase = 0; phase < 2; phase++)
                     {
                         int flashFrame = frame * 2 + phase;
                         stock.ApplyFlash(expected, flashFrame);
                         edited.ApplyFlash(actual, flashFrame);
-                        AssertTrue(new CgramPalettes(expected.AsPaletteColors()).ImageEquals(new CgramPalettes(actual.AsPaletteColors())),
+                        AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                             "stream 3 independent final-room edit cannot change flash content");
                     }
                 }
@@ -2451,11 +2451,11 @@ internal static class LookupStream3Verification
             System.Text.Encoding.UTF8.GetBytes(legacy.ToJsonString())), stock);
         for (int frame = 0; frame < 7; frame++)
         {
-            var expected = new GameplayColours(new SpriteColourSets());
-            var actual = new GameplayColours(new SpriteColourSets());
+            var expected = new SnesCgram();
+            var actual = new SnesCgram();
             stock.ApplyRecoveryLights(expected, frame);
             oldOverride.ApplyRecoveryLights(actual, frame);
-            AssertTrue(new CgramPalettes(expected.AsPaletteColors()).ImageEquals(new CgramPalettes(actual.AsPaletteColors())), "stream 3 legacy room override reuses calculated stock recovery");
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "stream 3 legacy room override reuses calculated stock recovery");
         }
     }
 
@@ -2479,7 +2479,7 @@ internal static class LookupStream3Verification
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
             int operand = MotherBrainSourceDefinitions.RoomColors.FlashBank + entry + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset;
             int source = (MotherBrainSourceDefinitions.RoomColors.FlashBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
-            var actual = new GameplayColours(new SpriteColourSets());
+            var actual = new SnesCgram();
             stock.ApplyFlash(actual, frame);
             for (int color = 0; color < MotherBrainRoomColorDefinitions.SliceColors * 2; color++)
             {
@@ -2507,7 +2507,7 @@ internal static class LookupStream3Verification
                         System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
                     for (int checkFrame = 0; checkFrame < 14; checkFrame++)
                     {
-                        var actual = new GameplayColours(new SpriteColourSets());
+                        var actual = new SnesCgram();
                         edited.ApplyFlash(actual, checkFrame);
                         for (int checkColor = 0; checkColor < 24; checkColor++)
                         {
@@ -2599,7 +2599,7 @@ internal static class LookupStream3Verification
         var node = RequiredJson.Parse(json);
         AssertTrue(stock.phaseTwoRearLeg is null,
             "stream 3 phase-two rear uses approved calculated health basis without stored rows");
-        var phaseTwo = new GameplayColours(new SpriteColourSets());
+        var phaseTwo = new SnesCgram();
         stock.ApplyPhaseTwoInitial(phaseTwo);
         for (int color = 0; color < 15; color++)
         {
@@ -2613,7 +2613,7 @@ internal static class LookupStream3Verification
                 rgb[component] = rgb.Required(component).GetValue<int>() ^ 1;
                 var edited = MotherBrainRoomColorFile.Read(new MemoryStream(
                     System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
-                var actual = new GameplayColours(new SpriteColourSets());
+                var actual = new SnesCgram();
                 edited.ApplyPhaseTwoInitial(actual);
                 for (int checkColor = 0; checkColor < 15; checkColor++)
                 {
@@ -2837,7 +2837,7 @@ internal static class LookupStream3Verification
         var attack = stock.phaseTwoAttack;
         AssertTrue(attack.supplied is null,
             "stock attack palette calculates every color without a stored row");
-        var native = new GameplayColours(new SpriteColourSets());
+        var native = new SnesCgram();
         stock.ApplyPhaseTwoInitial(native);
         for (int color = 0; color < MotherBrainRoomColorDefinitions.PhaseTwoColors; color++)
         {
@@ -2866,7 +2866,7 @@ internal static class LookupStream3Verification
             | rgb.Required("green").GetValue<int>() << 5 | rgb.Required("blue").GetValue<int>() << 10);
         static void Confirm(MotherBrainRoomColorPresentation palette, System.Text.Json.Nodes.JsonNode expected)
         {
-            var cgram = new GameplayColours(new SpriteColourSets());
+            var cgram = new SnesCgram();
             palette.ApplyPhaseTwoInitial(cgram);
             for (int color = 0; color < MotherBrainRoomColorDefinitions.PhaseTwoColors; color++)
             {
@@ -2914,7 +2914,7 @@ internal static class LookupStream3Verification
         static ushort Word(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         void Confirm(MotherBrainRoomColorPresentation palette)
         {
-            var colors = new GameplayColours(new SpriteColourSets());
+            var colors = new SnesCgram();
             palette.ApplyFinal(colors);
             for (int color = 0; color < document.FinalRoom.Length; color++)
             {
@@ -3022,7 +3022,7 @@ internal static class LookupStream3Verification
         static ushort Word(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         static void Confirm(MotherBrainRoomColorPresentation palette, MotherBrainRoomColorDocument expected)
         {
-            var final = new GameplayColours(new SpriteColourSets());
+            var final = new SnesCgram();
             palette.ApplyFinal(final);
             for (int color = 0; color < expected.FinalRoom.Length; color++)
             {
@@ -3030,8 +3030,8 @@ internal static class LookupStream3Verification
                 AssertEqual(Word(expected.FinalRoom[color]), final.Colors[destination], "final room exact native/edited shade");
                 if (color >= 12) AssertEqual(Word(expected.FinalRoom[color]), final.Colors[0x73 + color - 12], "final room mirrored shade");
             }
-            var phase = new GameplayColours(new SpriteColourSets());
-            var entry = new GameplayColours(new SpriteColourSets());
+            var phase = new SnesCgram();
+            var entry = new SnesCgram();
             palette.ApplyPhaseTwoInitial(phase);
             palette.ApplyRoomEntry(entry);
             for (int color = 0; color < 15; color++)

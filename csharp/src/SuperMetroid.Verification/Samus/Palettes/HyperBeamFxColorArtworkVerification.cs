@@ -162,7 +162,7 @@ internal static class HyperBeamFxColorArtworkVerification
         // The Hyper Beam lays a cycle frame's shade over her beams; the import pre-colours each frame's shade from the
         // installed cycle, whose colours each step compares with the cartridge's frame.
         var extracted = new HyperBeamPaletteFxState();
-        var extractedRig = new SamusColourRig();
+        var extractedColours = new SamusColours();
         SamusShadeSources stockSources = InstalledFixtures.SamusShadeSources with { HyperBeamCycle = colours };
 
         extracted.Spawn();
@@ -173,13 +173,13 @@ internal static class HyperBeamFxColorArtworkVerification
             ushort originalDuration = ReadVerificationWord(bus, 0x8dd904 + 20 * expectedFrame);
             AssertEqual((ushort)2, originalDuration, "Native Hyper Beam FX duration");
             int frameBefore = extracted.CurrentFrameIndex;
-            extracted.Step(extractedRig.Samus);
+            extracted.Step(extractedColours);
             AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
             AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.FrameHold.RawValue, "Native FX timer");
-            AssertEqual(SamusShades.HyperBeamCycle(expectedFrame), extractedRig.Samus.BeamOverlays[^1],
+            AssertEqual(SamusShades.HyperBeamCycle(expectedFrame), extractedColours.BeamOverlays[^1],
                 "The Hyper Beam lays its current cycle frame over her beams");
-            RgbColor[] shownBeams = extractedRig.Samus.ShownBeams(stockSources);
+            RgbColor[] shownBeams = extractedColours.ShownBeams(stockSources);
             for (int color = 0; color < 8; color++)
                 AssertEqual(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color))),
                     shownBeams[SamusSheetInks.HyperBeamFirstColour + color],
@@ -192,10 +192,10 @@ internal static class HyperBeamFxColorArtworkVerification
         edit.Required("frames").Required(3).Required(2)["red"] = red.GetValue<int>() ^ 1;
         var edited = HyperBeamFxColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(edit.ToJsonString())));
-        var frameRig = new SamusColourRig();
-        frameRig.Samus.LayOverBeams(SamusShades.HyperBeamCycle(3));
-        RgbColor[] nativeInks = frameRig.Samus.ShownInks(stockSources);
-        RgbColor[] editedInks = frameRig.Samus.ShownInks(InstalledFixtures.SamusShadeSources with { HyperBeamCycle = edited.ToColours() });
+        var frameColours = new SamusColours();
+        frameColours.LayOverBeams(SamusShades.HyperBeamCycle(3));
+        RgbColor[] nativeInks = frameColours.ShownInks(stockSources);
+        RgbColor[] editedInks = frameColours.ShownInks(InstalledFixtures.SamusShadeSources with { HyperBeamCycle = edited.ToColours() });
         int editedInk = SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour + 2;
         for (int ink = 0; ink < nativeInks.Length; ink++)
             AssertEqual(ink == editedInk ? nativeInks[ink].WithRed(nativeInks[ink].Red ^ 1) : nativeInks[ink],
@@ -218,11 +218,11 @@ internal static class HyperBeamFxColorArtworkVerification
             }
             var modified = HyperBeamFxColorFile.Read(new MemoryStream(HyperBeamFxColorFile.Write(document))).ToColours();
             SamusShadeSources modifiedSources = InstalledFixtures.SamusShadeSources with { HyperBeamCycle = modified };
-            var result = new SamusColourRig();
+            var resultColours = new SamusColours();
             for (int frame = 0; frame < 10; frame++)
             {
-                result.Samus.LayOverBeams(SamusShades.HyperBeamCycle(frame));
-                RgbColor[] resultBeams = result.Samus.ShownBeams(modifiedSources);
+                resultColours.LayOverBeams(SamusShades.HyperBeamCycle(frame));
+                RgbColor[] resultBeams = resultColours.ShownBeams(modifiedSources);
                 for (int color = 0; color < 8; color++)
                 {
                     bool changed = editScope == "all" || editScope == "even" && (frame & 1) == 0 || editScope == "green" && frame == 4 ||

@@ -93,7 +93,6 @@ internal static class InstalledSporesTests
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineFrames = new ArtworkFrameSelections(); var editedFrames = new ArtworkFrameSelections();
-            var colors = new GameplayColours(new SpriteColourSets()); var editedColors = new GameplayColours(new SpriteColourSets());
             RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), definition, 0);
             RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
@@ -156,7 +155,7 @@ internal static class InstalledSporesTests
                         layer.Window.IsClosed && layer.BlendPlane is not null,
                         "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
                     packets.Add(new(packets.Count + 1, new LayeredScene(
-                        FramePaint.FromNative(editedColors.Colors, []), [layer], 15)));
+                        FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []), [layer], 15)));
                 }
                 comparisons++;
             }
@@ -348,10 +347,10 @@ internal static class InstalledSporesTests
         foreach (bool bg2High in new[] { false, true })
         foreach (int enabled in Enumerable.Range(0, 4))
         {
-            var vram = new SnesVram(); var colors = new GameplayColours(new SpriteColourSets());
-            colors.AsPaletteColors().SetColor(0, new RgbColor(2, 2, 2));
-            colors.AsPaletteColors().SetColor(1, new RgbColor(10, 0, 0)); colors.AsPaletteColors().SetColor(2, new RgbColor(0, 12, 0)); colors.AsPaletteColors().SetColor(3, new RgbColor(0, 0, 7));
-            colors.AsPaletteColors().SetColor(128 + palette * 16 + 1, new RgbColor(18, 2, 0));
+            var vram = new SnesVram(); var colors = new RgbColor[SnesCgram.ColorCount];
+            colors[0] = new RgbColor(2, 2, 2);
+            colors[1] = new RgbColor(10, 0, 0); colors[2] = new RgbColor(0, 12, 0); colors[3] = new RgbColor(0, 0, 7);
+            colors[128 + palette * 16 + 1] = new RgbColor(18, 2, 0);
             for (int y = 0; y < 8; y++)
             {
                 vram.LoadBytes(y * 2, new byte[] { 255, 0 });
@@ -367,12 +366,12 @@ internal static class InstalledSporesTests
             var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
-            var layer = GameplayEffectCapture.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors.Colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
+            var layer = GameplayEffectCapture.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
-                    Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors.Colors, 0x4000),
+                    Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
-            var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors.Colors, oam, 1, 0), [layer], 15);
+            var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors, oam, 1, 0), [layer], 15);
             RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.

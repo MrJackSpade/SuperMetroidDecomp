@@ -43,10 +43,10 @@ internal static class SamusDeathFrameSelectionVerification
             samus.DeathSequence.Begin(samus, layer1: new(0, 0));
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusDeath);
             HorizontalDirection facing = facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right;
-            var colours = new SamusColourRig();
+            var samusColours = new SamusColours();
             for (int update = 1; update <= CompletionUpdate; update++)
             {
-                SamusDeathSequenceStepResult step = samus.DeathSequence.Step(samus, colours.Samus,
+                SamusDeathSequenceStepResult step = samus.DeathSequence.Step(samus, samusColours,
                     InstalledFixtures.SamusBody.DeathSteps);
                 string context = $"death facing {facing}, update {update}";
                 int? expectedFrame = ExpectedFrame(update);

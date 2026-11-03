@@ -105,7 +105,7 @@ internal static class RoomPaletteFxDefinitionsVerification
 
         var hyperBeam = new HyperBeamPaletteFxState();
         hyperBeam.Spawn();
-        hyperBeam.Step(new SamusColourRig().Samus);
+        hyperBeam.Step(new SamusColours());
         AssertEqual(0, hyperBeam.CurrentFrameIndex,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 

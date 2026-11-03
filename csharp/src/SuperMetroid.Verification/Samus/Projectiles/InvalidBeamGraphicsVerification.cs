@@ -47,9 +47,9 @@ internal static class InvalidBeamGraphicsVerification
         var gameplayBus = NewProjectileCompositionForbiddenBus();
         for (ushort beam = 0; beam < 12; beam++)
         {
-            var ordinary = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(ordinary.Samus, (SamusBeamFlags)beam);
-            RgbColor[] ordinaryBeams = ordinary.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = artwork.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") });
+            var ordinary = new SamusColours();
+            SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam);
+            RgbColor[] ordinaryBeams = ordinary.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = artwork.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") });
             int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
             int source = (int)new SnesAddress(0x90, LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
@@ -61,9 +61,9 @@ internal static class InvalidBeamGraphicsVerification
         ushort[] nativePalette = [0x0890, 0x30c2, 0x5822, 0x90ec, 0x6ead, 0x2919, 0x000f, 0xfcaa,
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
-            var cgram = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(cgram.Samus, (SamusBeamFlags)0x000d);
-            RgbColor[] chainsawBeams = cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources);
+            var samusColours = new SamusColours();
+            SamusProjectileSystem.LoadBeamPalette(samusColours, (SamusBeamFlags)0x000d);
+            RgbColor[] chainsawBeams = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.Projectiles.TrailTiles);

@@ -31,12 +31,12 @@ internal static class SpeedPaletteOverrunVerification
         foreach (ushort phase in new ushort[] { 8, 10 })
         {
             var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(4, 0), SpecialPaletteTimer = WrappingCountdown.Start(1) };
-            var cgram = new SamusColourRig();
+            var samusColours = new SamusColours();
             ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToEquipmentWord());
             for (int call = 0; call < phase / 2; call++)
-                speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) });
+                speed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) });
             AssertEqual(phase / sizeof(ushort), speed.CyclePaletteStep, "Screw Attack leaves its shared step for the next movement handler");
-            AssertTrue(speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }),
+            AssertTrue(speed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }),
                 "leaving Screw Attack while boosted copies the native overrun palette without a crash");
             ushort pointer = Read(0x910000 | (Read(0x91daad) + phase));
             for (int color = 0; color < 16; color++)
@@ -44,22 +44,22 @@ internal static class SpeedPaletteOverrunVerification
                 // $91:DD64..DDD0 uses LDA $0000..001E,X. At the $68AD expansion
                 // pointer each high operand byte drives zero onto the undriven bus.
                 ushort expected = pointer == 0x68ad ? (ushort)0 : (ushort)(Read(0x9b0000 | (pointer + color * 2)) & 0x7fff);
-                AssertEqual(expected, cgram.Samus.ShownSuit(overrunSources)[color], $"phase {phase} native overrun color {color}");
+                AssertEqual(expected, samusColours.ShownSuit(overrunSources)[color], $"phase {phase} native overrun color {color}");
             }
             AssertEqual(SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep, speed.CyclePaletteStep, "native clamps the step only after the overrun read");
             AssertEqual((ushort)4, speed.SpecialPaletteTimer.RawValue, "native reloads the four-frame timer");
             string actualTrace = $"{phase},{speed.CyclePaletteStep * sizeof(ushort)},{speed.SpecialPaletteTimer.RawValue}," +
-                string.Concat(cgram.Samus.ShownSuit(overrunSources).SelectToArray(color => color.ToWord().ToString("X4")));
+                string.Concat(samusColours.ShownSuit(overrunSources).SelectToArray(color => color.ToWord().ToString("X4")));
             AssertEqual(nativeTrace[traceRow++], actualTrace, "port colors/phase/timer match execution of original ROM on the 65816 core");
-            PictureShade first = cgram.Samus.Suit;
+            PictureShade first = samusColours.Suit;
             for (int call = 0; call < 3; call++)
             {
-                AssertTrue(!speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }), "overrun palette remains until timer expires");
-                AssertEqual(first, cgram.Samus.Suit, "the suit's shade holds for four frames");
+                AssertTrue(!speed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) }), "overrun palette remains until timer expires");
+                AssertEqual(first, samusColours.Suit, "the suit's shade holds for four frames");
             }
-            speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) });
+            speed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipped) });
             for (int color = 0; color < 16; color++)
-                AssertEqual((ushort)(Read(0x9b9f80 + color * 2) & 0x7fff), cgram.Samus.ShownSuit(overrunSources)[color], "next tick restores native final Gravity boost shade");
+                AssertEqual((ushort)(Read(0x9b9f80 + color * 2) & 0x7fff), samusColours.ShownSuit(overrunSources)[color], "next tick restores native final Gravity boost shade");
         }
         Console.WriteLine("Speed palette overrun: Screw Attack phases 8/10, exact native colors, four-frame hold and next-tick recovery pass without gameplay ROM access.");
         ushort Read(int address) => ReadNativeSpeedOverrunPaletteWord(cart, address);

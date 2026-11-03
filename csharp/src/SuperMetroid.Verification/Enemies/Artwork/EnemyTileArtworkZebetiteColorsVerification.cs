@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -34,7 +33,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     {
         if (stock.Bosses.ZebetiteColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Zebetite pulse colors.");
-        SamusColourRig nativeCgram = SeedColors();
+        SnesCgram nativeCgram = SeedColors();
         ushort nativeCounter = 0;
         CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(
             address => address is >= MotherBrainSourceDefinitions.Zebetite.PulseColors and
@@ -70,7 +69,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         File.WriteAllBytes(overridePath, selectedBytes);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         RoomEnemySystem selected = Create(guard, edited);
-        SamusColourRig controlCgram = SeedColors();
+        SnesCgram controlCgram = SeedColors();
         ushort controlCounter = 0;
         for (int call = 0; call < 2; call++)
         {
@@ -81,7 +80,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         }
         Cycle(selected);
         ReferenceCycle(controlCgram, ref controlCounter);
-        SamusColourRig selectedCgram = Shown(selected, edited);
+        SnesCgram selectedCgram = Shown(selected, edited);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(controlCgram.Colors[color].ToWord() ^
                 (color == PulseFirstColour + 1 ? 1 : 0)),
@@ -141,9 +140,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             MotherBrainSheetShades.Zebetites(artwork.Bosses).Single(shade => shade.Shade == ZebetiteShades.Pulse(frame));
 
         // The colours the Zebetites show over the seeded colours: the pulse frame last shown, as the import pre-coloured it.
-        static SamusColourRig Shown(RoomEnemySystem enemies, InstalledEnemyArtwork artwork)
+        static SnesCgram Shown(RoomEnemySystem enemies, InstalledEnemyArtwork artwork)
         {
-            SamusColourRig cgram = SeedColors();
+            SnesCgram cgram = SeedColors();
             if (enemies.ZebetiteBehavior.PulseShown is int frame)
             {
                 SheetShade pulse = Pulse(artwork, frame);
@@ -156,7 +155,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPaletteCycle;
 
         // Independent $A6:FD5E pulse: advance modulo eight, copy two raw colors.
-        void ReferenceCycle(SamusColourRig cgram, ref ushort counter)
+        void ReferenceCycle(SnesCgram cgram, ref ushort counter)
         {
             counter = (ushort)((counter + 1) & 7);
             for (int color = 0; color < 2; color++)
@@ -167,9 +166,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             }
         }
 
-        static SamusColourRig SeedColors()
+        static SnesCgram SeedColors()
         {
-            var cgram = new SamusColourRig();
+            var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
             return cgram;

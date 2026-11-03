@@ -40,7 +40,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var installation = RepositoryInstallation.Installation;
         LoadedRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
-        var cgram = new SamusColourRig();
+        var samusColours = new SamusColours();
         assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses };

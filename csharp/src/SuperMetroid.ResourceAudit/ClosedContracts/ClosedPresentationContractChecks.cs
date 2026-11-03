@@ -60,7 +60,7 @@ internal static class ClosedPresentationContractChecks
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
                     ChozoAndTubeColorCatalog chozo, GameplayBasePalette basePalette,
                     InstalledSamusDeathPalettes samusDeath,
-                    SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
+                    SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.Ammo(dynamicIndex, 123);
                     hud.MinimapCell(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0), SuperMetroid.Core.Hud.MinimapHiddenCell.Instance);
@@ -71,8 +71,8 @@ internal static class ClosedPresentationContractChecks
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
                     _ = arrow.Pulse(dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);
-                    beam.LoadTo(screen.SpriteSets.Set(6), 0);
-                    beam.LoadTo(screen.SpriteSets.Set(6), SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
+                    _ = beam.Colours(0);
+                    _ = beam.Colours(SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
                     spores.ResolveSpore(0);
                     spores.ResolveDeath(SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
                     phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);

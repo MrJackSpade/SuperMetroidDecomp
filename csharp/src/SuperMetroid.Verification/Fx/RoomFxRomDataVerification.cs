@@ -141,7 +141,6 @@ internal static class RoomFxRomDataVerification
     private static void VerifyRoomLayer3FxTypes()
     {
         var bus = new TestAddressSpace();
-        var cgram = new GameplayColours(new SpriteColourSets());
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
@@ -163,7 +162,7 @@ internal static class RoomFxRomDataVerification
         foreach (RoomFxType type in nonLayer3Types)
         {
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordEncoding.TypeByte(type));
-            state = LoadSyntheticRoomFx(stateSession, bus, cgram, record);
+            state = LoadSyntheticRoomFx(stateSession, bus, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
                 LayerBlendingConfiguration.NormalGameplay,
@@ -172,17 +171,16 @@ internal static class RoomFxRomDataVerification
             AssertTrue(!state.IsRenderable, $"{type} does not impersonate rain/fog BG3");
         }
 
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Lava));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Acid));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Water));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Rain));
-        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, cgram, stateSession, record, RoomFxType.Fog));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, stateSession, record, RoomFxType.Lava));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, stateSession, record, RoomFxType.Acid));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, stateSession, record, RoomFxType.Water));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, stateSession, record, RoomFxType.Rain));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, stateSession, record, RoomFxType.Fog));
     }
 
     /// <summary>Captures a synthetic BG3 effect and checks its surface, wave tables, hidden-surface sentinel and type-specific blend routing.</summary>
     private static void VerifyRenderableLayer3Fx(
         TestAddressSpace bus,
-        GameplayColours cgram,
         RoomFxSession session,
         ushort record,
         RoomFxType type)
@@ -209,8 +207,8 @@ internal static class RoomFxRomDataVerification
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset, RoomFxRecordEncoding.LayerBlendByte(layerBlend));
 
-        RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, cgram, record);
-        Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, cgram, session, state, record, type));
+        RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, record);
+        Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, session, state, record, type));
         AssertEqual(Layer3PlaneConstants.ClearedCell.PackedWord,
             state.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(RetailPresentationFixture()))[Layer3PlaneConstants.HudRows * Layer3Plane.Columns],
             $"{type} room shows the cleared word in the first gameplay BG3 FX word");
@@ -222,7 +220,7 @@ internal static class RoomFxRomDataVerification
                     ? (byte)3
                     : (byte)RoomFxNativeSources.VerticalBg2WaveOption);
             SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordTooling.BaseYPositionOffset, surfaceY);
-            state = LoadSyntheticRoomFx(session, bus, cgram, record);
+            state = LoadSyntheticRoomFx(session, bus, record);
             state.PrimeViewport(new Position16<RoomPixels>(0x0100, 0));
         }
         AssertEqual(type, state.Type, $"{type} layer-three type");
@@ -319,7 +317,7 @@ internal static class RoomFxRomDataVerification
 
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
     internal static RoomLayer3FxState LoadSyntheticRoomFx(RoomFxSession session, TestAddressSpace bus,
-        GameplayColours cgram, ushort pointer) =>
+        ushort pointer) =>
         RoomLayer3FxState.ForDefinition(session, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>

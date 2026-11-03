@@ -6,7 +6,7 @@ internal static class BossColorClosedContractDefinitions
     /// <summary>Reviewed finite beam and boss palette catalogs with their guarded methods and source files for the resource audit.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes", "beam-palettes-v1-twelve-selections", ["LoadTo"],
+        new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes", "beam-palettes-v1-twelve-selections", ["Colours"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledBeamPalettes.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaint.cs"),

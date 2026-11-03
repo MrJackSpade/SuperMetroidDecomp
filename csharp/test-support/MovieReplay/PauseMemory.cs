@@ -18,6 +18,4 @@ internal static class PauseMemory
     /// <summary>$05DB-$05E3: delayed-held input timer, reset, held, new and previous words.</summary>
     public const int TimedHeldTimer = 0x05db, TimedHeldReset = 0x05dd, TimedHeldInput = 0x05df,
         TimedHeldNew = 0x05e1, TimedHeldPrevious = 0x05e3;
-    /// <summary>$7E:3300: gameplay palettes backed up by <c>$82:8FD4</c> while the menu is open.</summary>
-    public const int GameplayPaletteBackup = 0x3300;
 }

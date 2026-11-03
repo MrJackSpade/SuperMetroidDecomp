@@ -21,9 +21,6 @@ public abstract class GameplayBasePalette
         this.commonSprites = Ensure.NotNull(commonSprites);
     }
 
-    /// <summary>Gives every owner of gameplay's colours its starting colours.</summary>
-    public void LoadInitial(GameplayColours colours) => Ensure.NotNull(colours).LoadStarting(starting);
-
     /// <summary>Loads the selected sixteen common sprite colours into <paramref name="set"/>.</summary>
     public void LoadCommonSprites(ColourRun set) => set.CopyFrom(commonSprites);
 

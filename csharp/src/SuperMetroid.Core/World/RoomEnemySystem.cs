@@ -546,6 +546,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         get
         {
+            if (RidleyEncounter.Ridley is { } ridley)
+                yield return ridley.Colours;
             if (SporeSpawnBehavior.SporeSpawn is { } sporeSpawn)
                 yield return sporeSpawn.Colours;
             if (PhantoonBehavior.Combat.Phantoon is { } phantoon)

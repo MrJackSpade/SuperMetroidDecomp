@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Runtime;
@@ -80,7 +79,8 @@ internal static class CeresRidleyMode7ColorsVerification
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
-        var cgram = new SamusColourRig();
+        var ridley = new RidleyEnemyState();
+        enemies.RidleyEncounter.Ridley = ridley;
         Action<ushort> select = selectedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(selectedZoom);
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
@@ -89,9 +89,11 @@ internal static class CeresRidleyMode7ColorsVerification
             int row = LittleEndianBytes.HighByte(frame.Zoom);
             visited.Add(row);
             select(checked((ushort)frame.Zoom));
+            // The colours the encounter shows are the import's shades of the edited colours, laid as the getaway laid them (#1512).
+            RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, edited);
             for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
                 AssertEqual(edited.CeresRidleyFloorColors.Resolve(row, color),
-                    cgram.Colors[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
+                    cgram[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
         AssertEqual(CeresRidleyPaletteDefinitions.GetawayZoomStepCount, visited.Count,

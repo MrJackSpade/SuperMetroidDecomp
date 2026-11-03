@@ -1,11 +1,10 @@
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Ceres Ridley's installed colours at work: composing and resolving the retreat colours, and installing each family in
-/// its place among the colours.
+/// Ceres Ridley's installed colours at work: composing and resolving the retreat colours, which the import shades his
+/// room and sprites in.
 /// </summary>
 internal static class CeresRidleyColors
 {
@@ -30,74 +29,5 @@ internal static class CeresRidleyColors
         if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         return colors.selection.RetreatShared.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : colors.selection.Start.Resolve(color + 1);
-    }
-
-    /// <summary>Copies the 32 startup colors into colours 160..191.</summary>
-    internal static void ApplyStart(CeresRidleyColorCatalog colors, GameplayColours colours)
-    {
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.StartColorCount; color++)
-            new RidleyColours(colours).CeresStart.Write(color, colors.selection.Start.Resolve(color));
-    }
-
-    /// <summary>Shows eye-fade shade <paramref name="shade"/>, 0..15, in Ceres Ridley's eye colours.</summary>
-    internal static void ApplyEyeFade(CeresRidleyColorCatalog colors, GameplayColours colours, int shade)
-    {
-        colors.selection.EyeFade.ValidateShade(shade);
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.EyeFadeColorCount; color++)
-            new RidleyColours(colours).CeresEyeFade.Write(color, colors.selection.EyeFade.Resolve(shade, color));
-    }
-
-    /// <summary>Shows body-fade shade <paramref name="shade"/>, 0..15, in both the background and the sprite body colours.</summary>
-    internal static void ApplyBodyFade(CeresRidleyColorCatalog colors, GameplayColours colours, int shade)
-    {
-        colors.selection.BodyFade.ValidateShade(shade);
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
-            new RidleyColours(colours).CeresBodyFadeShadow.Write(color, colors.selection.BodyFade.Resolve(shade, color));
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.BodyFadeColorCount; color++)
-            new RidleyColours(colours).CeresBodyFade.Write(color, colors.selection.BodyFade.Resolve(shade, color));
-    }
-
-    /// <summary>Shows health band <paramref name="band"/>, 0..2, in Ridley's fourteen health colours.</summary>
-    internal static void ApplyHealth(CeresRidleyColorCatalog colors, GameplayColours colours, int band)
-    {
-        _ = colors.selection.Health.Resolve(band, 0);
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
-            new RidleyColours(colours).Health.Write(color, colors.selection.Health.Resolve(band, color));
-    }
-
-    /// <summary>Shows self-destruct alarm step <paramref name="step"/>, 0..15, in the three EMERGENCY-text colours.</summary>
-    internal static void ApplyAlarm(CeresRidleyColorCatalog colors, GameplayColours colours, int step)
-    {
-        _ = CeresRidleyAlarmColors.Phase(step);
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
-            new RidleyColours(colours).CeresAlarm.Write(color, colors.selection.Alarm.Resolve(step, color));
-    }
-
-    /// <summary>Installs the retreat's fifteen BG colors and eight shared colors.</summary>
-    internal static void ApplyRetreat(CeresRidleyColorCatalog colors, GameplayColours colours)
-    {
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatBgColorCount; color++)
-            new RidleyColours(colours).CeresRetreatBackground.Write(color, colors.ResolveRetreatBg(color));
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.RetreatSharedColorCount; color++)
-        {
-            RgbColor selected = colors.ResolveRetreatShared(color);
-            new RidleyColours(colours).CeresRetreatSharedBackground.Write(color, selected);
-            new RidleyColours(colours).CeresRetreatSharedObject.Write(color, selected);
-        }
-    }
-
-    /// <summary>Shows the Baby/container's <paramref name="shade"/> in the Baby's colours.</summary>
-    internal static void ApplyBaby(CeresRidleyColorCatalog colors, GameplayColours colours, CeresBabyShade shade)
-    {
-        _ = colors.selection.Baby.Resolve(shade, 0);
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-            new RidleyColours(colours).CeresBaby.Write(color, colors.selection.Baby.Resolve(shade, color));
     }
 }

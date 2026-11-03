@@ -206,10 +206,10 @@ internal sealed class CeresRidleyGetaway
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomStep = UnsignedEightEight.Whole(zoom);
-        if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
-            zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
+        if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
         {
-            installed.Apply(_presentation.Colours, zoomStep);
+            (_ridleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley's getaway floor shows once Ridley is loaded."))
+                .Colours.Room.Lay(RidleyShades.FloorZoom(zoomStep));
             return;
         }
         throw new InvalidOperationException(
@@ -229,10 +229,7 @@ internal sealed class CeresRidleyGetaway
             case CeresSelfDestructPhase.Start:
                 // The warning setup copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
-                CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstSource),
-                    _presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstDestination));
-                CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningSecondSource),
-                    _presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningSecondDestination));
+                state.Colours.Room.Lay(RidleyShades.Warning);
                 state.CeresEscapePages = CeresEscapePageCursor.Objects;
                 state.CeresSelfDestructPhase = CeresSelfDestructPhase.ShowingObjectPages;
                 goto case CeresSelfDestructPhase.ShowingObjectPages;
@@ -323,13 +320,6 @@ internal sealed class CeresRidleyGetaway
         }
     }
 
-    /// <summary>Colours one and three of <paramref name="source"/> replace those of <paramref name="destination"/>.</summary>
-    private static void CopyCeresWarningColors(ColourRun source, ColourRun destination)
-    {
-        destination.Write(1, source[1]);
-        destination.Write(3, source[3]);
-    }
-
     /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's BG1.</summary>
     internal void DrawCeresEmergencyText()
     {
@@ -391,9 +381,6 @@ internal sealed class CeresRidleyGetaway
             return;
 
         state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
-        if (_bossArtwork.CeresRidleyColors is { } colors)
-            colors.ApplyAlarm(_presentation.Colours, state.CeresEscapePaletteFrame);
-        else throw new InvalidOperationException(
-            "Ceres alarm requires installed Ridley alarm colors.");
+        state.Colours.Room.Lay(RidleyShades.Alarm(state.CeresEscapePaletteFrame));
     }
 }

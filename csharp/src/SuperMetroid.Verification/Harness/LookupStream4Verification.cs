@@ -32,6 +32,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
@@ -604,20 +605,21 @@ internal static class LookupStream4Verification
                     var changed = eyes ? document with { EyeFade = rows } : document with { BodyFade = rows };
                     selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(changed)));
                 }
+                IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
                 for (int row = 0; row < 16; row++)
                 {
-                    var cgram = new GameplayColours(new SpriteColourSets());
-                    if (eyes) selected.ApplyEyeFade(cgram, row); else selected.ApplyBodyFade(cgram, row);
+                    ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0), shades,
+                        eyes ? RidleyShades.EyeFade(row) : RidleyShades.BodyFade(row), RidleyLaidColours.Sprites);
                     for (int color = 0; color < count; color++)
                     {
                         ushort expected = (ushort)(Native(row, color) ^ (row * count + color == edit ? 1 << channel * 5 : 0));
                         AssertEqual(expected, eyes ? selected.ResolveEyeFade(row, color) : selected.ResolveBodyFade(row, color), "independent fade edit preserves every other supplied sample");
-                        AssertEqual(expected, cgram.Colors[(eyes ? 252 : 145) + color], "actual fade CGRAM destination");
-                        if (!eyes) AssertEqual(expected, cgram.Colors[241 + color], "body fade duplicates its BG colors into OBJ palette");
+                        AssertEqual(expected, cgram[(eyes ? 252 : 145) + color], "actual fade CGRAM destination");
+                        if (!eyes) AssertEqual(expected, cgram[241 + color], "body fade duplicates its BG colors into OBJ palette");
                         AssertEqual(Native(row, color), eyes ? stock.ResolveEyeFade(row, color) : stock.ResolveBodyFade(row, color), "stock fade remains immutable");
                     }
-                    AssertEqual(0, cgram.Colors[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
-                    AssertEqual(0, cgram.Colors[eyes ? 255 : 156], "following fade CGRAM unchanged");
+                    AssertEqual(0, cgram[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
+                    AssertEqual(0, cgram[eyes ? 255 : 156], "following fade CGRAM unchanged");
                 }
             }
             foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -639,6 +641,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var definition = stock.selection.Alarm;
         var inputs = definition.edits;
         AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
@@ -660,16 +663,16 @@ internal static class LookupStream4Verification
                 rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
                 selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Alarm = rows })));
             }
+            IReadOnlyList<SheetShade> room = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[RidleyLaidColours.Sprites]);
             if (edit is -1 or 0 or 143)
             {
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
-                var cgram = new SamusColourRig();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
                 {
                     update(state, nmi);
+                    ushort[] cgram = RidleyLaidColours.Of(state, [], room, 0x1234);
                     int row = nmi / 4;
                     AssertEqual((ushort)row, state.CeresEscapePaletteFrame, "actual alarm advances only every fourth NMI and wraps");
                     for (int color = 0; color < 256; color++)
@@ -680,24 +683,24 @@ internal static class LookupStream4Verification
                             int word = row * 3 + color - 97;
                             expected = (ushort)(Native(row, color - 97) ^ (edit >= 0 && word == edit / 3 ? 1 << (edit % 3 * 5) : 0));
                         }
-                        AssertEqual(expected, cgram.Colors[color], "actual gated producer preserves exact row and other CGRAM colors");
+                        AssertEqual(expected, cgram[color], "actual gated producer preserves exact row and other CGRAM colors");
                     }
                 }
             }
             for (int row = 0; row < 16; row++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets());
-                cgram.AsPaletteColors().SetColor(96, RgbColor.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(100, RgbColor.FromWord(0x2345));
-                selected.ApplyAlarm(cgram, row);
+                ushort[] cgram = RidleyLaidColours.Filled(0);
+                cgram[96] = 0x1234; cgram[100] = 0x2345;
+                RidleyLaidColours.Lay(cgram, room, RidleyShades.Alarm(row), RidleyLaidColours.Room);
                 for (int color = 0; color < 3; color++)
                 {
                     ushort expected = (ushort)(Native(row, color) ^ (edit >= 0 && row * 3 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
                     AssertEqual(expected, selected.ResolveAlarm(row, color), "independent alarm source/derived edit");
-                    AssertEqual(expected, cgram.Colors[97 + color], "actual alarm CGRAM write");
+                    AssertEqual(expected, cgram[97 + color], "actual alarm CGRAM write");
                     AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "stock alarm remains immutable");
                 }
-                AssertEqual(0x1234, cgram.Colors[96], "alarm preceding CGRAM unchanged");
-                AssertEqual(0x2345, cgram.Colors[100], "alarm following CGRAM unchanged");
+                AssertEqual(0x1234, cgram[96], "alarm preceding CGRAM unchanged");
+                AssertEqual(0x2345, cgram[100], "alarm following CGRAM unchanged");
             }
         }
         CeresBabyShadeColorsDocument alarmBabyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
@@ -2708,12 +2711,10 @@ internal static class LookupStream4Verification
             AssertEqual(hash, selected.ContentIdentity, "Every reveal edit preserves canonical content hash");
             for (int row = 0; row < 15; row++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-                selected.ApplyReveal(cgram, row);
+                ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.NorfairReveal(row), RidleyLaidColours.Room);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
-                        cgram.Colors[color], "Every independent reveal edit and full CGRAM copy");
+                        cgram[color], "Every independent reveal edit and full CGRAM copy");
                 for (int color = 0; color < 14; color++)
                 {
                     AssertEqual(Pack(document.Reveal[row][color]), selected.ResolveReveal(row, color), "Direct revealed color equals supplied sample");
@@ -2725,8 +2726,6 @@ internal static class LookupStream4Verification
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
-                var cgram = new SamusColourRig();
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
@@ -2736,6 +2735,7 @@ internal static class LookupStream4Verification
                 for (int call = 0; call < 46; call++)
                 {
                     tick(slot, state);
+                    ushort[] cgram = RidleyLaidColours.Of(state, RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                     int row = Math.Min(call / 3, 14);
                     AssertEqual((ushort)(2 - call % 3), state.FunctionTimer.RawValue, "Actual three-call producer cadence preserved");
                     AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadeStep, "Actual row and zero terminator progression");
@@ -2743,7 +2743,7 @@ internal static class LookupStream4Verification
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
                             : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
                             : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
-                            cgram.Colors[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
+                            cgram[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
                 AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
@@ -2797,12 +2797,10 @@ internal static class LookupStream4Verification
                 content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
             });
             AssertEqual(hash, selected.ContentIdentity, "Initial hash preserves exact supplied words and separate reveal");
-            var cgram = new SamusColourRig();
-            for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
-            selected.ApplyInitial(cgram.Gameplay);
+            ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), RidleySheetShades.NorfairSprites(selected), RidleyShades.NorfairStart, RidleyLaidColours.Sprites);
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160]) : (ushort)0x1234,
-                    cgram.Colors[color], "Initial full CGRAM copy and independent channel edits");
+                    cgram[color], "Initial full CGRAM copy and independent channel edits");
             for (int color = 0; color < 32; color++)
             {
                 AssertEqual(Pack(document.Initial[color]), selected.ResolveInitial(color), "Initial supplied value preserved");
@@ -2820,10 +2818,12 @@ internal static class LookupStream4Verification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
+                ushort[] shown = RidleyLaidColours.Of(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
+                    RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
                         : color is >= 113 and <= 127 or >= 241 and <= 255 ? (ushort)0 : (ushort)0x1234,
-                        cgram.Colors[color], "Actual initializer copies both targets then clears separate reveal ranges");
+                        shown[color], "Actual initializer copies both targets then clears separate reveal ranges");
             }
         }
         ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
@@ -3170,22 +3170,21 @@ internal static class LookupStream4Verification
                 if (edit < 32) starts[edit] = changed; else resting[edit - 32] = changed;
             }
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, BabyShades = babyShades with { Resting = resting } })));
-            var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-            selected.ApplyStart(cgram);
+            IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
+            ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), shades, RidleyShades.CeresStart, RidleyLaidColours.Sprites);
             for (int color = 0; color < 256; color++)
             {
                 ushort expected = color is >= 160 and < 192
                     ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E16F + (color - 160) * 2)) ^ (edit == color - 160 ? 1 << (channel * 5) : 0))
                     : (ushort)0x1234;
-                AssertEqual(expected, cgram.Colors[color], "Exact full start copy and untouched neighbors");
+                AssertEqual(expected, cgram[color], "Exact full start copy and untouched neighbors");
                 if (color is >= 160 and < 192)
                     AssertEqual(expected, selected.ResolveStart(color - 160), "Independent supplied start word");
             }
-            selected.ApplyBaby(cgram, CeresBabyShade.Resting);
+            RidleyLaidColours.Lay(cgram, shades, RidleyShades.Baby(CeresBabyShade.Resting), RidleyLaidColours.Sprites);
             for (int color = 0; color < 15; color++)
                 AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xA6E1F1 + color * 2)) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
-                    cgram.Colors[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
+                    cgram[CeresRidleyPaletteDefinitionsConstants.BabyCgramIndex + color], "Baby source edits remain independent from start");
         }
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
@@ -3241,15 +3240,13 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(rows), BodyFade = body })));
             for (int row = 0; row < 4; row++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-                selected.ApplyBaby(cgram, shadeOfRow[row]);
+                ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), RidleySheetShades.CeresSprites(selected), RidleyShades.Baby(shadeOfRow[row]), RidleyLaidColours.Sprites);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = color is >= 177 and < 192
                         ? (ushort)(Native(row, color - 177) ^ (edit == row * 15 + color - 177 ? 1 << (channel * 5) : 0))
                         : (ushort)0x1234;
-                    AssertEqual(expected, cgram.Colors[color], "Baby actual copy preserves independent source/row edits and neighbors");
+                    AssertEqual(expected, cgram[color], "Baby actual copy preserves independent source/row edits and neighbors");
                 }
                 for (int color = 0; color < 32; color++)
                     AssertEqual(stock.ResolveStart(color), selected.ResolveStart(color), "Body/Baby changes cannot alter supplied startup palette");
@@ -3262,7 +3259,7 @@ internal static class LookupStream4Verification
             if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(babyRows), BodyFade = bodyRows })));
-            var cgram = new SamusColourRig();
+            IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(selected);
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
             Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
@@ -3274,8 +3271,9 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
                 AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
                 AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");
+                ushort[] shown = RidleyLaidColours.Of(state, babySprites, [], 0);
                 for (int color = 0; color < 15; color++)
-                    AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), cgram.Colors[177 + color], "Actual pose-selected palette preserves independent edits");
+                    AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), shown[177 + color], "Actual pose-selected palette preserves independent edits");
             }
         }
         foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
@@ -3289,6 +3287,7 @@ internal static class LookupStream4Verification
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
+        var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var stored = stock.selection.RetreatShared;
         AssertEqual(0, stored.Count, "No native retreat shared paints retained");
         for (int color = 0; color < 8; color++)
@@ -3307,15 +3306,17 @@ internal static class LookupStream4Verification
                 if (edit < 8) shared[edit] = replacement; else starts[edit - 7] = replacement;
             }
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Start = starts, RetreatShared = shared })));
-            var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-            selected.ApplyRetreat(cgram);
+            ushort[] cgram = RidleyLaidColours.Filled(0x1234);
+            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[RidleyLaidColours.Sprites]);
+            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, RidleyLaidColours.Room);
+            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, RidleyLaidColours.Room);
+            RidleyLaidColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, RidleyLaidColours.Sprites);
             for (int color = 0; color < 256; color++)
             {
                 int sharedColor = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
                 ushort expected = sharedColor >= 0 ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + sharedColor * 2)) ^ (edit == sharedColor ? 1 << (channel * 5) : 0))
                     : color is >= 81 and < 96 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram.Colors[color], "Exact retreat BG/OBJ copies and independent source edits");
+                AssertEqual(expected, cgram[color], "Exact retreat BG/OBJ copies and independent source edits");
             }
         }
         foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
@@ -3329,6 +3330,7 @@ internal static class LookupStream4Verification
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
         var zoomDocument = RequiredJson.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, ArtworkJson.Options);
         var zoomStock = CeresRidleyMode7ColorFile.Read(new MemoryStream(zoomJson));
+        var ceresStock = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorExtractor.Extract(rom)));
         var zoomDefinition = zoomStock.steps;
         var zoomEdits = zoomDefinition.edits;
         AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
@@ -3345,19 +3347,21 @@ internal static class LookupStream4Verification
             var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
             var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
-            var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
+            var ridley = new RidleyEnemyState();
+            enemies.RidleyEncounter.Ridley = ridley;
+            IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected, new RgbColor[RidleyLaidColours.Sprites]);
             Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
             for (int row = 0; row < 9; row++)
             {
-                for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
                 apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));
+                ushort[] cgram = RidleyLaidColours.Of(ridley, [], zoomRoom, 0x1234);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = color is >= 81 and < 96
                         ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b107 + row * 32 + (color - 81) * 2)) ^ (edit == row * 15 + color - 81 ? 1 << (channel * 5) : 0))
                         : (ushort)0x1234;
-                    AssertEqual(expected, cgram.Colors[color], "Actual native high-byte zoom selection and independent edits");
+                    AssertEqual(expected, cgram[color], "Actual native high-byte zoom selection and independent edits");
                     if (color is >= 81 and < 96) AssertEqual(expected, selected.Resolve(row, color - 81), "Calculated zoom resolver matches actual copy");
                 }
             }
@@ -3376,16 +3380,18 @@ internal static class LookupStream4Verification
             else if (edit is >= 15 and < 26) body[1][edit - 15] = Change(body[1][edit - 15], channel);
             else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
-            var cgram = new GameplayColours(new SpriteColourSets());
-            for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-            selected.ApplyRetreat(cgram);
+            ushort[] cgram = RidleyLaidColours.Filled(0x1234);
+            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock, new RgbColor[RidleyLaidColours.Sprites]);
+            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, RidleyLaidColours.Room);
+            RidleyLaidColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, RidleyLaidColours.Room);
+            RidleyLaidColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, RidleyLaidColours.Sprites);
             for (int color = 0; color < 256; color++)
             {
                 int shared = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
                 ushort expected = color is >= 81 and < 96
                     ? (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) ^ (edit == color - 81 ? 1 << (channel * 5) : 0))
                     : shared >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + shared * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram.Colors[color], "Retreat near-black source independence and exact BG/OBJ destinations");
+                AssertEqual(expected, cgram[color], "Retreat near-black source independence and exact BG/OBJ destinations");
             }
         }
         foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })
@@ -3425,16 +3431,15 @@ internal static class LookupStream4Verification
             else if (edit is >= 42 and < 53) body[15][edit - 42] = Change(body[15][edit - 42], channel);
             else if (edit >= 53) eyes[0][edit - 53] = Change(eyes[0][edit - 53], channel);
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
+            IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(selected);
             for (int row = 0; row < 3; row++)
             {
-                var cgram = new GameplayColours(new SpriteColourSets());
-                for (int color = 0; color < 256; color++) cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
-                selected.ApplyHealth(cgram, row);
+                ushort[] cgram = RidleyLaidColours.Lay(RidleyLaidColours.Filled(0x1234), shades, RidleyShades.Health(row), RidleyLaidColours.Sprites);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = color is >= 241 and < 255
                         ? (ushort)(Native(row, color - 241) ^ (edit == row * 14 + color - 241 ? 1 << (channel * 5) : 0)) : (ushort)0x1234;
-                    AssertEqual(expected, cgram.Colors[color], "Health copy preserves every independent source/output edit and neighbor");
+                    AssertEqual(expected, cgram[color], "Health copy preserves every independent source/output edit and neighbor");
                 }
             }
         }
@@ -3446,30 +3451,31 @@ internal static class LookupStream4Verification
             if (variation == 1) body[15][9] = Change(body[15][9], 1);
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
-            var cgram = new SamusColourRig();
+            IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
             Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
             Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
-            void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234)); }
-            void Check(int row)
+            void Check(RidleyEnemyState shown, int row)
             {
+                ushort[] cgram = RidleyLaidColours.Of(shown, healthShades, [], 0x1234);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = row >= 0 && color is >= 241 and < 255
                         ? (ushort)(Native(row, color - 241) ^ (variation == 0 && row == 1 && color == 246 ? 1 << 10 : 0)) : (ushort)0x1234;
-                    AssertEqual(expected, cgram.Colors[color], "Actual encounter health/shot selection preserves installed paint and exact copy");
+                    AssertEqual(expected, cgram[color], "Actual encounter health/shot selection preserves installed paint and exact copy");
                 }
             }
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
             {
-                Fill(); enemies.SlotTable.Slots[0].Health = health;
+                enemies.SlotTable.Slots[0].Health = health;
                 var state = new RidleyEnemyState(); norfair(enemies.SlotTable.Slots[0], state);
                 int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
-                AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(row);
+                AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(state, row);
             }
             foreach (RidleyFightMode fight in new[] { RidleyFightMode.NotFighting, RidleyFightMode.Fighting }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
             {
-                Fill(); ceres(new RidleyEnemyState { FightMode = fight, HitCounter = hits });
-                Check(fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
+                var hit = new RidleyEnemyState { FightMode = fight, HitCounter = hits };
+                ceres(hit);
+                Check(hit, fight == RidleyFightMode.NotFighting || hits < 50 ? -1 : hits < 70 ? 0 : 2);
             }
         }
         foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })

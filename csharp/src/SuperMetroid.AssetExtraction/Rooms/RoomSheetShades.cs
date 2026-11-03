@@ -38,6 +38,8 @@ internal static class RoomSheetShades
             shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
         if (HoldsPhantoon(rooms))
             shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
+        if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley)))
+            shades.AddRange(RidleySheetShades.Room(inputs.Maps, inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
         return shades;
     }
 

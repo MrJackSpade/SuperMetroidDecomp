@@ -127,6 +127,10 @@ internal sealed class EnemySheetShades
                 // The bosses' own effects over the row they draw in (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));
                 break;
+            case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor:
+                // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.CeresRidleyColors, inputs.Bosses));
+                break;
             case EnemyDefinitionId.CorpseSidehopper:
             {
                 EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("dead Sidehopper drain colours");
@@ -188,7 +192,8 @@ internal sealed class EnemySheetShades
         ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
         return ([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
             Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
-            .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses)],
+            .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses),
+            .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.CeresRidleyColors, inputs.Bosses)],
             [.. CeresDoorLooks(), .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours)]);
     }
 

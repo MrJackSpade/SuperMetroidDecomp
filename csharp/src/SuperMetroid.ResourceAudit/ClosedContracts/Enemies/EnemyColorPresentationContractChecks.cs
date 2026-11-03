@@ -33,8 +33,8 @@ internal static class EnemyColorPresentationContractChecks
             using SuperMetroid.Core.Enemies.Artwork;
             class EnemyColorConsumer {
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,
-                    BabyMetroidCutsceneColorCatalog baby, NorfairRidleyColorCatalog ridley, ZebetiteColorCatalog zebetite,
-                    ShitroidColorCatalog shitroid, CeresRidleyFloorColorCatalog mode7, DachoraColorCatalog dachora,
+                    BabyMetroidCutsceneColorCatalog baby, ZebetiteColorCatalog zebetite,
+                    ShitroidColorCatalog shitroid, DachoraColorCatalog dachora,
                     MotherBrainHealthPalettePresentation motherBrain, SuperMetroid.Core.Assets.GameplayColours cgram, SuperMetroid.Core.Assets.ColourRun pulse) {
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 3);
                     auxiliary.Resolve(EnemyAuxiliaryPalette.FaceBlock, 7, 4);
@@ -49,17 +49,12 @@ internal static class EnemyColorPresentationContractChecks
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount - 1);
                     baby.FadeColor(0, 0);
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorDefinitions.FadeColorCount);
-                    ridley.ApplyInitial(cgram);
-                    ridley.ApplyReveal(cgram, NorfairRidleyPaletteDefinitions.RevealStepCount - 1);
-                    ridley.ApplyReveal(cgram, NorfairRidleyPaletteDefinitions.RevealStepCount);
                     zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount - 1);
                     zebetite.Apply(pulse, ZebetiteColorFormat.FrameCount);
                     shitroid.NormalColor(ShitroidColorDefinitions.NormalFrameCount - 1, ShitroidColorDefinitions.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
-                    mode7.Apply(cgram, CeresRidleyPaletteDefinitions.GetawayZoomStepCount - 1);
-                    mode7.Apply(cgram, CeresRidleyPaletteDefinitions.GetawayZoomStepCount);
                     dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorDefinitions.ColorsPerFrame - 1);
                     dachora.Resolve(DachoraPalettePhase.Default, 1, 0);
                     motherBrain.Apply(cgram, MotherBrainHealthPaletteFormat.StateCount - 1);
@@ -84,9 +79,9 @@ internal static class EnemyColorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 28, "twenty-eight calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(report.Classifications.Count == 14 && report.UnresolvedCount == 14 && report.MissingCount == 0 &&
-            report.Consumers.Count == 28, "supported domains qualify but short arrays, zero-based baby fade and invalid constants still fail" + " (" + report.Describe() + ")");
+        Require(before.UnresolvedCount == 23, "twenty-three calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(report.Classifications.Count == 11 && report.UnresolvedCount == 12 && report.MissingCount == 0 &&
+            report.Consumers.Count == 23, "supported domains qualify but short arrays, zero-based baby fade and invalid constants still fail" + " (" + report.Describe() + ")");
         foreach (string selected in new[] { "FaceBlock", "DeadSidehopper", "RoomBackdrop", "Default" })
             Require(report.Findings.Any(item => item.Message.Contains("selected " + selected, StringComparison.Ordinal)),
                 "the " + selected + " selection must not borrow another resource's larger dimensions");

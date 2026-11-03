@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -23,12 +23,8 @@ internal sealed class CeresRidleyFlight
     private readonly EnemyAudioQueue _audio;
     /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -39,9 +35,7 @@ internal sealed class CeresRidleyFlight
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
         _slotTable = dependencies.SlotTable;
-        _presentation = dependencies.Presentation;
         _ridleyEncounter = dependencies.RidleyEncounter;
-        _bossArtwork = dependencies.BossArtwork;
     }
 
     /// <summary>
@@ -60,7 +54,6 @@ internal sealed class CeresRidleyFlight
         // Ceres Ridley's initialization clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
-        slot.Colouring = RidleyEnemyState.OwnColours;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // Two property bits are proven by the initializer, but the first has not yet
@@ -76,8 +69,6 @@ internal sealed class CeresRidleyFlight
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
-            SpritemapColouring = RidleyEnemyState.OwnColours,
-            CommonDrawColouring = RidleyEnemyState.OwnColours,
             MovementAnimationEnabled = false,
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = true,
@@ -111,13 +102,10 @@ internal sealed class CeresRidleyFlight
         // WriteColorsToTargetPalette installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in
         // the live colours, matching the established Ceres-door palette seam.
-        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation.Colours);
+        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresStart);
 
-        // The loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
-        // colors one through fifteen. Color zero belongs to the shared transparent backdrop
-        // and is intentionally left untouched.
-        _presentation.BossColours().CeresRidleyRevealedObjects.Fill(RgbColor.Black);
+        // The loop clears OBJ palette seven's colours one through fifteen, which the eye and body fades then reveal.
+        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresHidden);
     }
 
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>
@@ -401,8 +389,9 @@ internal sealed class CeresRidleyFlight
 
         // The retreat replaces colors 1..15 of background palette five. The shared colours are
         // copied to colors 1..8 of background palette two and sprite palette seven.
-        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Colours);
+        state.Colours.Room.Lay(RidleyShades.RetreatRoom);
+        state.Colours.Room.Lay(RidleyShades.RetreatShared);
+        state.Colours.Sprites.Lay(RidleyShades.RetreatShared);
     }
 
     /// <summary>The retrieval steering target relative to the falling Baby.</summary>

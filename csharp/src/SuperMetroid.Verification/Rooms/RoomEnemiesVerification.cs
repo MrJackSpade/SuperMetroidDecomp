@@ -896,19 +896,27 @@ internal static void VerifyCeresRidleyRoomEntry()
     RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
     RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
+    // The colours the encounter shows are the import's shades of its installed colours, laid as its AI laid them (#1512).
+    SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = enemies.BossArtworkBinding.CeresRidleyColors
+        ?? throw new InvalidOperationException("Ceres Ridley's fixture installs his colours.");
+    var ridleySprites = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(ceresColours);
+    var ridleyRoom = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresRoom(ceresColours,
+        enemies.BossArtworkBinding.CeresRidleyFloorColors ?? throw new InvalidOperationException("Ceres Ridley's fixture installs his floor's colours."),
+        new RgbColor[SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Sprites]);
+    ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
     AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
-    AssertEqual(SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours, ridley.Colouring, "Ceres Ridley's own colours");
+    AssertEqual(state.Colours.SpriteShading(flashing: false), state.CommonDrawShading, "Ceres Ridley's own colours");
     AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
     AssertEqual(0x3c00, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(ridley.Properties), "Ceres Ridley native initialized properties");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
     AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
         "Ceres Ridley initial dispatcher function");
-    AssertEqual(0x2000, cgram.Colors[0xa0], "Ceres Ridley first added palette color");
-    AssertEqual(0x201f, cgram.Colors[0xbf], "Ceres Ridley final added palette color");
-    AssertEqual(0, cgram.Colors[0xf1], "Ceres Ridley hidden body palette starts black");
-    AssertEqual(0, cgram.Colors[0xff], "Ceres Ridley hidden body palette ends black");
+    AssertEqual(0x2000, Shown()[0xa0], "Ceres Ridley first added palette color");
+    AssertEqual(0x201f, Shown()[0xbf], "Ceres Ridley final added palette color");
+    AssertEqual(0, Shown()[0xf1], "Ceres Ridley hidden body palette starts black");
+    AssertEqual(0, Shown()[0xff], "Ceres Ridley hidden body palette ends black");
 
     // Ridley's private `$A6:A2F2` door overlay bypasses WriteEnemyOAM and reproduces the
     // retail byte-index bug in its word table. Earthquake timer two therefore reads byte
@@ -973,7 +981,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
         "Ceres Ridley body fade completes");
     AssertEqual(4, state.FunctionTimer.RawValue, "Ceres Ridley pre-roar timer");
-    AssertEqual(0x5000 + 0x14a / 2, cgram.Colors[0x91],
+    AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
@@ -1106,13 +1114,13 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= state.CommonDrawColouring == SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours;
-        observedFlashRidleyPalette |= state.CommonDrawColouring == SharedSpriteColouring.Common;
+        observedNormalRidleyPalette |= !state.BodyFlashing;
+        observedFlashRidleyPalette |= state.BodyFlashing;
         if (hit == 49)
-            AssertEqual(0x7000, cgram.Colors[0xf1],
+            AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
         if (hit == 69)
-            AssertEqual(0x7200, cgram.Colors[0xf1],
+            AssertEqual(0x7200, Shown()[0xf1],
                 "Ceres Ridley 70-hit missing-branch palette quirk");
 
         // The hit publishes an unconsumed first frame. Run its full native lifetime
@@ -1149,7 +1157,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
         // first getaway step replaces it with the Mode-7 zoom palette from $51.
         if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
-            retreatBackgroundColor ??= cgram.Colors[0x51];
+            retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
         enemies.CeresRidleyBehavior.Getaway.RunCeresRidleyGetawayRoomMain(samus, 0);
         observedFakeRetreat |= state.Function is
@@ -1175,9 +1183,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley spawns both native Mode-7 wall actors");
     AssertEqual((RgbColor?)RgbColor.FromWord(0x6100), retreatBackgroundColor,
         "Ceres Ridley retreat copies BG palette-five colors");
-    AssertEqual(0x6200, cgram.Colors[0x21],
+    AssertEqual(0x6200, Shown()[0x21],
         "Ceres Ridley retreat copies BG palette-two colors");
-    AssertEqual(0x6200, cgram.Colors[0xf1],
+    AssertEqual(0x6200, Shown()[0xf1],
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
     AssertTrue(enemies.Audio.SoundRequests.Contains(

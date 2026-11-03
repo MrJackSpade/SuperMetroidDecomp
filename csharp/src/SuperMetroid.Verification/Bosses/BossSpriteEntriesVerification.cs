@@ -114,7 +114,6 @@ internal static class BossSpriteEntriesVerification
         {
             MovementAnimationEnabled = true,
             FacingDirection = SuperMetroid.Core.Bosses.Ridley.RidleyFacing.Left,
-            SpritemapColouring = new GraphicsSetMemberColouring(EnemyDefinitionId.RidleyCeres),
             TailSegments = [.. Enumerable.Range(0, 7).Select(index => new SuperMetroid.Core.Bosses.Ridley.RidleyTailSegment
             {
                 Position = new Position16<RoomPixels>(unchecked((ushort)(80 + index * 10)), unchecked((ushort)(120 + index * 3))),

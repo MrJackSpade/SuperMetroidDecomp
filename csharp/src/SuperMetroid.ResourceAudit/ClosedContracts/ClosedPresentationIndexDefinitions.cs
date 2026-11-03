@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -55,10 +54,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
         ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteFile.SelectionCount),
-        ("CeresRidleyColorCatalog", "ApplyEyeFade", "shade") => new(0, CeresRidleyPaletteDefinitions.EyeFadeShadeCount),
-        ("CeresRidleyColorCatalog", "ApplyBodyFade", "shade") => new(0, CeresRidleyPaletteDefinitions.BodyFadeShadeCount),
-        ("CeresRidleyColorCatalog", "ApplyHealth", "band") => new(0, CeresRidleyPaletteDefinitions.HealthBandCount),
-        ("CeresRidleyColorCatalog", "ApplyAlarm", "step") => new(0, CeresRidleyPaletteDefinitions.AlarmStepCount),
         ("DraygonColorCatalog", "ApplyHealthBand", "band") => new(0, DraygonColorDefinitions.HealthBandCount),
         ("DraygonColorCatalog", "ApplyHurt", "healthBand") => new(0, DraygonColorDefinitions.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorDefinitions.HealthBandCount),
@@ -112,9 +107,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("BabyMetroidCutsceneColorCatalog", "InitialColor", "color") => new(0, BabyMetroidCutsceneColorDefinitions.InitialColorCount),
         ("BabyMetroidCutsceneColorCatalog", "FadeColor", "paletteIndex") => new(1, BabyMetroidCutsceneColorDefinitions.FadeFrameCount),
         ("BabyMetroidCutsceneColorCatalog", "FadeColor", "color") => new(0, BabyMetroidCutsceneColorDefinitions.FadeColorCount),
-        ("NorfairRidleyColorCatalog", "ApplyReveal" or "ResolveReveal", "step") => new(0, NorfairRidleyPaletteDefinitions.RevealStepCount),
-        ("NorfairRidleyColorCatalog", "ResolveInitial", "color") => new(0, NorfairRidleyPaletteDefinitions.InitialColorCount),
-        ("NorfairRidleyColorCatalog", "ResolveReveal", "color") => new(0, NorfairRidleyPaletteDefinitions.RevealColorCount),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "frame") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.FrameCount)),
         ("EnemyAuxiliaryColorCatalog", "Resolve", "color") => new(0, EnemyAuxiliaryColorDefinitions.All.Max(definition => definition.ColorCount)),
         ("KraidColorCatalog", "Resolve", "index") => new(0, KraidPalettes.ColorCount(KraidPaletteSource.Health)),
@@ -122,8 +114,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("ShitroidColorCatalog", "NormalColor", "frame") => new(0, ShitroidColorDefinitions.NormalFrameCount),
         ("ShitroidColorCatalog", "NormalColor", "color") => new(0, ShitroidColorDefinitions.NormalColorsPerFrame),
         ("ShitroidColorCatalog", "TargetColor", "color") => new(0, ShitroidColorDefinitions.TargetColorCount),
-        ("CeresRidleyFloorColorCatalog", "Apply" or "Resolve", "zoomStep") => new(0, CeresRidleyPaletteDefinitions.GetawayZoomStepCount),
-        ("CeresRidleyFloorColorCatalog", "Resolve", "color") => new(0, CeresRidleyPaletteDefinitions.GetawayZoomColorCount),
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorDefinitions.AnimatedFrameCount),
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorDefinitions.ColorsPerFrame),
         ("MotherBrainHealthPalettePresentation", "Apply", "damageState") => new(0, MotherBrainHealthPaletteFormat.StateCount),

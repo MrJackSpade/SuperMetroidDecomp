@@ -90,7 +90,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         WithRun(colours, SamusSheetInks.Beams, SamusBeamColours.Of(combination, ShadeSources.BeamPalettes, ShadeSources.Chainsaw));
 
     /// <summary>The sprite colours as a room load leaves them: the starting colours with the common and enemy-projectile groups.</summary>
-    internal RgbColor[] RoomLoadSpriteColours() => RoomLoadPalettes.Colours(Palettes).SpriteSets.All.Colors.ToArray();
+    internal RgbColor[] RoomLoadSpriteColours() => RoomLoadPalettes.SpriteColours(Palettes);
 
     /// <summary><paramref name="colours"/> with <paramref name="run"/> laid from ink <paramref name="first"/>.</summary>
     private static RgbColor[] WithRun(RgbColor[] colours, int first, ReadOnlySpan<RgbColor> run)

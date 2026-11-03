@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -264,8 +263,9 @@ internal static class EnemySheetComposer
         Ensure.NotNull(set);
         var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { TileArtwork = inputs.Enemies },
             CompiledRoomEnemyDefinitions.Instance, services: null));
-        ScreenPalette cgram = RoomLoadPalettes.Colours(inputs.Palettes);
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram.SpriteSets);
+        var spriteSets = new SpriteColourSets();
+        spriteSets.All.CopyFrom(RoomLoadPalettes.SpriteColours(inputs.Palettes));
+        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, spriteSets);
         List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
@@ -278,7 +278,7 @@ internal static class EnemySheetComposer
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
         var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
-            [.. corpses.Where(corpse => corpse.Kind is not null)]), cgram.SpriteSets.All.Colors.ToArray(), drawn);
+            [.. corpses.Where(corpse => corpse.Kind is not null)]), spriteSets.All.Colors.ToArray(), drawn);
     }
 
     /// <summary>A room graphics set as a room load leaves it.</summary>

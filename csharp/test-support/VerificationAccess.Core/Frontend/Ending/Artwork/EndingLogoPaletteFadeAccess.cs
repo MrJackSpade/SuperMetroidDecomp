@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;

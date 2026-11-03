@@ -23,12 +23,22 @@ public static class EndingPaletteRecognition
     public static EndingPalette FromRun(ReadOnlySpan<RgbColor> colours) => new([.. colours], screen: false);
 
     /// <summary>
-    /// Keeps the logo crossfade's selected colours, which the import pipeline decoded by step and layer, recognising the
-    /// calculated fade when its colours follow it.
+    /// Keeps the logo crossfade's selected colours, which the import pipeline decoded by step and layer (#1512): its steps in
+    /// order, each step's background colours before its sprite colours. Where the colours follow the calculated fade, the
+    /// fade's colours are those colours, so either keeps the same colours.
     /// </summary>
     /// <param name="colours">The crossfade's colours.</param>
-    internal static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours) =>
-        LogoFade(colours) is { } fade ? new EndingPalette(fade) : new EndingPalette(colours);
+    internal static EndingPalette FromCrossfade(EndingLogoCrossfadeColours colours)
+    {
+        Ensure.NotNull(colours);
+        Func<int, EndingLogoLayer, int, RgbColor> shown = LogoFade(colours) is { } fade ? fade.Color : colours.Colour;
+        var ordered = new List<RgbColor>(EndingLogoPaletteFade.ColorCount);
+        for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
+            foreach (EndingLogoLayer layer in (EndingLogoLayer[])[EndingLogoLayer.Background, EndingLogoLayer.Sprites])
+                for (int colour = 0; colour < EndingLogoCrossfadeColours.ColoursPerLayer; colour++)
+                    ordered.Add(shown(step, layer, colour));
+        return EndingPalette.LogoCrossfade([.. ordered]);
+    }
 
     /// <summary>Recognize the complete supplied progression before replacing its samples.
     /// An independently edited sequence that does not follow this rule remains ordinary

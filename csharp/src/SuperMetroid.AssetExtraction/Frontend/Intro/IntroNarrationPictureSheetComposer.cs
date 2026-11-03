@@ -42,7 +42,7 @@ internal static class IntroNarrationPictureSheetComposer
         byte[] whole = new byte[IntroTileSetDefinitions.FontFirstTile * CharacterBytes + IntroFontAtlasFormat.ByteCount];
         IntroFontCharacters.Of(Ensure.NotNull(font)).Characters.Span[..IntroFontAtlasFormat.ByteCount].CopyTo(whole.AsSpan(IntroTileSetDefinitions.FontFirstTile * CharacterBytes));
         byte[] blanked = Blanked(whole);
-        RgbColor[] colours = [.. intro.Palette.BackgroundColours];
+        RgbColor[] colours = [.. IntroCinematicSourceArtwork.Of(intro).Palette.BackgroundColours];
         int cells = IntroNarrationPictures.PlaneCells;
         int finalRows = IntroArtworkExtentDefinitions.FinalLineWordCount / cells;
         char[] letters = [.. IntroNarrationPictureSheetComposer.Letters];

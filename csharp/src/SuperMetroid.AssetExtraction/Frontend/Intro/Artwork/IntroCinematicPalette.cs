@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
 /// The opening narration's full, editable screen colours (#1464): its background sets and sprite sets, each set held as

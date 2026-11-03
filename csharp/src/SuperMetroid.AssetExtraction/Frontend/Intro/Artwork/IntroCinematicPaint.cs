@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Intro.Artwork.IntroCinematicPaintDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicPaintDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
 /// Paints the intro (<see cref="IntroCinematicPaintDefinitions"/>): every duplicated slot and described shade relationship of

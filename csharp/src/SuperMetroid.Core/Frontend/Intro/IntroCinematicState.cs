@@ -1352,7 +1352,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         get
         {
             RgbColor installed = (CharacterArtwork ?? throw new InvalidOperationException(
-                "Opening cinematic rendering requires installed artwork.")).Palette.Backdrop;
+                "Opening cinematic rendering requires installed artwork.")).Backdrop;
             int level = paletteFader.NarrationLevel;
             return level == CinematicPaletteFader.Levels ? installed : new ColourLevel(level, CinematicPaletteFader.Levels).Apply(installed);
         }

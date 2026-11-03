@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -18,7 +19,7 @@ internal static class IntroDrawnShadeChecks
     internal static int InstalledRow(PictureShade drawn)
     {
         int row = DrawnShadeRows.Row(drawn);
-        ImmutableArray<RgbColor> sprites = InstalledFixtures.IntroArtwork.Palette.SpriteColours;
+        ImmutableArray<RgbColor> sprites = IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).Palette.SpriteColours;
         ShadeInks inks = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroSprites).Image.Shade(drawn);
         AssertTrue(inks.Colours.SequenceEqual(sprites.Skip(row * ImageColourGroup.Colours).Take(ImageColourGroup.Colours)),
             $"the intro sheet's {drawn.Key} shade shows the cartridge's sprite set {row}");

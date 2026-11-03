@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Whether an opening colour set may be held as the narration's neutral ramp.</summary>
 public enum IntroColourSetCycle

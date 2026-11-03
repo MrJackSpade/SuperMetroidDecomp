@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The shade relationships the opening narration palette is held as.</summary>
 public static class IntroCinematicPaletteFormat

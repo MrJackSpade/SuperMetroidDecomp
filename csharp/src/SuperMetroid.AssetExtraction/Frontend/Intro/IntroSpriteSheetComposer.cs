@@ -45,7 +45,7 @@ internal static class IntroSpriteSheetComposer
     {
         Ensure.NotNull(intro);
         // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
-        RgbColor[] sprites = [.. intro.Palette.SpriteColours];
+        RgbColor[] sprites = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
         return Compose(families, IntroObjectPage.Of(intro), sprites,
             IntroSheetShades.Sprites(sprites, FrontendSheetPalette.FrameColourGroup.Number * IntroSheetInks.SetColours));
     }

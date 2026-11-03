@@ -41,7 +41,7 @@ internal static class EnemyFormatDrawEntriesVerification
 
         // A room's graphics set: a Beetom, an ordinary enemy, and a walking space pirate, an extended one.
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft;
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, new SpriteColourSets());
+        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set);
         RoomEnemyGraphicsSetEntry beetom = enemies.GraphicsSet.Entry(EnemyDefinitionId.Beetom);
         RoomEnemyGraphicsSetEntry pirate = enemies.GraphicsSet.Entry(EnemyDefinitionId.PirateGreenWalking);
 

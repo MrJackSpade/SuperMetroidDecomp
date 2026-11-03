@@ -87,7 +87,6 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
         cgram.SetColor(destination - 1, RgbColor.FromWord(0x1234));

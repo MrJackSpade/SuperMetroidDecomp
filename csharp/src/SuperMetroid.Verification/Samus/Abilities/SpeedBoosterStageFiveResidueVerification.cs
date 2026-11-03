@@ -53,7 +53,6 @@ internal static class SpeedBoosterStageFiveResidueVerification
             },
         };
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
 
         // The first NMI advances both: capsule phase one, then wing frame one.

@@ -10,6 +10,9 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 /// <summary>#641: the ninja Space Pirates' typed programs, each matched step by step to its native bank-$B2 list.</summary>
 internal static class NinjaSpacePirateAnimationsVerification
 {
+    /// <summary>The row the native stance cue names: the one the Metal Pirates room loads the gold Ninja Pirates' colours into.</summary>
+    private const int NinjaStanceRow = 1;
+
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyNinjaSpacePirateAnimations(SuperMetroidAddressSpace rom)
     {
@@ -26,8 +29,11 @@ internal static class NinjaSpacePirateAnimationsVerification
                     'V' => cue switch
                     {
                         NinjaSpacePirateCue.PlaySound playSound => (ushort)SoundEffectCommands.Command(playSound.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")),
-                        // A colouring cue's operand is the palette word of the row its shared set occupies.
-                        NinjaSpacePirateCue.SetColouring setColouring => SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(SuperMetroid.Core.Enemies.Drawing.GraphicsSetColourPlacement.FixedStore(setColouring.Colouring ?? throw new InvalidOperationException($"{at}: a colouring cue carries no colouring.")).Set),
+                        // A look cue's operand is the palette word of the row the cartridge selects: the gold wall row for the
+                        // gold wall flash, the row the Metal Pirates room loads the gold Ninja Pirates into for the stance (#1512).
+                        NinjaSpacePirateCue.SetShading setShading => SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(
+                            setShading.Shading == SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash
+                                ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.NinjaGoldWall : NinjaStanceRow),
                         NinjaSpacePirateCue.ThrowClaw throwClaw => throwClaw.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
                         NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetFunction or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                         _ => throw new InvalidOperationException($"{at}: {cue} has no word operand."),

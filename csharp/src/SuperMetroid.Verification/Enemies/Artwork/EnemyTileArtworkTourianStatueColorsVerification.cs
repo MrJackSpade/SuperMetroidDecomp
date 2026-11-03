@@ -220,7 +220,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SamusColourRig cgram = SeedColors();
-            enemy.Presentation.BindColours(cgram.Gameplay);
             return new CreateEnemyResult(enemy, cgram);
         }
 

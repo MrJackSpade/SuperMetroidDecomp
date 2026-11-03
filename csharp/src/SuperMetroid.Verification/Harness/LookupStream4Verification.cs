@@ -665,7 +665,6 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
                 var cgram = new SamusColourRig();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
-                enemies.Presentation.BindColours(cgram.Gameplay);
                 Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
@@ -1311,7 +1310,6 @@ internal static class LookupStream4Verification
             { BossArtworkBinding = { CeresRidleyFloorColors = colors, CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom))) } };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -2414,7 +2412,6 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SamusColourRig(); var vram=new SnesVram();
-                enemies.Presentation.BindColours(actual.Gameplay); enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
@@ -2543,7 +2540,6 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SamusColourRig();
-                enemies.Presentation.BindColours(cgram.Gameplay);
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
@@ -2596,7 +2592,6 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
-                enemies.Presentation.BindColours(cgram.Gameplay);
                 RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
                 Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
@@ -2732,7 +2727,6 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234));
-                enemies.Presentation.BindColours(cgram.Gameplay);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
@@ -2822,7 +2816,6 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewProjectileCompositionForbiddenBus();
-                enemies.Presentation.BindColours(cgram.Gameplay);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
@@ -2903,7 +2896,6 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SamusColourRig();
                 var guard = NewBotwoonColorReadGuard(rom);
-                enemies.Presentation.BindColours(cgram.Gameplay);
                 Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
                 var state = new BotwoonEnemyState() { HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody) };
@@ -3272,7 +3264,6 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(babyRows), BodyFade = bodyRows })));
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
-            enemies.Presentation.BindColours(cgram.Gameplay);
             Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
@@ -3356,7 +3347,6 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
             var cgram = new SamusColourRig();
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
-            enemies.Presentation.BindColours(cgram.Gameplay);
             Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
             for (int row = 0; row < 9; row++)
             {
@@ -3457,7 +3447,6 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
             var cgram = new SamusColourRig();
-            enemies.Presentation.BindColours(cgram.Gameplay);
             Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
             Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
             void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, RgbColor.FromWord(0x1234)); }

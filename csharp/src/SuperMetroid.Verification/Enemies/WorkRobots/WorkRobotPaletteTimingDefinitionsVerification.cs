@@ -93,7 +93,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationColouring = SharedSpriteColouring.Common;

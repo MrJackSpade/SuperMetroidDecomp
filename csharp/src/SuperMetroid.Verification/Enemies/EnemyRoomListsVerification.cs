@@ -65,6 +65,7 @@ internal static class EnemyRoomListsVerification
         foreach (ushort pointer in graphicsPointers)
         {
             RoomEnemyGraphicsSetDefinition compiled = RoomEnemyGraphicsSetDefinitions.Get(pointer);
+            var importRows = new GraphicsSetRows(compiled);
             int address = RoomEnemyRomLayout.TilesetBank | pointer;
             ReadOnlySpan<RoomEnemyGraphicsSetHeader> records = compiled.Records.Span;
             for (int index = 0; index < records.Length; index++, address += 4)
@@ -72,11 +73,14 @@ internal static class EnemyRoomListsVerification
                 ushort definitionWord = ReadVerificationWord(bus, address);
                 AssertTrue(definitionWord != 0xffff,
                     $"graphics set $B4:{pointer:X4} has no early terminator");
+                ushort placementWord = ReadVerificationWord(bus, address + 2);
                 RoomEnemyGraphicsSetHeader native = RoomEnemyGraphicsSetHeader.FromNative(
-                    EnemyDefinitionIds.FromHeaderPointer(definitionWord),
-                    ReadVerificationWord(bus, address + 2));
+                    EnemyDefinitionIds.FromHeaderPointer(definitionWord), placementWord);
                 AssertEqual(native, records[index],
                     $"graphics set $B4:{pointer:X4} ordered member {index}");
+                // The member's palette row is the import's knowledge, which colours its sheets (#1512).
+                AssertEqual(RoomEnemyGraphicsSetHeader.NativePaletteRow(placementWord), importRows.RecordRow(index),
+                    $"graphics set $B4:{pointer:X4} member {index}'s palette row in the import's catalog");
             }
             AssertEqual(0xffff, ReadVerificationWord(bus, address),
                 $"graphics set $B4:{pointer:X4} length reaches its native terminator");

@@ -262,8 +262,7 @@ internal static class NativeSnapshotImport
             initialPlms[index].Delete();
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
-            ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W,
-                runtime.Enemies.GraphicsSet);
+            ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext.SeedRandomEnemyCounter(W(NativeSnapshotMemory.MainEnemyRoutineCount));
@@ -374,8 +373,7 @@ internal static class NativeSnapshotImport
     /// definition-derived radii and properties must already agree with them. Free slots keep
     /// their stale position and velocity words, which later spawns can read.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, IImportCartridgeSource cartridge, Func<int, ushort> W,
-        EnemyGraphicsSet graphicsSet)
+    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, IImportCartridgeSource cartridge, Func<int, ushort> W)
     {
         int index = projectile.SlotIndex * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
@@ -391,10 +389,12 @@ internal static class NativeSnapshotImport
             VerificationAssertions.AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
             // The snapshot's graphics word packs the projectile's tile base and palette row as an attribute word does; the
-            // row is decoded into the colouring it denotes under the room's loaded set.
+            // row is decoded into the shading it denotes (#1512): a projectile at its spawner's characters draws in its
+            // spawner's row, its standard colours, and one at character zero in the shared selection its row is.
             var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
+            int standardRow = graphics.TileNumber == 0 ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.Common : graphics.PaletteIndex;
             FamilyProjectileStarts.Initialize(
-                projectile, kind, new SpriteGraphics(graphics.TileNumber, graphicsSet.ColouringInRow(graphics.PaletteIndex)));
+                projectile, kind, new SpriteGraphics(graphics.TileNumber, SpriteColouringAccess.ShadingInRow(graphics.PaletteIndex, standardRow)));
             projectile.FrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.

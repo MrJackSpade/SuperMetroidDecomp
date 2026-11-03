@@ -51,7 +51,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) },
         };
-        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 

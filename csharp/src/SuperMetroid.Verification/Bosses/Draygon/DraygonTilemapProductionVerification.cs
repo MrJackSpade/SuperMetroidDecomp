@@ -48,7 +48,7 @@ internal static class DraygonTilemapProductionVerification
         BossBodySheets sheets = RepositoryInstallation.Artwork.BossBodySheets
             ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
         enemies.BossArtworkBinding.BodySheets = sheets;
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData, Samus = samus });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram)) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI

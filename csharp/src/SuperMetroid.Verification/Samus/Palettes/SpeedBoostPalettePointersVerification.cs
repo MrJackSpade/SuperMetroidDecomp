@@ -44,12 +44,12 @@ internal static class SpeedBoostPalettePointersVerification
                 EquippedItems = equipment[selection],
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
             };
-            var installedColors = new SamusColourRig();
-            AssertTrue(SamusSpecialSuperPalette.Update(installedColors.Samus, samus),
+            var installedColours = new SamusColours();
+            AssertTrue(SamusSpecialSuperPalette.Update(installedColours, samus),
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
-                    installedColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources with { FullBodyCycles = cycleColors })[color],
+                    installedColours.ShownSuit(InstalledFixtures.SamusShadeSources with { FullBodyCycles = cycleColors })[color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(SamusMetroidAttachmentPalette.NormalSuitNext, samus.MetroidAttachmentPalette,
                 "the Speed Booster palette alternates to the normal suit");
@@ -57,7 +57,7 @@ internal static class SpeedBoostPalettePointersVerification
 
         // Without an attacker the alternation leaves the palette alone.
         var unattached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, unattached),
+        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColours(), unattached),
             "no attachment, no alternation");
         AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,
             "an inactive alternation stays inactive");

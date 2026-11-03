@@ -95,14 +95,14 @@ internal static class BeamPaletteArtworkVerification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedBeams = beams };
             samus.CrystalFlash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
             samus.CrystalFlash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
-            var finished = new SamusColourRig();
-            AssertTrue(samus.CrystalFlash.UpdatePalette(finished.Samus, samus),
+            var finishedColours = new SamusColours();
+            AssertTrue(samus.CrystalFlash.UpdatePalette(finishedColours, samus),
                 $"{beams}: Crystal Flash's finish runs");
             var expected = new SamusColourRig();
             SamusProjectileSystem.LoadBeamPalette(expected.Samus, beams);
-            AssertEqual(expected.Samus.Beams, finished.Samus.Beams, $"{beams}: Crystal Flash's finish shows the shade equipping the beams shows");
+            AssertEqual(expected.Samus.Beams, finishedColours.Beams, $"{beams}: Crystal Flash's finish shows the shade equipping the beams shows");
             var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes, Chainsaw = chainsaw };
-            AssertTrue(finished.Samus.ShownBeams(sources).SequenceEqual(expected.Samus.ShownBeams(sources)),
+            AssertTrue(finishedColours.ShownBeams(sources).SequenceEqual(expected.Samus.ShownBeams(sources)),
                 $"{beams}: Crystal Flash's finish shows the colours equipping the beams shows");
             AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind, $"{beams}: the finish releases the palette");
         }

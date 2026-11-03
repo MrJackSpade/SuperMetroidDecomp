@@ -321,9 +321,9 @@ internal static class SpacetimeBeamVerification
         {
             // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
             for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
-            var cgram = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(cgram.Samus, (SamusBeamFlags)0x100e);
-            RgbColor[] spacetime = cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources);
+            var samusColours = new SamusColours();
+            SamusProjectileSystem.LoadBeamPalette(samusColours, (SamusBeamFlags)0x100e);
+            RgbColor[] spacetime = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
             for (int i = 0; i < 16; i++) AssertEqual(RgbColor.Black, spacetime[i],
                 "SpaceTime colors are its defined palette");
         }

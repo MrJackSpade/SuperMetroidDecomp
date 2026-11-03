@@ -698,15 +698,15 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     var palettes = new SamusHorizontalSpeedState();
     // Samus names shades (#1512); the import resolves them from the seeded suits and cycles.
     var aerialSources = InstalledFixtures.SamusShadeSources with { Suits = suitColors, FullBodyCycles = cycleColors.ToColours() };
-    var cgram = new SamusColourRig();
-    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+    var samusColours = new SamusColours();
+    AssertTrue(palettes.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
         "ending Screw frame copies normal suit palette");
-    AssertEqual(0x0111, cgram.Samus.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
+    AssertEqual(0x0111, samusColours.ShownSuit(aerialSources)[0], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
+        AssertTrue(palettes.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = SamusEquipmentFlags.ScrewAttack }),
             $"Screw palette frame {frame} copies");
-        AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Samus.ShownSuit(aerialSources)[0],
+        AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), samusColours.ShownSuit(aerialSources)[0],
             $"Screw palette frame {frame} ROM color");
     }
     AssertEqual(0, palettes.CyclePaletteStep, "six Screw palettes wrap to step zero");

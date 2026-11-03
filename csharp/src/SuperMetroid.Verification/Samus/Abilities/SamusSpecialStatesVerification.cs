@@ -146,18 +146,18 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(SamusSpecialPaletteType.CrystalFlash, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash installs palette handler seven");
 
-    var crystalCgram = new SamusColourRig();
+    var crystalColours = new SamusColours();
     // Crystal Flash names shades (#1512); the import resolves them from the fixture's colours and beam palettes.
     var crystalSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = crystalColors, BeamPalettes = beamPalettes };
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalColours, samus),
         "Crystal Flash palette handler owns first visible frame");
-    AssertEqual(0x0100, crystalCgram.Samus.ShownBeams(crystalSources)[0],
+    AssertEqual(0x0100, crystalColours.ShownBeams(crystalSources)[0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
-    AssertEqual(0x0109, crystalCgram.Samus.ShownBeams(crystalSources)[9],
+    AssertEqual(0x0109, crystalColours.ShownBeams(crystalSources)[9],
         "Crystal Flash body palette copies ten colors");
-    AssertEqual(0x0200, crystalCgram.Samus.ShownBeams(crystalSources)[10],
+    AssertEqual(0x0200, crystalColours.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette begins at color ten");
-    AssertEqual(0x0205, crystalCgram.Samus.ShownBeams(crystalSources)[15],
+    AssertEqual(0x0205, crystalColours.ShownBeams(crystalSources)[15],
         "Crystal Flash bubble palette copies six colors");
     AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "Crystal Flash bubble timer reloads five");
@@ -169,8 +169,8 @@ internal static void VerifySamusCrystalFlash()
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
-        samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus);
-    AssertEqual(0x0220, crystalCgram.Samus.ShownBeams(crystalSources)[10],
+        samus.CrystalFlash.UpdatePalette(crystalColours, samus);
+    AssertEqual(0x0220, crystalColours.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette advances independently");
     AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
         "Crystal Flash body palette retains independent countdown");
@@ -306,11 +306,11 @@ internal static void VerifySamusCrystalFlash()
         "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "cleanup requests normal palette restoration");
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalColours, samus),
         "Crystal Flash finish restores beam palette");
-    AssertEqual(0x0300, crystalCgram.Samus.ShownBeams(crystalSources)[0],
+    AssertEqual(0x0300, crystalColours.ShownBeams(crystalSources)[0],
         "Crystal Flash finish restores beam palette color zero");
-    AssertEqual(0x030f, crystalCgram.Samus.ShownBeams(crystalSources)[15],
+    AssertEqual(0x030f, crystalColours.ShownBeams(crystalSources)[15],
         "Crystal Flash finish restores all sixteen beam palette colors");
     AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash palette handler clears after restoration");

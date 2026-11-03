@@ -47,7 +47,7 @@ internal static class ColorWindowSnapshotTestsVerification
                         ?? throw new InvalidOperationException("An active suit pickup captures its window.");
                     copy = GameplayEffectCapture.CaptureSuitPickup(pickup.Flash);
                 }
-                pickup.Step(samus, new SamusColourRig().Samus);
+                pickup.Step(samus, new SamusColours());
                 if (retained is not null) Compare(copy, retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");

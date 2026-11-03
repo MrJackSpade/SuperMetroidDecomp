@@ -105,10 +105,10 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // Update_Beam_Tiles_and_Palette writes sprite palette six; the projectile page the power beam
     // binds shows its $100 bytes where the native DMA to VRAM word $6300 placed them.
-    var beamCgram = new SamusColourRig();
+    var beamColours = new SamusColours();
     var beamPalettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
-    SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus, equippedBeams: 0);
+    SamusProjectileSystem.LoadBeamPalette(beamColours, equippedBeams: 0);
     // Samus's colours name shades (#1512); the import resolves them from the fixture's tables.
     var projSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = beamPalettes, Charge = fixtureChargeColors, Suits = fixtureSuitColors };
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
@@ -119,9 +119,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         "power beam characters begin at the page character of VRAM word $6300");
     AssertEqual(0xa5, beamPage[beamFirstByte + 0xff],
         "power beam characters span exactly $100 source bytes");
-    AssertEqual(0x0100, beamCgram.Samus.ShownBeams(projSources)[0],
+    AssertEqual(0x0100, beamColours.ShownBeams(projSources)[0],
         "power beam palette begins at OBJ palette six");
-    AssertEqual(0x010f, beamCgram.Samus.ShownBeams(projSources)[15],
+    AssertEqual(0x010f, beamColours.ShownBeams(projSources)[15],
         "power beam palette copies sixteen colors");
 
     // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
@@ -425,7 +425,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // entries once per palette call. Verify Power/Varia/Gravity independently for both the
     // normal charge and contact-damage-index-four pseudo-screw families. Six calls must
     // wrap the native byte offset 0,2,4,6,8,10 back to zero.
-    var liveChargeCgram = new SamusColourRig();
+    var liveChargeColours = new SamusColours();
     ushort[] suitEquipment = [0x0000, 0x0001, 0x0020];
     for (int family = 0; family < 2; family++)
     {
@@ -440,7 +440,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 AssertEqual(palette, chargeProjectiles.Charge.ChargePaletteStep,
                     $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
                 SamusBeamChargePaletteStepResult liveChargeStep =
-                    chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
+                    chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
                 // The installed colors are unique per family/suit/palette, so the CGRAM check
                 // below identifies the palette the call selected.
                 AssertEqual(
@@ -454,7 +454,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                     ushort expectedColor = unchecked((ushort)(
                         (pseudoScrew ? 0x4000 : 0x3000) +
                         suit * 0x100 + palette * 0x20 + color));
-                    AssertEqual(expectedColor, liveChargeCgram.Samus.ShownSuit(projSources)[color],
+                    AssertEqual(expectedColor, liveChargeColours.ShownSuit(projSources)[color],
                         $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} " +
                         $"palette {palette} color {color}");
                 }
@@ -469,12 +469,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     // pausing and resuming on the second palette.
     chargeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
     chargeSamus.EquippedItems = 0;
-    chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
+    chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
     AssertEqual(1, chargeProjectiles.Charge.ChargePaletteStep,
         "one live charge-palette call advances to the second step");
     chargeSamus.Grapple.Phase = GrapplePhase.Firing;
     SamusBeamChargePaletteStepResult grappleSuppressesCharge =
-        chargeProjectiles.UpdateBeamChargePalette(liveChargeCgram.Samus, chargeSamus);
+        chargeProjectiles.UpdateBeamChargePalette(liveChargeColours, chargeSamus);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
         "active grapple suppresses charge-body palette");
     AssertEqual(0, chargeProjectiles.Charge.ChargePaletteStep,
@@ -506,22 +506,22 @@ internal static void VerifySamusPowerBeamProjectiles()
     // complete suit palette. Seed transparent color zero with a sentinel to catch a broad
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
     chargeSamus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
-    var chargedGlowCgram = new SamusColourRig();
+    var chargedGlowColours = new SamusColours();
     for (int call = 0; call < 4; call++)
     {
         SamusBeamChargePaletteStepResult paletteStep =
-            chargeProjectiles.UpdateBeamChargePalette(chargedGlowCgram.Samus, chargeSamus);
+            chargeProjectiles.UpdateBeamChargePalette(chargedGlowColours, chargeSamus);
         if (call < 3)
         {
             AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
                 $"ordinary charged glow call {call + 1} selects white branch");
             AssertEqual(unchecked((ushort)(3 - call)), chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
                 $"ordinary charged glow call {call + 1} decrements before branch");
-            AssertEqual(SamusShades.ChargedShotGlow, chargedGlowCgram.Samus.Suit,
+            AssertEqual(SamusShades.ChargedShotGlow, chargedGlowColours.Suit,
                 $"ordinary charged glow call {call + 1} shows the glow's shade, which leaves transparent color zero to the sheet");
             for (int color = 1; color < 16; color++)
             {
-                AssertEqual(0x03ff, chargedGlowCgram.Samus.ShownSuit(projSources)[color],
+                AssertEqual(0x03ff, chargedGlowColours.ShownSuit(projSources)[color],
                     $"ordinary charged glow call {call + 1} paints visible color {color}");
             }
         }
@@ -532,7 +532,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             // Gravity's unique fixture colors prove the restore selected the Gravity palette.
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowCgram.Samus.ShownSuit(projSources)[color],
+                AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowColours.ShownSuit(projSources)[color],
                     $"ordinary charged glow restore copies Gravity color {color}");
             }
         }

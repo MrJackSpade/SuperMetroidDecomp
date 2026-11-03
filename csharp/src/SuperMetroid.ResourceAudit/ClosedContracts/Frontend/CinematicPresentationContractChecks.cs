@@ -35,7 +35,7 @@ internal static class CinematicPresentationContractChecks
                     CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
                     CinematicSpriteSheet explosions, CeresDoorVisuals door,
                     EscapeTimerPresentation timer,
-                    EscapeTimer countdown, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
+                    EscapeTimer countdown, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     gradient.Resolve(ushort.MaxValue);

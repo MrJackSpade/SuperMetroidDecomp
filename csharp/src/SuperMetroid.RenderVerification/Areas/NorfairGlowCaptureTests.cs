@@ -35,13 +35,10 @@ internal static class NorfairGlowCaptureTests
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Norfair glow frame {tick}");
 
-            // Freeze geometry, camera, objects, and every unrelated palette entry.
-            // Any remaining pixel change is specifically the room's foreground glow,
-            // not a moving enemy, liquid surface, or BG2 heat distortion.
-            RgbColor[] colors = original.Paint.Colors.ToArray();
-            foreach (int index in NorfairGlowFixture.ColorIndices)
-                colors[index] = scene.Paint.Colors[index];
-            var memory = FramePaint.FromNative(colors, original.Paint.SpriteDraws);
+            // Freeze geometry, camera and objects, and show only the foreground under this frame's room shading
+            // (#1512): any remaining pixel change is the room's glow shade, not a moving enemy, liquid surface, or BG2
+            // heat distortion.
+            FramePaint memory = scene.Paint;
             var originalLayer = (GameplaySceneLayer)original.Layers[0];
             var registers = originalLayer.View;
             var foreground = new LayeredScene(memory,

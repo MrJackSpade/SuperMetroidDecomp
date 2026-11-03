@@ -335,16 +335,25 @@ internal static class EndingSnapshotTestsVerification
                         AssertEqual(word < 0x300 ? map[word] : (byte)0x8c, vram[word * 2],
                             "native flyaway map upload and padded background");
                     }
-                    AssertEqual(0, memory.Colors[0], "flyaway clears explosion backdrop");
+                    AssertEqual(RgbColor.Black, memory.Backdrop, "flyaway clears explosion backdrop");
                     if (firstPhaseFrame)
-                        AssertEqual(0x7fff, memory.Colors[81], "native gunship emergence palette starts white");
+                    {
+                        // Every picture coloured from the gunship's emergence colour shows it white (#1512).
+                        RgbColor[] emergence = SceneShownColours.ShownAt(EndingCreditsPresentation.CaptureRenderSnapshot(legacy), 81);
+                        AssertTrue(emergence.Length > 0 && emergence.All(colour => colour == new RgbColor(31, 31, 31)),
+                            "native gunship emergence palette starts white");
+                    }
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsBlank)
                 {
-                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint;
+                    // Every picture the blank shows, at every place of the native image it is coloured from, shows the
+                    // cartridge's Intro4 colour there (#1512); a place no picture is coloured from is not shown.
+                    LayeredScene blank = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     for (int color = 4; color < 256; color++)
-                        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2),
-                            memory.Colors[color], "native end-credits Intro4 palette");
+                    {
+                        RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2));
+                        AssertTrue(SceneShownColours.ShownAt(blank, color).All(shown => shown == native), $"native end-credits Intro4 palette colour {color}");
+                    }
                     byte[] reward = RomDataReader.Decompress(bus, hours < 3 ? 0x97b957 : 0x979803, 0x8000);
                     var shownLegacy8 = legacy.ShownVram();
                     AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(shownLegacy8.AsSpan(0, 0x4000)),

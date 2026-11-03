@@ -131,10 +131,11 @@ internal static class IntroCinematicArtworkVerification
             var completeInstalled = CreateRetailIntroFixture(
                 introFont: installation.LoadMaps().IntroFont,
                 characterArtwork: stock);
-            var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Paint;
-            var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Paint;
+            LayeredScene completeNativeScene = native.CaptureTranslatedRenderSnapshot();
+            LayeredScene completeInstalledScene = completeInstalled.CaptureTranslatedRenderSnapshot();
             AssertTrue(completeInstalled.ShownVram().SequenceEqual(native.ShownVram()) &&
-                completeInstalledMemory.Colors.SequenceEqual(completeNativeMemory.Colors),
+                completeInstalledScene.Paint.Backdrop == completeNativeScene.Paint.Backdrop &&
+                SceneShownColours.Same(SceneShownColours.Of(completeInstalledScene), SceneShownColours.Of(completeNativeScene)),
                 "fully installed opening upload preserves every native VRAM and CGRAM word without a cartridge read");
             var guarded = NewIntroArtworkSourceReadGuard(bus);
             var installed = CreateRetailIntroFixture(characterArtwork: stock);
@@ -157,7 +158,8 @@ internal static class IntroCinematicArtworkVerification
                     byte[] actualSceneVram = installed.ShownVram();
                     AssertTrue(actualScene.Brightness == expectedScene.Brightness &&
                             actualSceneVram.SequenceEqual(expectedSceneVram) &&
-                            actualScene.Paint.Colors.SequenceEqual(expectedScene.Paint.Colors),
+                            actualScene.Paint.Backdrop == expectedScene.Paint.Backdrop &&
+                            SceneShownColours.Same(SceneShownColours.Of(actualScene), SceneShownColours.Of(expectedScene)),
                         $"installed cinematic preserves native graphics and colors at frame {frame}");
                 }
             }
@@ -180,14 +182,18 @@ internal static class IntroCinematicArtworkVerification
             IntroCinematicArtwork editedPalette = installation.LoadIntroCinematicArt();
             var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
             var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
-            RgbColor[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
-            RgbColor[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.ToArray();
-            AssertTrue(!editedCgram.SequenceEqual(originalCgram) &&
-                editedCgram.AsSpan(0, 1).SequenceEqual(originalCgram.AsSpan(0, 1)) &&
-                editedCgram.AsSpan(2).SequenceEqual(originalCgram.AsSpan(2)),
-                "edited opening RGB5 color reaches only its production CGRAM destination");
+            // The pictures' shown colours, each as the native image it shows (#1512): the edit changes the colour one
+            // picture or more shows at the edited place, and no other colour any picture shows.
+            IReadOnlyList<RgbColor[]> originalShown = SceneShownColours.Of(stockPaletteState.CaptureTranslatedRenderSnapshot());
+            IReadOnlyList<RgbColor[]> editedShown = SceneShownColours.Of(editedPaletteState.CaptureTranslatedRenderSnapshot());
+            AssertTrue(originalShown.Count == editedShown.Count &&
+                !SceneShownColours.Same(originalShown, editedShown) &&
+                originalShown.Zip(editedShown).All(pair =>
+                    pair.First.AsSpan(0, 1).SequenceEqual(pair.Second.AsSpan(0, 1)) &&
+                    pair.First.AsSpan(2).SequenceEqual(pair.Second.AsSpan(2))),
+                "edited opening RGB5 color reaches only the pictures' colour at its production CGRAM destination");
             stockPaletteState.BindFixtureIntroArtwork(editedPalette);
-            AssertTrue(stockPaletteState.CaptureTranslatedRenderSnapshot().Paint.Colors.SequenceEqual(editedCgram),
+            AssertTrue(SceneShownColours.Same(SceneShownColours.Of(stockPaletteState.CaptureTranslatedRenderSnapshot()), editedShown),
                 "restored initial narration rebinds the current palette without restarting its phase");
             for (int frame = 0; frame < 120; frame++)
             {

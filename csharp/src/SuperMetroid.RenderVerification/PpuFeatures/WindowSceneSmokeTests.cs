@@ -18,17 +18,17 @@ internal static class WindowSceneSmokeTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32116);
-        (byte[] Vram, FramePaint Paint) Memory(byte obsel)
+        (byte[] Vram, RgbColor[] Colors, FramePaint Paint) Memory(byte obsel)
         {
             var vram = new byte[SnesVram.ByteCount]; random.NextBytes(vram);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
             RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-            return (vram, FramePaint.FromOam(vram, palette, oam, 128, obsel));
+            return (vram, palette, FramePaint.FromOam(vram, palette, oam, 128, obsel));
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
-        var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(parentMemory.Vram, parentMemory.Paint.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
+        var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(parentMemory.Vram, parentMemory.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
             new Extent16<TilemapCells>(32, 32)), new Position16<TilePlanePixels>(3, 11), true);
-        AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Paint.Colors);
+        AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Colors);
         LayeredScene Child(byte brightness) => new(childMemory.Paint, new DisplayLayer[] {
             new TurningFloorLayer(new(255, 71, -71, 255, new(128, 112), new(13, -11), FloorOverflowMode.Wrap), childFloor),
             new SpritesLayer() }, brightness);

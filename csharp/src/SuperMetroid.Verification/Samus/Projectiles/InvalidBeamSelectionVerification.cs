@@ -79,7 +79,8 @@ internal static class InvalidBeamSelectionVerification
         Console.WriteLine($"scenario={scenario} actual label bytes={Convert.ToHexString(afterVram.AsSpan(0x6508, 18))}");
         AssertTrue(expectedVram.AsSpan(0x6508, 18).SequenceEqual(afterVram.AsSpan(0x6508, 18)),
             $"native nine/five/zero-word Plasma footprint, scenario {scenario}");
-        var expectedMemory = after.Paint.WithNativeColours(after.Paint.Colors);
+        // The expected frame shows the port's sprites in the cartridge's pause colours (#1512).
+        var expectedMemory = after.Paint.WithNativeColours(PauseShownColours.Of(pause));
         var expectedPixels = DisplayRendering.Render(new LayeredScene(expectedMemory, after.Layers, after.Brightness));
         var actualPixels = pause.Render();
         if (!expectedPixels.SequenceEqual(actualPixels))

@@ -60,7 +60,7 @@ internal static class XrayInputVerification
                 {
                     AssertTrue(((GameplayBlendLayer)startup.Layers[0]).Window.IsClosed,
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : RgbColor.Black, startup.Paint.Colors[0],
+                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop,
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
@@ -89,7 +89,7 @@ internal static class XrayInputVerification
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
             "a reveal room halves its added blend over both backgrounds, the sprites and the backdrop");
-        AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Colors[0], "setup backdrop reaches the packet");
+        AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
         // BG2 shows the setup-owned reveal map's blocks and arrangements (#1403, #1431).
         RevealedBlock?[] frozenBlocks = XraySetupMemory.ReadReveal(runtime.Xray);
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
@@ -110,7 +110,7 @@ internal static class XrayInputVerification
             AssertTrue(restoring.Layers[0] is GameplayBlendLayer, "BG2 restore retains X-ray layer ownership");
             AssertTrue(((GameplayBlendLayer)restoring.Layers[0]).Window.IsClosed,
                 "deactivation closes the beam while BG2 restore completes");
-            AssertEqual(0, restoring.Paint.Colors[0], "deactivation resets the backdrop before unfreezing");
+            AssertEqual(0, restoring.Paint.Backdrop, "deactivation resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");

@@ -145,13 +145,6 @@ internal static class CoreAccess
             .Values.Sum(bank => bank.Samples.Count);
     }
 
-    /// <summary>Reads the installed initial gameplay palette for exact color comparisons.</summary>
-    extension(GameplayBasePalette palettes)
-    {
-        /// <summary>The native starting image the catalog's starting colours were decoded from, rebuilt from its owners once.</summary>
-        internal ReadOnlySpan<RgbColor> Initial => NativeColourImage.Of(palettes.starting);
-    }
-
 
     /// <summary>Extracts the high-bit flip flags from a rendered map tile word.</summary>
     extension(MapTileWord tile)

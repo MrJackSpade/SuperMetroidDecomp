@@ -70,7 +70,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         EnemyDefinitionId.PirateSilverNinja;
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal void InitializeNinjaSpacePirate(RoomEnemySlot slot)
+    internal static void InitializeNinjaSpacePirate(RoomEnemySlot slot)
     {
         var state = new NinjaSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

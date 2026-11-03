@@ -34,7 +34,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private const int WreckedShipGhostMovementClassCount = 3;
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
-    internal void InitializeWreckedShipGhost(RoomEnemySlot slot)
+    internal static void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
         // Every named retail ghost population places this actor in physical slot zero.
         // Its tracking routine contains several absolute-Samus reads indexed by the
@@ -250,7 +250,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Fades to the ghost palette, including the simultaneous flicker and per-component fade.</summary>
-    private void RunWreckedShipGhostPaletteFade(
+    private static void RunWreckedShipGhostPaletteFade(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
         SamusState samus)
@@ -300,7 +300,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Finishes whitening, hides, and restarts the 120-frame delay.</summary>
-    private void RunWreckedShipGhostWhiteFade(
+    private static void RunWreckedShipGhostWhiteFade(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {

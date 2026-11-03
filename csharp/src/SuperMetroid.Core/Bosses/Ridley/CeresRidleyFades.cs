@@ -19,7 +19,7 @@ internal sealed class CeresRidleyFades
     }
 
     /// <summary>Advances the eye-fade schedule one step on each AI call before enabling the body fade.</summary>
-    internal void TickCeresRidleyEyeFade(RidleyEnemyState state)
+    internal static void TickCeresRidleyEyeFade(RidleyEnemyState state)
     {
         // The original INC/BNE sequence advances once per AI call for every reachable
         // counter value, resetting the scratch timer immediately afterward.

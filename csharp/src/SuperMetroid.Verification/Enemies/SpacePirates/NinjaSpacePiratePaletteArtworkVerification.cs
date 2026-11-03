@@ -108,7 +108,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
-            enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
+            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
             return new InitializeResult(slot, (enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program);
         }

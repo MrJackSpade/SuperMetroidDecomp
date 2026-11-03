@@ -467,7 +467,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the four-frame shine palette loop.</summary>
-    internal void StepDachoraShinePalette(RoomEnemySlot slot, DachoraEnemyState state)
+    internal static void StepDachoraShinePalette(RoomEnemySlot slot, DachoraEnemyState state)
     {
         int paletteIndex = state.PaletteFrame;
         if ((uint)paletteIndex >= 4)

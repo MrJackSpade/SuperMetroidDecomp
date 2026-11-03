@@ -102,7 +102,7 @@ internal sealed class KraidRise
         state.Parts[0].NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
 
         // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
-        state.Colours.EyeGlow.ShowBand(_head.BandEyes(_head.InitialBand(body, state)));
+        state.Colours.EyeGlow.ShowBand(_head.BandEyes(KraidHead.InitialBand(body, state)));
         _earthquake.EarthquakeType = 5;
     }
 

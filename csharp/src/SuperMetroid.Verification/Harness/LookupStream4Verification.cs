@@ -675,8 +675,7 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> room = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
             if (edit is -1 or 0 or 143)
             {
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
-                Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
+                Action<RidleyEnemyState, int> update = CeresRidleyGetaway.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
                 {
@@ -2594,7 +2593,7 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SnesCgram();
                 RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
-                Action<DraygonEnemyState> update = enemies.DraygonBehavior.Combat.UpdateDraygonHealthPalette;
+                Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthPalette;
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
@@ -3455,8 +3454,8 @@ internal static class LookupStream4Verification
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
-            Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
-            Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
+            Action<RoomEnemySlot, RidleyEnemyState> norfair = RidleyInteractions.UpdateNorfairRidleyHealthPalette;
+            Action<RidleyEnemyState> ceres = CeresRidleyHits.UpdateCeresRidleyHealthPalette;
             void Check(RidleyEnemyState shown, int row)
             {
                 ushort[] cgram = RidleyLaidColours.Of(shown, healthShades, [], 0x1234);

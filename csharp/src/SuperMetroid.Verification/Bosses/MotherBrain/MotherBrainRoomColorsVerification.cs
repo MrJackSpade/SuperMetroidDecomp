@@ -52,7 +52,7 @@ internal static class MotherBrainRoomColorsVerification
             AssertEqual(MotherBrainShades.Flash(shown), state.Colours.Background.Laid[^1],
                 $"Mother Brain's room flash shows its frame {shown} on update {frame}");
         }
-        enemies.MotherBrainBehavior.FakeDeath.StopMotherBrainRoomPalette(state);
+        MotherBrainFakeDeath.StopMotherBrainRoomPalette(state);
         AssertEqual(MotherBrainShades.FinalRoom, state.Colours.Background.Laid[^1], "stopping the flash shows the steady grey room");
         AssertEqual(null, state.RoomFlashFrame, "stopping the flash clears its frame");
         enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);

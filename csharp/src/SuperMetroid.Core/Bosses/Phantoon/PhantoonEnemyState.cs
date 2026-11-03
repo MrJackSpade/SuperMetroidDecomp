@@ -13,6 +13,9 @@ public sealed class PhantoonEnemyState
     /// <summary>Attaches shared encounter state to the body's slot.</summary>
     internal PhantoonEnemyState(RoomEnemySlot body) => Body = body;
 
+    /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
+    internal PhantoonColours Colours { get; } = new();
+
     /// <summary>Gets the body, the first of the four records and owner of function dispatch, health, motion, and shared encounter values.</summary>
     public RoomEnemySlot Body { get; }
 

@@ -87,6 +87,8 @@ internal static class BossSheetShades
         Ensure.NotNull(bosses);
         if (owner == BossBodyOwner.Draygon)
             return DraygonBackground(bosses);
+        if (owner == BossBodyOwner.Phantoon)
+            return PhantoonSheetShades.Body(bosses);
         if (owner == BossBodyOwner.Crocomire)
         {
             CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire's body is shaded from the installed Crocomire colours.");

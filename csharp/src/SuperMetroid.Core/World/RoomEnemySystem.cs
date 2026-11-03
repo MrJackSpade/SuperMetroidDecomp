@@ -546,6 +546,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         get
         {
+            if (PhantoonBehavior.Combat.Phantoon is { } phantoon)
+                yield return phantoon.Colours;
             if (DraygonBehavior.Parts.Draygon is { } draygon)
                 yield return draygon.Colours;
             if (CrocomireBehavior.Access.Crocomire is { } crocomire)

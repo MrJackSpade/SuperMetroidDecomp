@@ -1,0 +1,89 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Bosses;
+
+/// <summary>
+/// The shades of Phantoon's body and of his room as the Wrecked Ship's power comes on (#1512), which the import pre-colours
+/// his body sheet and his room's pictures in: each settled colouring of his body over the sixth tile colour group, each
+/// step of each fade between them, as his fades move each colour by its remaining distance over the steps left, and each
+/// step of the power coming on over every other colour group, from the room's own colours.
+/// </summary>
+internal static class PhantoonSheetShades
+{
+    /// <summary>The first ink of his body's colours on a body picture.</summary>
+    private const int BodyFirstInk = 112;
+
+    /// <summary>The colours of one colour group.</summary>
+    private const int GroupColours = 16;
+
+    /// <summary>The shades of his body sheet.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    internal static IReadOnlyList<SheetShade> Body(BossArtworkCatalog bosses)
+    {
+        PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon is shaded from the installed Phantoon colours.");
+        PhantoonBodyLook[] settled =
+            [PhantoonBodyLook.Black, PhantoonBodyLook.White, PhantoonBodyLook.FadedOut,
+            .. Enumerable.Range(0, PhantoonColorDefinitions.HealthBandCount).Select(PhantoonBodyLook.Health)];
+        PhantoonBodyLook[] targets =
+            [PhantoonBodyLook.FadedOut, .. Enumerable.Range(0, PhantoonColorDefinitions.HealthBandCount).Select(PhantoonBodyLook.Health)];
+        var shades = new List<SheetShade>();
+        foreach (PhantoonBodyLook look in settled)
+            shades.Add(SheetShade.Run(PhantoonShades.Body(look), BodyFirstInk, Colours(phantoon, look)));
+        foreach (PhantoonBodyLook from in settled)
+        {
+            RgbColor[] start = Colours(phantoon, from);
+            foreach (PhantoonBodyLook to in targets)
+            {
+                RgbColor[] goal = Colours(phantoon, to);
+                foreach (int denominator in PhantoonShades.FadeDenominators)
+                {
+                    for (int numerator = 0; numerator <= denominator + 1; numerator++)
+                        shades.Add(SheetShade.Run(PhantoonShades.Fading(from, to, denominator, numerator), BodyFirstInk,
+                            Faded(start, goal, denominator, numerator)));
+                }
+            }
+        }
+        return shades;
+    }
+
+    /// <summary>The shades of his room's pictures, whose standard colours are <paramref name="standard"/>: the power coming on.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    internal static IReadOnlyList<SheetShade> PowerOn(BossArtworkCatalog bosses, ReadOnlySpan<RgbColor> standard)
+    {
+        PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon's room is shaded from the installed Phantoon colours.");
+        int inks = PhantoonColorDefinitions.PowerOnSets.Length * GroupColours;
+        RgbColor[] start = standard[..inks].ToArray();
+        RgbColor[] goal = [.. Enumerable.Range(0, inks).Select(ink =>
+            phantoon.ResolvePowerOn(PhantoonColorDefinitions.PowerOnSets[ink / GroupColours], ink % GroupColours))];
+        return [.. Enumerable.Range(0, PhantoonShades.PowerOnDenominator + 2).Select(numerator =>
+            SheetShade.Run(PhantoonShades.PowerOn(numerator), 0, Faded(start, goal, PhantoonShades.PowerOnDenominator, numerator)))];
+    }
+
+    /// <summary>The sixteen colours of his body showing <paramref name="look"/>.</summary>
+    private static RgbColor[] Colours(PhantoonColorCatalog phantoon, PhantoonBodyLook look) => look.Kind switch
+    {
+        PhantoonBodyLookKind.Black => new RgbColor[GroupColours],
+        PhantoonBodyLookKind.White => [.. Enumerable.Repeat(RgbColor.White, GroupColours)],
+        PhantoonBodyLookKind.FadedOut => [.. Enumerable.Range(0, PhantoonColorDefinitions.FadeOutCount).Select(phantoon.ResolveFadeOut)],
+        PhantoonBodyLookKind.Health => [.. Enumerable.Range(0, PhantoonColorDefinitions.HealthBandColorCount).Select(colour => phantoon.ResolveHealth(look.Band, colour))],
+        _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
+    };
+
+    /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s from zero through <paramref name="numerator"/>.</summary>
+    private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int denominator, int numerator)
+    {
+        var faded = new RgbColor[start.Length];
+        for (int ink = 0; ink < faded.Length; ink++)
+        {
+            RgbColor current = start[ink];
+            for (int step = 0; step <= numerator; step++)
+                current = GradualColourFade.Step(step, current, goal[ink], denominator);
+            faded[ink] = current;
+        }
+        return faded;
+    }
+}

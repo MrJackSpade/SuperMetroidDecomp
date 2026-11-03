@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
@@ -87,10 +88,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonColorDefinitions.HealthBandCount *
                     PhantoonColorDefinitions.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-        Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
@@ -100,17 +98,21 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Tentacles = tentacles,
         };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
+        // His live colour handlers name the shades of his body and room (#1512); the import pre-colours each from the
+        // edited colours, which this compares with the catalog.
+        IReadOnlyList<SheetShade> bodyShades = PhantoonSheetShades.Body(edited.Bosses);
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
             enemies.PhantoonBehavior.CopyPhantoonHealthPalette(body);
-            AssertBodyBand(band, $"Phantoon live health restore band {band}");
-            for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
-                cgram.SetColor(PhantoonColorDestinations.BodyDestination + color, new RgbColor(0, 0, 0));
+            AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(band)), Shown(state), $"Phantoon live health restore band {band}");
+            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
+                $"Phantoon health band {band}");
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
-            enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 0);
-            AssertBodyBand(band, $"Phantoon live materialization band {band}");
+            enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 12);
+            AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(band), PhantoonBodyLook.Health(band), 12, 1), Shown(state),
+                $"Phantoon live materialization band {band}");
             AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
                 $"Phantoon fade-in band {band} retains native numerator advance");
         }
@@ -119,28 +121,29 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         body.FlashTimer = WrappingCountdown.Start(8);
         state.Parts[tentacles.SlotIndex].HurtFlashShown = true;
         enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
-        AssertBodyBand(2, "Phantoon live hurt restore");
+        AssertEqual(PhantoonShades.Body(PhantoonBodyLook.Health(2)), Shown(state), "Phantoon live hurt restore");
         AssertTrue(!state.Parts[tentacles.SlotIndex].HurtFlashShown, "Phantoon hurt restore clears the flash latch");
 
-        state.Parts[eye.SlotIndex].FadeNumerator = 1;
+        state.Parts[eye.SlotIndex].FadeNumerator = 13;
         state.Parts[eye.SlotIndex].FadeComplete = false;
-        enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 0);
-        for (int color = 0; color < PhantoonColorDefinitions.FadeOutCount; color++)
-            AssertEqual(colors.ResolveFadeOut(color),
-                cgram.Colors[PhantoonColorDestinations.BodyDestination + color],
-                $"Phantoon live fade-out target {color}");
-        AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
+        enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 12);
+        PictureShade fadedOut = PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 13);
+        AssertEqual(fadedOut, Shown(state), "Phantoon live fade-out names its last step");
+        AssertShade(bodyShades, fadedOut, colors.ResolveFadeOut, "Phantoon live fade-out target");
+        AssertEqual(14, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon fade-out retains native numerator advance");
 
-        state.Parts[eye.SlotIndex].FadeDenominator = 0;
-        state.Parts[eye.SlotIndex].FadeNumerator = 1;
-        bool complete = enemies.PhantoonBehavior.Death.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
+        state.Parts[eye.SlotIndex].FadeDenominator = 12;
+        state.Parts[eye.SlotIndex].FadeNumerator = 13;
+        bool complete = PhantoonDeath.AdvanceWreckedShipPowerPalette(state, state.Parts[eye.SlotIndex]);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
+        SheetShade powered = PhantoonSheetShades.PowerOn(edited.Bosses, new RgbColor[SpriteImage.SpriteColourCount])
+            .Single(shade => shade.Shade == PhantoonShades.PowerOn(13));
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
             AssertEqual(colors.ResolvePowerOnAtNative(color),
-                cgram.Colors[PhantoonColorDestinations.PowerOnDestination + color],
+                powered.Colours[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
-        AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
+        AssertEqual(14, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon ship power-on retains native numerator advance");
 
         File.WriteAllBytes(overrideFile, [0]);
@@ -170,14 +173,6 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     $"installed Phantoon {name} color {color} preserves native RGB5");
         }
 
-        void AssertBodyBand(int band, string name)
-        {
-            for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
-                AssertEqual(colors.ResolveHealth(band, color),
-                    cgram.Colors[PhantoonColorDestinations.BodyDestination + color],
-                    $"{name} color {color}");
-        }
-
         static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
         {
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
@@ -191,5 +186,22 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     AssertEqual(original(color), changed(color),
                         $"Phantoon {name} edit leaves color {color} unchanged");
         }
+    }
+    /// <summary>The shade Phantoon's body shows now under <paramref name="state"/>'s colours.</summary>
+    private static PictureShade Shown(PhantoonEnemyState state)
+    {
+        var frame = new GameplayShadingBuilder();
+        state.Colours.ShadeGameplay(frame);
+        return frame.Build(new SpriteImage("Room", new(1, 1), [default], [0],
+            new SpriteImagePalette(SpriteImageColours.Background, [.. new RgbColor[SpriteImage.SpriteColourCount]]), [0], [0]))
+            .Of(GameplayPictures.BossBody).Shades.Single();
+    }
+
+    /// <summary>Asserts that the import's <paramref name="shade"/> among <paramref name="made"/> shows <paramref name="expected"/>'s colours.</summary>
+    private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)
+    {
+        SheetShade found = made.Single(candidate => candidate.Shade == shade);
+        for (int color = 0; color < found.Colours.Length; color++)
+            AssertEqual(expected(color), found.Colours[color], $"{label} colour {color}");
     }
 }

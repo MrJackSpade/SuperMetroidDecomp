@@ -34,7 +34,14 @@ internal static class RoomSheetShades
         }
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.DraygonBody)))
             shades.AddRange(BossSheetShades.DraygonBackground(inputs.Bosses));
+        if (HoldsPhantoon(rooms))
+            shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
         return shades;
+    }
+
+    /// <summary>Whether any of <paramref name="rooms"/> places Phantoon, whose death brings the Wrecked Ship's power on over it.</summary>
+    private static bool HoldsPhantoon(IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> rooms) =>
+        rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.PhantoonBody));
     }
 
     /// <summary>
@@ -45,7 +52,8 @@ internal static class RoomSheetShades
     {
         Ensure.NotNull(inputs);
         RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends)];
+        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
+            .. HoldsPhantoon(RoomsOf(tileset)) ? PhantoonSheetShades.PowerOn(inputs.Bosses, standard) : []];
     }
 
     /// <summary><paramref name="sheet"/>, also pre-coloured in <paramref name="shades"/>.</summary>

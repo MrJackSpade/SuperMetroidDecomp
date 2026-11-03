@@ -34,7 +34,6 @@ internal static class LookupQuakeSoundSuppressionVerification
         var state = new RoomLayer3FxState(stateSession);
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        var cgram = new GameplayColours(new SpriteColourSets());
         foreach (RoomHeaderDefinition? room in nativeRooms.Select(pointer => RoomHeaderDefinitions.Get(pointer)).Append(null))
         {
             state = RoomLayer3FxState.ForRoom(stateSession, fx: null, door: null, randomNumber: 0,

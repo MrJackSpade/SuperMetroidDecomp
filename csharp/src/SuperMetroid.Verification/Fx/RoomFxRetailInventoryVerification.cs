@@ -267,7 +267,7 @@ internal static class RoomFxRetailInventoryVerification
                 RoomFxRomDataRecordTooling.YVelocityOffset);
 
         var vram = new SnesVram();
-        var cgram = new GameplayColours(new SpriteColourSets());
+        var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
         var actualSession = CreateRetailFxSession(bus);
         var actual = RoomLayer3FxState.ForRoom(actualSession,
@@ -405,15 +405,15 @@ internal static class RoomFxRetailInventoryVerification
             states,
             RetailRoomFxDefinitions.VisibleLavaRoom);
         var vram = new SnesVram();
-        var cgram = new GameplayColours(new SpriteColourSets());
+        var cgram = new RgbColor[SnesCgram.ColorCount];
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
-        cgram.AsPaletteColors().SetColor(25, RgbColor.FromWord(0x001f));
-        cgram.AsPaletteColors().SetColor(26, RgbColor.FromWord(0x03e0));
-        cgram.AsPaletteColors().SetColor(27, RgbColor.FromWord(0x7c00));
+        cgram[25] = RgbColor.FromWord(0x001f);
+        cgram[26] = RgbColor.FromWord(0x03e0);
+        cgram[27] = RgbColor.FromWord(0x7c00);
         ushort cameraY = unchecked((ushort)(
             fx.BaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
@@ -470,19 +470,19 @@ internal static class RoomFxRetailInventoryVerification
     /// </summary>
     private static RgbaPixel[] RenderRoomFx(
         SnesVram vram,
-        GameplayColours cgram,
+        RgbColor[] cgram,
         RoomLayer3FxRenderSnapshot snapshot,
         ushort[] plane)
     {
         OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
-            Layer3CellsFixtures.FromWords(plane, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram.Colors));
-        return DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []),
+            Layer3CellsFixtures.FromWords(plane, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram));
+        return DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }
 
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>
-    private static RgbaPixel[] RenderRoomFxBackdrop(GameplayColours cgram) =>
-        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []), [], DisplayBrightness.Full));
+    private static RgbaPixel[] RenderRoomFxBackdrop(RgbColor[] cgram) =>
+        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram, []), [], DisplayBrightness.Full));
 
     /// <summary>
     /// The tile words of the BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348), as the
@@ -616,7 +616,7 @@ internal static class RoomFxRetailInventoryVerification
             $"rising-lava door $83:{door.Pointer:X4} destination");
 
         var vram = new SnesVram();
-        var cgram = new GameplayColours(new SpriteColourSets());
+        var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession,
@@ -851,7 +851,7 @@ internal static class RoomFxRetailInventoryVerification
             RetailRoomFxDefinitions.HiddenLavaRoom);
 
         var vram = new SnesVram();
-        var cgram = new GameplayColours(new SpriteColourSets());
+        var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
         var fx = RoomLayer3FxState.ForRoom(fxSession, visibleRoom.State.Fx, door: null, randomNumber: 0);
@@ -910,13 +910,13 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Seeds nonzero BG3 colors before FX-specific blends so visibility does not depend on a room graphics set.</summary>
-    private static void SeedVisibleRoomFxPalette(GameplayColours cgram)
+    private static void SeedVisibleRoomFxPalette(RgbColor[] cgram)
     {
         // Standard room palettes normally provide these colors before LoadFXHeader applies
         // its optional three-color blend. Seeding every two-bit BG3 palette makes the audit
         // independent of a particular graphics set without masking record-owned overrides.
         for (int color = 1; color < 32; color++)
-            cgram.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x7fff));
+            cgram[color] = RgbColor.FromWord(0x7fff);
     }
 
     /// <summary>Extracts a bank-$8F room and state pair from a named disassembly symbol line.</summary>

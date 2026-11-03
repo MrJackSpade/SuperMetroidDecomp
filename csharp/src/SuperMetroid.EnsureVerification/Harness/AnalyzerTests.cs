@@ -48,14 +48,15 @@ internal static class AnalyzerTests
 
     /// <summary>Requires a fixture to compile cleanly, then compares its analyzer output with one expected diagnostic or none.</summary>
     internal static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
-        DiagnosticAnalyzer? analyzer = null, string assemblyName = "EnsureAnalyzerCase")
+        DiagnosticAnalyzer? analyzer = null, string assemblyName = "EnsureAnalyzerCase", bool allowUnsafe = false)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
         var compilation = CSharpCompilation.Create(
             assemblyName,
             [tree],
             References,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable,
+                allowUnsafe: allowUnsafe));
         var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         if (errors.Length != 0)
             throw new InvalidOperationException($"Invalid analyzer fixture: {string.Join("; ", errors.Select(e => e.ToString()))}");

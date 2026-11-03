@@ -131042,6 +131042,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.NativeAddressAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/NativeAddressAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.NullForgivingAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -131963,6 +131976,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/MemberDocumentationAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.NativeAddressAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/NativeAddressAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

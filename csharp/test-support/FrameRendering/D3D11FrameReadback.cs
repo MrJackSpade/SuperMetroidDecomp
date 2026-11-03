@@ -22,7 +22,7 @@ internal static class D3D11FrameReadback
             return self.Readback();
         }
         /// <summary>Reads the last completed submission for diagnostics; never advances simulation.</summary>
-        public unsafe RgbaPixel[] Readback()
+        public RgbaPixel[] Readback()
         {
             self.owner.VerifyOwner(); ObjectDisposedException.ThrowIf(self.disposed, self);
             if (self.renderedDisplay is null) throw new InvalidOperationException("No successful frame submission is available for readback.");
@@ -36,14 +36,13 @@ internal static class D3D11FrameReadback
             try
             {
                 var pixels = new RgbaPixel[width * height];
+                var row = new byte[width * sizeof(uint)];
                 for (int y = 0; y < height; y++)
                 {
-                    uint* row = (uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch);
+                    // The mapped staging texture is GPU memory; each row is copied out before it is read.
+                    System.Runtime.InteropServices.Marshal.Copy(mapped.DataPointer + y * (int)mapped.RowPitch, row, 0, row.Length);
                     for (int x = 0; x < width; x++)
-                    {
-                        uint packed = row[x];
-                        pixels[y * width + x] = UnpackRgba(packed);
-                    }
+                        pixels[y * width + x] = UnpackRgba(System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(row.AsSpan(x * sizeof(uint))));
                 }
                 return pixels;
             }

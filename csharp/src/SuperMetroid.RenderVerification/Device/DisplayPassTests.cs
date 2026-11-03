@@ -16,7 +16,7 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class DisplayPassTests
 {
     /// <summary>Compares scaled display pixels against the legacy desktop layout oracle across window sizes and verifies subsequent compute rendering.</summary>
-    internal static unsafe void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
+    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Seeded tile memory gives every display size a full-screen image with no flat runs.
         var random = new Random(32111);
@@ -51,15 +51,20 @@ internal static class DisplayPassTests
                 int scale = Math.Max(1, Math.Min(width / 299, height / 224));
                 int w = 299 * scale, h = 224 * scale;
                 int left = (width - w) / 2, top = (height - h) / 2;
+                var row = new byte[width * sizeof(uint)];
                 for (int y = 0; y < height; y++)
-                for (int x = 0; x < width; x++)
                 {
-                    RgbaPixel expected = x < left || x >= left + w || y < top || y >= top + h
-                        ? new(0,0,0) : native[((y - top) * 224 / h) * 256 + (x - left) * 256 / w];
-                    uint actual = *(uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch + x * 4);
-                    uint packed = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian([expected.B, expected.G, expected.R, 255]);
-                    if (actual != packed) throw new InvalidOperationException(
-                        $"{device.Kind}: display {width}x{height} at ({x},{y}): expected {packed:X8}, actual {actual:X8}.");
+                    // The mapped staging texture is GPU memory; each row is copied out before it is read.
+                    System.Runtime.InteropServices.Marshal.Copy(mapped.DataPointer + y * (int)mapped.RowPitch, row, 0, row.Length);
+                    for (int x = 0; x < width; x++)
+                    {
+                        RgbaPixel expected = x < left || x >= left + w || y < top || y >= top + h
+                            ? new(0,0,0) : native[((y - top) * 224 / h) * 256 + (x - left) * 256 / w];
+                        uint actual = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(row.AsSpan(x * sizeof(uint)));
+                        uint packed = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian([expected.B, expected.G, expected.R, 255]);
+                        if (actual != packed) throw new InvalidOperationException(
+                            $"{device.Kind}: display {width}x{height} at ({x},{y}): expected {packed:X8}, actual {actual:X8}.");
+                    }
                 }
             }
             finally { device.Context.Unmap(staging, 0); }

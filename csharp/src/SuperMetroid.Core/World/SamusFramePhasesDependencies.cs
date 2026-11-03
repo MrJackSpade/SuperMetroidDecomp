@@ -19,9 +19,6 @@ internal sealed record SamusFramePhasesDependencies
     public required IAttractSamusInput AttractDemo { get; init; }
 
 
-    /// <summary>Gameplay's colours.</summary>
-    public required GameplayColours Colours { get; init; }
-
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
 

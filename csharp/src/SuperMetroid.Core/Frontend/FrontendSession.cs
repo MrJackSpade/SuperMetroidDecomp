@@ -12,7 +12,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -191,16 +190,6 @@ internal sealed class FrontendSession
     }
     /// <summary>Records the screen brightness at full, as a completed fade-in leaves it.</summary>
     internal void RecordFullBrightness() => PauseBrightness = PauseFadeTiming.FullyLit;
-    /// <summary>Palette transition for Samus's death sequence, when active.</summary>
-    internal GradualPaletteTransition? DeathPaletteFade { get; private set; }
-    /// <summary>Starts Samus's death palette transition.</summary>
-    internal void BeginDeathPaletteFade(GradualPaletteTransition fade) => DeathPaletteFade = Ensure.NotNull(fade);
-    /// <summary>Palette transition for the escape time-up sequence.</summary>
-    internal GradualPaletteTransition? TimeUpPaletteFade { get; private set; }
-    /// <summary>Starts the escape time-up white-out.</summary>
-    internal void BeginTimeUpPaletteFade(GradualPaletteTransition fade) => TimeUpPaletteFade = Ensure.NotNull(fade);
-    /// <summary>Ends the escape time-up white-out.</summary>
-    internal void EndTimeUpPaletteFade() => TimeUpPaletteFade = null;
     /// <summary>The death-state blackout, from full brightness on a two-frame cadence.</summary>
     internal BrightnessFade DeathFade { get; } = new(15, 0);
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>

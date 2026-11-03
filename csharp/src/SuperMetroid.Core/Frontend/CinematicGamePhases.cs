@@ -104,7 +104,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         if (session.Runtime is null)
             throw new InvalidOperationException("Time-up black-out requires a gameplay runtime.");
         session.screenFade.Clear();
-        session.EndTimeUpPaletteFade();
+        session.Runtime.FadeOut.End();
         session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
         session.Runtime.EscapeTimer.ClearStatus();
         session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);

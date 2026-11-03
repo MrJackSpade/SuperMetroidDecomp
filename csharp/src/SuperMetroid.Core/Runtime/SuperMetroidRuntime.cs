@@ -195,7 +195,7 @@ internal sealed class SuperMetroidRuntime
         ShotBlockVisuals = new PlmShotBlockVisuals();
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
-        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
@@ -1087,7 +1087,11 @@ internal sealed class SuperMetroidRuntime
         foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
             yield return boss;
         yield return DoorFade;
-        yield return FadeOut;
+        // The death explosion's whiteout writes over the colours the death fade left black, so it shows instead of it.
+        if (Player.Samus is { DeathSequence.Whiteout: not null } dying)
+            yield return dying.DeathSequence;
+        else
+            yield return FadeOut;
     }
 
     /// <summary>

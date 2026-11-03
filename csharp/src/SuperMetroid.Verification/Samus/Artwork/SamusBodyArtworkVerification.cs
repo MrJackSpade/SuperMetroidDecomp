@@ -215,7 +215,7 @@ internal static class SamusBodyArtworkVerification
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(deathSamus, deathCgram.Gameplay, deathCgram.Samus, stock.DeathSteps);
+            deathSamus.DeathSequence.Step(deathSamus, deathCgram.Samus, stock.DeathSteps);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
@@ -283,15 +283,15 @@ internal static class SamusBodyArtworkVerification
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors.Gameplay, nativeColors.Samus, stock.DeathSteps);
-                installedSamus.DeathSequence.Step(installedSamus, installedColors.Gameplay, installedColors.Samus, stock.DeathSteps);
+                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors.Samus, stock.DeathSteps);
+                installedSamus.DeathSequence.Step(installedSamus, installedColors.Samus, stock.DeathSteps);
             }
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    nativeSamus, nativeColors.Gameplay, nativeColors.Samus, stock.DeathSteps);
+                    nativeSamus, nativeColors.Samus, stock.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    installedSamus, installedColors.Gameplay, installedColors.Samus, stock.DeathSteps);
+                    installedSamus, installedColors.Samus, stock.DeathSteps);
                 AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.AnimationTimer.RawValue ==
@@ -512,10 +512,10 @@ internal static class SamusBodyArtworkVerification
         var editedDeathColors = new SamusColourRig();
         for (int frame = 0; frame < 16; frame++)
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
-                editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathSteps);
+                editedDeathColors.Samus, replacement.DeathSteps);
         for (int frame = 0; frame < 60; frame++)
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
-                editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathSteps);
+                editedDeathColors.Samus, replacement.DeathSteps);
         AssertEqual((ushort)(originalDeathColor + 1),
             editedDeathColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources with { Death = replacementDeathPalettes })[0],
             "edited death suit color reaches the death shade the import makes");

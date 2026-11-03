@@ -600,9 +600,9 @@ internal sealed class InstalledSamusIsolationTests
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)
         {
             var stockStep = pair.Stock.Samus.DeathSequence.Step(pair.Stock.Samus,
-                pair.Stock.Colors.Gameplay, pair.Stock.Colors.Samus, pair.Stock.Body.DeathSteps);
+                pair.Stock.Colors.Samus, pair.Stock.Body.DeathSteps);
             var editedStep = pair.Edited.Samus.DeathSequence.Step(pair.Edited.Samus,
-                pair.Edited.Colors.Gameplay, pair.Edited.Colors.Samus, pair.Edited.Body.DeathSteps);
+                pair.Edited.Colors.Samus, pair.Edited.Body.DeathSteps);
             Require(stockStep == editedStep, context + ": death timing/publication changed");
             pair.Check(context + $" frame {frames}");
             if (stockStep.DrawPose) pair.Draw(context + $" pose {frames}");

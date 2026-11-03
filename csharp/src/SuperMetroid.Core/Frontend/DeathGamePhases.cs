@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Death;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
@@ -97,17 +96,14 @@ internal sealed class DeathGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Builds the death fade's target-palettes image and resets the shared fade numerator.</summary>
+    /// <summary>
+    /// Begins the death fade: the whole gameplay display but Samus fades to black over six steps of the shared gradual
+    /// colour change (#1512), so her suit stays lit as the game keeps it.
+    /// </summary>
     private void PrepareDeathPaletteFade()
     {
-        if (session.Runtime is null)
-            throw new InvalidOperationException("Death palette setup requires a runtime.");
-
-        ColourImage target = session.Runtime.Colours.Capture();
-        // Every room and sprite colour fades to black. Samus's colours are her own shades (#1512) and are not among
-        // them, so her suit stays lit as the game keeps it.
-        target.Fill(RgbColor.Black);
-        session.BeginDeathPaletteFade(new GradualPaletteTransition(target, denominator: 6, session.Runtime.EnemySession.GradualColorChange));
+        SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Death palette setup requires a runtime.");
+        runtime.FadeOut.Begin(RgbColor.Black, denominator: 6, runtime.EnemySession.GradualColorChange, keepsSamusLit: true);
     }
 
     /// <summary>
@@ -117,9 +113,6 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// </summary>
     private bool StepDeathPaletteFade()
     {
-        if (session.Runtime is null)
-            throw new InvalidOperationException("Death palette fade requires a runtime.");
-        return (session.DeathPaletteFade ?? throw new InvalidOperationException(
-            "Death palette target was not prepared.")).Step();
+        return (session.Runtime ?? throw new InvalidOperationException("Death palette fade requires a runtime.")).FadeOut.Step();
     }
 }

@@ -2,10 +2,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
@@ -21,9 +20,12 @@ internal static class EndingSpriteSheetComposer
     /// <summary>The visible shooting-star animation frames with a sheet frame of their own: the growing star's steps and the full star.</summary>
     private static IEnumerable<int> StarSheetFrames => Enumerable.Range(1, EndingShootingStarDefinitions.FullStarFrame);
 
-    /// <summary>What ending sheet <paramref name="sheet"/> composes.</summary>
+    /// <summary>
+    /// What ending sheet <paramref name="sheet"/> composes: its frames coloured in the sprite colours its scene loads, and
+    /// shaded in every ending shade (#1512), coloured from <paramref name="palettes"/> and <paramref name="paletteFx"/>.
+    /// </summary>
     internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
-        EndingFontAtlas font)
+        EndingFontAtlas font, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(objects);
         Ensure.NotNull(palettes);
@@ -40,9 +42,12 @@ internal static class EndingSpriteSheetComposer
                 return new SheetFrameSource(name, new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters,
                     FrontendSheetPalette.FrameColourGroup.Number);
             }));
-        var colours = new ScreenPalette();
-        page.LoadColours(palettes, colours);
-        return new SpriteSheetSources(frames, colours.SpriteSets.All.Colors.ToArray(), sizes, PartsKeepOwnRows: true);
+        RgbColor[] sprites = page.SpriteColours(palettes);
+        return new SpriteSheetSources(frames, sprites, sizes, PartsKeepOwnRows: true)
+        {
+            Shades = EndingScreenShades.Sprites(EndingScreenShades.Screen(palettes, paletteFx), sprites,
+                FrontendSheetPalette.FrameColourGroup.Number * EndingScreenInks.GroupColours),
+        };
     }
 
     /// <summary>The frames ending sheet <paramref name="sheet"/> holds.</summary>
@@ -71,11 +76,7 @@ internal static class EndingSpriteSheetComposer
                     new EndingTransfer(EndingTransferKind.EndingFont),
                 ],
                 objects => [objects.ExplosionSprites, objects.CompletionTextSprites, EndingAnimalEscapeParts.Sprites], Stars: false,
-                (palettes, cgram) =>
-                {
-                    EscapeColours(palettes, cgram);
-                    palettes[EndingPaletteId.Explosion].Screen.LoadSpritesTo(cgram);
-                }),
+                palettes => SpritesOf(palettes, EndingPaletteId.Explosion)),
             SpriteSheetId.EndingSuitedRewardSprites => Reward(EndingReward.Armored),
             SpriteSheetId.EndingSuitlessRewardSprites => Reward(EndingReward.Suitless),
             SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
@@ -136,24 +137,20 @@ internal static class EndingSpriteSheetComposer
             objects => logoIn ? [objects.RewardSprites, objects.LogoSprites] : [objects.RewardSprites], Stars: true, PostCreditsColours);
     }
 
-    /// <summary>The escape scenes' colours.</summary>
-    private static void EscapeColours(EndingPaletteSet palettes, ScreenPalette colours) =>
-        palettes[EndingPaletteId.Escape].Screen.LoadTo(colours);
+    /// <summary>The escape scenes' sprite colours.</summary>
+    private static RgbColor[] EscapeColours(EndingPaletteSet palettes) => SpritesOf(palettes, EndingPaletteId.Escape);
 
-    /// <summary>The post-credits colours: the credits' background half under the post-credits scenes' own.</summary>
-    private static void PostCreditsColours(EndingPaletteSet palettes, ScreenPalette colours)
-    {
-        palettes[EndingPaletteId.Credits].Screen.LoadBackgroundsTo(colours);
-        ScreenColours postCredits = palettes[EndingPaletteId.PostCredits].Screen;
-        postCredits.LoadTo(colours, ScreenColourGroup.EndingPostCreditsRestoredBackground);
-        postCredits.LoadTo(colours, ScreenColourGroup.EndingPostCreditsRestoredSprites);
-    }
+    /// <summary>The post-credits scenes' sprite colours, which the credits' end restores.</summary>
+    private static RgbColor[] PostCreditsColours(EndingPaletteSet palettes) => SpritesOf(palettes, EndingPaletteId.PostCredits);
+
+    /// <summary>The sprite colours of the whole screen <paramref name="palette"/>.</summary>
+    private static RgbColor[] SpritesOf(EndingPaletteSet palettes, EndingPaletteId palette) => palettes[palette].Sprites.ToArray();
 
     /// <summary>
     /// A page of the ending: the object sheet that selects it, the reward the scene's transfers dress, those transfers in
-    /// order, the families it shows, whether the stars show on it, and how the scene loads its colours.
+    /// order, the families it shows, whether the stars show on it, and the sprite colours its scene loads.
     /// </summary>
     private sealed record EndingPage(EndingObjectSheet ObjectSheet, EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
         Func<EndingObjectSourceArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars,
-        Action<EndingPaletteSet, ScreenPalette> LoadColours);
+        Func<EndingPaletteSet, RgbColor[]> SpriteColours);
 }

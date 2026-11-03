@@ -1,13 +1,11 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsLegacyVerification;
@@ -18,10 +16,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.TestSupport.FrameRendering;
 
-using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>
@@ -47,23 +42,29 @@ internal static class PaletteJsonContractsVisibleVerification
             stockFx.SpawnDefinition(definition.DefinitionPointer, 0);
             editedFx.SpawnDefinition(definition.DefinitionPointer, 0);
         }
-        var stockCgram = new ScreenPalette();
-        var editedCgram = new ScreenPalette();
-        original.Apply(stockCgram); replacement.Apply(editedCgram);
         // Two complete tube-light cycles, with the independent one-frame displays
         // ticking concurrently. Compare all native instruction timers, not endpoints.
         for (int tick = 0; tick < 160; tick++)
         {
-            stockFx.Step(new ScreenPaletteFxColours(stockCgram), original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedFx.Step(new ScreenPaletteFxColours(editedCgram), replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            // A frontend screen's step shows records without writing colours (#1512); the import pre-colours each record's
+            // shade from the installed colours, so the inverted colours reach the shade the screen names.
+            var stockShown = new List<(PaletteFxColours Colours, PaletteFxFrame Record)>();
+            var editedShown = new List<(PaletteFxColours Colours, PaletteFxFrame Record)>();
+            stockFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+                (colours, record) => stockShown.Add((colours, record)));
+            editedFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+                (colours, record) => editedShown.Add((colours, record)));
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
-            foreach (var definition in TitleScreenAmbientPaletteOwners.All)
+            AssertTrue(stockShown.SequenceEqual(editedShown), "color replacement shows the same records on the same frames");
+            foreach ((PaletteFxColours colours, PaletteFxFrame record) in stockShown)
             {
-                int destination = definition.Colours.CartridgeColour + 1;
-                AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
-                    "exact authored color inversion reaches the compiled native destination");
-                AssertPaletteContractPixels(stockCgram, editedCgram, destination);
+                SheetShade stockShade = PaletteFxScreenShades.Shade(colours, record, 0, int.MaxValue, original);
+                SheetShade editedShade = PaletteFxScreenShades.Shade(colours, record, 0, int.MaxValue, replacement);
+                AssertTrue(stockShade.Inks.SequenceEqual(editedShade.Inks), "an inverted record recolours the same inks");
+                for (int colour = 0; colour < stockShade.Colours.Length; colour++)
+                    AssertEqual((ushort)(stockShade.Colours[colour].ToWord() ^ 0x7fff), editedShade.Colours[colour].ToWord(),
+                        "exact authored color inversion reaches the record's installed shade");
             }
         }
 
@@ -117,50 +118,6 @@ internal static class PaletteJsonContractsVisibleVerification
             foreach (PropertyInfo property in stockSlot.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
                 AssertEqual(property.GetValue(stockSlot), property.GetValue(editedSlot),
                     "every native palette slot field unchanged: " + property.Name);
-        }
-    }
-
-    /// <summary>
-    /// Loads both palettes and observes the exact RGB5 replacement: a background colour as the loaded colour itself, a
-    /// sprite colour as the pixels the display renderer draws of a sprite whose characters select it.
-    /// </summary>
-    private static void AssertPaletteContractPixels(ScreenPalette stockColours, ScreenPalette editedColours, int color)
-    {
-        var stock = new SnesCgram();
-        new CgramPalettes(stock).LoadImage(stockColours.Colors);
-        var edited = new SnesCgram();
-        new CgramPalettes(edited).LoadImage(editedColours.Colors);
-        int index = color % 16;
-        AssertTrue(index != 0, "visible fixture does not confuse transparent color zero with authored color");
-        if (color < SnesCgram.ColorCount / 2)
-        {
-            AssertTrue(stock.Colors[color] == stockColours.Colors[color], "the original background colour is loaded exactly");
-            AssertTrue(edited.Colors[color] == editedColours.Colors[color], "the edited background colour is loaded exactly");
-            AssertTrue(stock.Colors[color] != edited.Colors[color], "the loaded palette carries the installed visual edit");
-            return;
-        }
-        var vram = new SnesVram();
-        byte[] tile = new byte[RoomCharacterAtlasFormat.BytesPerTile];
-        for (int row = 0; row < 8; row++)
-        for (int plane = 0; plane < 4; plane++)
-            tile[(plane / 2) * 16 + row * 2 + plane % 2] = (index & 1 << plane) != 0 ? byte.MaxValue : (byte)0;
-        vram.LoadBytes(0, tile);
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        oam.AddOnScreenSpritePart(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0),
-            SnesObjAttributeWord.Create(0, (color - SnesCgram.ColorCount / 2) / 16, 0), new Position16<SpritePixels>(0, 0));
-        oam.FinalizeFrame();
-        RgbaPixel[] stockPixels = CapturedSpritePixels(FramePaintConstants.CaptureFrontend(vram, stock, oam, objectSelection: 0));
-        RgbaPixel[] editedPixels = CapturedSpritePixels(FramePaintConstants.CaptureFrontend(vram, edited, oam, objectSelection: 0));
-        AssertTrue(stockPixels.All(pixel => pixel == stock.GetRgba(color)), "all original raster pixels have the exact selected RGB5 color");
-        AssertTrue(editedPixels.All(pixel => pixel == edited.GetRgba(color)), "all edited raster pixels have the exact replacement RGB5 color");
-        AssertTrue(!stockPixels.SequenceEqual(editedPixels), "the real renderer observes the installed visual edit");
-
-        // The 8x8 sprite's pixels at the screen's top-left corner, as the display renderer draws them.
-        static RgbaPixel[] CapturedSpritePixels(FramePaint paint)
-        {
-            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(paint, new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
-            return [.. Enumerable.Range(0, 64).Select(pixel => frame[pixel / 8 * ScreenGeometry.ScreenSize.X + pixel % 8])];
         }
     }
 }

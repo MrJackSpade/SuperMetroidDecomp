@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -31,21 +30,32 @@ internal static class EndingLogoVerification
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
         Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
         var guarded = NewEndingLogoDefinitionReadGuard(bus);
-        var cgram = new ScreenPalette();
+        var screen = new EndingScreen();
+        var stage = new EndingStage(0, screen, []);
         int landings = 0;
         EndingPaletteSet palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
+        stage.BindPaletteArtwork(palettes);
+        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, InstalledFixtures.Maps.RoomPaletteFx);
         var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
-        var logo = new EndingLogo(cgram, () => landings++, palettes);
+        var logo = new EndingLogo(stage, () => landings++);
+        AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Flashed(EndingFlash.LogoBackground), EndingShades.Loaded(EndingColourLoad.LogoInitial)]),
+            "the logo blacks out its background colours, then shows its first sprite colours");
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)
         {
             // The actors run their typed programs (#641), which the cinematic sprite oracle matches to the native
             // lists; the timing and palette assertions below hold them to the cartridge's scene.
-            logo.Step(cgram);
+            logo.Step(screen.Colours);
             frame++;
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
             if (logo.PaletteStep > 0)
+            {
+                // The screen names the step shown; the import's shade of that step holds the cartridge's table entry (#1512).
+                AssertEqual(EndingShades.LogoCrossfade(logo.PaletteStep - 1), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
+                SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(logo.PaletteStep - 1));
+                AssertTrue(step.Inks.SequenceEqual([.. Enumerable.Range(16, 16), .. Enumerable.Range(240, 16)]),
+                    "a crossfade step covers the logo's background and sprite colours");
                 for (int p = 0; p < 2; p++)
                 {
                     int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -53,8 +63,9 @@ internal static class EndingLogoVerification
                         (logo.PaletteStep - 1) * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
-                            cgram.Colors[(p == 0 ? 16 : 240) + i], "native logo crossfade palette table entry");
+                            step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
                 }
+            }
             poses.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => logo.Draw(objects, logoSprites)).LowTable));
         }
         AssertTrue(logo.Completed, "logo actors reach the final palette handoff");

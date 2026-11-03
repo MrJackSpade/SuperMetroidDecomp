@@ -9,6 +9,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -52,11 +53,13 @@ internal static class EndingRewardIconArtworkVerification
             {
                 jumpFrames++;
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
+                RgbColor[] expectedColours = EndingShownColours.Of(nativeScene);
                 byte[] expectedVram = nativeScene.ShownVram();
                 LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
+                RgbColor[] actualColours = EndingShownColours.Of(installedScene);
                 byte[] actualVram = installedScene.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                        actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
                     $"reward icon preserves native partial-upload VRAM and pixels at jump frame {jumpFrames}");
@@ -145,14 +148,16 @@ internal static class EndingRewardIconArtworkVerification
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
                     $"{name} override fixture remains in the native landing upload");
                 LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                RgbColor[] beforeColours = EndingShownColours.Of(scene);
                 byte[] beforeVram = scene.ShownVram();
                 scene.Stage.BindFloorArtwork(edited);
                 // The ending draws its Mode 7 characters from the sheets the edited art composes (#1392).
                 scene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMode7(edited));
                 LayeredScene rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+                RgbColor[] reboundColours = EndingShownColours.Of(scene);
                 byte[] reboundVram = scene.ShownVram();
                 AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
-                        before.Paint.Colors.SequenceEqual(rebound.Paint.Colors) &&
+                        beforeColours.SequenceEqual(reboundColours) &&
                         !beforeVram.SequenceEqual(reboundVram),
                     $"{name} rebind replaces completed chunks without resetting the jump");
                 for (int frame = 0; frame < 400 &&

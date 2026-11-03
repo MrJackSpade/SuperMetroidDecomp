@@ -29,9 +29,40 @@ internal static class PaletteFxColoursPositions
         (held is ScreenSpriteSetPlacement ? GameplayColourPositionDefinitions.SpriteSetsFirst : GameplayColourPositionDefinitions.BackgroundSetsFirst)
             + held.Set * GameplayColourPositionDefinitions.SetColours + held.Colour;
 
+    /// <summary>
+    /// The screen colours, background or sprite, each title or cinematic effect group writes at the native boundary: its
+    /// set, its first written colour and how many follow. Frontend screens no longer hold these colours (#1512); the
+    /// import pre-colours each record as a shade, and native checks place the group here.
+    /// </summary>
+    private static readonly Dictionary<PaletteFxColours, ScreenColourPlacement> ScreenPlacements = new()
+    {
+        [PaletteFxColours.BabyMetroidTubeLight] = new ScreenBackgroundSetPlacement(2, 10, 4),
+        [PaletteFxColours.TitleScreenDisplays] = new ScreenBackgroundSetPlacement(2, 14, 2),
+        [PaletteFxColours.CutsceneGunshipEngine] = new ScreenBackgroundSetPlacement(5, 15, 1),
+        [PaletteFxColours.CeresNavigationLightsBackground] = new ScreenBackgroundSetPlacement(6, 13, 3),
+        [PaletteFxColours.OldMotherBrainBackgroundLights] = new ScreenBackgroundSetPlacement(1, 4, 12),
+        [PaletteFxColours.WideZebesExplosionForeground] = new ScreenBackgroundSetPlacement(0, 1, 15),
+        [PaletteFxColours.WideZebesExplosionBackground] = new ScreenBackgroundSetPlacement(1, 1, 15),
+        [PaletteFxColours.ZebesExplosionFinale] = new ScreenBackgroundSetPlacement(0, 1, 15),
+        [PaletteFxColours.SpaceDuringZebesExplosion] = ScreenBackgroundSetPlacement.WholeSet(0),
+        [PaletteFxColours.ExplodingZebesLava] = ScreenBackgroundSetPlacement.WholeSet(4),
+        [PaletteFxColours.ExplodingZebesCrust] = new ScreenBackgroundSetPlacement(4, 1, 15),
+        [PaletteFxColours.ExplodingZebesGreyClouds] = new ScreenBackgroundSetPlacement(5, 1, 15),
+        [PaletteFxColours.GunshipEmergingFromExplosion] = ScreenBackgroundSetPlacement.WholeSet(5),
+        [PaletteFxColours.UnusedCinematicFade] = ScreenBackgroundSetPlacement.WholeSet(5),
+        [PaletteFxColours.TitleLogo] = new ScreenSpriteSetPlacement(2, 1, 15),
+        [PaletteFxColours.NintendoBootLogo] = new ScreenSpriteSetPlacement(1, 9, 7),
+        [PaletteFxColours.PlanetZebesText] = new ScreenSpriteSetPlacement(0, 1, 15),
+        [PaletteFxColours.GunshipGlow] = new ScreenSpriteSetPlacement(7, 15, 1),
+        [PaletteFxColours.ZoomedOutExplodingZebes] = ScreenSpriteSetPlacement.WholeSet(7),
+        [PaletteFxColours.PostCreditsSuperMetroidIcon] = ScreenSpriteSetPlacement.WholeSet(7),
+    };
+
     /// <summary>The screen colour group, background or sprite, that holds the title or cinematic effect colours <paramref name="colours"/>.</summary>
-    internal static ScreenColourPlacement ScreenPlacement(PaletteFxColours colours) =>
-        ScreenColourGroupDefinitions.Groups[ScreenPaletteFxColourDefinitions.Groups[colours]];
+    /// <exception cref="ArgumentOutOfRangeException">The group is not a title or cinematic effect's.</exception>
+    internal static ScreenColourPlacement ScreenPlacement(PaletteFxColours colours) => ScreenPlacements.TryGetValue(colours, out ScreenColourPlacement? placement)
+        ? placement
+        : throw new ArgumentOutOfRangeException(nameof(colours), colours, "Not a title or cinematic effect's colours.");
 
     /// <summary>Native view of a palette-FX colour group.</summary>
     extension(PaletteFxColours self)

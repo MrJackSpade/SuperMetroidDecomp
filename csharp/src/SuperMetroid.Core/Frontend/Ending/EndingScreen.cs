@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's screen (#1358, #1467): its palette, which of the ending's pre-assembled pictures its scenes have loaded,
+/// The ending's screen (#1358, #1467): its colours, which of the ending's pre-assembled pictures its scenes have loaded,
 /// the post-credits text each text page shows, and how far the floor's loads have come since the last full clear.
 /// </summary>
 internal sealed class EndingScreen
@@ -19,8 +19,8 @@ internal sealed class EndingScreen
     /// <summary>How many of the reward icon floor's loads are made, in order; it shows once all are (#1467).</summary>
     internal int RewardChunksLoaded { get; private set; }
 
-    /// <summary>The ending's colours, including partial fades.</summary>
-    public ScreenPalette Palette { get; } = new();
+    /// <summary>What the ending's colours show: each load, fade, flash and palette-effect record its scenes have shown (#1512).</summary>
+    internal EndingColours Colours { get; } = new();
 
     /// <summary>Whether the explosion's four maps and their characters are loaded, which the explosion displays show.</summary>
     internal bool ExplosionMapsLoaded { get; private set; }

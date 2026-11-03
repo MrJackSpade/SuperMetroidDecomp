@@ -80,7 +80,7 @@ internal sealed class EndingArtwork
         if (creditsAssetsLoaded)
             return;
 
-        _stage.StaticScreen(EndingPaletteId.Credits).LoadBackgroundsTo(screen.Palette);
+        _stage.LoadColours(EndingColourLoad.CreditsBackgrounds);
         _ = _stage.ResolveEndingFont();
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Post-credits scenes require installed object artwork.");
         screen.Clear();
@@ -109,7 +109,6 @@ internal sealed class EndingArtwork
     internal void BindPaletteArtwork(EndingPaletteSet? value)
     {
         _stage.BindPaletteArtwork(value);
-        CurrentEndingLogo?.BindPaletteArtwork(value);
     }
 
     /// <summary>

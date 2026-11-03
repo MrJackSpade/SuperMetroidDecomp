@@ -37,7 +37,7 @@ public static class EndingPaletteFile
             compiled[index] = color.ToRgbColor();
         }
         if (count == ScreenColourImage.ColorCount)
-            return EndingPaletteRecognition.FromScreen(ScreenColourImage.Decode(compiled));
+            return EndingPaletteRecognition.FromScreen(compiled);
         return id == EndingPaletteId.LogoCrossfade
             ? EndingPaletteRecognition.FromCrossfade(EndingLogoCrossfadeImage.Decode(compiled))
             : EndingPaletteRecognition.FromRun(compiled);

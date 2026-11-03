@@ -37,7 +37,7 @@ internal static class EndingPostCreditsScrollVerification
         // A leftover scroll from an earlier scroll-down must not survive the white flash.
         var leftover = new Position16<TilePlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
         ending.Stage.PostCreditsScroll = leftover;
-        ending.CreditsRoll.CurrentPostShot = new EndingPostShot(ending.screen.Palette);
+        ending.CreditsRoll.CurrentPostShot = new EndingPostShot();
         ending.CreditsRoll.CurrentRewardJump = new EndingRewardJump(ending.Stage.EndingReward, _ => { });
         ending.Stage.Phase = EndingCreditsPhase.PostCreditsShot;
         for (int call = 0; ending.Stage.Phase == EndingCreditsPhase.PostCreditsShot; call++)

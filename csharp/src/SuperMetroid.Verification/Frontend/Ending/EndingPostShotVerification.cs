@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;
@@ -25,14 +27,29 @@ internal static class EndingPostShotVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeCgram, bus, 0x8ce7e9);
         RgbColor[] initial = nativeCgram.Colors.ToArray();
         var screen = new EndingScreen();
-        for (int color = 0; color < initial.Length; color++)
-            screen.Palette.SetColor(color, initial[color]);
+        // The import's fade levels scale the post-credits colours as the cartridge's accumulator does (#1512).
+        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(RepositoryInstallation.Installation.LoadEndingPalettes(),
+            InstalledFixtures.Maps.RoomPaletteFx);
+        foreach ((EndingFade fade, int start) in new[] { (EndingFade.Shot, 192), (EndingFade.ShootingSamus, 240) })
+        {
+            for (int level = 0; level <= EndingShades.FadeLevels; level++)
+            {
+                SheetShade shade = installedShades.Single(candidate => candidate.Shade == EndingShades.Faded(fade, level));
+                AssertTrue(shade.Inks.SequenceEqual(Enumerable.Range(start, 16)), "a post-shot fade level covers its colour group");
+                for (int i = 0; i < 16; i++)
+                {
+                    ushort word = initial[start + i].ToWord();
+                    ushort faded = (ushort)(((word & 31) * level / 32) | ((word >> 5 & 31) * level / 32) << 5 | ((word >> 10 & 31) * level / 32) << 10);
+                    AssertEqual(faded, shade.Colours[i].ToWord(), "post-shot fade level colour matches the cartridge's component fade");
+                }
+            }
+        }
         var expected = new byte[SnesVram.ByteCount];
         byte[] font = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontCharacters fontAtlas = EndingFontCharacters.Read(fontPng);
-        var shot = new EndingPostShot(screen.Palette);
+        var shot = new EndingPostShot();
         EndingObjectArtwork objects = RepositoryInstallation.Installation.LoadEndingObjectArt();
         byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
         byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
@@ -44,18 +61,11 @@ internal static class EndingPostShotVerification
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
             AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
             AssertEqual(Math.Clamp(frame - 47, 0, 6), shot.PartsShown, "logo uploads wait for Samus fade, one transfer per frame");
-            foreach (int start in new[] { 192, 240 })
-            {
-                int remaining = 32 - Math.Clamp(frame - (start == 240 ? 16 : 0), 0, 32);
-                for (int i = start; i < start + 16; i++)
-                {
-                    RgbColor color = initial[i];
-                    ushort faded = (ushort)(((color.ToWord() & 31) * remaining / 32)
-                        | ((color.ToWord() >> 5 & 31) * remaining / 32) << 5
-                        | ((color.ToWord() >> 10 & 31) * remaining / 32) << 10);
-                    AssertEqual(faded, screen.Palette.Colors[i], "post-shot palette component and delayed Samus fade");
-                }
-            }
+            // The screen names the shot's and Samus's fade levels, Samus's after its delay (#1512).
+            AssertTrue(screen.Colours.Shading.Shades.Contains(EndingShades.Faded(EndingFade.Shot, 32 - Math.Clamp(frame, 0, 32))),
+                "post-shot shot fade level");
+            AssertTrue(screen.Colours.Shading.Shades.Contains(EndingShades.Faded(EndingFade.ShootingSamus, 32 - Math.Clamp(frame - 16, 0, 32))),
+                "post-shot delayed Samus fade level");
             if (frame == 48) font.AsSpan(0x1000, 0x400).CopyTo(expected.AsSpan(0x9000));
             if (frame is >= 49 and <= 52)
             {

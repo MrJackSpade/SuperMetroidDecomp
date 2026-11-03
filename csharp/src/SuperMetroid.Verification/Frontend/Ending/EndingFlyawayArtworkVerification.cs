@@ -5,6 +5,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -36,11 +37,13 @@ internal static class EndingFlyawayArtworkVerification
             if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
                 LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                        actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
                     $"ending Mode-7 DMA and visible pixels match at upload {uploadedFrames}");

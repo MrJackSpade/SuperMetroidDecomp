@@ -38,7 +38,7 @@ internal static class EndingSheetFixtures
         {
             var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
             foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
-                sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont),
+                sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont, InstalledFixtures.Maps.RoomPaletteFx),
                     $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}");
             // The ending's background pictures are pre-coloured from these objects (#1392, #1467).
             var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork, () => objects, () => palettes.Value,

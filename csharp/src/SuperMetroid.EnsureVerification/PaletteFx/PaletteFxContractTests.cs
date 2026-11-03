@@ -13,12 +13,6 @@ namespace SuperMetroid.EnsureVerification.PaletteFx;
 /// <summary>Checks that palette FX execution requires a supplied color source at compile and runtime.</summary>
 internal static class PaletteFxContractTests
 {
-    /// <summary>The Ceres destruction screen's background set whose last colour the gunship engine's flicker writes first.</summary>
-    private const int GunshipEngineSet = 5;
-
-    /// <summary>The colour of <see cref="GunshipEngineSet"/> the gunship engine's flicker writes first.</summary>
-    private const int GunshipEngineColour = 15;
-
     /// <summary>
     /// Confirms #1152's required color dependency using compiler-only fixtures.
     /// These are finite API-contract checks, not a gameplay or palette-program sweep.
@@ -48,15 +42,19 @@ internal static class PaletteFxContractTests
             throw new InvalidOperationException("Palette FX must not retain a hidden color binding across execution/state restore.");
 
         // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
-        // compiler rejects a null caller; the first step paints with the supplied colors.
-        // The gunship engine flickers on the Ceres destruction cinematic, so it writes that screen's background sets.
-        var screen = new SuperMetroid.Core.Rendering.ScreenPalette();
+        // compiler rejects a null caller. A frontend screen's step writes no colours (#1512): it hands the screen each
+        // record as it is shown, which the screen shades its pictures with. The gunship engine flickers on the Ceres
+        // destruction cinematic, so its first step shows the flicker's first record in the engine's colours.
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
-        fx.Step(new SuperMetroid.Core.Frontend.ScreenPaletteFxColours(screen), new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        if (screen.BackgroundSets.Set(GunshipEngineSet)[GunshipEngineColour] != new RgbColor(31, 0, 0) || fx.ActiveCount != 1)
-            throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
+        var shown = new List<(PaletteFxColours Colours, PaletteFxFrame Record)>();
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+            (colours, record) => shown.Add((colours, record)));
+        PaletteFxFrame first = PaletteFxColorFrames.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, colorsPerFrame: 1).Color(0, 0).Frame;
+        if (shown.Count != 1 || shown[0] != (PaletteFxColours.CutsceneGunshipEngine, first)
+            || fx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
+            throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");
         Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");
     }
 
@@ -86,16 +84,5 @@ internal static class PaletteFxContractTests
         if (expectedError is null ? errors.Length != 0 : errors.Length != 1 || errors[0].Id != expectedError)
             throw new InvalidOperationException(
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
-    }
-
-    /// <summary>Supplies constructed red for the first gunship-engine frame after null rejection.</summary>
-    internal sealed class ContractPaletteColors : IPaletteFxColorSource
-    {
-        /// <summary>Accepts only the first engine color to expose timer advancement.</summary>
-        public bool TryReadColor(PaletteFxColorKey key, out RgbColor color)
-        {
-            color = new RgbColor(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
-            return key == PaletteFxColorFrames.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, colorsPerFrame: 1).Color(0, 0);
-        }
     }
 }

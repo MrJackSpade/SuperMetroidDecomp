@@ -25,6 +25,9 @@ internal sealed class EndingStage
         this.sprites = sprites;
     }
 
+    /// <summary>What the ending's colours show (#1512).</summary>
+    internal EndingColours Colours => screen.Colours;
+
     /// <summary>Countdown interpreted by the currently installed cinematic function.</summary>
     internal int PhaseTimer { get; set; }
 
@@ -82,7 +85,7 @@ internal sealed class EndingStage
     /// <summary>Allocates or replaces a cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
     internal void SpawnSprite(
         Position16<ScreenPixels> position,
-        ScreenColourGroup colouring,
+        EndingSpriteColouring colouring,
         CinematicSpriteProgram program,
         EndingSpriteRole role)
     {
@@ -105,7 +108,7 @@ internal sealed class EndingStage
         };
         if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
         sprites.RemoveAll(actor => actor.TraversalSlot == slot);
-        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, colouring, program), role)
+        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), program), role)
             { TraversalSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway);
@@ -119,18 +122,26 @@ internal sealed class EndingStage
             definition.Program,
             role);
 
-    /// <summary>Scene boundaries clear slots but retain installed color ownership.</summary>
+    /// <summary>Scene boundaries clear the slots; the records they showed keep showing until a load covers them (#1512).</summary>
     internal void ResetPaletteFx()
     {
         PaletteFxSystem = new RoomPaletteFxSystem(new PaletteFxSessionState());
     }
 
-    /// <summary>The installed whole-screen ending colours <paramref name="id"/>, by owner.</summary>
-    internal ScreenColours StaticScreen(EndingPaletteId id) => Palette(id).Screen;
-
-    /// <summary>Loads <paramref name="destination"/> from <paramref name="id"/>'s colours from <paramref name="sourceColor"/>.</summary>
-    internal void LoadStaticPalette(EndingPaletteId id, ColourRun destination, int sourceColor) =>
-        Palette(id).LoadTo(destination, sourceColor);
+    /// <summary>
+    /// Shows the installed colours <paramref name="load"/> (#1512): a load of a whole screen's or its backgrounds' colours
+    /// also shows that screen's backdrop behind every layer.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
+    internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
+    {
+        EndingColourLoad.Escape => Palette(EndingPaletteId.Escape).Backdrop,
+        EndingColourLoad.ExplosionBackgrounds => Palette(EndingPaletteId.Explosion).Backdrop,
+        EndingColourLoad.CreditsBackgrounds => Palette(EndingPaletteId.Credits).Backdrop,
+        EndingColourLoad.ExplosionSprites or EndingColourLoad.FinalGunship or EndingColourLoad.PostCredits or
+            EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
+        _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
+    });
 
     /// <summary>The installed ending palette <paramref name="id"/>.</summary>
     private EndingPalette Palette(EndingPaletteId id) =>

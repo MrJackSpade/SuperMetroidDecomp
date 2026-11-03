@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The logo's background endpoint has eight evenly spaced grey
 /// shades in slots1..8, rounded to the nearest RGB5 level over seven intervals.

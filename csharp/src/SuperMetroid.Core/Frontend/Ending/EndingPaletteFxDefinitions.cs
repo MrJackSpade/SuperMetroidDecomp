@@ -25,4 +25,17 @@ internal static class EndingPaletteFxDefinitions
     public const PaletteFxObject PlanetAfterglow = PaletteFxObject.ZebesExplosionPlanetAfterglow;
     /// <summary>The gunship emerging from the explosion, spawned with the afterglow.</summary>
     public const PaletteFxObject GunshipEmergence = PaletteFxObject.GunshipEmergingFromZebesExplosion;
+
+    /// <summary>
+    /// The colours whose first is the space behind the exploding planet (#1512): a record of them that writes that colour
+    /// shows it as the ending's backdrop.
+    /// </summary>
+    public const PaletteFxColours SpaceColours = PaletteFxColours.SpaceDuringZebesExplosion;
+
+    /// <summary>Every palette object the ending spawns, whose records the import pre-colours the ending's sheets in (#1512).</summary>
+    public static IReadOnlyList<PaletteFxObject> Objects { get; } =
+    [
+        FadePlanet, Supernova, SupernovaFinale, Explosion, Lava, Crust, GreyClouds, WideExplosion, PlanetAfterglow,
+        GunshipEmergence, EndingLogoDefinitions.LandingPaletteFx,
+    ];
 }

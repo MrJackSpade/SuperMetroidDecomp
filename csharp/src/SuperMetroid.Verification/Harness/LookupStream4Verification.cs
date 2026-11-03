@@ -321,23 +321,25 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
-            var cgram = new ScreenPalette();
-            selected.Apply(cgram);
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
                 fx.SpawnDefinition(program.DefinitionPointer, 0);
             for (int tick = 0; tick <= 80; tick++)
             {
-                fx.Step(new ScreenPaletteFxColours(cgram), selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                ushort[] expected = document.Colors.Select(Pack).ToArray();
+                // A frontend screen's step shows each loop's record without writing colours (#1512); the import pre-colours
+                // the record's shade from the selected colours, which must hold the frame's authored colours.
+                fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false }, (_, _) => { });
                 foreach (var program in TitleScreenAmbientPaletteOwners.All)
                 {
                     var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                         ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
                     int frame = tick / program.FrameDuration % program.FrameCount;
+                    PaletteFxFrame record = fx.RecordOf(program.Colours)
+                        ?? throw new InvalidOperationException($"{program.Colours} shows no record on tick {tick}.");
+                    RgbColor[] shown = PaletteFxScreenShades.Shade(program.Colours, record, 0, int.MaxValue, selected).Colours;
                     for (int index = 0; index < program.ColorsPerFrame; index++)
-                        expected[program.Colours.CartridgeColour + index] = Pack(rows[frame][index]);
+                        AssertEqual(Pack(rows[frame][index]), shown[index].ToWord(),
+                            "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
                 }
-                AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
             AssertEqual(0, guardedPresentationReads.Value, "Installed title colors avoid live reads");

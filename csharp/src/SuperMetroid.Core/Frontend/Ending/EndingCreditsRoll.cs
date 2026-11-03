@@ -1,10 +1,9 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The staff credits and what follows them: the reward copyright and palette, the white flash and the post-credits logo.</summary>
+/// <summary>The staff credits and what follows them: the reward copyright and fades, the white flash and the post-credits logo.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsRoll
 {
@@ -12,7 +11,7 @@ internal sealed class EndingCreditsRoll
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
     private readonly bool japaneseText;
-    /// <summary>The ending's screen: its palette, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
+    /// <summary>The ending's screen: its colours, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -63,9 +62,7 @@ internal sealed class EndingCreditsRoll
     {
         // The credits' end copies Intro4 colors 4-255, disables text glow, forces blank, and arms
         // function 129 for sixty calls. Preserve colors zero through three as the game does.
-        ScreenColours postCredits = _stage.StaticScreen(EndingPaletteId.PostCredits);
-        postCredits.LoadTo(screen.Palette, ScreenColourGroup.EndingPostCreditsRestoredBackground);
-        postCredits.LoadTo(screen.Palette, ScreenColourGroup.EndingPostCreditsRestoredSprites);
+        _stage.LoadColours(EndingColourLoad.PostCredits);
         _stage.Brightness = 0;
         UploadPostCreditsTilemap();
         _stage.PhaseTimer = 60;
@@ -91,8 +88,7 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Fades the post-credits waiting backdrop toward its authored palette.</summary>
-    internal void ApplyWaitingBackdropPalette(int step)
-        => ApplyPostCreditsPaletteRange(ScreenColourGroup.EndingWaitingBackdrop, step);
+    internal void ApplyWaitingBackdropPalette(int step) => screen.Colours.Fade(EndingFade.WaitingBackdrop, step);
 
     /// <summary>Interpolation step for suitless or helmetless reward colors.</summary>
     private int rewardPaletteStep;
@@ -102,24 +98,12 @@ internal sealed class EndingCreditsRoll
     {
         if (_stage.EndingReward == EndingReward.Armored) return;
         ApplyWaitingBackdropPalette(EndingSequenceDefinitions.Timing.WaitingPaletteFadeFrames - rewardPaletteStep);
-        ApplyPostCreditsPaletteRange(ScreenColourGroup.EndingSuitlessSamus, rewardPaletteStep);
+        screen.Colours.Fade(EndingFade.SuitlessSamus, rewardPaletteStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
-            ApplyPostCreditsPaletteRange(ScreenColourGroup.EndingSuitedSamus, rewardPaletteStep);
-    }
-
-    /// <summary>Fades one post-credits colour group toward its authored colours with 8.8 component truncation.</summary>
-    private void ApplyPostCreditsPaletteRange(ScreenColourGroup group, int step)
-    {
-        ColourRun colours = screen.Palette.Colours(group);
-        // The authored targets are read without replacing the current fade state.
-        ReadOnlySpan<RgbColor> targets = _stage.StaticScreen(EndingPaletteId.PostCredits).Colours(group);
-        // E110 saves Intro4 as its target, clears colors $20-$2F, then E158 runs the
-        // shared 8CB2 component accumulator 32 times. Each increment is component<<3
-        // in 8.8 precision; composing takes only its high byte, preserving truncation.
-        for (int colour = 0; colour < colours.Count; colour++)
-        {
-            colours.Write(colour, targets[colour].Map((_, channel) => EightEight.Multiply(channel << 3, step)));
-        }
+            screen.Colours.Fade(EndingFade.SuitedSamus, rewardPaletteStep);
+        // E110 saves the post-credits colours as its target, then E158 runs the shared component accumulator 32 times.
+        // Each increment is component<<3 in 8.8 precision and composing takes only its high byte, so step S of 32 shows
+        // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
     }
 
     /// <summary>Background map the post-credits staging tilemap is uploaded into, switched by the white flash.</summary>
@@ -141,7 +125,7 @@ internal sealed class EndingCreditsRoll
         CurrentPostShot = null;
         // E48A restores the shooting palette and selects BG1SC=$4E: the final
         // text map is two screens tall, not the credits' single-screen map.
-        _stage.StaticScreen(EndingPaletteId.PostCredits).LoadTo(screen.Palette, ScreenColourGroup.EndingShot);
+        _stage.LoadColours(EndingColourLoad.RestoredShot);
         PostCreditsTextTilemap = EndingTextScreen.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
@@ -161,16 +145,15 @@ internal sealed class EndingCreditsRoll
         screen.ShowFinalLowerText(postCreditsPage.Written);
         CurrentRewardJump = null;
         sprites.Clear();
-        _artwork.CurrentEndingLogo = new EndingLogo(screen.Palette,
-            () => _stage.PaletteFxSystem.SpawnDefinition(EndingLogoDefinitions.LandingPaletteFx, 0),
-            _stage.PaletteArtwork);
+        _artwork.CurrentEndingLogo = new EndingLogo(_stage,
+            () => _stage.PaletteFxSystem.SpawnDefinition(EndingLogoDefinitions.LandingPaletteFx, 0));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 
     /// <summary>Advances logo instructions and starts the item-percentage text once the logo completes.</summary>
     internal void StepPostCreditsLogo()
     {
-        EndingLogo.Step(screen.Palette);
+        EndingLogo.Step(screen.Colours);
         if (!EndingLogo.Completed) return;
         _artwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = EndingTextScreen.FinalText, Presentation = _artwork.EndingText, InstalledSequence = _artwork.EndingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage }));
         _stage.Phase = EndingCreditsPhase.ItemPercentage;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
@@ -8,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingZebesExplosion
 {
-    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its colours and the graphics transfers its scenes have made (#1358).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -34,7 +33,7 @@ internal sealed class EndingZebesExplosion
     {
         _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
         _artwork.LoadEndingObjectCharacters();
-        _stage.StaticScreen(EndingPaletteId.Explosion).LoadSpritesTo(screen.Palette);
+        _stage.LoadColours(EndingColourLoad.ExplosionSprites);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionLava, EndingSpriteRole.ExplosionLava);
@@ -49,9 +48,6 @@ internal sealed class EndingZebesExplosion
         _stage.Phase = EndingCreditsPhase.FadeInZebesExplosion;
     }
 
-    /// <summary>The screen's colours, by owner, captured before the planet explosion's object/background crossfade.</summary>
-    private ColourImage? explosionFadeSource;
-
     /// <summary>Current palette interpolation step during the explosion crossfade.</summary>
     private int explosionFadeStep;
 
@@ -59,16 +55,17 @@ internal sealed class EndingZebesExplosion
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
 
-    /// <summary>Stops cloud palette effects, captures the colours and seeds the planet object's first fade step.</summary>
+    /// <summary>Stops cloud palette effects and seeds the planet object's first fade step.</summary>
     private void BeginExplosionCrossfade()
     {
         // Func115 clears the previous cloud palette programs before taking its source
         // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
+        // The snapshot holds the escape's far background and the explosion's sprite colours just loaded,
+        // which the import scales at every level (#1512).
         _stage.ResetPaletteFx();
-        explosionFadeSource = screen.Palette.Capture();
         explosionFadeStep = 0;
-        ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionLava), 0);
-        ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanet), 0);
+        screen.Colours.Fade(EndingFade.ExplosionLava, 0);
+        screen.Colours.Fade(EndingFade.ExplodingPlanet, 0);
         _stage.PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
@@ -79,10 +76,9 @@ internal sealed class EndingZebesExplosion
         if ((_stage.PhaseTimer & 1) == 0)
         {
             explosionFadeStep++;
-            ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionBackground),
-                EndingExplosionFadeDefinitions.Steps - explosionFadeStep);
-            ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplosionLava), explosionFadeStep);
-            ApplyExplosionFade(screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanet), explosionFadeStep);
+            screen.Colours.Fade(EndingFade.ExplosionBackground, EndingExplosionFadeDefinitions.Steps - explosionFadeStep);
+            screen.Colours.Fade(EndingFade.ExplosionLava, explosionFadeStep);
+            screen.Colours.Fade(EndingFade.ExplodingPlanet, explosionFadeStep);
         }
         if (--_stage.PhaseTimer < 0)
         {
@@ -90,14 +86,5 @@ internal sealed class EndingZebesExplosion
             _flyaway.PrepareFlyawayUploads();
             _stage.Phase = EndingCreditsPhase.ZebesExplosionTileUpload;
         }
-    }
-
-    /// <summary>Scales one colour group of the explosion's colours from those captured when the crossfade began.</summary>
-    private void ApplyExplosionFade(ColourRun group, int factor)
-    {
-        ReadOnlySpan<RgbColor> source = (explosionFadeSource ?? throw new InvalidOperationException(
-            "The explosion crossfade has not captured its colours.")).Of(group);
-        for (int colour = 0; colour < group.Count; colour++)
-            group.Write(colour, source[colour].Map((_, channel) => channel * factor / EndingExplosionFadeDefinitions.Steps));
     }
 }

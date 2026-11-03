@@ -189,7 +189,7 @@ internal static class EndingObjectArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).CloudSprites).Draw(definition.Pose, installedOam,
-                    new(120, y), ScreenColourGroup.EndingShot, onScreen);
+                    new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
@@ -219,11 +219,13 @@ internal static class EndingObjectArtworkVerification
             if (phases.Add(native.Stage.Phase) || frame % 211 == 0)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
                 LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                        actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
                     $"ending OBJ PNGs preserve native VRAM/pixels at frame {frame}");
@@ -344,6 +346,7 @@ internal static class EndingObjectArtworkVerification
                 audio.AdvanceFrame(default);
             }
             LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+            RgbColor[] baselineColours = EndingShownColours.Of(scene);
             byte[] baselineVram = scene.ShownVram();
             EndingCreditsPhase baselinePhase = scene.Stage.Phase;
             AssertTrue(baseline.Brightness > 0,
@@ -370,6 +373,7 @@ internal static class EndingObjectArtworkVerification
             EndingObjectArtwork edited = installation.LoadEndingObjectArt();
             scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
+            RgbColor[] changedColours = EndingShownColours.Of(scene);
             byte[] changedVram = scene.ShownVram();
             // The edited art reaches the sheet it composes and the shown memory image, while the turning floor, a picture
             // the import composes from the floor art, and the colours stay as they were (#1467).
@@ -387,7 +391,7 @@ internal static class EndingObjectArtworkVerification
             if (editedSheet != SpriteSheetId.EndingCloudSprites)
                 AssertTrue(!baselineVram.SequenceEqual(changedVram), $"edited {name} changes the shown memory image");
             AssertTrue(ShownFloors(baseline).SequenceEqual(ShownFloors(changed)), $"edited {name} leaves the turning floor's picture as it was");
-            AssertTrue(baseline.Paint.Colors.SequenceEqual(changed.Paint.Colors), $"edited {name} leaves the colours as they were");
+            AssertTrue(baselineColours.SequenceEqual(changedColours), $"edited {name} leaves the colours as they were");
             AssertEqual(baselinePhase, scene.Stage.Phase, $"rebinding edited {name} leaves the ending's phase as it was");
             bool visibleEdit = false;
             for (int frame = 0; frame < 2400 && !visibleEdit &&
@@ -445,12 +449,12 @@ internal static class EndingObjectArtworkVerification
         var preservedCloudOam = ScreenSpritesFixtures.Blank();
         preservedCloudOam.BeginFrame();
         CinematicSheetFixtures.Drawer(repaired.LoadEndingObjectArt().CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, preservedCloudOam,
-            new(120, 72), ScreenColourGroup.EndingShot, originIsOnScreen: true);
+            new(120, 72), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), originIsOnScreen: true);
         preservedCloudOam.FinalizeFrame();
         var editedCloudOam = ScreenSpritesFixtures.Blank();
         editedCloudOam.BeginFrame();
         CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(editedCloudSprites).CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
-            new(120, 72), ScreenColourGroup.EndingShot, originIsOnScreen: true);
+            new(120, 72), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),
             "ending cloud sprite override survives stock repair with edited OAM");

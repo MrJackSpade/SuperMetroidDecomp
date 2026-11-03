@@ -79,7 +79,7 @@ internal static class MenuScreenPublicationVerification
             filePage.Any(placed => placed.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PatchFrame(FileSelectPatch.Energy)))),
             "file select shows the main page with the saved slot's ENERGY field");
         AssertEqual(maps.Backdrops.FileSelect, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
-        AssertTrue(fileSelectScene.Layers.OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
+        AssertTrue(fileSelectScene.Layers.ToArray().OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
             "file select's pictures show the colours the import pre-coloured them in");
         AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.Paint.SpriteDraws, fileSelect.screen.Objects.Draws), "file select draws its own sprite entries");
 

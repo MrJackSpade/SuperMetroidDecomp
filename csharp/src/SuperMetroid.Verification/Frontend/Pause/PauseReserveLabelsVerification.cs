@@ -67,7 +67,7 @@ internal static class PauseReserveLabelsVerification
                 $"reserve label characters match native ownership/mode ({capacity}/{mode})");
             var nativeColours = new SnesCgram();
             CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
-            foreach (PlacedPlanePicture placed in snapshot.Layers.OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
+            foreach (PlacedPlanePicture placed in snapshot.Layers.ToArray().OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
                 .Where(placed => placed.Shading == PictureShading.Standard))
                 AssertTrue(PictureShading.Standard.InkColours(placed.Picture.Sheet).SequenceEqual(nativeColours.Colors[..SpriteImage.SpriteColourCount].ToArray()),
                     $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");

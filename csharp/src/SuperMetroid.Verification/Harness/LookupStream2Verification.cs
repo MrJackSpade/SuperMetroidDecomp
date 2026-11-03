@@ -13,6 +13,7 @@ using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -34,6 +35,7 @@ using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
@@ -165,16 +167,19 @@ internal static class LookupStream2Verification
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
 
-    /// <summary>Checks Wrecked Ship ghost palette phases against native CGRAM writes.</summary>
+    /// <summary>
+    /// Checks Wrecked Ship ghost palette phases against native colour words: the fade the ghost keeps, the shade its slot
+    /// shows for each step, and the colours the import pre-colours that shade in.
+    /// </summary>
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
-        var cgram = new SamusColourRig();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Shading = PictureShading.Standard;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
-        Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
-        Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
+        Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
+        Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
         var native = new ushort[16];
         for (int color = 0; color < native.Length; color++)
         {
@@ -182,11 +187,20 @@ internal static class LookupStream2Verification
             AssertEqual(native[color], WreckedShipGhostAppearance.PaletteColor(color), "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
-            cgram.SetColor(128 + color, RgbColor.FromWord(0x7fff));
         }
+        // From black, the white flash raises every colour one level per call: thirty-one calls reach white and the
+        // thirty-second changes nothing, which installs the native target palette phase.
+        for (int call = 1; call <= 31; call++)
+        {
+            brightening(slot, state);
+            AssertTrue(state.Function != WreckedShipGhostAiFunction.FadingToGhostPalette, $"White flash call {call} still brightens");
+            AssertEqual(PictureShading.Shaded(new PictureShade(WreckedShipGhostShades.BrighteningEffect, call)), slot.Shading,
+                $"White flash call {call} shows its brightening step's shade");
+        }
+        AssertTrue(state.Fade.Shown.ToArray().All(colour => colour == RgbColor.White), "White flash reaches white in every colour");
         brightening(slot, state);
         AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");
-        AssertTrue(state.TargetColours.Span.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
+        AssertTrue(state.Fade.Target.SequenceEqual(ToColors(native)), "Actual target buffer includes unused sprite slots");
         for (int tick = 1; tick <= 32; tick++)
         {
             int expectedChanges = 0;
@@ -194,12 +208,15 @@ internal static class LookupStream2Verification
             for (int shift = 0; shift < 15; shift += 5)
                 if (31 - (tick - 1) > (native[color] >> shift & 31)) expectedChanges++;
             AssertEqual(expectedChanges, fade(slot, state), "Native component-change count preserves fade completion");
+            AssertEqual(PictureShading.Shaded(state.Fade.Shade), slot.Shading, "The ghost shows the shade of its fade's current step");
+            RgbColor[] installed = installedSteps[state.Fade.Shade];
             for (int color = 0; color < native.Length; color++)
             {
                 int expected = 0;
                 for (int shift = 0; shift < 15; shift += 5)
                     expected |= Math.Max(31 - tick, native[color] >> shift & 31) << shift;
-                AssertEqual((ushort)expected, cgram.Colors[128 + color], "Every actual fade step preserves visible and unused target slots");
+                AssertEqual((ushort)expected, state.Fade.Shown[color], "Every actual fade step preserves visible and unused target slots");
+                AssertEqual((ushort)expected, installed[color], "The import pre-colours each fade step's shade in the native step's colours");
             }
         }
         var usage = new int[16];

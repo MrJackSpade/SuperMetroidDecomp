@@ -46,8 +46,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             "Work Robot palette native terminator");
         AssertEqual((ushort)0,
             WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(
-                WorkRobotPaletteTimingDefinitions.RecordCount *
-                    WorkRobotPaletteTimingDefinitions.RecordByteCount),
+                checked((ushort)(WorkRobotPaletteTimingDefinitions.RecordCount *
+                    WorkRobotPaletteTimingDefinitions.RecordByteCount))),
             "Work Robot palette terminator wraps to record zero");
         AssertThrows<InvalidDataException>(
             () => WorkRobotPaletteTimingDefinitionsConstants.NormalizeByteOffset(1),

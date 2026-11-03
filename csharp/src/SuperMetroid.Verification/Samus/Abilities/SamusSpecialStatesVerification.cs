@@ -435,7 +435,7 @@ internal static void VerifySamusXray()
     // writes only the visor colour, advances shade zero to one, and reloads five.
     AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
-    AssertEqual(0x3be0, cgram.Samus.Visor, "first widening visor color");
+    AssertEqual(0x3be0, cgram.Samus.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
     AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
         "widening palette timer reload");
@@ -481,7 +481,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
         "full beam enters visor cycle");
     AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
-    AssertEqual(0x43ff, cgram.Samus.Visor, "first full-beam visor color");
+    AssertEqual(0x43ff, cgram.Samus.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
     AssertEqual(4, standing.Xray.VisorShade, "full-beam visor shade advances");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps

@@ -181,7 +181,7 @@ internal static class SamusFullBodyCycleColorsVerification
                     AssertEqual(expected, SamusFullBodyCycleColorFormat.GravitySharedBase(
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b9b20 + 2 * color))), RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b9b40 + 2 * color)))), "Original Gravity base shared-channel pairs");
                 AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk && !endpoint && !gravityShared && !variaScrew,
-                    stored.ContainsKey(new ColourCell(paletteIndex, color)), "Only source inputs remain in stock storage");
+                    stored.ContainsKey(new TableColourPlace(paletteIndex, color)), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Samus.ShownSuit(nativeSources)[color], "Every full-body palette row reaches Samus's shade");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })

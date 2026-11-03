@@ -14,7 +14,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 /// <summary>Checks suit-dependent Speed Booster palette selection and its installed CGRAM colors.</summary>
 internal static class SpeedBoostPalettePointersVerification
 {
-    /// <summary>Matches four equipment selections to native pointers and live palette output, including failure without installed colors.</summary>
+    /// <summary>Matches four equipment selections to native pointers and the colours the installed Speed Booster shade shows.</summary>
     internal static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -56,15 +56,12 @@ internal static class SpeedBoostPalettePointersVerification
         }
 
         // Without an attacker the alternation leaves the palette alone.
-        var unattached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Presentation = { FullBodyCycleColors = cycleColors } };
+        var unattached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, unattached),
             "no attachment, no alternation");
         AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,
             "an inactive alternation stays inactive");
-        AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
-            new SamusColourRig().Samus, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext }),
-            "Metroid attachment requires installed Speed Booster colors");
-        Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
+        Console.WriteLine("Speed Booster palettes: four equipment cases name the Speed Booster shade, whose installed colours match ROM with no CPU bus.");
     }
 
     /// <summary>Reads one native full-body shade as the verification oracle for installed Speed Booster colors.</summary>

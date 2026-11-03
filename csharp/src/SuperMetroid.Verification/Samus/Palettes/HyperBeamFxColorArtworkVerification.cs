@@ -16,13 +16,14 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and editable JSON inputs.</summary>
 internal static class HyperBeamFxColorArtworkVerification
 {
-    /// <summary>Compares all ten native timed frames with the ROM-free palette loop, then verifies shared-channel reconstruction, isolated edits and malformed document rejection.</summary>
+    /// <summary>Compares all ten native timed frames with the installed shades the ROM-free palette loop names, then verifies shared-channel reconstruction, isolated edits and malformed document rejection.</summary>
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
@@ -158,14 +159,11 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertEqual((ushort)(greenComponent + 32 * redComponent + 1024 * blueComponent), HyperBeamFxColorFormat.GreenFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-green domain");
             AssertEqual((ushort)(redComponent + 32 * greenComponent + 1024 * redComponent), HyperBeamHues.MagentaFromRed(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 red-to-magenta domain");
         }
+        // The Hyper Beam lays a cycle frame's shade over her beams; the import pre-colours each frame's shade from the
+        // installed cycle, whose colours each step compares with the cartridge's frame.
         var extracted = new HyperBeamPaletteFxState();
-        var nativeCgram = new SnesCgram();
-        var extractedCgram = new SamusColourRig();
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-        {
-            nativeCgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
-            extractedCgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
-        }
+        var extractedRig = new SamusColourRig();
+        SamusShadeSources stockSources = InstalledFixtures.SamusShadeSources with { HyperBeamCycle = colours };
 
         extracted.Spawn();
         for (int call = 0; call < HyperBeamFxColorFormat.FrameCount *
@@ -174,16 +172,18 @@ internal static class HyperBeamFxColorArtworkVerification
             int expectedFrame = call / 2 % 10;
             ushort originalDuration = ReadVerificationWord(bus, 0x8dd904 + 20 * expectedFrame);
             AssertEqual((ushort)2, originalDuration, "Native Hyper Beam FX duration");
-            for (int color = 0; color < 8; color++)
-                nativeCgram.SetColor(225 + color, RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color))));
             int frameBefore = extracted.CurrentFrameIndex;
-            extracted.Step(
-                extractedCgram.Samus, colours);
+            extracted.Step(extractedRig.Samus);
             AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
             AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.FrameHold.RawValue, "Native FX timer");
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(extractedCgram)),
-                "Extracted Hyper Beam frame matches full CGRAM including untouched colors");
+            AssertEqual(SamusShades.HyperBeamCycle(expectedFrame), extractedRig.Samus.BeamOverlays[^1],
+                "The Hyper Beam lays its current cycle frame over her beams");
+            RgbColor[] shownBeams = extractedRig.Samus.ShownBeams(stockSources);
+            for (int color = 0; color < 8; color++)
+                AssertEqual(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color))),
+                    shownBeams[SamusSheetInks.HyperBeamFirstColour + color],
+                    "Extracted Hyper Beam frame's installed shade shows the native frame's colours");
         }
         AssertEqual(1, extracted.CompletedCycles, "Hyper Beam palette loop retains compiled control cadence");
 
@@ -192,24 +192,18 @@ internal static class HyperBeamFxColorArtworkVerification
         edit.Required("frames").Required(3).Required(2)["red"] = red.GetValue<int>() ^ 1;
         var edited = HyperBeamFxColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(edit.ToJsonString())));
-        var nativeRig = new SamusColourRig();
-        var extractedRig = new SamusColourRig();
-        colours.Apply(nativeRig.Samus.HyperBeam, 3);
-        edited.ToColours().Apply(extractedRig.Samus.HyperBeam, 3);
-        nativeCgram = new SnesCgram();
-        extractedCgram = new SamusColourRig();
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-        {
-            nativeCgram.SetColor(color, nativeRig.Colors[color]);
-            extractedCgram.SetColor(color, extractedRig.Colors[color]);
-        }
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual((ushort)(nativeCgram.Colors[color].ToWord() ^ (color == 227 ? 1 : 0)),
-                extractedCgram.Colors[color],
-                "Hyper Beam FX edit changes only the selected visual color channel");
+        var frameRig = new SamusColourRig();
+        frameRig.Samus.LayOverBeams(SamusShades.HyperBeamCycle(3));
+        RgbColor[] nativeInks = frameRig.Samus.ShownInks(stockSources);
+        RgbColor[] editedInks = frameRig.Samus.ShownInks(InstalledFixtures.SamusShadeSources with { HyperBeamCycle = edited.ToColours() });
+        int editedInk = SamusSheetInks.Beams + SamusSheetInks.HyperBeamFirstColour + 2;
+        for (int ink = 0; ink < nativeInks.Length; ink++)
+            AssertEqual(ink == editedInk ? nativeInks[ink].WithRed(nativeInks[ink].Red ^ 1) : nativeInks[ink],
+                editedInks[ink],
+                "Hyper Beam FX edit changes only the selected visual color channel of every ink her sheets show");
 
         foreach (int invalidFrame in new[] { -1, 10, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => colours.Apply(new SamusColourRig().Samus.HyperBeam, invalidFrame), "FX frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => colours.Frame(invalidFrame), "FX frame bounds");
         foreach (string editScope in new[] { "all", "even", "green", "red", "white", "shade-sources" })
         {
             var document = RequiredJson.Deserialize<HyperBeamFxColorDocument>(json, ArtworkJson.Options);
@@ -223,10 +217,12 @@ internal static class HyperBeamFxColorArtworkVerification
                 document.Frames[frame][color] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
             }
             var modified = HyperBeamFxColorFile.Read(new MemoryStream(HyperBeamFxColorFile.Write(document))).ToColours();
+            SamusShadeSources modifiedSources = InstalledFixtures.SamusShadeSources with { HyperBeamCycle = modified };
             var result = new SamusColourRig();
             for (int frame = 0; frame < 10; frame++)
             {
-                modified.Apply(result.Samus.HyperBeam, frame);
+                result.Samus.LayOverBeams(SamusShades.HyperBeamCycle(frame));
+                RgbColor[] resultBeams = result.Samus.ShownBeams(modifiedSources);
                 for (int color = 0; color < 8; color++)
                 {
                     bool changed = editScope == "all" || editScope == "even" && (frame & 1) == 0 || editScope == "green" && frame == 4 ||
@@ -234,7 +230,7 @@ internal static class HyperBeamFxColorArtworkVerification
                         editScope == "shade-sources" && frame is 0 or 2 or 4 or 6 or 8 && color is 1 or 3 or 4 or 6;
                     ushort expected = changed ? (ushort)(1000 + frame * 8 + color) :
                         ReadVerificationWord(bus, 0x8dd906 + 20 * frame + 2 * color);
-                    AssertEqual(expected, result.Colors[225 + color], "All independent FX edits and endpoint-only edits survive shared hues");
+                    AssertEqual(RgbColor.FromWord(expected), resultBeams[SamusSheetInks.HyperBeamFirstColour + color], "All independent FX edits and endpoint-only edits survive shared hues");
                     bool middleShade = (frame & 1) == 0 && color == 2 || frame is 4 or 6 or 8 && color == 5;
                     bool transformedEndpoint = frame == 4 && color == 7 || frame == 8 && color == 1;
                     bool pairedOwner = !middleShade && !transformedEndpoint && (frame == 0 && color == 3 || frame == 4 && color >= 4 || frame == 8 && color != 0);
@@ -242,7 +238,7 @@ internal static class HyperBeamFxColorArtworkVerification
                     bool sharedEndpoint = frame == 0 && color == 1 || frame == 2 && color is 1 or 3 ||
                         frame == 4 && color is 1 or 3 || frame == 6 && color is 1 or 3 or 4;
                     AssertEqual(sharedEndpoint, endpointInputs.ContainsKey(frame * 8 + color), "Shared endpoint ownership");
-                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !sharedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(new ColourCell(frame, color)),
+                    AssertEqual((frame & 1) == 0 && color != 0 && !(frame == 2 && color >= 4) && !pairedOwner && !middleShade && !transformedEndpoint && !sharedEndpoint && !(frame == 0 && color >= 4), stored.ContainsKey(new TableColourPlace(frame, color)),
                         "Original FX input ownership");
                 }
             }

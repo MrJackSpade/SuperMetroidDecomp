@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -27,7 +28,7 @@ internal static class EndingExplosionSlotOrderVerification
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingActorDefinitions.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
-            definition.Colouring, definition.Program);
+            EndingShades.Drawn(definition.Colouring), definition.Program);
         afterglow.Step();
         var expected = ScreenSpritesFixtures.Blank();
         expected.BeginFrame();

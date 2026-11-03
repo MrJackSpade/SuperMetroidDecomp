@@ -130,8 +130,7 @@ internal static class IntroCinematicArtworkVerification
             var native = CreateRetailIntroFixture();
             var completeInstalled = CreateRetailIntroFixture(
                 introFont: installation.LoadMaps().IntroFont,
-                characterArtwork: stock,
-                beamPalettes: installation.LoadProjectiles().BeamTiles.Palettes);
+                characterArtwork: stock);
             var completeNativeMemory = native.CaptureTranslatedRenderSnapshot().Paint;
             var completeInstalledMemory = completeInstalled.CaptureTranslatedRenderSnapshot().Paint;
             AssertTrue(completeInstalled.ShownVram().SequenceEqual(native.ShownVram()) &&

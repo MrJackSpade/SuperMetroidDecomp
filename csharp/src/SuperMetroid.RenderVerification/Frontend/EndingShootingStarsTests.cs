@@ -3,6 +3,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
@@ -52,7 +53,7 @@ internal static class EndingShootingStarsTests
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
-                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites)); oam.FinishFrame();
+                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites), PictureShading.Shaded(EndingShades.Drawn(EndingSpriteColouring.ShootingStars))); oam.FinishFrame();
                 Require(oam.LastFinalizedSpriteCount > 0, "Stars publish visible OAM after the 32-call lead-in");
                 Require(oam.LowTable[..4].SequenceEqual(new byte[] {148,121,0xf0,0x09}), "First star's exact native position and attributes");
             }

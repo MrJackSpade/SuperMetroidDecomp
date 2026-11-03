@@ -317,7 +317,7 @@ internal static class EndingSnapshotTestsVerification
                     var starOnlyOam = ScreenSpritesFixtures.Blank();
                     starOnlyOam.BeginFrame();
                     // The logo has assembled by the percentage text, so the stars draw from its sheet.
-                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingLogoSprites));
+                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingLogoSprites), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
                     starOnlyOam.FinalizeFrame();
                     var actual = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Paint.SpriteParts()),

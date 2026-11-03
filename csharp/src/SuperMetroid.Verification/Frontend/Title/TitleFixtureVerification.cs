@@ -23,6 +23,6 @@ internal static class TitleFixtureVerification
         var palette = TitlePaletteFile.Read(new MemoryStream(TitlePaletteExtractor.Extract(source)));
         var gradient = titleGradientPresentation ?? TitleGradientFile.Read(
             new MemoryStream(TitleGradientExtractor.Extract(source)));
-        return new TitleSequenceState(audio, gradient, palette, graphics, MenuSheetFixtures.WithTitle(graphics));
+        return new TitleSequenceState(audio, gradient, palette.Backdrop, graphics, MenuSheetFixtures.WithTitle(graphics));
     }
 }

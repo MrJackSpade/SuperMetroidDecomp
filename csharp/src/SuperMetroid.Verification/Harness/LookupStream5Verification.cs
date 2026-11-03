@@ -819,9 +819,9 @@ internal static class LookupStream5Verification
             }
             document.PowerOn[color] = original;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(BackgroundColourSet.Hud, -1), "Power lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(BackgroundColourSet.TilesFifth, 16), "Power upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(BackgroundColourSet.TilesSixth, 0), "Power unfaded set");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Shared, -1), "Power lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Lights, 16), "Power upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn((WreckedShipPoweredPart)Enum.GetValues<WreckedShipPoweredPart>().Length, 0), "Power rejects a part the power-on does not fade");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");

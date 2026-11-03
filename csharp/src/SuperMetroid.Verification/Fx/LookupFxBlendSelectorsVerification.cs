@@ -64,13 +64,12 @@ internal static class LookupFxBlendSelectorsVerification
             {
                 byte id = (byte)value;
                 int selectionIndex = Array.IndexOf(ids, id);
-                var cgram = new GameplayColours(new SpriteColourSets());
-                cgram.AsPaletteColors().SetColor(25, RgbColor.FromWord(0x1234)); cgram.AsPaletteColors().SetColor(26, RgbColor.FromWord(0x2345)); cgram.AsPaletteColors().SetColor(27, RgbColor.FromWord(0x3456));
                 if (selectionIndex >= 0)
                 {
                     var colors = catalog.Resolve(FxNativeWords.PaletteBlend(id));
                     AssertEqual(3, colors.Length, "Exactly three loaded colors");
-                    catalog.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
+                    IReadOnlyList<RgbColor> inks = catalog.Inks(FxNativeWords.PaletteBlend(id));
+                    AssertEqual(3, inks.Count, "The selection loads all three layer-3 blend inks");
                     for (int color = 0; color < 3; color++)
                     {
                         // Calculated stock black components have their own native proofs.
@@ -79,7 +78,7 @@ internal static class LookupFxBlendSelectorsVerification
                             : ReadVerificationWord(rom, 0x89aa02 + id + 2 * color);
                         int mask = useEdited ? 0x7fff : color < 2 ? 0x7fff & ~OriginalFxPairCalculatedMask(id, color) : 0x001f;
                         AssertEqual(expected & mask, colors[color].ToWord() & mask, "Native or independently edited selector content" );
-                        AssertEqual(expected & mask, cgram.Colors[25 + color].ToWord() & mask, "Apply uses selected colors");
+                        AssertEqual(expected & mask, inks[color].ToWord() & mask, "Layer 3's blend inks show the selected colors");
                     }
                 }
                 else
@@ -87,12 +86,11 @@ internal static class LookupFxBlendSelectorsVerification
                     AssertThrows<InvalidDataException>(() => { _ = catalog.Resolve(FxNativeWords.PaletteBlend(id)); }, "Unknown resolve selector rejects including zero");
                     if (id == 0)
                     {
-                        catalog.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id));
-                        AssertEqual(0x1234, cgram.Colors[25], "Zero preserves color25");
-                        AssertEqual(0x2345, cgram.Colors[26], "Zero preserves color26");
-                        AssertEqual(0, cgram.Colors[27], "Zero clears color27 only");
+                        IReadOnlyList<RgbColor> inks = catalog.Inks(FxNativeWords.PaletteBlend(id));
+                        AssertEqual(1, inks.Count, "Zero loads only the third blend ink, leaving the first two as they were");
+                        AssertEqual(RgbColor.Black, inks[0], "Zero clears the third blend ink to black");
                     }
-                    else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram.BackgroundSets, FxNativeWords.PaletteBlend(id)), "Unknown apply selector rejects");
+                    else AssertThrows<InvalidDataException>(() => { _ = catalog.Inks(FxNativeWords.PaletteBlend(id)); }, "Unknown ink selector rejects");
                 }
             }
         }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
@@ -37,7 +38,7 @@ internal static class EndingCloudPlacementVerification
             EndingActorDefinitions.EscapeBCloudTopB, EndingActorDefinitions.EscapeBCloudBottomA,
             EndingActorDefinitions.EscapeBCloudBottomB];
         var actors = definitions.Select((definition, index) => new EndingSprite(
-            new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), definition.Colouring,
+            new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), EndingShades.Drawn(definition.Colouring),
                 definition.Program), roles[index])).ToArray();
         var cloudSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites);
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The

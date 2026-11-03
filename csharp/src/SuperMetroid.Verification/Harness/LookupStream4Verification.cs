@@ -669,7 +669,7 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> room = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
             if (edit is -1 or 0 or 143)
             {
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
+                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
                 Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
@@ -1308,12 +1308,11 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimation.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
-        var colors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         // The getaway draws the capsule's frames over the room's turning floor, which each NMI publishes; it writes no VRAM (#1349, #1467).
         RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => 0) { Floor = map })
-            { BossArtworkBinding = { CeresRidleyFloorColors = colors, CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom))) } };
+            { BossArtworkBinding = { CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(rom))) } };
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         Action<RidleyEnemyState, SamusState?, int> tick = enemies.CeresRidleyBehavior.Getaway.TickCeresRidleyGetawayFloor;
@@ -3264,7 +3263,7 @@ internal static class LookupStream4Verification
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { BabyShades = CeresBabyCartridgeShades.FromSteps(babyRows), BodyFade = bodyRows })));
             IReadOnlyList<SheetShade> babySprites = RidleySheetShades.CeresSprites(selected);
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
@@ -3351,7 +3350,7 @@ internal static class LookupStream4Verification
             var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
             var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyFloorColors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             var ridley = new RidleyEnemyState();
             enemies.RidleyEncounter.Ridley = ridley;
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected, new RgbColor[BossShadeColours.Sprites]);
@@ -3454,7 +3453,7 @@ internal static class LookupStream4Verification
             if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
             if (variation == 1) body[15][9] = Change(body[15][9], 1);
             var selected = CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document with { Health = rows, BodyFade = body })));
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { BossArtworkBinding = { CeresRidleyColors = selected } };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             IReadOnlyList<SheetShade> healthShades = RidleySheetShades.CeresSprites(selected);
             Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette;
             Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;

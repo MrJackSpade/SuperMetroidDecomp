@@ -21,7 +21,10 @@ public sealed class EscapeTimerPresentation
     /// <summary>Horizontal pixel displacement from each pair's tens-digit origin to its ones-digit origin; stock spacing is eight pixels.</summary>
     public int DigitSpacing { get; }
 
-    /// <summary>Publishes the timer as image draws from its sheet: its label, then two decimal digits for each of its minutes, seconds and centiseconds.</summary>
+    /// <summary>
+    /// Publishes the timer as image draws from its sheet in its standard colours: its label, then two decimal digits for
+    /// each of its minutes, seconds and centiseconds. The frame shows them in the escape timer pictures' shading (#1512).
+    /// </summary>
     /// <param name="timer">Live timer supplying its readout and the integer pixel origin of its moving position.</param>
     /// <param name="sprites">Frame receiving the TIME label and then the tens and ones digit of each pair, after any sprites already emitted.</param>
     /// <param name="sheet">The installed timer sheet, one frame per glyph.</param>
@@ -48,7 +51,8 @@ public sealed class EscapeTimerPresentation
         void DrawFrame(EscapeTimerGlyph glyph, Offset16<SpritePixels> anchor) =>
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer),
                 sheet.Frame(EscapeTimerComposition.FrameName(glyph)),
-                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None));
+                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SpriteMirror.None)
+            { Shading = PictureShading.Standard });
     }
 
     /// <summary>Resolves an edited timer anchor or its calculated stock position.</summary>

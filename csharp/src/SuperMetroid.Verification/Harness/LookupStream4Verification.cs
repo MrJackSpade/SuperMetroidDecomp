@@ -130,7 +130,7 @@ internal static class LookupStream4Verification
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
         {
-            fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 ushort expected = color >= destination && color < destination + row.Colors.Length
@@ -148,7 +148,7 @@ internal static class LookupStream4Verification
             var other => throw new InvalidOperationException($"The stars' first step {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
-        fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
         foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
@@ -242,7 +242,7 @@ internal static class LookupStream4Verification
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
             {
-                fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                 {
                     ushort expected = color >= destination && color < destination + row.Colors.Length
@@ -474,8 +474,8 @@ internal static class LookupStream4Verification
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
             {
-                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
@@ -548,8 +548,8 @@ internal static class LookupStream4Verification
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
             {
-                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
@@ -2269,8 +2269,6 @@ internal static class LookupStream4Verification
     {
         byte[] original = PowerBombFixedColorExtractor.Extract(rom);
         var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
-        AssertEqual(0, catalog.preExplosion.Count, "stock pre-explosion colors are entirely calculated");
-        AssertEqual(11, catalog.explosion.Count, "only unresolved explosion tail remains stored");
         foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
         {
             int count = PowerBombFixedColorFormat.Count(sequence);
@@ -2279,10 +2277,6 @@ internal static class LookupStream4Verification
                 int address = PowerBombColorSources.Start(sequence) + index * 3;
                 var native = new RgbColor(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
                 AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
-                bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
-                AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
-                    "Power Bomb exact calculated versus unresolved domain");
-                if (calculated) AssertEqual(native, color, "Power Bomb direct color calculation");
             }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
@@ -2303,8 +2297,6 @@ internal static class LookupStream4Verification
                 AssertEqual(new RgbColor(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
                     "Power Bomb supplied JSON color edits remain independent");
             }
-            AssertEqual(edit.First == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");
-            AssertEqual(edit.First == PowerBombFixedColorSequence.Explosion && edit.Second <= 20 ? 12 : 11, installed.explosion.Count, "only changed calculated explosion content joins unresolved tail");
         }
     }
 

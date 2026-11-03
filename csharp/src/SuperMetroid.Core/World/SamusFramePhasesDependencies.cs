@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
@@ -18,9 +17,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Attract demo.</summary>
     public required IAttractSamusInput AttractDemo { get; init; }
 
-
-    /// <summary>Gameplay's colours.</summary>
-    public required GameplayColours Colours { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

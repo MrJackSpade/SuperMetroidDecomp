@@ -41,7 +41,6 @@ internal static class XrayNoFxDarkeningVerification
         samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
-        runtime.Colours.AsPaletteColors().SetColor(6 * 4 + 3, new RgbColor(0, 0, 0));
         // The room's own foreground is the main screen colour math works on (#1433): BG1 draws from the room's block
         // pictures, so each expectation is derived from the colour the frame shows before blending.
         LayeredScene snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

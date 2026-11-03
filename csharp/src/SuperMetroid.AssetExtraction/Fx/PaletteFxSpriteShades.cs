@@ -1,0 +1,53 @@
+using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
+
+namespace SuperMetroid.AssetExtraction.Fx;
+
+/// <summary>
+/// The shades of the palette-FX colour groups that recolour an enemy's sprite row (#1512): the Ridley and Phantoon sprite
+/// statues' grey-out and the escape's shutter flash. Each record an object's program shows is pre-coloured over the row
+/// from the group's first colour, as the handler wrote it there; the enemy that shows the group lays the record's shade.
+/// </summary>
+internal static class PaletteFxSpriteShades
+{
+    /// <summary>Colours in one sprite row.</summary>
+    private const int RowColours = 16;
+
+    /// <summary>The colour of its sprite row each group's first written colour is.</summary>
+    private static readonly ImmutableDictionary<PaletteFxColours, int> FirstColours = new Dictionary<PaletteFxColours, int>
+    {
+        [PaletteFxColours.RidleyStatue] = 0,
+        [PaletteFxColours.PhantoonStatue] = 0,
+        [PaletteFxColours.TourianShutters] = 9,
+    }.ToImmutableDictionary();
+
+    /// <summary>
+    /// The shade of every record <paramref name="effect"/>'s program shows in <paramref name="group"/>, over the sprite
+    /// row whose first ink is <paramref name="rowFirstInk"/>, coloured from <paramref name="colours"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The group recolours no sprite row, the program shows another group, a colour is not installed, or a record writes
+    /// past the row.
+    /// </exception>
+    internal static IEnumerable<SheetShade> Of(PaletteFxObject effect, PaletteFxColours group, int rowFirstInk, IPaletteFxColorSource colours)
+    {
+        Ensure.NotNull(colours);
+        if (!FirstColours.TryGetValue(group, out int firstColour))
+            throw new InvalidDataException($"Palette-FX colours {group} recolour no sprite row.");
+        var shown = new SortedSet<(PaletteFxColours Colours, int Record)>();
+        PaletteFxRoomShades.Collect(RoomPaletteFxSelection.Get(effect).InitialProgram, shown);
+        var shades = new List<SheetShade>();
+        foreach ((PaletteFxColours shownGroup, int record) in shown)
+        {
+            if (shownGroup != group)
+                throw new InvalidDataException($"Palette-FX object {effect} shows {shownGroup}, not {group}.");
+            shades.Add(PaletteFxRoomShades.Shade(group, new PaletteFxFrame(record), rowFirstInk + firstColour,
+                rowFirstInk + RowColours, colours));
+        }
+        return shades;
+    }
+}

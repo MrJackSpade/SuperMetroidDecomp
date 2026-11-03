@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -26,7 +27,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
     private PictureShade? _eyeGlow;
 
-    /// <summary>The released sprite statues' blacked-out eyes and greys, in the order they were shown.</summary>
+    /// <summary>
+    /// The released sprite statues' blacked-out eyes, grey-out records and greys, in the order they were shown; a
+    /// grey-out's record replaces the one before it.
+    /// </summary>
     private readonly List<PictureShade> _statueLooks = [];
 
     /// <summary>The released statues drawn in the room's tiles: their blacked-out eyes and greys, in the order shown.</summary>
@@ -68,6 +72,21 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             return;
         }
         _statueLooks.Add(look);
+        ShowScene();
+    }
+
+    /// <summary>
+    /// Shows record <paramref name="record"/> of a sprite statue's grey-out, <paramref name="colours"/> naming the Ridley or
+    /// Phantoon statue, over the scene's sprites (#1512): each record replaces the one its grey-out showed before.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="colours"/> names no sprite statue.</exception>
+    internal void ShowStatueGreyOut(PaletteFxColours colours, PaletteFxFrame record)
+    {
+        if (colours is not (PaletteFxColours.RidleyStatue or PaletteFxColours.PhantoonStatue))
+            throw new ArgumentOutOfRangeException(nameof(colours), colours, "Only the Ridley and Phantoon statues grey out as sprites.");
+        PictureShade shade = PaletteFxShades.Of(colours, record);
+        _statueLooks.RemoveAll(earlier => earlier.Effect == shade.Effect);
+        _statueLooks.Add(shade);
         ShowScene();
     }
 

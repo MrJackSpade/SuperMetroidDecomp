@@ -57,11 +57,12 @@ internal static class FramePaintAccess
 
     /// <summary>
     /// <paramref name="memory"/> with <paramref name="colours"/> and <paramref name="draws"/>: a gameplay frame keeps its
-    /// pictures' shading with the decoded backdrop (#1512), a frontend screen's frame takes the decoded sets.
+    /// pictures' shading with the decoded backdrop (#1512), and each of its draws names its shading; a frontend screen's
+    /// frame takes the decoded sets.
     /// </summary>
     private static FramePaint Rebuilt(FramePaint memory, BackgroundColours colours, ImmutableArray<SpriteDraw> draws) =>
         memory.Gameplay is { } gameplay
-            ? new FramePaint(gameplay.WithBackdrop(colours.Backdrop), colours.Sprites, draws)
+            ? new FramePaint(gameplay.WithBackdrop(colours.Backdrop), draws)
             : new FramePaint(colours, draws);
 
     /// <summary>The sprite draws an OAM fixture's records make over <paramref name="vram"/>, as a frontend capture converts them.</summary>

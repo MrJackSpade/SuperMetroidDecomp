@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
@@ -144,20 +142,19 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         }
     }
 
-    /// <summary>Runs one <c>PaletteFXObject_Handler</c> pass in descending slot order.</summary>
+    /// <summary>Runs one <c>PaletteFXObject_Handler</c> pass in descending slot order during gameplay.</summary>
     /// <remarks>
-    /// Colors are a required execution dependency, not an optional bind operation.
-    /// Every caller must supply its current installed
-    /// presentation on every step. Construction creates only program
-    /// state; it cannot hide an unbound color source until a later instruction.
+    /// No colour is written (#1512): each record shown is recorded as its colour group's last, which the room's pictures
+    /// take as a shade, and the records of Samus's and the enemies' groups are handed to their owners through
+    /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per record.
     /// </remarks>
-    public void Step(IPaletteFxColourOwners owners, IPaletteFxColorSource colors, PaletteFxConditions conditions,
-        IActivePowerBomb? powerBomb = null)
+    /// <param name="conditions">The frame's handler inputs.</param>
+    /// <param name="powerBomb">The live Power Bomb, which suppresses palette-FX sounds while it is active.</param>
+    /// <exception cref="InvalidOperationException">A record is shown in colours no gameplay picture shows.</exception>
+    public void Step(PaletteFxConditions conditions, IActivePowerBomb? powerBomb = null)
     {
-        Ensure.NotNull(owners);
-        Ensure.NotNull(colors);
         audioPowerBomb = powerBomb;
-        RunHandler(conditions, (slot, frame) => ShowPaletteRecord(owners, colors, slot, frame));
+        RunHandler(conditions, ShowPaletteRecord);
     }
 
     /// <summary>
@@ -483,16 +480,15 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Shows one timed colour record in the colours the slot animates (#1512): the group's pictures take the record's
-    /// shade, and a group another owner still holds as colours (a screen's, a sprite store's or Samus's) is also written
-    /// there, skipping the colours its layout skips. A program names its colours before its first record, so a record
-    /// shown before that is a defect in the program.
+    /// Shows one timed colour record in the colours the slot animates during gameplay (#1512): the record becomes its
+    /// group's last, which the room's pictures take as a shade, and a record of Samus's or an enemy's group is also kept
+    /// for that owner, which lays its shade over its own draws. A program names its colours before its first record, so
+    /// a record shown before that is a defect in the program.
     /// </summary>
-    private void ShowPaletteRecord(
-        IPaletteFxColourOwners owners,
-        IPaletteFxColorSource colors,
-        PaletteFxSlot slot,
-        PaletteFxFrame frame)
+    /// <exception cref="InvalidOperationException">
+    /// The record is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.
+    /// </exception>
+    private void ShowPaletteRecord(PaletteFxSlot slot, PaletteFxFrame frame)
     {
         PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
             $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
@@ -509,31 +505,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             enemyShown.Add((animated, frame));
             return;
         }
-        PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[animated];
-        ColourRun target = placement.From(owners);
-        int colorIndex = 0;
-        int written = 0;
-        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
-        {
-            if (part.Skip)
-            {
-                colorIndex += part.Count;
-                continue;
-            }
-            for (int index = 0; index < part.Count; index++)
-            {
-                if (!colors.TryReadColor(new PaletteFxColorKey(frame, written), out RgbColor color))
-                    throw new InvalidDataException($"Palette-FX colour {written} of record {frame.Record} of object {slot.Object} has no installed definition.");
-                if (colorIndex >= target.Count)
-                {
-                    throw new InvalidDataException(
-                        $"Palette-FX object {slot.Object} wrote {animated} past the colours of its owner, {placement}.");
-                }
-                target.Write(colorIndex, color);
-                colorIndex++;
-                written++;
-            }
-        }
+        throw new InvalidOperationException($"Palette-FX object {slot.Object} showed {animated}, which no gameplay picture shows.");
     }
 
     /// <summary>Object state retained between palette-FX handler passes.</summary>

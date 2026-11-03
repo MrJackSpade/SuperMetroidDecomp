@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Samus.Death;
 
@@ -14,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// `$D7/$D8` advertise movement type `$0A`: game states `$15-$18` stop the normal Samus frame
 /// handlers and call this independent state machine instead.
 /// </summary>
-public sealed class SamusDeathSequenceState
+public sealed class SamusDeathSequenceState : IGameplayShadingSource
 {
     /// <summary>The game-state-owned phase corresponding to states `$16-$18`.</summary>
     public SamusDeathSequencePhase Phase { get; private set; }
@@ -40,6 +41,12 @@ public sealed class SamusDeathSequenceState
 
     /// <summary>Flashing-call count up to the 60-call flash, then the whiteout shade index, which saturates at 20 and ends at 21.</summary>
     public int AnimationCounter { get; private set; }
+
+    /// <summary>
+    /// The colour the explosion's whiteout shows every picture and sprite in but Samus's body, or null before the
+    /// whiteout's first shade. Each whiteout step selects the installed shade of its index; the last saturates.
+    /// </summary>
+    public RgbColor? Whiteout { get; private set; }
 
     /// <summary>Screen-space position captured at death-pose setup.</summary>
     public Position16<ScreenPixels> ScreenPosition { get; private set; }
@@ -105,6 +112,7 @@ public sealed class SamusDeathSequenceState
         AnimationTimer = WrappingCountdown.Start(3);
         AnimationIndex = 0;
         AnimationCounter = 0;
+        Whiteout = null;
         SpinJumpSoundRequested = sourceMovementType == SamusMovementType.SpinJumping;
         Phase = SamusDeathSequencePhase.PreFlashing;
 
@@ -112,17 +120,18 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>
-    /// Executes one game-state `$16/$17/$18` call. Palette writes target the same colours as the game. The explosion
+    /// Executes one game-state `$16/$17/$18` call. Samus's suit and suitless steps are her shades, and the whiteout is
+    /// the <see cref="Whiteout"/> colour the display shows (#1512), on the same calls the game wrote them. The explosion
     /// is shown by selecting its frame (<see cref="ExplosionFrame"/>) on the call the game drew it; the five
     /// character loads that precede it in the game have no counterpart, because each frame is a pre-coloured picture.
     /// </summary>
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
-        GameplayColours colours, SamusColours samusColours,
+        SamusColours samusColours,
         SamusDeathSteps? artwork = null)
     {
         Ensure.NotNull(samus);
-        Ensure.NotNull(colours);
+        Ensure.NotNull(samusColours);
         if (!IsActive)
             throw new InvalidOperationException("Samus death sequence has not begun.");
 
@@ -158,7 +167,7 @@ public sealed class SamusDeathSequenceState
                     Phase = SamusDeathSequencePhase.SuitExplosion;
                     drawExplosion = StepSuitExplosion(
                         samus,
-                        colours, samusColours,
+                        samusColours,
                         ref paletteChanged,
                         ref whiteoutChanged,
                         artwork);
@@ -186,10 +195,10 @@ public sealed class SamusDeathSequenceState
                 break;
 
             case SamusDeathSequencePhase.SuitExplosion:
-                whiteoutChanged = ApplyWhiteout(colours, samusColours, artwork);
+                whiteoutChanged = ApplyWhiteout(samusColours, artwork);
                 drawExplosion = StepSuitExplosion(
                     samus,
-                    colours, samusColours,
+                    samusColours,
                     ref paletteChanged,
                     ref whiteoutChanged,
                     artwork);
@@ -228,7 +237,7 @@ public sealed class SamusDeathSequenceState
     /// <summary>Advances the explosion timer, palette and terminal whiteout, returning whether to draw this frame.</summary>
     private bool StepSuitExplosion(
         SamusState samus,
-        GameplayColours colours, SamusColours samusColours,
+        SamusColours samusColours,
         ref bool paletteChanged,
         ref bool whiteoutChanged,
         SamusDeathSteps? artwork)
@@ -243,7 +252,7 @@ public sealed class SamusDeathSequenceState
             // The terminal call writes shade 21 across every non-Samus/non-
             // suitless palette and returns one without drawing a tenth explosion frame.
             AnimationCounter = 21;
-            whiteoutChanged = ApplyWhiteout(colours, samusColours, artwork);
+            whiteoutChanged = ApplyWhiteout(samusColours, artwork);
             Phase = SamusDeathSequencePhase.Complete;
             return false;
         }
@@ -258,26 +267,34 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
-    private bool ApplyWhiteout(GameplayColours colours, SamusColours samusColours,
-        SamusDeathSteps? artwork)
+    private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
         // frame remains over the original room even though game state `$18` has begun.
         if (AnimationIndex == 0)
             return false;
 
-        RgbColor shade = (artwork ?? throw new InvalidOperationException(
+        // Everything but Samus's body whitens: the room, the HUD, every other sprite, and her beams and grapple flare,
+        // which show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never
+        // whiten; the sprites that shared their sets with her no longer keep her colours through the whiteout.
+        Whiteout = (artwork ?? throw new InvalidOperationException(
             "Samus death whiteout requires installed palette artwork.")).WhiteoutColour(AnimationCounter);
-        // Everything but Samus's body whitens: the room, every other sprite, and her beams and grapple flare, which
-        // show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never whiten;
-        // the sprites that shared their sets with her no longer keep her colours through the whiteout.
-        colours.BackgroundSets.Fill(shade);
-        colours.SpriteSets.All.Fill(shade);
         samusColours.ShowBeams(SamusShades.DeathWhiteout(AnimationCounter));
 
         if (AnimationCounter < 20)
             AnimationCounter++;
         return true;
+    }
+
+    /// <summary>
+    /// Shows the whiteout over the whole display but Samus once its first shade is written (#1512): every picture, the
+    /// HUD's among them, and every sprite but hers shows the whiteout's colour.
+    /// </summary>
+    public void ShadeGameplay(GameplayShadingBuilder frame)
+    {
+        Ensure.NotNull(frame);
+        if (Whiteout is { } colour)
+            frame.Fade(new GameplayDisplayFade(new ColourFlash(colour), SparesHud: false, SparesSamus: true));
     }
 
     /// <summary>Shows the suited and suitless death shades the shown suit and the animation step select (#1512).</summary>

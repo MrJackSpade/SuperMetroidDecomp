@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
@@ -196,8 +194,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The time-up state runs the whole main-gameplay routine, then advances every palette
         // toward the white target with denominator eight.
         RunMainGameplayState(controllerInput, gameplayAudio);
-        if ((session.TimeUpPaletteFade ?? throw new InvalidOperationException(
-                "Time-up white-out started without its target palette.")).Step())
+        if ((session.Runtime ?? throw new InvalidOperationException("Time-up white-out requires a gameplay runtime.")).FadeOut.Step())
         {
             session.GameState = SuperMetroidGameState.WhitingOutFromTimeUp;
             session.screenFade.Clear();
@@ -376,17 +373,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// The escape countdown expired. Every target color becomes white
-    /// for the time-up state's gradual change through the shared numerator.
+    /// The escape countdown expired. The whole gameplay display, Samus and the HUD among it, fades to white through the
+    /// shared numerator in the time-up state's gradual change (#1512).
     /// </summary>
     private void BeginTimeUp()
     {
-        if (session.Runtime is null)
-            throw new InvalidOperationException("Time-up requires a gameplay runtime.");
-        ColourImage white = session.Runtime.Colours.Capture();
-        white.Fill(TimeUpDefinitions.WhiteColor);
-        session.BeginTimeUpPaletteFade(new GradualPaletteTransition(white, TimeUpDefinitions.WhiteOutDenominator,
-            session.Runtime.EnemySession.GradualColorChange));
+        SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
+        runtime.FadeOut.Begin(TimeUpDefinitions.WhiteColor, TimeUpDefinitions.WhiteOutDenominator,
+            runtime.EnemySession.GradualColorChange, keepsSamusLit: false);
         session.GameState = SuperMetroidGameState.TimeUp;
     }
 

@@ -74,6 +74,15 @@ internal sealed class DoorFade : IGameplayShadingSource
         frame.Fade(new GameplayDisplayFade(effect, SparesHud: true, SparesSamus: false));
         if (hud is { } shade)
             frame.Shade(GameplayPictures.Hud, shade);
+        // The escape timer keeps its lit colours through the fade as the HUD does, faded step for step with it.
+        // A fade out shows the timer's standard colours until its first step, as it shows the HUD's.
+        if (Stage != DoorFadeStage.FadingOut || last is not null)
+            frame.Shade(GameplayPictures.EscapeTimer, Stage switch
+            {
+                DoorFadeStage.FadingIn when last is { } value => DoorFadeShades.EscapeTimerFadingIn(value),
+                DoorFadeStage.FadingOut when last is { } value => DoorFadeShades.EscapeTimerFadingOut(value),
+                _ => DoorFadeShades.EscapeTimerFadingOut(DoorTransitionColourDefinitions.HudFadeShades - 1),
+            });
     }
 
     /// <summary>The HUD's shade once the room has faded out: the fade out's last step, its faded colours black.</summary>

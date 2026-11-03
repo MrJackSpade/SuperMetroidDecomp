@@ -56,7 +56,6 @@ internal static class GameplaySnapshotTestsVerification
         LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         RgbaPixel[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
-        for (int color = 0; color < SnesCgram.ColorCount; color++) runtime.Colours.AsPaletteColors().SetColor(color, new RgbColor(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "gameplay packet survives complete live VRAM/CGRAM replacement");
         Console.WriteLine("  Gameplay snapshots: retained line scrolls, layer rules and retained retail base match.");

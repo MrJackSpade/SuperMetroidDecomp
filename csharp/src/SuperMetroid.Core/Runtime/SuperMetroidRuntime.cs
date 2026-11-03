@@ -165,10 +165,7 @@ internal sealed class SuperMetroidRuntime
             "Gameplay requires the installed Samus overread services.");
         System = new SharedGameState(session.Random, session.EarthquakeSoundDelay, session.StoredExploredMaps);
         Display = new GameplayDisplayState();
-        var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState();
-        Colours = new GameplayColours(spriteSets);
-        PaletteFxColours = new GameplayPaletteFxColours(Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -194,19 +191,17 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
-        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Colours = Colours, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
 
-        // Gameplay starts from the installed initial palette.
-        (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
-            "Gameplay requires the installed initial palette catalog.")).LoadInitial(Colours);
+        // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
     }
 
@@ -327,15 +322,6 @@ internal sealed class SuperMetroidRuntime
     /// <exception cref="InvalidOperationException">No frame boundary has latched the HUD yet.</exception>
     public ShownHud AcceptedHud =>
         Display.Latched.Hud ?? throw new InvalidOperationException("No frame boundary has latched the HUD.");
-
-    /// <summary>
-    /// Gameplay's colours, initialized from the installed initial palette; the positions Samus holds are her colours
-    /// (#1405).
-    /// </summary>
-    public GameplayColours Colours { get; }
-
-    /// <summary>The colours palette-FX objects write, by owner (#1405).</summary>
-    internal IPaletteFxColourOwners PaletteFxColours { get; }
 
     /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
     public PaletteFxSessionState PaletteFxSession { get; } = new();
@@ -622,24 +608,44 @@ internal sealed class SuperMetroidRuntime
         if (Room.LoadedScope.PaletteFx.HandlerEnabled && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            Room.LoadedScope.PaletteFx.Step(PaletteFxColours, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
-                    "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
+            Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
             // Her heat glow and her suit's loading show over her suit as the records that wrote it (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.SuitShown)
                 Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, record));
-            // The Torizos' belly glow shows over the statue's own colours as the records that wrote them (#1512).
+            // The enemies' groups show over their owners' own colours as the records that wrote them (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.EnemyShown)
-            {
-                if (colours != SuperMetroid.Core.Fx.PaletteFx.PaletteFxColours.TorizoBelly)
-                    throw new InvalidOperationException($"Palette-FX colours {colours} name no enemy that shows them.");
-                Room.LoadedScope.Enemies.BombTorizoBehavior.ShowBellyGlow(record);
-            }
+                ShowEnemyPaletteFx(colours, record);
         }
         // Hyper Beam's palette object lives in the same pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)
         {
             Player.Samus?.Drained.HyperBeamPaletteFx.Step(Player.Colours);
+        }
+    }
+
+    /// <summary>
+    /// Hands one record of an enemy's palette-FX group to the enemy that shows it (#1512): the Torizos lay their belly
+    /// glow, Tourian's sprite statues their grey-out, and Mother Brain the escape's shutter flash over her sprites.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The group names no enemy that shows it, or its owner is not loaded.</exception>
+    private void ShowEnemyPaletteFx(PaletteFxColours colours, PaletteFxFrame record)
+    {
+        RoomEnemySystem enemies = Room.LoadedScope.Enemies;
+        switch (colours)
+        {
+            case PaletteFxColours.TorizoBelly:
+                enemies.BombTorizoBehavior.ShowBellyGlow(record);
+                return;
+            case PaletteFxColours.RidleyStatue:
+            case PaletteFxColours.PhantoonStatue:
+                enemies.TourianEntranceStatueBehavior.ShowStatueGreyOut(colours, record);
+                return;
+            case PaletteFxColours.TourianShutters:
+                enemies.MotherBrainEncounter.ShowEscapeShutterFlash(record);
+                return;
+            default:
+                throw new InvalidOperationException($"Palette-FX colours {colours} name no enemy that shows them.");
         }
     }
 
@@ -1046,7 +1052,7 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(), Colours.ShownSprites(),
+        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
 
@@ -1071,7 +1077,11 @@ internal sealed class SuperMetroidRuntime
         foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
             yield return boss;
         yield return DoorFade;
-        yield return FadeOut;
+        // The death explosion's whiteout writes over the colours the death fade left black, so it shows instead of it.
+        if (Player.Samus is { DeathSequence.Whiteout: not null } dying)
+            yield return dying.DeathSequence;
+        else
+            yield return FadeOut;
     }
 
     /// <summary>

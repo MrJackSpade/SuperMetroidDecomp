@@ -405,7 +405,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(stock, overrides, original));
         Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(stock, overrides, original));
-        Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
@@ -816,8 +816,7 @@ internal static class MapPresentationVerification
     private static void VerifyRoomPaletteFxOverride(
         string stock,
         string overrides,
-        AreaMapPresentation original,
-        GameplayBasePalette initialPalettes)
+        AreaMapPresentation original)
     {
         string source = Path.Combine(stock, RoomPaletteFxPresentationFormat.FileName);
         RoomPaletteFxPresentationDocument document =
@@ -1042,7 +1041,7 @@ internal static class MapPresentationVerification
             PaletteFxColours animated = PaletteFxObjectAccess.FromNative(definitionPointer).AnimatedColours;
             string context = $"runtime catalog binding consumes {description} palette-FX override in its {animated}";
             // A title or cinematic effect animates a frontend screen's colours (#1464); every other one animates gameplay's.
-            if (PaletteFxColourPlacementDefinitions.Placements[animated] is ScreenColoursPlacement)
+            if (PaletteFxScreenColourDefinitions.ScreenColours.Contains(animated))
             {
                 // A frontend screen's step shows the record without writing colours (#1512); the import pre-colours its shade
                 // from the installed colours, so the override reaches the shade the screen names.
@@ -1056,21 +1055,14 @@ internal static class MapPresentationVerification
                     .SequenceEqual(PaletteFxScreenShades.Shade(animated, shown[0], 0, int.MaxValue, edited.RoomPaletteFx).Colours), context);
                 return;
             }
-            var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
-            stockRuntime.Artwork.MapPresentation = original;
-            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
-            editedRuntime.Artwork.MapPresentation = edited;
-            Step(stockRuntime.PaletteFxColours, original);
-            Step(editedRuntime.PaletteFxColours, edited);
-            AssertTrue(stockRuntime.Colours.Colors[animated.CartridgeColour] != editedRuntime.Colours.Colors[animated.CartridgeColour], context);
-
-            // Spawns the effect and runs its first step over `owners` with `presentation`'s colours.
-            void Step(IPaletteFxColourOwners owners, AreaMapPresentation presentation)
-            {
-                var paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-                paletteFx.SpawnDefinition(definitionPointer, 0);
-                paletteFx.Step(owners, presentation.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            }
+            // A gameplay step shows the record without writing colours (#1512): the import pre-colours its shade from the
+            // installed colours over the pictures that show the group, so the override reaches the shade's colours.
+            var paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+            paletteFx.SpawnDefinition(definitionPointer, 0);
+            paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            PaletteFxFrame record = paletteFx.RecordOf(animated) ?? throw new InvalidOperationException($"{context}: the first step shows no record");
+            AssertTrue(!PaletteFxRoomShades.Shade(animated, record, 0, int.MaxValue, original.RoomPaletteFx).Colours
+                .SequenceEqual(PaletteFxRoomShades.Shade(animated, record, 0, int.MaxValue, edited.RoomPaletteFx).Colours), context);
         }
     }
 

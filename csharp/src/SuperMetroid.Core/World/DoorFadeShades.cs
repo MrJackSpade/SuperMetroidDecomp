@@ -21,4 +21,16 @@ public static class DoorFadeShades
 
     /// <summary>The HUD after the step of counter value <paramref name="value"/> of a door's fade into one common room from another.</summary>
     public static PictureShade HudFadingInBetweenCommonRooms(int value) => new("door-hud-fading-in-common-rooms", value);
+
+    /// <summary>
+    /// The escape timer's colours after a door's fade out to black from the shared counter's zero through
+    /// <paramref name="value"/>, its lit colours kept.
+    /// </summary>
+    public static PictureShade EscapeTimerFadingOut(int value) => new("door-escape-timer-fading-out", value);
+
+    /// <summary>
+    /// The escape timer's colours after a door's fade in from black from the shared counter's zero through
+    /// <paramref name="value"/>, its lit colours kept.
+    /// </summary>
+    public static PictureShade EscapeTimerFadingIn(int value) => new("door-escape-timer-fading-in", value);
 }

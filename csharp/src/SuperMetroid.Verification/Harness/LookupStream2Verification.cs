@@ -277,7 +277,7 @@ internal static class LookupStream2Verification
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(cgram, colors, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                actual.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
                         cgram.Colors[definition.Object.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");

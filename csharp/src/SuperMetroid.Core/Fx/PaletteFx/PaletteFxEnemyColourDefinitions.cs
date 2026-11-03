@@ -8,6 +8,10 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxEnemyColourDefinitions
 {
-    /// <summary>The groups an enemy's colour state shows: the Torizos' glowing belly.</summary>
-    internal static ImmutableHashSet<PaletteFxColours> EnemyColours { get; } = [PaletteFxColours.TorizoBelly];
+    /// <summary>
+    /// The groups an enemy's colour state shows: the Torizos' glowing belly, the Ridley and Phantoon sprite statues'
+    /// grey-out in Tourian's statue room, and the escape's red-flashing shutters over Mother Brain's sprites.
+    /// </summary>
+    internal static ImmutableHashSet<PaletteFxColours> EnemyColours { get; } =
+        [PaletteFxColours.TorizoBelly, PaletteFxColours.RidleyStatue, PaletteFxColours.PhantoonStatue, PaletteFxColours.TourianShutters];
 }

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -63,15 +62,12 @@ internal static class RgbColorDomainVerification
         AssertEqual(sample, cgram.Colors[2], "typed CGRAM write");
         AssertEqual(sample.ToRgbaPixel(), cgram.GetRgba(2), "CGRAM RGBA is the color's expansion");
 
-        // A production fade on typed colors reaches its exact target (native $82:DA02 ramp).
-        var colours = new ScreenPalette();
-        colours.LoadImage(cgram.Colors);
-        ColourImage target = colours.Capture();
-        target.Fill(RgbColor.White);
-        var fade = new GradualPaletteTransition(target, denominator: 6, new GradualColorChangeCounter());
+        // A production fade toward a colour shows its exact target once it completes (native $82:DA02 ramp), whatever
+        // colour it started from (#1512).
+        var fade = new GradualFadeSteps(denominator: 6, new GradualColorChangeCounter());
         for (int step = 0; step < 16 && !fade.Step(); step++) { }
-        AssertTrue(colours.BackgroundSets.All.Colors.IndexOfAnyExcept(RgbColor.White) < 0 &&
-            colours.SpriteSets.All.Colors.IndexOfAnyExcept(RgbColor.White) < 0, "typed palette fade installs its exact target");
+        AssertTrue(cgram.Colors.ToArray().All(colour => fade.Toward(RgbColor.White).Apply(colour) == RgbColor.White),
+            "typed gradual fade shows its exact target");
 
         Console.WriteLine("RgbColor domain: all 32768 words, port masking, channel bounds, RGBA expansion, operations, and CGRAM agree.");
     }

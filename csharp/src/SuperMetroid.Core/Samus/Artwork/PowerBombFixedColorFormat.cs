@@ -1,14 +1,10 @@
 using SuperMetroid.Core.Samus.Palettes;
 
-
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Installed-resource identity, schema revision, and sequence dimensions for explosion fixed-color artwork.</summary>
 public static class PowerBombFixedColorFormat
 {
-
-
     /// <summary>Returns the number of radius-addressable RGB5 triplets in the selected sequence.</summary>
     /// <param name="sequence">Pre-explosion or explosion artwork domain; this is not an animation phase or composable bit mask.</param>
     /// <returns>Sixteen for pre-explosion or thirty-two for explosion, defining the exclusive upper index bound.</returns>
@@ -19,34 +15,4 @@ public static class PowerBombFixedColorFormat
         PowerBombFixedColorSequence.Explosion => SamusPaletteDefinitions.PowerBomb.ExplosionColorCount,
         _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
     };
-    /// <summary>
-    /// PowerBomb_PreExplosion_Colors: white-to-yellow rise and decline;
-    /// PowerBombExplosion_Colors: yellow opening and grayscale white crest.
-    /// Calculates all sixteen pre-explosion colors and explosion colors zero through twenty.
-    /// Later explosion colors remain independently supplied pending their own conversion.
-    /// </summary>
-    internal static bool TryCalculateStock(PowerBombFixedColorSequence sequence, int index,
-        out RgbColor color)
-    {
-        color = default;
-        if (sequence == PowerBombFixedColorSequence.PreExplosion && (uint)index < 16)
-        {
-            int red = index == 0 ? 16 : index <= 12 ? 2 * index + 2 : 50 - 2 * index;
-            int blue = index <= 5 ? red : index is 6 or 12 ? 10 : index < 12 ? 8 : 34 - 2 * index;
-            color = new RgbColor(red, red, blue);
-            return true;
-        }
-        if (sequence != PowerBombFixedColorSequence.Explosion || (uint)index > 20) return false;
-        if (index < 14)
-        {
-            int yellow = Math.Min(14 + index, 26);
-            color = new RgbColor(yellow, yellow, Math.Max(10 - index, 0));
-        }
-        else
-        {
-            int white = index <= 18 ? 26 + (index - 14) / 2 : 46 - index;
-            color = new RgbColor(white, white, white);
-        }
-        return true;
-    }
 }

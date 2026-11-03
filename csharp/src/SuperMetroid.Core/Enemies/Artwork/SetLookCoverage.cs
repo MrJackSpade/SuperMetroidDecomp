@@ -53,7 +53,7 @@ public sealed class SetLookCoverage
     /// The set does not record where a visible encounter look shows, or the newest look covering the region is one an
     /// encounter of another graphics set showed, which no picture of the set's frames shows.
     /// </exception>
-    public LookRegionContent Showing(ShownSpriteArtwork shown, IEncounterLookCatalog catalog, IReadOnlyList<SpriteArtworkSource> setLooks,
+    public LookRegionContent Showing(ShownSpriteArtwork shown, EncounterLooks catalog, IReadOnlyList<SpriteArtworkSource> setLooks,
         LookRegion region)
     {
         Ensure.NotNull(shown);

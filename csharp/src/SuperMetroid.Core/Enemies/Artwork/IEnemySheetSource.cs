@@ -14,7 +14,7 @@ public interface IEnemySheetSource
     SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase);
 
     /// <summary>The looks each encounter shows, whose pictures the sheets hold.</summary>
-    IEncounterLookCatalog Looks { get; }
+    EncounterLooks Looks { get; }
 
     /// <summary>What covers each region of graphics set <paramref name="set"/>'s frames (#1406, #1463).</summary>
     SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set);

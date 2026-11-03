@@ -128,7 +128,7 @@ public static class EnemySheetFiles
             }
         }
         return new InstalledEnemySheets(new(sheets, pictures, rotPictures), new(spawned, spawnedPictures, spawnedRotPictures),
-            SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog, coverage);
+            SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Looks, coverage);
     }
 
     /// <summary>Each frame's layers over the regions Core names by ordinal.</summary>

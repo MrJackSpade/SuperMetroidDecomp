@@ -69,7 +69,7 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public IEncounterLookCatalog Looks => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog;
+        public EncounterLooks Looks => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Looks;
 
         /// <inheritdoc/>
         public SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>

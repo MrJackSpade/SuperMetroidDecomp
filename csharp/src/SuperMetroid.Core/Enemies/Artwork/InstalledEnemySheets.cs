@@ -36,7 +36,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// </summary>
     public InstalledEnemySheets(EnemySheetGroup<EnemySheetKey, SpriteSheet> enemies,
         EnemySheetGroup<SpawnedObjectSheetKey, SpawnedObjectSheet> spawnedObjects,
-        IEncounterLookCatalog looks, IReadOnlyDictionary<string, SetLookCoverage> coverage)
+        EncounterLooks looks, IReadOnlyDictionary<string, SetLookCoverage> coverage)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(spawnedObjects);
@@ -53,7 +53,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     }
 
     /// <inheritdoc/>
-    public IEncounterLookCatalog Looks { get; }
+    public EncounterLooks Looks { get; }
 
     /// <inheritdoc/>
     public SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>

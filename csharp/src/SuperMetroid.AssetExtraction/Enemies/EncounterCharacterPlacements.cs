@@ -26,7 +26,9 @@ internal static class EncounterCharacterPlacements
 
     /// <summary>Every encounter's uploads, each placed where the cartridge shows it.</summary>
     internal static EncounterCharacterCatalog Catalog { get; } = new(EncounterCharacterDefinitions.Encounters.ToDictionary(
-        entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkPlacement>)[.. entry.Value.Select(Placed)]));
+        entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkPlacement>)[.. entry.Value.Select(Placed)]),
+        [Placed(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles))],
+        EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter);
 
     /// <summary>
     /// The upload of <paramref name="source"/> where the cartridge shows it: the standard sprites from the first character,

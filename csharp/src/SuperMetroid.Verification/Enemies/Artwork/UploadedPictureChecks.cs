@@ -133,7 +133,7 @@ internal static class UploadedPictureChecks
     {
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        IReadOnlyList<SpriteArtworkSource> setLooks = sheets.Looks.EncounterLooks(set);
+        IReadOnlyList<SpriteArtworkSource> setLooks = sheets.Looks.Of(set);
         SetLookCoverage coverage = sheets.Coverage(set);
         SetRegions ranges = InstalledSetRegions.Of(set);
         IReadOnlyList<LookRegion> regions = [.. coverage.Regions.Where(region => setLooks.Any(look => coverage.Covers(look, region)))];

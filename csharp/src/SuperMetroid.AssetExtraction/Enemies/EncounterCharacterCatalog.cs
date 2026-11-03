@@ -7,13 +7,15 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The uploads each encounter makes over the OBJ characters after its room loads, and the picture of a frame drawn over
-/// them that shows (#1392, #1463). Core names the looks; this catalogue knows where each lands, which looks replace which,
-/// and how a picture's name spells what each region shows.
+/// The uploads each encounter makes over the OBJ characters after its room loads (#1392, #1463). The import knows where
+/// each lands; it installs that knowledge as Core's <see cref="EncounterLooks"/>, which the game names pictures and
+/// judges overlap from without running import code (#1508).
 /// </summary>
 /// <param name="byEnemy">Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</param>
-internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy)
-    : IEncounterLookCatalog
+/// <param name="standing">Where the looks shown apart from encounters and graphics sets land: the standard sprites.</param>
+/// <param name="enemyTilesFirstCharacter">The sprite character the enemy tile area starts at.</param>
+internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy,
+    IReadOnlyList<SpriteArtworkPlacement> standing, int enemyTilesFirstCharacter)
 {
     /// <summary>Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
     private readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> uploadsByEnemy = Ensure.NotNull(byEnemy);
@@ -49,33 +51,19 @@ internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinit
         [.. Ensure.NotNull(set).Records.Span.SelectToArray(record => record.DefinitionId).Distinct()
             .Where(uploadsByEnemy.ContainsKey).SelectMany(enemy => uploadsByEnemy[enemy]).Distinct().OrderBy(all.IndexOf)];
 
-    /// <inheritdoc/>
-    public IReadOnlyList<SpriteArtworkSource> EncounterLooks(RoomEnemyGraphicsSetDefinition set) => [.. Of(set).Select(upload => upload.Source)];
+    /// <summary>
+    /// The catalogue as Core installs it: every encounter look where it lands in catalogue order, each enemy's encounter's
+    /// looks, the standing looks and where the enemy tile area starts.
+    /// </summary>
+    internal EncounterLooks Looks => looks.Value;
 
-    /// <inheritdoc/>
-    public bool IsEncounterLook(SpriteArtworkSource look) => all.Any(upload => upload.Source == Ensure.NotNull(look));
+    /// <summary>The installed catalogue, built once.</summary>
+    private readonly Lazy<EncounterLooks> looks = new(() => new EncounterLooks(
+        [.. byEnemy.OrderBy(entry => entry.Key).SelectMany(entry => entry.Value).Distinct().Select(Installed)],
+        byEnemy.ToDictionary(entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkSource>)[.. entry.Value.Select(upload => upload.Source)]),
+        [.. standing.Select(Installed)], enemyTilesFirstCharacter));
 
-    /// <inheritdoc/>
-    public string PictureName(string frame, int layer, IReadOnlyList<LookRegionContent> shown)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(frame);
-        Ensure.AtLeastZero(layer);
-        return $"{frame}#{layer}" + string.Concat(Ensure.NotNull(shown).Select(content => $"|{content.Region.Name}={Token(content)}"));
-    }
-
-    /// <summary>How a picture's name spells what <paramref name="content"/> shows over its region.</summary>
-    private string Token(LookRegionContent content)
-    {
-        if (content.RotStep is int step)
-            return $"rot{step}";
-        return content.Look is { } look ? $"u{all.IndexOf(Placement(look))}" : "set";
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The cartridge shows one of the looks nowhere among the sprite characters.</exception>
-    public bool Hides(SpriteArtworkSource later, SpriteArtworkSource earlier)
-    {
-        SpriteArtworkPlacement hidden = EncounterCharacterPlacements.Placed(earlier);
-        return EncounterCharacterPlacements.Placed(later).Covers(hidden.FirstCharacter, hidden.CharacterCount);
-    }
+    /// <summary><paramref name="placement"/> as Core holds it.</summary>
+    private static PlacedLook Installed(SpriteArtworkPlacement placement) =>
+        new(placement.Source, placement.FirstCharacter, placement.CharacterCount);
 }

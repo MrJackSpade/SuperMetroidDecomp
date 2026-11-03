@@ -94,7 +94,7 @@ public sealed class EnemySession : ISpriteObjectPage
     /// <exception cref="InvalidDataException">No catalogued encounter shows the look, so no sheet pictures it.</exception>
     internal void ShowLook(SpriteArtworkSource look)
     {
-        IEncounterLookCatalog catalog = (Sheets ?? throw new InvalidOperationException("Showing an encounter's look requires installed enemy sheets.")).Looks;
+        EncounterLooks catalog = (Sheets ?? throw new InvalidOperationException("Showing an encounter's look requires installed enemy sheets.")).Looks;
         if (!catalog.IsEncounterLook(Ensure.NotNull(look)))
             throw new InvalidDataException($"No catalogued encounter shows {look}.");
         SpriteLooks.Show(look);

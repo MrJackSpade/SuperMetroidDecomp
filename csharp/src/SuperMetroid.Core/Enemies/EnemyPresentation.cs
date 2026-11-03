@@ -174,8 +174,8 @@ internal sealed class EnemyPresentation
         }
         if (layers.Count == 0)
             return [frame];
-        IEncounterLookCatalog catalog = Sheets.Looks;
-        IReadOnlyList<SpriteArtworkSource> setLooks = catalog.EncounterLooks(LoadedSet);
+        EncounterLooks catalog = Sheets.Looks;
+        IReadOnlyList<SpriteArtworkSource> setLooks = catalog.Of(LoadedSet);
         SetLookCoverage coverage = Sheets.Coverage(LoadedSet);
         return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
             [.. regions.Select(region => RotSteps.TryShowing(region, out int step, out long stamp)

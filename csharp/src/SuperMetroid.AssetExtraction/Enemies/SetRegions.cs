@@ -149,7 +149,7 @@ internal sealed class SetRegions
     internal IEnumerable<string> PictureNames(string frame, IReadOnlyList<CharacterRange[]> layers, bool showsRot) =>
         Ensure.NotNull(layers).Count == 0 ? [frame]
             : layers.SelectMany((regions, layer) => Contents(regions, showsRot)
-                .Select(contents => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.PictureName(frame, layer, contents)));
+                .Select(contents => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Looks.PictureName(frame, layer, contents)));
 
     /// <summary>The bytes <paramref name="content"/>'s region of a corpse row shows after its rot step.</summary>
     /// <exception cref="InvalidOperationException">The content shows no rot step.</exception>

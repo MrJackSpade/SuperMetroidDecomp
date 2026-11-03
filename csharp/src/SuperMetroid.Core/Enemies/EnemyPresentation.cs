@@ -5,13 +5,12 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy presentation state: the bound tiles and palette, boss and gradual palette effects, the
-/// host-installed color and artwork catalogs, and drawing from the installed sheets.
+/// Enemy presentation state: the room's appearance and animation frames, the boss body layer, the shared gradual-change
+/// counter, and drawing from the installed pre-coloured sheets under each draw's shading (#1512).
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyPresentation
@@ -29,30 +28,6 @@ internal sealed class EnemyPresentation
         _graphicsSet = graphicsSet;
     }
 
-    /// <summary>
-    /// Where the room's graphics set, as it last loaded, places the sprite colourings drawn under it, and so which of them
-    /// hold the same colours (#1464). Each load records a new placement; a draw keeps the one current when it is published.
-    /// </summary>
-    internal GraphicsSetColourPlacement Placement => _graphicsSet.Placement;
-
-    /// <summary>Gameplay's background colour sets (#1405).</summary>
-    internal BackgroundColourSets BackgroundSets => Colours.BackgroundSets;
-
-    /// <summary>The sprite colours <paramref name="run"/> names (#1405, #1464).</summary>
-    internal ColourRun ColoursOf(SpriteColourRun run) => run.In(Colours.SpriteSets);
-
-    /// <summary>The sprite colours <paramref name="colouring"/> holds (#1405, #1464).</summary>
-    internal ColourRun ColourSetOf(SpriteColouring colouring) => Placement.ColoursOf(colouring, Colours.SpriteSets);
-
-    /// <summary>The sprite colour set holding the colours <paramref name="slot"/> draws in (#1405, #1464).</summary>
-    internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSetOf(slot.Colouring);
-
-    /// <summary>The room's bound palette; enemy palette writes require the room's palette to be bound.</summary>
-    internal GameplayColours Colours
-    {
-        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound palette; the room's palette must be bound first.");
-        private set;
-    }
     /// <summary>What gameplay shows over the room's load (#1466), as Kraid's rise shows his backdrop.</summary>
     internal RoomAppearance Appearance
     {
@@ -90,8 +65,6 @@ internal sealed class EnemyPresentation
     internal BossBodyCanvas RequireBossBody() =>
         BossBody ?? throw new InvalidOperationException("No boss has attached its body layer.");
 
-    /// <summary>Room load: binds the palette the room's enemy palettes write.</summary>
-    internal void BindColours(GameplayColours colours) => Colours = Ensure.NotNull(colours);
     /// <summary>The session's shown sprite looks, which enemy frames select their pictures from (#1463).</summary>
     internal ShownSpriteArtwork SpriteLooks => _room.Session.SpriteLooks;
 
@@ -112,47 +85,44 @@ internal sealed class EnemyPresentation
     public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
 
     /// <summary>
-    /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's graphics set
-    /// names. While the draw's colours are not the ones the sheet was coloured in, the enemy's own as the set loads them,
-    /// as on a hit or freeze flash or after its AI moves it to other colours, the frame shows the drawn colouring over
-    /// each part as the set's placement decides.
+    /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's
+    /// graphics set names, pre-coloured in the colours the set loads for the enemy, under the shading the draw names
+    /// (#1512), such as a hit flash or a glow's frame.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
-    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, colouring and rot.</param>
+    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, shading and rot.</param>
     /// <exception cref="InvalidDataException">A frame showing a corpse's rot is drawn without that rot.</exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
-        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, SpriteColouring drawn, CorpseRotView? rot) = draw;
-        DrawnColouring? shown = Placement.InPlaceOf(drawn, _graphicsSet.DrawIndexes(enemy).Colouring);
+        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, PictureShading shading, CorpseRotView? rot) = draw;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
         foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
-            sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None, shown));
+            sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
     }
 
     /// <summary>
-    /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392).
-    /// While the draw's colours are not held in the colour group the sheet was coloured in, the frame shows the drawn
-    /// colouring over each part as the set's placement decides.
+    /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392),
+    /// under the shading the object carries (#1512).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
     /// <param name="frame">The sheet frame's name.</param>
     /// <param name="origin">The frame origin on screen.</param>
     /// <param name="tileBase">The tile base the object's parts draw at.</param>
-    /// <param name="drawn">The colours the draw selects.</param>
+    /// <param name="shading">The shades and colour effects the object shows its picture in.</param>
     /// <param name="rot">The rot the drawing encounter selected, which a frame drawn over a rotting corpse's rows shows; none for one that shows none.</param>
     /// <exception cref="InvalidDataException">
     /// The set has no sheet for that tile base, or a frame showing a corpse's rot is drawn without that rot.
     /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
-        int tileBase, SpriteColouring drawn, CorpseRotView? rot = null)
+        int tileBase, PictureShading shading, CorpseRotView? rot = null)
     {
+        Ensure.NotNull(shading);
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
-        DrawnColouring? shown = Placement.InPlaceOfGroup(drawn, sheet.ColourGroup);
         foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
                      Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
-            sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None, shown));
+            sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
     }
 
     /// <summary>
@@ -191,11 +161,11 @@ internal sealed class EnemyPresentation
     /// <param name="source">The actor shown.</param>
     /// <param name="frame">The frame.</param>
     /// <param name="origin">The frame origin on screen.</param>
-    /// <param name="colouring">The colours the draw selects.</param>
+    /// <param name="shading">The shades and colour effects the frame shows.</param>
     /// <param name="rot">The rot the encounter selected, which a frame drawn over its rotting rows shows; none for one that shows none.</param>
     internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
-        Position16<ScreenPixels> origin, SpriteColouring colouring, CorpseRotView? rot = null) =>
-        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, colouring, rot);
+        Position16<ScreenPixels> origin, PictureShading shading, CorpseRotView? rot = null) =>
+        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, shading, rot);
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(

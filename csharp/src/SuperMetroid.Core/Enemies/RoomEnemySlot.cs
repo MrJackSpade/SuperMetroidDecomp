@@ -128,14 +128,15 @@ public sealed class RoomEnemySlot
     /// <summary>Updates left before the enemy's animation takes its next step; a new occupant starts at one.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>
-    /// What colours the enemy draws in (#1464), normally the colours its graphics set loads for it; an emptied slot
-    /// draws in the common sprite colours.
+    /// The shades and colour effects the enemy shows its pictures in (#1512) while no hit or freeze flash overrides
+    /// them: its sheet's standard colours, the colours its graphics set loads for it, unless its behaviour shows a look of
+    /// its own, such as a glow's frame or a fade's step.
     /// </summary>
-    public SpriteColouring Colouring
+    public PictureShading Shading
     {
         get;
         internal set => field = Ensure.NotNull(value);
-    } = SharedSpriteColouring.Common;
+    } = PictureShading.Standard;
     /// <summary>
     /// The sheet character the occupant's graphics start at, as its graphics set places them; the projectiles and sprite
     /// objects it spawns draw from the spawned-object sheet composed at that character (#1471 keeps it for that reader).
@@ -145,8 +146,8 @@ public sealed class RoomEnemySlot
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
-    /// <summary>The sheet characters and colours the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
-    public SpriteGraphics Graphics => new(TileIndexBase, Colouring);
+    /// <summary>The sheet characters and shading the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
+    public SpriteGraphics Graphics => new(TileIndexBase, Shading);
     /// <summary>
     /// The enemy's draw layer, initially the definition's: enemies draw layer by layer, and the draw queue takes the
     /// layer's lowest three bits, so it orders the enemy among the eight queues.
@@ -208,7 +209,7 @@ public sealed class RoomEnemySlot
         FlashTimer = WrappingCountdown.Start(0);
         Layer = 0;
         TileIndexBase = 0;
-        Colouring = SharedSpriteColouring.Common;
+        Shading = PictureShading.Standard;
         FrameCounter = 0;
         ShakeTimer = WrappingCountdown.Start(0);
         InvincibilityTimer = WrappingCountdown.Start(0);

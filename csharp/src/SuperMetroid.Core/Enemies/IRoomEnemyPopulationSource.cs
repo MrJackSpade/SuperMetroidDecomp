@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Where a room's enemy population and its graphics come from.</summary>
@@ -9,7 +8,4 @@ public interface IRoomEnemyPopulationSource
 
     /// <summary>The room state's enemy graphics set, loaded only when the population is not empty.</summary>
     RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
-
-    /// <summary>The palette the enemy palettes load into.</summary>
-    GameplayColours Colours { get; }
 }

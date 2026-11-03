@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -29,15 +30,21 @@ internal static class GameOverBabyColorsVerification
         GameOverSourcePresentation presentation = GameOverSourcePresentation.Load(stream);
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
             presentation.ContentIdentity, "Baby presentation preserves content identity");
-        var cgram = new ScreenPalette();
+        // The Baby's colourings are shades of the installed game-over sheet (#1512): each recolours the Baby's colour
+        // group, sprite colours 192..207, in the cartridge's phase colours.
+        SpriteImage babySheet = MenuSheetFixtures.For(InstalledFixtures.Maps).Get(SpriteSheetId.GameOver)
+            .Frame(GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Open)).Sheet;
         for (int phase = 0; phase < 4; phase++)
         {
-            presentation.ApplyBabyPalette(cgram, (GameOverBabyPalette)phase);
+            RgbColor[] shaded = PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyPalette)phase)).InkColours(babySheet);
+            RgbColor[] loaded = presentation.BabyPaint.Colours((GameOverBabyPalette)phase);
             for (int ink = 0; ink < 16; ink++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x82bd97 + phase * 32 + ink * 2);
                 AssertEqual(expected, catalog.Read((GameOverBabyPalette)phase, ink), "original Baby color");
-                AssertEqual(expected, cgram.Colors[192 + ink], "Baby CGRAM application");
+                AssertEqual(expected, loaded[ink], "Baby colours the import shades the sheet in");
+                if (ink != 0)
+                    AssertEqual(expected, shaded[64 + ink], "installed Baby shade");
             }
         }
         foreach (ushort[] edited in palettes.Values)

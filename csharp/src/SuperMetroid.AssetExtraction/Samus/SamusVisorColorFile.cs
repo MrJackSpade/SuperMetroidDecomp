@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -28,7 +29,7 @@ public static class SamusVisorColorFile
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
 
-        var compiled = new Dictionary<ColourCell, RgbColor>();
+        var compiled = new Dictionary<TableColourPlace, RgbColor>();
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -36,7 +37,7 @@ public static class SamusVisorColorFile
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");
             RgbColor packed = color.ToRgbColor();
-            if (packed != SamusVisorColorSteps.Color(index)) compiled.Add(new ColourCell(0, index), packed);
+            if (packed != SamusVisorColorSteps.Color(index)) compiled.Add(new TableColourPlace(0, index), packed);
         }
         return new(compiled);
     }

@@ -70,19 +70,23 @@ internal static class PaletteJsonContractsVisibleVerification
         JsonObject cycle = documents["map cycle"];
         var editedCycle = (JsonObject)cycle.DeepClone();
         InvertPaletteContractColors(editedCycle);
-        var stockMap = new MapPaletteAnimation();
-        var editedMap = new MapPaletteAnimation();
-        stockMap.Bind(ReadPaletteContract(cycle, MapPaletteCycleFile.Read));
-        editedMap.Bind(ReadPaletteContract(editedCycle, MapPaletteCycleFile.Read));
+        var stockMap = new MapPaletteAnimation(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.Pause);
+        var editedMap = new MapPaletteAnimation(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.Pause);
+        var stockHighlight = ReadPaletteContract(cycle, MapPaletteCycleFile.Read);
+        var editedHighlight = ReadPaletteContract(editedCycle, MapPaletteCycleFile.Read);
+        stockMap.Bind(stockHighlight.Timing);
+        editedMap.Bind(editedHighlight.Timing);
         for (int tick = 0; tick < 90; tick++)
         {
-            AssertEqual(stockMap.Step(stockCgram), editedMap.Step(editedCgram), "map cycle sound/wrap timing unchanged");
+            AssertEqual(stockMap.Step(), editedMap.Step(), "map cycle sound/wrap timing unchanged");
             AssertEqual(stockMap.Timer, editedMap.Timer, "map cycle frame/timer unchanged");
             AssertEqual(stockMap.Frame, editedMap.Frame, "map cycle frame/timer unchanged");
-            int destination = ScreenColourPositions.Of(ScreenColourGroup.MapHighlight, 1);
-            AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
-                "map replacement changes exactly the selected color");
-            AssertPaletteContractPixels(stockCgram, editedCgram, destination);
+            // The highlighted sprites name the same frame's shade; the edit reaches the colours that shade is
+            // pre-coloured from (#1512).
+            AssertEqual(stockMap.Shading, editedMap.Shading, "map cycle names the same highlight shade");
+            RgbColor stockColour = stockHighlight.Colours(stockMap.Frame)[1];
+            AssertEqual(new RgbColor(31 - stockColour.Red, 31 - stockColour.Green, 31 - stockColour.Blue),
+                editedHighlight.Colours(editedMap.Frame)[1], "map replacement changes exactly the selected colour");
         }
     }
 

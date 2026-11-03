@@ -202,10 +202,8 @@ internal sealed class DoorTransitionState
                 // elevator AI stays frozen through the final palette fade.
                 ColourImage destinationTarget = runtime.Colours.Capture();
                 fadedSource.Restore();
-                // The beam's colours are written live during loading, unlike the destination
-                // room, enemy and suit colours, which wait for the fade.
-                ColourRun beam = runtime.Player.Colours.Beam;
-                beam.CopyFrom(destinationTarget.Of(beam));
+                // Samus's beams keep showing their own shade through the load (#1512); the fade's
+                // targets hold only the room's, the enemies' and the HUD's colours.
                 runtime.RoomLoader.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamus,
@@ -238,7 +236,7 @@ internal sealed class DoorTransitionState
                     // that precedes the destination fade-in. Setup lists can alter visible
                     // room state here; deferring them to the first ordinary gameplay frame
                     // exposes their pre-PLM state.
-                    runtime.Player.Colours.ShowVisor(DoorTransitionColourDefinitions.DoorCompletionVisorGreen);
+                    runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
                     runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }

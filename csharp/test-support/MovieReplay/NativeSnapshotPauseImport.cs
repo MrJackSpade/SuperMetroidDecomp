@@ -35,6 +35,8 @@ internal static class NativeSnapshotPauseImport
         var palette = menu.paletteAnimation;
         palette.Timer = memory[PauseMemory.PaletteAnimationTimer];
         palette.Frame = memory[PauseMemory.PaletteAnimationFrame];
+        // A stable pause has applied its highlight frame: the native colours hold that frame's (#1512).
+        palette.ShownFrame = palette.Frame;
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
         menu.MapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
         menu.MapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);

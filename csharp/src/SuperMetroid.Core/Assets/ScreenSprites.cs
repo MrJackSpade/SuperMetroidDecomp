@@ -62,21 +62,25 @@ public sealed class ScreenSprites
     /// Which spritemap loader draws the frame: on screen, the origin's low Y byte lies on or below the
     /// screen; off screen, it lies above it.
     /// </param>
+    /// <param name="shading">
+    /// The shades and colour effects the screen shows the frame in (#1512), or null while the screen still colours it
+    /// through its colour sets and <paramref name="paletteOverride"/>.
+    /// </param>
     public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, DrawnColouring? paletteOverride = null,
-        SpriteOrigin side = SpriteOrigin.OnScreen)
+        SpriteOrigin side = SpriteOrigin.OnScreen, PictureShading? shading = null)
     {
         Ensure.NotNull(frame);
         if (frame.Objects == 0 || next >= Capacity)
             return;
         if (next + frame.Objects <= Capacity)
         {
-            placed[next] = new ScreenObject(origin, frame, frame.Objects, paletteOverride, side);
+            placed[next] = new ScreenObject(origin, frame, frame.Objects, paletteOverride, side, shading);
             next += frame.Objects;
             return;
         }
         // Each part keeps the frame's origin and loader, so it lands where the whole frame would show it.
         foreach (SpriteSheetFramePart part in frame.Parts.Take(Capacity - next))
-            placed[next++] = new ScreenObject(origin, part.Image, 1, paletteOverride, side);
+            placed[next++] = new ScreenObject(origin, part.Image, 1, paletteOverride, side, shading);
     }
 
     /// <summary>
@@ -95,7 +99,7 @@ public sealed class ScreenSprites
         int index = next % Capacity;
         // An object's Y wraps above the screen exactly where the off-screen loader reads an origin.
         placed[index] = new ScreenObject(position, frame, 1, null,
-            WordWrap.LowByte(position.Y) >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen);
+            WordWrap.LowByte(position.Y) >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen, null);
         next = index + 1;
     }
 
@@ -119,13 +123,14 @@ public sealed class ScreenSprites
         int imageY = WordWrap.LowByte(placedObject.Position.Y) - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
         return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
             new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(imageY)), SpriteMirror.None,
-            placedObject.PaletteOverride);
+            placedObject.PaletteOverride) { Shading = placedObject.Shading };
     }
 
     /// <summary>
     /// One placed frame at its position (nine-bit X as stored in sixteen bits, eight-bit Y), standing for the objects of
-    /// its parts, with the colour set its palette-inheriting parts take and the loader that reads its origin.
+    /// its parts, with the colour set its palette-inheriting parts take, the loader that reads its origin and the shading
+    /// the screen shows it in (#1512).
     /// </summary>
     private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, int Objects, DrawnColouring? PaletteOverride,
-        SpriteOrigin Side);
+        SpriteOrigin Side, PictureShading? Shading);
 }

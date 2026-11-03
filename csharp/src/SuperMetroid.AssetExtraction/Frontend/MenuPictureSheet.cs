@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
@@ -39,7 +38,7 @@ internal static class MenuPictureSheet
 
     /// <summary>Composes the sheet.</summary>
     internal static ComposedSpriteSheet Compose(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), ScreenColourImage.Encode(Ensure.NotNull(maps).Palettes.FileSelect));
+        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), InstalledAreaMapPresentation.PalettesOf(maps).FileSelect);
 
     /// <summary>The frames the sheet must hold: one per picture.</summary>
     internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);

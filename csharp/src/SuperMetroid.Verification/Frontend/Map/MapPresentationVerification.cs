@@ -232,8 +232,7 @@ internal static class MapPresentationVerification
         /// <summary>Installed room level streams supplying collision and BTS at room entry.</summary>
         private readonly InstalledRoomLevelStreams levelStreams;
 
-        /// <summary>Installed beam palettes bound to Samus's projectile presentation.</summary>
-        private readonly InstalledBeamPalettes? beamPalettes;
+
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
@@ -255,8 +254,7 @@ internal static class MapPresentationVerification
             levelStreams = installation.LoadRoomLevelStreams();
 
             EnemyTiles = installation.LoadEnemyTiles();
-            var projectiles = installation.LoadProjectiles();
-            beamPalettes = projectiles.BeamTiles.Palettes;
+
             SamusBody = installation.LoadSamusBodyArt();
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
@@ -274,7 +272,7 @@ internal static class MapPresentationVerification
             runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
             runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
-            runtime.Artwork.BeamPalettes = beamPalettes;
+
             runtime.Artwork.SamusBodyArt = SamusBody;
             runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
         }
@@ -415,11 +413,10 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
         Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
-        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus,
-            initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
-        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,

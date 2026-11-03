@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -26,7 +25,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledHyperBeamFxColors
 {
     /// <summary>Exact supplied colors that differ from every derived hue and shade relationship.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> colors = new();
+    internal readonly Dictionary<TableColourPlace, RgbColor> colors = new();
     /// <summary>Base RGB5 intensity shared by the stock neutral highlight channels.</summary>
     internal readonly int neutralIntensity;
     /// <summary>Independent edits to the neutral highlight's otherwise equal channels.</summary>
@@ -72,7 +71,7 @@ public sealed class InstalledHyperBeamFxColors
                 endpointInputs.Add(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, new(value, basis, independentMask));
                 continue;
             }
-            colors.Add(new ColourCell(frame, color), value);
+            colors.Add(new TableColourPlace(frame, color), value);
         }
     }
 
@@ -88,7 +87,7 @@ public sealed class InstalledHyperBeamFxColors
     private RgbColor Resolve(int frame, int color)
     {
         if (frame == 0 && color == 0) return neutralOverrides.Apply(HyperBeamFxColorFormat.Neutral(neutralIntensity));
-        if (colors.TryGetValue(new ColourCell(frame, color), out RgbColor value)) return value;
+        if (colors.TryGetValue(new TableColourPlace(frame, color), out RgbColor value)) return value;
         if (pairedInputs.TryGetValue(frame * HyperBeamFxColorFormat.ColorsPerFrame + color, out var paired))
         {
             var shared = SharedEndpointChannels(frame, color, Resolve(0, 0), frame == 0 ? RgbColor.Black : Resolve(0, 3));

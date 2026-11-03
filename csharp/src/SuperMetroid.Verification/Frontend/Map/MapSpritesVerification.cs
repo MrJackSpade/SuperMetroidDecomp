@@ -22,13 +22,30 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
 /// <summary>Checks imported map sprites and editable overrides in file-select and pause presentation.</summary>
 internal static class MapSpritesVerification
 {
+    /// <summary>
+    /// The sprite set the cartridge draws a map sprite's palette-inheriting parts in, by the shading a file-select draw in
+    /// that colouring publishes (#1512): every colouring the map draws in, the highlighted sprites before the cycle's first
+    /// step, and the highlight cycle's first frame.
+    /// </summary>
+    internal static IReadOnlyDictionary<PictureShading, int> MapSpriteSets { get; } = new Dictionary<PictureShading, int>
+    {
+        [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Labels))] = 0,
+        [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.DimLabels))] = 1,
+        [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Highlighted))] = 3,
+        [PictureShading.Shaded(MapSpriteShades.Highlight(0))] = 3,
+        [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.DefeatedBossMarker))] = 6,
+        [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Markers))] = 7,
+    };
+
+    /// <summary>The shading of every colouring the map draws its sprites in.</summary>
+    internal static IReadOnlyList<PictureShading> MapSpriteShadings { get; } = [.. MapSpriteSets.Keys];
+
     /// <summary>Compares native sprite bytes and clipping, then checks composition and PNG edits through rendered maps.</summary>
     internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
     {
@@ -69,7 +86,7 @@ internal static class MapSpritesVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "composition changes catalog identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         // Every colouring the map draws in.
-        foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.MapLabels, ScreenColourGroup.MapDimLabels, ScreenColourGroup.MapHighlight, ScreenColourGroup.MapDefeatedBossMarker, ScreenColourGroup.MapMarkers })
+        foreach (PictureShading colouring in MapSpriteShadings)
         {
             authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(edited)), MapSpriteId.MarkerBoss, authored, new(100, 100), colouring); authored.FinishFrame();
             AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
@@ -83,7 +100,7 @@ internal static class MapSpritesVerification
         }
         frames["Marker.Boss"] = [];
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(MapPresentationFiles.Load(stock, overrides))), MapSpriteId.MarkerBoss, authored, new(0, 0), ScreenColourGroup.MapLabels); authored.FinishFrame();
+        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(MapPresentationFiles.Load(stock, overrides))), MapSpriteId.MarkerBoss, authored, new(0, 0), MapSpriteScreen.FileSelect, MapSpriteColouring.Labels); authored.FinishFrame();
         AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
         frames.Remove("Marker.Boss");
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));

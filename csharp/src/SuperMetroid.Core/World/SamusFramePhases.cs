@@ -137,9 +137,7 @@ internal sealed class SamusFramePhases
         {
             // Cancellation, drop, wall-jump and swing-release tails all
             // reload the equipped beam palette before returning to inactive.
-            (_artwork.BeamPalettes ?? throw new InvalidOperationException(
-                "Grapple cleanup requires installed beam artwork."))
-                .LoadTo(_player.Colours.Beam, SamusBeamCombinations.Of(_player.Samus.EquippedBeams));
+            _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 
         // The grapple's bottom-boundary check runs after every grapple function, including inactive.
@@ -150,14 +148,12 @@ internal sealed class SamusFramePhases
         return grappleOwnsMovement;
     }
 
-    /// <summary>Loads the installed grapple firing palette and flare color into Samus's palette slots.</summary>
+    /// <summary>Shows the grapple's firing beam shade and its flare's shade as Samus's colours (#1512).</summary>
     internal void LoadGrapplePalette()
     {
-        // Both ordinary HUD firing and debug entry select the installed palette.
-        (_artwork.BeamPalettes ?? throw new InvalidOperationException(
-            "Grapple palette requires installed beam artwork."))
-            .LoadTo(_player.Colours.Beam, GrappleBeamDefinitions.Palettes.FiringSelection);
-        _player.Colours.GrappleFlare.Write(0, GrappleBeamDefinitions.Palettes.FlareColor);
+        // Both ordinary HUD firing and debug entry select the same shades.
+        _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(GrappleBeamDefinitions.Palettes.FiringSelection));
+        _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Palettes.SamusShades.GrappleFiringFlare);
     }
 
     /// <summary>
@@ -345,7 +341,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             {
                 room.Projectiles.Firing.CancelChargeForHudSelection();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(samus, _player.Colours);
+                SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
             }
 
             // The selected scope uses held Run, not Fire. Setup installs its
@@ -370,7 +366,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(samus, _player.Colours);
+                SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
             }
 
         }
@@ -1340,7 +1336,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 samus,
                 _colours,
                 _player.Colours,
-                _artwork.SamusBodyArt?.DeathPalettes);
+                _artwork.SamusBodyArt?.DeathSteps);
         }
         // Command six's empty beta skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))

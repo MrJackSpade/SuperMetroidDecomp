@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>
 internal static class BeamPaletteArtworkVerification
@@ -43,18 +44,21 @@ internal static class BeamPaletteArtworkVerification
             }
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, catalog, InstalledFixtures.SamusOverreads.ChainsawColours);
-            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
+            // The beams name the selection's shade (#1512); the import resolves it from the extracted catalog.
+            SamusProjectileSystem.LoadBeamPalette(actual.Samus, (SamusBeamFlags)selection);
+            RgbColor[] shown = actual.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
+            for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
+                AssertEqual(expected.Colors[SamusColourNative.BeamFirstCgram + i], shown[i], "Extracted beam palette matches the native beam colours");
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam, (SamusBeamFlags)selection, edited, InstalledFixtures.SamusOverreads.ChainsawColours);
-            for (int i = 0; i < SnesCgram.ColorCount; i++)
-                AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusColourNative.BeamFirstCgram + 3 ? 1 : 0)),
-                    actual.Colors[i], "Palette edit changes exactly the selected color channel bit");
-            catalog.LoadTo(actual.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
-            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Previously loaded palette remains immutable after editing input");
+            RgbColor[] shownEdited = actual.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = edited });
+            for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
+                AssertEqual((ushort)(expected.Colors[SamusColourNative.BeamFirstCgram + i].ToWord() ^ (i == 3 ? 1 : 0)),
+                    shownEdited[i], "Palette edit changes exactly the selected color channel bit");
+            AssertTrue(catalog.Colours(SamusBeamCombinations.FromTableIndex(selection)).SequenceEqual(shown),
+                "Previously extracted palette remains immutable after editing input");
         }
         string json = Encoding.UTF8.GetString(bytes);
         AssertThrows<InvalidDataException>(() => BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
@@ -83,7 +87,7 @@ internal static class BeamPaletteArtworkVerification
     /// </summary>
     private static void VerifyCrystalFlashFinishBeamPalette(InstalledBeamPalettes palettes)
     {
-        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusOverreads.ChainsawColours;
+        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusShadeSources.Chainsaw;
         SamusBeamFlags chainsawBeams = SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Wave;
         AssertEqual(ChainsawBeamGraphicsDefinitions.Selection, SamusBeamCombinations.Of(chainsawBeams), "Spazer, Plasma and Wave select the Chainsaw beam");
         foreach (SamusBeamFlags beams in new[] { SamusBeamFlags.Plasma | SamusBeamFlags.Wave, chainsawBeams })
@@ -92,66 +96,54 @@ internal static class BeamPaletteArtworkVerification
             samus.CrystalFlash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
             samus.CrystalFlash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
             var finished = new SamusColourRig();
-            AssertTrue(samus.CrystalFlash.UpdatePalette(finished.Samus, samus, palettes, colors: null, chainsawColours: chainsaw),
+            AssertTrue(samus.CrystalFlash.UpdatePalette(finished.Samus, samus),
                 $"{beams}: Crystal Flash's finish runs");
             var expected = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(expected.Samus.Beam, beams, palettes, chainsaw);
-            AssertTrue(finished.Colors.SequenceEqual(expected.Colors), $"{beams}: Crystal Flash's finish loads the palette equipping the beams loads");
+            SamusProjectileSystem.LoadBeamPalette(expected.Samus, beams);
+            AssertEqual(expected.Samus.Beams, finished.Samus.Beams, $"{beams}: Crystal Flash's finish shows the shade equipping the beams shows");
+            var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes, Chainsaw = chainsaw };
+            AssertTrue(finished.Samus.ShownBeams(sources).SequenceEqual(expected.Samus.ShownBeams(sources)),
+                $"{beams}: Crystal Flash's finish shows the colours equipping the beams shows");
             AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind, $"{beams}: the finish releases the palette");
         }
     }
 
-    /// <summary>Checks NMI rebinding respects Crystal Flash and Hyper owners and uses edited Grapple colors.</summary>
+    /// <summary>
+    /// Checks that Crystal Flash's completion and the debug grapple show beam shades (#1512), and that an edited palette
+    /// reaches the grapple's shade through the import's shades rather than the cartridge's colours.
+    /// </summary>
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, InstalledBeamPalettes palettes)
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var expected = new SamusColourRig();
-        palettes.LoadTo(expected.Samus.Beam, 0);
-        runtime.Player.Colours.Beam.Write(0, new RgbColor(27, 3, 0));
-        runtime.Artwork.BeamPalettes = palettes;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
-
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
-        runtime.Colours.AsPaletteColors().SetColor(224, new RgbColor(27, 3, 0));
-        runtime.Artwork.BeamPalettes = palettes;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(123, runtime.Colours.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
-        AssertTrue(flash.UpdatePalette(runtime.Player.Colours, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
-        AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
+        AssertTrue(flash.UpdatePalette(runtime.Player.Colours, runtime.Player.IntroducedSamus), "Crystal Flash completes");
+        AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(runtime.Player.IntroducedSamus.EquippedBeams)), runtime.Player.Colours.Beams,
+            "Crystal Flash completion shows the equipped beams' shade");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
-        runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
-        runtime.Colours.AsPaletteColors().SetColor(224, new RgbColor(8, 14, 0));
-        runtime.Artwork.BeamPalettes = palettes;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(456, runtime.Colours.Colors[224], "Rebind cannot erase active Hyper palette");
 
-        // Debug grapple selection uses the same palette index as native firing, but
-        // installed artwork must win over the cartridge pointer table after binding.
         var nativeRuntime = CreateRetailRuntimeFixture();
         nativeRuntime.LoadDebugGrapplePalette();
-        var grappleExpected = new SamusColourRig();
-        palettes.LoadTo(grappleExpected.Samus.Beam, SamusBeamCombination.Ice);
-        AssertTrue(nativeRuntime.Colours.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
-            "Stock debug grapple selection matches native beam palette index two");
+        AssertEqual(SamusShades.Beam(SamusBeamCombination.Ice), nativeRuntime.Player.Colours.Beams,
+            "Debug grapple selection shows the Ice beam's shade, native beam palette index two");
+        AssertEqual(SamusShades.GrappleFiringFlare, nativeRuntime.Player.Colours.GrappleFlare,
+            "Debug grapple shows the grapple flare's shade");
+        AssertTrue(nativeRuntime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes })
+                .SequenceEqual(palettes.Colours(SamusBeamCombination.Ice)),
+            "Stock debug grapple colours match the Ice beam palette");
 
         var editedDocument = RequiredJson.Parse(BeamPaletteExtractor.Extract(bus));
         var editedColor = editedDocument.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombination.Ice)).Required(3);
         editedColor["red"] = editedColor.Required("red").GetValue<int>() ^ 1;
         var editedPalettes = BeamPaletteFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
-        nativeRuntime.Artwork.BeamPalettes = editedPalettes;
-        nativeRuntime.LoadDebugGrapplePalette();
-        editedPalettes.LoadTo(grappleExpected.Samus.Beam, SamusBeamCombination.Ice);
-        AssertTrue(nativeRuntime.Colours.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
-            "Bound debug grapple selection uses edited extracted palette, not cartridge colors");
-        AssertEqual(32657, nativeRuntime.Colours.Colors[223], "Debug grapple retains the adjacent fixed flare color");
+        AssertTrue(nativeRuntime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = editedPalettes })
+                .SequenceEqual(editedPalettes.Colours(SamusBeamCombination.Ice)),
+            "The grapple's shade uses the edited extracted palette, not cartridge colors");
     }
 
     /// <summary>Runs the beam palette extraction and live ownership checks.</summary>

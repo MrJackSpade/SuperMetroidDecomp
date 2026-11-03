@@ -22,6 +22,7 @@ internal static class ClosedPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.AssetExtraction.Artwork;
+            using SuperMetroid.AssetExtraction.Samus.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -59,10 +60,10 @@ internal static class ClosedPresentationContractChecks
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
                     colors.ApplyFlash(cgram, 14);
-                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
-                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
+                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
+                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    arrow.ApplyArrowColors(screen, true, dynamicIndex);
+                    _ = arrow.Pulse(dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);
                     beam.LoadTo(screen.SpriteSets.Set(6), 0);
                     beam.LoadTo(screen.SpriteSets.Set(6), SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);

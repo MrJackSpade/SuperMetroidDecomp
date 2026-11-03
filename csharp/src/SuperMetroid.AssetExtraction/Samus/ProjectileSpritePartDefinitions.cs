@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -33,7 +32,7 @@ public static class ProjectileSpritePartDefinitions
     internal const int PowerPriority = 2;
 
     /// <summary>$90:ACDE-ACE8 loads the active beam colors into Samus's beam ink row, which the Power-beam poses select.</summary>
-    internal static readonly int PowerPalette = SamusColourDefinitions.BeamColourGroup.Number;
+    internal const int PowerPalette = SamusSheetInks.Beams / SamusSheetInks.GroupColours;
 
     /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
     internal const int FixedProjectilePalette = (GameplayColourPositionDefinitions.EnemyProjectilesFirst - GameplayColourPositionDefinitions.SpriteSetsFirst) /

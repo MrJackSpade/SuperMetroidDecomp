@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -34,7 +35,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class InstalledSamusFullBodyCycleColors
 {
     /// <summary>Authored colors remaining after canonical shade relationships and independent endpoint channels are removed.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> colors;
+    internal readonly Dictionary<TableColourPlace, RgbColor> colors;
     /// <summary>Independent red and green input for Power's first dim Speed Booster ink.</summary>
     internal readonly LoadingPaletteInputView.Channels powerDim1;
     /// <summary>Independent blue input for Power's second dim Speed Booster ink.</summary>
@@ -65,12 +66,12 @@ public sealed class InstalledSamusFullBodyCycleColors
     /// <summary>Separates supplied colors into categorical ink overrides and endpoint channels with computable shade bases.</summary>
     internal InstalledSamusFullBodyCycleColors(RgbColor[][] palettes)
     {
-        colors = new Dictionary<ColourCell, RgbColor>();
+        colors = new Dictionary<TableColourPlace, RgbColor>();
         for (int palette = 0; palette < palettes.Length; palette++)
         for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
         {
             int index = palette * SamusFullBodyCycleColorFormat.ColorsPerPalette + color;
-            var indexCell = new ColourCell(palette, color);
+            var indexCell = new TableColourPlace(palette, color);
             int source = SamusFullBodyCycleColorFormat.CanonicalColorIndex(palette, color);
             RgbColor value = palettes[palette][color];
             if (source != index && value == palettes[source / 16][source % 16]) continue;
@@ -117,7 +118,7 @@ public sealed class InstalledSamusFullBodyCycleColors
             RgbColor expected;
             if (palette == 31) _ = SamusFullBodyCycleColorFormat.TryVariaScrewInk(palette, color, basis, basis, out expected);
             else _ = SamusFullBodyCycleColorFormat.TryScrewAttackTint(palette, color, basis, out expected);
-            colors.Remove(new ColourCell(palette, color));
+            colors.Remove(new TableColourPlace(palette, color));
             return new(palettes[palette][color], expected);
         }
 
@@ -127,7 +128,7 @@ public sealed class InstalledSamusFullBodyCycleColors
             RgbColor expected;
             if (color == 8) expected = SamusFullBodyCycleColorFormat.ActiveShineTint(basis, 1);
             else _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, color, basis, out expected);
-            colors.Remove(new ColourCell(palette, color));
+            colors.Remove(new TableColourPlace(palette, color));
             return new(palettes[palette][color], expected);
         }
 
@@ -135,7 +136,7 @@ public sealed class InstalledSamusFullBodyCycleColors
         {
             RgbColor basis = palettes[palette / 16 * 16][color];
             RgbColor expected = tint(basis, shade);
-            colors.Remove(new ColourCell(palette, color));
+            colors.Remove(new TableColourPlace(palette, color));
             return new(palettes[palette][color], expected);
         }
     }
@@ -171,7 +172,7 @@ public sealed class InstalledSamusFullBodyCycleColors
             default:
                 break;
         }
-        if (colors.TryGetValue(new ColourCell(index / SamusFullBodyCycleColorFormat.ColorsPerPalette, index % SamusFullBodyCycleColorFormat.ColorsPerPalette), out RgbColor value)) return value;
+        if (colors.TryGetValue(new TableColourPlace(index / SamusFullBodyCycleColorFormat.ColorsPerPalette, index % SamusFullBodyCycleColorFormat.ColorsPerPalette), out RgbColor value)) return value;
         if (index is 513 or 524)
             return SamusFullBodyCycleColorFormat.GravitySharedBase(ResolveIndex(index % 16), ResolveIndex(16 + index % 16));
         int palette = index / 16, color = index % 16;

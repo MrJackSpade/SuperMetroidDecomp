@@ -35,7 +35,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             NarrationPresentation = artwork.MapPresentation?.IntroNarration;
             BindIntroFont(artwork.MapPresentation?.IntroFont);
-            BindSamusHurtColors(artwork.MapPresentation?.SamusHurtColors);
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindCharacterArtwork(artwork.IntroCinematicArt);
@@ -86,10 +85,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
     private InstalledSamusBodyArtwork? samusBodyArtwork;
-    /// <summary>Host-owned hurt-flash colors consumed by the shared Samus palette handler.</summary>
-    private InstalledSamusHurtColors? samusHurtColors;
-    /// <summary>Editable suit-flash colors used by the cinematic's ordinary Samus hurt handler.</summary>
-    public void BindSamusHurtColors(InstalledSamusHurtColors? value) => samusHurtColors = value;
+    /// <summary>
+    /// The flashback Samus's colour state (#1512): her suit and beams in the opening's colours, which her hurt flash
+    /// changes as gameplay's does. Her draws publish its shading.
+    /// </summary>
+    private readonly SamusColours flashbackSamusColours = IntroSamusColours();
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
     public void BindSamusBodyArtwork(InstalledSamusBodyArtwork? value)
     {
@@ -236,7 +236,6 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <param name="audio">Optional audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
-    /// <param name="beamPalettes">Optional installed beam palettes used by gameplay flashbacks.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
@@ -244,7 +243,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         AudioQueues? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtwork? characterArtwork = null,
-        InstalledBeamPalettes? beamPalettes = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
     {
@@ -271,9 +269,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // the portrait are installed pictures (#1467).
         objectSprites = new ScreenSprites();
 
-        // Setup performs the ordinary beam palette load before copying the full intro palette, which
-        // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(palette.Colours(ScreenColourGroup.SamusBeams), equippedBeams: 0, beamPalettes, samusOverreads.ChainsawColours);
+        // The game's setup loads the ordinary beam palette before the full intro palette replaces it, so the flashback
+        // Samus shows the opening's colours from the start; the flashback projectile pages bind the beam's characters.
         characterArtwork.Palette.LoadTo(palette);
 
         // The loads above are invisible: the intro stays black until its fade.
@@ -1075,7 +1072,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // The intro-demo handler runs the ordinary Samus palette handler even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
-        SamusHurtFlashPalette.Update(palette.Colours(ScreenColourGroup.SamusSuit), samus, demoInput, samusHurtColors);
+        SamusHurtFlashPalette.Update(flashbackSamusColours, samus, demoInput);
 
         // The cinematic dispatcher ages the two hit words after both Samus state handlers, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.
@@ -1115,6 +1112,15 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // only to satisfy the shared RoomLevelData ownership contract.
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]));
+    }
+
+    /// <summary>The flashback Samus's starting colour state: her suit and beams in the opening's own colours (#1512).</summary>
+    private static SamusColours IntroSamusColours()
+    {
+        var colours = new SamusColours();
+        colours.ShowSuit(SamusShades.IntroSuit);
+        colours.ShowBeams(SamusShades.IntroBeams);
+        return colours;
     }
 
     /// <summary>
@@ -1331,7 +1337,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             sprites.FinalizeFrame();
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two display setups.
-            return new(new FramePaint(palette.Shown(), sprites.Draws),
+            return new(new FramePaint(palette.Shown(), flashbackSamusColours.ShadeOwnDraws(sprites.Draws)),
                 new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets), default, null) { ShowsColourZero = true } },
                 Brightness.Level);
         }
@@ -1344,7 +1350,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText), new(0, GameplayFlashbackBg1VerticalScroll));
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
-        return new(new FramePaint(palette.Shown(), sprites.Draws), new DisplayLayer[]
+        return new(new FramePaint(palette.Shown(), flashbackSamusColours.ShadeOwnDraws(sprites.Draws)), new DisplayLayer[]
         {
             new SpriteDepthLayer(0), text, new SpriteDepthLayer(1), room,
             new SpriteDepthLayer(2), room with { Priority = true },

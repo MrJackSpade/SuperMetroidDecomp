@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks that each selected Samus artwork family contributes to the installed content identity.</summary>
 internal static class SamusContentIdentityVerification

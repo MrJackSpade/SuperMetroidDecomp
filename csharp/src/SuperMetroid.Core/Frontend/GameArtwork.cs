@@ -158,11 +158,6 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Timed projectile frame sprite choices.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings { get; init; }
 
-    /// <summary>The beam palettes, by beam combination.</summary>
-    public InstalledBeamPalettes? BeamPalettes { get; init; }
-
-    /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    public HyperBeamFxColours? HyperBeamFxColors { get; init; }
 
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }

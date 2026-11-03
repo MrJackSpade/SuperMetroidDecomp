@@ -12,10 +12,6 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class ScreenPaletteFxColours(ScreenPalette palette) : IPaletteFxColourOwners
 {
     /// <inheritdoc />
-    public ColourRun BackgroundSet(BackgroundColourSet set) =>
-        throw new InvalidOperationException($"A frontend screen holds no gameplay background set {set}.");
-
-    /// <inheritdoc />
     public ColourRun ScreenColours(PaletteFxColours colours) =>
         palette.Colours(ScreenPaletteFxColourDefinitions.Groups.TryGetValue(colours, out ScreenColourGroup group)
             ? group

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Grapple;
@@ -16,8 +15,6 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>Firing selects beam palette two before entering the firing function.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
-        /// <summary>Firing writes the rope's colour to sprite palette five, color fifteen.</summary>
-        public static RgbColor FlareColor => new RgbColor(17, 28, 31);
     }
 
     /// <summary>Exact sound queue commands issued by grapple functions.</summary>

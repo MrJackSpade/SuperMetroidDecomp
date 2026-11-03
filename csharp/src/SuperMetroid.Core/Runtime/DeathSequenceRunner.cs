@@ -98,7 +98,7 @@ internal sealed class DeathSequenceRunner
             _player.Samus,
             _colours,
             _player.Colours,
-            _artwork.SamusBodyArt?.DeathPalettes);
+            _artwork.SamusBodyArt?.DeathSteps);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
             _player.Samus.Presentation.Draw(_player.Samus, 

@@ -300,13 +300,13 @@ internal static class MapInstallationVerification
         AssertTrue(stock.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
             edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0),
             "full installation consumes Power Bomb fixed-color override");
-        AssertTrue(stock.SamusVisorColors.Resolve(3) != edited.SamusVisorColors.Resolve(3),
+        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(stock).Visor.Resolve(3) != InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(3),
             "full installation consumes Samus visor color override");
-        AssertTrue(stock.SamusHurtColors.Resolve(SamusHurtColorVariant.Hurt, 5) !=
-            edited.SamusHurtColors.Resolve(SamusHurtColorVariant.Hurt, 5),
+        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(stock).Hurt.Resolve(SamusHurtColorVariant.Hurt, 5) !=
+            InstalledAreaMapPresentation.SamusColoursOf(edited).Hurt.Resolve(SamusHurtColorVariant.Hurt, 5),
             "full installation consumes Samus hurt color override");
-        AssertTrue(stock.SamusHyperBeamColors.Resolve(4, 7) !=
-            edited.SamusHyperBeamColors.Resolve(4, 7),
+        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(stock).HyperBeam.Resolve(4, 7) !=
+            InstalledAreaMapPresentation.SamusColoursOf(edited).HyperBeam.Resolve(4, 7),
             "full installation consumes Hyper Beam color override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.

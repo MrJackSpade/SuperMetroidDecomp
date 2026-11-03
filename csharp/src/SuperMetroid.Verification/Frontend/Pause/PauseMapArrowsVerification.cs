@@ -75,7 +75,7 @@ internal static class PauseMapArrowsVerification
                 if (arrowAttributes.Contains(LittleEndianBytes.Word(actual.LowTable[offset], actual.LowTable[offset + 1]))) drawnArrowParts++;
             AssertEqual(expectedBytes / 4, drawnArrowParts, "unavailable arrows emit no leftover OAM parts");
             for (int color = 0; color < nativeArrowColors.Length; color++)
-                AssertEqual(nativeArrowColors[color], pause.screen.Palette.Colors[176 + color],
+                AssertEqual(nativeArrowColors[color], PauseShownColours.Of(pause)[176 + color],
                     $"pause arrow palette colour {color} follows native $82:A92B timing at scroll {x},{y}");
             AssertTrue(pixels.SequenceEqual(pause.Render()), "repainting does not advance arrows");
         }

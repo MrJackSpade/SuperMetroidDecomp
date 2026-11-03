@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -22,9 +21,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusXrayState
 {
-    /// <summary>Installed visor colors: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledSamusVisorColors? PresentationColors { get; set; }
-
     /// <summary>True while the dedicated X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
 
@@ -505,8 +501,7 @@ public sealed class SamusXrayState
     /// <summary>Runs the X-ray visor palette and writes only visor color four until restoration.</summary>
     public bool UpdatePalette(
         SamusColours colours,
-        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        InstalledSamusSuitColors? suitColors = null)
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
 
@@ -514,7 +509,7 @@ public sealed class SamusXrayState
         {
             // A handler that reports the palette unhandled asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
-            SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(colours, equippedItems);
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             VisorShade = 0;
             CommonPaletteTimer = WrappingCountdown.Start(0);
@@ -539,8 +534,7 @@ public sealed class SamusXrayState
             return false;
 
         CommonPaletteTimer = WrappingCountdown.Start(XrayScopeDefinitions.Palette.FrameDelay);
-        colours.ShowVisor((PresentationColors ?? throw new InvalidDataException(
-            $"X-ray visor shade {VisorShade} has no installed color.")).Resolve(VisorShade));
+        colours.ShowVisor(SamusShades.Visor(VisorShade));
 
         if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
         {

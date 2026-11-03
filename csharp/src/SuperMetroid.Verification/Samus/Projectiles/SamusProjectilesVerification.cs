@@ -108,7 +108,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     var beamCgram = new SamusColourRig();
     var beamPalettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
     var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
-    SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus.Beam, equippedBeams: 0, beamPalettes, InstalledFixtures.SamusOverreads.ChainsawColours);
+    SamusProjectileSystem.LoadBeamPalette(beamCgram.Samus, equippedBeams: 0);
+    // Samus's colours name shades (#1512); the import resolves them from the fixture's tables.
+    var projSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = beamPalettes, Charge = fixtureChargeColors, Suits = fixtureSuitColors };
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
         InstalledFixtures.Projectiles.TrailTiles)
         .For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
@@ -117,9 +119,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         "power beam characters begin at the page character of VRAM word $6300");
     AssertEqual(0xa5, beamPage[beamFirstByte + 0xff],
         "power beam characters span exactly $100 source bytes");
-    AssertEqual(0x0100, beamCgram.Colors[0xe0],
+    AssertEqual(0x0100, beamCgram.Samus.ShownBeams(projSources)[0],
         "power beam palette begins at OBJ palette six");
-    AssertEqual(0x010f, beamCgram.Colors[0xef],
+    AssertEqual(0x010f, beamCgram.Samus.ShownBeams(projSources)[15],
         "power beam palette copies sixteen colors");
 
     // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
@@ -294,8 +296,6 @@ internal static void VerifySamusPowerBeamProjectiles()
         EquippedBeams = (SamusBeamFlags)0x1000,
     };
     BindSyntheticSamusRendering(bus, chargeSamus);
-    chargeSamus.Presentation.ChargeColors = fixtureChargeColors;
-    chargeSamus.Presentation.SuitColors = fixtureSuitColors;
     var chargeBombs = CreateSyntheticBombs();
     var chargeProjectiles = CreateSyntheticProjectiles();
     var flareOam = new OamBuffer();
@@ -454,7 +454,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                     ushort expectedColor = unchecked((ushort)(
                         (pseudoScrew ? 0x4000 : 0x3000) +
                         suit * 0x100 + palette * 0x20 + color));
-                    AssertEqual(expectedColor, liveChargeCgram.Samus.Suit[color],
+                    AssertEqual(expectedColor, liveChargeCgram.Samus.ShownSuit(projSources)[color],
                         $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} " +
                         $"palette {palette} color {color}");
                 }
@@ -507,7 +507,6 @@ internal static void VerifySamusPowerBeamProjectiles()
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
     chargeSamus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
     var chargedGlowCgram = new SamusColourRig();
-    chargedGlowCgram.SetColor(192, RgbColor.FromWord(0x4321));
     for (int call = 0; call < 4; call++)
     {
         SamusBeamChargePaletteStepResult paletteStep =
@@ -518,11 +517,11 @@ internal static void VerifySamusPowerBeamProjectiles()
                 $"ordinary charged glow call {call + 1} selects white branch");
             AssertEqual(unchecked((ushort)(3 - call)), chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
                 $"ordinary charged glow call {call + 1} decrements before branch");
-            AssertEqual(0x4321, chargedGlowCgram.Colors[192],
-                $"ordinary charged glow call {call + 1} preserves transparent color zero");
+            AssertEqual(SamusShades.ChargedShotGlow, chargedGlowCgram.Samus.Suit,
+                $"ordinary charged glow call {call + 1} shows the glow's shade, which leaves transparent color zero to the sheet");
             for (int color = 1; color < 16; color++)
             {
-                AssertEqual(0x03ff, chargedGlowCgram.Colors[192 + color],
+                AssertEqual(0x03ff, chargedGlowCgram.Samus.ShownSuit(projSources)[color],
                     $"ordinary charged glow call {call + 1} paints visible color {color}");
             }
         }
@@ -533,7 +532,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             // Gravity's unique fixture colors prove the restore selected the Gravity palette.
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowCgram.Colors[192 + color],
+                AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowCgram.Samus.ShownSuit(projSources)[color],
                     $"ordinary charged glow restore copies Gravity color {color}");
             }
         }
@@ -640,8 +639,6 @@ internal static void VerifySamusPowerBeamProjectiles()
         HyperBeamEnabled = true,
     };
     BindSyntheticSamusRendering(bus, hyperSamus);
-    hyperSamus.Presentation.ChargeColors = fixtureChargeColors;
-    hyperSamus.Presentation.SuitColors = fixtureSuitColors;
     var hyperBombs = CreateSyntheticBombs();
     var hyperProjectiles = CreateSyntheticProjectiles();
     hyperBombs.StepFrame(new SamusTerrain { Level = air }, hyperSamus, 0, 0);

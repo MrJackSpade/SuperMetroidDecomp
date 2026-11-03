@@ -6,19 +6,18 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Gameplay's owner-keyed colours with Samus's own, as a check reads and writes them by native position (#1405, #1464):
-/// her effects write <see cref="Samus"/>, and the check addresses every colour, hers among them, at the native boundary.
-/// A read or write of one position touches only the owner colour it decodes to; <see cref="Colors"/> builds the whole
-/// native image from the owners.
+/// Gameplay's owner-keyed colours beside Samus's colour state, as a check reads and writes them by native position (#1405,
+/// #1464, #1512): her effects name shades in <see cref="Samus"/>, which a check resolves through the import's shades, and
+/// the check addresses every gameplay colour at the native boundary. Samus's colours are no longer among gameplay's, so
+/// the native positions of her suit and beams address gameplay's sprite sets there, which only other sprites show.
 /// </summary>
 internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
 {
-    /// <summary>Creates fresh colours, Samus's black like the rest.</summary>
+    /// <summary>Creates fresh colours, gameplay's black and Samus's in their starting shades.</summary>
     public SamusColourRig()
     {
-        var spriteSets = new SpriteColourSets();
-        Samus = new SamusColours(spriteSets);
-        Gameplay = new GameplayColours(spriteSets, Samus);
+        Samus = new SamusColours();
+        Gameplay = new GameplayColours(new SpriteColourSets());
     }
 
     /// <summary>Fresh colours holding <paramref name="image"/>, a native 256-colour image, as the cartridge's initial load leaves them.</summary>
@@ -30,7 +29,7 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
         return rig;
     }
 
-    /// <summary>Samus's colours, which her effects write.</summary>
+    /// <summary>Samus's colour state, which her effects set.</summary>
     public SamusColours Samus { get; }
 
     /// <inheritdoc />
@@ -55,12 +54,20 @@ internal sealed class SamusColourRig : IPaletteColors, IPaletteFxColourOwners
     public ColourRun SpriteSets => Gameplay.SpriteSets.All;
 
     /// <inheritdoc />
-    public ColourRun SamusSuit => Samus.Suit;
+    /// <remarks>At the native boundary the suit's colours are gameplay's sprite set of their native position.</remarks>
+    public ColourRun SamusSuit => Gameplay.SpriteSets.All.FromSet(SamusSuitNativeSet, 0).Slice(0, ColourSets.SetColours);
 
     /// <inheritdoc />
-    public ColourRun SamusBeams => Samus.Beam;
+    /// <remarks>At the native boundary the beams' colours are gameplay's sprite set of their native position.</remarks>
+    public ColourRun SamusBeams => Gameplay.SpriteSets.All.FromSet(SamusBeamsNativeSet, 0).Slice(0, ColourSets.SetColours);
 
-    /// <summary>Gameplay's colours, which hold Samus's as one of their owners.</summary>
+    /// <summary>The native sprite set Samus's suit colours lie in.</summary>
+    private const int SamusSuitNativeSet = 4;
+
+    /// <summary>The native sprite set Samus's beam colours lie in.</summary>
+    private const int SamusBeamsNativeSet = 6;
+
+    /// <summary>Gameplay's colours, which no longer hold Samus's.</summary>
     public GameplayColours Gameplay { get; }
 
     /// <inheritdoc />

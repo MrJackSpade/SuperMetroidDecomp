@@ -149,7 +149,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (collected != frame)
         {
             collectedPictures.Clear();
-            foreach ((SpriteSheetFrame picture, _) in Pictures(frame))
+            foreach ((SpriteSheetFrame picture, _, _) in Pictures(frame))
                 collectedPictures.Add(picture);
             collected = frame;
         }
@@ -259,16 +259,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (mode7 is not null)
             words += mode7.Pictures.Length;
         // Each picture's header once, and each image and how it is coloured once as a colour slot (#1408).
-        var pictureWords = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
+        // A picture shown under two shadings takes a header and a slot for each (#1512).
+        var pictureWords = new Dictionary<D3D11ShadedPicture, int>();
         var slots = new Dictionary<D3D11ColourSlot, int>();
-        var pictureSlots = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
-        foreach ((SpriteSheetFrame picture, D3D11PictureColouring colouring) in Pictures(frame))
+        var pictureSlots = new Dictionary<D3D11ShadedPicture, int>();
+        foreach ((SpriteSheetFrame picture, D3D11PictureColouring colouring, PictureShading? shading) in Pictures(frame))
         {
-            var slot = new D3D11ColourSlot(picture.Sheet, colouring);
+            var slot = new D3D11ColourSlot(picture.Sheet, colouring, shading);
             slots.TryAdd(slot, slots.Count);
-            if (pictureWords.TryAdd(picture, words))
+            var key = new D3D11ShadedPicture(picture, shading);
+            if (pictureWords.TryAdd(key, words))
             {
-                pictureSlots[picture] = slots[slot];
+                pictureSlots[key] = slots[slot];
                 words += PictureHeaderWords;
             }
         }
@@ -297,7 +299,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record + 5] = (uint)pictureTables[slot];
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             for (int block = 0; block < table.Blocks; block++)
-                upload[pictureTables[slot] + block] = table.Picture(block) is { } shown ? (uint)pictureWords[shown] : 0;
+                upload[pictureTables[slot] + block] = table.Picture(block) is { } shown ? (uint)pictureWords[new(shown)] : 0;
             // Each block's index, with its horizontal and vertical mirroring in bits ten and eleven, as Tiles.hlsl reads a block.
             ImmutableArray<RoomBlockCell> cells = blocks.Cells;
             for (int block = 0; block < cells.Length; block++)
@@ -307,9 +309,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         colourSlots.Clear();
         colourSlots.AddRange(slots.OrderBy(slot => slot.Value).Select(slot => slot.Key));
-        foreach ((SpriteSheetFrame picture, int offset) in pictureWords)
+        foreach ((D3D11ShadedPicture shown, int offset) in pictureWords)
         {
-            upload[offset] = (uint)pictureSlots[picture];
+            SpriteSheetFrame picture = shown.Picture;
+            upload[offset] = (uint)pictureSlots[shown];
             upload[offset + 1] = images.Place(picture);
             upload[offset + 2] = D3D11ConstantPacking.Halves(picture.Size.X, picture.Size.Y);
         }
@@ -323,9 +326,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (plane is null)
                 continue;
-            upload[offset] = (uint)pictureWords[plane.Picture];
+            upload[offset] = (uint)pictureWords[new(plane.Picture)];
             for (int cell = 0; cell < plane.CellCount; cell++)
-                upload[offset + 1 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[picture] : 0;
+                upload[offset + 1 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[new(picture)] : 0;
         }
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
@@ -355,7 +358,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     continue;
                 SpriteSheetFrame picture = reveal.Pictures.Picture(shown.Definition)
                     ?? throw new InvalidOperationException($"The X-ray reveal's block definition {shown.Definition} has no picture.");
-                upload[revealOffset + block] = (uint)pictureWords[picture] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
+                upload[revealOffset + block] = (uint)pictureWords[new(picture)] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }
         }
         upload[HudWord] = (uint)hudOffset;
@@ -365,7 +368,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (bossBody is not null)
             PackBossBody(upload, bossBody, bossBodyOffset, pictureWords);
         upload[Bg3Word] = (uint)bg3PicturesOffset;
-        upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[message];
+        upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[new(message)];
         PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, Layer3Plane.Rows * Layer3Plane.Columns, pictureWords);
         packed = frame;
         packedGeneration = images.Generation;
@@ -376,7 +379,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs <paramref name="body"/>'s parts from <paramref name="offset"/>, as <see cref="BossBodyWord"/> describes: the
     /// count, each part's record, then each part's row masks.
     /// </summary>
-    private static void PackBossBody(Span<uint> upload, ShownBossBody body, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    private static void PackBossBody(Span<uint> upload, ShownBossBody body, int offset, Dictionary<D3D11ShadedPicture, int> pictureWords)
     {
         ImmutableArray<ShownBossBodyPart> parts = body.Parts;
         upload[offset] = (uint)parts.Length;
@@ -385,7 +388,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             ShownBossBodyPart part = parts[index];
             int record = offset + 1 + index * BossBodyPartWords;
-            upload[record] = (uint)pictureWords[part.Picture];
+            upload[record] = (uint)pictureWords[new(part.Picture)];
             upload[record + 1] = (uint)part.Top;
             upload[record + 2] = D3D11ConstantPacking.Halves(checked((ushort)part.Shows.Top), checked((ushort)part.Shows.Rows.Length));
             upload[record + 3] = (uint)masks;
@@ -398,7 +401,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs <paramref name="hud"/>'s placed pictures from <paramref name="offset"/>, as <see cref="HudWord"/> describes: the
     /// count, then each picture's offset and its upper-left pixel on the screen, where the HUD's cells start at the top.
     /// </summary>
-    private static void PackHud(Span<uint> upload, PicturedHud hud, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    private static void PackHud(Span<uint> upload, PicturedHud hud, int offset, Dictionary<D3D11ShadedPicture, int> pictureWords)
     {
         ImmutableArray<PlacedHudPicture> pictures = hud.Pictures;
         upload[offset] = (uint)pictures.Length;
@@ -406,7 +409,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             PlacedHudPicture placed = pictures[index];
             int record = offset + 1 + index * HudPictureWords;
-            upload[record] = (uint)pictureWords[placed.Picture];
+            upload[record] = (uint)pictureWords[new(placed.Picture, placed.Shading)];
             upload[record + 1] = D3D11ConstantPacking.Halves(checked((ushort)(placed.Cell.X * GameplayHudDefinitions.CellPixels)),
                 checked((ushort)(placed.Cell.Y * GameplayHudDefinitions.CellPixels)));
         }
@@ -416,7 +419,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs <paramref name="plane"/>'s table from <paramref name="offset"/>, as <see cref="PlaneTableHeaderWords"/>
     /// describes: its size in cells, the count of its pictures, then each picture's offset and its upper-left plane pixel.
     /// </summary>
-    private static void PackPlane(Span<uint> upload, PicturedPlane plane, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    private static void PackPlane(Span<uint> upload, PicturedPlane plane, int offset, Dictionary<D3D11ShadedPicture, int> pictureWords)
     {
         ImmutableArray<PlacedPlanePicture> pictures = plane.Pictures;
         upload[offset] = D3D11ConstantPacking.Halves(plane.Size.X, plane.Size.Y);
@@ -425,7 +428,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             PlacedPlanePicture placed = pictures[index];
             int record = offset + PlaneTableHeaderWords + index * PlanePictureWords;
-            upload[record] = (uint)pictureWords[placed.Picture];
+            upload[record] = (uint)pictureWords[new(placed.Picture, placed.Shading)];
             upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
         }
     }
@@ -434,7 +437,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// Packs <paramref name="grid"/> from <paramref name="offset"/>, as <see cref="gridTables"/> describes: its size, then
     /// each cell's picture with its mirroring.
     /// </summary>
-    private static void PackGrid(Span<uint> upload, PictureGrid grid, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    private static void PackGrid(Span<uint> upload, PictureGrid grid, int offset, Dictionary<D3D11ShadedPicture, int> pictureWords)
     {
         upload[offset] = D3D11ConstantPacking.Halves(grid.Size.X, grid.Size.Y);
         ImmutableArray<GridPicture?> cells = grid.Cells;
@@ -442,7 +445,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (cells[index] is not { } cell)
                 continue;
-            upload[offset + 1 + index] = (uint)pictureWords[cell.Picture]
+            upload[offset + 1 + index] = (uint)pictureWords[new(cell.Picture, cell.Shading)]
                 | ((cell.Mirroring & TileFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
                 | ((cell.Mirroring & TileFlip.Vertical) != 0 ? GridFlipVertically : 0);
         }
@@ -468,7 +471,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// and the picture grids' pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more
     /// than once.
     /// </summary>
-    private static IEnumerable<(SpriteSheetFrame Picture, D3D11PictureColouring Colouring)> Pictures(RoomLevelLayers frame)
+    private static IEnumerable<(SpriteSheetFrame Picture, D3D11PictureColouring Colouring, PictureShading? Shading)> Pictures(RoomLevelLayers frame)
     {
         RoomBackgroundImagePlane? skyImage = frame.Sky?.Image;
         foreach (RoomBlockPictureTable? table in new[] { frame.Bg1?.Pictures, frame.Bg2?.Pictures, frame.Door?.SourceRoom.Pictures,
@@ -479,37 +482,37 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             for (int block = 0; block < table.Blocks; block++)
             {
                 if (table.Picture(block) is { } picture)
-                    yield return (picture, D3D11PictureColouring.Frame);
+                    yield return (picture, D3D11PictureColouring.Frame, null);
             }
         }
         foreach (RoomBackgroundImagePlane? plane in new[] { frame.Bg2Image, skyImage })
         {
             if (plane is null)
                 continue;
-            yield return (plane.Picture, D3D11PictureColouring.Frame);
+            yield return (plane.Picture, D3D11PictureColouring.Frame, null);
             for (int cell = 0; cell < plane.CellCount; cell++)
             {
                 if (plane.Cell(cell) is { } picture)
-                    yield return (picture, D3D11PictureColouring.Frame);
+                    yield return (picture, D3D11PictureColouring.Frame, null);
             }
         }
         if (frame.MessagePicture is { } message)
-            yield return (message, D3D11PictureColouring.MessageText);
+            yield return (message, D3D11PictureColouring.MessageText, null);
         foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
-            yield return (part.Picture, D3D11PictureColouring.Frame);
+            yield return (part.Picture, D3D11PictureColouring.Frame, null);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
-            yield return (placed.Picture, D3D11PictureColouring.Frame);
+            yield return (placed.Picture, D3D11PictureColouring.Frame, placed.Shading);
         foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])
         {
             foreach (PlacedPlanePicture placed in plane.Pictures)
-                yield return (placed.Picture, D3D11PictureColouring.Frame);
+                yield return (placed.Picture, D3D11PictureColouring.Frame, placed.Shading);
         }
         foreach (PictureGrid grid in frame.Grids?.Grids ?? [])
         {
             foreach (GridPicture? cell in grid.Cells)
             {
                 if (cell is { } shown)
-                    yield return (shown.Picture, D3D11PictureColouring.Frame);
+                    yield return (shown.Picture, D3D11PictureColouring.Frame, shown.Shading);
             }
         }
         IEnumerable<BgTilePicture?>[] tilePictures =
@@ -523,7 +526,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             foreach (BgTilePicture? tile in pictures)
             {
                 if (tile is { } shown)
-                    yield return (shown.Picture, D3D11PictureColouring.Frame);
+                    yield return (shown.Picture, D3D11PictureColouring.Frame, null);
             }
         }
     }
@@ -533,7 +536,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// word has no picture, then its corner in the picture, x below y; nothing without pictures.
     /// </summary>
     private static void PackTilePictures(Span<uint> upload, ImmutableArray<BgTilePicture?> pictures, int offset, int count,
-        Dictionary<SpriteSheetFrame, int> pictureWords)
+        Dictionary<D3D11ShadedPicture, int> pictureWords)
     {
         if (pictures.IsDefault)
             return;
@@ -541,7 +544,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (pictures[word] is not { } tile)
                 continue;
-            upload[offset + 2 * word] = (uint)pictureWords[tile.Picture];
+            upload[offset + 2 * word] = (uint)pictureWords[new(tile.Picture)];
             upload[offset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
         }
     }

@@ -53,9 +53,10 @@ internal static class BeamTileArtworkVerification
                 if (index != firstByte) AssertEqual(native.Bytes[index], extracted.Bytes[index], "Beam edit cannot change neighboring VRAM or other pixels");
             AssertEqual(BeamTileAtlasDefinitions.ByteCount, edited.Characters.Length, "Edited upload retains native DMA size");
             var actualPalette = new SamusColourRig(); var expectedPalette = new SnesCgram();
+            var paletteSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") };
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(actualPalette.Samus.Beam, (SamusBeamFlags)selection, catalog.Palettes, InstalledFixtures.SamusOverreads.ChainsawColours);
+            SamusProjectileSystem.LoadBeamPalette(actualPalette.Samus, (SamusBeamFlags)selection);
             var legacyVram = new SnesVram();
             nativeQueue.DrainTo(legacyVram, new BeamTileTransfers(catalog), null, BgArtworkFixtures.For(legacyVram));
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
@@ -65,7 +66,9 @@ internal static class BeamTileArtworkVerification
             AssertTrue(pages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
                     BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound projectile page shows the native beam characters");
-            AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
+            RgbColor[] shownBeams = actualPalette.Samus.ShownBeams(paletteSources);
+            for (int color = 0; color < 16; color++)
+                AssertEqual(expectedPalette.Colors[0xe0 + color], shownBeams[color], "PNG selection leaves beam palette behavior unchanged");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedPages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, BeamTileCatalog.Load(replacements),
                 InstalledFixtures.Projectiles.TrailTiles);

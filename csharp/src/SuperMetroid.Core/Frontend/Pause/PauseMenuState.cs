@@ -126,7 +126,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
-        paletteAnimation = new MapPaletteAnimation();
+        paletteAnimation = new MapPaletteAnimation(MapSpriteScreen.Pause);
         paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
         _ = AreaIds.ToIndex(entry.AreaIndex);
@@ -154,7 +154,6 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // the end of setup, which blanks every BG3 row beneath the four HUD rows. Pause draws
         // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
-        entry.MapPresentation.Palettes.Pause.LoadTo(screen.Palette);
 
         // LoadPauseScreenBaseTilemaps shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
@@ -265,7 +264,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         pauseFrameCounterByte = frameCounterByte;
         // Stable pause dispatch calls the palette handler afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
-        if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
+        if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step())
             audio?.QueueSound(Library3Sound.PauseBeep, priority: SoundRequestPriority.Normal);
         if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
@@ -287,7 +286,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         DisplayLayer bg1 = ScreenMode == PauseScreenMode.Map
             ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll, false)
             : new PicturedPlaneLayer(screen.EquipmentPage(ShownEquipment ?? throw new InvalidOperationException(
-                "The equipment page shows before it was uploaded.")), mapScroll, false);
+                "The equipment page shows before it was uploaded."), ReserveArrowShading), mapScroll, false);
         var bg2 = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
         // The retained HUD is its own layer at the HUD's place, drawn from its images in their priority tiers (#1466).
         var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true, Priority: false);
@@ -319,7 +318,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(MapSheet);
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Objects, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
+            CurrentMapArrows?.DrawArrows(screen.Objects, paletteAnimation.Shading, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase drawing order.
@@ -576,7 +575,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         DrawMenuSpritemap(
             indicator,
             origin,
-            ScreenColourGroup.MapMarkers);
+            MapSpriteColouring.Markers);
     }
 
     /// <summary>Advances the map marker's timer-before-draw frame cadence.</summary>
@@ -645,10 +644,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, ScreenColourGroup colouring) =>
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, colouring);
+        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);
 
     /// <summary>Uploads the equipment page as its writes have left it: the equipment page shows it from the next capture.</summary>
     private void UploadEquipmentTilemap() => ShownEquipment = Equipment;
@@ -858,17 +857,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         CurrentMapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
         CurrentMapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
+        // Live highlights and reserve-arrow colours are typed state their owners keep; rebinding never resets their phase.
         screen.BindArtwork(catalog);
-        // Live highlights and reserve-arrow colors belong to their animation
-        // owners. Replacing the static base must not reset their phase.
-        catalog.Palettes.Pause.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight),
-            screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowShade), screen.Palette.Colours(ScreenColourGroup.PauseReserveArrowLight));
         // The equipment page is typed state the rebound sheets' pictures show again (#1467): its labels, overrun tail,
         // wireframe and reserve display keep exactly what the game's writes left, and nothing is rewritten.
         if (samus.MaxReserveEnergy != 0)
         {
             // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
-            // new palettes. Only a bind before anything has latched asks the owner.
+            // new pictures. Only a bind before anything has latched asks the owner.
             if (reserveArrowLatched)
                 ReapplyLatchedReserveArrow();
             else if (SelectedCategory == PauseEquipmentCategory.Reserves)
@@ -889,6 +885,17 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Eight-bit frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
     private int reserveArrowLatchedFrame;
 
+    /// <summary>
+    /// The shading the reserve arrow's picture shows (#1512): its standard colours before any state has latched, the pulse
+    /// phase the latched frame selects while AUTO pulses it, and its solid colours otherwise. The arrow's colours change
+    /// only when the arrow's state is latched again.
+    /// </summary>
+    internal PictureShading ReserveArrowShading => !reserveArrowLatched
+        ? PictureShading.Standard
+        : PictureShading.Shaded(reserveArrowLatchedState == ReserveArrowState.Animated
+            ? PauseReserveArrowShades.Pulse(reserveArrowLatchedFrame & (PauseReserveArrowDefinitions.ArrowFrames - 1))
+            : PauseReserveArrowShades.Solid);
+
     /// <summary>Runs the reserve arrow update after the tank input handler and D-pad response.</summary>
     private void UpdateReserveArrow(int frameCounterByte)
     {
@@ -900,13 +907,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetReserveArrow(state, frameCounterByte);
     }
 
-    /// <summary>Applies reserve-arrow tile colouring and palette state, then latches it for content rebinds.</summary>
+    /// <summary>
+    /// Applies the reserve arrow's tile colouring, then latches its state and frame, which name the colours it shows, for
+    /// content rebinds.
+    /// </summary>
     private void SetReserveArrow(ReserveArrowState state, int frameCounterByte = 0)
     {
-        PauseReserveArrowColours presentation = (mapPresentation ?? throw new InvalidOperationException(
-            "Reserve arrow requires installed presentation assets.")).PauseReserveArrow;
-        presentation.ApplyArrowColors(screen.Palette,
-            state == ReserveArrowState.Animated, frameCounterByte);
         Equipment = Equipment.WithArrow(state != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
         reserveArrowLatched = true;
         reserveArrowLatchedState = state;

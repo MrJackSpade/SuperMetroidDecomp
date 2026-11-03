@@ -45,7 +45,7 @@ internal static class SamusDeathSheetComposer
                     ? spritemap : new SpriteFrame(name, []), inputs.DeathTiles.Explosion));
             }
         }
-        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes);
+        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 
     /// <summary>The Samus spritemap the explosion's frame <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>

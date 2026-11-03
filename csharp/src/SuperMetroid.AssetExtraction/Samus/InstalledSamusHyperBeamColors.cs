@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -41,7 +40,7 @@ public sealed class InstalledSamusHyperBeamColors
 {
 
     /// <summary>Independent RGB5 inputs that cannot be reconstructed from shared hue and shade rules.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> colors = new();
+    internal readonly Dictionary<TableColourPlace, RgbColor> colors = new();
     /// <summary>Per-channel deviations from derived temporal midpoint colors.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
     /// <summary>Independent red, green, or blue channels at authored hue endpoints.</summary>
@@ -67,7 +66,7 @@ public sealed class InstalledSamusHyperBeamColors
                     if (frames[frame][color] != expected) shadeInputs.Add(index, new(frames[frame][color], expected));
                     continue;
                 }
-                colors.Add(new ColourCell(frame, color), frames[frame][color]);
+                colors.Add(new TableColourPlace(frame, color), frames[frame][color]);
                 continue;
             }
             if (source == index && frame == 7 && color != 0 &&
@@ -78,7 +77,7 @@ public sealed class InstalledSamusHyperBeamColors
                 {
                     if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
                 }
-                else colors.Add(new ColourCell(frame, color), frames[frame][color]);
+                else colors.Add(new TableColourPlace(frame, color), frames[frame][color]);
                 continue;
             }
             if (frame == 2 && color is 3 or 11 or 13)
@@ -87,7 +86,7 @@ public sealed class InstalledSamusHyperBeamColors
                 if (color == 13) expected = SamusHyperBeamColorFormat.CyanTransitionMiddle(frames[1][13], frames[3][13]);
                 else if (!SamusHyperBeamColorFormat.TryCyanTransitionShadow(frames[2][13], color, out expected))
                 {
-                    colors.Add(new ColourCell(frame, color), frames[frame][color]);
+                    colors.Add(new TableColourPlace(frame, color), frames[frame][color]);
                     continue;
                 }
                 if (frames[frame][color] != expected) intermediateInputs.Add(index, new(frames[frame][color], expected));
@@ -119,7 +118,7 @@ public sealed class InstalledSamusHyperBeamColors
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
             }
-            colors.Add(new ColourCell(frame, color), frames[frame][color]);
+            colors.Add(new TableColourPlace(frame, color), frames[frame][color]);
         }
     }
 
@@ -143,7 +142,7 @@ public sealed class InstalledSamusHyperBeamColors
     public RgbColor Resolve(int frame, int color)
     {
         int source = SamusHyperBeamColorFormat.CanonicalColorIndex(frame, color);
-        if (colors.TryGetValue(new ColourCell(frame, color), out RgbColor value)) return value;
+        if (colors.TryGetValue(new TableColourPlace(frame, color), out RgbColor value)) return value;
         if (source != frame * 16 + color) return Resolve(source / 16, source % 16);
         var shade = SamusHyperBeamColorFormat.ShadeSource(color);
         if (shade.Ink != color)

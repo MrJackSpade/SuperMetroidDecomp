@@ -42,6 +42,16 @@ public sealed class BackgroundColours
         Sprites = Ensure.NotNull(sprites);
     }
 
+    /// <summary>
+    /// A frontend screen's colours whose pictures and sprites all carry their own shading (#1512): only the backdrop,
+    /// <paramref name="backdrop"/>, is shown from them.
+    /// </summary>
+    public static BackgroundColours ScreenBackdrop(RgbColor backdrop)
+    {
+        var none = ShownColourSets.Of(new ScreenColourSets());
+        return new BackgroundColours(none.With(0, 0, backdrop), none);
+    }
+
     /// <summary>Gameplay's colours as a frame shows them now.</summary>
     public static BackgroundColours Of(GameplayColours colours)
     {

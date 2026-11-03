@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Verification access to <see cref="SamusChargeColours"/> by the document's sequence and suit numbering.</summary>
 internal static class SamusChargeColoursAccess

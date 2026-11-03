@@ -53,7 +53,7 @@ public abstract class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point);
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point, shading: PictureShading.Standard);
     }
     /// <summary>The stock selector has zero sprite offsets in every phase: each category
     /// holds its base frame. Only explicitly authored phase differences are retained.</summary>

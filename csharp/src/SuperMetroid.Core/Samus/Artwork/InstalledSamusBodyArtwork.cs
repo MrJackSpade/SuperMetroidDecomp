@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -32,8 +33,8 @@ public abstract class InstalledSamusBodyArtwork
     /// <summary>The selected appearance of Samus's atmospheric effects.</summary>
     public InstalledSamusAtmosphericArtwork Atmosphere { get; }
 
-    /// <summary>Editable fatal-damage suit, suitless, and whiteout colors.</summary>
-    public InstalledSamusDeathPalettes DeathPalettes { get; }
+    /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
+    public SamusDeathSteps DeathSteps { get; }
 
     /// <summary>Where each pose places the independent arm-cannon cover.</summary>
     public InstalledSamusArmCannonArtwork ArmCannon { get; }
@@ -48,7 +49,7 @@ public abstract class InstalledSamusBodyArtwork
         Ensure.NotNull(content.GraphicsYOffsets);
         Ensure.NotNull(content.Spritemaps);
         Ensure.NotNull(content.Atmosphere);
-        Ensure.NotNull(content.DeathPalettes);
+        Ensure.NotNull(content.DeathSteps);
         Ensure.NotNull(content.ArmCannon);
         Ensure.NotNull(content.LandingYOffsets);
         Ensure.NotNull(content.PostureYOffsets);
@@ -79,7 +80,7 @@ public abstract class InstalledSamusBodyArtwork
         this.poseFrames = content.Frames.ToDictionary();
         Spritemaps = content.Spritemaps;
         Atmosphere = content.Atmosphere;
-        DeathPalettes = content.DeathPalettes;
+        DeathSteps = content.DeathSteps;
         ArmCannon = content.ArmCannon;
     }
 

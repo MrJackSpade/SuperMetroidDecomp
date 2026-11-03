@@ -68,7 +68,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         this.mapPresentation = mapPresentation;
         if (mapPresentation is null)
             throw new InvalidOperationException("File select requires installed menu presentation assets.");
-        screen = new MenuScreen(mapPresentation.Palettes,
+        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect,
             mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
 
@@ -253,7 +253,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             (int shape, int y) = FileCopyArrows.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
-                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, y));
+                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, y),
+                shading: PictureShading.Shaded(FileCopyArrowShades.Rotation(CopyArrowRotation)));
         }
         sprites.FinishFrame();
     }
@@ -301,6 +302,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private YesNoChoice confirmationSelection;
     /// <summary>Updates remaining before the copy arrow rotates its colors.</summary>
     private int copyArrowPaletteTimer;
+    /// <summary>
+    /// How many places the copy arrows' colours have rotated, below <see cref="FileCopyArrowDefinitions.RotationSteps"/>
+    /// (#1512). The rotation runs on from where it stopped each time a copy is confirmed, as the game's colours keep it.
+    /// </summary>
+    internal int CopyArrowRotation { get; private set; }
 
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
     private bool HasAnySave => saveSlots.Any(slot => slot is not null);
@@ -540,18 +546,13 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         Phase = FileSelectPhase.CopyConfirm;
     }
 
-    /// <summary>Rotates the copy arrow palette colors when its animation timer expires.</summary>
+    /// <summary>Rotates the copy arrows' colours one place when their animation timer expires.</summary>
     private void StepCopyArrowPalette()
     {
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
             return;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
-        ColourRun arrow = screen.Palette.Colours(ScreenColourGroup.FileCopyArrows);
-        int last = arrow.Count - 1;
-        RgbColor color = arrow[0];
-        for (int index = 0; index < last; index++)
-            arrow.Write(index, arrow[index + 1]);
-        arrow.Write(last, color);
+        CopyArrowRotation = (CopyArrowRotation + 1) % FileCopyArrowDefinitions.RotationSteps;
     }
 
     /// <summary>Accepts Yes or No and mutates checksummed SRAM only after explicit Yes confirmation.</summary>
@@ -708,7 +709,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         mapPresentation = catalog;
         screen.BindWorldArtwork(catalog.WorldArtwork);
 
-        screen.BindMapPalettes(catalog.Palettes);
+        screen.Backdrop = catalog.Backdrops.FileSelect;
         RebuildInstalledPresentationPage();
     }
 

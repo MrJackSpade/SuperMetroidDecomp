@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -61,7 +60,7 @@ internal static class MapPictureSheets
 
     /// <summary>The room maps' sheet under the file-select palette: every map cell and each Zebes area's room frame.</summary>
     internal static ComposedSpriteSheet ComposeRoomMap(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose([.. RoomMapSubjects(maps)], MapCharacters(maps), ScreenColourImage.Encode(maps.Palettes.FileSelect));
+        ScreenPictureSheetComposer.Compose([.. RoomMapSubjects(maps)], MapCharacters(maps), InstalledAreaMapPresentation.PalettesOf(maps).FileSelect);
 
     /// <summary>The room maps' pictures: every map cell, then each Zebes area's room frame.</summary>
     internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(AreaMapPresentation maps)
@@ -81,7 +80,7 @@ internal static class MapPictureSheets
             [ScreenPictureSubject.Page(AreaMapPictures.WorldForegroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldForeground),
                 MapScreenDefinitions.PageColumns)],
             new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters()),
-            ScreenColourImage.Encode(maps.Palettes.World(area)));
+            InstalledAreaMapPresentation.PalettesOf(maps).World(area));
 
     /// <summary><paramref name="area"/>'s world-map background sheet under its world-map palette: its background page.</summary>
     internal static ComposedSpriteSheet ComposeWorldBackground(AreaMapPresentation maps, AreaId area) =>
@@ -89,7 +88,7 @@ internal static class MapPictureSheets
             [ScreenPictureSubject.Page(AreaMapPictures.WorldBackgroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldBackground(area)),
                 MapScreenDefinitions.PageColumns)],
             new ScreenCharacters(TileInkDepth.FourColours).Place(0, WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters()),
-            ScreenColourImage.Encode(maps.Palettes.World(area)));
+            InstalledAreaMapPresentation.PalettesOf(maps).World(area));
 
     /// <summary>The frames a room-map sheet must hold.</summary>
     internal static IEnumerable<string> RoomMapFrameNames(AreaMapPresentation maps) => RoomMapSubjects(maps).Select(subject => subject.Name);

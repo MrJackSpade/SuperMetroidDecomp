@@ -15,9 +15,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

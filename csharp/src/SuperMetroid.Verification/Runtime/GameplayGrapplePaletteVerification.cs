@@ -42,9 +42,9 @@ internal static class GameplayGrapplePaletteVerification
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
-        var expected = new SamusColourRig();
         var palettes = projectiles.BeamTiles.Palettes ?? throw new InvalidDataException("Missing beam palettes.");
-        palettes.LoadTo(expected.Samus.Beam, SamusBeamCombination.Ice);
+        // Grapple firing names the Ice beam's shade and the flare's (#1512); the import resolves both.
+        var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -58,8 +58,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = default;
             runtime.StepFrame(0);
-            palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            runtime.Colours.AsPaletteColors().SetColor(223, RgbColor.FromWord(0x1234));
+            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
@@ -67,25 +66,22 @@ internal static class GameplayGrapplePaletteVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
-            palettes.LoadTo(runtime.Player.Colours.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            runtime.Colours.AsPaletteColors().SetColor(223, RgbColor.FromWord(0x1234));
+            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");
             for (int frame = 0; frame < 4 && samus.Grapple.Phase != GrapplePhase.Inactive; frame++)
                 runtime.StepFrame(0);
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "release cancels extending grapple");
-            var ordinary = new SamusColourRig();
-            palettes.LoadTo(ordinary.Samus.Beam, SamusBeamCombinations.FromTableIndex(beam));
-            AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(ordinary.Colors.Slice(224, 16)),
-                "cancel restores equipped beam palette");
+            AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(samus.EquippedBeams)), runtime.Player.Colours.Beams,
+                "cancel restores the equipped beams' shade");
         }
         Console.WriteLine("Gameplay grapple palette: normal HUD firing, refire, fixed flare color and cancellation restoration verified.");
         void AssertPalette(string phase)
         {
-            AssertTrue(runtime.Colours.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)),
-                phase + " loads native palette two");
-            AssertEqual(0x7f91, runtime.Colours.Colors[223], phase + " sets native flare color");
+            AssertTrue(runtime.Player.Colours.ShownBeams(sources).SequenceEqual(palettes.Colours(SamusBeamCombination.Ice)),
+                phase + " shows native palette two");
+            AssertEqual(0x7f91, runtime.Player.Colours.ShownGrappleFlare(sources), phase + " shows native flare color");
         }
     }
 

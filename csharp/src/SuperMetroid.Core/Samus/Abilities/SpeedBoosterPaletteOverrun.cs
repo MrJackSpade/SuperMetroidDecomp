@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// The two Speed Booster steps, inherited from a Screw Attack cycle, at which Gravity's read runs past the end of its own
-/// cycle list; each copies the colours <see cref="SpeedBoosterOverrunColours{TPhase, TColour}"/> holds for it.
+/// cycle list; each copies the colours speed-booster overrun colours the import decodes holds for it.
 /// </summary>
 internal enum SpeedBoosterPaletteOverrun
 {

@@ -49,8 +49,8 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(CreditsRollDefinitions.ExpectedCompiledRows - 1);
                     credits.GetRow(CreditsRollDefinitions.ExpectedCompiledRows);
                     credits.GetRow(-1);
-                    MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, SuperMetroid.Core.Frontend.ScreenColourGroup.MapLabels);
-                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)0, objects, default, SuperMetroid.Core.Frontend.ScreenColourGroup.MapLabels);
+                    MapSpriteSheet.Draw(mapSheet, MapSpriteId.WorldTitle, objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
+                    MapSpriteSheet.Draw(mapSheet, (MapSpriteId)0, objects, default, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.FileSelect, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Labels);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);

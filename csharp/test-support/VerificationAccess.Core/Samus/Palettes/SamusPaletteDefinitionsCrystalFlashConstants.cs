@@ -19,6 +19,9 @@ internal static class SamusPaletteDefinitionsCrystalFlashConstants
     {
         /// <inheritdoc cref="SamusPaletteDefinitionsCrystalFlashConstants.BeamPalettePointers"/>
         internal static int BeamPalettePointers => SamusPaletteDefinitionsCrystalFlashConstants.BeamPalettePointers;
+
+        /// <summary>The bytes of one native body pointer/timer record; the port counts body steps instead (#1512).</summary>
+        internal static int BodyRecordByteCount => 4;
     }
         /// <summary>First CGRAM color of OBJ palette six.</summary>
         public const int BodyCgramStart = 0xe0;

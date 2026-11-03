@@ -4,25 +4,36 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// Draws the map's markers, elevator and area labels, arrows and position indicator from the map sprite sheet (#1392),
-/// whose frames colour the parts that take their draw's colours in <see cref="FrontendSheetPalette.FrameColourGroup"/>.
+/// each in the shade the import pre-coloured its palette-inheriting parts in for the colouring it draws in (#1512).
 /// </summary>
 internal static class MapSpriteSheet
 {
     /// <summary>
-    /// Places <paramref name="id"/>'s frame at <paramref name="origin"/>, its palette-inheriting parts in the map's colours
-    /// <paramref name="colouring"/>, as the draw replaces their colours and keeps the others'.
+    /// Places <paramref name="id"/>'s frame at <paramref name="origin"/>, its palette-inheriting parts in
+    /// <paramref name="colouring"/> as <paramref name="screen"/> shows them.
     /// </summary>
     /// <param name="sheet">The map sprite sheet.</param>
     /// <param name="id">The map sprite drawn.</param>
     /// <param name="sprites">The screen's sprite entries.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
-    /// <param name="colouring">The map's colours, one whole sprite set, the draw shows its palette-inheriting parts in.</param>
+    /// <param name="screen">The map screen the sprite is drawn on.</param>
+    /// <param name="colouring">What the map shows the sprite's palette-inheriting parts as.</param>
     internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<SpritePixels> origin,
-        ScreenColourGroup colouring)
+        MapSpriteScreen screen, MapSpriteColouring colouring) =>
+        Draw(sheet, id, sprites, origin, PictureShading.Shaded(MapSpriteShades.Drawn(screen, colouring)));
+
+    /// <summary>Places <paramref name="id"/>'s frame at <paramref name="origin"/> in <paramref name="shading"/>.</summary>
+    /// <param name="sheet">The map sprite sheet.</param>
+    /// <param name="id">The map sprite drawn.</param>
+    /// <param name="sprites">The screen's sprite entries.</param>
+    /// <param name="origin">Where the frame's origin lands.</param>
+    /// <param name="shading">The shades the sprite shows, such as the highlight cycle's current frame.</param>
+    internal static void Draw(SpriteSheet sheet, MapSpriteId id, ScreenSprites sprites, Position16<SpritePixels> origin,
+        PictureShading shading)
     {
         Ensure.NotNull(sheet);
-        // An undefined sprite fails before its colouring is resolved.
+        Ensure.NotNull(shading);
         SpriteSheetFrame frame = sheet.Frame(MapSpriteNames.Name(id));
-        Ensure.NotNull(sprites).AddImage(frame, origin, ScreenSpriteColouring.Drawn(colouring));
+        Ensure.NotNull(sprites).AddImage(frame, origin, shading: shading);
     }
 }

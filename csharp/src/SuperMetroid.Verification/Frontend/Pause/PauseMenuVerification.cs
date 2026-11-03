@@ -23,7 +23,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Progression;
-using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>Checks pause equipment, map reveal, sprite placement, and unpause asset transfers.</summary>
 internal static class PauseMenuVerification
@@ -201,20 +201,14 @@ internal static class PauseMenuVerification
             "pause toggle immediately mutates live Wave equipment word");
 
         var resumeRuntime = CreateRetailRuntimeFixture();
-        // Keep the fixture's distinctive Wave palette through the real installed binding.
-        var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
-        colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
-        var beamPalettes = SamusPaletteRecognition.Beams(ToColors(colors));
-        resumeRuntime.Artwork.BeamPalettes = beamPalettes;
         resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
         resumeRuntime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         // The newly equipped Wave beam selects the Wave projectile sheet (#1342); no characters are uploaded.
         AssertEqual(SamusBeamFlags.Wave, resumeRuntime.Artwork.LoadedBeams,
             "unpause latches the newly equipped Wave beam whose projectile sheet is drawn");
-        AssertEqual(0x3200, resumeRuntime.Colours.Colors[0xe0],
-            "unpause immediately installs newly equipped Wave palette");
-        AssertEqual(0x320f, resumeRuntime.Colours.Colors[0xef],
-            "unpause installs all sixteen Wave palette colors");
+        // Her beams' colours are a shade the import pre-colours her sheets in (#1512): unpausing names the Wave shade.
+        AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave)), resumeRuntime.Player.Colours.Beams,
+            "unpause immediately shows the newly equipped Wave beam's shade");
 
         // Use a second page with no map acquisition or explored cells so BG1 is blank at
         // the sampled point. BG2 is also transparent there. The pixel must therefore be

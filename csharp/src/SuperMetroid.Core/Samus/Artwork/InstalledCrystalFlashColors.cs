@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -81,30 +80,5 @@ public sealed class InstalledCrystalFlashColors
             % CrystalFlashColorFormat.BubbleColorCount;
         int channel = 31 - (6 * phase + 2) / 5;
         return new RgbColor(31, channel, channel);
-    }
-
-    /// <summary>Shows one body frame as Samus's Crystal Flash body colours without changing the bubble colors or advancing any gameplay timer.</summary>
-    /// <param name="colours">Samus's colours.</param>
-    /// <param name="frame">Zero-based body playback record index, 0 through 9.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The body frame index is outside the sequence.</exception>
-    public void ApplyBody(SamusColours colours, int frame)
-    {
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-            colours.CrystalFlashBody.Write(color,
-                ResolveBody(frame, color));
-    }
-    /// <summary>Shows one bubble frame as Samus's Crystal Flash bubble colours without changing the body colors or advancing any gameplay timer.</summary>
-    /// <param name="colours">Samus's colours.</param>
-    /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="colours"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The bubble frame index is outside the sequence.</exception>
-    public void ApplyBubble(SamusColours colours, int frame)
-    {
-        Ensure.NotNull(colours);
-        for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-            colours.CrystalFlashBubble.Write(color,
-                ResolveBubble(frame, color));
     }
 }

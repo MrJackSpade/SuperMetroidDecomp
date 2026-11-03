@@ -4,12 +4,12 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks suit-dependent Speed Booster palette selection and its installed CGRAM colors.</summary>
 internal static class SpeedBoostPalettePointersVerification
@@ -43,14 +43,13 @@ internal static class SpeedBoostPalettePointersVerification
             {
                 EquippedItems = equipment[selection],
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
-                Presentation = { FullBodyCycleColors = cycleColors },
             };
             var installedColors = new SamusColourRig();
             AssertTrue(SamusSpecialSuperPalette.Update(installedColors.Samus, samus),
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
-                    installedColors.Samus.Suit[color],
+                    installedColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources with { FullBodyCycles = cycleColors })[color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual(SamusMetroidAttachmentPalette.NormalSuitNext, samus.MetroidAttachmentPalette,
                 "the Speed Booster palette alternates to the normal suit");

@@ -6,10 +6,10 @@ internal static class BossColorClosedContractDefinitions
     /// <summary>Reviewed finite beam and boss palette catalogs with their guarded methods and source files for the resource audit.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes", "beam-palettes-v1-twelve-selections", ["LoadTo"],
-            [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledBeamPalettes.cs"),
+        new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledBeamPalettes", "beam-palettes-v1-twelve-selections", ["LoadTo"],
+            [new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledBeamPalettes.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaint.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/BeamPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusEquipmentFlags.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",

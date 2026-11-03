@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
@@ -135,7 +135,7 @@ internal static class FileSelectRoomMapVerification
         AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
         RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Palettes, maps.WorldArtwork, MenuSheetFixtures.For(maps));
+        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Backdrops, maps.WorldArtwork, MenuSheetFixtures.For(maps));
         areaGraphics.BindLabels(maps.Labels);
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
@@ -179,7 +179,7 @@ internal static class FileSelectRoomMapVerification
         using var paletteJson = new MemoryStream();
         MapPaletteCycleFile.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
         paletteJson.Position = 0;
-        animations.BindPalette(MapPaletteCycleFile.Read(paletteJson));
+        animations.BindPalette(MapPaletteCycleFile.Read(paletteJson).Timing);
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
@@ -196,17 +196,20 @@ internal static class FileSelectRoomMapVerification
         {
             return animations.arrows[index].Frame;
         }
-        var cgram = new ScreenPalette();
-        cgram.SetColor(175, new RgbColor(13, 2, 0)); cgram.SetColor(192, new RgbColor(24, 2, 0));
-        AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(116 + color, cgram.Colors[176 + color], "map palette copies frame one including transparent entry");
-        AssertTrue(!animations.StepPalette(cgram), "palette delay does not queue a sound");
-        AssertTrue(animations.StepPalette(cgram), "palette sentinel queues exactly one loop sound");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(100 + color, cgram.Colors[176 + color], "palette sentinel restores frame zero");
-        AssertEqual(77, cgram.Colors[175], "palette update preserves preceding color");
-        AssertEqual(88, cgram.Colors[192], "palette update preserves following color");
+        // The highlighted sprites show the screen's own colours until the cycle's first step, then name the shade of the
+        // frame last applied, which the import pre-colours from the cycle's colours (#1512).
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Highlighted)),
+            animations.HighlightShading, "before the first cycle step the map highlight shows file select's own colours");
+        AssertTrue(!animations.StepPalette(), "initial map palette tick advances to frame one without loop sound");
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
+            "map highlight shows frame one's shade");
+        AssertTrue(!animations.StepPalette(), "palette delay does not queue a sound");
+        AssertTrue(animations.StepPalette(), "palette sentinel queues exactly one loop sound");
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
+            "palette sentinel returns the highlight to frame zero's shade");
+        animations.ResetPalette();
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
+            "resetting the cycle keeps the colours its last step applied");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
         {

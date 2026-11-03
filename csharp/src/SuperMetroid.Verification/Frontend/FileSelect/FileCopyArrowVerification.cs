@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
@@ -72,21 +73,32 @@ internal static class FileCopyArrowVerification
                     $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
             expected.FinalizeFrame();
-            RgbColor[] initial = menu.screen.Palette.Colors.ToArray();
+            // The arrows' rotation is typed state (#1512): each step names the shade the import pre-coloured from the
+            // cartridge's file-select colours, its sprite colours 145..151 moved the step's number of places along.
+            ReadOnlySpan<RgbColor> cartridge = InstalledAreaMapPresentation.PalettesOf(art).FileSelect;
+            SpriteImage arrowSheet = MenuSheetFixtures.For(art).Get(SpriteSheetId.FileSelect).Frame(FileCopyArrowDefinitions.FrameName(0)).Sheet;
+            int start = menu.CopyArrowRotation;
             for (int frame = 1; frame <= 12; frame++)
             {
                 menu.Step(0);
                 int rotations = frame < 8 ? 0 : 1 + (frame - 8) / 4;
-                for (int color = 0; color < 256; color++)
+                int step = (start + rotations) % FileCopyArrowDefinitions.RotationSteps;
+                AssertEqual(step, menu.CopyArrowRotation, "arrow colours rotate after eight ticks then every four");
+                PictureShading shading = PictureShading.Shaded(FileCopyArrowShades.Rotation(step));
+                Capture();
+                AssertTrue(menu.screen.Objects.Draws.OfType<ImageSpriteDraw>().Any(draw => draw.Shading == shading),
+                    "the copy arrow draws in its rotation step's shade");
+                RgbColor[] shown = shading.InkColours(arrowSheet);
+                for (int color = 128; color < 256; color++)
                 {
-                    int source = color is >= 145 and <= 151 ? 145 + (color - 145 + rotations) % 7 : color;
-                    AssertEqual(initial[source], menu.screen.Palette.Colors[color], "arrow palette rotates only colors 1..7 after eight ticks then every four");
+                    int source = color is >= 145 and <= 151 ? 145 + (color - 145 + step) % 7 : color;
+                    AssertEqual(cartridge[source], shown[color - 128], "arrow shade rotates only colors 1..7 of the cartridge's file-select colours");
                 }
             }
             // Rendering must not advance animation.
-            RgbColor[] beforeRender = menu.screen.Palette.Colors.ToArray();
+            int beforeRender = menu.CopyArrowRotation;
             menu.Render(); menu.CaptureRenderSnapshot();
-            AssertTrue(beforeRender.SequenceEqual(menu.screen.Palette.Colors), "render leaves palette timing alone");
+            AssertEqual(beforeRender, menu.CopyArrowRotation, "render leaves the arrows' rotation alone");
             Press(ControllerButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");

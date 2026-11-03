@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -65,8 +64,7 @@ public sealed class HyperBeamPaletteFxState
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
-    public HyperBeamPaletteFxStepResult Step(SamusColours colours,
-        HyperBeamFxColours? presentationColors = null)
+    public HyperBeamPaletteFxStepResult Step(SamusColours colours)
     {
         Ensure.NotNull(colours);
 
@@ -106,9 +104,7 @@ public sealed class HyperBeamPaletteFxState
         if (frameIndex == 0 && CurrentFrameIndex >= 0)
             CompletedCycles++;
 
-        (presentationColors ?? throw new InvalidOperationException(
-            "Hyper Beam palette FX requires installed colors."))
-            .Apply(colours.HyperBeam, frameIndex);
+        colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
 
         FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         CurrentFrameIndex = frameIndex;

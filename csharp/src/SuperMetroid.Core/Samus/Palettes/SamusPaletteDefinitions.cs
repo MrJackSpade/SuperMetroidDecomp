@@ -102,8 +102,6 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Number of Crystal Flash body records.</summary>
         public const int BodyRecordCount = 10;
-        /// <summary>Bytes occupied by one body pointer/timer record.</summary>
-        public const int BodyRecordByteCount = 4;
         /// <summary>Number of bubble palette pointers.</summary>
         public const int BubblePaletteCount = 6;
         /// <summary>Number of colors copied for the body portion.</summary>

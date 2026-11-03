@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
@@ -90,8 +89,16 @@ internal static class PausePictureSheet
     }
 
     /// <summary>Composes the sheet.</summary>
-    internal static ComposedSpriteSheet Compose(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose([.. Subjects(maps)], Characters(maps), ScreenColourImage.Encode(Ensure.NotNull(maps).Palettes.Pause));
+    /// <remarks>
+    /// The reserve arrow's pictures are pre-coloured in its solid bevel colours and in each phase of its pulse (#1512); the
+    /// pause screen names the shade its arrow shows in.
+    /// </remarks>
+    internal static ComposedSpriteSheet Compose(AreaMapPresentation maps)
+    {
+        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.Compose([.. Subjects(maps)], Characters(maps), InstalledAreaMapPresentation.PalettesOf(maps).Pause);
+        PauseReserveArrowColours arrow = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ArrowColours;
+        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
+    }
 
     /// <summary>The frames the sheet must hold.</summary>
     internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);

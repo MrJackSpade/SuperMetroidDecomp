@@ -324,7 +324,7 @@ public sealed class SamusSuitPickupState
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();
-        samus.Presentation.LoadSuitPalette(samus, colours);
+        SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
         Stage = SamusSuitPickupStage.LightBeamShrinks;
     }
 

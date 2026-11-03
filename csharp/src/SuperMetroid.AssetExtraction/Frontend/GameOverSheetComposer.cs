@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -12,10 +12,15 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the game-over sheet (#1392): the Baby's, egg's and cursor's compositions over the menu sprite page, each
-/// in the palette its draw selects, coloured as the screen loads the menu palette with the Baby idle.
+/// in the palette its draw selects, coloured as the screen loads the menu palette with the Baby idle, and with a shade
+/// for each of the Baby's colourings (#1512).
 /// </summary>
 internal static class GameOverSheetComposer
 {
+    /// <summary>The first sprite colour of a whole-screen colour image.</summary>
+    private const int SpriteColours = 128;
+    /// <summary>The colours of one sprite colour group.</summary>
+    private const int GroupColours = 16;
 
     /// <summary>What the game-over sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps)
@@ -29,10 +34,14 @@ internal static class GameOverSheetComposer
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
             frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
-        var colours = new ScreenPalette();
-        maps.Palettes.FileSelect.LoadTo(colours);
-        gameOver.ApplyBabyPalette(colours, GameOverBabyPalette.Idle);
-        return new SpriteSheetSources(frames, colours.SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        RgbColor[] colours = InstalledAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
+        int babyInk = gameOver.BabyPaletteIndex * GroupColours;
+        gameOver.BabyPaint.Colours(GameOverBabyPalette.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));
+        return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
+        {
+            Shades = [.. Enum.GetValues<GameOverBabyPalette>().Select(palette =>
+                SheetShade.Run(GameOverBabyShades.Colours(palette), babyInk, gameOver.BabyPaint.Colours(palette)))],
+        };
     }
 
     /// <summary>A composition as a sheet frame, its palette-inheriting parts in the palette its draw selects.</summary>

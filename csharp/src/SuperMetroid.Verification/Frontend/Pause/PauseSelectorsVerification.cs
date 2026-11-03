@@ -36,7 +36,7 @@ internal static class PauseSelectorsVerification
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var guard = NewPauseSelectorReadGuard(bus);
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), ScreenColourGroups.SpriteSet(ScreenColourGroup.MapMarkers), "the map caller's colouring selects the native word's sprite set");
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Markers), "the map caller's colouring selects the native word's sprite set");
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, catalog.PauseSelectors, group);
@@ -55,7 +55,7 @@ internal static class PauseSelectorsVerification
                 var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
                 var shownNative = native.ShownVram();
                 var shownPause = pause.ShownVram();
-                AssertTrue(nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) && nativeInputs.Paint.Colors.SequenceEqual(portInputs.Paint.Colors) &&
+                AssertTrue(nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) && PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) &&
                     shownNative.SequenceEqual(shownPause) && nativeInputs.Brightness == portInputs.Brightness,
                     "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)

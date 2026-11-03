@@ -1,18 +1,14 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Compiled timing metadata for the Crystal Flash body-palette cycle. Palette pointers
-/// remain presentation data; this catalog owns only the fixed delays interleaved with
-/// those pointers by <c>HandleCrystalFlashPalette</c>.
+/// The timing of the Crystal Flash body's colour pulse: how many steps it holds and how long each shows. Which colours
+/// each step shows is the import's (#1512).
 /// </summary>
 internal static class CrystalFlashPaletteTimingDefinitions
 {
-    /// <summary>Number of authored Crystal Flash body-palette timing records.</summary>
+    /// <summary>The steps of the body's pulse, after which it returns to its first.</summary>
     public const int RecordCount = 10;
 
-    /// <summary>Bytes occupied by each interleaved palette-pointer/timer record.</summary>
-    public const int RecordByteCount = 4;
-
-    /// <summary>Every authored body-palette record remains active for ten handler calls.</summary>
+    /// <summary>Every step of the body's pulse shows for ten palette-handler calls.</summary>
     public const int AuthoredDuration = 10;
 }

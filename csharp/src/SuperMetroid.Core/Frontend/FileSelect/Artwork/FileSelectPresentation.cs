@@ -49,16 +49,16 @@ public abstract class FileSelectPresentation
 
     /// <summary>Draws the page's border frame of the file-select sheet at its authored screen anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), placements.BorderAnchors[border]);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), placements.BorderAnchors[border], shading: PictureShading.Standard);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
     internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor);
+        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor, shading: PictureShading.Standard);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
-            Point(placements.HelmetAnchors, slot, "helmet"));
+            Point(placements.HelmetAnchors, slot, "helmet"), shading: PictureShading.Standard);
 
     /// <summary>Reads an indexed screen anchor, rejecting selections outside its layout.</summary>
     private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>

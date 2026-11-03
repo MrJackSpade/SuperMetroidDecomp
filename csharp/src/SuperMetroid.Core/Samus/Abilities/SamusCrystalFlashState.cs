@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -70,8 +69,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>
     /// The bubble colour step shown next, 0 through the bubble-set count minus one. Each bubble-timer expiry advances
-    /// it by one and wraps it to zero after the last set; it is mirrored into the shared cycle step the next
-    /// special-palette owner inherits.
+    /// it by one and wraps it to zero after the last set.
     /// </summary>
     public int BubbleStep { get; private set; }
 
@@ -79,12 +77,13 @@ public sealed class SamusCrystalFlashState
     public WrappingCountdown SpecialPaletteTimer { get; internal set; }
 
     /// <summary>
-    /// Byte offset of the current body-palette record, four bytes per record. Activation inherits the value the
-    /// shared special-palette timer holds (Speed Booster's), so it is any value from 0 through 65535 until the
-    /// first body-timer expiry validates it as one of the ten record offsets; afterwards each expiry advances it
-    /// by one record and wraps it to zero after the tenth. It is mirrored into that shared timer every call.
+    /// The step of the body's colour pulse shown next, zero through nine (#1512): activation starts it at the first, and
+    /// each body-timer expiry shows it and advances it, wrapping to the first after the last. It replaces the game's
+    /// byte offset into four-byte pointer and timer records, which activation inherited from the palette timer the Speed
+    /// Booster shares and mirrored back into it; that sharing only chose which colours showed first and is deleted as
+    /// incidental representation.
     /// </summary>
-    public int BodyPaletteRecordOffset { get; private set; }
+    public int BodyStep { get; private set; }
 
     /// <summary>Set when the raise finishes and the bubble's two per-line window effects start.</summary>
     public bool BubbleEffectRequested { get; private set; }
@@ -182,11 +181,7 @@ public sealed class SamusCrystalFlashState
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         BubbleStep = 0;
         SpecialPaletteTimer = WrappingCountdown.Start(1);
-        // Crystal Flash clears the shared cycle step but does not write the shared timer. The
-        // latter is also Speed Booster's palette timer, so preserve the live aliased value
-        // rather than silently inventing the usual zero initialization.
-        samus.HorizontalSpeed.CyclePaletteStep = 0;
-        BodyPaletteRecordOffset = samus.HorizontalSpeed.SpecialPaletteTimer.RemainingFrames;
+        BodyStep = 0;
         BubbleEffectRequested = false;
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
@@ -347,18 +342,12 @@ public sealed class SamusCrystalFlashState
     /// Translates special Samus palette handler seven.
     /// </summary>
     /// <remarks>
-    /// Sprite palette six is split deliberately: the ten body colors cycle through a
-    /// ten-record pointer/timer program, while the upper six bubble colors cycle through
-    /// an independent six-pointer table every five handler calls. Both sources are authored
-    /// data; completion restores the complete beam palette selected by the
-    /// currently equipped beam combination.
+    /// The beams' colours are split deliberately: the body's shade pulses through ten steps of ten calls each, while the
+    /// bubble's shade, laid over the beams' upper colours, rotates through six steps every five handler calls. The import
+    /// pre-colours Samus in every step of both (#1512); completion shows the beam shade of the currently equipped beam
+    /// combination again.
     /// </remarks>
-    public bool UpdatePalette(
-        SamusColours colours,
-        SamusState samus,
-        SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes = null,
-        SuperMetroid.Core.Samus.Artwork.InstalledCrystalFlashColors? colors = null,
-        ChainsawBeamColours<RgbColor>? chainsawColours = null)
+    public bool UpdatePalette(SamusColours colours, SamusState samus)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -369,15 +358,13 @@ public sealed class SamusCrystalFlashState
         {
             // Completion reloads the equipped combination's beam palette with the loader equipping a beam uses, so a Spazer
             // and Plasma combination takes the colours read past the palette table as everywhere else (#1506).
-            SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(
-                colours.Beam, samus.EquippedBeams, palettes, chainsawColours);
+            SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, samus.EquippedBeams);
 
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             BubbleStep = 0;
-            BodyPaletteRecordOffset = 0;
+            BodyStep = 0;
             SpecialPaletteTimer = WrappingCountdown.Start(0);
             CrystalPaletteTimer = WrappingCountdown.Start(0);
-            PublishSharedPaletteWords(samus);
             return true;
         }
 
@@ -388,10 +375,7 @@ public sealed class SamusCrystalFlashState
         if (specialPaletteTimer.IsZeroOrNegative)
         {
             SpecialPaletteTimer = WrappingCountdown.Start(5);
-            if (colors is null || BubbleStep >= SamusPaletteDefinitions.CrystalFlash.BubblePaletteCount)
-                throw new InvalidDataException(
-                    $"Crystal Flash bubble step {BubbleStep} has no installed color.");
-            colors.ApplyBubble(colours, BubbleStep);
+            colours.LayOverBeams(SamusShades.CrystalFlashBubble(BubbleStep));
 
             // The step was validated below the set count above, so this advance stays far below any wrap.
             int nextBubbleStep = BubbleStep + 1;
@@ -405,42 +389,16 @@ public sealed class SamusCrystalFlashState
         CrystalPaletteTimer = crystalPaletteTimer.Remaining;
         if (crystalPaletteTimer.IsZeroOrNegative)
         {
-            if (colors is null ||
-                BodyPaletteRecordOffset % SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount != 0 ||
-                BodyPaletteRecordOffset >= SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *
-                    SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount)
-                throw new InvalidDataException(
-                    $"Crystal Flash body frame {BodyPaletteRecordOffset} has no installed color.");
-            CrystalPaletteTimer =
-                WrappingCountdown.FromRaw(CrystalFlashPaletteTiming.DurationForByteOffset(
-                    BodyPaletteRecordOffset));
-            colors.ApplyBody(colours,
-                BodyPaletteRecordOffset / SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount);
+            CrystalPaletteTimer = WrappingCountdown.FromRaw(CrystalFlashPaletteTiming.DurationForStep(BodyStep));
+            colours.LayOverBeams(SamusShades.CrystalFlashBody(BodyStep));
 
-            // The offset was validated as one of the ten records above, so this advance cannot wrap.
-            int nextRecord = BodyPaletteRecordOffset + SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount;
-            BodyPaletteRecordOffset = nextRecord <
-                SamusPaletteDefinitions.CrystalFlash.BodyRecordCount *
-                    SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount
-                        ? nextRecord
-                        : 0;
+            // The step was validated as one of the pulse's above, so this advance cannot wrap.
+            int nextStep = BodyStep + 1;
+            BodyStep = nextStep < SamusPaletteDefinitions.CrystalFlash.BodyRecordCount ? nextStep : 0;
         }
 
         // Every active call reports the palette handled, including frames on which neither timer
         // expires. The outer palette dispatcher must therefore suppress its normal copy.
-        PublishSharedPaletteWords(samus);
         return true;
-    }
-
-
-    /// <summary>Mirrors Flash's frame and timer into the words shared with other special palettes.</summary>
-    private void PublishSharedPaletteWords(SamusState samus)
-    {
-        // The frame and timer words are not Crystal-Flash-private storage. Speed Booster, Screw Attack,
-        // X-ray, and several other special handlers reuse the same two physical words.
-        // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
-        // inspection and the next owner's initial state faithful to the game.
-        samus.HorizontalSpeed.CyclePaletteStep = BubbleStep;
-        samus.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.FromRaw(BodyPaletteRecordOffset);
     }
 }

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -86,7 +87,7 @@ public sealed class InstalledSamusChargeColors
         /// <summary>Selects three-phase pseudo-Screw holds instead of the mirrored charge pulse.</summary>
         private readonly bool pseudo;
         /// <summary>Palette cells whose supplied inks cannot be shared with a canonical suit or phase.</summary>
-        internal readonly Dictionary<ColourCell, RgbColor> colors = new();
+        internal readonly Dictionary<TableColourPlace, RgbColor> colors = new();
         /// <summary>Per-channel deviations from the calculated whitening or pseudo-Screw bright tint.</summary>
         internal readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
@@ -110,7 +111,7 @@ public sealed class InstalledSamusChargeColors
                 }
                 if (suit != 0 && phase == canonical && (pseudo || phase == 0) && value == source[0][phase][color]) continue;
                 int key = (suit * 6 + phase) * 16 + color;
-                var keyCell = new ColourCell((suit * 6 + phase), color);
+                var keyCell = new TableColourPlace((suit * 6 + phase), color);
                 if (!pseudo && phase == canonical && phase != 0)
                 {
                     RgbColor expected = SamusPaletteFade.EighthTowardWhite(source[suit][0][color], phase);
@@ -127,7 +128,7 @@ public sealed class InstalledSamusChargeColors
             int canonical = SamusChargeColorFormat.CanonicalPhase(pseudo, phase);
             if ((uint)color >= SamusChargeColorFormat.ColorsPerPalette) throw new ArgumentOutOfRangeException(nameof(color));
             int key = (suit * 6 + phase) * 16 + color;
-            var keyCell = new ColourCell((suit * 6 + phase), color);
+            var keyCell = new TableColourPlace((suit * 6 + phase), color);
             if (colors.TryGetValue(keyCell, out RgbColor value)) return value;
             if (phase != canonical) return Resolve(suit, canonical, color);
             if (pseudo && phase == 0)

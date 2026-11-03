@@ -32,7 +32,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         HiddenCells = parts.HiddenCells;
         ContentIdentity = parts.ContentIdentity;
         HighlightCycle = parts.HighlightCycle;
-        Palettes = parts.Palettes;
+        Backdrops = parts.Backdrops;
         Labels = parts.Labels;
         Stations = parts.Stations;
         Landmarks = parts.Landmarks;
@@ -41,7 +41,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
         WorldArtwork = parts.WorldArtwork;
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
-        PauseReserveArrow = parts.PauseReserveArrow;
         EscapeTimer = parts.EscapeTimer;
         EscapeTimerTiles = parts.EscapeTimerTiles;
         GameplayHud = parts.GameplayHud;
@@ -63,16 +62,10 @@ public class AreaMapPresentation : IGameplayPresentationContent
         RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
-        SamusVisorColors = parts.SamusVisorColors;
-        SamusHurtColors = parts.SamusHurtColors;
-        SamusSuitColors = parts.SamusSuitColors;
-        SamusFullBodyCycleColors = parts.SamusFullBodyCycleColors;
         CrystalFlashColors = parts.CrystalFlashColors;
-        SamusChargeColors = parts.SamusChargeColors;
         CeresRidleyColors = parts.CeresRidleyColors;
         CeresRidleyFloorColors = parts.CeresRidleyFloorColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
-        SamusHyperBeamColors = parts.SamusHyperBeamColors;
     }
 
     /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
@@ -80,9 +73,9 @@ public class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>The cells the map screens show in place of cells nothing reveals.</summary>
     public AreaMapHiddenCells HiddenCells { get; }
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
-    public MapPaletteCycle HighlightCycle { get; }
-    /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
-    public MapStaticPalettes Palettes { get; }
+    public MapHighlightCycle HighlightCycle { get; }
+    /// <summary>The solid colour the pause, file-select and world-map screens show where nothing is drawn (#1512).</summary>
+    public MenuBackdrops Backdrops { get; }
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public WorldMapLabelPositions Labels { get; }
     /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
@@ -99,8 +92,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }
-    /// <summary>The reserve arrow's solid and pulse colours; its labels, digits and tiles are the pause sheet's pictures (#1467).</summary>
-    public PauseReserveArrowColours PauseReserveArrow { get; }
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
     /// <summary>Selected character bytes for the two escape-timer artwork loads.</summary>
@@ -144,26 +135,17 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public RoomFxBlendInks RoomFxPaletteBlends { get; }
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
-    /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    public InstalledSamusVisorColors SamusVisorColors { get; }
-    /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    public InstalledSamusHurtColors SamusHurtColors { get; }
-    /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    public InstalledSamusSuitColors SamusSuitColors { get; }
-    /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public SamusFullBodyCycleColours SamusFullBodyCycleColors { get; }
+
     /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     public InstalledCrystalFlashColors CrystalFlashColors { get; }
-    /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public SamusChargeColours SamusChargeColors { get; }
+
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
     public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
-    /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public SamusHyperBeamColours SamusHyperBeamColors { get; }
+
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
     /// <param name="area">One of the seven retail area identities, including Ceres.</param>
     /// <returns>The immutable view compiled when this catalog was loaded.</returns>

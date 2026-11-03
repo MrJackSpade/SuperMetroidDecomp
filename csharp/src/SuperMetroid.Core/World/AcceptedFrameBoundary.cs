@@ -161,8 +161,6 @@ internal sealed class AcceptedFrameBoundary
         // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
         if (_display.Latched.Rooms is { } rooms)
             _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
-        // A rebound snapshot may retain old colours; apply current content only at this frame boundary.
-        _artwork.PublishReboundBeamPalette();
     }
 
     /// <summary>

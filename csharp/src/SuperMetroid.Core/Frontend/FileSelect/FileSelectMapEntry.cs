@@ -1,20 +1,23 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
-
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Initial palette preparation and centered area-map reveal.</summary>
+/// <summary>
+/// The file-select map's entry (#1512): the wait the game spends fading two colours of the still-black screen, its setup
+/// coroutine, and the centered area-map reveal.
+/// </summary>
+/// <remarks>
+/// The game fades two background colours toward black with its gradual colour change while the screen shows only its
+/// black backdrop; the faded colours are never shown, and the area map's own colours replace them before the reveal. What
+/// the entry keeps is the fade's length: the number of colour-change steps it takes before the setup runs.
+/// </remarks>
 public sealed class FileSelectMapEntry
 {
-    /// <summary>Gradual palette fade toward installed file-select colors.</summary>
-    private readonly GradualPaletteTransition palette;
+    /// <summary>
+    /// The gradual colour change's step number: one after the setup call the game makes, then one more per fade update,
+    /// until it passes the entry fade's last step.
+    /// </summary>
+    private int fadeStep = 1;
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
-
-    /// <summary>Gets the live 256 colors the entry palette fade writes (#1358).</summary>
-    public ScreenPalette Palette { get; } = new();
 
     /// <summary>Gets the current entry-coroutine stage.</summary>
     public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.PaletteFade;
@@ -34,54 +37,16 @@ public sealed class FileSelectMapEntry
     /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
     public int Bottom => FrontendFrame.Height - Top;
 
-    /// <summary>Creates the entry sequence from the installed file-select palette.</summary>
-    /// <param name="mapPalettes">Static frontend palettes supplying the fade destination.</param>
-    public FileSelectMapEntry(MapStaticPalettes mapPalettes)
-    {
-        Ensure.NotNull(mapPalettes);
-        mapPalettes.FileSelect.LoadTo(Palette);
-        // File select runs outside gameplay; no other fade advances the counter meanwhile.
-        palette = new GradualPaletteTransition(Palette.Capture(), FileSelectMapDefinitions.EntryPaletteDenominator,
-            new GradualColorChangeCounter());
-        LoadEntryTarget(mapPalettes.FileSelect);
-        // The gradual first-two-palettes routine starts at transition number one,
-        // unlike the global door/death fade. Consume only the shared helper's no-op.
-        palette.Step();
-    }
-
-    /// <summary>Changes the fade destination while retaining its current colors and counter.</summary>
-    internal void BindPalettes(MapStaticPalettes? content)
-    {
-        if (content is null) return;
-        // Update the destination without restarting the ongoing fade or replacing
-        // current interpolated colors. The two cleared entries stay black.
-        LoadEntryTarget(content.FileSelect);
-    }
-
-    /// <summary>Makes the entry fade reach <paramref name="fileSelect"/> with the entry's black colours, by owner.</summary>
-    private void LoadEntryTarget(ScreenColours fileSelect)
-    {
-        var target = new ScreenPalette();
-        fileSelect.LoadTo(target);
-        BlackenEntryColours(target);
-        target.BackgroundSets.All.Colors.CopyTo(palette.Target.Of(Palette.BackgroundSets.All));
-        target.SpriteSets.All.Colors.CopyTo(palette.Target.Of(Palette.SpriteSets.All));
-    }
-
-    /// <summary>Makes the colour the entry fade holds black in each of the first background sets.</summary>
-    internal static void BlackenEntryColours(ScreenPalette palette)
-    {
-        for (int set = 0; set < FileSelectEntryColourDefinitions.BlackSets; set++)
-            Ensure.NotNull(palette).BackgroundSets.Set(set).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
-    }
-
-    /// <summary>Advances the palette fade, setup coroutine, or centered reveal by one frontend update.</summary>
+    /// <summary>Advances the entry fade, setup coroutine, or centered reveal by one frontend update.</summary>
     public void Step()
     {
         switch (Phase)
         {
             case FileSelectMapEntryPhase.PaletteFade:
-                if (palette.Step()) Phase = FileSelectMapEntryPhase.LoadForeground;
+                // The gradual colour change reaches its target at step denominator plus one and reports completion on
+                // the call after it.
+                if (fadeStep > FileSelectMapDefinitions.EntryPaletteDenominator + 1) Phase = FileSelectMapEntryPhase.LoadForeground;
+                else fadeStep++;
                 break;
             case FileSelectMapEntryPhase.LoadForeground:
                 Phase = FileSelectMapEntryPhase.LoadBackground;
@@ -105,5 +70,4 @@ public sealed class FileSelectMapEntry
                 throw new InvalidOperationException($"Unknown file-select entry phase {Phase}.");
         }
     }
-
 }

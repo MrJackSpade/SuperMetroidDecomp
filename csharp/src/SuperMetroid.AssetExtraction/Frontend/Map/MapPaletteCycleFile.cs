@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;

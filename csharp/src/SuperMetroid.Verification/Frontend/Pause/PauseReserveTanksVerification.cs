@@ -11,6 +11,9 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
@@ -54,7 +57,14 @@ internal static class PauseReserveTanksVerification
                 if (capacity != 0) Draw(0x1f, tank);
                 native.FinalizeFrame();
                 byte[] objects = native.LowTable.ConcatToArray(native.HighTable);
-                var memory = capture.Paint.WithNativeColoursAndOam(captureVram, capture.Paint.Colors, objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection);
+                // The port's sprites show the colours the import pre-coloured the pause sheet in (#1512): each standard
+                // sprite draw must resolve to the cartridge's pause sprite colours, which the native OAM draws then show in.
+                var nativeColours = new SnesCgram();
+                CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
+                foreach (ImageSpriteDraw draw in capture.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Where(draw => draw.Shading == PictureShading.Standard))
+                    AssertTrue(PictureShading.Standard.InkColours(draw.Image.Sheet).SequenceEqual(nativeColours.Colors[SpriteImage.SpriteColourCount..].ToArray()),
+                        $"pause sprite {draw.Image.Sheet.Name} shows the cartridge's pause sprite colours {capacity}/{supply}");
+                var memory = capture.Paint.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection);
                 var expected = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
                 // This rectangle encloses the tank strip and end-cap, but not the
                 // independently animated equipment selector. BG remains identical.

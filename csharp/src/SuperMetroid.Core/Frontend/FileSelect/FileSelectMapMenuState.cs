@@ -91,8 +91,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         navigation.BindLabels(mapPresentation.Labels);
         animations = new FileSelectMapAnimations(mapPresentation.Arrows);
         animations.BindPalette(mapPresentation.HighlightCycle);
-        entry = new FileSelectMapEntry(mapPresentation.Palettes ?? throw new InvalidOperationException(
-            "File-select map requires installed map palettes."));
+        entry = new FileSelectMapEntry();
     }
 
     /// <summary>Current public navigation phase, reporting EnteringArea until the separately owned initial reveal/fade completes, then exposing the navigation owner's phase.</summary>
@@ -108,7 +107,6 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         mapPresentation = catalog;
         navigation.BindLabels(catalog?.Labels);
         areaGraphics.BindMapPresentation(catalog);
-        entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
@@ -142,7 +140,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
-            if (animations.StepPalette(roomGraphics.Palette)) Queue(Library3Sound.PauseBeep);
+            if (animations.StepPalette()) Queue(Library3Sound.PauseBeep);
             marker.Step();
             markerDrawn = true;
         }
@@ -216,7 +214,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         if (!entry.IsComplete)
         {
             LayeredScene areaScene = Area();
-            var black = new LayeredScene(new FramePaint(areaScene.Paint.Backgrounds.WithBackdrop(RgbColor.Black), []), [], DisplayBrightness.Full);
+            var black = new LayeredScene(new FramePaint(RgbColor.Black, []), [], DisplayBrightness.Full);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }

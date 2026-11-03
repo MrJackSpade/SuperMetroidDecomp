@@ -119,7 +119,7 @@ public sealed class SamusDeathSequenceState
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
         GameplayColours colours, SamusColours samusColours,
-        InstalledSamusDeathPalettes? artwork = null)
+        SamusDeathSteps? artwork = null)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(colours);
@@ -149,7 +149,7 @@ public sealed class SamusDeathSequenceState
                 {
                     // The explosion step loads palette pair zero, resets the reused counters, and immediately
                     // draws explosion spritemap zero in this very same game-state-17 call.
-                    WritePalettePair(samus, samusColours, paletteIndex: 0, artwork);
+                    WritePalettePair(samus, samusColours, paletteIndex: 0);
                     paletteChanged = true;
                     AnimationTimer =
                         WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(index: 0));
@@ -178,7 +178,7 @@ public sealed class SamusDeathSequenceState
                             AnimationIndex = 0;
                             AnimationTimer = WrappingCountdown.Start(3);
                         }
-                        WritePalettePair(samus, samusColours, AnimationIndex, artwork);
+                        WritePalettePair(samus, samusColours, AnimationIndex);
                         paletteChanged = true;
                     }
                     drawPose = true;
@@ -231,7 +231,7 @@ public sealed class SamusDeathSequenceState
         GameplayColours colours, SamusColours samusColours,
         ref bool paletteChanged,
         ref bool whiteoutChanged,
-        InstalledSamusDeathPalettes? artwork)
+        SamusDeathSteps? artwork)
     {
         AnimationTimer = AnimationTimer.Decrement().Remaining;
         if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
@@ -251,15 +251,15 @@ public sealed class SamusDeathSequenceState
         AnimationTimer =
             WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(AnimationIndex));
         int paletteIndex = (artwork ?? throw new InvalidOperationException(
-            "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
-        WritePalettePair(samus, samusColours, paletteIndex, artwork);
+            "Samus death requires installed palette artwork.")).ExplosionStep(AnimationIndex);
+        WritePalettePair(samus, samusColours, paletteIndex);
         paletteChanged = true;
         return true;
     }
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
     private bool ApplyWhiteout(GameplayColours colours, SamusColours samusColours,
-        InstalledSamusDeathPalettes? artwork)
+        SamusDeathSteps? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
         // frame remains over the original room even though game state `$18` has begun.
@@ -267,40 +267,23 @@ public sealed class SamusDeathSequenceState
             return false;
 
         RgbColor shade = (artwork ?? throw new InvalidOperationException(
-            "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
-        // Everything but the colours Samus's body shows whitens: the room, every sprite store but her suit's and her
-        // suitless body's, and her flare and beam colours among them.
+            "Samus death whiteout requires installed palette artwork.")).WhiteoutColour(AnimationCounter);
+        // Everything but Samus's body whitens: the room, every other sprite, and her beams and grapple flare, which
+        // show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never whiten;
+        // the sprites that shared their sets with her no longer keep her colours through the whiteout.
         colours.BackgroundSets.Fill(shade);
-        foreach (SpriteColourStore store in SpriteColourStore.Every.Except(SamusColours.BodyStores))
-            store.In(colours.SpriteSets).Fill(shade);
-        samusColours.GrappleFlare.Fill(shade);
-        samusColours.Beam.Fill(shade);
+        colours.SpriteSets.All.Fill(shade);
+        samusColours.ShowBeams(SamusShades.DeathWhiteout(AnimationCounter));
 
         if (AnimationCounter < 20)
             AnimationCounter++;
         return true;
     }
 
-    /// <summary>Loads suited and suitless death colors selected by equipment and animation frame.</summary>
-    private static void WritePalettePair(
-        SamusState samus,
-        SamusColours samusColours,
-        int paletteIndex,
-        InstalledSamusDeathPalettes? artwork)
+    /// <summary>Shows the suited and suitless death shades the shown suit and the animation step select (#1512).</summary>
+    private static void WritePalettePair(SamusState samus, SamusColours samusColours, int paletteIndex)
     {
-        // Each suit's ten death palettes follow the previous suit's.
-        int suitList = samus.EquippedItems.ShownSuit().ListPlace();
-        if (artwork is not null)
-        {
-            for (int color = 0; color < InstalledSamusDeathPalettes.ColorCount; color++)
-            {
-                samusColours.Suit.Write(color,
-                    artwork.SuitedColor(suitList, paletteIndex, color));
-                samusColours.Suitless.Write(color,
-                    artwork.SuitlessColor(paletteIndex, color));
-            }
-            return;
-        }
-        throw new InvalidOperationException("Samus death requires installed palette artwork.");
+        samusColours.ShowSuit(SamusShades.DeathSuit(samus.EquippedItems.ShownSuit(), paletteIndex));
+        samusColours.ShowSuitless(SamusShades.DeathSuitless(paletteIndex));
     }
 }

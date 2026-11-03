@@ -4,110 +4,135 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Samus's colours (#1405): her suit's, which hold her visor's; and her beams', which the Crystal Flash and the Hyper Beam
-/// also show. Her effects write them, her draws show them, and they outlive each Samus as the player does. Two of the
-/// colours she shows are sprite colours others share: her body without the suit shows a whole sprite set, which her death
-/// sequence loads and bosses load for their own sprites, and her grapple flare is the enemy projectiles' set's last colour.
+/// Samus's colour state (#1405, #1512): the shade her suit shows, the shades laid over it (her visor's), the shade her
+/// beams show, the shades laid over them (the Crystal Flash's body and bubble, the Hyper Beam's cycle) and the shade her
+/// body without the suit shows. Her effects set it, her draws publish it, and it outlives each Samus as the player does.
+/// The import pre-colours every one of her sheets in every shade; she never selects a colour herself.
 /// </summary>
 /// <remarks>
-/// Effects address her colours by what they are for: the suit's, the visor, the beams', the Crystal Flash's body and
-/// bubble, the Hyper Beam's cycle, her suitless body's and the grapple flare. Which of her sheets' image colour groups
-/// show them, and so which sprite sets show her colours over their own, is this owner's alone (#1464).
+/// A later colouring of the suit or the beams replaces everything laid over them, as a complete load of their colours did;
+/// a shade laid over them replaces an earlier shade of the same effect and covers the rest. Her colours are her own:
+/// another owner's colours never show on her draws, and hers never show on theirs (#1512).
 /// </remarks>
-public sealed class SamusColours : IGameplayColourOwner
+public sealed class SamusColours
 {
-    /// <summary>The suit's colours.</summary>
-    private readonly RgbColor[] suit = new RgbColor[SamusColourDefinitions.RowColours];
+    /// <summary>The shades laid over the suit's, in the order they were laid; the last covers the others.</summary>
+    private readonly List<PictureShade> suitOverlays = [];
 
-    /// <summary>The beams' colours.</summary>
-    private readonly RgbColor[] beam = new RgbColor[SamusColourDefinitions.RowColours];
+    /// <summary>The shades laid over the beams', in the order they were laid; the last covers the others.</summary>
+    private readonly List<PictureShade> beamOverlays = [];
 
-    /// <summary>For each image colour group of Samus's sheets she holds colours in, the colours she holds in it.</summary>
-    private readonly ImmutableDictionary<ImageColourGroup, ColourRun> heldByGroup;
+    /// <summary>The shading her draws show, until her colours change.</summary>
+    private PictureShading? shading;
 
-    /// <summary>Lays out which colours each of her sheets' colour groups shows: hers, and the sprite colours she shares.</summary>
-    /// <param name="spriteSets">Gameplay's sprite colour sets, which hold her suitless body's colours and her grapple flare's.</param>
-    public SamusColours(SpriteColourSets spriteSets)
+    /// <summary>The shade the suit shows.</summary>
+    public PictureShade Suit { get; private set; } = SamusShades.StartingSuit;
+
+    /// <summary>The shades laid over the suit's, oldest first.</summary>
+    public IReadOnlyList<PictureShade> SuitOverlays => suitOverlays;
+
+    /// <summary>The shade the beams show.</summary>
+    public PictureShade Beams { get; private set; } = SamusShades.StartingBeams;
+
+    /// <summary>The shades laid over the beams', oldest first.</summary>
+    public IReadOnlyList<PictureShade> BeamOverlays => beamOverlays;
+
+    /// <summary>The shade her body without the suit shows, or null for its own colours.</summary>
+    public PictureShade? Suitless { get; private set; }
+
+    /// <summary>The shade her grapple flare shows, or null for its own colour until she first fires the grapple.</summary>
+    public PictureShade? GrappleFlare { get; private set; }
+
+    /// <summary>The shading her draws show now: the suit's and the beams' shades, what lies over each, and the suitless body's.</summary>
+    public PictureShading Shading => shading ??= Compose();
+
+    /// <summary>Shows <paramref name="shade"/> as the suit's colours, replacing whatever was laid over them.</summary>
+    public void ShowSuit(PictureShade shade)
     {
-        Ensure.NotNull(spriteSets);
-        GrappleFlare = SamusColourDefinitions.FlareStore.In(spriteSets).Slice(SamusColourDefinitions.FlareColour, 1);
-        Suitless = SamusColourDefinitions.SuitlessStore.In(spriteSets);
-        heldByGroup = ImmutableDictionary.CreateRange<ImageColourGroup, ColourRun>(
-        [
-            KeyValuePair.Create(SamusColourDefinitions.SuitColourGroup, Suit),
-            KeyValuePair.Create(SamusColourDefinitions.BeamColourGroup, Beam),
-            KeyValuePair.Create(SamusColourDefinitions.SuitlessColourGroup, Suitless),
-            KeyValuePair.Create(SamusColourDefinitions.FlareColourGroup, GrappleFlare),
-        ]);
+        Suit = shade;
+        suitOverlays.Clear();
+        shading = null;
     }
 
-    /// <summary>The suit's colours.</summary>
-    public ColourRun Suit => new(suit, 0, suit.Length);
+    /// <summary>Lays <paramref name="shade"/> over the suit's colours, replacing an earlier shade of its effect.</summary>
+    public void LayOverSuit(PictureShade shade) => LayOver(suitOverlays, shade);
 
-    /// <summary>The beams' colours.</summary>
-    public ColourRun Beam => new(beam, 0, beam.Length);
+    /// <summary>Shows <paramref name="shade"/> as the visor's colour, leaving the rest of the suit's alone.</summary>
+    public void ShowVisor(PictureShade shade) => LayOverSuit(shade);
 
-    /// <summary>The beam colours the Crystal Flash's body shows.</summary>
-    public ColourRun CrystalFlashBody => Beam.Slice(0, SamusColourDefinitions.CrystalFlashBodyColours);
-
-    /// <summary>The beam colours the Crystal Flash's bubble shows.</summary>
-    public ColourRun CrystalFlashBubble =>
-        Beam.Slice(SamusColourDefinitions.CrystalFlashBubbleFirstColour, SamusColourDefinitions.CrystalFlashBubbleColours);
-
-    /// <summary>The beam colours the Hyper Beam's cycle shows.</summary>
-    public ColourRun HyperBeam => Beam.Slice(SamusColourDefinitions.HyperBeamFirstColour, SamusColourDefinitions.HyperBeamColours);
-
-    /// <summary>
-    /// Her suitless body's colours: a whole sprite set she shares, which her death sequence loads and bosses load for
-    /// their own sprites.
-    /// </summary>
-    public ColourRun Suitless { get; }
-
-    /// <summary>The grapple flare's colour: the enemy projectiles' sprite set's last colour, which she shares.</summary>
-    public ColourRun GrappleFlare { get; }
-
-    /// <summary>The sprite colour stores her body shows: the one her suit shows over, and the one she shows without it.</summary>
-    public static IReadOnlyList<SpriteColourStore> BodyStores { get; } =
-        [SamusColourDefinitions.SuitStore, SamusColourDefinitions.SuitlessStore];
-
-    /// <inheritdoc />
-    public IReadOnlyList<ColourRun> Stores => [Suit, Beam];
-
-    /// <summary>Shows <paramref name="colour"/> as the visor's colour, leaving the rest of the suit's alone.</summary>
-    public void ShowVisor(RgbColor colour) => Suit.Write(SamusColourDefinitions.VisorColour, colour);
-
-    /// <summary>
-    /// <paramref name="draws"/> with Samus's own draws given the colours she shows them in; the others are left to be
-    /// resolved when the frame is published.
-    /// </summary>
-    public ImmutableArray<SpriteDraw> ColourOwnDraws(ImmutableArray<SpriteDraw> draws)
+    /// <summary>Shows <paramref name="shade"/> as the beams' colours, replacing whatever was laid over them.</summary>
+    public void ShowBeams(PictureShade shade)
     {
-        var coloured = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
+        Beams = shade;
+        beamOverlays.Clear();
+        shading = null;
+    }
+
+    /// <summary>Lays <paramref name="shade"/> over the beams' colours, replacing an earlier shade of its effect.</summary>
+    public void LayOverBeams(PictureShade shade) => LayOver(beamOverlays, shade);
+
+    /// <summary>Shows <paramref name="shade"/> as her suitless body's colours.</summary>
+    public void ShowSuitless(PictureShade shade)
+    {
+        Suitless = shade;
+        shading = null;
+    }
+
+    /// <summary>Shows <paramref name="shade"/> as her grapple flare's colour.</summary>
+    public void ShowGrappleFlare(PictureShade shade)
+    {
+        GrappleFlare = shade;
+        shading = null;
+    }
+
+    /// <summary>Shows the suit's and the beams' colours as gameplay starts, and her suitless body and flare in their own.</summary>
+    public void ShowStarting()
+    {
+        ShowSuit(SamusShades.StartingSuit);
+        ShowBeams(SamusShades.StartingBeams);
+        Suitless = null;
+        GrappleFlare = null;
+    }
+
+    /// <summary>
+    /// <paramref name="draws"/> with Samus's own draws given the shading she shows them in; the others are left to their
+    /// owners.
+    /// </summary>
+    public ImmutableArray<SpriteDraw> ShadeOwnDraws(ImmutableArray<SpriteDraw> draws)
+    {
+        var shaded = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
         foreach (SpriteDraw draw in draws)
         {
-            coloured.Add(draw is ImageSpriteDraw image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
-                ? image with { Colours = DrawColours.Owned(image, this) }
+            shaded.Add(draw is ImageSpriteDraw image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
+                ? image with { Shading = Shading }
                 : draw);
         }
-        return coloured.MoveToImmutable();
+        return shaded.MoveToImmutable();
     }
 
-    /// <inheritdoc />
-    public void Overlay(ImageColourGroup group, Span<RgbColor> colours)
+    /// <summary>Lays <paramref name="shade"/> last among <paramref name="overlays"/>, removing an earlier shade of its effect.</summary>
+    private void LayOver(List<PictureShade> overlays, PictureShade shade)
     {
-        // A held run fills its group from the group's start, or, for the flare's one colour, ends at the group's end; her
-        // draws show their images' own colours everywhere else.
-        if (!heldByGroup.TryGetValue(group, out ColourRun held))
-            return;
-        int first = held.Count == colours.Length ? 0 : colours.Length - held.Count;
-        held.Colors.CopyTo(colours[first..]);
+        overlays.RemoveAll(laid => laid.Effect == shade.Effect);
+        overlays.Add(shade);
+        shading = null;
     }
 
-    /// <inheritdoc />
-    public void LoadStarting(GameplayStartingColours starting)
+    /// <summary>
+    /// The shading of the current state: the suit's shades, the grapple flare's, the beams' (whose death whiteout also
+    /// covers the flare), and the suitless body's last.
+    /// </summary>
+    private PictureShading Compose()
     {
-        Ensure.NotNull(starting);
-        Suit.CopyFrom(starting.SamusSuit);
-        Beam.CopyFrom(starting.SamusBeams);
+        ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>();
+        shades.Add(Suit);
+        shades.AddRange(suitOverlays);
+        if (GrappleFlare is { } flare)
+            shades.Add(flare);
+        shades.Add(Beams);
+        shades.AddRange(beamOverlays);
+        if (Suitless is { } suitless)
+            shades.Add(suitless);
+        return new PictureShading(shades.ToImmutable(), []);
     }
 }

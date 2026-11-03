@@ -82,7 +82,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         byte[] restoredSnapshotVram = restored.ShownVram();
         AssertTrue(stockSnapshotVram.SequenceEqual(restoredSnapshotVram),
             $"restored equipment page adopts current base VRAM while retaining live page state; first diff={FirstDifference(stockSnapshotVram, restoredSnapshotVram):X4}");
-        AssertTrue(stockSnapshot.Paint.Colors.SequenceEqual(restoredSnapshot.Paint.Colors),
+        AssertTrue(PauseShownColours.Of(stockPause).SequenceEqual(PauseShownColours.Of(restored)),
             "equipment base rebind does not alter live palette state");
         AssertTrue(stockPause.Render().SequenceEqual(restored.Render()),
             "restored equipment base reproduces stock pixels at the retained phase");

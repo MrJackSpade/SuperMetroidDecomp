@@ -20,6 +20,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// Finite, source-selected production-owner fixtures for #541. These compare stock
@@ -35,8 +36,6 @@ internal sealed class InstalledSamusIsolationTests
     private readonly StockEditedPair<SamusFullBodyCycleColours> cycles;
     /// <summary>Stock and edited Crystal Flash palette phases.</summary>
     private readonly StockEditedPair<InstalledCrystalFlashColors> crystal;
-    /// <summary>Installed beam palette data shared by both actor fixtures.</summary>
-    private readonly InstalledBeamPalettes beams;
     /// <summary>Number of stock and edited mechanics comparisons.</summary>
     private int comparisons;
     /// <summary>Number of production Samus draws performed by paired actors.</summary>
@@ -61,8 +60,6 @@ internal sealed class InstalledSamusIsolationTests
             SamusFullBodyCycleColorFormat.FileName, stream => SamusFullBodyCycleColorFile.Read(stream).ToColours());
         crystal = SamusIsolationArtworkEdits.Colors(source, artwork.Installation,
             CrystalFlashColorFile.FileName, CrystalFlashColorFile.Read);
-        using var stream = File.OpenRead(Path.Combine(source.ProjectileDirectory, BeamPaletteFile.FileName));
-        beams = BeamPaletteFile.Read(stream);
     }
 
     /// <summary>Checks stock and edited Samus state across movement, collision, and special sequences while requiring visible art differences.</summary>
@@ -111,6 +108,8 @@ internal sealed class InstalledSamusIsolationTests
         internal readonly SamusFullBodyCycleColours Cycles;
         /// <summary>Selected Crystal Flash color catalog.</summary>
         internal readonly InstalledCrystalFlashColors Crystal;
+        /// <summary>The colour tables the actor's shades resolve through: the installation's, with the selected catalogs (#1512).</summary>
+        internal readonly SamusShadeSources Sources;
 
         /// <summary>Builds a cartridge-free Samus actor on the fixture floor with the selected visual catalog set.</summary>
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
@@ -120,9 +119,9 @@ internal sealed class InstalledSamusIsolationTests
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
             Cycles = edited ? tests.cycles.Edited : tests.cycles.Stock;
             Crystal = edited ? tests.crystal.Edited : tests.crystal.Stock;
+            Sources = InstalledFixtures.SamusShadeSources with { Suits = Suits, FullBodyCycles = Cycles, CrystalFlash = Crystal };
             Samus = new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
-                EquippedItems = equipment, Health = 99, MaxHealth = 299,
-                Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
+                EquippedItems = equipment, Health = 99, MaxHealth = 299 };
             Samus.Presentation.BodyFrames.BindBodyFixture(Body);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             SamusPoseMetadata.RefreshCollisionRadii(Samus);
@@ -131,7 +130,7 @@ internal sealed class InstalledSamusIsolationTests
             Samus.CommitPoseHistory();
             if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
             else if (medium == SamusLiquidMedium.LavaOrAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
-            Samus.Presentation.LoadSuitPalette(Samus, Colors.Samus);
+            SamusNormalSuitPalette.Load(Colors.Samus, Samus.EquippedItems);
             var blocks = new RoomTerrainBlock[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
             {
@@ -189,7 +188,7 @@ internal sealed class InstalledSamusIsolationTests
                     Stock.Level.GetCollisionBlockByIndex(index) == Edited.Level.GetCollisionBlockByIndex(index)),
                 context + ": collision room changed");
             tests.comparisons++;
-            if (!new CgramPalettes(Stock.Colors).ImageEquals(new CgramPalettes(Edited.Colors))) tests.changedColors++;
+            if (!Stock.Colors.Samus.ShownInks(Stock.Sources).SequenceEqual(Edited.Colors.Samus.ShownInks(Edited.Sources))) tests.changedColors++;
         }
 
         /// <summary>Draws both actors, checks drawing leaves mechanics intact, and records OAM or VRAM changes.</summary>
@@ -282,7 +281,7 @@ internal sealed class InstalledSamusIsolationTests
                 if (actor.Samus.Drained.Phase == DrainedSamusPhase.Falling)
                     actor.Samus.Drained.StepFalling(actor.Level, actor.Samus, frame);
                 Animate(actor, frame);
-                actor.Samus.Drained.UpdatePalette(actor.Colors.Samus, actor.Samus.EquippedItems, actor.Suits);
+                actor.Samus.Drained.UpdatePalette(actor.Colors.Samus, actor.Samus.EquippedItems);
             });
             fell |= pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.Falling;
         }
@@ -491,7 +490,7 @@ internal sealed class InstalledSamusIsolationTests
             {
                 var result = actor.Samus.CrystalFlash.Step(actor.Samus, frame);
                 Animate(actor, frame);
-                actor.Samus.CrystalFlash.UpdatePalette(actor.Colors.Samus, actor.Samus, beams, actor.Crystal);
+                actor.Samus.CrystalFlash.UpdatePalette(actor.Colors.Samus, actor.Samus);
                 return result;
             });
             if (frames == 10) Require(pair.Stock.Samus.Position.Y.Whole == initialY - 20,
@@ -501,10 +500,10 @@ internal sealed class InstalledSamusIsolationTests
                 foreach (Actor actor in new[] { pair.Stock, pair.Edited })
                 {
                     for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                        Require(actor.Colors.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color] ==
+                        Require(actor.Colors.Samus.ShownBeams(actor.Sources)[color] ==
                             actor.Crystal.ResolveBody(0, color), "Flash body colors were not applied");
                     for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                        Require(actor.Colors.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + color] ==
+                        Require(actor.Colors.Samus.ShownBeams(actor.Sources)[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color] ==
                             actor.Crystal.ResolveBubble(0, color), "Flash bubble colors were not applied");
                 }
             }
@@ -524,7 +523,7 @@ internal sealed class InstalledSamusIsolationTests
             "Stored shine was not admitted");
         for (int frame = 0; frame < 180; frame++)
             pair.Apply($"stored shine palette {frame}", actor => actor.Samus.Shinespark.UpdatePalette(
-                actor.Colors.Samus, actor.Samus.EquippedItems, actor.Suits, actor.Cycles));
+                actor.Colors.Samus, actor.Samus.EquippedItems));
         Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Inactive && pair.Stock.Samus.Shinespark.ShineTimer.IsZero,
             "Edited stored-shine colors must retain the 180-call expiration");
     }
@@ -558,7 +557,7 @@ internal sealed class InstalledSamusIsolationTests
             {
                 var result = actor.Samus.Shinespark.Step(new SamusTerrain { Level = actor.Level }, actor.Samus, new ShinesparkFrame { FrameCounter = frame, GameTimeFrames = frame });
                 Animate(actor, frame);
-                actor.Samus.Shinespark.UpdatePalette(actor.Colors.Samus, actor.Samus.EquippedItems, actor.Suits, actor.Cycles);
+                actor.Samus.Shinespark.UpdatePalette(actor.Colors.Samus, actor.Samus.EquippedItems);
                 return result;
             });
         }
@@ -601,9 +600,9 @@ internal sealed class InstalledSamusIsolationTests
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)
         {
             var stockStep = pair.Stock.Samus.DeathSequence.Step(pair.Stock.Samus,
-                pair.Stock.Colors.Gameplay, pair.Stock.Colors.Samus, pair.Stock.Body.DeathPalettes);
+                pair.Stock.Colors.Gameplay, pair.Stock.Colors.Samus, pair.Stock.Body.DeathSteps);
             var editedStep = pair.Edited.Samus.DeathSequence.Step(pair.Edited.Samus,
-                pair.Edited.Colors.Gameplay, pair.Edited.Colors.Samus, pair.Edited.Body.DeathPalettes);
+                pair.Edited.Colors.Gameplay, pair.Edited.Colors.Samus, pair.Edited.Body.DeathSteps);
             Require(stockStep == editedStep, context + ": death timing/publication changed");
             pair.Check(context + $" frame {frames}");
             if (stockStep.DrawPose) pair.Draw(context + $" pose {frames}");

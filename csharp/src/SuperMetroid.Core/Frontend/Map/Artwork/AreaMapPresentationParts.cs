@@ -29,10 +29,10 @@ internal sealed record AreaMapPresentationParts
     public required string ContentIdentity { get; init; }
 
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
-    public required MapPaletteCycle HighlightCycle { get; init; }
+    public required MapHighlightCycle HighlightCycle { get; init; }
 
-    /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
-    public required MapStaticPalettes Palettes { get; init; }
+    /// <summary>The solid colour the pause, file-select and world-map screens show where nothing is drawn (#1512).</summary>
+    public required MenuBackdrops Backdrops { get; init; }
 
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public required WorldMapLabelPositions Labels { get; init; }
@@ -58,9 +58,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public required PauseReserveTankPresentation PauseReserveTanks { get; init; }
-
-    /// <summary>The reserve arrow's solid and pulse colours; its labels, digits and tiles are the pause sheet's pictures (#1467).</summary>
-    public required PauseReserveArrowColours PauseReserveArrow { get; init; }
 
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }
@@ -126,23 +123,10 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public required InstalledPowerBombFixedColors PowerBombFixedColors { get; init; }
 
-    /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    public required InstalledSamusVisorColors SamusVisorColors { get; init; }
-
-    /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    public required InstalledSamusHurtColors SamusHurtColors { get; init; }
-
-    /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    public required InstalledSamusSuitColors SamusSuitColors { get; init; }
-
-    /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public required SamusFullBodyCycleColours SamusFullBodyCycleColors { get; init; }
 
     /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     public required InstalledCrystalFlashColors CrystalFlashColors { get; init; }
 
-    /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public required SamusChargeColours SamusChargeColors { get; init; }
 
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public required CeresRidleyColorCatalog CeresRidleyColors { get; init; }
@@ -152,7 +136,4 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public required CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; init; }
-
-    /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public required SamusHyperBeamColours SamusHyperBeamColors { get; init; }
 }

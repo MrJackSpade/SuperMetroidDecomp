@@ -705,9 +705,7 @@ internal static class CollectiblesVerification
     private static void VerifySuitPickupTransformation()
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();
-        InstalledSamusSuitColors suitColors = SamusSuitColorFile.Read(
-            new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-        Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(suitColors));
+        Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory());
         var cgram = new SamusColourRig();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
@@ -717,8 +715,7 @@ internal static class CollectiblesVerification
             EquippedItems = SamusEquipmentFlags.VariaSuit,
             CollectedItems = SamusEquipmentFlags.VariaSuit,
         };
-        samus.Presentation.SuitColors = suitColors;
-        SamusPresentation.LoadPowerSuitPalette(cgram.Samus.Suit, suitColors);
+        SamusNormalSuitPalette.LoadPower(cgram.Samus);
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
@@ -796,7 +793,7 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
-        samus.Presentation.LoadSuitPalette(samus, cgram.Samus);
+        SamusNormalSuitPalette.Load(cgram.Samus, samus.EquippedItems);
         AssertEqual(0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
     }
@@ -879,7 +876,7 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Checks pose-history shifts at transformation entry and reveal for both suits and preowned-suit states.</summary>
-    private static void VerifySuitPickupHistory(InstalledSamusSuitColors suitColors)
+    private static void VerifySuitPickupHistory()
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
@@ -887,7 +884,6 @@ internal static class CollectiblesVerification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = otherSuit
                 ? (kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : SamusEquipmentFlags.None };
-            samus.Presentation.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseId.SpinJumpRightPose;
             history.PreviousMovement = SamusMovementType.SpinJumping;

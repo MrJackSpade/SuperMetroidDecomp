@@ -71,7 +71,7 @@ internal static class PauseWireframesVerification
                     native.Step(input, input); pause.Step(input, input);
                     var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
                     AssertTrue(native.ShownVram().SequenceEqual(pause.ShownVram()), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
-                    AssertTrue(nativeInputs.Paint.Colors.SequenceEqual(portInputs.Paint.Colors) && nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) &&
+                    AssertTrue(PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) && nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) &&
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>

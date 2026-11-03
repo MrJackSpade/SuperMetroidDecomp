@@ -31,8 +31,6 @@ internal sealed class RuntimeArtwork
     private readonly SamusFrameState _player;
     /// <summary>Receives animated tile, layer-three map, and blend-color catalogs for every room's FX.</summary>
     private readonly RoomFxSession _roomFx;
-    /// <summary>The colours the Chainsaw beam's palette loader reads past its table.</summary>
-    internal ChainsawBeamColours<RgbColor> ChainsawColours { get; }
 
     /// <summary>
     /// Binds the installed projectile artwork to one room's Samus projectile and bomb systems: when the room builds them,
@@ -55,7 +53,6 @@ internal sealed class RuntimeArtwork
         _hud = dependencies.Hud;
         _player = dependencies.Player;
         _roomFx = dependencies.RoomFx;
-        ChainsawColours = Ensure.NotNull(dependencies.ChainsawColours);
     }
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     public GameplayBasePalette? InitialPaletteArt { get; set; }
@@ -87,12 +84,6 @@ internal sealed class RuntimeArtwork
     {
         if (_player.Samus is null)
             return;
-        _player.Samus.VisorPalette.PresentationColors = MapPresentation?.SamusVisorColors;
-        _player.Samus.Xray.PresentationColors = MapPresentation?.SamusVisorColors;
-        _player.Samus.Drained.PresentationColors = MapPresentation?.SamusHyperBeamColors;
-        _player.Samus.Presentation.SuitColors = MapPresentation?.SamusSuitColors;
-        _player.Samus.Presentation.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
-        _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
         // All Samus constructors call this rebind before priming the first visual transfer.
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
@@ -147,18 +138,6 @@ internal sealed class RuntimeArtwork
     /// <summary>The projectile sheets Samus's projectiles, bombs, charge flare and trails draw from.</summary>
     public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
-    /// <summary>Beam palettes bound since the last frame boundary, which the next one publishes.</summary>
-    private InstalledBeamPalettes? pendingBeamPalette;
-
-    /// <summary>Current beam palettes.</summary>
-    public InstalledBeamPalettes? BeamPalettes
-    {
-        get;
-        set { field = value; pendingBeamPalette = value; }
-    }
-
-    /// <summary>Current Hyper Beam palette effect colours.</summary>
-    public HyperBeamFxColours? HyperBeamFxColors { get; set; }
 
     /// <summary>
     /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> last loaded. The
@@ -174,26 +153,9 @@ internal sealed class RuntimeArtwork
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
     {
         LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamPalettes, ChainsawColours);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, equippedBeams);
     }
 
-    /// <summary>
-    /// Loads newly bound beam palettes for the equipped beams at a frame boundary. The characters need no
-    /// publication: the projectile sheets are pre-composed for every beam combination.
-    /// </summary>
-    internal void PublishReboundBeamPalette()
-    {
-        if (pendingBeamPalette is not { } beamPalettes || _player.Samus is not { } samus) return;
-        // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (SamusBeamCombinations.Of(samus.EquippedBeams) is var selection &&
-            selection.IsRetail &&
-            // An in-flight effect owns these colors across frames. Its own completion
-            // restores the selected normal palette; host rebind must not erase its phase.
-            samus.CrystalFlash.SpecialPaletteKind != SuperMetroid.Core.Samus.Abilities.SamusSpecialPaletteType.CrystalFlash &&
-            !samus.Drained.HyperBeamPaletteFx.IsActive)
-            beamPalettes.LoadTo(_player.Colours.Beam, selection);
-        pendingBeamPalette = null;
-    }
 
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Spatial;
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Compatibility;
@@ -36,9 +37,22 @@ internal static class SamusOverreadServicesReader
             DrainedCrashDepartures(Require(document.DrainedCrashDepartures, nameof(document.DrainedCrashDepartures))));
         return new SamusOverreadServices(
             AnimationContinuation(Require(document.AnimationContinuations, nameof(document.AnimationContinuations))),
-            SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
-            ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))),
             projectiles);
+    }
+
+    /// <summary>
+    /// Builds the colours Samus's palette loaders read past their tables, which only the import reads to pre-colour her
+    /// sheets (#1512).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete colour run.</exception>
+    internal static SamusOverrunColours ReadColours(SamusOverreadDocument document)
+    {
+        Ensure.NotNull(document);
+        if (document.Version != SamusOverreadFormat.Version)
+            throw new InvalidDataException("Samus overread file has an unsupported version.");
+        return new SamusOverrunColours(
+            SpeedBoosterColours(Require(document.SpeedBoosterOverrunColours, nameof(document.SpeedBoosterOverrunColours))),
+            ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));
     }
 
     /// <summary>Every pose with an animation program and its program's successor.</summary>

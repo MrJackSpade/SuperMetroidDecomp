@@ -13,18 +13,6 @@ public enum ScreenColourGroup
     /// <summary>The colours of Samus's beams on a screen that shows her.</summary>
     SamusBeams,
 
-    /// <summary>The map's highlight colours, which the map highlight cycle animates on the pause and file-select maps.</summary>
-    MapHighlight,
-
-    /// <summary>The reserve-tank arrow's darker bevel colour, which its pulse animates.</summary>
-    PauseReserveArrowShade,
-
-    /// <summary>The reserve-tank arrow's lighter bevel colour, which its pulse animates.</summary>
-    PauseReserveArrowLight,
-
-    /// <summary>The file-copy arrows' visible colours, which rotate while a copy destination is chosen.</summary>
-    FileCopyArrows,
-
     /// <summary>The title copyright glyph's white.</summary>
     TitleCopyrightWhite,
 
@@ -42,9 +30,6 @@ public enum ScreenColourGroup
 
     /// <summary>The title's green paint whose colour the displays show when dim.</summary>
     TitleDimGreenPaint,
-
-    /// <summary>The game-over baby Metroid's colours, which its glow animates.</summary>
-    GameOverBaby,
 
     /// <summary>The opening's Mother Brain colours, which her hurt flash replaces.</summary>
     IntroMotherBrain,
@@ -197,21 +182,6 @@ public enum ScreenColourGroup
 
     /// <summary>The colours the title's copyright line draws in, among them its white and red glyph colours.</summary>
     TitleCopyright,
-
-    /// <summary>The map's bright label colours: the world map's title, the selected area's label and the elevator labels.</summary>
-    MapLabels,
-
-    /// <summary>The colours of the world map's unselected area labels.</summary>
-    MapDimLabels,
-
-    /// <summary>The colours a defeated boss's map marker draws in.</summary>
-    MapDefeatedBossMarker,
-
-    /// <summary>
-    /// The colours the map's station, boss and gunship markers, the load-station marker and Samus's position indicator draw
-    /// in.
-    /// </summary>
-    MapMarkers,
 
     /// <summary>The colours of the gunship's engine in the opening cutscene, which its flicker animates.</summary>
     CinematicGunshipEngine,

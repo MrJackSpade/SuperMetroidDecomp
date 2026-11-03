@@ -2,28 +2,14 @@ using static SuperMetroid.Core.Samus.Abilities.CrystalFlashPaletteTimingDefiniti
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>How long each step of the Crystal Flash palette shows.</summary>
+/// <summary>How long each step of the Crystal Flash body's colour pulse shows.</summary>
 internal static class CrystalFlashPaletteTiming
 {
-    /// <summary>Returns the duration selected by an aligned byte offset into the records.</summary>
-    /// <remarks>
-    /// All ten timer words plus a four-byte record stride
-    /// are ten in the original data. Thus every aligned
-    /// offset from 0 through 36 returns ten after validation; the
-    /// handler advances and wraps that offset at 40. A complete 100-call
-    /// production cycle matches without reading the original timer words.
-    /// Investigation: #625 / #668.
-    /// </remarks>
-    public static ushort DurationForByteOffset(int byteOffset)
-    {
-        if (byteOffset % RecordByteCount != 0 ||
-            byteOffset >= RecordCount * RecordByteCount)
-        {
-            throw new InvalidDataException(
-                $"Crystal Flash palette timing offset {byteOffset} is not one of the " +
-                $"{RecordCount} authored {RecordByteCount}-byte records.");
-        }
-
-        return AuthoredDuration;
-    }
+    /// <summary>The palette-handler calls step <paramref name="step"/> of the body's pulse shows for.</summary>
+    /// <remarks>Every one of the ten steps shows for ten calls, so a whole pulse is a hundred calls. Investigation: #625 / #668.</remarks>
+    /// <exception cref="InvalidDataException">The step is not one of the pulse's.</exception>
+    public static ushort DurationForStep(int step) =>
+        (uint)step < RecordCount
+            ? (ushort)AuthoredDuration
+            : throw new InvalidDataException($"Crystal Flash body step {step} is not one of the pulse's {RecordCount}.");
 }

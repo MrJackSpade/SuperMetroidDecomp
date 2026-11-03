@@ -7,13 +7,18 @@ times. Every gap between consecutive transcript records is classified:
   tool       a foreground tool call was in flight (the gap lies between a tool call and its result)
   idle       the agent's turn had ended and the gap ends at a task notification, wake-up, goal check-in or hook
              prompt, i.e. the agent was sitting on background work or a timer
-  delegated  as idle, but a subagent the session launched or resumed was running: the coordinator's work was being
-             done by its agents, which AGENTS.md "Agent use" requires it to wait on, so this is agent time, not waiting
+  delegated  as idle, but a subagent the session launched or resumed was running (excluded: the subagents' own
+             time is counted instead)
   user       the agent's turn had ended and the gap ends at a genuine human message (the user's time, excluded)
   system     anything else, such as context compaction (excluded)
 
-"Waiting" is tool + idle; agent time is working + delegated + waiting. Tool and idle time are also broken down by what was running (verify-all, build, focused
+"Waiting" is tool + idle. Tool and idle time are also broken down by what was running (verify-all, build, focused
 checks, audit, and so on), taken from the command text of the in-flight foreground call or the running background job.
+
+Subagents are part of the session's time, not a pass from it. Each subagent's own transcript (the session folder's
+`subagents/agent-*.jsonl`) is classified the same way and added to the session's totals: a subagent writing code is
+working, a subagent waiting on a tool is waiting, and subagents running at once each count. A subagent's time between
+finishing and being resumed is not counted; it was not running.
 
 Usage: python tools/agent-time-report.py [--hours 24]
        python tools/agent-time-report.py --head   (post-commit check of the latest commit)
@@ -63,6 +68,42 @@ def transcript_directories():
             if name.lower() == prefix.lower() or name.lower().startswith(prefix.lower() + "-")]
 
 
+#: A timestamp field, read from a record's raw line.
+TIMESTAMP = re.compile(r'"timestamp":"([^"]+)"')
+
+
+def read_records(path, start, subagent):
+    """One transcript file's records from the start time on, in time order. A subagent's file holds only sidechain
+    records, which a session's own file skips."""
+    records = []
+    earliest = start - timedelta(hours=6)
+    # A transcript nothing wrote to since the window opened has no record in it; skipping it unread keeps the
+    # post-commit check from parsing every old session on every commit.
+    if datetime.fromtimestamp(os.path.getmtime(path), timezone.utc) < earliest:
+        return records
+    with open(path, encoding="utf-8") as handle:
+        for line in handle:
+            # Timestamps are read from the raw line first, so lines before the window are never decoded. A line is
+            # skipped only when every timestamp in it is old: a nested one in a tool result must not hide its record.
+            stamps = TIMESTAMP.findall(line)
+            if stamps and all(parse_time(stamp) < earliest for stamp in stamps):
+                continue
+            record = json.loads(line)
+            stamp = record.get("timestamp")
+            # Only conversation records bound a gap; housekeeping records (turn durations, queue operations,
+            # attachments) sit inside gaps and would otherwise split an idle wait into "working". A queued task
+            # notification is kept, but only to end the background job or subagent it reports (see session_gaps).
+            if stamp is None or (record.get("isSidechain") and not subagent):
+                continue
+            if record.get("type") not in ("assistant", "user") and not is_queued_notification(record):
+                continue
+            when = parse_time(stamp)
+            if when >= earliest:
+                records.append((when, record))
+    records.sort(key=lambda item: item[0])
+    return records
+
+
 def load_sessions(transcript_dirs, start):
     """Each session file's transcript records from the start time on, in time order. Sessions stay separate: several
     agents can work in one repository at once, and merging their timelines would charge one agent with another's
@@ -70,29 +111,35 @@ def load_sessions(transcript_dirs, start):
     sessions = {}
     paths = [path for directory in transcript_dirs for path in glob.glob(os.path.join(directory, "*.jsonl"))]
     for path in paths:
-        records = []
-        with open(path, encoding="utf-8") as handle:
-            for line in handle:
-                record = json.loads(line)
-                stamp = record.get("timestamp")
-                # Only conversation records bound a gap; housekeeping records (turn durations, queue operations,
-                # attachments) sit inside gaps and would otherwise split an idle wait into "working". A queued task
-                # notification is kept, but only to end the background job or subagent it reports (see session_gaps).
-                if stamp is None or record.get("isSidechain"):
-                    continue
-                if record.get("type") not in ("assistant", "user") and not is_queued_notification(record):
-                    continue
-                when = parse_time(stamp)
-                if when >= start - timedelta(hours=6):
-                    records.append((when, record))
+        records = read_records(path, start, subagent=False)
         if records:
-            records.sort(key=lambda item: item[0])
             sessions[path] = records
     return sessions
 
 
+def subagent_records(session_path, start):
+    """The transcripts of the subagents a session ran, each in time order."""
+    folder = os.path.join(os.path.splitext(session_path)[0], "subagents")
+    return [records for records in (read_records(path, start, subagent=True)
+                                    for path in glob.glob(os.path.join(folder, "agent-*.jsonl"))) if records]
+
+
+def gaps_with_subagents(session_path, records, start):
+    """A session's gaps followed by every gap of the subagents it ran. A subagent's gaps while it was stopped
+    (finished, waiting to be resumed) are excluded; its waits are labelled as the agents'."""
+    gaps = session_gaps(records)
+    for agent in subagent_records(session_path, start):
+        for gap_start, gap_end, kind, label in session_gaps(agent):
+            if kind in ("user", "delegated") or (kind == "idle" and label == "timer or hook"):
+                kind, label = "stopped", "stopped"
+            elif kind in ("tool", "idle"):
+                label = "agents: " + label
+            gaps.append((gap_start, gap_end, kind, label))
+    return gaps
+
+
 def committing_session(sessions, previous, when):
-    """The session that made the commit at `when`: the one whose latest `git commit` tool call between the previous
+    """The session that made the commit at `when`: the one whose latest `git commit` or `git merge` tool call between the previous
     commit and this one is closest before it, or None when no session recorded the commit."""
     best = None
     # Git records commit times in whole seconds, so the tool call can carry a later fraction of the commit's second.
@@ -103,7 +150,7 @@ def committing_session(sessions, previous, when):
                 continue
             for part in content_parts(record):
                 if (isinstance(part, dict) and part.get("type") == "tool_use" and
-                        "git commit" in str(part.get("input", {}).get("command", ""))):
+                        re.search(r"git (commit|merge)\b", str(part.get("input", {}).get("command", "")))):
                     if best is None or stamp > best[0]:
                         best = (stamp, path)
     return None if best is None else best[1]
@@ -237,9 +284,9 @@ def split_interval(gaps, previous, when):
 
 
 def waiting_share(kinds):
-    """Waiting as a percentage of agent time (working, delegated to subagents, and waiting), or None when the agent
+    """Waiting as a percentage of agent time (working + waiting, the subagents' included), or None when the agent
     did nothing."""
-    counted = kinds["working"] + kinds["delegated"] + kinds["tool"] + kinds["idle"]
+    counted = kinds["working"] + kinds["tool"] + kinds["idle"]
     return 100 * (kinds["tool"] + kinds["idle"]) / counted if counted else None
 
 
@@ -265,14 +312,13 @@ def head_check(revision):
     if session is None:
         print("agent time check: no agent session recorded this commit.", file=sys.stderr)
         return
-    kinds, waits = split_interval(session_gaps(sessions[session]), previous, when)
+    kinds, waits = split_interval(gaps_with_subagents(session, sessions[session], previous), previous, when)
     share = waiting_share(kinds)
     if share is None:
         print("agent time check: no agent activity since the previous commit.", file=sys.stderr)
         return
     causes = ", ".join(f"{label} {seconds / 60:.1f} min" for label, seconds in waits.most_common(5)) or "none"
-    summary = (f"agent time since the previous commit: working {kinds['working'] / 60:.1f} min, delegated to "
-               f"subagents {kinds['delegated'] / 60:.1f} min, waiting "
+    summary = (f"agent time since the previous commit, subagents included: working {kinds['working'] / 60:.1f} min, waiting "
                f"{(kinds['tool'] + kinds['idle']) / 60:.1f} min ({share:.0f}% waiting). Waiting by cause: {causes}.")
     if share > AGGRESSIVE_PERCENT:
         bar = "!" * 100
@@ -312,13 +358,12 @@ def main():
     if not directories:
         raise SystemExit("No agent session transcripts for this repository on this machine.")
     sessions = load_sessions(directories, edges[0][0])
-    gaps_by_session = {path: session_gaps(records) for path, records in sessions.items()}
+    gaps_by_session = {path: gaps_with_subagents(path, records, edges[0][0]) for path, records in sessions.items()}
 
     def minutes(seconds):
         return f"{seconds / 60:6.1f}"
 
-    header = (f"{'commit':9} {'subject':46} {'span':>6} {'work':>6} {'agents':>6} {'tool':>6} {'idle':>6} {'user':>6} "
-              f"{'wait%':>6}  top waits (min)")
+    header = f"{'commit':9} {'subject':46} {'span':>6} {'work':>6} {'tool':>6} {'idle':>6} {'user':>6} {'wait%':>6}  top waits (min)"
     print(header)
     print("-" * len(header))
     totals = collections.Counter()
@@ -332,13 +377,11 @@ def main():
         share = waiting_share(kinds) or 0
         top = ", ".join(f"{label} {seconds / 60:.1f}" for label, seconds in waits.most_common(3))
         span = (when - previous).total_seconds()
-        print(f"{short:9} {subject[:46]:46} {minutes(span)} {minutes(kinds['working'])} {minutes(kinds['delegated'])} "
-              f"{minutes(kinds['tool'])} "
+        print(f"{short:9} {subject[:46]:46} {minutes(span)} {minutes(kinds['working'])} {minutes(kinds['tool'])} "
               f"{minutes(kinds['idle'])} {minutes(kinds['user'])} {share:5.0f}%  {top}")
 
     print("-" * len(header))
-    print(f"Totals over {len(edges) - 1} commits: working {totals['working'] / 60:.0f} min, "
-          f"delegated to subagents {totals['delegated'] / 60:.0f} min, "
+    print(f"Totals over {len(edges) - 1} commits, subagents included: working {totals['working'] / 60:.0f} min, "
           f"waiting {(totals['tool'] + totals['idle']) / 60:.0f} min "
           f"(foreground tools {totals['tool'] / 60:.0f}, idle on background or timers {totals['idle'] / 60:.0f}); "
           f"waiting is {waiting_share(totals) or 0:.0f}% of agent time. "

@@ -16,19 +16,19 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     /// <summary>The colour the running fade ends in.</summary>
     private RgbColor toward;
 
-    /// <summary>Whether the running fade keeps Samus's draws lit.</summary>
-    private bool sparesSamus;
+    /// <summary>What the running fade leaves in its own colours.</summary>
+    private GameplayFadeSpares spared;
 
     /// <summary>Starts fading the display toward <paramref name="colour"/> over <paramref name="denominator"/> steps.</summary>
     /// <param name="colour">The colour the fade ends in.</param>
     /// <param name="denominator">The fade's length.</param>
     /// <param name="counter">The shared step counter the fade reads and advances.</param>
-    /// <param name="keepsSamusLit">Whether Samus's draws keep their own colours, as the death fade keeps her.</param>
-    internal void Begin(RgbColor colour, int denominator, GradualColorChangeCounter counter, bool keepsSamusLit)
+    /// <param name="spares">What the fade leaves in its own colours: Samus for the death fade, nothing for the whiteout.</param>
+    internal void Begin(RgbColor colour, int denominator, GradualColorChangeCounter counter, GameplayFadeSpares spares)
     {
         steps = new GradualFadeSteps(denominator, counter);
         toward = colour;
-        sparesSamus = keepsSamusLit;
+        spared = spares;
     }
 
     /// <summary>Takes one step of the running fade.</summary>
@@ -44,6 +44,6 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     {
         Ensure.NotNull(frame);
         if (steps is { } running)
-            frame.Fade(new GameplayDisplayFade(running.Toward(toward), SparesHud: false, SparesSamus: sparesSamus));
+            frame.Fade(new GameplayDisplayFade(running.Toward(toward), spared));
     }
 }

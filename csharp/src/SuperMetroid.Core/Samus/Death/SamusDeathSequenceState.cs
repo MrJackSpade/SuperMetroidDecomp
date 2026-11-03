@@ -293,7 +293,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     {
         Ensure.NotNull(frame);
         if (Whiteout is { } colour)
-            frame.Fade(new GameplayDisplayFade(new ColourFlash(colour), SparesHud: false, SparesSamus: true));
+            frame.Fade(new GameplayDisplayFade(new ColourFlash(colour), GameplayFadeSpares.Samus));
     }
 
     /// <summary>Shows the suited and suitless death shades the shown suit and the animation step select (#1512).</summary>

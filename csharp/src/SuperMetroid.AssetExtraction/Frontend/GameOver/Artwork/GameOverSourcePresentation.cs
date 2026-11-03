@@ -28,7 +28,7 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
     internal readonly SpriteComposition[] cursorSprites;
 
     /// <summary>Retains the compiled presentation and its compositions.</summary>
-    private GameOverSourcePresentation(GameOverPresentationDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPalettes,
+    private GameOverSourcePresentation(GameOverPresentationDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPaint,
         GameOverSprites sprites, string contentIdentity) : base(new GameOverPlacements
         {
             BabyAnchor = document.BabyAnchor,
@@ -36,8 +36,9 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
             YesCursorY = document.YesCursorY,
             NoCursorY = document.NoCursorY,
             CursorFrameDuration = document.CursorFrameDuration,
-        }, babyPalettes)
+        })
     {
+        BabyPaint = babyPaint;
         ContentIdentity = contentIdentity;
         BabyPaletteIndex = document.BabyPalette;
         EggPaletteIndex = document.EggPalette;
@@ -48,6 +49,8 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         cursorSprites = sprites.Cursors;
     }
 
+    /// <summary>The Baby's idle and crying colours, which the import pre-colours the Baby's shades in (#1512).</summary>
+    internal GameOverBabyPaint BabyPaint { get; }
     /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
     /// <summary>Sprite palette selector 0-7 the Baby composition is composed in.</summary>

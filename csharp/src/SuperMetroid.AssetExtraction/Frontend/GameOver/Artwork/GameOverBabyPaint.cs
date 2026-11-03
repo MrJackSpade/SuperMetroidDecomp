@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Fx.Artwork;
-
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.GameOver;
+
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>Game-over Baby color inputs with calculated cry-phase brightness steps.</summary>
 /// <remarks>
@@ -97,6 +98,16 @@ internal sealed class GameOverBabyPaint
             if (supplied != expected)
                 differences.Add(key, new(supplied, expected));
         }
+    }
+
+    /// <summary>The sixteen colours the Baby shows in <paramref name="palette"/>, which the import pre-colours its shade in (#1512).</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
+    internal RgbColor[] Colours(GameOverBabyPalette palette)
+    {
+        var colours = new RgbColor[16];
+        for (int colour = 0; colour < colours.Length; colour++)
+            colours[colour] = Read(palette, colour);
+        return colours;
     }
 
     /// <summary>Reconstructs an ink from endpoints and phase relationships, then applies independent channel edits.</summary>

@@ -52,7 +52,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("GameOptionsPresentation", "DrawCursor", "frame") => new(0, 4),
         ("GameOverPresentation", "DrawBaby", "frame") => new(0, 3),
         ("GameOverPresentation", "DrawCursor", "frame") => new(0, 4),
-        ("GameOverPresentation", "ApplyBabyPalette", "palette") => new(0, 4),
         ("PauseReserveUiPresentation", "ApplyDigit", "position") => new(0, PauseReserveUiDefinitions.SupplyDigitPlaces),
         ("PauseReserveUiPresentation", "ApplyDigit", "value") => new(0, PauseReserveUiDefinitions.DigitCount),
         ("InstalledBeamPalettes", "LoadTo", "selection") => new(0, BeamPaletteFile.SelectionCount),

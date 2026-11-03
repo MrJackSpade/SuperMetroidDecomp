@@ -37,13 +37,15 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     internal int? BabyStep { get; private set; }
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     internal WrappingCountdown BabyFrameHold { get; private set; }
+    /// <summary>
+    /// The colours the Baby shows (#1512): those of the pose program's current step, which the step loads as it runs, or
+    /// its idle colours before the program's first step.
+    /// </summary>
+    internal GameOverBabyPalette BabyColours => BabyStep is int step ? GameOverBabyAnimation.Get(step).Palette : GameOverBabyPalette.Idle;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
     private AreaMapPresentation? mapPresentation;
-    /// <summary>The installed map presentation the game-over screen draws from.</summary>
-    private AreaMapPresentation MapPresentation => mapPresentation ??
-        throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
     /// <summary>Creates the game-over scene with installed artwork, leaving music, animation, and fade initialization for the first update.</summary>
     /// <param name="audio">Shared music and sound queue used by menu updates.</param>
@@ -65,7 +67,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        screen = new MenuScreen(mapPresentation.Palettes,
+        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect,
             mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
         Phase = GameOverMenuPhase.ConfigureGraphics;
@@ -106,14 +108,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             "Game-over screen requires installed presentation assets.");
         if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
-
-
-        screen.BindMapPalettes(catalog.Palettes);
-        if (BabyStep is int step)
-        {
-            GameOverBabyScriptStep instruction = GameOverBabyAnimation.Get(step);
-            catalog.GameOver.ApplyBabyPalette(screen.Palette, instruction.Palette);
-        }
+        screen.Backdrop = catalog.Backdrops.FileSelect;
     }
 
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
@@ -248,7 +243,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             "Game-over screen requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
         GameOverBabyScriptStep instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
-        content.GameOver.DrawBaby(sprites, sheet, instruction.Frame);
+        content.GameOver.DrawBaby(sprites, sheet, instruction.Frame, BabyColours);
         content.GameOver.DrawEgg(sprites, sheet);
         content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem != YesNoChoice.Yes);
         sprites.FinishFrame();
@@ -260,7 +255,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         StepCompiledBabyMetroid();
     }
 
-    /// <summary>Advances the compiled Baby pose stream and applies its palette and sound effects.</summary>
+    /// <summary>Advances the compiled Baby pose stream and queues its sounds; the step reached names the colours the Baby shows.</summary>
     private void StepCompiledBabyMetroid()
     {
         if (BabyFrameHold.IsZero)
@@ -280,8 +275,6 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
             BabyStep = current.Step;
             BabyFrameHold = WrappingCountdown.Start(current.Duration);
         }
-
-        MapPresentation.GameOver.ApplyBabyPalette(screen.Palette, current.Palette);
     }
 
     /// <summary>Queues a Baby animation sound marker's cry on the retail sound queue.</summary>

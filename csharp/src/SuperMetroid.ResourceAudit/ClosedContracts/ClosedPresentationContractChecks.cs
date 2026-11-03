@@ -60,10 +60,10 @@ internal static class ClosedPresentationContractChecks
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
                     colors.ApplyFlash(cgram, 14);
-                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
-                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
+                    gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
+                    gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    arrow.ApplyArrowColors(screen, true, dynamicIndex);
+                    _ = arrow.Pulse(dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);
                     beam.LoadTo(screen.SpriteSets.Set(6), 0);
                     beam.LoadTo(screen.SpriteSets.Set(6), SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);

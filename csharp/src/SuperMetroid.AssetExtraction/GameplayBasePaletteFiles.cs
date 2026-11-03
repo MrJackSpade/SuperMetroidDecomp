@@ -96,7 +96,7 @@ public static class GameplayBasePaletteFiles
             throw new InvalidDataException("Gameplay base palette has an unsupported version.");
         RgbColor[] initial = Compile(document.Initial, CgramPalettes.ColorCount, "initial");
         RgbColor[] commonSprites = Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount, "commonSprites");
-        return new InstalledGameplayBasePalette(GameplayColourImage.Decode(initial), commonSprites,
+        return new GameplayBasePalette(GameplayColourImage.Decode(initial), commonSprites,
             SelectedPresentationHash.Create(nameof(GameplayBasePalette), content =>
             {
                 content.AppendColors("initial", initial);

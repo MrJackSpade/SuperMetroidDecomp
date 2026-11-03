@@ -54,8 +54,6 @@ internal sealed class RuntimeArtwork
         _player = dependencies.Player;
         _roomFx = dependencies.RoomFx;
     }
-    /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
-    public GameplayBasePalette? InitialPaletteArt { get; set; }
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
     /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD word sheet's pictures, so no characters are shown again.</remarks>
     public IGameplayPresentationContent? MapPresentation

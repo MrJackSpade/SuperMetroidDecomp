@@ -32,15 +32,14 @@ internal static class HudAtlasVerification
     /// </summary>
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentation original, ImportedAreaMap[] rules,
-        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
         AssertTrue(source.SequenceEqual(MapCharacterArtwork.Of(original).Hud.Bytes.Span), "HUD PNG and compiled padding match all native bytes");
         var guard = NewMapDataGuard(bus, rules);
-        var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         native.Artwork.MapPresentation = original;
-        var installed = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var installed = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         installed.Artwork.MapPresentation = original;
         fixtureAssets.Bind(native);
         fixtureAssets.Bind(installed);
@@ -81,7 +80,7 @@ internal static class HudAtlasVerification
         AssertTrue(previousDisplay.AsSpan(0, characterStart).SequenceEqual(shownAfterRebind.AsSpan(0, characterStart)) &&
             previousDisplay.AsSpan(characterEnd).SequenceEqual(shownAfterRebind.AsSpan(characterEnd)),
             "HUD rebind changes nothing shown outside its characters, including live room tilemaps");
-        var setUp = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var setUp = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         setUp.Artwork.MapPresentation = original;
         fixtureAssets.Bind(setUp);
         Initialize(setUp);
@@ -100,7 +99,7 @@ internal static class HudAtlasVerification
                 : $" ({differing.Length} pixels differ, first at {differing[0] % 256},{differing[0] / 256}: rebound {rebound[differing[0]]}, fresh {modified[differing[0]]})"));
         AssertTrue(Enumerable.Range(8, 24).Any(y => Enumerable.Range(216, 40).Any(x => baseline[y * 256 + x] != modified[y * 256 + x])),
             "edited HUD PNG changes rendered minimap region after accepted NMI");
-        var reboundBeforeNmi = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var reboundBeforeNmi = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         reboundBeforeNmi.Artwork.MapPresentation = original;
         fixtureAssets.Bind(reboundBeforeNmi);
         Initialize(reboundBeforeNmi);

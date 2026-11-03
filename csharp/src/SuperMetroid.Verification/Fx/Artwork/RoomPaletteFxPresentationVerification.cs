@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
@@ -77,8 +76,8 @@ internal static class RoomPaletteFxPresentationVerification
             installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
         }
 
-        var nativeCgram = new SamusColourRig();
-        var installedCgram = new SamusColourRig();
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
@@ -710,8 +709,8 @@ internal static class RoomPaletteFxPresentationVerification
             };
             native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
             installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
-            var nativeCgram = new SamusColourRig();
-            var installedCgram = new SamusColourRig();
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
             int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
@@ -759,8 +758,8 @@ internal static class RoomPaletteFxPresentationVerification
             var installed = new RoomPaletteFxSystem(installedSession);
             native.SpawnDefinition(definition, equippedItems: 0);
             installed.SpawnDefinition(definition, equippedItems: 0);
-            var nativeCgram = new SamusColourRig();
-            var installedCgram = new SamusColourRig();
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
                 native.Step(new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -822,8 +821,8 @@ internal static class RoomPaletteFxPresentationVerification
             var installed = new RoomPaletteFxSystem(installedSession);
             native.SpawnDefinition(definition, equippedItems: 0);
             installed.SpawnDefinition(definition, equippedItems: 0);
-            var nativeCgram = new SamusColourRig();
-            var installedCgram = new SamusColourRig();
+            var nativeCgram = new SnesCgram();
+            var installedCgram = new SnesCgram();
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
@@ -880,8 +879,8 @@ internal static class RoomPaletteFxPresentationVerification
             installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
         }
 
-        var nativeCgram = new SamusColourRig();
-        var installedCgram = new SamusColourRig();
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
@@ -992,8 +991,8 @@ internal static class RoomPaletteFxPresentationVerification
             equippedItems: 0);
         // The same native control stream selects both color sources. Only the
         // visible CGRAM word should change, not phase or sound side effects.
-        var stockCgram = new SamusColourRig();
-        var editedCgram = new SamusColourRig();
+        var stockCgram = new SnesCgram();
+        var editedCgram = new SnesCgram();
         stockOwner.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         PaletteFxRoomLook.LayShownShades(stockOwner, stockCgram, currentStock);
         editedOwner.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });

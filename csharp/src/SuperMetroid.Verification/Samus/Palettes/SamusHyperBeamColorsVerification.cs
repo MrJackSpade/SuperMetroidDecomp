@@ -404,7 +404,6 @@ internal static class SamusHyperBeamColorsVerification
     /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentation baseline, ISnesAddressSpace rom,
-        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         string path = Path.Combine(overrides, SamusHyperBeamColorFormat.FileName);
@@ -419,7 +418,7 @@ internal static class SamusHyperBeamColorsVerification
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
 using System.Runtime.CompilerServices;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -125,7 +125,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertTrue(paletteFx.IsDefinitionActive(
                 PaletteFxObject.Nothing),
             "empty room palette-FX definition occupies a slot before its first handler pass");
-        paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(!paletteFx.IsDefinitionActive(
                 PaletteFxObject.Nothing),
             "empty room palette-FX definition deletes itself on its first handler pass");
@@ -160,11 +160,11 @@ internal static class PaletteFxInstructionCodesVerification
                  step < NintendoLogoFadePaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
             AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} fade remains active through its final hold");
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} fade deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -193,12 +193,12 @@ internal static class PaletteFxInstructionCodesVerification
              step < TitleLogoFadePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer),
             "title-logo fade remains active through its final hold");
-        paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(!paletteFx.IsDefinitionActive(
                 TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer),
             "title-logo fade deletes after its final hold");
@@ -237,12 +237,12 @@ internal static class PaletteFxInstructionCodesVerification
              step < PostCreditsIconGlarePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer),
             "post-credits icon glare remains active through its final hold");
-        paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(!paletteFx.IsDefinitionActive(
                 PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer),
             "post-credits icon glare deletes after its final hold");
@@ -288,7 +288,7 @@ internal static class PaletteFxInstructionCodesVerification
              step <= UnusedCinematicFadePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer),
@@ -329,12 +329,12 @@ internal static class PaletteFxInstructionCodesVerification
              step < ZebesExplosionGunshipPaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(paletteFx.IsDefinitionActive(
                 ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer),
             "ending gunship reveal remains active through its final hold");
-        paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer),
             "ending gunship reveal deletes after its final hold");
@@ -374,7 +374,7 @@ internal static class PaletteFxInstructionCodesVerification
                  step <= ZebesExplosionWhiteoutPaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
             AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} whiteout deletes after its final hold");
@@ -404,7 +404,7 @@ internal static class PaletteFxInstructionCodesVerification
              step <= ZebesExplosionFinalePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer),
@@ -434,7 +434,7 @@ internal static class PaletteFxInstructionCodesVerification
              step <= ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer),
@@ -464,7 +464,7 @@ internal static class PaletteFxInstructionCodesVerification
              step <= ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
         AssertTrue(!paletteFx.IsDefinitionActive(
                 ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer),
@@ -522,7 +522,7 @@ internal static class PaletteFxInstructionCodesVerification
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             paletteFx.SpawnDefinition(definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
-                paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
                 $"{owner} completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -544,7 +544,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         paletteFx.SpawnDefinition(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.CycleFrames; step++)
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(paletteFx.IsDefinitionActive(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer),
             "upper-Crateria escape flash completes and repeats its cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
@@ -569,7 +569,7 @@ internal static class PaletteFxInstructionCodesVerification
              step <= OldTourianEscapeRedFlashPaletteFxColorDefinitions.CycleFrames;
              step++)
         {
-            paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
 
         AssertTrue(paletteFx.IsDefinitionActive(
@@ -601,7 +601,7 @@ internal static class PaletteFxInstructionCodesVerification
                  step <= TourianEscapeSharedRedFlashPaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
-                paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
@@ -627,7 +627,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        var cgram = new SamusColourRig();
+        var cgram = new SnesCgram();
         paletteFx.SpawnDefinition(
             BeaconPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
@@ -687,7 +687,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            var cgram = new SamusColourRig();
+            var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(definition, equippedItems: 0);
             for (int step = 0;
                  step <= TourianGlowPaletteFxColorDefinitions.CycleFrames;
@@ -724,8 +724,8 @@ internal static class PaletteFxInstructionCodesVerification
         deletionFx.SpawnDefinition(TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, 0);
         deletionFx.SpawnDefinition(0xf795, 0);
         deletionFx.SpawnDefinition(0xf799, 0);
-        deletionFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        deletionFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        StepShowing(deletionFx, new ReferencePaletteFxColorSource(bus));
+        StepShowing(deletionFx, new ReferencePaletteFxColorSource(bus));
         AssertTrue(!deletionFx.IsDefinitionActive(
                 TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer),
             "Tourian glow pre-instruction deletes its owner when two later slots exist");
@@ -740,7 +740,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        var cgram = new SamusColourRig();
+        var cgram = new SnesCgram();
         const ushort definition =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
         paletteFx.SpawnDefinition(definition, equippedItems: 0);
@@ -782,7 +782,7 @@ internal static class PaletteFxInstructionCodesVerification
                  step < TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion;
                  step++)
             {
-                paletteFx.Step(new SamusColourRig(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
 
             AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
@@ -810,7 +810,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            var cgram = new SamusColourRig();
+            var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(definition, equippedItems: 0);
             int steps = 1 +
                 WreckedShipGreenLightPaletteFxColorDefinitionsConstants.FrameCount * 10;
@@ -895,7 +895,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        var cgram = new SamusColourRig();
+        var cgram = new SnesCgram();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99 };
         paletteFx.SpawnDefinition(definition: 0xf761, equippedItems: 0);
         paletteFx.SpawnDefinition(definition: 0xf785, equippedItems: 0);
@@ -1570,7 +1570,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        var cgram = new SamusColourRig();
+        var cgram = new SnesCgram();
         paletteFx.SpawnDefinition(definition: 0xf781, equippedItems: 0);
 
         int soundFrame = -1;
@@ -1642,5 +1642,16 @@ internal static class PaletteFxInstructionCodesVerification
     {
         Suite(nameof(VerifyPaletteFxInstructionCodeCatalogs), () => VerifyPaletteFxInstructionCodeCatalogs());
         return 0;
+    }
+
+    /// <summary>
+    /// Runs one handler pass of <paramref name="fx"/> and lays every record it shows over a fresh colour table as the
+    /// pictures that show it are pre-coloured from <paramref name="colours"/> (#1512), so each shown record's colours are
+    /// read from the source as the pictures show them.
+    /// </summary>
+    private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource colours)
+    {
+        fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        PaletteFxRoomLook.LayShownShades(fx, new SnesCgram(), colours);
     }
 }

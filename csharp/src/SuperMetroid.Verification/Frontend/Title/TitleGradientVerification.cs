@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Fx.PaletteFx;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
@@ -345,8 +344,8 @@ internal static class TitleGradientVerification
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
         }
 
-        var nativeCgram = new SamusColourRig();
-        var installedCgram = new SamusColourRig();
+        var nativeCgram = new SnesCgram();
+        var installedCgram = new SnesCgram();
         int frames = TitleScreenAmbientPaletteOwners.All.Max(
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)

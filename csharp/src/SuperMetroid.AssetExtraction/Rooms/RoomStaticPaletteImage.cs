@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
@@ -7,12 +6,12 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// A room palette's colours in the cartridge's order (#1464): what the import composers colour room sheets from and
-/// what a palette's installed identity hashes. Core holds the palette only by background set.
+/// what a palette's installed identity hashes. Core never holds the palette.
 /// </summary>
 internal static class RoomStaticPaletteImage
 {
     /// <summary>The 128 background colours <paramref name="palette"/> loads, in the cartridge's order.</summary>
-    internal static RgbColor[] Colours(RoomStaticPalette palette) => BackgroundColourSetImage.Encode(Ensure.NotNull(palette).Sets);
+    internal static RgbColor[] Colours(RoomStaticPalette palette) => Ensure.NotNull(palette).Colours.ToArray();
 
     /// <summary>
     /// The 128 background colours <paramref name="palette"/> loads, in the cartridge's order, packed as little-endian

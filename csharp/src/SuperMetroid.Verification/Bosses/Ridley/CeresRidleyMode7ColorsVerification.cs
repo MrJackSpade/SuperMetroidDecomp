@@ -23,8 +23,7 @@ internal static class CeresRidleyMode7ColorsVerification
 {
     /// <summary>Compares native zoom rows, all getaway frames, override repair, and source-read blocking.</summary>
     internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom,
-        GameplayBasePalette initialPalettes)
+        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
         CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(
@@ -66,7 +65,7 @@ internal static class CeresRidleyMode7ColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = edited;
         runtime.Artwork.MapPresentation = original;
 

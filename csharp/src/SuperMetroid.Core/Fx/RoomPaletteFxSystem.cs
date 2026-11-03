@@ -445,7 +445,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     {
         PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
             $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
-        if (!PaletteFxScreenColourDefinitions.ScreenColours.Contains(animated))
+        if (!PaletteFxScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
             throw new InvalidOperationException($"Palette-FX object {slot.Object} showed {animated}, which no frontend screen shows.");
         shown.Show(animated, frame);
     }

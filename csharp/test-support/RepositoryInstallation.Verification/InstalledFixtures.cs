@@ -49,12 +49,6 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Compatibility.LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId> AnimationContinuation =>
         SamusOverreads.AnimationContinuation;
 
-    /// <summary>The installation's starting and common sprite colours, loaded once.</summary>
-    private static readonly Lazy<GameplayBasePalette> gameplayBasePalettes = new(() => RepositoryInstallation.Installation.LoadGameplayBasePalettes());
-
-    /// <summary>The installation's starting and common sprite colours.</summary>
-    internal static GameplayBasePalette GameplayBasePalettes => gameplayBasePalettes.Value;
-
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomVisualLayouts(),

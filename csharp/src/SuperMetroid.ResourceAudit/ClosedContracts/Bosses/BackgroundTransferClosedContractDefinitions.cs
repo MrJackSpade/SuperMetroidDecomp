@@ -14,7 +14,7 @@ internal static class BackgroundTransferClosedContractDefinitions
             [new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3Pages.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3TilemapDocument.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3TilemapFormat.cs")]),
-        new("SuperMetroid.Core.Fx.Artwork.RoomFxBlendInks", "room-fx-complete-eight-blends-and-zero-clear", ["Apply"],
+        new("SuperMetroid.Core.Fx.Artwork.RoomFxBlendInks", "room-fx-complete-eight-blends-and-zero-clear", ["Inks"],
             [new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxBlendInks.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomFxPaletteBlendDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPaletteBlendRules.cs")]),

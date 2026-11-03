@@ -419,7 +419,6 @@ public sealed record GameInstallation(string Root)
         return new GameArtwork
         {
             MapPresentation = maps,
-            GameplayBasePalettes = LoadGameplayBasePalettes(),
             IntroCinematicArt = LoadIntroCinematicArt(),
             SamusBodyArt = LoadSamusBodyArt(),
             EndingFloorArt = LoadEndingMode7Art(),

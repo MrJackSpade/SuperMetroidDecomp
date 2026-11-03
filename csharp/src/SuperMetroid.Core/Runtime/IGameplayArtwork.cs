@@ -31,9 +31,6 @@ internal interface IGameplayArtwork
     /// <summary>Area maps with the pause, HUD, title, intro and ending text and palettes that share their installation.</summary>
     IGameplayPresentationContent? MapPresentation { get; }
 
-    /// <summary>Gameplay base palettes a new runtime starts from.</summary>
-    GameplayBasePalette? GameplayBasePalettes { get; }
-
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     InstalledSamusBodyArtwork? SamusBodyArt { get; }
 

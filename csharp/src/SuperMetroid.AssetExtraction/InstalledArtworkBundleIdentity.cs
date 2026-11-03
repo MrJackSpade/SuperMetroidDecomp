@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -105,14 +104,5 @@ internal static class InstalledArtworkBundleIdentity
         /// <exception cref="InvalidDataException">The Samus spritemaps was not read from installed artwork.</exception>
         public string ContentIdentity => artwork is SamusSpritemapSources installed ? installed.ContentIdentity
             : throw new InvalidDataException("The Samus spritemaps was not read from installed artwork.");
-    }
-
-    /// <summary>The installed content identity of the gameplay base palette.</summary>
-    extension(GameplayBasePalette artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="InstalledGameplayBasePalette"/>.</summary>
-        /// <exception cref="InvalidDataException">The gameplay base palette was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is InstalledGameplayBasePalette installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The gameplay base palette was not read from installed artwork.");
     }
 }

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// Decodes a cartridge-ordered 256-colour image into the owners of gameplay's colours (#1464): the one place the
+/// Decodes a cartridge-ordered 256-colour image into the owners of gameplay's colours (#1464, #1512): the one place the
 /// installed starting image's colour order is read.
 /// </summary>
 public static class GameplayColourImage
@@ -15,7 +15,7 @@ public static class GameplayColourImage
     {
         Ensure.LengthEqual(image, SnesCgram.ColorCount);
         return new GameplayStartingColours(
-            BackgroundColourSetImage.Decode(image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours)),
+            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours).ToArray(),
             image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours).ToArray(),
             image.Slice(GameplayColourPositionDefinitions.SamusSuitFirst, GameplayColourPositionDefinitions.SetColours).ToArray(),
             image.Slice(GameplayColourPositionDefinitions.SamusBeamsFirst, GameplayColourPositionDefinitions.SetColours).ToArray(),

@@ -75,29 +75,13 @@ public sealed class SpriteImage
             throw new ArgumentException($"Sprite image {name} has no pixels.", nameof(size));
         ReadOnlySpan<RgbColor> colours = palette.Standard.AsSpan();
         Ensure.LengthEqual(colours, ColourCountOf(palette.Half));
-        if (!palette.BackgroundSets.IsDefaultOrEmpty &&
-            (palette.Half == SpriteImageColours.Sprite || palette.BackgroundSets.Length != SpriteColourCount / ColourSets.SetColours))
-        {
-            throw new ArgumentException(
-                $"Sprite image {name} names {palette.BackgroundSets.Length} background sets for a {palette.Half} image.", nameof(palette));
-        }
         Name = name;
         Size = size;
         Colours = palette.Half;
         standardColours = colours.ToArray();
-        BackgroundSets = palette.BackgroundSets.IsDefault ? [] : palette.BackgroundSets;
         Shades = Ensure.NotNull(palette.Shades);
         this.content = content;
     }
-
-    /// <summary>The gameplay background sets the image's background groups draw in, group after group, or none.</summary>
-    public ImmutableArray<BackgroundColourSet> BackgroundSets { get; }
-
-    /// <summary>The gameplay background set the image's background colour group <paramref name="group"/> draws in.</summary>
-    /// <exception cref="InvalidDataException">The import pipeline named no background sets for the image.</exception>
-    public BackgroundColourSet BackgroundSet(int group) => BackgroundSets.IsEmpty
-        ? throw new InvalidDataException($"Image {Name} names no gameplay background set for its colour groups.")
-        : BackgroundSets[Ensure.BetweenInclusive(0, BackgroundSets.Length - 1, group)];
 
     /// <summary>Checks one image's layers against its size and keeps its pixels and inks.</summary>
     /// <exception cref="ArgumentException">A length does not match, a priority exceeds 3 or a code names no part group.</exception>

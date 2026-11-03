@@ -42,6 +42,7 @@ public static class SpriteSheetFile
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
+        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []]);
         return CutFrames(document, name, image);
     }
 
@@ -66,6 +67,7 @@ public static class SpriteSheetFile
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
+        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []]);
         return CutFrames(document, name, image);
     }
 
@@ -85,7 +87,6 @@ public static class SpriteSheetFile
     private static SpriteImagePalette PaletteOf(SpriteSheetDocument document) =>
         new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)])
         {
-            BackgroundSets = [.. document.BackgroundSets ?? []],
             Shades = (document.Shades ?? []).ToImmutableDictionary(
                 shade => PictureShade.FromKey(shade.Key),
                 shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])),

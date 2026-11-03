@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -14,12 +13,6 @@ public static class BackgroundColourSetImage
 {
     /// <summary>The number of colours the background sets hold together in the cartridge's order.</summary>
     public const int ColourCount = ColourSets.SetCount * ColourSets.SetColours;
-
-    /// <summary>
-    /// The set each colour group of a gameplay background image draws in, group after group: an image installed from
-    /// the cartridge's background colours keeps their order, so its group of each order draws in the set of that order.
-    /// </summary>
-    public static ImmutableArray<BackgroundColourSet> ImageGroups { get; } = [.. BackgroundColourSetPositionDefinitions.InCartridgeOrder];
 
     /// <summary>The sets <paramref name="colours"/>, the cartridge's 128 background colours in its order, fill.</summary>
     /// <exception cref="ArgumentException"><paramref name="colours"/> does not hold 128 colours.</exception>

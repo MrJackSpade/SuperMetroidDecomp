@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Standard">The 128 colours of that half the image was coloured with.</param>
 public sealed record SpriteImagePalette(SpriteImageColours Half, ImmutableArray<RgbColor> Standard)
 {
-    /// <summary>
-    /// The gameplay background set each of a gameplay background image's colour groups draws in, group after group, as
-    /// the import pipeline decided when it installed the image (#1464); empty for an actor's image and for a frontend
-    /// screen's, whose groups show the screen's sets.
-    /// </summary>
-    public ImmutableArray<BackgroundColourSet> BackgroundSets { get; init; } = [];
-
     /// <summary>The shades the import pre-coloured the image in besides its standard colours, by name (#1512).</summary>
     public ImmutableDictionary<PictureShade, ShadeInks> Shades { get; init; } = ImmutableDictionary<PictureShade, ShadeInks>.Empty;
 }

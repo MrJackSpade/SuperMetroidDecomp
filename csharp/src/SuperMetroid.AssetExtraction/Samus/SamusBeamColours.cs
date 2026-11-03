@@ -35,8 +35,13 @@ internal static class SamusBeamColours
         {
             ChainsawBeamGraphicsDefinitions.Selection => [.. chainsaw.Colours],
             SpacetimeBeamGraphicsDefinitions.Selection => Enumerable.Repeat(SpacetimeColour, BeamPaletteDefinitions.ColorCount).ToArray(),
-            _ when combination.IsRetail => palettes.Colours(combination),
-            _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "The game shows no palette for this beam combination."),
+            SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or SamusBeamCombination.IceWave
+                or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIce
+                or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or SamusBeamCombination.PlasmaWave
+                or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => palettes.Colours(combination),
+            SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave =>
+                throw new ArgumentOutOfRangeException(nameof(combination), combination, "The game shows no palette for this beam combination."),
+            _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
         };
     }
 }

@@ -52,7 +52,7 @@ internal sealed class SpriteSheetLayout
     /// For each row shade, the colour each ink its painted pixels hold shows under it, and whether the shade's draw takes
     /// that ink's pixels from another row than their own (#1512).
     /// </summary>
-    private readonly Dictionary<int, (RgbColor Colour, bool Moves)>[] rowShadeInks;
+    private readonly Dictionary<int, RowShadedInk>[] rowShadeInks;
 
     /// <summary>Lays out a sheet's frames in order, then their part images.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
@@ -64,7 +64,7 @@ internal sealed class SpriteSheetLayout
         this.sources = Ensure.NotNull(sources);
         this.palette = palette;
         this.priority = priority;
-        rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, (RgbColor Colour, bool Moves)>())];
+        rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, RowShadedInk>())];
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
@@ -167,7 +167,7 @@ internal sealed class SpriteSheetLayout
         IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
         for (int index = 0; index < shades.Count; index++)
         {
-            KeyValuePair<int, (RgbColor Colour, bool Moves)>[] moved = [.. rowShadeInks[index].Where(ink => ink.Value.Moves).OrderBy(ink => ink.Key)];
+            KeyValuePair<int, RowShadedInk>[] moved = [.. rowShadeInks[index].Where(ink => ink.Value.Moves).OrderBy(ink => ink.Key)];
             yield return new SheetShade(shades[index].Shade, [.. moved.Select(ink => ink.Key)], [.. moved.Select(ink => ink.Value.Colour)]);
         }
     }
@@ -185,8 +185,8 @@ internal sealed class SpriteSheetLayout
         {
             SheetRowShade shade = shades[index];
             int shownRow = partRow | shade.Row;
-            (RgbColor Colour, bool Moves) shown = (shade.SpriteColours[shownRow * RowColours + colour], shownRow != ink / RowColours);
-            if (rowShadeInks[index].TryGetValue(ink, out (RgbColor Colour, bool Moves) known) && known != shown)
+            var shown = new RowShadedInk(shade.SpriteColours[shownRow * RowColours + colour], shownRow != ink / RowColours);
+            if (rowShadeInks[index].TryGetValue(ink, out RowShadedInk known) && known != shown)
                 throw new InvalidDataException($"Sheet ink {ink} shows two colours under shade {shade.Shade.Key}: its parts take different rows.");
             rowShadeInks[index][ink] = shown;
         }

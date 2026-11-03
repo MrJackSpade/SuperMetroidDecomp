@@ -30,7 +30,7 @@ internal static class MotherBrainSheetShades
     /// common row (her body's parts name their own rows), the Baby's, and the attack row the Shitroid and the Zebetites
     /// draw in.
     /// </summary>
-    private static readonly IReadOnlyDictionary<EnemyDefinitionId, int> DrawRows = new Dictionary<EnemyDefinitionId, int>
+    private static readonly Dictionary<EnemyDefinitionId, int> DrawRows = new()
     {
         [EnemyDefinitionId.MotherBrainHead] = BrainRow / Group,
         [EnemyDefinitionId.MotherBrainBody] = 0,
@@ -263,12 +263,12 @@ internal static class MotherBrainSheetShades
         return
         [
             Rows(MotherBrainShades.PhaseTwo,
-                (AttackRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.PhaseTwoColors, room.phaseTwoAttack.Color)),
-                (LegsRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.PhaseTwoColors, colour =>
+                new ColourRun(AttackRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.PhaseTwoColors, room.phaseTwoAttack.Color)),
+                new ColourRun(LegsRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.PhaseTwoColors, colour =>
                     room.phaseTwoRearLeg?[colour] ?? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, colour)))),
             Rows(MotherBrainShades.RoomEntry,
-                (LegsRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.InitialColors, room.initialGlassShard.Color)),
-                (SeventhRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.InitialColors, room.initialTubeProjectile.Color))),
+                new ColourRun(LegsRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.InitialColors, room.initialGlassShard.Color)),
+                new ColourRun(SeventhRow + FirstColour, Colours(MotherBrainRoomColorDefinitions.InitialColors, room.initialTubeProjectile.Color))),
         ];
     }
 
@@ -301,8 +301,8 @@ internal static class MotherBrainSheetShades
         var shades = new List<SheetShade>
         {
             Rows(ShitroidShades.Targets,
-                (BrainRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Sidehopper, colour + FirstColour))),
-                (AttackRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Shitroid, colour + FirstColour)))),
+                new ColourRun(BrainRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Sidehopper, colour + FirstColour))),
+                new ColourRun(AttackRow + FirstColour, Colours(Group - FirstColour, colour => shitroid.TargetColor(ShitroidColorTarget.Shitroid, colour + FirstColour)))),
         };
         for (int phase = 0; phase < ShitroidColorDefinitions.NormalFrameCount; phase++)
         {
@@ -325,7 +325,7 @@ internal static class MotherBrainSheetShades
 
     /// <summary>A load of the same colours into her brain's row and of <paramref name="legs"/> into her legs' row from <paramref name="legsFirstInk"/>.</summary>
     private static SheetShade BrainAndLegs(PictureShade shade, int legsFirstInk, RgbColor[] brain, RgbColor[] legs) =>
-        Rows(shade, (BrainRow + FirstColour, brain), (legsFirstInk, legs));
+        Rows(shade, new ColourRun(BrainRow + FirstColour, brain), new ColourRun(legsFirstInk, legs));
 
     /// <summary>A load of her body's background colours.</summary>
     private static SheetShade Body(PictureShade shade, RgbColor[] body) => SheetShade.Run(shade, BodyGroup + FirstColour, body);
@@ -335,17 +335,17 @@ internal static class MotherBrainSheetShades
     {
         RgbColor[] first = Colours(MotherBrainRoomColorDefinitions.SliceColors, colour);
         RgbColor[] second = Colours(MotherBrainRoomColorDefinitions.SliceColors, index => colour(MotherBrainRoomColorDefinitions.SliceColors + index));
-        return Rows(shade, (FlashFirstInks[0], first), (FlashFirstInks[1], second), (FlashFirstInks[2], second));
+        return Rows(shade, new ColourRun(FlashFirstInks[0], first), new ColourRun(FlashFirstInks[1], second), new ColourRun(FlashFirstInks[2], second));
     }
 
     /// <summary>A load of the room lights' two fourteen-colour slices.</summary>
     private static SheetShade Lights(PictureShade shade, Func<int, RgbColor> colour) =>
-        Rows(shade, (LightsFirstInks[0], Colours(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors, colour)),
-            (LightsFirstInks[1], Colours(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors,
+        Rows(shade, new ColourRun(LightsFirstInks[0], Colours(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors, colour)),
+            new ColourRun(LightsFirstInks[1], Colours(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors,
                 index => colour(MotherBrainRoomColorDefinitions.RecoveryLightsSliceColors + index))));
 
     /// <summary>A shade of several runs of colours, each from its first ink, in rising order.</summary>
-    private static SheetShade Rows(PictureShade shade, params (int FirstInk, RgbColor[] Colours)[] runs) =>
+    private static SheetShade Rows(PictureShade shade, params ColourRun[] runs) =>
         new(shade, [.. runs.SelectMany(run => Enumerable.Range(run.FirstInk, run.Colours.Length))], [.. runs.SelectMany(run => run.Colours)]);
 
     /// <summary>The palette of the tileset of the room that places <paramref name="enemy"/>.</summary>
@@ -353,7 +353,7 @@ internal static class MotherBrainSheetShades
     private static RoomPaletteSet RoomPaletteOf(EnemyDefinitionId enemy)
     {
         RoomPaletteSet[] palettes = [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
-            .Where(state => state.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == enemy))
+            .Where(state => state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy))
             .Select(state => RoomTilesets.Get(state.GraphicsSet).Palette).Distinct()];
         return palettes.Length == 1 ? palettes[0]
             : throw new InvalidDataException($"{enemy}'s room colours are those of one tileset; {palettes.Length} place it.");

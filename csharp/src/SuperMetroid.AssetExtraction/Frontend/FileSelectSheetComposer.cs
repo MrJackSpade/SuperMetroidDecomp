@@ -74,7 +74,7 @@ internal static class FileSelectSheetComposer
     /// The copy arrows' rotation shades (#1512): after each step, every rotated colour shows the next one's colour and the
     /// last shows the first's.
     /// </summary>
-    private static IEnumerable<SheetShade> CopyArrowShades(RgbColor[] sprites)
+    private static List<SheetShade> CopyArrowShades(RgbColor[] sprites)
     {
         int first = CopyArrowGroup * GroupColours + CopyArrowFirstColour;
         ReadOnlySpan<RgbColor> rotated = sprites.AsSpan(first, FileCopyArrowDefinitions.RotationSteps);

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -38,7 +39,7 @@ internal static class WreckedShipGhostShadeContentVerification
             candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
         int first = new GraphicsSetRows(set).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Coven).Image;
-        IReadOnlyList<(PictureShade Shade, RgbColor[] Colours)> steps = EnemySheetShades.GhostFadeSteps();
+        IReadOnlyList<ShadeColours> steps = EnemySheetShades.GhostFadeSteps();
         AssertTrue(steps.Count > 3 * 31, "the ghost's path passes through its brightening and both fades");
         foreach ((PictureShade shade, RgbColor[] colours) in steps)
         {

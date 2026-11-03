@@ -27,9 +27,6 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     GameplayBasePalette Palettes, IntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, SamusShadeSources ShadeSources)
 {
-    /// <summary>The shades every one of her sheets is pre-coloured in, computed once.</summary>
-    private IReadOnlyList<SheetShade>? shades;
-
     /// <summary>Loads the stock artwork and colour tables from installed content.</summary>
     internal static SamusSheetInputs Load(string content)
     {
@@ -71,8 +68,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             sources);
     }
 
-    /// <summary>The shades every one of Samus's sheets is pre-coloured in (#1512).</summary>
-    internal IReadOnlyList<SheetShade> Shades => shades ??= SamusSheetShades.Of(ShadeSources);
+    /// <summary>The shades every one of Samus's sheets is pre-coloured in (#1512), computed once.</summary>
+    internal IReadOnlyList<SheetShade> Shades => field ??= SamusSheetShades.Of(ShadeSources);
 
     /// <summary>
     /// The sprite colours Samus is drawn with in the Power Suit with the power beam; the other suits and her colour

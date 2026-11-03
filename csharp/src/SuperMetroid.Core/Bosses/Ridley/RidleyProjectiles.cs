@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -30,7 +31,7 @@ internal sealed class RidleyProjectiles
         _ridleyEncounter = ridleyEncounter;
     }
     /// <summary>OBJ colour set used for fireballs and every afterburn stage.</summary>
-    private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
+    private static readonly SpriteGraphics FireballGraphicsIndex = SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours);
     /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
     private const int FireballSpeed = 1280;
 

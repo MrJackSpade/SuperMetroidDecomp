@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -78,10 +79,10 @@ public sealed class MotherBrainEnemyState
 
 
     /// <summary>The colours the five neck joints draw in (#1464).</summary>
-    public SpriteColouring NeckColouring { get; internal set; } = SharedSpriteColouring.Common;
+    public SpriteColouring NeckColouring { get; internal set; } = EnemyShades.HitFlashed;
 
     /// <summary>The colours the custom brain draw applies outside its white hurt-flash frames (#1464).</summary>
-    public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
+    public SpriteColouring BrainColouring { get; internal set; } = EnemyShades.HitFlashed;
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame

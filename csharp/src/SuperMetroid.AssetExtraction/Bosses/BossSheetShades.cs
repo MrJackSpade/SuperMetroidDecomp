@@ -3,6 +3,8 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -23,6 +25,9 @@ internal static class BossSheetShades
 
     /// <summary>The sprite row Kraid's rocks draw in, which his initialization loads.</summary>
     private const int KraidRocksRow = 3;
+
+    /// <summary>The sprite row Botwoon's head and body draw in, which his health bands recolour.</summary>
+    private const int BotwoonRow = 7;
 
     /// <summary>The hurt flash's band, before the health bands in Kraid's health colours.</summary>
     private const int KraidHurtBand = -1;
@@ -66,6 +71,8 @@ internal static class BossSheetShades
     internal static IReadOnlyList<SheetShade> OwnRow(BossArtworkCatalog bosses, EnemyDefinitionId enemy, int firstInk)
     {
         Ensure.NotNull(bosses);
+        if (enemy == EnemyDefinitionId.Botwoon)
+            return Botwoon(bosses, firstInk);
         if (!KraidParts.Contains(enemy))
             return [];
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's parts are shaded from the installed Kraid colours.");
@@ -80,7 +87,21 @@ internal static class BossSheetShades
         Ensure.NotNull(bosses);
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's rocks are shaded from the installed Kraid colours.");
         return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
-            [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))])];
+            [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))]),
+            .. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours)];
+    }
+
+    /// <summary>Botwoon's health bands over the row from <paramref name="firstInk"/>.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    private static IEnumerable<SheetShade> Botwoon(BossArtworkCatalog bosses, int firstInk)
+    {
+        BotwoonColorCatalog botwoon = bosses.BotwoonColors ?? throw new InvalidDataException("Botwoon is shaded from the installed Botwoon colours.");
+        for (int band = 0; band < BotwoonHealthPaletteDefinitions.CompletePhase; band++)
+        {
+            int shown = band;
+            yield return SheetShade.Run(BotwoonShades.Health(shown), firstInk,
+                [.. Enumerable.Range(0, BotwoonHealthPaletteDefinitions.ColorsPerPalette).Select(colour => botwoon.HealthColor(shown, colour))]);
+        }
     }
 
     /// <summary>Health band <paramref name="band"/>'s sixteen colours of <paramref name="source"/>, minus one for the hurt flash's.</summary>

@@ -202,7 +202,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
         slot.Colouring = baby.HitFlashPaletteShown
-            ? SharedSpriteColouring.Common
+            ? EnemyShades.HitFlashed
             : new EncounterSpriteColouring(BossColourDefinitions.BabyMetroidCutscene);
         slot.TileIndexBase = baby.TileBase;
         slot.Health = baby.Health;

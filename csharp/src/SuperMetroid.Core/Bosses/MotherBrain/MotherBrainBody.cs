@@ -111,7 +111,7 @@ internal sealed class MotherBrainBody
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        body.Colouring = SharedSpriteColouring.Common;
+        body.Colouring = EnemyShades.HitFlashed;
 
         // Both source palettes include transparent color zero. The initializer deliberately
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
@@ -397,7 +397,7 @@ internal sealed class MotherBrainBody
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            graphics: new SpriteGraphics(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, SharedSpriteColouring.Common));
+            graphics: new SpriteGraphics(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, EnemyShades.HitFlashed));
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));

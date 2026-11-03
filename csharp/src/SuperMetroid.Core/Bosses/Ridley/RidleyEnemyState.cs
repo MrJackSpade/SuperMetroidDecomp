@@ -33,12 +33,12 @@ public sealed class RidleyEnemyState
     /// Gets the colours Ridley's tail and wings are drawn with: the colours Ridley loads for itself, or the common sprite
     /// colours on hurt-flash updates.
     /// </summary>
-    public SpriteColouring SpritemapColouring { get; internal set; } = SharedSpriteColouring.Common;
+    public SpriteColouring SpritemapColouring { get; internal set; } = EnemyShades.HitFlashed;
     /// <summary>
     /// Gets the colours the common enemy draw path uses for Ridley's body: the slot's colours, or the common sprite
     /// colours on hurt-flash updates.
     /// </summary>
-    public SpriteColouring CommonDrawColouring { get; internal set; } = SharedSpriteColouring.Common;
+    public SpriteColouring CommonDrawColouring { get; internal set; } = EnemyShades.HitFlashed;
     /// <summary>
     /// The colours both Ridleys load for themselves and draw their body, tail and wings in: the sprite set whose shade
     /// their health changes.

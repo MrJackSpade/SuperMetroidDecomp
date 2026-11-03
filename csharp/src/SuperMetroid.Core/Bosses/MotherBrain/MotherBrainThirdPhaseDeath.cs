@@ -59,7 +59,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
     /// <summary>The brain's colours, forced to the corpse colours when the dying brain effects shut down (#1464).</summary>
-    public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
+    public SpriteColouring BrainColouring { get; internal set; } = EnemyShades.HitFlashed;
 
     /// <summary>Number of calls made to the body flicker producer.</summary>
     public uint BodyFlickerCallCount { get; private set; }

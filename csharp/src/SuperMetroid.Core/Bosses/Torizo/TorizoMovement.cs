@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Input;
@@ -76,7 +77,7 @@ internal sealed class TorizoMovement
         torizo.Radius = definition.Radius;
         torizo.FrameHold = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);
-        torizo.Colouring = SharedSpriteColouring.Common;
+        torizo.Colouring = EnemyShades.HitFlashed;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Function = TorizoFunction.Falling;

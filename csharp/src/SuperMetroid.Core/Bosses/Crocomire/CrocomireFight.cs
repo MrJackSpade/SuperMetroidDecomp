@@ -603,7 +603,7 @@ internal sealed class CrocomireFight
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
-            graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
+            graphics: SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
         projectile.Velocity = new(SignedEightEight.FromSignedRaw(-512), new SignedEightEight(1));
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole - 32), CoordinateAxis.Wrap(body.Position.Y.Whole - 16)));

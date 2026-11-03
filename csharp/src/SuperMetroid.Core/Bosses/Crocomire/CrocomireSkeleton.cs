@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -149,7 +150,7 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
-        body.Colouring = SharedSpriteColouring.Common;
+        body.Colouring = EnemyShades.HitFlashed;
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Colours);
 

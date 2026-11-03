@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 ﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -129,12 +130,12 @@ internal sealed class CeresRidleyHits
     {
         state.CommonDrawColouring = !slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
-                ? SharedSpriteColouring.Common
+                ? EnemyShades.HitFlashed
                 : slot.Colouring;
 
         state.SpritemapColouring = slot.FlashTimer.IsAbove(1) &&
             ((enemyMainExecutionCounter + 1) & 2) != 0
-                ? SharedSpriteColouring.Common
+                ? EnemyShades.HitFlashed
                 : RidleyEnemyState.OwnColours;
     }
 

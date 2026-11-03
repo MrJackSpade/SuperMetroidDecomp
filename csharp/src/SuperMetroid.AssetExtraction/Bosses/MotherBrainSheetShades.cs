@@ -6,6 +6,8 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.World.RoomStates;
@@ -123,6 +125,9 @@ internal static class MotherBrainSheetShades
         }
         shades.Add(SheetShade.Run(MotherBrainShades.ExplodedDoor, BrainRow + FirstColour,
             Colours(MotherBrainDeathDefinitions.BodyColorCount, death.ExplodedDoorColor)));
+        // The escape's shutter flash recolours the exploded door's colours nine to fourteen in her brain's row.
+        shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
+            BrainRow, presentation.RoomPaletteFx));
         shades.Add(SheetShade.Run(EscapeTypewriterShades.Text, BrainRow + TypewriterFirstColour,
             standardRoom.AsSpan(7 * Group + TypewriterFirstColour, 2)));
         shades.Add(SheetShade.Run(MotherBrainShades.BabyArrives, SeventhRow + FirstColour,

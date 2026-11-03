@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -31,6 +32,14 @@ internal sealed class MotherBrainEncounter
     /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
     internal MotherBrainColours Colours => (MotherBrain ?? throw new InvalidOperationException(
         "Mother Brain's colours are laid while her encounter is loaded.")).Colours;
+
+    /// <summary>
+    /// Lays the escape's red shutter flash record <paramref name="record"/> over Mother Brain's sprites (#1512): the flash
+    /// recolours the exploded door's colours they show, and each record replaces the one before it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
+    internal void ShowEscapeShutterFlash(PaletteFxFrame record) =>
+        Colours.Sprites.Lay(PaletteFxShades.Of(PaletteFxColours.TourianShutters, record));
 
     /// <summary>
     /// Shows <paramref name="page"/> to the sprites on this update (#1406): from now on the frames drawn over its characters

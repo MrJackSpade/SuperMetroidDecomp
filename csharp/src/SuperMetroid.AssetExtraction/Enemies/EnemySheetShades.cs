@@ -23,7 +23,9 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -253,6 +255,14 @@ internal sealed class EnemySheetShades
         yield return SheetShade.Run(TourianStatueShades.PhantoonGrey, body, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
         yield return SheetShade.Run(TourianStatueShades.RidleyCleared, ridley + 9, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.RidleyGrey, ridley, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
+        // The sprite statues grey out through palette-FX records over their own rows, Ridley's and the statue body's.
+        IPaletteFxColorSource paletteFx = inputs.Maps?.RoomPaletteFx ?? throw Missing("Tourian statue grey-out colours");
+        foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(PaletteFxObject.GreyOutTourianStatueRidley, PaletteFxColours.RidleyStatue,
+                     ridley, paletteFx))
+            yield return greyOut;
+        foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(PaletteFxObject.GreyOutTourianStatuePhantoon, PaletteFxColours.PhantoonStatue,
+                     body, paletteFx))
+            yield return greyOut;
     }
 
     /// <summary>

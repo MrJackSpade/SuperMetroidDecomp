@@ -110,7 +110,7 @@ internal static class XrayInputVerification
             AssertTrue(restoring.Layers[0] is GameplayBlendLayer, "BG2 restore retains X-ray layer ownership");
             AssertTrue(((GameplayBlendLayer)restoring.Layers[0]).Window.IsClosed,
                 "deactivation closes the beam while BG2 restore completes");
-            AssertEqual(0, restoring.Paint.Backdrop, "deactivation resets the backdrop before unfreezing");
+            AssertEqual(RgbColor.Black, restoring.Paint.Backdrop, "deactivation resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");

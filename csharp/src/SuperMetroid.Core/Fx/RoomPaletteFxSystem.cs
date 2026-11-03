@@ -172,7 +172,6 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Runs the slots in descending order, handing each record a slot's program shows to <paramref name="show"/>.</summary>
     private void RunHandler(PaletteFxConditions conditions, Action<PaletteFxSlot, PaletteFxFrame> show)
     {
-
         // PaletteFXObject_Handler owns a new publication window on every game frame.
         // Requests are momentary calls into the shared queues, not persistent object state.
         soundRequests.Clear();

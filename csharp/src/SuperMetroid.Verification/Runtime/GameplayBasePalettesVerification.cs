@@ -44,17 +44,6 @@ internal static class GameplayBasePalettesVerification
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: baseline);
             AssertTrue(runtime.Colours.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");
-            runtime.Colours.AsPaletteColors().SetColor(128, new RgbColor(0, 0, 0));
-            runtime.Colours.AsPaletteColors().SetColor(208, new RgbColor(0, 0, 0));
-            // Exercise the production room-load restore, not just the catalog helpers.
-            runtime.RoomLoader.LoadGameplaySpritePalettes();
-            for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
-            {
-                AssertEqual(baseline.CommonSprites[color], runtime.Colours.Colors[128 + color],
-                    $"room-entry shared OBJ color {color}");
-                AssertEqual(baseline.Initial[208 + color], runtime.Colours.Colors[208 + color],
-                    $"room-entry enemy-projectile OBJ color {color}");
-            }
 
             var document = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(
                 File.ReadAllBytes(Path.Combine(stock, GameplayBasePaletteFormat.ArtworkFileName)),
@@ -73,9 +62,6 @@ internal static class GameplayBasePalettesVerification
                 "edited starting color reaches live CGRAM");
             AssertTrue(editedRuntime.Colours.Colors[1] != runtime.Colours.Colors[1],
                 "edited starting color differs from stock");
-            editedRuntime.RoomLoader.LoadGameplaySpritePalettes();
-            AssertEqual(edited.CommonSprites[1], editedRuntime.Colours.Colors[129],
-                "edited shared sprite color reaches room-entry CGRAM");
 
             document.Initial[1] = document.Initial[1] with { Red = 32 };
             File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
@@ -87,7 +73,7 @@ internal static class GameplayBasePalettesVerification
             AssertTrue(restored.Initial.SequenceEqual(baseline.Initial) &&
                 restored.CommonSprites.SequenceEqual(baseline.CommonSprites),
                 "removing override restores stock palette");
-            Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors, guarded runtime construction, room-entry restores, override and malformed data pass.");
+            Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors, guarded runtime construction, override and malformed data pass.");
         }
         finally
         {

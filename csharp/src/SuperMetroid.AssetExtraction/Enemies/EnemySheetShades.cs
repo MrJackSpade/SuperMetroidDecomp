@@ -213,11 +213,17 @@ internal sealed class EnemySheetShades
         ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
         return ([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
             Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
+            // A new game clears the enemy projectiles' last colour, the Ceres elevator concealer's solid pixels.
+            SheetShade.Run(CeresElevatorShades.ConcealerCleared,
+                EnemySheetRowDefinitions.EnemyProjectiles * LoadedSetColours.RowColours + CeresConcealerColour, [RgbColor.Black]),
             .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses),
             .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses),
             .. SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes)],
             [.. CeresDoorLooks(), .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours)]);
     }
+
+    /// <summary>The enemy projectiles' colour the Ceres elevator concealer's solid pixels show.</summary>
+    private const int CeresConcealerColour = 15;
 
     /// <summary>The Ceres doors' normal and escaping looks: their colours one to fifteen in the active doors' row.</summary>
     private SheetRowShade[] CeresDoorLooks()

@@ -43,8 +43,6 @@ internal sealed class RoomLoader
     private readonly RuntimeArtwork _artwork;
     /// <summary>Tracks both background layers' scroll positions across door loading.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Receives room and player palette data during a load.</summary>
-    private readonly GameplayColours _colours;
     /// <summary>Retains controller state needed when a room transition begins.</summary>
     private readonly ControllerInputState _controller1;
     /// <summary>Publishes the display setup for a newly active room.</summary>
@@ -103,7 +101,6 @@ internal sealed class RoomLoader
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
-        _colours = dependencies.Colours;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
@@ -889,14 +886,6 @@ internal sealed class RoomLoader
         // Ceres rooms show their tileset's turning floor, which the door and Ridley then draw over (#1349, #1467).
         scope.Floor = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloor() : null;
 
-        // Clearing the sprite palettes is part of every retail room-load/door-transition pipeline. It
-        // replaces sprite palette zero with the common sprite palette before enemy setup;
-        //  actors created with SpawnEprojWithRoomGfx (graphics index zero) depend
-        // on this colour set for lasers, death debris, and pickups. The old host loader restored
-        // enemy, beam, and Samus palettes but left this set at a stale fade/menu value,
-        // turning otherwise valid common projectiles solid black after a door.
-        LoadGameplaySpritePalettes();
-
         // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
         // blend, chooses the effect page the BG3 plane shows, and creates the type-owned per-line
         // effect and animtile state before palette-FX objects and enemies begin running.
@@ -1074,28 +1063,6 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Applies the two fixed sprite colour sets written by
-    /// <c>LoadColorsForSpritesBeamsAndEnemies</c>.
-    /// </summary>
-    /// <remarks>
-    /// Sprite palette five is not an enemy-specific palette. The original game restores it from
-    /// <c>kInitialPalette</c> on every room load and uses it for the common sheet:
-    /// enemy death explosions and drops, Pirate lasers, Ceres steam/timer sprites, and the
-    /// Ceres elevator projectiles. A door fade blackens the live colour set, so omitting this
-    /// copy makes every one of those otherwise-correct objects render solid black after a
-    /// transition. Sprite palette six is deliberately not copied here: the sprite palette clear
-    /// preserves that set from the current palette buffer before Samus installs her suit
-    /// target palette later in the load sequence.
-    /// </remarks>
-    internal void LoadGameplaySpritePalettes()
-    {
-        GameplayBasePalette artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
-            "Room loading requires the installed gameplay palette catalog.");
-        artwork.LoadCommonSprites(SpriteColourStore.Common.In(_colours.SpriteSets));
-        artwork.LoadEnemyProjectileSprites(SpriteColourStore.EnemyProjectiles.In(_colours.SpriteSets));
-    }
-
-    /// <summary>
     /// Resolves a compiled room selector against the live SRAM-mirror and Samus inventory.
     /// </summary>
     /// <remarks>
@@ -1179,18 +1146,6 @@ internal sealed class RoomLoader
         _artwork.BindSamusPalettePresentation();
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.LoadPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();
-
-        // Fresh-game loading has one deliberately non-general palette write after copying
-        // every target color into the live palette: the fresh-game setup clears colour 223
-        // immediately before Samus's elevator command spawns the two Ceres elevator
-        // projectiles. The stationary level-data concealer is four solid pixels of common
-        // sprite tile 32, whose opaque pixel selects precisely colour 223. Leaving the normal
-        // blue value from the initial sprite palette five in that one entry makes the
-        // elevator landing recess appear pre-filled; the game's zero makes it black
-        // until the moving pad reaches it and both projectiles delete themselves.
-        // The concealer's colour is the enemy projectiles' last colour, which the game's zero clears. Samus's grapple
-        // flare no longer shares it (#1512).
-        SpriteColourStore.EnemyProjectiles.In(_colours.SpriteSets).Slice(15, 1).Fill(RgbColor.Black);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);

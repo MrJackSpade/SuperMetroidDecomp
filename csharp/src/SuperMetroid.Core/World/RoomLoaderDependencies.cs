@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Input;
@@ -29,8 +28,6 @@ internal sealed record RoomLoaderDependencies
 
 
 
-    /// <summary>Gameplay's colours.</summary>
-    public required GameplayColours Colours { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }

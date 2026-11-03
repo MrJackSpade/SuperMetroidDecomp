@@ -21,7 +21,7 @@ public sealed class SamusFullBodyCycleColours
     {
         Ensure.NotNull(palettes);
         foreach (ImmutableArray<RgbColor> colours in palettes.Values)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.RowColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.SuitColours);
         this.palettes = new(palettes);
     }
 
@@ -34,17 +34,6 @@ public sealed class SamusFullBodyCycleColours
         ImmutableArray<RgbColor> colours = Palette(palette);
         if ((uint)colorIndex >= (uint)colours.Length) throw new ArgumentOutOfRangeException(nameof(colorIndex));
         return colours[colorIndex];
-    }
-
-    /// <summary>Shows the cycle palette's colours as Samus's suit colours.</summary>
-    /// <param name="colours">Samus's colours, whose suit colours change.</param>
-    /// <param name="palette">The cycle palette.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The palette is not catalogued.</exception>
-    public void Apply(SamusColours colours, SamusFullBodyCyclePalette palette)
-    {
-        Ensure.NotNull(colours);
-        for (int colour = 0; colour < SamusColourDefinitions.RowColours; colour++)
-            colours.Suit.Write(colour, Resolve(palette, colour));
     }
 
     /// <summary>The suit colours of <paramref name="palette"/>.</summary>

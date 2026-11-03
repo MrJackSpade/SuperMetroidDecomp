@@ -664,7 +664,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = samus.Position.WithWhole(new(512, 400));
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
-        samus.Presentation.LoadSuitPalette(samus, runtime.Player.Colours);
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
         RgbColor[] expected = runtime.Colours.Colors.Slice(192, 16).ToArray();
         for (int color = 192; color < 208; color++) runtime.Colours.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
         runtime.StepFrame(ControllerButton.Select);

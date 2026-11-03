@@ -306,14 +306,13 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.Artwork.BossAndIntroOverreads?.ShellFragmentFallPastCurve ?? throw new InvalidOperationException(
                 "The opening cinematic's egg shell requires the installed boss and intro overread services.")),
             session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
-            session.Artwork.BeamPalettes, session.Artwork.SamusBodyArt, japaneseText)
+            session.Artwork.SamusBodyArt, japaneseText)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,
             ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
             NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
-        cinematic.BindSamusHurtColors(session.Artwork.MapPresentation?.SamusHurtColors);
         cinematic.BindSpriteSheets(session.Artwork.SpriteSheets);
         return cinematic;
     }

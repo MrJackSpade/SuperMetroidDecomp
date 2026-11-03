@@ -162,7 +162,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
-            samus.Presentation.LoadSuitPalette(samus, cgram.Samus);
+            SamusNormalSuitPalette.Load(cgram.Samus, samus.EquippedItems);
             AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
                 cgram.Samus.Suit[1],
                 $"edited suit {suit} reaches live Samus CGRAM");

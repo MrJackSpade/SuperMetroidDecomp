@@ -26,7 +26,7 @@ public sealed class SamusChargeColours
     {
         Ensure.NotNull(palettes);
         foreach (ImmutableArray<RgbColor> colours in palettes.Values)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.RowColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.SuitColours);
         this.palettes = new(palettes);
         this.hyperShot = Ensure.NotNull(hyperShot);
     }
@@ -52,28 +52,5 @@ public sealed class SamusChargeColours
         int frames = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
         if ((uint)frame >= (uint)frames) throw new ArgumentOutOfRangeException(nameof(frame));
         return hyperShot.Resolve(frames - 1 - frame, color);
-    }
-
-    /// <summary>Shows a charge palette's colours as Samus's suit colours; charge admission and step advancement remain Samus's.</summary>
-    /// <param name="colours">Samus's colours, whose suit colours change.</param>
-    /// <param name="pseudo">True for pseudo Screw Attack's bright and normal holds; false for the charged-beam whitening pulse.</param>
-    /// <param name="suit">The suit Samus shows.</param>
-    /// <param name="phase">The sequence's step.</param>
-    public void ApplyCharge(SamusColours colours, bool pseudo, SamusSuit suit, int phase)
-    {
-        Ensure.NotNull(colours);
-        var palette = new SamusChargePalette(pseudo ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam, suit, phase);
-        for (int color = 0; color < SamusColourDefinitions.RowColours; color++)
-            colours.Suit.Write(color, Resolve(palette, color));
-    }
-
-    /// <summary>Shows Hyper-shot playback frame <paramref name="frame"/>'s colours as Samus's suit colours; the glow's timer remains Samus's.</summary>
-    /// <param name="colours">Samus's colours, whose suit colours change.</param>
-    /// <param name="frame">The playback frame.</param>
-    public void ApplyHyper(SamusColours colours, int frame)
-    {
-        Ensure.NotNull(colours);
-        for (int color = 0; color < SamusColourDefinitions.RowColours; color++)
-            colours.Suit.Write(color, ResolveHyper(frame, color));
     }
 }

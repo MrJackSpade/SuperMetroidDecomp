@@ -87,12 +87,6 @@ internal sealed class RuntimeArtwork
     {
         if (_player.Samus is null)
             return;
-        _player.Samus.VisorPalette.PresentationColors = MapPresentation?.SamusVisorColors;
-        _player.Samus.Xray.PresentationColors = MapPresentation?.SamusVisorColors;
-        _player.Samus.Drained.PresentationColors = MapPresentation?.SamusHyperBeamColors;
-        _player.Samus.Presentation.SuitColors = MapPresentation?.SamusSuitColors;
-        _player.Samus.Presentation.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
-        _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
         // All Samus constructors call this rebind before priming the first visual transfer.
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
@@ -174,7 +168,7 @@ internal sealed class RuntimeArtwork
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
     {
         LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours.Beam, equippedBeams, BeamPalettes, ChainsawColours);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, equippedBeams);
     }
 
     /// <summary>

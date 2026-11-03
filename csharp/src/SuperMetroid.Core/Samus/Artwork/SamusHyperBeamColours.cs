@@ -20,7 +20,7 @@ public sealed class SamusHyperBeamColours
     {
         Ensure.LengthEqual(frames.AsSpan(), SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount);
         foreach (ImmutableArray<RgbColor> colours in frames)
-            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.RowColours);
+            Ensure.LengthEqual(colours.AsSpan(), SamusColourDefinitions.SuitColours);
         this.frames = frames;
     }
 
@@ -33,17 +33,6 @@ public sealed class SamusHyperBeamColours
         ImmutableArray<RgbColor> colours = Frame(frame);
         if ((uint)color >= (uint)colours.Length) throw new ArgumentOutOfRangeException(nameof(color));
         return colours[color];
-    }
-
-    /// <summary>Shows a cycle frame's colours as Samus's suit colours.</summary>
-    /// <param name="colours">Samus's colours, whose suit colours change.</param>
-    /// <param name="frame">The cycle frame.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The frame is outside the cycle.</exception>
-    public void Apply(SamusColours colours, int frame)
-    {
-        Ensure.NotNull(colours);
-        for (int colour = 0; colour < SamusColourDefinitions.RowColours; colour++)
-            colours.Suit.Write(colour, Resolve(frame, colour));
     }
 
     /// <summary>The suit colours of cycle frame <paramref name="frame"/>.</summary>

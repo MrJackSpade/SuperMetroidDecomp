@@ -181,7 +181,7 @@ internal sealed class ProjectileAnimation
     internal static void LoadNormalSuitPalette(
         SamusColours colours,
         SamusState samus) =>
-        SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, samus.Presentation.SuitColors);
+        SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
 
     /// <summary>Installed timed-frame sprite choices; null retains the game diagnostic path.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }

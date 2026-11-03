@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -22,9 +21,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusDrainedState
 {
-    /// <summary>Installed Hyper Beam palette artwork: installed content, not game state, bound again when a game is restored.</summary>
-    public SamusHyperBeamColours? PresentationColors { get; set; }
-
     /// <summary>
     /// Latches the immediate suit-palette restore from controller zero or the rainbow-stop command
     /// until the same frame's palette pass runs.
@@ -191,15 +187,13 @@ public sealed class SamusDrainedState
     /// <remarks>
     /// While the rainbow-start command's flag is set, this handler has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray palettes. It loads one
-    /// complete 16-color Hyper Beam palette before touching either timer. Installed
-    /// artwork supplies those colors; a missing catalog is an error, not a fallback to the original data.
-    /// fallback. The Baby
+    /// complete Hyper Beam glow shade before touching either timer; the import pre-colours Samus in each of its frames
+    /// (#1512). The Baby
     /// independently raises <see cref="SpecialPaletteFrame"/> from one through ten; that
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        InstalledSamusSuitColors? suitColors = null)
+    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
 
@@ -208,7 +202,7 @@ public sealed class SamusDrainedState
             // The drained palette and the rainbow-stop command choose Gravity before Varia, then Power. The table
             // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
             // palette restoration path.
-            SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(colours, equippedItems);
             _suitPaletteRestoreRequested = false;
             return true;
         }
@@ -220,9 +214,7 @@ public sealed class SamusDrainedState
         // frames, and copies all sixteen colors before decrementing the shared timer.
         int paletteFrame = ChargePaletteIndex %
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
-        if (PresentationColors is null)
-            throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
-        PresentationColors.Apply(colours, paletteFrame);
+        colours.ShowSuit(SamusShades.HyperBeamSuit(paletteFrame));
 
         CountdownStep timer = CommonPaletteTimer.Decrement();
         CommonPaletteTimer = timer.Remaining;

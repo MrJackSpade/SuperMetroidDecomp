@@ -30,8 +30,8 @@ public static class SamusChargeColorExtractor
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
         {
-            int tableOffset = SamusChargePaletteDefinitions.LastHyperTableByteOffset -
-                frame * sizeof(ushort);
+            // The list is read backward from its last pointer, skipping the padding word before its first.
+            int tableOffset = (SamusChargePaletteDefinitions.HyperShotSteps - frame) * sizeof(ushort);
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);

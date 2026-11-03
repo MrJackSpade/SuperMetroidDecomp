@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -18,10 +17,8 @@ internal sealed class SamusFrameState
     /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
     public SamusColours Colours { get; }
 
-    /// <summary>Samus's frame state, her body without the suit showing <paramref name="spriteSets"/>' set.</summary>
-    /// <param name="spriteSets">Gameplay's sprite colour sets.</param>
-    internal SamusFrameState(SpriteColourSets spriteSets) =>
-        Colours = new SamusColours(spriteSets);
+    /// <summary>Samus's frame state, her colours in their starting shades.</summary>
+    internal SamusFrameState() => Colours = new SamusColours();
 
     /// <summary>Remaining load-appearance updates before ordinary Samus drawing resumes.</summary>
     internal WrappingCountdown LoadAppearanceFramesRemaining { get; private set; }

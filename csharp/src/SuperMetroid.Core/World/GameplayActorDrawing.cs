@@ -38,8 +38,6 @@ internal sealed class GameplayActorDrawing
     private readonly SamusFrameState _player;
     /// <summary>Provides the camera and Ceres arrival actors for this draw pass.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>The colours Gravity copies on the Speed Booster steps past its cycle.</summary>
-    private readonly SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> _speedBoosterOverrunColours;
 
     /// <summary>Binds the shared runtime owners whose state determines each actor drawing pass.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
@@ -53,7 +51,6 @@ internal sealed class GameplayActorDrawing
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _speedBoosterOverrunColours = Ensure.NotNull(dependencies.SpeedBoosterOverrunColours);
     }
 
     /// <summary>What Samus's projectile, bomb, flare and trail draws show: the sheet of the beam last loaded.</summary>
@@ -111,10 +108,9 @@ internal sealed class GameplayActorDrawing
             // and drained palettes retain their same-frame priority.
             if (!deathOwnsSamus)
                 _player.Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
-                    _player.Colours, _player.Samus.EquippedItems, _artwork.MapPresentation?.SamusSuitColors);
+                    _player.Colours, _player.Samus.EquippedItems);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
-                _player.Samus.Drained.UpdatePalette(_player.Colours, _player.Samus.EquippedItems,
-                    _artwork.MapPresentation?.SamusSuitColors);
+                _player.Samus.Drained.UpdatePalette(_player.Colours, _player.Samus.EquippedItems);
             LastVisorPaletteStep = default;
             bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
@@ -138,8 +134,7 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_player.Colours, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         _player.Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
-                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, _speedBoosterOverrunColours,
-                        suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors);
+                        _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
             }
             // Palette handlers one and six run at the same palette-update dispatch point. They
             // execute only when charge handling returned carry clear.
@@ -147,9 +142,7 @@ internal sealed class GameplayActorDrawing
             {
                 _player.Samus.Shinespark.UpdatePalette(
                     _player.Colours,
-                    _player.Samus.EquippedItems,
-                    _artwork.MapPresentation?.SamusSuitColors,
-                    _artwork.MapPresentation?.SamusFullBodyCycleColors);
+                    _player.Samus.EquippedItems);
             }
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
@@ -158,10 +151,7 @@ internal sealed class GameplayActorDrawing
             {
                 _player.Samus.CrystalFlash.UpdatePalette(
                     _player.Colours,
-                    _player.Samus,
-                    _artwork.BeamPalettes,
-                    _artwork.MapPresentation?.CrystalFlashColors,
-                    _artwork.ChainsawColours);
+                    _player.Samus);
             }
             // Handler eight changes only visor color four while active; its teardown
             // restores the complete Power/Varia/Gravity suit palette once.
@@ -169,8 +159,7 @@ internal sealed class GameplayActorDrawing
             {
                 _player.Samus.Xray.UpdatePalette(
                     _player.Colours,
-                    _player.Samus.EquippedItems,
-                    _artwork.MapPresentation?.SamusSuitColors);
+                    _player.Samus.EquippedItems);
             }
             // The Metroid-drain palette step runs after every charge and special-palette family. A Metroid's
             // nonnegative super-special flag takes the alternating boost/normal branch and
@@ -182,10 +171,9 @@ internal sealed class GameplayActorDrawing
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !metroidOwnsSamusPalette)
             {
                 SamusHurtFlashPalette.Update(
-                    _player.Colours.Suit,
+                    _player.Colours,
                     _player.Samus,
-                    _controller1.Current,
-                    _artwork.MapPresentation?.SamusHurtColors);
+                    _controller1.Current);
             }
 
         }

@@ -17,13 +17,15 @@ public sealed class InstalledBeamPalettes
         palettes.TryGetValue(new ColourCell(selection.TableIndex, color), out RgbColor supplied)
             ? supplied : BeamPaint.Color(selection, color);
 
-    /// <summary>Copies all sixteen colors of an ordinary beam selection to colours 224..239 (sprite palette 6), matching <c>Load_Beam_Palette_withStackPrepped</c>; does not run charge or Hyper Beam color animation.</summary>
-    /// <param name="beam">The beam colours to change.</param>
-    /// <param name="selection">Retail beam combination $0..$B.</param>
-    public void LoadTo(ColourRun beam, SamusBeamCombination selection)
+    /// <summary>The sixteen colours a retail beam combination's beams show (#1512); the import pre-colours Samus's sheets in them.</summary>
+    /// <param name="selection">A retail beam combination.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The combination is not a retail one.</exception>
+    public RgbColor[] Colours(SamusBeamCombination selection)
     {
         if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
-        for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            beam.Write(i, Color(selection, i));
+        var colours = new RgbColor[BeamPaletteDefinitions.ColorCount];
+        for (int i = 0; i < colours.Length; i++)
+            colours[i] = Color(selection, i);
+        return colours;
     }
 }

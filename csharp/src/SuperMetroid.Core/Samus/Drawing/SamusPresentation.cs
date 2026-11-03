@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Progression;
@@ -34,38 +33,6 @@ internal sealed class SamusPresentation
 
     /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>
     public SamusBodyFrameState BodyFrames { get; } = new();
-
-    /// <summary>Installed normal suit colors: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledSamusSuitColors? SuitColors { get; set; }
-
-    /// <summary>Installed full-body cycle colors: installed content, not game state, bound again when a game is restored.</summary>
-    public SamusFullBodyCycleColours? FullBodyCycleColors { get; set; }
-
-    /// <summary>The installed charge and Hyper-shot body colors.</summary>
-    public SamusChargeColours? ChargeColors { get; set; }
-
-    /// <summary>
-    /// Copies <c>SamusPalettes_PowerSuit</c> to the palette buffer's
-    /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
-    /// </summary>
-    public static void LoadPowerSuitPalette(ColourRun suit,
-        InstalledSamusSuitColors? suitColors = null)
-    {
-        // Sprite palettes begin at colour 128. Spritemap palette 4 therefore resolves to 192,
-        // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
-        SamusNormalSuitPalette.LoadPower(suit, suitColors);
-    }
-
-    /// <summary>
-    /// Ports <c>Samus_LoadSuitPalette</c>, giving Gravity priority over
-    /// Varia and falling back to Power Suit when neither equipment bit is enabled.
-    /// </summary>
-    public void LoadSuitPalette(SamusState samus, SamusColours colours)
-    {
-        Ensure.NotNull(colours);
-
-        SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, SuitColors);
-    }
 
     /// <summary>
     /// Seeds pose/frame-zero graphics before the first displayed frame, as room/game setup must do

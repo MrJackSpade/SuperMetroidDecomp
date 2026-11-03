@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -345,16 +343,11 @@ public sealed class SamusHorizontalSpeedState
     /// <returns>True when this call copied an authored palette into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied palette replaces.</param>
     /// <param name="frame">What this update's palette handler reads of Samus.</param>
-    /// <param name="overrunColours">The colours Gravity copies on the Speed Booster steps past its cycle.</param>
-    /// <param name="suitColors">The installed normal suit colours.</param>
-    /// <param name="cycleColors">The installed full-body cycle colours.</param>
-    internal bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame,
-        SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> overrunColours,
-        InstalledSamusSuitColors? suitColors = null, SamusFullBodyCycleColours? cycleColors = null)
+    internal bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame)
     {
         Ensure.NotNull(colours);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems, suitColors);
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(colours, frame.EquippedItems);
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // Stored-shine and shinespark handlers have priority in the palette dispatcher. Cancellation's
@@ -391,11 +384,11 @@ public sealed class SamusHorizontalSpeedState
                 // Carry clear asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
                 // The colour store is the runtime's directly visible palette buffer.
-                LoadNormalSuitPalette(colours, frame.EquippedItems, suitColors);
+                SamusNormalSuitPalette.Load(colours, frame.EquippedItems);
                 return true;
             }
 
-            CopyAndAdvanceScrewAttackPalette(colours, suit, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(colours, suit);
             return true;
         }
 
@@ -412,7 +405,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            CopyAndAdvanceScrewAttackPalette(colours, suit, cycleColors);
+            CopyAndAdvanceScrewAttackPalette(colours, suit);
             return true;
         }
 
@@ -430,7 +423,7 @@ public sealed class SamusHorizontalSpeedState
 
         SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
             suit, CyclePaletteStep);
-        SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overrunColours);
+        SamusSpeedBoosterPalette.Apply(colours, source);
 
         // The clamp is AFTER the copy. Screw Attack can leave step four or five in
         // this shared step; retain that one bounded overrun before pinning the last step.
@@ -452,14 +445,13 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        InstalledSamusSuitColors? suitColors = null)
+        SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
         if (!NormalSuitPaletteRestoreRequested)
             return false;
 
-        SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
+        SamusNormalSuitPalette.Load(colours, equippedItems);
         NormalSuitPaletteRestoreRequested = false;
         return true;
     }
@@ -467,29 +459,16 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Copies one of the six authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
         SamusColours colours,
-        SamusSuit suit,
-        SamusFullBodyCycleColours? cycleColors)
+        SamusSuit suit)
     {
-        SamusFullBodyCyclePalette palette = SamusFullBodyCyclePalettes.ReadScrewAttackPalette(
-            suit, CyclePaletteStep);
-        (cycleColors ?? throw new InvalidOperationException(
-            "Screw Attack palette requires installed Samus full-body cycle colors."))
-            .Apply(colours, palette);
+        colours.ShowSuit(SamusShades.FullBodyCycle(SamusFullBodyCyclePalettes.ReadScrewAttackPalette(
+            suit, CyclePaletteStep)));
 
         // Steps 0 through 5 form the six-frame cycle. The comparison uses the current
         // step, so the last wraps to zero only after its palette has been copied.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.ScrewAttackSteps - 1
             ? 0
             : CyclePaletteStep + 1;
-    }
-
-    /// <summary>Loads the normal Power/Varia/Gravity palette selected by the suit index.</summary>
-    private static void LoadNormalSuitPalette(
-        SamusColours colours,
-        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        InstalledSamusSuitColors? suitColors)
-    {
-        SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
     }
 
     /// <summary>

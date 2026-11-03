@@ -104,11 +104,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
         ColourImage target = session.Runtime.Colours.Capture();
-        // The death target keeps only Samus's suit colours; everything else is black.
-        // Her suitless sprite set and every room and sprite colour therefore fade away.
+        // Every room and sprite colour fades to black. Samus's colours are her own shades (#1512) and are not among
+        // them, so her suit stays lit as the game keeps it.
         target.Fill(RgbColor.Black);
-        ColourRun suit = session.Runtime.Player.Colours.Suit;
-        suit.Colors.CopyTo(target.Of(suit));
         session.BeginDeathPaletteFade(new GradualPaletteTransition(target, denominator: 6, session.Runtime.EnemySession.GradualColorChange));
     }
 

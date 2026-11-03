@@ -796,7 +796,7 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
-        samus.Presentation.LoadSuitPalette(samus, cgram.Samus);
+        SamusNormalSuitPalette.Load(cgram.Samus, samus.EquippedItems);
         AssertEqual(0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
     }

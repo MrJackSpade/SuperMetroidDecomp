@@ -242,7 +242,7 @@ internal sealed class RoomLoader
         // Command nine does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific palette object, and the 360-call
         // appearance handler before restoring ordinary input.
-        _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _player.Colours);
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(_player.IntroducedSamus, frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
@@ -357,7 +357,7 @@ internal sealed class RoomLoader
             station.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { GunshipScenario = GunshipLoadScenario.EscapingCeres, LoadStation = station });
-        samus.Presentation.LoadSuitPalette(samus, _player.Colours);
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.LiquidPhysics.RoomIdentity = room.Identity;
@@ -769,7 +769,7 @@ internal sealed class RoomLoader
         // has already driven sprite palette four to black at this point. Omitting this shared
         // reload therefore retained valid sprite and tile data but rendered Samus as a solid
         // black silhouette after every ordinary desktop door transition.
-        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _player.Colours);
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
 
         // The door loader writes no SamusYRadius; the next unlocked alpha's SetSamusRadius
         // does, so an elevator rider keeps the boarding pose's radius through the door.
@@ -1179,7 +1179,7 @@ internal sealed class RoomLoader
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
         };
         _artwork.BindSamusPalettePresentation();
-        SamusPresentation.LoadPowerSuitPalette(_player.Colours.Suit, _artwork.MapPresentation?.SamusSuitColors);
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.LoadPower(_player.Colours);
         _assists.GrantLoadoutToNewSamus();
 
         // Fresh-game loading has one deliberately non-general palette write after copying
@@ -1190,8 +1190,9 @@ internal sealed class RoomLoader
         // blue value from the initial sprite palette five in that one entry makes the
         // elevator landing recess appear pre-filled; the game's zero makes it black
         // until the moving pad reaches it and both projectiles delete themselves.
-        // The concealer's colour is Samus's grapple flare colour, which the game's zero clears.
-        _player.Colours.GrappleFlare.Fill(RgbColor.Black);
+        // The concealer's colour is the enemy projectiles' last colour, which the game's zero clears. Samus's grapple
+        // flare no longer shares it (#1512).
+        SpriteColourStore.EnemyProjectiles.In(_colours.SpriteSets).Slice(15, 1).Fill(RgbColor.Black);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);

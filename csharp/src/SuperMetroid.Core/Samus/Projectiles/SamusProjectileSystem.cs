@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
@@ -143,43 +144,30 @@ public sealed class SamusProjectileSystem
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> for the equipped beam: sixteen
-    /// words into sprite palette six, colours 224-239. Its characters are not copied: the installed projectile
-    /// sheets are composed over every beam combination's characters.
+    /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> for the equipped beams: the beams show the
+    /// shade of the combination they select (#1512). Its characters are not copied: the installed projectile sheets are
+    /// composed over every beam combination's characters, and pre-coloured in every combination's shade.
     /// </summary>
-    public static void LoadBeamPalette(
-        ColourRun beam,
-        SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams,
-        SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes,
-        ChainsawBeamColours<RgbColor>? chainsawColours) =>
-        LoadBeamPalette(beam, SelectedCombination(equippedBeams), palettes, chainsawColours);
-
-    /// <summary>The beam combination the equipped beams select.</summary>
-    private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
-        SamusBeamCombinations.Of(equippedBeams);
+    public static void LoadBeamPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
+        LoadBeamPalette(colours, SamusBeamCombinations.Of(equippedBeams));
 
     /// <summary>
-    /// Loads a beam combination's final palette from installed art, the Chainsaw beam's colours
-    /// <paramref name="chainsawColours"/> the installation decoded, or the SpaceTime beam's definitions.
+    /// Shows a beam combination's shade as the beams' colours: a retail combination's, the glitched Chainsaw beam's or
+    /// the SpaceTime beam's (#1512).
     /// </summary>
-    public static void LoadBeamPalette(ColourRun beam,
-        SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes,
-        ChainsawBeamColours<RgbColor>? chainsawColours)
+    /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
+    public static void LoadBeamPalette(SamusColours colours, SamusBeamCombination selection)
     {
+        Ensure.NotNull(colours);
         switch (selection)
         {
             case ChainsawBeamGraphicsDefinitions.Selection:
-                LoadChainsawPalette(beam, chainsawColours ?? throw new InvalidOperationException(
-                    "The Chainsaw beam's palette requires the installed Chainsaw beam colours."));
-                break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
-                SpacetimeBeamGraphics.LoadPalette(beam);
-                break;
             case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
                 SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
                 SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
                 SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave:
-                (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(beam, selection);
+                colours.ShowBeams(SamusShades.Beam(selection));
                 break;
             case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
                 throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no translated palette.");
@@ -188,12 +176,6 @@ public sealed class SamusProjectileSystem
         }
     }
 
-    /// <summary>Writes the glitched Chainsaw beam palette's sixteen colours into the beam palette.</summary>
-    private static void LoadChainsawPalette(ColourRun beam, ChainsawBeamColours<RgbColor> chainsawColours)
-    {
-        for (int color = 0; color < chainsawColours.Colours.Count; color++)
-            beam.Write(color, chainsawColours.Colours[color]);
-    }
     /// <summary>
     /// Runs <c>HandleBeamChargePalettes</c> against the
     /// modeled Samus palette.
@@ -229,15 +211,13 @@ public sealed class SamusProjectileSystem
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
-                // The installed path compiles each suit's list for the bounded charge steps.
-                bool catalogued = samus.Presentation.ChargeColors is not null &&
-                    SamusChargePalettes.IsCompiledChargeStep(Charge.ChargePaletteStep);
-                if (!catalogued)
+                // Each suit's list holds a shade for each of the bounded charge steps.
+                if (!SamusChargePalettes.IsCompiledChargeStep(Charge.ChargePaletteStep))
                     throw new InvalidDataException(
                         $"Charge palette step {Charge.ChargePaletteStep} is not compiled.");
-                (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
-                    "Charge palette requires installed colors."))
-                    .ApplyCharge(colours, pseudoScrew, samus.EquippedItems.ShownSuit(), Charge.ChargePaletteStep);
+                colours.ShowSuit(SamusShades.Charge(new SamusChargePalette(
+                    pseudoScrew ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam,
+                    samus.EquippedItems.ShownSuit(), Charge.ChargePaletteStep)));
 
                 Charge.ChargePaletteStep = Charge.ChargePaletteStep >= SamusChargePaletteDefinitions.ChargeSteps - 1
                     ? 0
@@ -276,20 +256,17 @@ public sealed class SamusProjectileSystem
                 return LastBeamChargePaletteStep;
             }
 
-            // The game starts at sprite palette four's last colour and walks backward by words.
-            // That is exactly colors 15..1: transparent color zero is intentionally left
-            // untouched while every visible Samus color becomes yellow (31,31,0).
-            for (int color = 1; color < 16; color++)
-                colours.Suit.Write(color, new RgbColor(31, 31, 0));
+            // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
+            colours.ShowSuit(SamusShades.ChargedShotGlow);
 
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.OrdinaryWhite);
             return LastBeamChargePaletteStep;
         }
 
-        // Hyper's sign bit selects this branch but is not part of the table index. Odd
-        // values are pure hold calls; even low-five-bit values 20..2 select palette 0..9.
-        // Each selected authored palette consequently remains visible for exactly two calls.
+        // Hyper's sign bit selects this branch but is not part of the glow step. Odd
+        // values are pure hold calls; glow steps 10..1 show the Hyper Beam glow's frames 9..0.
+        // Each frame consequently remains visible for exactly two calls.
         if (Charge.ChargedShotGlowTimer.IsInAlternatePhase(1))
         {
             Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
@@ -298,8 +275,8 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        int tableOffset = Charge.ChargedShotGlowTimer.CyclePhase(2, 16) * 2;
-        if (tableOffset == 0)
+        int glowStep = Charge.ChargedShotGlowTimer.CyclePhase(2, 16);
+        if (glowStep == 0)
         {
             // Hyper's final call branches before the decrement. The game explicitly zeroes the
             // already-32768 timer and returns carry so the outer handler performs the suit copy.
@@ -310,14 +287,9 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        bool cataloguedHyper = samus.Presentation.ChargeColors is not null &&
-            SamusChargePalettes.IsCompiledHyperShot(tableOffset);
-        if (!cataloguedHyper)
-            throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
-        int hyperPaletteIndex = (20 - tableOffset) / 2;
-        (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
-            "Hyper Beam palette requires installed colors."))
-            .ApplyHyper(colours, hyperPaletteIndex);
+        if (!SamusChargePalettes.IsCompiledHyperShot(glowStep))
+            throw new InvalidDataException($"Hyper-shot glow step {glowStep} is not compiled.");
+        colours.ShowSuit(SamusShades.HyperBeamSuit(SamusChargePalettes.HyperShotFrame(glowStep)));
         Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette);

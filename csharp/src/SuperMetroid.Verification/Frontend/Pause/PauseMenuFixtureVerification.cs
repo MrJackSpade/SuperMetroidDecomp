@@ -105,9 +105,6 @@ internal static class PauseMenuFixtureVerification
             RoomFxAnimatedTiles = stock.RoomFxAnimatedTiles,
             RoomFxPaletteBlends = stock.RoomFxPaletteBlends,
             PowerBombFixedColors = stock.PowerBombFixedColors,
-            CrystalFlashColors = stock.CrystalFlashColors,
-            CeresRidleyColors = stock.CeresRidleyColors,
-            CeresRidleyFloorColors = stock.CeresRidleyFloorColors,
             CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
@@ -120,6 +117,7 @@ internal static class PauseMenuFixtureVerification
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
             InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.TitlePaletteOf(stock),
-            InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes));
+            InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes, InstalledAreaMapPresentation.CeresRidleyColorsOf(stock),
+            InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(stock)));
     }
 }

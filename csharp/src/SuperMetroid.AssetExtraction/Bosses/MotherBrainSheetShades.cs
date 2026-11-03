@@ -1,16 +1,17 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -94,7 +95,7 @@ internal static class MotherBrainSheetShades
     /// colours in <paramref name="roomPalettes"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(AreaMapPresentation? maps, BossArtworkCatalog bosses, RoomStaticPalettes? roomPalettes)
+    internal static IReadOnlyList<SheetShade> Sprites(AreaMapPresentation? maps, BossSourceArtwork bosses, RoomStaticPalettes? roomPalettes)
     {
         Ensure.NotNull(bosses);
         AreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
@@ -141,7 +142,7 @@ internal static class MotherBrainSheetShades
     /// rainbow, grey and death fades, the room's flash and steady colours, and its lights going out and recovering.
     /// </summary>
     /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Background(AreaMapPresentation maps, BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Background(AreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
@@ -288,7 +289,7 @@ internal static class MotherBrainSheetShades
 
     /// <summary>The shades of the Shitroid's and its victim's sheets: its entry's colours and each phase of its membrane's pulse.</summary>
     /// <exception cref="InvalidDataException">Its colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Shitroid(BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Shitroid(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
         ShitroidColorCatalog shitroid = bosses.ShitroidColors ?? throw Missing("the Shitroid's colours");
@@ -309,7 +310,7 @@ internal static class MotherBrainSheetShades
 
     /// <summary>The shades of the Zebetites' sheets: each frame of their shared pulse.</summary>
     /// <exception cref="InvalidDataException">Their colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Zebetites(BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Zebetites(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
         ZebetiteColorCatalog zebetites = bosses.ZebetiteColors ?? throw Missing("the Zebetites' colours");

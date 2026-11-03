@@ -125,15 +125,6 @@ internal sealed record AreaMapPresentationParts
     public required InstalledPowerBombFixedColors PowerBombFixedColors { get; init; }
 
 
-    /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
-    public required InstalledCrystalFlashColors CrystalFlashColors { get; init; }
-
-
-    /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
-    public required CeresRidleyColorCatalog CeresRidleyColors { get; init; }
-
-    /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
-    public required CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; init; }
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public required CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; init; }

@@ -235,9 +235,9 @@ internal sealed class ClosedPresentationAudit
             if (owner is ("SporeSpawnColorCatalog", "ResolveDeath", "frame") &&
                 operation.Arguments.Single(arg => arg.Parameter?.Name == "layer").Value.ConstantValue
                     is { HasValue: true, Value: not null } layer &&
-                (SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
-                    SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level or
-                    SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Background)
+                (SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
+                    SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level or
+                    SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Background)
                 range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorDefinitions.DeathSceneFrameCount);
             if (!range.Value.Contains(number))
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -12,6 +11,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.Verification.Bosses;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

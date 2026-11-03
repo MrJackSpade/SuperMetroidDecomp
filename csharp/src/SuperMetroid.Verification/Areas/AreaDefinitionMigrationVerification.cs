@@ -3,10 +3,8 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
@@ -14,6 +12,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.Verification.Areas;
 

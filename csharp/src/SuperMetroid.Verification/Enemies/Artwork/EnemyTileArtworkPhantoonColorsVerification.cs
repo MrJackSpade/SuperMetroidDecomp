@@ -5,7 +5,6 @@ using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -14,6 +13,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

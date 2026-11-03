@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;

@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
@@ -28,7 +28,7 @@ internal static class SporeSpawnSheetShades
 
     /// <summary>The shades of his sprites and the objects he spawns.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Sprites(BossSourceArtwork bosses)
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
         var shades = new List<SheetShade> { SheetShade.Run(SporeSpawnShades.Spores, SporesRow * LoadedSetColours.RowColours, Frame(colours.ResolveSpore)) };
@@ -47,7 +47,7 @@ internal static class SporeSpawnSheetShades
 
     /// <summary>The shades of his room's pictures: each step of his death fade over its level and background.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Room(BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Room(BossSourceArtwork bosses)
     {
         SporeSpawnColorCatalog colours = Colours(bosses);
         var shades = new List<SheetShade>();
@@ -62,7 +62,7 @@ internal static class SporeSpawnSheetShades
 
     /// <summary>His installed colours.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    private static SporeSpawnColorCatalog Colours(BossArtworkCatalog bosses) =>
+    private static SporeSpawnColorCatalog Colours(BossSourceArtwork bosses) =>
         bosses.SporeSpawnColors ?? throw new InvalidDataException("Spore Spawn is shaded from the installed Spore Spawn colours.");
 
     /// <summary>One frame's sixteen colours, each from <paramref name="colour"/>.</summary>

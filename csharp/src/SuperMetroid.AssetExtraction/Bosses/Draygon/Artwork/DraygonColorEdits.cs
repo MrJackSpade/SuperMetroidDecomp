@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 

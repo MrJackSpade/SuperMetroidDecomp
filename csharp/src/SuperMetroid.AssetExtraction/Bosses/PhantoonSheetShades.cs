@@ -1,7 +1,8 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
@@ -24,7 +25,7 @@ internal static class PhantoonSheetShades
 
     /// <summary>The shades of his body sheet.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Body(BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Body(BossSourceArtwork bosses)
     {
         PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon is shaded from the installed Phantoon colours.");
         PhantoonBodyLook[] settled =
@@ -57,7 +58,7 @@ internal static class PhantoonSheetShades
 
     /// <summary>The shades of his room's pictures, whose standard colours are <paramref name="standard"/>: the power coming on.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> PowerOn(BossArtworkCatalog bosses, ReadOnlySpan<RgbColor> standard)
+    internal static IReadOnlyList<SheetShade> PowerOn(BossSourceArtwork bosses, ReadOnlySpan<RgbColor> standard)
     {
         PhantoonColorCatalog phantoon = bosses.PhantoonColors ?? throw new InvalidDataException("Phantoon's room is shaded from the installed Phantoon colours.");
         // The parts the power fades are the room's first colour groups, in order.

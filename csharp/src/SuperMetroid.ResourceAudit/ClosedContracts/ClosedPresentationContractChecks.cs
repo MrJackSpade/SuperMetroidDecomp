@@ -25,6 +25,10 @@ internal static class ClosedPresentationContractChecks
             using SuperMetroid.AssetExtraction.Artwork;
             using SuperMetroid.AssetExtraction.Samus.Artwork;
             using SuperMetroid.AssetExtraction.Enemies.Artwork;
+            using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -68,7 +72,7 @@ internal static class ClosedPresentationContractChecks
                     beam.LoadTo(screen.SpriteSets.Set(6), 0);
                     beam.LoadTo(screen.SpriteSets.Set(6), SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
                     spores.ResolveSpore(0);
-                    spores.ResolveDeath(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
+                    spores.ResolveDeath(SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
                     phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);
                     phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
                     statues.ResolveEye(3, 0);

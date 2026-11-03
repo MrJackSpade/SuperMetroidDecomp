@@ -2,8 +2,6 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -26,6 +24,11 @@ using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -133,7 +136,7 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor:
                 // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites((inputs.Maps is null ? null : InstalledAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)), inputs.Bosses));
                 break;
             case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
                 // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
@@ -212,7 +215,7 @@ internal sealed class EnemySheetShades
         return ([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
             Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
             .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses),
-            .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses),
+            .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites((inputs.Maps is null ? null : InstalledAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)), inputs.Bosses),
             .. SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes)],
             [.. CeresDoorLooks(), .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours)]);
     }

@@ -894,7 +894,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
     // The colours the encounter shows are the import's shades of its installed colours, laid as its AI laid them (#1512).
-    SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = CeresRidleyColorFile.Read(new MemoryStream(
+    SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = CeresRidleyColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus)));
     var ridleySprites = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(ceresColours);
     var ridleyRoom = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresRoom(ceresColours,

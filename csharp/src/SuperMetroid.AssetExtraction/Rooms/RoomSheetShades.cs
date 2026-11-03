@@ -3,13 +3,15 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

@@ -1,11 +1,13 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -49,7 +51,7 @@ internal static class RidleySheetShades
 
     /// <summary>The shades of both encounters' sprite sheets and the objects they spawn.</summary>
     /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(CeresRidleyColorCatalog? ceres, BossArtworkCatalog bosses)
+    internal static IReadOnlyList<SheetShade> Sprites(CeresRidleyColorCatalog? ceres, BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
         return [.. CeresSprites(ceres ?? throw Missing("Ceres Ridley")), .. NorfairSprites(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
@@ -57,11 +59,11 @@ internal static class RidleySheetShades
 
     /// <summary>The shades of both encounters' rooms' pictures, whose standard colours are <paramref name="standard"/>.</summary>
     /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps, BossArtworkCatalog bosses, ReadOnlySpan<RgbColor> standard)
+    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps, BossSourceArtwork bosses, ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        return [.. CeresRoom(maps.CeresRidleyColors, maps.CeresRidleyFloorColors, standard),
+        return [.. CeresRoom(InstalledAreaMapPresentation.CeresRidleyColorsOf(maps), InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(maps), standard),
             .. NorfairRoom(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
     }
 

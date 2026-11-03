@@ -33,6 +33,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     private readonly PaletteFxShown shown = new();
     /// <summary>The records Samus's suit groups showed during the current handler pass, in order (#1512).</summary>
     private readonly List<(PaletteFxColours Colours, PaletteFxFrame Record)> suitShown = [];
+    /// <summary>The records the enemies' groups showed during the current handler pass, in order (#1512).</summary>
+    private readonly List<(PaletteFxColours Colours, PaletteFxFrame Record)> enemyShown = [];
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
@@ -161,6 +163,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         soundRequests.Clear();
         musicRequests.Clear();
         suitShown.Clear();
+        enemyShown.Clear();
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -412,6 +415,12 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// </summary>
     internal IReadOnlyList<(PaletteFxColours Colours, PaletteFxFrame Record)> SuitShown => suitShown;
 
+    /// <summary>
+    /// The records the enemies' groups showed during the last handler pass, in order (#1512): each enemy lays the shade of
+    /// each over its draws, as each record overwrote its colours then.
+    /// </summary>
+    internal IReadOnlyList<(PaletteFxColours Colours, PaletteFxFrame Record)> EnemyShown => enemyShown;
+
     /// <summary>The record <paramref name="colours"/> last showed in this room, or null while it has shown none (#1512).</summary>
     internal PaletteFxFrame? RecordOf(PaletteFxColours colours) => shown.RecordOf(colours);
 
@@ -449,6 +458,11 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         if (PaletteFxSamusColourDefinitions.SuitColours.Contains(animated))
         {
             suitShown.Add((animated, frame));
+            return;
+        }
+        if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(animated))
+        {
+            enemyShown.Add((animated, frame));
             return;
         }
         PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[animated];

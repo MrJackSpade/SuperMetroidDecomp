@@ -17,6 +17,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// step. A program names a new target only while the colours rest on a whole colouring (his awakening and his death each
 /// name theirs before their steps, and the awakening's last call takes only the counter's zero step, which moves nothing),
 /// so a target named while a fade has moved the colours is not a state the cartridge reaches and is refused.
+/// Once his fight starts, his belly's glow writes each of its records over the belly's glowing colours, and those colours
+/// show the last record written until his own colouring is written again; a fade steps them from the record shown, so the
+/// glow keeps its own run of steps over its colours.
 /// </remarks>
 internal sealed class TorizoColours
 {
@@ -32,15 +35,30 @@ internal sealed class TorizoColours
     /// </summary>
     private (int First, int Last)? fade;
 
+    /// <summary>
+    /// The belly glow's record written over the belly's glowing colours after his own colouring, or null while they show
+    /// his colouring.
+    /// </summary>
+    private PaletteFxFrame? belly;
+
+    /// <summary>The counter value of the first fade step taken since <see cref="belly"/> was written, or null for none.</summary>
+    private int? bellyFirst;
+
     /// <summary>The shading his draws show now.</summary>
     internal PictureShading Shading
     {
         get
         {
             PictureShading shading = PictureShading.Shaded(TorizoShades.Shared);
-            return Moved is { } steps && target is { } to
+            shading = Moved is { } steps && target is { } to
                 ? shading.With(TorizoShades.Fading(settled, to, steps.First, steps.Last))
                 : shading.With(TorizoShades.Body(settled));
+            if (belly is not { } record)
+                return shading;
+            // The zero step moves nothing, so the glow's colours move from their first step past zero.
+            return fade is { } running && running.Last > 0 && bellyFirst is { } first && target is { } goal
+                ? shading.With(TorizoShades.BellyFading(record, goal, Math.Max(first, 1), running.Last))
+                : shading.With(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, record));
         }
     }
 
@@ -51,11 +69,23 @@ internal sealed class TorizoColours
     private (int First, int Last)? Moved =>
         fade is { } running && running.Last > 0 ? (Math.Max(running.First, 1), running.Last) : null;
 
-    /// <summary>Shows <paramref name="look"/> at once; a running fade continues from it on its next step.</summary>
+    /// <summary>
+    /// Shows <paramref name="look"/> at once over his body and belly, the glowing colours among them; a running fade
+    /// continues from it on its next step.
+    /// </summary>
     internal void Show(TorizoLook look)
     {
         settled = look;
         fade = null;
+        belly = null;
+        bellyFirst = null;
+    }
+
+    /// <summary>Shows the belly glow's <paramref name="record"/> over the belly's glowing colours; a running fade continues from it.</summary>
+    internal void ShowBelly(PaletteFxFrame record)
+    {
+        belly = record;
+        bellyFirst = null;
     }
 
     /// <summary>Names the colouring the fade runs toward; the fade starts from the colours shown.</summary>
@@ -65,7 +95,10 @@ internal sealed class TorizoColours
         if (target is { } running && running != look && Moved is not null)
             throw new InvalidOperationException($"A Torizo's program names {look.Key} while its fade toward {running.Key} has moved the colours.");
         if (Moved is null)
+        {
             fade = null;
+            bellyFirst = null;
+        }
         target = look;
     }
 
@@ -84,15 +117,21 @@ internal sealed class TorizoColours
         if (value > TorizoPaletteDefinitions.FadeDenominator + 1)
         {
             counter.Reset();
-            // The last step reached the target's colours exactly; with no step since a hurt colouring, that colouring stays.
+            // The last step reached the target's colours exactly; with no step since a hurt colouring, that colouring stays,
+            // and likewise the glow's record.
             if (fade is not null)
                 settled = to;
+            if (bellyFirst is not null)
+                belly = null;
             fade = null;
+            bellyFirst = null;
             return;
         }
         if (fade is { } running && value != running.Last + 1)
             throw new InvalidOperationException($"A Torizo's fade stepped at counter value {running.Last}, then at {value}.");
         fade = (fade?.First ?? value, value);
+        if (belly is not null)
+            bellyFirst ??= value;
         counter.Advance();
     }
 }

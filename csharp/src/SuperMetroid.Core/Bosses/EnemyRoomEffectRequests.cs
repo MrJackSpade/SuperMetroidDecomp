@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses;
@@ -15,6 +16,7 @@ namespace SuperMetroid.Core.Bosses;
 /// <param name="MotherBrainFxEntry">Mother Brain's pending room FX entry index (one or two), or zero for none.</param>
 /// <param name="MotherBrainPlms">Mother Brain's room mutations.</param>
 /// <param name="ShitroidPlms">The Shitroid's wall mutations.</param>
+/// <param name="TorizoBellyGlow">The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</param>
 public readonly record struct EnemyRoomEffectRequests(
     PlmHeaderId? BotwoonWall,
     PlmSpawnRequest? SporeSpawnCeiling,
@@ -23,7 +25,8 @@ public readonly record struct EnemyRoomEffectRequests(
     MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep,
     int MotherBrainFxEntry,
     IReadOnlyList<PlmSpawnRequest> MotherBrainPlms,
-    IReadOnlyList<PlmSpawnRequest> ShitroidPlms)
+    IReadOnlyList<PlmSpawnRequest> ShitroidPlms,
+    PaletteFxObject? TorizoBellyGlow)
 {
 
     /// <summary>Two request sets are equal when every value and every list's contents, in order, are equal.</summary>
@@ -31,9 +34,10 @@ public readonly record struct EnemyRoomEffectRequests(
         BotwoonWall == other.BotwoonWall && SporeSpawnCeiling == other.SporeSpawnCeiling &&
         CrocomirePlms.SequenceEqual(other.CrocomirePlms) && KraidPlms.SequenceEqual(other.KraidPlms) &&
         MotherBrainDeathStep == other.MotherBrainDeathStep && MotherBrainFxEntry == other.MotherBrainFxEntry &&
-        MotherBrainPlms.SequenceEqual(other.MotherBrainPlms) && ShitroidPlms.SequenceEqual(other.ShitroidPlms);
+        MotherBrainPlms.SequenceEqual(other.MotherBrainPlms) && ShitroidPlms.SequenceEqual(other.ShitroidPlms) &&
+        TorizoBellyGlow == other.TorizoBellyGlow;
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(BotwoonWall, SporeSpawnCeiling, CrocomirePlms.Count, KraidPlms.Count,
-        MotherBrainDeathStep, MotherBrainFxEntry, MotherBrainPlms.Count, ShitroidPlms.Count);
+        HashCode.Combine(MotherBrainDeathStep, MotherBrainFxEntry, MotherBrainPlms.Count, ShitroidPlms.Count, TorizoBellyGlow));
 }

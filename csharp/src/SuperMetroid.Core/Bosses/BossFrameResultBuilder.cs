@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses;
@@ -26,6 +27,9 @@ internal sealed class BossFrameResultBuilder
 
     /// <summary>Spore Spawn's ceiling PLM.</summary>
     internal PlmSpawnRequest? SporeSpawnCeiling { get; set; }
+
+    /// <summary>The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</summary>
+    internal PaletteFxObject? TorizoBellyGlow { get; set; }
 
     /// <summary>Crocomire's arena mutations, in publication order.</summary>
     internal List<PlmSpawnRequest> CrocomirePlms { get; } = [];
@@ -57,6 +61,7 @@ internal sealed class BossFrameResultBuilder
         RemoveLiquidEffects = false;
         BotwoonWall = null;
         SporeSpawnCeiling = null;
+        TorizoBellyGlow = null;
         CrocomirePlms.Clear();
         KraidPlms.Clear();
         MotherBrainDeathStep = null;
@@ -68,5 +73,5 @@ internal sealed class BossFrameResultBuilder
     /// <summary>The room effects the bosses requested so far.</summary>
     internal EnemyRoomEffectRequests RoomEffects() =>
         new(BotwoonWall, SporeSpawnCeiling, [.. CrocomirePlms], [.. KraidPlms], MotherBrainDeathStep,
-            MotherBrainFxEntry, [.. MotherBrainPlms], [.. ShitroidPlms]);
+            MotherBrainFxEntry, [.. MotherBrainPlms], [.. ShitroidPlms], TorizoBellyGlow);
 }

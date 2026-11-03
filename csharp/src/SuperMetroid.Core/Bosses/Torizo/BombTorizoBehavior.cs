@@ -56,6 +56,22 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
 
+    /// <summary>The room effects the bosses request this update, where the fight's start asks for the belly's glow.</summary>
+    private readonly BossFrameResultBuilder _frameResults;
+
+    /// <summary>
+    /// Shows the belly glow's <paramref name="record"/> over the Torizo's belly (#1512): the palette-FX handler wrote the
+    /// record over the colours it glows in, after the statue's own colour writes so far.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No Torizo is loaded to glow.</exception>
+    internal void ShowBellyGlow(PaletteFxFrame record)
+    {
+        TorizoEnemyState state = Access.TorizoState
+            ?? throw new InvalidOperationException("The Torizo belly glow shows a record while no Torizo is loaded.");
+        state.Colours.ShowBelly(record);
+        state.Slot.Shading = state.Colours.Shading;
+    }
+
     /// <summary>Connects the Bomb and Golden Torizo callbacks to their room-scoped services.</summary>
     internal BombTorizoBehavior(BombTorizoBehaviorDependencies dependencies)
     {
@@ -65,6 +81,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _deathsAndDrops = dependencies.DeathsAndDrops;
+        _frameResults = dependencies.FrameResults;
         Access = new TorizoEncounterAccess();
         Attacks = new TorizoAttacks(_room, _projectiles, _audio, _deathsAndDrops, Access);
         Body = new TorizoBody(_room, _presentation, Access, Attacks);
@@ -297,6 +314,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(5));
+                // The fight starts the belly's glow, a palette-FX object that ends once the statue dies.
+                _frameResults.TorizoBellyGlow = PaletteFxObject.BombTorizoBelly;
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.NoOperation }:
@@ -453,6 +472,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(5));
                 torizo.Radius = new(18, 48);
+                _frameResults.TorizoBellyGlow = PaletteFxObject.GoldenTorizoBelly;
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.ClearCaughtSuperMissile }:

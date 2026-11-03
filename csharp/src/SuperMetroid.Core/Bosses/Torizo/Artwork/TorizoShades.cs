@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
@@ -24,4 +25,16 @@ public static class TorizoShades
     /// <param name="last">The counter value of its last step.</param>
     public static PictureShade Fading(TorizoLook from, TorizoLook to, int first, int last) =>
         new($"torizo-{from.Key}-to-{to.Key}-from-{Ensure.BetweenInclusive(1, last, first)}", last);
+
+    /// <summary>
+    /// A Torizo's glowing belly colours after the steps of counter values <paramref name="first"/> through
+    /// <paramref name="last"/> of a fade toward <paramref name="to"/>, taken from the belly glow's
+    /// <paramref name="record"/> as shown.
+    /// </summary>
+    /// <param name="record">The glow's record shown when the fade took its first step over it.</param>
+    /// <param name="to">The colouring the fade runs toward.</param>
+    /// <param name="first">The counter value of the first moving step over the record, one or more.</param>
+    /// <param name="last">The counter value of the fade's last step.</param>
+    public static PictureShade BellyFading(PaletteFxFrame record, TorizoLook to, int first, int last) =>
+        new($"torizo-belly-{record.Record}-to-{to.Key}-from-{Ensure.BetweenInclusive(1, last, first)}", last);
 }

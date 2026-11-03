@@ -11,11 +11,11 @@ internal static class WreckedShipPowerPaint
     /// <summary>Gets the powered Wrecked Ship colour <paramref name="ink"/> of <paramref name="part"/>.</summary>
     internal static RgbColor Color(WreckedShipPoweredPart part, int ink)
     {
-        if ((uint)ink >= ColourSets.SetColours) throw new ArgumentOutOfRangeException(nameof(ink));
+        if ((uint)ink >= PartColourCount) throw new ArgumentOutOfRangeException(nameof(ink));
         if (ink == 0) return part is WreckedShipPoweredPart.GreenDoors or WreckedShipPoweredPart.MagentaDoors
             ? DoorTransparentMetadata
             : RgbColor.Black;
-        if (ink == ColourSets.SetColours - 1) return RgbColor.Black;
+        if (ink == PartColourCount - 1) return RgbColor.Black;
         return part switch
         {
             WreckedShipPoweredPart.Shared => Common(ink),

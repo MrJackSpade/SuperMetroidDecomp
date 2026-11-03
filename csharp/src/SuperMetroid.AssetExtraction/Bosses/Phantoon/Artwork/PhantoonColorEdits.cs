@@ -55,7 +55,7 @@ internal static class PhantoonColorEdits
             RgbColor[] colours = powerOn.TryGetValue(part, out RgbColor[]? supplied)
                 ? supplied
                 : throw new ArgumentException($"The power-on targets have no colours for {part}.", nameof(powerOn));
-            if (colours.Length != ColourSets.SetColours)
+            if (colours.Length != WreckedShipPowerPaintDefinitions.PartColourCount)
                 throw new ArgumentException($"The power-on targets of {part} must hold one group's colours.", nameof(powerOn));
             for (int color = 0; color < colours.Length; color++)
                 if (colours[color] != WreckedShipPowerPaint.Color(part, color))

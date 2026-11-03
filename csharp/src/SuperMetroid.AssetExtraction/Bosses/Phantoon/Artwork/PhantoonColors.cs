@@ -34,7 +34,7 @@ internal static class PhantoonColors
     {
         if (!PhantoonColorDefinitions.PoweredParts.Contains(part))
             throw new ArgumentOutOfRangeException(nameof(part), part, "The Wrecked Ship's power-on does not fade this part.");
-        if ((uint)color >= ColourSets.SetColours) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)color >= WreckedShipPowerPaintDefinitions.PartColourCount) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(new WreckedShipPoweredColour(part, color), out RgbColor edit) ? edit : WreckedShipPowerPaint.Color(part, color);
     }
 

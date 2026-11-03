@@ -12,6 +12,8 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// </summary>
 internal static class WreckedShipPowerPaintDefinitions
 {
+    /// <summary>The colours of each powered part: one colour group's sixteen, of which the first and the last are not painted.</summary>
+    internal const int PartColourCount = 16;
     /// <summary>Exact copied ink-zero metadata of the green and magenta door sets; background ink zero is transparent.</summary>
     internal static readonly RgbColor DoorTransparentMetadata = new(3, 0, 8);
     /// <summary>Common gold door/machine accent endpoints and selected middle red.</summary>

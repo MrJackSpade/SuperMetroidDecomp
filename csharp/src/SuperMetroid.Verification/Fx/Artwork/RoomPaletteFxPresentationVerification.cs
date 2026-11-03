@@ -93,6 +93,7 @@ internal static class RoomPaletteFxPresentationVerification
             "installed Norfair palette loops avoid cartridge color reads");
 
         Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(bus, presentation));
+        Suite(nameof(PaletteFxSpriteShadesVerification.VerifyPaletteFxSpriteShades), () => PaletteFxSpriteShadesVerification.VerifyPaletteFxSpriteShades(bus, presentation));
 
         Suite(nameof(VerifyExtractedMaridiaPaletteFxPresentation), () => VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation));
         Suite(nameof(VerifyExtractedWreckedShipPaletteFxPresentation), () => VerifyExtractedWreckedShipPaletteFxPresentation(bus, presentation));

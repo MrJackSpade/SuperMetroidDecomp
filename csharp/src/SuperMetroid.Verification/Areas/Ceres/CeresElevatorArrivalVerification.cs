@@ -55,6 +55,8 @@ internal static class CeresElevatorArrivalVerification
         VerificationAssertions.AssertTrue(expected.NextByteOffset > 0 && expected.ImageEquals(oam),
             "Ceres pad and level-data concealer draw their compositions at tile base zero in their own palettes");
 
+        Suite(nameof(VerifyConcealerShade), () => VerifyConcealerShade(rom, arrival));
+
         int frames = 1;
         while (!arrival.IsComplete && frames++ < 200)
             arrival.Step(samus);
@@ -68,6 +70,36 @@ internal static class CeresElevatorArrivalVerification
         Console.WriteLine(
             "  Ceres elevator: definitions/programs match cartridge data, run without bank-$86 reads, and retain native graphics/landing behavior.");
     }
+
+    /// <summary>
+    /// Checks the concealer's cleared colour against the cartridge (#1512): a new game's set-up stores zero into one sprite
+    /// colour before the arrival spawns ($82:812D <c>LDA #$0000</c>, $82:8130 <c>STA.L</c> into the colour buffer), and
+    /// every arrival draw's picture carries the concealer's shade, which shows exactly that sprite colour black.
+    /// </summary>
+    private static void VerifyConcealerShade(ISnesAddressSpace rom, CeresElevatorArrivalState arrival)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        VerificationAssertions.AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x82812d), "the new-game clear loads an immediate colour");
+        VerificationAssertions.AssertEqual((ushort)0, cartridge.ReadCartridgeWord(0x82812e), "the new-game clear's colour is black");
+        VerificationAssertions.AssertEqual((byte)0x8f, rom.ReadCartridgeByte(0x828130), "the new-game clear stores a long address");
+        VerificationAssertions.AssertEqual((byte)0x7e, rom.ReadCartridgeByte(0x828133), "the new-game clear stores into work RAM");
+        int spriteColour = (cartridge.ReadCartridgeWord(0x828131) - NativeSnapshotMemory.PaletteBuffer) / sizeof(ushort) - SpriteColoursFirst;
+        var frame = new SpriteFrameBuffer();
+        frame.BeginFrame();
+        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElev0),
+            Position16<RoomPixels>.Zero);
+        frame.FinalizeFrame();
+        VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");
+        foreach (SpriteDraw draw in frame.Draws)
+        {
+            ShadeInks inks = ((ImageSpriteDraw)draw).Image.Sheet.Shade(CeresElevatorShades.ConcealerCleared);
+            VerificationAssertions.AssertTrue(inks.Inks.SequenceEqual([spriteColour]) && inks.Colours.SequenceEqual([RgbColor.Black]),
+                "the concealer's shade shows the cartridge's cleared sprite colour black");
+        }
+    }
+
+    /// <summary>The colour buffer's first sprite colour.</summary>
+    private const int SpriteColoursFirst = 128;
 
     /// <summary>Matches the arrival projectiles' definitions and typed programs (#641) to the retail bank-$86 lists.</summary>
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)

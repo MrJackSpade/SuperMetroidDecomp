@@ -1,14 +1,25 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The reserve-tank arrow's two bevel colours (#1467): solid while the transfer control is selected, pulsing while AUTO
-/// is selected. The pause screen writes them to its colours; the arrow's tiles are pictured by the import.
+/// The reserve-tank arrow's two bevel colours (#1467, #1512): solid while the transfer control is selected, pulsing while
+/// AUTO is selected. Only the import reads them: it pre-colours the arrow's pictures in the pause sheet in a shade for the
+/// solid colours and one for each pulse phase, which the pause screen names.
 /// </summary>
 public sealed class PauseReserveArrowColours
 {
+    /// <summary>The background colour group the arrow's bevel colours lie in on the pause screen.</summary>
+    private const int BevelGroup = 6;
+    /// <summary>The colour of <see cref="BevelGroup"/> the arrow's darker bevel shows.</summary>
+    private const int ShadeColour = 6;
+    /// <summary>The colour of <see cref="BevelGroup"/> the arrow's lighter bevel shows.</summary>
+    private const int LightColour = 11;
+    /// <summary>The colours of one colour group.</summary>
+    private const int GroupColours = 16;
+
     /// <summary>Two bevel colors shown when AUTO pulse animation is inactive.</summary>
     private readonly RgbColor solidColor6, solidColor11;
     /// <summary>Only pulse starting colors that differ from the reversed solid bevel colors.</summary>
@@ -16,7 +27,7 @@ public sealed class PauseReserveArrowColours
     /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
     private readonly ReserveArrowGreyLevels arrowGreyLevels;
     /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> arrowColorEdits = [];
+    internal readonly Dictionary<ReserveArrowPulseColour, RgbColor> arrowColorEdits = [];
 
     /// <summary>Derives the pulse's sparse starting-colour and per-phase edits from the selected colours.</summary>
     /// <param name="solidColor6">Static arrow bevel colour for palette slot six outside pulse animation.</param>
@@ -35,22 +46,34 @@ public sealed class PauseReserveArrowColours
         for (int frame = 0; frame < arrowFrames.Length; frame++)
         {
             if (arrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowBevel.Shade))
-                arrowColorEdits.Add(new ColourCell(frame, 0), arrowFrames[frame].Color6);
+                arrowColorEdits.Add(new ReserveArrowPulseColour(frame, ReserveArrowBevel.Shade), arrowFrames[frame].Color6);
             if (arrowFrames[frame].Color11 != CalculateArrowColor(frame, ReserveArrowBevel.Light))
-                arrowColorEdits.Add(new ColourCell(frame, 1), arrowFrames[frame].Color11);
+                arrowColorEdits.Add(new ReserveArrowPulseColour(frame, ReserveArrowBevel.Light), arrowFrames[frame].Color11);
         }
     }
 
-    /// <summary>Writes the two selected arrow bevel colours to the screen's colours, using either the pulse frame or the solid appearance.</summary>
-    /// <param name="colours">The screen's colours, whose reserve-arrow bevel colours change.</param>
-    /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
-    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter and ignored for solid colors.</param>
-    public void ApplyArrowColors(ScreenPalette colours, bool animated, int frame)
+    /// <summary>The arrow's two bevel colours while solid.</summary>
+    internal ReserveArrowColors Solid => new(solidColor6, solidColor11);
+
+    /// <summary>The arrow's two bevel colours at pulse phase <paramref name="frame"/>.</summary>
+    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit frame counter.</param>
+    internal ReserveArrowColors Pulse(int frame) =>
+        new(ArrowColor(frame, ReserveArrowBevel.Shade), ArrowColor(frame, ReserveArrowBevel.Light));
+
+    /// <summary>
+    /// The shades the import pre-colours the arrow's pictures in (#1512): the solid colours, and each pulse phase's, over
+    /// the arrow's two bevel inks.
+    /// </summary>
+    internal IEnumerable<SheetShade> Shades()
     {
-        var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowBevel.Shade), ArrowColor(frame, ReserveArrowBevel.Light)) : new ReserveArrowColors(solidColor6, solidColor11);
-        Ensure.NotNull(colours).Colours(ScreenColourGroup.PauseReserveArrowShade).Fill(colors.Color6);
-        colours.Colours(ScreenColourGroup.PauseReserveArrowLight).Fill(colors.Color11);
+        yield return Shade(PauseReserveArrowShades.Solid, Solid);
+        for (int frame = 0; frame < PauseReserveArrowDefinitions.ArrowFrames; frame++)
+            yield return Shade(PauseReserveArrowShades.Pulse(frame), Pulse(frame));
     }
+
+    /// <summary>The shade that shows the arrow's bevels in <paramref name="colours"/>.</summary>
+    private static SheetShade Shade(PictureShade shade, ReserveArrowColors colours) =>
+        new(shade, [BevelGroup * GroupColours + ShadeColour, BevelGroup * GroupColours + LightColour], [colours.Color6, colours.Color11]);
 
     /// <summary>
     /// The reserve arrow's two 16-phase RGB ramps mirror around the repeated midpoint.
@@ -90,7 +113,7 @@ public sealed class PauseReserveArrowColours
     private RgbColor ArrowColor(int frame, ReserveArrowBevel bevel)
     {
         frame &= PauseReserveArrowDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(new ColourCell(frame, (bevel == ReserveArrowBevel.Light ? 1 : 0)), out RgbColor supplied)
+        return arrowColorEdits.TryGetValue(new ReserveArrowPulseColour(frame, bevel), out RgbColor supplied)
             ? supplied : CalculateArrowColor(frame, bevel);
     }
 }

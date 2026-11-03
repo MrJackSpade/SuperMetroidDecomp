@@ -449,19 +449,20 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
-            IPaletteColors comparedPalette = runtime.Colours.AsPaletteColors();
+            ReadOnlySpan<RgbColor> comparedPalette = runtime.Colours.AsPaletteColors().Colors;
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
-                object menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
-                comparedPalette = ((PauseMenuState)menu).screen.Palette.AsPaletteColors();
+                // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
+                PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
+                comparedPalette = PauseShownColours.Of(menu);
             }
             if (!deferLoadingOwners)
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 ushort nativeColor = (ushort)(W(NativeSnapshotMemory.PaletteBuffer + color * 2) & 0x7fff);
-                if (comparedPalette.Colors[color].ToWord() != nativeColor)
-                    mismatches.Add($"Palette {color}: native={nativeColor:X4} port={comparedPalette.Colors[color]:X4}");
+                if (comparedPalette[color].ToWord() != nativeColor)
+                    mismatches.Add($"Palette {color}: native={nativeColor:X4} port={comparedPalette[color]:X4}");
             }
             if (deferLoadingOwners)
             {

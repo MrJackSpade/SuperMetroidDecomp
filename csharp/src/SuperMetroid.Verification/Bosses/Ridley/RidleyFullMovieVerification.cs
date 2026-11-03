@@ -677,25 +677,26 @@ internal static class RidleyFullMovieVerification
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
         var menu = game.Session.ScreenAs<PauseMenuState>();
-        var menuPalette = (menu ?? throw new InvalidOperationException("Verification requires menu.")).screen.Palette;
-        RgbColor[] initial = menuPalette.Colors.ToArray();
+        // The pause screen's colours are the shadings its pictures name (#1512): the highlight frame and the reserve arrow's.
+        PauseMenuState pause = menu ?? throw new InvalidOperationException("Verification requires menu.");
+        RgbColor[] initial = PauseShownColours.Of(pause);
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
         {
             game.Step(0);
-            AssertTrue(menuPalette.Colors.SequenceEqual(initial), "pause fade-in retains all palette colors");
+            AssertTrue(PauseShownColours.Of(pause).SequenceEqual(initial), "pause fade-in retains all palette colors");
         }
         AssertEqual(SuperMetroidGameState.PausedB, game.GameState, "pause fade-in completes");
         game.Step(0);
-        AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
-        RgbColor[] animated = menuPalette.Colors.ToArray();
+        AssertTrue(!PauseShownColours.Of(pause).SequenceEqual(initial), "stable pause starts palette animation");
+        RgbColor[] animated = PauseShownColours.Of(pause);
         game.GameState = SuperMetroidGameState.UnpausingA;
         game.Session.BeginPauseFade(15);
         fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.UnpausingA && fadeFrames++ < 32)
         {
             game.Step(0);
-            AssertTrue(menuPalette.Colors.SequenceEqual(animated), "unpause fade-out retains the last palette phase");
+            AssertTrue(PauseShownColours.Of(pause).SequenceEqual(animated), "unpause fade-out retains the last palette phase");
         }
         AssertEqual(SuperMetroidGameState.UnpausingB, game.GameState, "unpause fade-out completes");
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
@@ -45,9 +44,7 @@ internal static class PauseSheetComposer
             string name = PauseReserveTankParts.SheetFrameName(frame.Name);
             return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tankSource.SpriteSet);
         }));
-        var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.Pause));
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
+        return new SpriteSheetSources(frames, InstalledAreaMapPresentation.PalettesOf(maps).Pause[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
             PartsKeepOwnRows: true);
     }
 

@@ -66,7 +66,7 @@ internal static class PauseScreenPublicationVerification
             vram.AsSpan(tilemapsEnd, GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort) - tilemapsEnd)
                 .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
-        AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{page} draws its own palette");
+        AssertEqual(screen.Artwork.Backdrops.Pause, memory.Backdrop, $"{page} shows its own backdrop");
         AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{page} draws its own sprite entries");
     }
 
@@ -82,7 +82,7 @@ internal static class PauseScreenPublicationVerification
         bool grid = layers.OfType<PictureGridLayer>().Any(layer => layer.Grid.Equals(AreaMapPictures.Grid(pause.ShownMap, pause.screen.Pictures)));
         AssertEqual(pause.ScreenMode == PauseScreenMode.Map, grid, $"{page} draws the shown map's cell pictures only on the map page");
         bool equipment = pause.ShownEquipment is { } shown
-            && layers.OfType<PicturedPlaneLayer>().Any(layer => layer.Plane.Equals(pause.screen.EquipmentPage(shown)));
+            && layers.OfType<PicturedPlaneLayer>().Any(layer => layer.Plane.Equals(pause.screen.EquipmentPage(shown, pause.ReserveArrowShading)));
         AssertEqual(pause.ScreenMode != PauseScreenMode.Map, equipment, $"{page} draws the uploaded equipment page's pictures only on the equipment page");
     }
 

@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Rooms;
@@ -36,13 +35,13 @@ internal static class PauseMenuFixtureVerification
         MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(
             document, ArtworkJson.Options));
 
-        var pauseColors = new RgbColor[SnesCgram.ColorCount];
-        byte[] paletteBytes = Read(0xb6f000, CgramPalettes.ByteCount);
-        for (int i = 0; i < pauseColors.Length; i++)
-            pauseColors[i] = RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(paletteBytes[i * 2], paletteBytes[i * 2 + 1]));
-        var palettes = new MapStaticPalettes(ScreenColourImage.Decode(pauseColors), stock.Palettes.FileSelect,
+        // The pause colours come from the constructed ROM, as the import reads them; the other screens' are stock's.
+        var pauseColors = new SnesCgram();
+        CartridgePaletteImporter.LoadToCgram(pauseColors, bus, MapSourceDefinitions.Artwork.PauseColors);
+        MapStaticPalettes stockPalettes = InstalledAreaMapPresentation.PalettesOf(stock);
+        var palettes = new MapStaticPalettes(pauseColors.Colors.ToArray(), stockPalettes.FileSelect.ToArray(),
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
-                .ToDictionary(area => area, stock.Palettes.World));
+                .ToDictionary(area => area, area => stockPalettes.World(area).ToArray()));
         var areas = Enum.GetValues<AreaId>().Select(stock.Get).ToArray();
         areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
         var backdrops = PauseBackdropPresentation.FromTilemaps(
@@ -76,7 +75,7 @@ internal static class PauseMenuFixtureVerification
             HiddenCells = stock.HiddenCells,
             ContentIdentity = "constructed-pause-interaction-fixture",
             HighlightCycle = stock.HighlightCycle,
-            Palettes = palettes,
+            Backdrops = palettes.Backdrops(),
             Labels = stock.Labels,
             Stations = stock.Stations,
             Landmarks = stock.Landmarks,
@@ -85,7 +84,6 @@ internal static class PauseMenuFixtureVerification
             WorldArtwork = stock.WorldArtwork,
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
             PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
-            PauseReserveArrow = stock.PauseReserveArrow,
             EscapeTimer = stock.EscapeTimer,
             EscapeTimerTiles = stock.EscapeTimerTiles,
             GameplayHud = stock.GameplayHud,
@@ -121,6 +119,6 @@ internal static class PauseMenuFixtureVerification
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
-            InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.HighlightColoursOf(stock)));
+            InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes));
     }
 }

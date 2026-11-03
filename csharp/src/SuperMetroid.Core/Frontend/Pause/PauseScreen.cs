@@ -10,8 +10,9 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// The pause screen <c>GameState_13</c> sets up (#1358): the installed artwork and pictures it draws, its palette and
-/// its sprite entries. It publishes these; the capture composes them, so pause owns no display memory.
+/// The pause screen <c>GameState_13</c> sets up (#1358): the installed artwork and pictures it draws, each in the colours
+/// the import pre-coloured it in (#1512), its backdrop and its sprite entries. It publishes these; the capture composes
+/// them, so pause owns no display memory.
 /// </summary>
 internal sealed class PauseScreen
 {
@@ -19,6 +20,7 @@ internal sealed class PauseScreen
     public PauseScreen(AreaMapPresentation artwork, InstalledSpriteSheets? sheets)
     {
         Artwork = Ensure.NotNull(artwork);
+        Backdrop = artwork.Backdrops.Pause;
         Objects = new ScreenSprites();
         BindScreenTiles(sheets);
     }
@@ -55,19 +57,28 @@ internal sealed class PauseScreen
         return new PicturedPlane(MenuScreen.PageSize, placed.ToImmutable());
     }
 
-    /// <summary><paramref name="picture"/> placed with its origin on the frame's corner, where the game's page shows it.</summary>
-    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) =>
-        PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize);
+    /// <summary>
+    /// <paramref name="picture"/> placed with its origin on the frame's corner, where the game's page shows it, in
+    /// <paramref name="shading"/> (#1512).
+    /// </summary>
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading) =>
+        PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize).ShadedIn(shading);
+
+    /// <summary><paramref name="picture"/> placed on the frame's corner in the standard colours the import pre-coloured it in under the pause colours (#1512).</summary>
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) => AtCorner(picture, PictureShading.Standard);
 
     /// <summary>
     /// The equipment page <paramref name="page"/> shows (#1467): the template's picture and, beside it, the picture of each
-    /// label, the overrun tail, the wireframe, the reserve display and the arrow in the state the page shows it in.
+    /// label, the overrun tail, the wireframe, the reserve display and the arrow in the state the page shows it in, the
+    /// arrow in <paramref name="arrowShading"/> (#1512).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
-    internal PicturedPlane EquipmentPage(ShownEquipmentPage page)
+    internal PicturedPlane EquipmentPage(ShownEquipmentPage page, PictureShading arrowShading)
     {
         SpriteSheet pictures = Pictures;
-        return new PicturedPlane(MenuScreen.PageSize, [.. PauseEquipmentPictures.Frames(page).Select(frame => AtCorner(pictures.Frame(frame)))]);
+        string arrow = PauseEquipmentPictures.ReserveArrowFrame(page.Arrow);
+        return new PicturedPlane(MenuScreen.PageSize, [.. PauseEquipmentPictures.Frames(page).Select(frame =>
+            AtCorner(pictures.Frame(frame), frame == arrow ? arrowShading : PictureShading.Standard))]);
     }
 
     /// <summary>
@@ -105,7 +116,7 @@ internal sealed class PauseScreen
     /// The HUD pause shows (#1466): the retained HUD's images under the pause palette, drawn on the HUD's own layer. The
     /// cleared cells <c>QueueClearingOfFxTilemap</c> leaves beneath and around the HUD show nothing, so pause draws none.
     /// </summary>
-    internal PicturedHud RetainedHudPictures() => pictured ??= HudPictures.Pictured(Hud);
+    internal PicturedHud RetainedHudPictures() => pictured ??= HudPictures.Pictured(Hud, PictureShading.Standard);
 
     /// <summary>The installed artwork the screen draws.</summary>
     [AllowNull]
@@ -115,18 +126,19 @@ internal sealed class PauseScreen
         private set;
     }
 
-    /// <summary>The pause palette, with its live highlight and reserve-arrow colours.</summary>
-    public ScreenPalette Palette { get; } = new();
+    /// <summary>The solid colour the pause screen shows where nothing is drawn (#1512).</summary>
+    public RgbColor Backdrop { get; private set; }
 
     /// <summary>The pause sprite entries over the installed menu OBJ page.</summary>
     public ScreenSprites Objects { get; }
 
-    /// <summary>Rebinds the installed artwork, keeping the palette and sprite entries.</summary>
+    /// <summary>Rebinds the installed artwork and the backdrop it names, keeping the sprite entries.</summary>
     public void BindArtwork(AreaMapPresentation artwork)
     {
         Artwork = Ensure.NotNull(artwork);
+        Backdrop = artwork.Backdrops.Pause;
     }
 
-    /// <summary>What the screen paints with: its palette and sprite entries.</summary>
-    internal FramePaint Paint() => new(Palette.Shown(), Objects.Draws);
+    /// <summary>What the screen paints with: its backdrop and sprite entries, each sprite in the shading it names (#1512).</summary>
+    internal FramePaint Paint() => new(Backdrop, Objects.Draws);
 }

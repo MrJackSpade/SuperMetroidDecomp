@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>One of the reserve-tank arrow's two bevel colours, which its pulse animates in mirrored ramps.</summary>
 internal enum ReserveArrowBevel

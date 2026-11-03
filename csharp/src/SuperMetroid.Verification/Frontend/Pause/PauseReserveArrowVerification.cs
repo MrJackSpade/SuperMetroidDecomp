@@ -65,7 +65,8 @@ internal static class PauseReserveArrowVerification
             var capture = pause.CaptureRenderSnapshot();
             byte[] captureVram = pause.ShownVram();
             var tiles = captureVram.ToArray();
-            var colors = capture.Paint.Colors.ToArray();
+            // The arrow's colours are the shade its latched state names (#1512), shown over the pause colours.
+            RgbColor[] colors = PauseShownColours.Of(pause);
             // Independent native AE01/AE46 walk: eight vertical words followed
             // by two horizontal words. Only the three palette bits may change.
             foreach (int offset in Enumerable.Range(0, 8).Select(i => 0x102 + i * 0x40).Concat(HorizontalArrowWordOffsets))
@@ -75,8 +76,8 @@ internal static class PauseReserveArrowVerification
                 ushort expected = (ushort)((before & 0xe3ff) | (enabled ? 0x1800 : 0x1c00));
                 BinaryPrimitives.WriteUInt16LittleEndian(tiles.AsSpan(address), expected);
             }
-            colors[102] = RgbColor.FromWord(color6);
-            colors[107] = RgbColor.FromWord(colorB);
+            AssertEqual(color6, colors[102], context + " arrow's darker bevel colour");
+            AssertEqual(colorB, colors[107], context + " arrow's lighter bevel colour");
             var memory = capture.Paint.WithNativeColours(colors);
             var expectedPixels = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
             AssertTrue(pause.Render().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");

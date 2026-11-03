@@ -55,7 +55,7 @@ internal static class PauseSelectorsVerification
                 var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
                 var shownNative = native.ShownVram();
                 var shownPause = pause.ShownVram();
-                AssertTrue(nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) && nativeInputs.Paint.Colors.SequenceEqual(portInputs.Paint.Colors) &&
+                AssertTrue(nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) && PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) &&
                     shownNative.SequenceEqual(shownPause) && nativeInputs.Brightness == portInputs.Brightness,
                     "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)

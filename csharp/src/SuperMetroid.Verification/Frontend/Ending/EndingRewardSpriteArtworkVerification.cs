@@ -46,7 +46,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(stock).RewardSprites).Draw(frame.Pose, installedOam,
-                    new(120, y), ScreenColourGroup.EndingShot, onScreen);
+                    new(120, y), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,

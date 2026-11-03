@@ -373,23 +373,14 @@ internal static class EndingPaletteArtworkVerification
             }
             if (id is EndingPaletteId.LogoInitial or EndingPaletteId.LogoCrossfade)
             {
-                var stockCgram = new ScreenPalette();
-                var editedCgram = new ScreenPalette();
-                var stockLogo = new EndingLogo(stockCgram, () => { }, stock);
-                var editedLogo = new EndingLogo(editedCgram, () => { }, edited);
-                if (id == EndingPaletteId.LogoCrossfade)
-                {
-                    for (int frame = 0; frame < 300 && stockLogo.PaletteStep == 0; frame++)
-                    {
-                        stockLogo.Step(stockCgram);
-                        editedLogo.Step(editedCgram);
-                    }
-                    AssertEqual(1, stockLogo.PaletteStep,
-                        "logo override fixture reaches its first palette transfer");
-                }
-                AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)) &&
-                    ScreenSpritesFixtures.Frame(objects => stockLogo.Draw(objects, CinematicSheetFixtures.Drawer(installation.LoadEndingObjectArt().LogoSprites))).LowTable.SequenceEqual(ScreenSpritesFixtures.Frame(objects => editedLogo.Draw(objects, CinematicSheetFixtures.Drawer(installation.LoadEndingObjectArt().LogoSprites))).LowTable),
-                    $"edited {id} color changes logo CGRAM without changing actors");
+                // An edited logo colour reaches the shade the import pre-colours for it (#1512); the logo's actors take
+                // no colours of their own.
+                PictureShade edit = id == EndingPaletteId.LogoInitial
+                    ? EndingShades.Loaded(EndingColourLoad.LogoInitial)
+                    : EndingShades.LogoCrossfade(0);
+                AssertTrue(!EndingScreenShades.Screen(stock, maps.RoomPaletteFx).Single(shade => shade.Shade == edit).Colours
+                        .SequenceEqual(EndingScreenShades.Screen(edited, maps.RoomPaletteFx).Single(shade => shade.Shade == edit).Colours),
+                    $"edited {id} color changes the logo's installed shade");
             }
             File.Delete(overridePath);
         }
@@ -500,35 +491,29 @@ internal static class EndingPaletteArtworkVerification
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteSet stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {
-        var nativeCgram = new ScreenPalette();
-        var installedCgram = new ScreenPalette();
-        var nativeLogo = new EndingLogo(nativeCgram, () => { }, stock);
-        var installedLogo = new EndingLogo(installedCgram, () => { }, stock);
-        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-            "installed initial logo palette matches cartridge CGRAM");
-        for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
+        // The import pre-colours the logo's first sprite colours and each crossfade step from the installed palettes
+        // (#1512): each shade holds the cartridge's colours, the step's background colours before its sprite colours.
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(stock, InstalledFixtures.Maps.RoomPaletteFx);
+        byte[] nativeInitial = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
+            EndingPaletteId.LogoInitial, EndingPaletteFiles.ColorCount(EndingPaletteId.LogoInitial));
+        SheetShade initial = shades.Single(shade => shade.Shade == EndingShades.Loaded(EndingColourLoad.LogoInitial));
+        AssertTrue(initial.Inks.SequenceEqual(Enumerable.Range(240, 16)), "the logo's first colours cover its sprite colours");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(LittleEndianBytes.Word(nativeInitial[color * 2], nativeInitial[color * 2 + 1]), initial.Colours[color].ToWord(),
+                "installed initial logo colours match the cartridge");
+        byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
+            EndingPaletteId.LogoCrossfade, EndingPaletteFiles.ColorCount(EndingPaletteId.LogoCrossfade));
+        for (int step = 0; step < EndingShades.LogoCrossfadeSteps; step++)
         {
-            nativeLogo.Step(nativeCgram);
-            if (nativeLogo.PaletteStep > 0)
-            {
-                byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
-                    EndingPaletteId.LogoCrossfade, EndingPaletteFiles.ColorCount(EndingPaletteId.LogoCrossfade));
-                for (int palette = 0; palette < 2; palette++)
-                    for (int color = 0; color < 16; color++)
-                    {
-                        int offset = (((nativeLogo.PaletteStep - 1) * 2 + palette) * 16 + color) * 2;
-                        nativeCgram.SetColor((palette == 0 ? 16 : 240) + color,
-                            RgbColor.FromWord(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1])));
-                    }
-            }
-            installedLogo.Step(installedCgram);
-            AssertEqual(nativeLogo.PaletteStep, installedLogo.PaletteStep,
-                $"installed logo crossfade step {frame}");
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-                $"installed logo palette matches every native frame {frame}");
+            SheetShade shown = shades.Single(shade => shade.Shade == EndingShades.LogoCrossfade(step));
+            for (int palette = 0; palette < 2; palette++)
+                for (int color = 0; color < 16; color++)
+                {
+                    int offset = ((step * 2 + palette) * 16 + color) * 2;
+                    AssertEqual(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1]), shown.Colours[palette * 16 + color].ToWord(),
+                        $"installed logo crossfade step {step} matches the cartridge");
+                }
         }
-        AssertTrue(nativeLogo.Completed && installedLogo.Completed,
-            "both logo palettes complete the same sixteen-step fade");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "installed logo never reads either native palette color source");
     }

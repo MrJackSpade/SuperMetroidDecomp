@@ -3,14 +3,16 @@
 // colour shown and, below it, the pixel's priority against the backgrounds with whether it blends above that; a pixel
 // no draw covers keeps the cleared "none" value. D3D11SpriteDrawBuffer packs the records.
 StructuredBuffer<uint> SpriteDraws : register(t1);
-// Each texel: the image's pre-coloured pixel, then its ink (D3D11ImageAtlas): its ink index, priority above it and its
-// part row above that. Compiled apart from Tiles.hlsl, which declares the same texture.
+// Each texel: the image's pre-coloured pixel, then its ink (D3D11ImageAtlas): its ink index with its priority above it.
+// Compiled apart from Tiles.hlsl, which declares the same texture.
 Texture2D<uint2> Images : register(t4);
 static const uint SpriteRecordWords = 5;
 static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteRecolour = 512;
-static const uint SpriteRowColours = 16, SpriteFollowsPartRows = 65536;
-// The ink row from which a sprite's pixels blend.
-static const uint FirstBlendingRow = 4;
+// The inks of one sprite colour group.
+static const uint SpriteGroupInks = 16;
+// The first of a sprite sheet's colour groups whose pixels take part in colour math, as every later group's do (#1514
+// owns colour math): an ink's group is its index over SpriteGroupInks.
+static const uint FirstColourMathGroup = 4;
 // A layer pixel's flag marking a sprite pixel that blends.
 static const uint SpriteBlends = 16;
 
@@ -50,16 +52,13 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + source, 0));
     uint ink = texel.y & 255;
     uint priority = (texel.y >> 8) & 3;
+    uint blends = (ink / SpriteGroupInks) >= FirstColourMathGroup ? SpriteBlends : 0;
     if ((flags & SpriteRecolour) != 0)
     {
         if (ink == 0) discard;
-        // A pixel takes its ink row's colours, or its part row's where the draw follows part rows.
-        uint colours = SpriteDraws[record + 4];
-        uint header = SpriteDraws[colours];
-        uint key = (header & SpriteFollowsPartRows) != 0 ? (texel.y >> 10) & 15 : ink >> 4;
-        uint blends = ((header >> key) & 1) != 0 ? SpriteBlends : 0;
-        return uint2(SpriteDraws[colours + 1 + key * SpriteRowColours + (ink & 15)], priority | blends);
+        // A shaded draw's pixel shows its ink's colour under the draw's shading (#1512).
+        return uint2(SpriteDraws[SpriteDraws[record + 4] + ink], priority | blends);
     }
     if ((texel.x >> 24) == 0) discard;
-    return uint2(texel.x | 0xff000000, priority | ((ink >> 4) >= FirstBlendingRow ? SpriteBlends : 0));
+    return uint2(texel.x | 0xff000000, priority | blends);
 }

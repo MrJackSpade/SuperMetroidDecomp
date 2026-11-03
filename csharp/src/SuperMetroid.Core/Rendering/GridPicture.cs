@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Picture">The cell's picture, one cell in size.</param>
 /// <param name="Mirroring">How the cell mirrors the picture.</param>
 /// <param name="Shading">
-/// The shades and colour effects its screen shows it in (#1512), or null while the screen still colours it through its
-/// colour sets.
+/// The shades and colour effects its screen shows it in (#1512); <see cref="PictureShading.Standard"/> where the screen
+/// shows no effect on it.
 /// </param>
-public readonly record struct GridPicture(SpriteSheetFrame Picture, TileFlip Mirroring, PictureShading? Shading = null);
+public readonly record struct GridPicture(SpriteSheetFrame Picture, TileFlip Mirroring, PictureShading Shading);

@@ -4,14 +4,12 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One of an installed image's own colour groups (#1464): sixteen of the standard colours the import pipeline coloured
-/// the image with, which a pixel's ink names. A sprite image's group shows, unless a draw recolours it, the shared sprite
-/// colour store the pipeline coloured it from; a gameplay background image's group draws in the background set the
-/// pipeline named for it.
+/// the image with, which a pixel's ink names. What a group shows is the image's standard colours under the shading its
+/// draw names (#1512).
 /// </summary>
 /// <remarks>
 /// A group is known by its place among the image's standard colours, which is how the installed image stores its inks
-/// and how a backend keys a draw's colours. The place says nothing about where gameplay holds the colours a group shows:
-/// <see cref="Store"/> and the image's background sets say that.
+/// and how a backend keys a draw's colours.
 /// </remarks>
 public readonly record struct ImageColourGroup
 {
@@ -37,10 +35,4 @@ public readonly record struct ImageColourGroup
 
     /// <summary>Where the group's colours start among the image's standard colours.</summary>
     internal int FirstColour => Number * Colours;
-
-    /// <summary>
-    /// The shared sprite colour store a sprite image's group shows while no draw recolours it: the import pipeline colours
-    /// each group of a sprite image from the store of the same place.
-    /// </summary>
-    internal SpriteColourStore Store => SpriteColourStore.Every[Number];
 }

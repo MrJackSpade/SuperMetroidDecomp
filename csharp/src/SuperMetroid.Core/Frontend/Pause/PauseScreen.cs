@@ -62,7 +62,7 @@ internal sealed class PauseScreen
     /// <paramref name="shading"/> (#1512).
     /// </summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading) =>
-        PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize).ShadedIn(shading);
+        PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize, shading);
 
     /// <summary><paramref name="picture"/> placed on the frame's corner in the standard colours the import pre-coloured it in under the pause colours (#1512).</summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) => AtCorner(picture, PictureShading.Standard);

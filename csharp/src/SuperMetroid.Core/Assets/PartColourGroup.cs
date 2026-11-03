@@ -3,14 +3,15 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// The colour group of the part a pixel of an installed image belongs to, and whether that part keeps its group's colours
-/// under a drawn colouring or follows the colouring (#1464). A following part shows what its draw's placement combines
-/// the colouring with its group into (<see cref="SpriteColourPlacement"/>); a kept part, which the import pipeline makes
-/// of a part naming its own colours in a family whose parts keep them and of every background pixel, shows its own group.
+/// The colour group of the part a pixel of an installed image belongs to, and whether that part kept its own colour group
+/// when the import composed it or followed the palette its spritemap was drawn with (#1464). The import pipeline makes a
+/// kept part of a part naming its own colours in a family whose parts keep them and of every background pixel. The
+/// installed sheet format records it for each pixel; no draw recolours by it, as every draw shows its picture under the
+/// shading its owner names (#1512).
 /// </summary>
 /// <remarks>
 /// The installed image stores each pixel's part group as its <see cref="Code"/>: the group's place, raised by
-/// <see cref="ImageColourGroup.Count"/> where the part keeps its colours. Backends key a recoloured draw's colours by it.
+/// <see cref="ImageColourGroup.Count"/> where the part keeps its colours.
 /// </remarks>
 public readonly record struct PartColourGroup
 {
@@ -31,12 +32,12 @@ public readonly record struct PartColourGroup
     /// <exception cref="ArgumentOutOfRangeException">The code names no part group.</exception>
     internal static PartColourGroup FromCode(int code) => Every[Ensure.BetweenInclusive(0, Codes - 1, code)];
 
-    /// <summary>The number the installed image stores the part group as, and backends key its colours by.</summary>
+    /// <summary>The number the installed image stores the part group as.</summary>
     public int Code { get; }
 
     /// <summary>The colour group the part was drawn in.</summary>
     internal ImageColourGroup Group => ImageColourGroup.Numbered(Code % ImageColourGroup.Count);
 
-    /// <summary>Whether the part keeps its group's colours under a drawn colouring.</summary>
+    /// <summary>Whether the part kept its own colour group rather than following its spritemap's palette.</summary>
     internal bool KeepsOwnColours => Code >= ImageColourGroup.Count;
 }

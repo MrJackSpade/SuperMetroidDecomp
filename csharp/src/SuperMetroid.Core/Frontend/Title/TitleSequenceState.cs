@@ -31,7 +31,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         {
             BindTitleGradient(artwork.MapPresentation?.TitleGradient);
             BindTitleGraphics(artwork.MapPresentation?.TitleGraphics);
-            BindTitlePalette(artwork.MapPresentation?.TitlePalette);
+            BindTitleBackdrop(artwork.MapPresentation?.TitleBackdrop);
         }
         BindSpriteSheets(artwork.SpriteSheets);
     }
@@ -63,8 +63,11 @@ public sealed class TitleSequenceState : IFrontendScreen
     private readonly ControllerInputState controller = new();
     /// <summary>Installed scanline gradient, bound when the game is bound to its installed content.</summary>
     private TitleGradientPresentation? titleGradientPresentation;
-    /// <summary>Installed title palette, bound when the game is bound to its installed content.</summary>
-    private TitlePalettePresentation? titlePalettePresentation;
+    /// <summary>
+    /// The installed title backdrop (#1512), bound when the game is bound to its installed content; the title's other colours
+    /// are pre-coloured into its sheets.
+    /// </summary>
+    private RgbColor? titleBackdrop;
     /// <summary>Installed title graphics, bound when the game is bound to its installed content.</summary>
     internal TitleGraphicsPresentation? TitleGraphics { get; private set; }
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
@@ -106,16 +109,16 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Creates the initial title setup.</summary>
     /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
     /// <param name="titleGradientPresentation">The installed gradients, one per zoom bucket.</param>
-    /// <param name="titlePalettePresentation">Required installed title colours.</param>
+    /// <param name="titleBackdrop">Required installed title backdrop.</param>
     /// <param name="titleGraphicsPresentation">Required installed title graphics.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
     public TitleSequenceState(
         AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
-        TitlePalettePresentation? titlePalettePresentation = null,
+        RgbColor? titleBackdrop = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
-        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation,
+        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titleBackdrop, titleGraphicsPresentation,
             spriteSheets)
     {
     }
@@ -125,19 +128,19 @@ public sealed class TitleSequenceState : IFrontendScreen
         AudioQueues? audio,
         TitleOpeningMusic openingMusic,
         TitleGradientPresentation? titleGradientPresentation,
-        TitlePalettePresentation? titlePalettePresentation,
+        RgbColor? titleBackdrop,
         TitleGraphicsPresentation? titleGraphicsPresentation,
         InstalledSpriteSheets? spriteSheets)
     {
         this.audio = audio;
         BindSpriteSheets(spriteSheets);
         this.titleGradientPresentation = titleGradientPresentation;
-        this.titlePalettePresentation = titlePalettePresentation;
+        this.titleBackdrop = titleBackdrop;
         TitleGraphics = titleGraphicsPresentation ?? throw new InvalidOperationException(
             "Title sequence requires installed graphics presentation assets.");
-        if (titlePalettePresentation is null)
+        if (titleBackdrop is null)
             throw new InvalidOperationException(
-                "Title sequence requires installed palette presentation assets.");
+                "Title sequence requires the installed title backdrop.");
         if (openingMusic == TitleOpeningMusic.Queue)
         {
             audio?.QueueMusic(
@@ -169,7 +172,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal static TitleSequenceState ReturnFromDemo(
         AudioQueues audio,
         TitleGradientPresentation? titleGradientPresentation = null,
-        TitlePalettePresentation? titlePalettePresentation = null,
+        RgbColor? titleBackdrop = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
     {
@@ -177,7 +180,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             audio,
             openingMusic: TitleOpeningMusic.Skip,
             titleGradientPresentation,
-            titlePalettePresentation,
+            titleBackdrop,
             titleGraphicsPresentation,
             spriteSheets);
         title.EnterImmediateTitleObjects();
@@ -196,12 +199,12 @@ public sealed class TitleSequenceState : IFrontendScreen
         TitleGraphics = presentation;
     }
 
-    /// <summary>Binds installed title colors when the game is bound to its installed content.</summary>
-    internal void BindTitlePalette(TitlePalettePresentation? presentation)
+    /// <summary>Binds the installed title backdrop when the game is bound to its installed content.</summary>
+    internal void BindTitleBackdrop(RgbColor? backdrop)
     {
         // The restored copyright is a shade of the installed title sheet (#1512), so a new installation's glyph colours
-        // show with its sheet; only the backdrop is read from the presentation.
-        titlePalettePresentation = presentation;
+        // show with its sheet; only the backdrop is bound here.
+        titleBackdrop = backdrop;
     }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
@@ -378,8 +381,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>The colour the title shows behind its floor and objects: the installed title palette's backdrop (#1512).</summary>
-    private RgbColor Backdrop => (titlePalettePresentation ?? throw new InvalidOperationException(
-        "Title rendering requires installed title colours.")).Backdrop;
+    private RgbColor Backdrop => titleBackdrop ?? throw new InvalidOperationException(
+        "Title rendering requires the installed title backdrop.");
 
     /// <summary>
     /// The floor's shading (#1512): the shade of the record each console light last showed, the tube light's then the

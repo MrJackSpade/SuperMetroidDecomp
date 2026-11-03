@@ -9,7 +9,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.ResourceAudit.Reports;
-using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;

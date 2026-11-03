@@ -1113,7 +1113,7 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title gradient override changes installed-content identity");
         CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(
-            edited.TitleGradient, edited.TitlePalette, edited.TitleGraphics);
+            edited.TitleGradient, edited.TitleBackdrop, edited.TitleGraphics);
         AssertTrue(capture.Gradient.Equals(edited.TitleGradient.Resolve(capture.Zoom)),
             "production title consumes selected gradient override");
         AssertTrue(!capture.Gradient.Equals(original.TitleGradient.Resolve(capture.Zoom)),
@@ -1160,12 +1160,12 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title palette override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitlePalette));
+            titleBackdrop: original.TitleBackdrop,
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(original)));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitlePalette));
-        AssertEqual(edited.TitlePalette.Backdrop, editedTitle.CaptureRenderSnapshot().Paint.Backdrop,
+            titleBackdrop: edited.TitleBackdrop,
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)));
+        AssertEqual(edited.TitleBackdrop, editedTitle.CaptureRenderSnapshot().Paint.Backdrop,
             "production title shows the selected palette override's backdrop");
         stockTitle.Step(0);
         editedTitle.Step(0);
@@ -1174,18 +1174,18 @@ internal static class MapPresentationVerification
         AssertEqual(stockTitle.FloorShading, editedTitle.FloorShading, "the floor's shading names the lights' records, not their colours");
         PictureShade tubeShade = editedTitle.FloorShading.Shades.Single(shade =>
             shade.Effect == PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, new PaletteFxFrame(0)).Effect);
-        AssertTrue(!MenuSheetFixtures.WithTitle(original.TitlePalette).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours
-                .SequenceEqual(MenuSheetFixtures.WithTitle(edited.TitlePalette).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours),
+        AssertTrue(!MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(original)).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours
+                .SequenceEqual(MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours),
             "the import pre-colours the selected ambient palette override's tube light");
         AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
 
         var stockSkip = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitlePalette));
+            titleBackdrop: original.TitleBackdrop,
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(original)));
         var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitlePalette));
+            titleBackdrop: edited.TitleBackdrop,
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)));
         stockSkip.Step(ControllerButton.Start);
         editedSkip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -1197,13 +1197,13 @@ internal static class MapPresentationVerification
             "skip copyright palette override preserves title phase");
         AssertTrue(editedSkip.CopyrightRestored && editedSkip.CopyrightShading.Shades.Contains(TitleShades.RestoredCopyright),
             "skip route restores the copyright's glyph colours");
-        AssertTrue(MenuSheetFixtures.WithTitle(edited.TitlePalette).Get(SpriteSheetId.Title).Image.Shade(TitleShades.RestoredCopyright).Colours
-                .SequenceEqual([edited.TitlePalette.SkipCopyrightWhite, edited.TitlePalette.SkipCopyrightRed]),
+        AssertTrue(MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)).Get(SpriteSheetId.Title).Image.Shade(TitleShades.RestoredCopyright).Colours
+                .SequenceEqual([InstalledAreaMapPresentation.TitlePaletteOf(edited).SkipCopyrightWhite, InstalledAreaMapPresentation.TitlePaletteOf(edited).SkipCopyrightRed]),
             "skip route's restored copyright shows the edited copyright white and red");
         AssertTrue(!stockSkip.Render().SequenceEqual(editedSkip.Render()),
             "skip copyright palette override changes rendered title output");
         // The restored copyright is a shade of the installed sheet (#1512): rebinding the palette keeps the skip's state.
-        editedSkip.BindTitlePalette(original.TitlePalette);
+        editedSkip.BindTitleBackdrop(original.TitleBackdrop);
         AssertTrue(editedSkip.CopyrightRestored, "a rebound title keeps its restored copyright");
         File.Delete(replacement);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
@@ -1231,10 +1231,10 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title graphics override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titlePalettePresentation: original.TitlePalette,
+            titleBackdrop: original.TitleBackdrop,
             titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titlePalettePresentation: edited.TitlePalette,
+            titleBackdrop: edited.TitleBackdrop,
             titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
         stockTitle.Step(ControllerButton.Start);
         editedTitle.Step(ControllerButton.Start);
@@ -1278,10 +1278,10 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title sprite override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titlePalettePresentation: original.TitlePalette,
+            titleBackdrop: original.TitleBackdrop,
             titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titlePalettePresentation: edited.TitlePalette,
+            titleBackdrop: edited.TitleBackdrop,
             titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
         bool changedOam = false;
         for (int frame = 0; frame < 100; frame++)

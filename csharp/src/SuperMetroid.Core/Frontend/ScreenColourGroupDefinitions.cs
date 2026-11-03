@@ -18,8 +18,6 @@ internal static class ScreenColourGroupDefinitions
             [ScreenColourGroup.FileCopyArrows] = new ScreenSpriteSetPlacement(1, 1, 7),
             [ScreenColourGroup.TitleTubeLight] = new ScreenBackgroundSetPlacement(2, 10, 4),
             [ScreenColourGroup.TitleDisplays] = new ScreenBackgroundSetPlacement(2, 14, 2),
-            [ScreenColourGroup.TitleDimWarmPaint] = new ScreenBackgroundSetPlacement(0, 3, 1),
-            [ScreenColourGroup.TitleDimGreenPaint] = new ScreenBackgroundSetPlacement(1, 3, 1),
             [ScreenColourGroup.GameOverBaby] = ScreenSpriteSetPlacement.WholeSet(4),
             [ScreenColourGroup.EndingClearTimeDigits] = ScreenSpriteSetPlacement.WholeSet(0),
             [ScreenColourGroup.EndingTimeLabel] = ScreenSpriteSetPlacement.WholeSet(1),

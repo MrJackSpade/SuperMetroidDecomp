@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -99,8 +100,8 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Title Mode 7 characters and tilemap, OBJ characters, and Baby character artwork selected from their extracted files.</summary>
     public required TitleGraphicsPresentation TitleGraphics { get; init; }
 
-    /// <summary>Title-screen palette colors, separate from the title gradient and graphics transfers.</summary>
-    public required TitlePalettePresentation TitlePalette { get; init; }
+    /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>
+    public required RgbColor TitleBackdrop { get; init; }
 
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public required TitleGradientPresentation TitleGradient { get; init; }

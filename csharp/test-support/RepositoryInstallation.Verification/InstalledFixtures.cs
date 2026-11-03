@@ -232,10 +232,10 @@ internal static class InstalledFixtures
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
     internal static TitleSequenceState CreateTitle(AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
-        TitlePalettePresentation? titlePalettePresentation = null,
+        RgbColor? titleBackdrop = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null) =>
         new(audio, titleGradientPresentation ?? Maps.TitleGradient,
-            titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics,
+            titleBackdrop ?? Maps.TitleBackdrop, titleGraphicsPresentation ?? Maps.TitleGraphics,
             MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? Maps.TitleGraphics));
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>

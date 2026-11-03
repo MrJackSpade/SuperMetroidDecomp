@@ -37,11 +37,11 @@ internal static class TitleGradientVerification
 
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
     private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,
-        TitlePalettePresentation? titlePalettePresentation = null,
+        RgbColor? titleBackdrop = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
  =>
         InstalledFixtures.CreateTitle(titleGradientPresentation: titleGradientPresentation,
-            titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
+            titleBackdrop: titleBackdrop, titleGraphicsPresentation: titleGraphicsPresentation);
     /// <summary>Checks native gradient band boundaries and all 256 zoom selections after artwork and schema suites.</summary>
     internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -259,7 +259,7 @@ internal static class TitleGradientVerification
             new MemoryStream(extracted, writable: false));
         var expected = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSourceDefinitions.Palette);
-        if (!presentation.Colors.SequenceEqual(expected.Colors))
+        if (!presentation.Colours.AsSpan().SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
         AssertEqual(SuperMetroid.AssetExtraction.Frontend.Title.TitleSkipCopyrightColours.White,
             presentation.SkipCopyrightWhite, "extracted title skip copyright white");
@@ -274,7 +274,7 @@ internal static class TitleGradientVerification
             TitleSourceDefinitions.Palette,
             CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
-        var title = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
+        var title = CreateTitlePresentationFixture(titleBackdrop: presentation.Backdrop);
         if (title.CaptureRenderSnapshot().Paint.Backdrop != presentation.Backdrop ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
@@ -282,7 +282,7 @@ internal static class TitleGradientVerification
                 "Production title initialization did not use the installed palette exclusively.");
         }
         var nativeSkip = CreateTitlePresentationFixture();
-        var installedSkip = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
+        var installedSkip = CreateTitlePresentationFixture(titleBackdrop: presentation.Backdrop);
         nativeSkip.Step(ControllerButton.Start);
         installedSkip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -452,7 +452,7 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
-        CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(presentation, palette, graphics);
+        CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(presentation, palette.Backdrop, graphics);
         if (!capture.Gradient.Equals(presentation.Resolve(capture.Zoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
@@ -559,11 +559,11 @@ internal static class TitleGradientVerification
     /// <summary>Steps the installed title through Start's skip fade and captures the first visible gradient and Mode 7 zoom.</summary>
     internal static CaptureInstalledTitleGradientResult CaptureInstalledTitleGradient(
         TitleGradientPresentation presentation,
-        TitlePalettePresentation palette,
+        RgbColor backdrop,
         TitleGraphicsPresentation graphics)
     {
         var title = CreateTitlePresentationFixture(titleGradientPresentation: presentation,
-            titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
+            titleBackdrop: backdrop, titleGraphicsPresentation: graphics);
         title.Step(ControllerButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {

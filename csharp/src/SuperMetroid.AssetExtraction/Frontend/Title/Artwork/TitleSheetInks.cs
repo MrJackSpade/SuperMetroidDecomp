@@ -34,6 +34,12 @@ internal static class TitleSheetInks
         [PaletteFxColours.TitleScreenDisplays] = (2 * GroupColours + 14, 3 * GroupColours),
     };
 
+    /// <summary>The title's warm paint, whose colour the displays show when dim: the first background set's fourth colour.</summary>
+    internal const int DimWarmPaint = 3;
+
+    /// <summary>The title's green paint, whose colour the displays show when dim: the second background set's fourth colour.</summary>
+    internal const int DimGreenPaint = GroupColours + 3;
+
     /// <summary>The console lights the floor shows.</summary>
     internal static IEnumerable<PaletteFxColours> FloorLights => FloorInks.Keys;
 

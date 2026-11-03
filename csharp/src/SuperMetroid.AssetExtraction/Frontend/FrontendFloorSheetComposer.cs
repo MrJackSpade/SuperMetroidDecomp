@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -51,7 +52,7 @@ internal static class FrontendFloorSheetComposer
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
-            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
+            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, InstalledAreaMapPresentation.TitlePaletteOf(sources.Maps)),
             [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
             [SpriteSheetId.EndingEscapeAFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape),
             [SpriteSheetId.EndingEscapeBFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape),

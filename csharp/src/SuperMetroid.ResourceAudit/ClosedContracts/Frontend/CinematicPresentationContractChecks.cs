@@ -30,7 +30,7 @@ internal static class CinematicPresentationContractChecks
             using SuperMetroid.Core.Frontend.Title;
             using SuperMetroid.Core.Frontend.Title.Artwork;
             class CinematicConsumer {
-                void Inspect(TitlePalettePresentation palette, TitleGradientPresentation gradient,
+                void Inspect(TitleGradientPresentation gradient,
                     TitleGraphicsPresentation title, IntroEyeTilemapPresentation eye,
                     CinematicSpriteSheet caret, CinematicSpriteSheet motherBrain,
                     CinematicSpriteSheet explosions, CeresDoorVisuals door,
@@ -38,7 +38,6 @@ internal static class CinematicPresentationContractChecks
                     EscapeTimer countdown, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds, SuperMetroid.Core.Rendering.ScreenPalette screen, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
-                    palette.Apply(screen);
                     gradient.Resolve(ushort.MaxValue);
                     TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
@@ -78,9 +77,9 @@ internal static class CinematicPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "CinematicPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 18, "eighteen constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 11 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
-            after.Consumers.Count == 18, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 17, "seventeen constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
+            after.Consumers.Count == 17, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
             "undefined title compositions must not be accepted as loaded title compositions");
     }

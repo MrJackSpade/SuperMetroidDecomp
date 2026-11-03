@@ -1,22 +1,27 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Title.Artwork.TitleAmbientColorDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleAmbientColorDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Title.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>
-/// Calculates the title screen's ambient palette colours (<see cref="TitleAmbientColorDefinitions"/>) from the initial palette.
+/// Calculates the title screen's ambient palette colours (<see cref="TitleAmbientColorDefinitions"/>) from the initial
+/// palette, whose colours lie where <see cref="TitleSheetInks"/> places them.
 /// </summary>
 internal static class TitleAmbientColors
 {
-    /// <summary>Derives a title tube shade or display paint from the selected initial palette and any supplied first-frame edit.</summary>
-    internal static bool TryCalculate(PaletteFxColorKey key, ScreenColours initial,
+    /// <summary>
+    /// Derives a title tube shade or display paint from the selected initial colours <paramref name="initial"/>, in the
+    /// cartridge's order, and any supplied first-frame edit.
+    /// </summary>
+    internal static bool TryCalculate(PaletteFxColorKey key, ImmutableArray<RgbColor> initial,
         IReadOnlyDictionary<PaletteFxColorKey, RgbColor> supplied, out RgbColor color)
     {
         var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
         if (tube.ColorFrames.TryLocate(key, out int frame, out int index))
         {
-            RgbColor first = initial.Colours(ScreenColourGroup.TitleTubeLight)[index];
+            RgbColor first = initial[TitleSheetInks.FloorLight(PaletteFxColours.BabyMetroidTubeLight).First + index];
             if (frame == 0) { color = first; return true; }
             if (supplied.TryGetValue(tube.Color(0, index), out RgbColor edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
@@ -26,8 +31,8 @@ internal static class TitleAmbientColors
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
         if (displays.ColorFrames.TryLocate(key, out frame, out index))
         {
-            color = frame == 0 ? initial.Colours(ScreenColourGroup.TitleDisplays)[index]
-                : initial.Colour(index == 0 ? ScreenColourGroup.TitleDimWarmPaint : ScreenColourGroup.TitleDimGreenPaint);
+            color = frame == 0 ? initial[TitleSheetInks.FloorLight(PaletteFxColours.TitleScreenDisplays).First + index]
+                : initial[index == 0 ? TitleSheetInks.DimWarmPaint : TitleSheetInks.DimGreenPaint];
             return true;
         }
         color = RgbColor.Black;

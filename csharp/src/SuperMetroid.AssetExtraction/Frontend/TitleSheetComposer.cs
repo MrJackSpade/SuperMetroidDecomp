@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -20,7 +21,7 @@ internal static class TitleSheetComposer
 
     /// <summary>What the title sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
-        Sources(Ensure.NotNull(maps).TitleGraphics, maps.TitlePalette);
+        Sources(Ensure.NotNull(maps).TitleGraphics, InstalledAreaMapPresentation.TitlePaletteOf(maps));
 
     /// <summary>What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>.</summary>
     internal static SpriteSheetSources Sources(TitleGraphicsPresentation graphics, TitlePalettePresentation palette)

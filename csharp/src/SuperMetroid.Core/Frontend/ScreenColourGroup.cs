@@ -31,12 +31,6 @@ public enum ScreenColourGroup
     /// <summary>The colours of the title's flickering displays.</summary>
     TitleDisplays,
 
-    /// <summary>The title's warm paint whose colour the displays show when dim.</summary>
-    TitleDimWarmPaint,
-
-    /// <summary>The title's green paint whose colour the displays show when dim.</summary>
-    TitleDimGreenPaint,
-
     /// <summary>The game-over baby Metroid's colours, which its glow animates.</summary>
     GameOverBaby,
 

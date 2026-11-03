@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -116,11 +117,11 @@ internal static class MenuSheetFixtures
             : titles.GetValue(graphics, key =>
             {
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(key, InstalledFixtures.Maps.TitlePalette),
+                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(key, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
                     $"title-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The title's floor is composed from these graphics (#1392, #1467).
                 sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
-                    FrontendFloorSheetComposer.Title(key, InstalledFixtures.Maps.TitlePalette), $"title-{RuntimeHelpers.GetHashCode(key):X8}");
+                    FrontendFloorSheetComposer.Title(key, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)), $"title-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
@@ -136,7 +137,7 @@ internal static class MenuSheetFixtures
     internal static InstalledSpriteSheets WithTitle(TitlePalettePresentation palette)
     {
         ArgumentNullException.ThrowIfNull(palette);
-        return ReferenceEquals(palette, InstalledFixtures.Maps.TitlePalette) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(palette, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)) ? InstalledFixtures.SpriteSheets
             : titlePalettes.GetValue(palette, key =>
             {
                 TitleGraphicsPresentation graphics = InstalledFixtures.Maps.TitleGraphics;

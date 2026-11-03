@@ -1,0 +1,32 @@
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+
+/// <summary>
+/// Draygon's editable RGB5 opening, normal, flash, and health-band colors. Health
+/// thresholds, hit reactions, and flash timing remain mechanics code.
+/// </summary>
+public sealed class DraygonColorCatalog
+{
+    /// <summary><c>Palette_Draygon_WhiteFlash</c>: every visible flash ink is white.</summary>
+    internal static readonly RgbColor FlashInk = new(31, 31, 31);
+
+    /// <summary>The selected opening, material, flash and health-band colours.</summary>
+    internal readonly DraygonColorSelection selection;
+
+    /// <summary>Retains validated colors and stores only flash entries that differ from stock white.</summary>
+    /// <param name="selection">The opening, materials, flash edits and health bands the import selected.</param>
+    internal DraygonColorCatalog(DraygonColorSelection selection) => this.selection = selection;
+
+    /// <summary>Gets one of the 25 selected RGB5 colors used by Draygon's opening palette.</summary>
+    public RgbColor ResolveIntro(int color) => selection.Intro.Color(color);
+    /// <summary>Gets one of the 16 selected normal background colors.</summary>
+    public RgbColor ResolveBackground(int color) => selection.Background.Color(color);
+    /// <summary>Gets one of the 16 selected normal sprite colors.</summary>
+    public RgbColor ResolveSprite(int color) => selection.Sprite.Color(color);
+    /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
+    public RgbColor ResolveWhiteFlash(int color) => DraygonPalette.WhiteFlash(selection.WhiteFlash, color);
+
+    /// <summary>Gets one of the four selected colors of one of Draygon's eight health bands.</summary>
+    public RgbColor ResolveHealthBand(int band, int color) => DraygonPalette.HealthBand(selection.HealthBands, band, color);
+}

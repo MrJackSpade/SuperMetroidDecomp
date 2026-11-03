@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
 /// The colours a palette-FX object animates (#1464): what a <see cref="PaletteFxCue.SetColours"/> cue makes its
-/// object's later records colour. Which of an owner's colours each names is the single mapping in
-/// <see cref="PaletteFxColourPlacementDefinitions"/>.
+/// object's later records colour. Each record a group shows is a shade the import pre-colours on the pictures that
+/// show the group (#1512).
 /// </summary>
 public enum PaletteFxColours
 {

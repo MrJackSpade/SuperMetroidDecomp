@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -18,8 +19,13 @@ internal static class CeresElevatorArrivalDefinitions
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         Program: CeresElevatorArrivalProgram.Platform);
 
-    /// <summary>The graphics both arrival projectiles start with: character zero in the common colours, as their initializer clears them.</summary>
-    internal static SpriteGraphics StartingGraphics { get; } = SpriteGraphics.CharacterZeroIn(PictureShading.Standard);
+    /// <summary>
+    /// The graphics both arrival projectiles start with: character zero, as their initializer clears them, with the
+    /// level-data concealer's colour cleared to black. A new game clears that colour just before the arrival spawns, so
+    /// the concealer hides the landing recess until both projectiles delete themselves at touchdown.
+    /// </summary>
+    internal static SpriteGraphics StartingGraphics { get; } =
+        SpriteGraphics.CharacterZeroIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
 
     /// <summary>The initializer seeds the moving pad's frame-behaviour delay to sixty frames.</summary>
     internal const int MovingPadWaitFrames = 60;

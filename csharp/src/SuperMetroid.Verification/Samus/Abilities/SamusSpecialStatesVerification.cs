@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -10,7 +11,6 @@ using static SuperMetroid.Verification.Samus.Death.SamusDeathExplosionTimingDefi
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
@@ -781,7 +781,7 @@ internal static void VerifySamusDeathSequence()
     var deathSources = InstalledFixtures.SamusShadeSources with { Death = artwork };
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, cgram.Samus, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -791,7 +791,7 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, cgram.Samus, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
@@ -808,7 +808,7 @@ internal static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, cgram.Samus, artwork.Steps);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }
@@ -819,7 +819,7 @@ internal static void VerifySamusDeathSequence()
         "death terminal index nine");
     AssertEqual(0x0015, samus.DeathSequence.AnimationCounter,
         "death terminal whiteout shade index");
-    AssertEqual(0x7fff, cgram.Colors[0], "death whiteout reaches full white");
+    AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
     AssertEqual(0x7fff, cgram.Samus.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
     AssertEqual(0x0220, cgram.Samus.ShownSuit(deathSources)[0],
         "whiteout preserves final Samus suit palette nine");

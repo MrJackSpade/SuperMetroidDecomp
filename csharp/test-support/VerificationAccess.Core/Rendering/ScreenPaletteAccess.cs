@@ -35,6 +35,6 @@ internal static class ScreenPaletteAccess
         /// Gives each owner the colours of <paramref name="image"/>, a native 256-colour image, at the positions it holds.
         /// </summary>
         [WholeImageFixture("every screen colour from a 256-colour native colour image")]
-        internal void LoadImage(ReadOnlySpan<RgbColor> image) => ScreenColourImage.Decode(image).LoadTo(self);
+        internal void LoadImage(ReadOnlySpan<RgbColor> image) => ScreenColourImage.LoadTo(image, self);
     }
 }

@@ -1,13 +1,12 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// Decodes a cartridge-ordered 256-colour image into a frontend screen's colour owners, and encodes owners back into that
+/// Loads a cartridge-ordered 256-colour image into a frontend screen's colour sets, and encodes sets back into that
 /// order (#1464): the one place an installed whole-screen palette's colour order is read. A screen's image holds its
 /// background sets where gameplay's image holds the background sets, and its sprite sets where gameplay's holds the
 /// sprite sets.
@@ -17,21 +16,16 @@ public static class ScreenColourImage
     /// <summary>The colours of a whole-screen image.</summary>
     public const int ColorCount = SnesCgram.ColorCount;
 
-    /// <summary>The screen colours, by owner, that <paramref name="image"/>, a whole 256-colour image, holds.</summary>
+    /// <summary>Replaces every colour of <paramref name="screen"/> with those <paramref name="image"/>, a whole 256-colour image, holds.</summary>
     /// <exception cref="ArgumentException"><paramref name="image"/> does not hold 256 colours.</exception>
-    public static ScreenColours Decode(ReadOnlySpan<RgbColor> image)
+    public static void LoadTo(ReadOnlySpan<RgbColor> image, ScreenPalette screen)
     {
         Ensure.LengthEqual(image, ColorCount);
-        return new ScreenColours(
-            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours),
+        Ensure.NotNull(screen);
+        screen.BackgroundSets.All.CopyFrom(
+            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
+        screen.SpriteSets.All.CopyFrom(
             image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
-    }
-
-    /// <summary>The 256-colour image of <paramref name="colours"/>' owners.</summary>
-    public static RgbColor[] Encode(ScreenColours colours)
-    {
-        Ensure.NotNull(colours);
-        return Encode(colours.Backgrounds, colours.Sprites);
     }
 
     /// <summary>The 256-colour image of <paramref name="screen"/>'s owners as they are now.</summary>
@@ -40,9 +34,6 @@ public static class ScreenColourImage
         Ensure.NotNull(screen);
         return Encode(screen.BackgroundSets.All.Colors, screen.SpriteSets.All.Colors);
     }
-
-    /// <summary>The image of <paramref name="colours"/> as little-endian colour words, as installed palettes store them.</summary>
-    public static byte[] Words(ScreenColours colours) => Words(Encode(colours));
 
     /// <summary>
     /// The image of a screen's <paramref name="backgrounds"/> and <paramref name="sprites"/> as little-endian colour words,

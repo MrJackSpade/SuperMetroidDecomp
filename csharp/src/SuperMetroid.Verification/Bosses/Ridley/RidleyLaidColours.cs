@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -41,8 +42,8 @@ internal static class RidleyLaidColours
     internal static RgbColor[] Ceres(RidleyEnemyState state, AreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        return [.. Of(state, RidleySheetShades.CeresSprites(maps.CeresRidleyColors),
-            RidleySheetShades.CeresRoom(maps.CeresRidleyColors, maps.CeresRidleyFloorColors, new RgbColor[BossShadeColours.Sprites]), 0)
+        return [.. Of(state, RidleySheetShades.CeresSprites(InstalledAreaMapPresentation.CeresRidleyColorsOf(maps)),
+            RidleySheetShades.CeresRoom(InstalledAreaMapPresentation.CeresRidleyColorsOf(maps), InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(maps), new RgbColor[BossShadeColours.Sprites]), 0)
             .Select(RgbColor.FromWord)];
     }
 }

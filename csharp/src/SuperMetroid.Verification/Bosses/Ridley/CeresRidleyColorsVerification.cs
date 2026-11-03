@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -103,7 +102,7 @@ internal static class CeresRidleyColorsVerification
         initialize(slot);
         CheckCgram(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyPaletteDefinitionsConstants.StartCgramIndex,
-            edited.CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEnemyState> eyeTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
@@ -119,7 +118,7 @@ internal static class CeresRidleyColorsVerification
                 $"edited eye fade step {step} advances");
             CheckCgram(state, CeresRidleyPaletteDefinitions.EyeFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.EyeFadeCgramIndex,
-                color => edited.CeresRidleyColors.ResolveEyeFade(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
         state.Function = RidleyAiFunction.FadeInBody;
@@ -132,11 +131,11 @@ internal static class CeresRidleyColorsVerification
                 state.FadeStep, $"edited body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(state, CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeBgCgramIndex,
-                color => edited.CeresRidleyColors.ResolveBodyFade(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBodyFade(row, color),
                 $"Ceres Ridley body BG fade row {row}");
             CheckCgram(state, CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeObjCgramIndex,
-                color => edited.CeresRidleyColors.ResolveBodyFade(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
         }
         state.FightMode = RidleyFightMode.Fighting;
@@ -148,7 +147,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyPaletteDefinitions.HealthLateBand;
             CheckCgram(state, CeresRidleyPaletteDefinitions.HealthColorCount,
                 CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
-                color => edited.CeresRidleyColors.ResolveHealth(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
@@ -164,13 +163,13 @@ internal static class CeresRidleyColorsVerification
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatBgColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatBgCgramIndex,
-            edited.CeresRidleyColors.ResolveRetreatBg, "Ceres Ridley retreat BG");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveRetreatBg, "Ceres Ridley retreat BG");
         CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedBgCgramIndex,
-            edited.CeresRidleyColors.ResolveRetreatShared, "Ceres Ridley retreat shared BG");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
         CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedObjCgramIndex,
-            edited.CeresRidleyColors.ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");
 
@@ -183,14 +182,14 @@ internal static class CeresRidleyColorsVerification
         File.WriteAllBytes(replacement, legacyJson);
         AreaMapPresentation migrated =
             MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(edited.CeresRidleyColors.ResolveStart(1),
-            migrated.CeresRidleyColors.ResolveStart(1),
+        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveStart(1),
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(migrated).ResolveStart(1),
             "version-one Ceres Ridley override retains an edited color");
-        AssertEqual(original.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
-            migrated.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
+        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(migrated).ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
             "version-one Ceres Ridley override inherits stock Baby colors");
-        AssertEqual(original.CeresRidleyColors.ResolveAlarm(7, 1),
-            migrated.CeresRidleyColors.ResolveAlarm(7, 1),
+        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveAlarm(7, 1),
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(migrated).ResolveAlarm(7, 1),
             "version-one Ceres Ridley override inherits stock alarm colors");
         // Versions two and three stored the Baby's colours as the cartridge's ordered steps, the order of the native
         // draw lists' palette operands.
@@ -204,8 +203,8 @@ internal static class CeresRidleyColorsVerification
         File.WriteAllBytes(replacement, preAlarmJson);
         AreaMapPresentation preAlarm =
             MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(edited.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
-            preAlarm.CeresRidleyColors.ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
+        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(preAlarm).ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
             "version-two Ridley override retains its edited Baby colors");
         byte[] babyStepsJson = JsonSerializer.SerializeToUtf8Bytes(
             document with { Version = (int)CeresRidleyColorVersion.BabySteps, Baby = babySteps, BabyShades = null },
@@ -215,11 +214,11 @@ internal static class CeresRidleyColorsVerification
             MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
             for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-                AssertEqual(edited.CeresRidleyColors.ResolveBaby(shade, color),
-                    babyStepsOverride.CeresRidleyColors.ResolveBaby(shade, color),
+                AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBaby(shade, color),
+                    InstalledAreaMapPresentation.CeresRidleyColorsOf(babyStepsOverride).ResolveBaby(shade, color),
                     "version-three Ridley override names its ordered Baby steps by shade");
-        AssertEqual(original.CeresRidleyColors.ResolveAlarm(7, 1),
-            preAlarm.CeresRidleyColors.ResolveAlarm(7, 1),
+        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveAlarm(7, 1),
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(preAlarm).ResolveAlarm(7, 1),
             "version-two Ridley override inherits stock alarm colors");
         File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
 
@@ -274,7 +273,7 @@ internal static class CeresRidleyColorsVerification
                         color >= CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex &&
                         color < CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex +
                             CeresRidleyPaletteDefinitions.AlarmColorCount
-                        ? edited.CeresRidleyColors.ResolveAlarm(7,
+                        ? InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveAlarm(7,
                             color - CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex)
                         : nativeCgram[color];
                     AssertEqual(expected, editedCgram[color],
@@ -335,7 +334,7 @@ internal static class CeresRidleyColorsVerification
                         color >= CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex &&
                         color < CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex +
                             CeresRidleyPaletteDefinitions.HealthColorCount
-                        ? edited.CeresRidleyColors.ResolveHealth(
+                        ? InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveHealth(
                             stage - 1, color - CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex)
                         : before[color];
                     AssertEqual(expected, editedCgram[color],

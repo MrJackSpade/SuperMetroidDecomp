@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 

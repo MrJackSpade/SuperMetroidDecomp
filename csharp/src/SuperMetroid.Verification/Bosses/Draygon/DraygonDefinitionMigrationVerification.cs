@@ -1,7 +1,8 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Draygon;
 
 namespace SuperMetroid.Verification.Bosses.Draygon;
 

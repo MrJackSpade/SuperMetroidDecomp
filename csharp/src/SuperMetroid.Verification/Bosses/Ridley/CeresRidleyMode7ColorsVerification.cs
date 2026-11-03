@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -86,7 +85,7 @@ internal static class CeresRidleyMode7ColorsVerification
             // The colours the encounter shows are the import's shades of the edited colours, laid as the getaway laid them (#1512).
             RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, edited);
             for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
-                AssertEqual(edited.CeresRidleyFloorColors.Resolve(row, color),
+                AssertEqual(InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(edited).Resolve(row, color),
                     cgram[CeresRidleyPaletteDefinitionsConstants.Mode7ZoomCgramIndex + color],
                     $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }

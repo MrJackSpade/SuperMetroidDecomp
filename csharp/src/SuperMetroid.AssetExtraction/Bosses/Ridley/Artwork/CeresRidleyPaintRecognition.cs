@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 

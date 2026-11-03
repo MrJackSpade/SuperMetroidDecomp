@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
@@ -31,7 +30,6 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
@@ -41,6 +39,8 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -167,12 +167,12 @@ public static class MapPresentationFiles
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
         SamusHyperBeamColours samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorFile.Read(s).ToColours());
         stock.RequireAllManifestFilesRead();
-        var catalog = new InstalledAreaMapPresentation(new AreaMapPresentationParts { Areas = areas, HiddenCells = new(MapTileWords.PauseBlank.ToCell(), MapTileWords.FileSelectUndownloadedBlank.ToCell()), ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = palettes.Backdrops(), Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitleBackdrop = titlePalette.Backdrop, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, CrystalFlashColors = crystalFlashColors, CeresRidleyColors = ceresRidleyColors, CeresRidleyFloorColors = ceresRidleyFloorColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
+        var catalog = new InstalledAreaMapPresentation(new AreaMapPresentationParts { Areas = areas, HiddenCells = new(MapTileWords.PauseBlank.ToCell(), MapTileWords.FileSelectUndownloadedBlank.ToCell()), ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = palettes.Backdrops(), Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, EscapeTimerTiles = escapeTimerTiles, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitleBackdrop = titlePalette.Backdrop, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainHealthPalette = motherBrainHealthPalette, MotherBrainRainbowPalette = motherBrainRainbowPalette, MotherBrainRoomColors = motherBrainRoomColors, RoomFxAnimatedTiles = roomFxAnimatedTiles, RoomFxPaletteBlends = roomFxPaletteBlends, PowerBombFixedColors = powerBombFixedColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
             new InstalledPresentationSources(new MapCharacterArtwork(tiles, hudTiles, pauseTiles),
                 new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
                 endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi), sprites,
-                new SamusMapColourTables(samusVisorColors, samusHurtColors, samusSuitColors, samusFullBodyCycleColors, samusChargeColors, samusHyperBeamColors),
-                titlePalette, cycle, palettes));
+                new SamusMapColourTables(samusVisorColors, samusHurtColors, samusSuitColors, samusFullBodyCycleColors, samusChargeColors, samusHyperBeamColors, crystalFlashColors),
+                titlePalette, cycle, palettes, ceresRidleyColors, ceresRidleyFloorColors));
         return catalog;
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>

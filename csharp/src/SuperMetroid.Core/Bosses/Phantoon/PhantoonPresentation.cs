@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
@@ -14,14 +13,11 @@ internal sealed class PhantoonPresentation
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonPresentation(EnemyPresentation presentation, EnemyFrameContext frameContext, BossArtworkBinding bossArtwork)
+    internal PhantoonPresentation(EnemyPresentation presentation, EnemyFrameContext frameContext)
     {
-        _bossArtwork = bossArtwork;
         _presentation = presentation;
         _frameContext = frameContext;
     }
@@ -120,14 +116,8 @@ internal sealed class PhantoonPresentation
         return step.IsZeroOrNegative;
     }
 
-    /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
-
-    /// <summary>Colour <paramref name="color"/> of health band <paramref name="healthBand"/>.</summary>
-    internal RgbColor ReadPhantoonHealthColor(int healthBand, int color) =>
-        (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
-            "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
 
     /// <summary>Restarts a part's program with a one-tick timer, as a list-pointer store does.</summary>
     internal static void InstallPhantoonProgram(

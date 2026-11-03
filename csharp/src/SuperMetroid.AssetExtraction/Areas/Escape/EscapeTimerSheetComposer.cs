@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -31,7 +32,9 @@ internal static class EscapeTimerSheetComposer
                     EscapeTimerLayoutNames.DigitValue(glyph) * EscapeSourceDefinitions.TimerDigitSpritemapStride);
             frames.Add(new(name, new SpriteFrame(name, ReadSpritemap(bus, spritemap)), tiles.Artwork));
         }
-        return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, GameplayBasePaletteFiles.RoomLoadSpriteColours(bus), ObjectSelectionCodec.GameplaySizes), PaletteRow, 0);
+        RgbColor[] colours = GameplayBasePaletteFiles.RoomLoadSpriteColours(bus);
+        return SpriteSheetComposer.Compose(new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes,
+            Shades: EscapeTimerDoorFadeShades.Of(colours, PaletteRow)), PaletteRow, 0);
     }
 
     /// <summary>Reads one timer spritemap's parts, with characters counted from the timer artwork's first.</summary>

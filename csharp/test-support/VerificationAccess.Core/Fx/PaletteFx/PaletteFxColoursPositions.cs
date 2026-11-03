@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
@@ -11,56 +10,44 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxColoursPositions
 {
-    /// <summary>The cartridge colour a placement's first written colour is: where its owner's colour lies in the native image.</summary>
-    private static int CartridgeColour(PaletteFxColourPlacement placement) => placement switch
-    {
-        ScreenColoursPlacement screen => ScreenCartridgeColour(ScreenPlacement(screen.Colours)),
-        SpriteSetPlacement sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
-            + sprite.Store.Set * GameplayColourPositionDefinitions.SetColours + sprite.Colour,
-        SamusSuitPlacement suit => GameplayColourPositionDefinitions.SamusSuitFirst + suit.Colour,
-        SamusBeamsPlacement beams => GameplayColourPositionDefinitions.SamusBeamsFirst + beams.Colour,
-        _ => throw new ArgumentOutOfRangeException(nameof(placement), placement, "Unknown palette-FX colour placement."),
-    };
-
-    /// <summary>The cartridge colour a screen background placement's first colour is: its set's native position.</summary>
-    private static int ScreenCartridgeColour(ScreenColourPlacement held) =>
-        (held is ScreenSpriteSetPlacement ? GameplayColourPositionDefinitions.SpriteSetsFirst : GameplayColourPositionDefinitions.BackgroundSetsFirst)
-            + held.Set * GameplayColourPositionDefinitions.SetColours + held.Colour;
-
     /// <summary>
-    /// The screen colours, background or sprite, each title or cinematic effect group writes at the native boundary: its
-    /// set, its first written colour and how many follow. Frontend screens no longer hold these colours (#1512); the
-    /// import pre-colours each record as a shade, and native checks place the group here.
+    /// The cartridge colour each group that recolours no room picture starts at in the native colour image: a title or
+    /// cinematic screen's set colour, Samus's suit or beam colour, or an enemy sprite set's colour. Core holds no colour
+    /// positions (#1512); the import pre-colours each record as a shade, and native checks place the group here.
     /// </summary>
-    private static readonly Dictionary<PaletteFxColours, ScreenColourPlacement> ScreenPlacements = new()
+    private static readonly Dictionary<PaletteFxColours, int> NativeStarts = new()
     {
-        [PaletteFxColours.BabyMetroidTubeLight] = new ScreenBackgroundSetPlacement(2, 10, 4),
-        [PaletteFxColours.TitleScreenDisplays] = new ScreenBackgroundSetPlacement(2, 14, 2),
-        [PaletteFxColours.CutsceneGunshipEngine] = new ScreenBackgroundSetPlacement(5, 15, 1),
-        [PaletteFxColours.CeresNavigationLightsBackground] = new ScreenBackgroundSetPlacement(6, 13, 3),
-        [PaletteFxColours.OldMotherBrainBackgroundLights] = new ScreenBackgroundSetPlacement(1, 4, 12),
-        [PaletteFxColours.WideZebesExplosionForeground] = new ScreenBackgroundSetPlacement(0, 1, 15),
-        [PaletteFxColours.WideZebesExplosionBackground] = new ScreenBackgroundSetPlacement(1, 1, 15),
-        [PaletteFxColours.ZebesExplosionFinale] = new ScreenBackgroundSetPlacement(0, 1, 15),
-        [PaletteFxColours.SpaceDuringZebesExplosion] = ScreenBackgroundSetPlacement.WholeSet(0),
-        [PaletteFxColours.ExplodingZebesLava] = ScreenBackgroundSetPlacement.WholeSet(4),
-        [PaletteFxColours.ExplodingZebesCrust] = new ScreenBackgroundSetPlacement(4, 1, 15),
-        [PaletteFxColours.ExplodingZebesGreyClouds] = new ScreenBackgroundSetPlacement(5, 1, 15),
-        [PaletteFxColours.GunshipEmergingFromExplosion] = ScreenBackgroundSetPlacement.WholeSet(5),
-        [PaletteFxColours.UnusedCinematicFade] = ScreenBackgroundSetPlacement.WholeSet(5),
-        [PaletteFxColours.TitleLogo] = new ScreenSpriteSetPlacement(2, 1, 15),
-        [PaletteFxColours.NintendoBootLogo] = new ScreenSpriteSetPlacement(1, 9, 7),
-        [PaletteFxColours.PlanetZebesText] = new ScreenSpriteSetPlacement(0, 1, 15),
-        [PaletteFxColours.GunshipGlow] = new ScreenSpriteSetPlacement(7, 15, 1),
-        [PaletteFxColours.ZoomedOutExplodingZebes] = ScreenSpriteSetPlacement.WholeSet(7),
-        [PaletteFxColours.PostCreditsSuperMetroidIcon] = ScreenSpriteSetPlacement.WholeSet(7),
+        [PaletteFxColours.BabyMetroidTubeLight] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 10,
+        [PaletteFxColours.TitleScreenDisplays] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 14,
+        [PaletteFxColours.CutsceneGunshipEngine] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 15,
+        [PaletteFxColours.CeresNavigationLightsBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 6 * GameplayColourPositionDefinitions.SetColours + 13,
+        [PaletteFxColours.OldMotherBrainBackgroundLights] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 4,
+        [PaletteFxColours.WideZebesExplosionForeground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.WideZebesExplosionBackground] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.ZebesExplosionFinale] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.SpaceDuringZebesExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.ExplodingZebesLava] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.ExplodingZebesCrust] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 4 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.ExplodingZebesGreyClouds] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.GunshipEmergingFromExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.UnusedCinematicFade] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.TitleLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.NintendoBootLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
+        [PaletteFxColours.PlanetZebesText] = GameplayColourPositionDefinitions.SpriteSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
+        [PaletteFxColours.GunshipGlow] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 15,
+        [PaletteFxColours.ZoomedOutExplodingZebes] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.PostCreditsSuperMetroidIcon] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.NintendoCopyright] = GameplayColourPositionDefinitions.SamusSuitFirst + 9,
+        [PaletteFxColours.SamusLoadingSuit] = GameplayColourPositionDefinitions.SamusSuitFirst + 0,
+        [PaletteFxColours.HeatSuitGlow] = GameplayColourPositionDefinitions.SamusSuitFirst + 1,
+        [PaletteFxColours.CeresNavigationLightsSprite] = GameplayColourPositionDefinitions.SamusBeamsFirst + 13,
+        [PaletteFxColours.ZebesPlanetAfterglow] = GameplayColourPositionDefinitions.SamusBeamsFirst + 1,
+        [PaletteFxColours.HyperBeam] = GameplayColourPositionDefinitions.SamusBeamsFirst + 1,
+        [PaletteFxColours.RidleyStatue] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.PhantoonStatue] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 0,
+        [PaletteFxColours.TorizoBelly] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
+        [PaletteFxColours.TourianShutters] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
     };
-
-    /// <summary>The screen colour group, background or sprite, that holds the title or cinematic effect colours <paramref name="colours"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The group is not a title or cinematic effect's.</exception>
-    internal static ScreenColourPlacement ScreenPlacement(PaletteFxColours colours) => ScreenPlacements.TryGetValue(colours, out ScreenColourPlacement? placement)
-        ? placement
-        : throw new ArgumentOutOfRangeException(nameof(colours), colours, "Not a title or cinematic effect's colours.");
 
     /// <summary>Native view of a palette-FX colour group.</summary>
     extension(PaletteFxColours self)
@@ -69,8 +56,8 @@ internal static class PaletteFxColoursPositions
         internal int CartridgeColour
         {
             // A room's group lies where the import pre-colours the room pictures from: its first ink there (#1512).
-            get => PaletteFxColourPlacementDefinitions.Placements.TryGetValue(self, out PaletteFxColourPlacement? placement)
-                ? CartridgeColour(placement)
+            get => NativeStarts.TryGetValue(self, out int start)
+                ? start
                 : GameplayColourPositionDefinitions.BackgroundSetsFirst + SuperMetroid.AssetExtraction.Fx.PaletteFxRoomShades.FirstInk(self);
         }
 

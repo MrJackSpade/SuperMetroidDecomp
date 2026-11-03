@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Draygon;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

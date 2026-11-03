@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -24,6 +25,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="TitlePalette">The title's selected colours, which the title's sheets are pre-coloured from (#1512).</param>
 /// <param name="HighlightColours">The map highlight cycle with its colours, which the map sprite sheet's highlight shades are pre-coloured from (#1512).</param>
 /// <param name="Palettes">The colours each map and menu screen loads, which the screens' sheets and their drawn shades are pre-coloured from (#1512).</param>
+/// <param name="CeresRidleyColors">Ceres Ridley's, the shared Norfair Ridley health and the Ceres Baby's colours, which their sheets and Ceres Ridley's room are pre-coloured from (#1512).</param>
+/// <param name="CeresRidleyFloorColors">Ceres Ridley's Mode 7 floor colours for each getaway zoom step, which the floor's shades are pre-coloured from (#1512).</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -36,4 +39,6 @@ internal sealed record InstalledPresentationSources(
     SamusMapColourTables SamusColours,
     TitlePalettePresentation TitlePalette,
     MapPaletteCycle HighlightColours,
-    MapStaticPalettes Palettes);
+    MapStaticPalettes Palettes,
+    CeresRidleyColorCatalog CeresRidleyColors,
+    CeresRidleyFloorColorCatalog CeresRidleyFloorColors);

@@ -2,26 +2,25 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The areas' installed artwork as the import pipeline holds it (#1463): beside what gameplay reads, the Ceres escape's
-/// warning-text and door character pages the pre-coloured sheets are composed from, and the identity of the whole
-/// selected area presentation.
+/// The areas' installed artwork as the import pipeline holds it (#1463, #1512): the Ceres door's and the Tourian statues'
+/// colours and the Ceres escape's warning-text and door character pages, which the pre-coloured sheets are composed from,
+/// and the identity of the whole selected area presentation.
 /// </summary>
 public sealed record AreaSourceArtwork : AreaArtworkBundle
 {
-    /// <summary>The Ceres door's characters and colours; setting it also sets the colours gameplay reads.</summary>
-    public CeresDoorSourceArtwork? CeresDoor
-    {
-        get;
-        init
-        {
-            field = value;
-            CeresDoorVisual = value?.Visuals;
-        }
-    }
+    /// <summary>The Ceres door's characters and colours.</summary>
+    public CeresDoorSourceArtwork? CeresDoor { get; init; }
+
+    /// <summary>The Ceres door's colours, which the import pre-colours the doors' and the elevator room's shades from (#1512).</summary>
+    public CeresDoorVisuals? CeresDoorVisual => CeresDoor?.Visuals;
+
+    /// <summary>Editable Tourian statue entrance, eye and grey colours, which the import pre-colours the statues' shades from (#1512).</summary>
+    public TourianStatuePalettes? TourianStatueColors { get; init; }
 
     /// <summary>Editable warning-text and door character pages for the Ceres escape.</summary>
     public CeresEscapeTileArtwork? CeresEscapeTiles { get; init; }

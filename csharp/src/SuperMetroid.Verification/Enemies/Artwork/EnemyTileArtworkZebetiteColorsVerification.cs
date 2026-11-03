@@ -3,7 +3,6 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
@@ -16,6 +15,8 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks Zebetite's eight-frame two-color pulse against native

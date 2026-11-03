@@ -2,9 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 namespace SuperMetroid.Verification.Bosses;
 

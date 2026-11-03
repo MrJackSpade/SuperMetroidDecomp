@@ -6,6 +6,11 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -18,6 +23,24 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public sealed record BossSourceArtwork : BossArtworkCatalog
 {
+    /// <summary>Editable Phantoon health, fade-out and Wrecked Ship power-on colours, which the import pre-colours Phantoon's sheets and room in (#1512).</summary>
+    public PhantoonColorCatalog? PhantoonColors { get; init; }
+
+    /// <summary>Editable Draygon opening, normal, flash and health-band colours, which the import pre-colours Draygon's sheets in (#1512).</summary>
+    public DraygonColorCatalog? DraygonColors { get; init; }
+
+    /// <summary>Editable Tourian Zebetite two-colour pulse, which the import pre-colours the Zebetites' sheets in (#1512).</summary>
+    public ZebetiteColorCatalog? ZebetiteColors { get; init; }
+
+    /// <summary>Editable Spore Spawn spore, health and death-sequence colours, which the import pre-colours Spore Spawn's sheets in (#1512).</summary>
+    public SporeSpawnColorCatalog? SporeSpawnColors { get; init; }
+
+    /// <summary>Editable Botwoon colours for all eight health bands, which the import pre-colours Botwoon's sheets in (#1512).</summary>
+    public BotwoonColorCatalog? BotwoonColors { get; init; }
+
+    /// <summary>Editable Norfair Ridley initial and arena-reveal colours, which the import pre-colours Ridley's sheets and room in (#1512).</summary>
+    public NorfairRidleyColorCatalog? NorfairRidleyColors { get; init; }
+
     /// <summary>Both of Crocomire's melts; optional only for constructed fixtures.</summary>
     public CrocomireMeltingArtwork? CrocomireMelting { get; init; }
 

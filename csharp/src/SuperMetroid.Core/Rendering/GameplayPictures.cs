@@ -26,4 +26,10 @@ public enum GameplayPictures
 
     /// <summary>The boss body drawn on layer 2: Kraid's, Phantoon's, Crocomire's, Draygon's, Mother Brain's or Ridley's.</summary>
     BossBody,
+
+    /// <summary>
+    /// The escape timer's sprite pictures, which a door's fade keeps partly lit as it keeps the HUD's: a display fade that
+    /// spares the HUD spares them too, and the door shades them instead.
+    /// </summary>
+    EscapeTimer,
 }

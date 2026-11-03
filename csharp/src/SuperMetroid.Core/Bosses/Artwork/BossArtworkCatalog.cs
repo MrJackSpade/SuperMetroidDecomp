@@ -1,11 +1,6 @@
-using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Artwork;
 
@@ -20,12 +15,6 @@ public abstract record BossArtworkCatalog
     /// <summary>Five editable Crocomire RGB5 transfer images; fight and death phases stay compiled.</summary>
     public CrocomireColorCatalog? CrocomireColors { get; init; }
 
-    /// <summary>Editable Phantoon health, fade-out and Wrecked Ship power-on colors.</summary>
-    public PhantoonColorCatalog? PhantoonColors { get; init; }
-
-    /// <summary>Editable Draygon opening, normal, flash and health-band colors.</summary>
-    public DraygonColorCatalog? DraygonColors { get; init; }
-
     /// <summary>Installed Kraid RGB5 artwork; null only for constructed fixtures.</summary>
     public KraidColorCatalog? KraidColors { get; init; }
 
@@ -37,16 +26,4 @@ public abstract record BossArtworkCatalog
 
     /// <summary>Editable live-Shitroid normal-cycle and target sprite colors.</summary>
     public ShitroidColorCatalog? ShitroidColors { get; init; }
-
-    /// <summary>Editable Tourian Zebetite two-color pulse; actor selection stays in code.</summary>
-    public ZebetiteColorCatalog? ZebetiteColors { get; init; }
-
-    /// <summary>Editable Spore Spawn spore, health and death-sequence colors.</summary>
-    public SporeSpawnColorCatalog? SporeSpawnColors { get; init; }
-
-    /// <summary>Editable Botwoon sprite colors for all eight health bands.</summary>
-    public BotwoonColorCatalog? BotwoonColors { get; init; }
-
-    /// <summary>Editable initial and arena-reveal colors; Ridley's fade cadence stays in code.</summary>
-    public NorfairRidleyColorCatalog? NorfairRidleyColors { get; init; }
 }

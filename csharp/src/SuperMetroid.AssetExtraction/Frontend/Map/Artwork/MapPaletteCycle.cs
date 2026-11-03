@@ -11,13 +11,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 public sealed class MapPaletteCycle
 {
     /// <summary>Frame holds that differ from the stock fifteen/three-tick schedule.</summary>
-    private readonly Dictionary<int, byte> durationEdits = [];
+    internal readonly Dictionary<int, byte> durationEdits = [];
 
     /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
-    private readonly RgbColor[][] colors;
+    internal readonly RgbColor[][] colors;
 
     /// <summary>Reverse-traversal colors that differ from their mirrored forward phase, by frame and colour.</summary>
-    private readonly Dictionary<(int Frame, int Colour), RgbColor> reverseColorEdits = [];
+    internal readonly Dictionary<(int Frame, int Colour), RgbColor> reverseColorEdits = [];
 
     /// <summary>
     /// The cycle pauses fifteen ticks at the loop origin and advances other

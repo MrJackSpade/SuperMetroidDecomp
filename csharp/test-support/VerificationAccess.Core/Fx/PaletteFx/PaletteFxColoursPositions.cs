@@ -7,15 +7,13 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>
 /// Verification access: the cartridge colour a palette-FX colour group starts at (#1464), for checks that compare
 /// programs and definitions with their bank-$8D data and for native snapshot import. Where each owner lies in the
-/// native image is the import pipeline's <see cref="GameplayColourPositionDefinitions"/>.
+/// native image is the import pipeline's <see cref="GameplayColourPositionDefinitions"/>, and a room group's its room-picture ink.
 /// </summary>
 internal static class PaletteFxColoursPositions
 {
     /// <summary>The cartridge colour a placement's first written colour is: where its owner's colour lies in the native image.</summary>
     private static int CartridgeColour(PaletteFxColourPlacement placement) => placement switch
     {
-        BackgroundSetPlacement background => GameplayColourPositionDefinitions.BackgroundSetsFirst
-            + BackgroundColourSetImage.First(background.Set) + background.Colour,
         ScreenColoursPlacement screen => ScreenCartridgeColour(ScreenPlacement(screen.Colours)),
         SpriteSetPlacement sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
             + sprite.Store.Set * GameplayColourPositionDefinitions.SetColours + sprite.Colour,
@@ -70,7 +68,10 @@ internal static class PaletteFxColoursPositions
         /// <summary>The cartridge colour the group's first written colour is.</summary>
         internal int CartridgeColour
         {
-            get => CartridgeColour(PaletteFxColourPlacementDefinitions.Placements[self]);
+            // A room's group lies where the import pre-colours the room pictures from: its first ink there (#1512).
+            get => PaletteFxColourPlacementDefinitions.Placements.TryGetValue(self, out PaletteFxColourPlacement? placement)
+                ? CartridgeColour(placement)
+                : GameplayColourPositionDefinitions.BackgroundSetsFirst + SuperMetroid.AssetExtraction.Fx.PaletteFxRoomShades.FirstInk(self);
         }
 
         /// <summary>The CGRAM byte index the native SetColorIndex command stores for the group.</summary>

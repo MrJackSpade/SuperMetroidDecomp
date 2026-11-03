@@ -452,7 +452,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x02,
     ]);
 
-    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer, new(0)));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 80, 64, 0, 0x2800, 0, 16, 1));

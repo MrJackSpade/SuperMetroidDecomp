@@ -45,7 +45,7 @@ public static class SamusOverreadFiles
     /// </summary>
     /// <param name="directory">The installed overread directory.</param>
     /// <exception cref="InvalidDataException">The manifest, its hash, or a colour run is invalid.</exception>
-    public static SamusOverrunColours LoadColours(string directory) => SamusOverreadServicesReader.ReadColours(LoadDocument(directory));
+    internal static SamusOverrunColours LoadColours(string directory) => SamusOverreadServicesReader.ReadColours(LoadDocument(directory));
 
     /// <summary>Reads the overread document of a verified installation after checking its manifest and hash.</summary>
     private static SamusOverreadDocument LoadDocument(string directory)

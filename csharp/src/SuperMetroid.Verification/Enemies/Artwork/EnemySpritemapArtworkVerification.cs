@@ -2998,7 +2998,7 @@ internal static class EnemySpritemapArtworkVerification
         EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
         oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites,
-            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, indexes.Colouring),
+            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, indexes.Shading),
             new Position16<RoomPixels>(0x0100, 0x0010)));
         return oam;
     }

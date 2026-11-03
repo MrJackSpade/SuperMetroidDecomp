@@ -36,7 +36,7 @@ internal static class MapPaletteCycleVerification
         var arrows = new FileSelectMapAnimations(original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();
-        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original))); arrowOam.FinishFrame();
+        arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, arrows.HighlightShading, MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original))); arrowOam.FinishFrame();
         ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationNativeSources.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
@@ -147,11 +147,11 @@ internal static class MapPaletteCycleVerification
         MapPaletteCycleFile.Write(shortJson, document with { Frames = [document.Frames[0] with { DurationTicks = 2 }] });
         shortJson.Position = 0;
         var shortCycle = MapPaletteCycleFile.Read(shortJson);
-        installed.Reset(); installed.Step(installedColors); // Native frame one, delay three.
-        installed.Bind(shortCycle);
-        AssertTrue(!installed.Step(installedColors) && !installed.Step(installedColors), "shorter cycle preserves outstanding delay");
-        AssertTrue(installed.Step(installedColors), "shorter cycle wraps saved out-of-range frame at next boundary");
-        AssertTrue(!installed.Step(installedColors) && installed.Step(installedColors), "authored duration controls subsequent cycle ticks");
+        installed.Reset(); installed.Step(); // Native frame one, delay three.
+        installed.Bind(shortCycle.Timing);
+        AssertTrue(!installed.Step() && !installed.Step(), "shorter cycle preserves outstanding delay");
+        AssertTrue(installed.Step(), "shorter cycle wraps saved out-of-range frame at next boundary");
+        AssertTrue(!installed.Step() && installed.Step(), "authored duration controls subsequent cycle ticks");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
         AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");

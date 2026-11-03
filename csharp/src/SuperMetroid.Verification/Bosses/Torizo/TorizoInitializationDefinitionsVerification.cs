@@ -60,7 +60,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual((ushort)1, actor.FrameHold.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
-                AssertEqual(SharedSpriteColouring.Common, actor.Colouring, "Initial colours: the common sprite colours, row zero");
+                AssertEqual(PictureShading.Standard, actor.Shading, "Initial colours: the sheet's own, which the common sprite row coloured");
                 var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");

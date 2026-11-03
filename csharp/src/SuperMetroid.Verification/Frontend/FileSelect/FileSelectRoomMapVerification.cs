@@ -213,7 +213,7 @@ internal static class FileSelectRoomMapVerification
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
         {
-            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); animations.DrawArrows(oam, MenuSheetFixtures.MapSprites(sprites)); oam.FinalizeFrame(); return oam;
+            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); animations.DrawArrows(oam, animations.HighlightShading, MenuSheetFixtures.MapSprites(sprites)); oam.FinalizeFrame(); return oam;
         }
         ScreenSprites first = Draw();
         AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");

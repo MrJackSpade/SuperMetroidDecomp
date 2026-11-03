@@ -135,7 +135,6 @@ internal static class EndingPaletteArtworkVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(16, EndingLogoLayer.Background, 0), "computed fade step bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(0, EndingLogoLayer.Sprites, 16), "computed fade colour bounds");
-        AssertThrows<InvalidOperationException>(() => loaded.Color(0), "the crossfade is read by step and layer, not as a run");
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 

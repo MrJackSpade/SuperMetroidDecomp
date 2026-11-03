@@ -93,12 +93,16 @@ internal static class PaletteFxRoomShades
             .Select(entry => Shade(entry.Colours, new PaletteFxFrame(entry.Record), colours))];
     }
 
+    /// <summary>The first ink of a room picture the room's colour group <paramref name="group"/> recolours.</summary>
+    /// <exception cref="InvalidDataException">The group recolours no room picture.</exception>
+    internal static int FirstInk(PaletteFxColours group) => FirstInks.TryGetValue(group, out int ink) ? ink
+        : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
+
     /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="record"/>, coloured from <paramref name="colours"/>.</summary>
     /// <exception cref="InvalidDataException">A colour is not installed, or the record writes past its group's colours.</exception>
     internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
     {
-        int first = FirstInks.TryGetValue(group, out int ink) ? ink
-            : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
+        int first = FirstInk(group);
         return Shade(group, record, first, (first / GroupInks + 1) * GroupInks, colours);
     }
 

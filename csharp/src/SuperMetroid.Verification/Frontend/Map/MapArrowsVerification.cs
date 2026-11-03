@@ -96,7 +96,7 @@ internal static class MapArrowsVerification
         byte[] Draw(FileSelectMapAnimations animation)
         {
             var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            animation.DrawArrows(oam, MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
+            animation.DrawArrows(oam, animation.HighlightShading, MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
             oam.FinalizeFrame();
             return oam.LowTable.ConcatToArray(oam.HighTable);
         }

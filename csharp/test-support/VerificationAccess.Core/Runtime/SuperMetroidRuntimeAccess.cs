@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

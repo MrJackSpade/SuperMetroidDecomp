@@ -639,7 +639,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, Collision, DeathsAndDrops, WalkingSpacePirateBehavior);
-        TourianUnlockBehavior = TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable);
+        TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, SlotTable);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
         StokeBehavior = new StokeBehavior(Room, Terrain, Projectiles);
         SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });

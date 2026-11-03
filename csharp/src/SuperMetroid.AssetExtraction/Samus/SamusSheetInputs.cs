@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -55,7 +56,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             overruns.Chainsaw,
             Read(map, CrystalFlashColorFile.FileName, CrystalFlashColorFile.Read),
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
-            SamusDeathPaletteArtworkFiles.Load(samusBody, null));
+            SamusDeathPaletteArtworkFiles.Load(samusBody, null),
+            MapPresentationFiles.Load(map, null).RoomPaletteFx);
         return new(
             projectiles,
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),

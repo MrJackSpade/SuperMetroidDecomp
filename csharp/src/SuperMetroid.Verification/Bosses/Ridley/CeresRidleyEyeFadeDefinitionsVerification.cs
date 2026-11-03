@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -42,9 +42,9 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors } };
-        var cgram = new SamusColourRig();
-        enemies.Presentation.BindColours(cgram.Gameplay);
+        CeresRidleyColorCatalog colours = RetailPresentationFixture().CeresRidleyColors;
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
         Action<RidleyEnemyState> tick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
 
         var state = new RidleyEnemyState
@@ -61,6 +61,8 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             tick(state);
 
             CeresRidleyEyeFadeStep expected = CeresRidleyEyeFade.Get(offset);
+            // The colours the encounter shows are the import's shades of its installed colours, laid as the fade laid them (#1512).
+            ushort[] cgram = RidleyLaidColours.Of(state, shades, [], 0);
             AssertEqual(unchecked((ushort)(offset + 1)), state.FadeStep,
                 $"production Ceres eye-fade offset {offset} advances");
             AssertEqual(RidleyAiFunction.FadeInEyes, state.Function,
@@ -70,7 +72,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
                 int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
                     expected.Shade * 6 + color * 2;
                 ushort expectedColor = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
-                AssertEqual(expectedColor, cgram.Colors[252 + color],
+                AssertEqual(expectedColor, cgram[252 + color],
                     $"production Ceres eye-fade offset {offset} color {color}");
             }
         }

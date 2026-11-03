@@ -5,6 +5,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -65,6 +66,10 @@ internal static class UploadedPictureChecks
                 // A draw's colouring shows each part in its part group's row with the colouring's row ORed in, as the frame does.
                 if (entry != 0 && image.Colouring is { } overriding)
                     entry = overriding.RowOverPart(image.PartGroupAt(cell)) * 16 + entry % 16;
+                // A shaded draw's selection shade ORs its row into each following part's own, as the cartridge does (#1512).
+                else if (entry != 0 && image.Shading is { } shading && SpriteColouringAccess.SelectedRow(shading) is int selected
+                    && !image.PartGroupAt(cell).KeepsOwnColours)
+                    entry = (image.PartGroupAt(cell).Group.Number | selected) * 16 + entry % 16;
                 if (entry != 0)
                     Ink(actual, image.Corner.X + x, image.Corner.Y + y, entry, image.PriorityAt(cell));
             }

@@ -51,11 +51,10 @@ internal static class RetailRuntimeFixtureVerification
     /// catalogs a case supplies. The stock catalogs are the cartridge reference extracted from the ROM.
     /// </summary>
     internal static LoadedRoomAssets LoadFixtureRoomAssets(SelectedRoom room,
-        RoomStaticPalettes? paletteArt = null, RoomLevelArtworks? visualLayouts = null,
+        RoomLevelArtworks? visualLayouts = null,
         InstalledRoomLevelStreams? levelStreams = null) =>
         LoadedRoomAssets.Load(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), room, InstalledFixtures.RoomAssets with
         {
-            Palettes = paletteArt ?? InstalledFixtures.RoomAssets.Palettes,
             VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts,
             LevelStreams = levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams,
         });

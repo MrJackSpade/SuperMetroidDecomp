@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -65,10 +66,15 @@ internal static class BossBodySheetComposer
         }
         if (characters is null)
             throw new InvalidDataException($"No room state shows {owner}.");
-        var painter = new BossBodyPainter(owner, characters, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette)));
+        RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette));
+        var painter = new BossBodyPainter(owner, characters, colours);
         foreach (BossBodyFrameSource frame in Frames(inputs.Bosses, owner))
             painter.Add(frame);
-        return painter.Compose(BlankOf(owner));
+        ComposedBossBodySheet composed = painter.Compose(BlankOf(owner));
+        // The body is pre-coloured in the shades the boss's colour state names (#1512).
+        return composed with { Sheet = ShadedSheets.With(composed.Sheet,
+            [.. BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.PaletteIndices, colours),
+                .. owner == BossBodyOwner.MotherBrain ? MotherBrainSheetShades.Background(inputs.Maps, inputs.Bosses) : []]) };
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>

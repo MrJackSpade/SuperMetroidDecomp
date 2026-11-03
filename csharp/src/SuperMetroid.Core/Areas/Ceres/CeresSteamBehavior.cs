@@ -94,7 +94,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.Colouring = SharedSpriteColouring.EnemyProjectiles;
+        // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
 
         // The initializer masks the live RNG to 0..31 and adds one. The delay is then
         // consumed by the vent's wait cue, giving each vent an authored stagger.

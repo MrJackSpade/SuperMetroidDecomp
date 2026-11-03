@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using Band = SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Band;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -17,23 +16,5 @@ internal static class CrocomirePalette
         return edits.TryGetValue(new CrocomireColorKey(band, index), out RgbColor edited)
             ? edited
             : CrocomireColorCatalog.StockPaint[band](index);
-    }
-
-    /// <summary>Installs the initialization transfers in order: the wall colours, then the projectile colours.</summary>
-    internal static void ApplyInitial(CrocomireColorCatalog colors, BossColours destination)
-    {
-        Apply(colors, destination.CrocomireInitialWall, Band.InitialWall);
-        Apply(colors, destination.CrocomireInitialProjectile, Band.InitialProjectile);
-    }
-
-    /// <summary>Writes one complete material band to its selected colour run.</summary>
-    internal static void Apply(CrocomireColorCatalog colors, ColourRun destination, Band band) =>
-        Apply(colors, new ColourRunSequence(destination), band);
-
-    /// <summary>Writes one complete material band across its destination runs, run after run.</summary>
-    private static void Apply(CrocomireColorCatalog colors, ColourRunSequence destination, Band band)
-    {
-        for (int color = 0; color < CrocomireColorCatalog.Counts[band]; color++)
-            destination.Write(color, colors.Get(band, color));
     }
 }

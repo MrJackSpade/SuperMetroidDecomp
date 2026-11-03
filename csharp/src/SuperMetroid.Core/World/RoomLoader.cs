@@ -885,7 +885,7 @@ internal sealed class RoomLoader
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHasBands)
             : null;
 
-        assets.LoadGraphics(_colours.BackgroundSets);
+        // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
         // Ceres rooms show their tileset's turning floor, which the door and Ridley then draw over (#1349, #1467).
         scope.Floor = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloor() : null;
 
@@ -902,7 +902,6 @@ internal sealed class RoomLoader
         // effect and animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
-            _colours.BackgroundSets,
             room.State.Fx,
             door,
             _system.RandomNumber,
@@ -1093,8 +1092,8 @@ internal sealed class RoomLoader
     {
         GameplayBasePalette artwork = _artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Room loading requires the installed gameplay palette catalog.");
-        artwork.LoadCommonSprites(SpriteColourSetDefinitions.Common.In(_colours.SpriteSets));
-        artwork.LoadEnemyProjectileSprites(SpriteColourSetDefinitions.EnemyProjectiles.In(_colours.SpriteSets));
+        artwork.LoadCommonSprites(SpriteColourStore.Common.In(_colours.SpriteSets));
+        artwork.LoadEnemyProjectileSprites(SpriteColourStore.EnemyProjectiles.In(_colours.SpriteSets));
     }
 
     /// <summary>
@@ -1257,11 +1256,11 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        _artwork.RoomPaletteArt is { } palettes && _artwork.RoomVisualLayouts is { } layouts &&
+        _artwork.RoomVisualLayouts is { } layouts &&
         _artwork.RoomLevelStreams is { } levelStreams && _artwork.RoomBlockSheets is { } blockSheets
-            ? new RoomAssetCatalogs(palettes, layouts, levelStreams, blockSheets)
+            ? new RoomAssetCatalogs(layouts, levelStreams, blockSheets)
             : throw new InvalidOperationException(
-                "Room loading requires installed palette, visual-layout, level-stream and block-sheet assets.");
+                "Room loading requires installed visual-layout, level-stream and block-sheet assets.");
 
 
     /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>

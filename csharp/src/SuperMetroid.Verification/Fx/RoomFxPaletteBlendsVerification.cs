@@ -22,6 +22,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification
@@ -59,26 +60,25 @@ internal static class RoomFxPaletteBlendsVerification
         foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDocumentRules.Ids)
         {
             ReadOnlySpan<RgbColor> compiled = catalog.Resolve(id);
-
-            (RoomLayer3FxState state, CartridgeReadGuard bus, GameplayColours cgram) =
-                ConstructBlendLoad(catalog, id);
+            // The layer-3 pictures' shade of the blend holds its three colours over the blend inks (#1512).
+            SheetShade shade = BlendShade(catalog, id);
+            AssertEqual(RoomFxNativeSources.PaletteBlendDestinationIndex, shade.Inks[0], $"room-FX blend {id} shades the blend inks");
             for (int index = 0; index < compiled.Length; index++)
-                AssertEqual(compiled[index], cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex + index],
-                    $"room-FX blend {id} installed load color {index}");
+                AssertEqual(compiled[index], shade.Colours[index], $"room-FX blend {id} shade colour {index}");
+
+            (RoomLayer3FxState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);
+            AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} load names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} load does not read bank-$89");
 
-            _ = state.ApplyEntry(cgram.BackgroundSets, SelectCompiledBlendRecord(id));
-            for (int index = 0; index < compiled.Length; index++)
-                AssertEqual(compiled[index], cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex + index],
-                    $"room-FX blend {id} installed FX-entry color {index}");
+            _ = state.ApplyEntry(SelectCompiledBlendRecord(id));
+            AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} FX entry names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} FX entry does not read bank-$89");
         }
-        (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, GameplayColours emptyCgram) =
-            ConstructBlendLoad(catalog, RoomFxPaletteBlend.None);
-        _ = emptyState;
-        AssertEqual(0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
-        AssertEqual(0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
-        AssertEqual(0, emptyCgram.Colors[27], "zero blend clears only color 27");
+        (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus) = ConstructBlendLoad(RoomFxPaletteBlend.None);
+        AssertEqual<RoomFxPaletteBlend?>(RoomFxPaletteBlend.None, emptyState.PaletteBlend, "zero blend names the empty blend");
+        SheetShade empty = BlendShade(catalog, RoomFxPaletteBlend.None);
+        AssertTrue(empty.Inks.SequenceEqual([RoomFxNativeSources.PaletteBlendDestinationIndex + 2]) && empty.Colours.SequenceEqual([RgbColor.Black]),
+            "zero blend's shade clears only the third blend ink");
         AssertEqual(0, emptyBus.ForbiddenReadAttempts, "zero blend does not read bank-$89");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX blend resource fails loudly");
@@ -166,11 +166,8 @@ internal static class RoomFxPaletteBlendsVerification
         RgbColor expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
         AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
             "room-FX blend edit changes the authored color");
-        (_, CartridgeReadGuard bus, GameplayColours cgram) = ConstructBlendLoad(
-            edited.RoomFxPaletteBlends, RoomFxPaletteBlend.Lava);
-        AssertEqual(expected, cgram.Colors[RoomFxNativeSources.PaletteBlendDestinationIndex],
-            "edited room-FX blend color reaches production CGRAM");
-        AssertEqual(0, bus.ForbiddenReadAttempts, "edited room-FX blend does not read native palette table");
+        AssertEqual(expected, BlendShade(edited.RoomFxPaletteBlends, RoomFxPaletteBlend.Lava).Colours[0],
+            "edited room-FX blend color reaches the layer-3 pictures' shade");
         AssertTrue(HazeLine(GameplayEffectCapture.CaptureCeresHaze(false,
                 colors: edited.RoomFxPaletteBlends)).G > 0,
             "installed room-FX color override reaches Ceres haze rendering");
@@ -185,26 +182,22 @@ internal static class RoomFxPaletteBlendsVerification
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
             "removing room-FX blend override restores stock identity");
-        Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");
+        Console.WriteLine("Room-FX blend override: edited color reaches the blend's shade and removal restores stock.");
     }
 
-    /// <summary>Loads a selected compiled FX record into CGRAM through a bus that forbids bank-$89 reads.</summary>
-    private static ConstructBlendLoadResult
-        ConstructBlendLoad(RoomFxBlendInks catalog, RoomFxPaletteBlend selection)
+    /// <summary>Loads a selected compiled FX record through a bus that forbids bank-$89 reads.</summary>
+    private static ConstructBlendLoadResult ConstructBlendLoad(RoomFxPaletteBlend selection)
     {
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
-        var cgram = new GameplayColours(new SpriteColourSets());
-        cgram.AsPaletteColors().SetColor(25, RgbColor.FromWord(0x1234));
-        cgram.AsPaletteColors().SetColor(26, RgbColor.FromWord(0x2345));
-        cgram.AsPaletteColors().SetColor(27, RgbColor.FromWord(0x3456));
-        var stateSession = new RoomFxSession{
-            PaletteBlendColors = catalog,
-        };
-        var state = RoomLayer3FxState.ForDefinition(stateSession, cgram, record, randomNumber: 0);
-        return new ConstructBlendLoadResult(state, bus, cgram);
+        var state = RoomLayer3FxState.ForDefinition(new RoomFxSession(), record, randomNumber: 0);
+        return new ConstructBlendLoadResult(state, bus);
     }
+
+    /// <summary>The shade the import pre-colours the layer-3 pictures in for <paramref name="selection"/> from <paramref name="catalog"/>.</summary>
+    private static SheetShade BlendShade(RoomFxBlendInks catalog, RoomFxPaletteBlend selection) =>
+        RoomFxBlendSheetShades.Of(catalog).Single(shade => shade.Shade == RoomFxBlendShading.Of(selection));
 
     /// <summary>Finds the compiled default FX record whose palette selector matches the requested blend.</summary>
     private static RoomFxRecordDefinition SelectCompiledBlendRecord(RoomFxPaletteBlend selection) =>

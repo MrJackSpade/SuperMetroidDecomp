@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
@@ -50,21 +49,6 @@ public sealed class CrocomireColorCatalog
     /// <summary>Retains only colors that differ from their calculated material paint.</summary>
     /// <param name="edits">The supplied colours the import found differing from their calculated material paint.</param>
     internal CrocomireColorCatalog(Dictionary<CrocomireColorKey, RgbColor> edits) => this.edits = edits;
-
-    /// <summary>Installs the initialization transfers in order: seventeen wall colours at colours 160–176, then sixteen projectile colours at 208–223.</summary>
-    public void ApplyInitial(GameplayColours colours) => CrocomirePalette.ApplyInitial(this, new BossColours(colours));
-
-    /// <summary>Restores the eight selected body/head background inks at colours 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
-    public void ApplyFightBody(GameplayColours colours) =>
-        CrocomirePalette.Apply(this, new BossColours(colours).CrocomireFightBody, Band.FightBody);
-
-    /// <summary>Installs the sixteen skeleton-arm sprite inks at colours 144–159 when the wall-break sequence begins.</summary>
-    public void ApplySkeletonArm(GameplayColours colours) =>
-        CrocomirePalette.Apply(this, new BossColours(colours).CrocomireSkeletonArm, Band.SkeletonArm);
-
-    /// <summary>Installs the sixteen wall-spike sprite inks at colours 176–191 when the rumble script reaches its terminator.</summary>
-    public void ApplyWallSpikes(GameplayColours colours) =>
-        CrocomirePalette.Apply(this, new BossColours(colours).CrocomireWallSpikes, Band.WallSpikes);
 
     /// <summary>Returns an edited color or calculates the corresponding stock paint.</summary>
     internal RgbColor Get(Band band, int index) => CrocomirePalette.Get(edits, band, index);

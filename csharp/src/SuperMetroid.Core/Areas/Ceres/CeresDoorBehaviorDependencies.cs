@@ -29,7 +29,4 @@ internal sealed record CeresDoorBehaviorDependencies
 
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     public required ICeresEscapeStatus CeresEscape { get; init; }
-
-    /// <summary>The session's installed area artwork.</summary>
-    public required AreaArtworkBinding AreaArtwork { get; init; }
 }

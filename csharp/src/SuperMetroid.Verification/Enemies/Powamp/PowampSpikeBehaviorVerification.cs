@@ -25,7 +25,7 @@ internal static class PowampSpikeBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 256,
-            Colouring = SharedSpriteColouring.Frozen,
+            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         enemies.PowampBehavior.SpawnPowampSpikeBurst(body);
         RoomEnemyProjectileSlot[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];

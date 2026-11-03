@@ -42,18 +42,12 @@ internal sealed class PhantoonPresentation
         {
             state.Parts[eye.SlotIndex].FadeNumerator = 0;
             state.Parts[eye.SlotIndex].FadeComplete = true;
+            state.Colours.CompleteFade();
             return;
         }
 
-        int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
-        for (int color = 0; color < 16; color++)
-        {
-            RgbColor current = _presentation.BossColours().PhantoonBody[color];
-            RgbColor target = ReadPhantoonHealthColor(healthBand, color);
-            _presentation.BossColours().PhantoonBody.Write(
-                color,
-                CalculatePhantoonTransitionColor(numerator, denominator, current, target));
-        }
+        // The fade's step is the import's shade of it, toward his health band's colours (#1512).
+        state.Colours.Fade(PhantoonBodyLook.Health(HealthBand(body)), denominator, numerator);
         state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
     }
 
@@ -127,6 +121,10 @@ internal sealed class PhantoonPresentation
     }
 
     /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
+    /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
+    internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
+
+    /// <summary>Colour <paramref name="color"/> of health band <paramref name="healthBand"/>.</summary>
     internal RgbColor ReadPhantoonHealthColor(int healthBand, int color) =>
         (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
             "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);

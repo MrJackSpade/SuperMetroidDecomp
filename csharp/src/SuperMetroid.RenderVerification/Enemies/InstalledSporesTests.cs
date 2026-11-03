@@ -94,8 +94,8 @@ internal static class InstalledSporesTests
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineFrames = new ArtworkFrameSelections(); var editedFrames = new ArtworkFrameSelections();
             var colors = new GameplayColours(new SpriteColourSets()); var editedColors = new GameplayColours(new SpriteColourSets());
-            RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), colors, definition, 0);
-            RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), editedColors, definition, 0);
+            RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), definition, 0);
+            RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -171,7 +171,6 @@ internal static class InstalledSporesTests
     private static RoomFxSession Create(AreaMapPresentation presentation) => new()
     {
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
-        PaletteBlendColors = presentation.RoomFxPaletteBlends,
     };
 
     /// <summary>Serializes FX control state through the production debugger graph codec for stock/edit comparison.</summary>

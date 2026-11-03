@@ -37,8 +37,8 @@ internal static class DraygonTilemapProductionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, RoomHeaderDefinitions.Draygon.Pointer);
         var installation = RepositoryInstallation.Installation;
-        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
-        var vram = new SnesVram(); var cgram = new SamusColourRig(); assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram.Gameplay.BackgroundSets);
+        var assets = LoadFixtureRoomAssets(room, installation.LoadRoomVisualLayouts());
+        var vram = new SnesVram(); assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState();
         random.SetRandomNumber(0x1234);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 64)),
@@ -48,7 +48,7 @@ internal static class DraygonTilemapProductionVerification
         BossBodySheets sheets = RepositoryInstallation.Artwork.BossBodySheets
             ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
         enemies.BossArtworkBinding.BodySheets = sheets;
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData, Samus = samus });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram)) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI

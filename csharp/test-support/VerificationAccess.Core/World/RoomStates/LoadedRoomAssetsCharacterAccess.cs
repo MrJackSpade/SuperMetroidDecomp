@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Artwork;
 
@@ -19,13 +18,9 @@ internal static class LoadedRoomAssetsCharacterAccess
             Ensure.NotNull(characters).Get(self.Tileset.Characters).Characters;
 
         /// <summary>
-        /// Loads the room into a test's VRAM fixture: gives the background sets the tileset's colours, as gameplay does,
-        /// and records that the fixture's image shows the room's load under <paramref name="appearance"/> (#1466).
+        /// Loads the room into a test's VRAM fixture: records that the fixture's image shows the room's load under
+        /// <paramref name="appearance"/> (#1466). The room's pictures show their own colours (#1512), so nothing is coloured.
         /// </summary>
-        internal void LoadGraphics(RoomAppearance appearance, BackgroundColourSets colours)
-        {
-            self.LoadGraphics(colours);
-            BgArtworkFixtures.RecordLoad(appearance, self.Tileset);
-        }
+        internal void LoadGraphics(RoomAppearance appearance) => BgArtworkFixtures.RecordLoad(appearance, self.Tileset);
     }
 }

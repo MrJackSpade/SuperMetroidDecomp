@@ -124,25 +124,21 @@ internal static class RoomAssetRomDataVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            LoadedRoomAssets native = LoadFixtureRoomAssets(header, palettes, layouts);
-            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, palettes, layouts);
+            LoadedRoomAssets native = LoadFixtureRoomAssets(header, layouts);
+            LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             // The common room elements' characters are the catalog's for every room (#1466), so only the tileset's are compared.
             AssertTrue(native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
-                ReferenceEquals(native.TilesetColours, guarded.TilesetColours) &&
                 // The room's blocks are its tileset's block pictures and the inputs each depends on (#1431, #1466).
                 ReferenceEquals(native.BlockSheet, guarded.BlockSheet) && native.BlockSheet.Tileset == native.Tileset,
                 $"room $8F:{roomPointer:X4} retains exact decompressed visual inputs");
             var nativeVram = new SnesVram();
             var guardedVram = new SnesVram();
-            var nativeCgram = new GameplayColours(new SpriteColourSets());
-            var guardedCgram = new GameplayColours(new SpriteColourSets());
-            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
-            guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram), guardedCgram.BackgroundSets);
-            AssertTrue(nativeVram.ImageEquals(guardedVram) &&
-                new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(guardedCgram.AsPaletteColors())),
-                $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
+            native.LoadGraphics(BgArtworkFixtures.For(nativeVram));
+            guarded.LoadGraphics(BgArtworkFixtures.For(guardedVram));
+            // A room load colours nothing: its pictures show their own colours (#1512).
+            AssertTrue(nativeVram.ImageEquals(guardedVram), $"room $8F:{roomPointer:X4} retains exact VRAM output");
         }
 
         Console.WriteLine(
@@ -205,13 +201,10 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
             var nativeVram = new SnesVram();
             var installedVram = new SnesVram();
-            var nativeCgram = new GameplayColours(new SpriteColourSets());
-            var installedCgram = new GameplayColours(new SpriteColourSets());
-            native.LoadGraphics(BgArtworkFixtures.For(nativeVram), nativeCgram.BackgroundSets);
-            installed.LoadGraphics(BgArtworkFixtures.For(installedVram), installedCgram.BackgroundSets);
-            AssertTrue(nativeVram.ImageEquals(installedVram) &&
-                new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
-                $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
+            native.LoadGraphics(BgArtworkFixtures.For(nativeVram));
+            installed.LoadGraphics(BgArtworkFixtures.For(installedVram));
+            // A room load colours nothing: its pictures show their own colours (#1512).
+            AssertTrue(nativeVram.ImageEquals(installedVram), $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM output");
         }
 
         SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);

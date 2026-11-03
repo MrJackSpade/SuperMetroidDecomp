@@ -13,6 +13,8 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Verification.Bosses;
+using SuperMetroid.AssetExtraction.Bosses;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -84,17 +86,18 @@ internal static class EnemyTileArtworkShitroidColorsVerification
                     < (MotherBrainSourceDefinitions.Shitroid.ShitroidTarget +
                         ShitroidColorDefinitions.TargetColorCount * sizeof(ushort)),
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         enemies.ShitroidBehavior.InitializeShitroid(slot, 0);
         ShitroidEnemyState state = enemies.Shitroid ??
             throw new InvalidDataException("Shitroid initialization produced no state.");
+        // The Shitroid draws in its entry's target colours, which the import pre-colours its sheets in (#1512); the drained
+        // corpses' target is the corpses' own drained shade.
+        AssertEqual(ShitroidShades.InTargetColours, slot.Shading, "the Shitroid draws in its entry's target colours");
+        IReadOnlyList<SheetShade> shades = MotherBrainSheetShades.Shitroid(edited.Bosses);
         CheckLiveTarget(ShitroidColorTarget.Sidehopper, 0x90);
         CheckLiveTarget(ShitroidColorTarget.Shitroid, 0xa0);
-        CheckLiveTarget(ShitroidColorTarget.DeadSidehopper, 0xf0);
         for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
         {
             state.PalettePhase = (frame + 7) % 8;
@@ -102,8 +105,11 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             enemies.ShitroidBehavior.StepShitroidNormalPalette(state);
             AssertEqual(frame, state.PalettePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
             AssertEqual(state.PaletteDelay, state.PaletteTimer, $"Shitroid normal frame {frame} reloads the palette timer");
+            AssertEqual(ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(frame)), slot.Shading,
+                $"live Shitroid draws its membrane at normal frame {frame}");
+            ushort[] cgram = BossShadeColours.Laid(slot.Shading.Shades, shades, BossShadeColours.Sprites, 0);
             for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
-                AssertEqual(colors.NormalColor(frame, color), cgram.Colors[165 + color],
+                AssertEqual(colors.NormalColor(frame, color).ToWord(), cgram[165 + color],
                     $"live Shitroid normal frame {frame} color {color}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -138,14 +144,11 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
         void CheckLiveTarget(ShitroidColorTarget target, int destination)
         {
-            for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
-            {
-                RgbColor expected = colors.TargetColor(target, color);
-                AssertEqual(expected, state.TargetColours(target)[color],
-                    $"live Shitroid {target} target buffer color {color}");
-                AssertEqual(expected, cgram.Colors[destination + color],
-                    $"live Shitroid {target} CGRAM color {color}");
-            }
+            ushort[] cgram = BossShadeColours.Laid([ShitroidShades.Targets], shades, BossShadeColours.Sprites, 0);
+            // Colour zero of each row is the transparent backdrop, which the entry's load leaves alone.
+            for (int color = 1; color < ShitroidColorDefinitions.TargetColorCount; color++)
+                AssertEqual(colors.TargetColor(target, color).ToWord(), cgram[destination + color],
+                    $"live Shitroid {target} colour {color}");
         }
 
         static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with

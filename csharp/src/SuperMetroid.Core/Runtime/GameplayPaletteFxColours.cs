@@ -4,13 +4,10 @@ using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Runtime;
 
-/// <summary>The gameplay colours palette-FX objects write (#1405): the background and sprite sets, and Samus's suit and beams.</summary>
+/// <summary>The gameplay colours palette-FX objects write (#1405, #1512): the sprite sets, and Samus's suit and beams.</summary>
 /// <param name="colours">Gameplay's colour sets.</param>
 internal sealed class GameplayPaletteFxColours(GameplayColours colours) : IPaletteFxColourOwners
 {
-    /// <inheritdoc />
-    public ColourRun BackgroundSet(BackgroundColourSet set) => colours.BackgroundSets.Set(set);
-
     /// <inheritdoc />
     public ColourRun ScreenColours(PaletteFxColours colours) =>
         throw new InvalidOperationException($"Gameplay holds no frontend screen's colours for {colours}.");

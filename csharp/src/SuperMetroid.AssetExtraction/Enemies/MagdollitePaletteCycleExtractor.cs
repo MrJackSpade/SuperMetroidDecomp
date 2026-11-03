@@ -24,12 +24,12 @@ public static class MagdollitePaletteCycleExtractor
         var frames = new PaletteRgb5[MagdollitePaletteDefinitions.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
-            frames[frame] = new PaletteRgb5[MagdollitePaletteDefinitions.AnimatedColorCount];
+            frames[frame] = new PaletteRgb5[MagdollitePaletteCycle.AnimatedColorCount];
             for (int color = 0; color < frames[frame].Length; color++)
             {
                 int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                     (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
-                     MagdollitePaletteDefinitions.FirstAnimatedColor + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
+                     MagdollitePaletteCycle.FirstAnimatedColor + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
                 int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(

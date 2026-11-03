@@ -12,8 +12,10 @@ public sealed class ZebetiteColorCatalog
     /// <param name="edits">The pulse colours the import found differing from the calculated pulse.</param>
     internal ZebetiteColorCatalog(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
 
-    /// <summary>Writes the selected pulse frame's two colors without advancing the shared palette counter or testing fade/linkage conditions; <c>HandleZebetitePaletteAnimation</c> targets colours 172 and 173 (sprite palette 2 colors 12 and 13).</summary>
-    /// <param name="destination">The two pulsing colours.</param>
-    /// <param name="frame">Zero-based pulse frame from 0 through 7.</param>
-    public void Apply(ColourRun destination, int frame) => ZebetitePulse.Apply(edits, destination, frame);
+    /// <summary>Colour <paramref name="color"/>, zero or one, of pulse frame <paramref name="frame"/>, zero through seven.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The frame or colour is outside the pulse.</exception>
+    public RgbColor Resolve(int frame, int color) =>
+        (uint)frame < ZebetiteColorFormat.FrameCount && (uint)color < ZebetiteColorFormat.ColorsPerFrame
+            ? ZebetitePulse.Resolve(edits, frame, color)
+            : throw new ArgumentOutOfRangeException(nameof(frame), $"Zebetite pulse frame {frame}, colour {color} is outside the pulse.");
 }

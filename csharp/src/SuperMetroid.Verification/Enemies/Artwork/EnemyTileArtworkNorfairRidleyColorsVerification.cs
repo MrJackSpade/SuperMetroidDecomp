@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -52,9 +53,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(forbidden.Contains,
             address => $"Installed Norfair Ridley palette read migrated ROM byte ${address:X6}.");
         (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
-        (RoomEnemySystem installed, SamusColourRig installedCgram, RoomEnemySlot installedSlot,
+        (RoomEnemySystem installed, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
-        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         for (int call = 0; call <= NorfairRidleyPaletteDefinitions.RevealStepCount * 3; call++)
         {
@@ -66,7 +67,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 $"Norfair Ridley reveal call {call} three-call cadence");
             AssertEqual(nativeState.Function, installedState.Function,
                 $"Norfair Ridley reveal call {call} terminal function");
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
                 $"Norfair Ridley reveal call {call} preserves full native CGRAM");
         }
         AssertEqual(RidleyAiFunction.ClearVelocity, installedState.Function,
@@ -89,7 +90,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         byte[] editedBytes = Encoding.UTF8.GetBytes(changed.ToJsonString());
         File.WriteAllBytes(overridePath, editedBytes);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        (RoomEnemySystem editedEnemy, SamusColourRig editedCgram, RoomEnemySlot editedSlot,
+        (RoomEnemySystem editedEnemy, RoomEnemySlot editedSlot,
             RidleyEnemyState editedState) = Create(guard, edited);
         (SnesCgram controlCgram, RidleyEnemyState controlState) = CreateReference();
         CheckEditedCgram("Norfair Ridley edited initial colors", revealRowVisible: false);
@@ -152,6 +153,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         // Checks full CGRAM while allowing only the selected initial red or current reveal blue edit.
         void CheckEditedCgram(string context, bool revealRowVisible)
         {
+            SnesCgram editedCgram = Shown(editedState, edited);
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 RgbColor expected = controlCgram.Colors[color];
@@ -208,10 +210,6 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            var cgram = new SamusColourRig();
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
-            enemy.Presentation.BindColours(cgram.Gameplay);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
@@ -220,7 +218,21 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Function = RidleyAiFunction.WaitBeforeLiftoff;
             state.FunctionTimer = WrappingCountdown.Start(0);
-            return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, cgram, slot, state);
+            return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, slot, state);
+        }
+
+        // The colours the production encounter shows over the seeded CGRAM image: the import's shades of the installed
+        // colours, laid as its AI laid them (#1512).
+        static SnesCgram Shown(RidleyEnemyState state, InstalledEnemyArtwork artwork)
+        {
+            NorfairRidleyColorCatalog colours = artwork.Bosses.NorfairRidleyColors
+                ?? throw new InvalidOperationException("Norfair Ridley's fixture installs his colours.");
+            ushort[] words = RidleyLaidColours.Over(state, RidleySheetShades.NorfairSprites(colours), RidleySheetShades.NorfairRoom(colours),
+                [.. Enumerable.Range(0, SnesCgram.ColorCount).Select(color => (ushort)(color * 31))]);
+            var cgram = new SnesCgram();
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                cgram.SetColor(color, RgbColor.FromWord(words[color]));
+            return cgram;
         }
 
         // Executes one production arena-reveal callback.

@@ -45,11 +45,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int RinkaInitialDelay = 26;
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const int RinkaHealth = 10;
-    /// <summary>
-    /// The colours both ordinary and Mother Brain variants draw in: the Rinka's own, which every graphics set holding
-    /// Rinkas loads.
-    /// </summary>
-    private static readonly GraphicsSetMemberColouring RinkaColouring = new(EnemyDefinitionId.Rinka);
     /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the original game angle into flight velocity.</summary>
     private const int RinkaSpeed = 288;
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
@@ -144,7 +139,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyProperties.IgnoreSamusCollision);
         }
 
-        slot.Colouring = RinkaColouring;
+        // Both ordinary and Mother Brain variants draw in the Rinka's own colours, which every graphics set holding
+        // Rinkas loads: their sheet's standard colours (#1512).
+        slot.Shading = PictureShading.Standard;
         InitializeRinkaLife(slot, state);
     }
 

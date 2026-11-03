@@ -19,7 +19,7 @@ internal static class CeresElevatorArrivalDefinitions
         Program: CeresElevatorArrivalProgram.Platform);
 
     /// <summary>The graphics both arrival projectiles start with: character zero in the common colours, as their initializer clears them.</summary>
-    internal static SpriteGraphics StartingGraphics { get; } = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common);
+    internal static SpriteGraphics StartingGraphics { get; } = SpriteGraphics.CharacterZeroIn(PictureShading.Standard);
 
     /// <summary>The initializer seeds the moving pad's frame-behaviour delay to sixty frames.</summary>
     internal const int MovingPadWaitFrames = 60;

@@ -18,9 +18,9 @@ internal abstract record NinjaSpacePirateCue
     /// <param name="Function">The cue's Function operand.</param>
     internal sealed record SetFunction(NinjaSpacePirateFunction Function) : NinjaSpacePirateCue;
 
-    /// <summary>Sets the colours the Pirate draws in.</summary>
-    /// <param name="Colouring">For a colouring cue: the shared colours the Pirate is drawn in from then on.</param>
-    internal sealed record SetColouring(SharedSpriteColouring? Colouring) : NinjaSpacePirateCue;
+    /// <summary>Sets the look the Pirate draws in.</summary>
+    /// <param name="Shading">The shading the Pirate is drawn in from then on (#1512).</param>
+    internal sealed record SetShading(PictureShading Shading) : NinjaSpacePirateCue;
 
     /// <summary>Throws a claw in the operand's direction from the given offset.</summary>
     /// <param name="Throw">For a claw cue: the way the claw flies.</param>

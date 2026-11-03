@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -48,7 +49,7 @@ internal static class ActorColourContentIdentity
         public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
             {
                 content.Append("frames", MagdollitePaletteDefinitions.FrameCount);
-                Span<RgbColor> frameColours = stackalloc RgbColor[MagdollitePaletteDefinitions.AnimatedColorCount];
+                Span<RgbColor> frameColours = stackalloc RgbColor[MagdollitePaletteCycle.AnimatedColorCount];
                 for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
                 {
                     for (int color = 0; color < frameColours.Length; color++) frameColours[color] = cycle.Resolve(frame, color);

@@ -61,17 +61,12 @@ internal sealed class DraygonParts
         if (body.SlotIndex != 0)
             throw new InvalidDataException("Draygon's body must own the first enemy slot.");
 
-        // The copy targets colors 144..168. This runtime has one concrete colour
-        // surface instead of a second fade-target array, so publish those exact 25 colors
-        // immediately; the room's normal fade-in controls when they become visible.
-        (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
-            "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Colours);
+        // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
         // Draygon shows his body on a cleared body layer, both pages of it, not merely the one shown (#1354, #1466); his
         // body frames are drawn on it.
         _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Draygon), BossBodyDefinitions.SharedBodyRows));
 
-        body.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
         body.FrameHold = WrappingCountdown.Start(1);
 
         _frameContext.RequestFullSweep();
@@ -81,6 +76,7 @@ internal sealed class DraygonParts
             Function = DraygonAiFunction.IntroInitialDelay,
         };
         body.SetSpeciesState(Draygon, Draygon.ClearWithRecord);
+        body.Shading = Draygon.Colours.Sprites;
         Draygon.SetCursor(body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingLeftIdle));
         Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
@@ -107,8 +103,8 @@ internal sealed class DraygonParts
             case DraygonPart.Tail:
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own the third enemy slot.");
-                part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
                 state.Tail = part;
+                part.Shading = state.Colours.Sprites;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
                 return;
 
@@ -117,7 +113,7 @@ internal sealed class DraygonParts
                     throw new InvalidDataException("Draygon's arms must own the fourth enemy slot.");
                 // Body init briefly writes a body function before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop.
-                part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
+                part.Shading = state.Colours.Sprites;
                 part.Layer = 2;
                 state.Arms = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftIdle));
@@ -385,7 +381,7 @@ internal sealed class DraygonParts
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
-            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonGoop)));
+            graphics: SpriteGraphics.CharacterZeroIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 

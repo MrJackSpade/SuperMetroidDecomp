@@ -27,11 +27,7 @@ internal sealed class RoomFxBlendColors
         thirdOverride = RoomFxPaletteBlendRules.CalculatedThirdColor(selection) == third ? null : new(selection, third);
     }
 
-    /// <summary>Writes the three resulting blend colours to <paramref name="blend"/>.</summary>
-    public void Apply(ColourRun blend)
-    {
-        blend.Write(0, primary.CreateColor());
-        blend.Write(1, secondary.CreateColor());
-        blend.Write(2, thirdOverride?.CreateColor() ?? RgbColor.Black);
-    }
+    /// <summary>The three resulting blend colours, in order.</summary>
+    public IReadOnlyList<RgbColor> Colours() =>
+        [primary.CreateColor(), secondary.CreateColor(), thirdOverride?.CreateColor() ?? RgbColor.Black];
 }

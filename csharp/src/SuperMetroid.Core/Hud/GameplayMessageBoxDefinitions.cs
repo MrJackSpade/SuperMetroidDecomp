@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -50,21 +49,6 @@ public static class GameplayMessageBoxDefinitions
         public const int ItemMinimumDisplayFrames = 360;
         /// <summary>Minimum updates a station message remains displayed.</summary>
         public const int StationMinimumDisplayFrames = 10;
-    }
-
-    /// <summary>The two colours the message box replaces while it is open.</summary>
-    public static class Palette
-    {
-        /// <summary>The background set whose colours the message box's text shows.</summary>
-        public const BackgroundColourSet TextSet = BackgroundColourSet.HudItemsAndEffects;
-        /// <summary>The colour of the text set the light message colour replaces.</summary>
-        public const int TemporaryLightColour = 9;
-        /// <summary>The light colour installed for the message box.</summary>
-        public static RgbColor TemporaryLightColor => new RgbColor(17, 29, 2);
-        /// <summary>The colour of the text set the dark message colour replaces.</summary>
-        public const int TemporaryDarkColour = 10;
-        /// <summary>The dark colour installed for the message box.</summary>
-        public static RgbColor TemporaryDarkColor => new(31, 0, 0);
     }
 
     /// <summary>Which button an item panel names for its action.</summary>

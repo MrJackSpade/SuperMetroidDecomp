@@ -85,10 +85,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // drawn on it.
         _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Phantoon), BossBodyDefinitions.SharedBodyRows));
 
-        // Target background palette seven is black at fight start. In the renderer the colours are the
-        // renderer-visible incarnation of current/target palette storage; clearing
-        // these exact sixteen words makes the later health-palette interpolation observable.
-        _presentation.BossColours().PhantoonBody.Fill(RgbColor.Black);
+        // His body is black as the fight starts, which his later fades start from (#1512).
+        Combat.Phantoon.Colours.Show(PhantoonBodyLook.Black);
 
         Combat.Part(body).FunctionTimer = WrappingCountdown.Start(PhantoonTimerDefinitions.InitialFlameDelayFrames);
         Combat.Part(body).StartingFlameIndex = 0;
@@ -131,7 +129,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.Frame = EnemyFrameId.Empty;
         part.FrameHold = WrappingCountdown.Start(1);
         part.Timer = WrappingCountdown.Start(0);
-        part.Colouring = state.Body.Colouring;
+        part.Shading = state.Body.Shading;
         part.TileIndexBase = state.Body.TileIndexBase;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
         PhantoonPartState partState = state.Parts[part.SlotIndex];
@@ -311,17 +309,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((body.FrameCounter & 2) == 0 || tentacles.HurtFlashShown)
             return;
 
-        _presentation.BossColours().PhantoonBody.Fill(RgbColor.White);
+        state.Colours.Show(PhantoonBodyLook.White);
         tentacles.HurtFlashShown = true;
     }
 
     /// <summary>Copies the selected health colors into the visible body palette.</summary>
-    internal void CopyPhantoonHealthPalette(RoomEnemySlot body)
-    {
-        int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
-        for (int color = 0; color < PhantoonColorDefinitions.HealthBandColorCount; color++)
-            _presentation.BossColours().PhantoonBody.Write(color, Presentation.ReadPhantoonHealthColor(healthBand, color));
-    }
+    internal void CopyPhantoonHealthPalette(RoomEnemySlot body) =>
+        (Combat.Phantoon ?? throw new InvalidOperationException("Phantoon's health colours show once Phantoon is loaded."))
+            .Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(body)));
     /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>
     internal const int PhantoonDeathWaveDelta = 256;
     /// <summary>Wave ceiling reached before the death animation advances.</summary>

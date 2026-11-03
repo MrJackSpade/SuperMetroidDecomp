@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -84,16 +85,13 @@ internal static class EnemyTileArtworkDachoraColorsVerification
                 or (>= DachoraColorSources.ShinePointerTable and
                     < DachoraColorSources.ShinePointerTable + (DachoraColorDefinitions.AnimatedFrameCount * sizeof(ushort))),
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Colouring = SpriteColouring.InFixtureSet(1);
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
         var state = new DachoraEnemyState();
-        enemies.DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
+        DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
         CheckLive(DachoraPalettePhase.Default, 0);
 
         RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
@@ -157,12 +155,9 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         void CheckLive(DachoraPalettePhase phase, int frame)
         {
-            // The slot holds its colouring (#1458, #1464), whose colours are the sprite colour set holding it.
-            ColourRun live = cgram.Gameplay.SpriteSets.Set(slot.PaletteRowIn(enemies));
-            for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
-                AssertEqual(colors.Resolve(phase, frame, color),
-                    live[color],
-                    $"live Dachora {phase} frame {frame} color {color}");
+            // The Dachora shows its phase's frame as the shade its draws publish (#1512); the colours are the import's.
+            AssertEqual(PictureShading.Shaded(DachoraShades.Of(phase, frame)), slot.Shading,
+                $"live Dachora {phase} frame {frame} shade");
         }
 
         static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with

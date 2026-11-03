@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -29,21 +27,16 @@ public sealed class RidleyEnemyState
     /// handoff, so it stays far below the range where the game's counter would wrap.
     /// </summary>
     public int HitCounter { get; internal set; }
-    /// <summary>
-    /// Gets the colours Ridley's tail and wings are drawn with: the colours Ridley loads for itself, or the common sprite
-    /// colours on hurt-flash updates.
-    /// </summary>
-    public SpriteColouring SpritemapColouring { get; internal set; } = SharedSpriteColouring.Common;
-    /// <summary>
-    /// Gets the colours the common enemy draw path uses for Ridley's body: the slot's colours, or the common sprite
-    /// colours on hurt-flash updates.
-    /// </summary>
-    public SpriteColouring CommonDrawColouring { get; internal set; } = SharedSpriteColouring.Common;
-    /// <summary>
-    /// The colours both Ridleys load for themselves and draw their body, tail and wings in: the sprite set whose shade
-    /// their health changes.
-    /// </summary>
-    internal static SpriteColouring OwnColours { get; } = new EncounterSpriteColouring(RidleyColourDefinitions.Health);
+    /// <summary>The colours the encounter has loaded over its sprites and its room (#1512).</summary>
+    internal RidleyColours Colours { get; } = new();
+    /// <summary>Whether Ridley's tail and wings draw in the hurt flash's colours this update.</summary>
+    internal bool SpritemapFlashing { get; set; }
+    /// <summary>Whether the common enemy draw path draws Ridley's body in the hurt flash's colours this update.</summary>
+    internal bool BodyFlashing { get; set; }
+    /// <summary>The shading Ridley's tail and wings draw in: his own colours, or the hurt flash's (#1512).</summary>
+    public PictureShading SpritemapShading => Colours.SpriteShading(SpritemapFlashing);
+    /// <summary>The shading the common enemy draw path draws Ridley's body in (#1512).</summary>
+    public PictureShading CommonDrawShading => Colours.SpriteShading(BodyFlashing);
     /// <summary>Gets whether shared body motion and wing/tail updates run; cleared when the intact death body is hidden.</summary>
     public bool MovementAnimationEnabled { get; internal set; }
     /// <summary>Gets the facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>

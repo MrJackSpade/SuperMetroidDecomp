@@ -128,7 +128,7 @@ internal static class SpriteDrawSmokeTests
                     ImageColourGroup.Every.Where(_ => random.Next(2) == 0).Aggregate(ImageColourGroups.None, (groups, group) => groups.With(group)), []);
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
-                    (SpriteMirror)random.Next(4), random.Next(3) == 0 ? DrawnColouring.InFixtureSet(random.Next(8)) : null));
+                    (SpriteMirror)random.Next(4)));
             }
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());
             PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,

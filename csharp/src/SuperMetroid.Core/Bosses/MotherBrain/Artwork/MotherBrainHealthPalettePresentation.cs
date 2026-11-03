@@ -41,24 +41,6 @@ public sealed class MotherBrainHealthPalettePresentation
             return (rgb8 * (30 - amount) + target * amount) / (30 * 8);
         });
     }
-    /// <summary>Calculates one damage-tinted color pair to the three colour destinations.</summary>
-    /// <param name="gameplayColours">Mutable destination; body colors replace indices 65..79 and 145..159, while rear-leg colors replace indices 177..191. Transparent palette slots remain unchanged.</param>
-    /// <param name="damageState">Zero-based health-band selector: zero for health at least 9000, one for 5400..8999, two for 1800..5399, and three below 1800; health selection itself remains in gameplay code.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="damageState"/> is outside zero through three.</exception>
-    public void Apply(GameplayColours gameplayColours, int damageState)
-    {
-        Ensure.NotNull(gameplayColours);
-        if ((uint)damageState >= MotherBrainHealthPaletteFormat.StateCount)
-            throw new ArgumentOutOfRangeException(nameof(damageState));
-        for (int color = 0; color < MotherBrainRainbowPaletteDefinitions.ColorCount; color++)
-        {
-            new MotherBrainColours(gameplayColours).Body.Write(color, body.Color(damageState, color));
-            new MotherBrainColours(gameplayColours).Brain.Write(color, body.Color(damageState, color));
-            new MotherBrainColours(gameplayColours).RearLegs.Write(color, backLegs.Color(damageState, color));
-        }
-    }
-
     /// <summary>
     /// RGB8 red tint with a shared one-unit quantization bias. Body strength is
     /// state*(state+1)/30; rear legs add 2/30 after state zero.

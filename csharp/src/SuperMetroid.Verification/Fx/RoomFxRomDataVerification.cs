@@ -144,7 +144,6 @@ internal static class RoomFxRomDataVerification
         var cgram = new GameplayColours(new SpriteColourSets());
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
-            PaletteBlendColors = presentation.RoomFxPaletteBlends,
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
         var state = new RoomLayer3FxState(stateSession);
@@ -321,7 +320,7 @@ internal static class RoomFxRomDataVerification
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
     internal static RoomLayer3FxState LoadSyntheticRoomFx(RoomFxSession session, TestAddressSpace bus,
         GameplayColours cgram, ushort pointer) =>
-        RoomLayer3FxState.ForDefinition(session, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
+        RoomLayer3FxState.ForDefinition(session, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
     private static RoomFxRecordDefinition ReadSyntheticRoomFxRecord(TestAddressSpace bus, ushort pointer)

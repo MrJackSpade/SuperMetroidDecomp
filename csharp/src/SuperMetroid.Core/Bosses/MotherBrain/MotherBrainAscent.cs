@@ -46,9 +46,7 @@ internal sealed class MotherBrainAscent
     {
         // The ascent installs colors 1..15 of the attack and back-leg palettes. Color zero
         // belongs to the room backdrop and must remain untouched.
-        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
-            "Mother Brain phase two requires installed room colors."))
-            .ApplyPhaseTwoInitial(_presentation.Colours);
+        state.Colours.Sprites.Lay(MotherBrainShades.PhaseTwo);
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
         // The transition shows her staged body, replacing the room's pipe background before the articulated body becomes

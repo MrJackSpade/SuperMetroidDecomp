@@ -682,18 +682,12 @@ internal sealed class PhantoonPatterns
         {
             state.Parts[eye.SlotIndex].FadeNumerator = 0;
             state.Parts[eye.SlotIndex].FadeComplete = true;
+            state.Colours.CompleteFade();
             return;
         }
 
-        for (int color = 0; color < 16; color++)
-        {
-            RgbColor current = _presentation.BossColours().PhantoonBody[color];
-            RgbColor target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
-                "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
-            _presentation.BossColours().PhantoonBody.Write(
-                color,
-                PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
-        }
+        // The fade's step is the import's shade of it, toward his faded-out colours (#1512).
+        state.Colours.Fade(PhantoonBodyLook.FadedOut, denominator, numerator);
         state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
     }
 

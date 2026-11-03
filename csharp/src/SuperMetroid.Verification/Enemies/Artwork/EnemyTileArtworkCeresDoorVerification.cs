@@ -38,28 +38,20 @@ internal static class EnemyTileArtworkCeresDoorVerification
             "the door's characters show where the cartridge's DMA lands them among the OBJ characters");
         AssertEqual(nativeTiles.Length, PlacedUploads.Of(CeresDoorCharacters.Shown).ByteCount, "the door shows all its characters");
 
-        var nativeColors = new SnesCgram();
-        var compiledColors = new GameplayColours(new SpriteColourSets());
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresSourceDefinitions.Door.NormalColors,
-            CeresDoorVisualDefinitions.SetupColorCount, CeresDoorVisualConstants.NormalTargetColor);
-        visual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(compiledColors));
-        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
-            "installed Ceres-door normal RGB5 palette matches the cartridge");
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresSourceDefinitions.Door.EscapeColors,
-            CeresDoorVisualDefinitions.SetupColorCount, CeresDoorVisualConstants.ActiveTargetColor);
-        visual.LoadEscapeColors(CeresDoorColourDefinitions.Active.In(compiledColors));
-        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
-            "installed Ceres-door escape RGB5 palette matches the cartridge");
+        // The installed colours, which the import pre-colours the doors' and elevator room's shades from (#1512), are
+        // the cartridge's words colour for colour.
+        for (int color = 0; color < CeresDoorVisualDefinitions.SetupColorCount; color++)
+        {
+            AssertEqual(Native(bus, CeresSourceDefinitions.Door.NormalColors + color * sizeof(ushort)), visual.NormalColor(color),
+                $"installed Ceres-door normal colour {color} matches the cartridge");
+            AssertEqual(Native(bus, CeresSourceDefinitions.Door.EscapeColors + color * sizeof(ushort)), visual.EscapeColor(color),
+                $"installed Ceres-door escape colour {color} matches the cartridge");
+        }
         for (int row = 0; row < CeresDoorVisualDefinitions.AnimationStepCount; row++)
         {
-            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus,
-                CeresSourceDefinitions.Door.AnimationColors +
-                    row * CeresSourceDefinitions.Door.AnimationRowBytes,
-                CeresDoorVisualDefinitions.AnimationColorCount,
-                CeresDoorVisualConstants.AnimationTargetColor);
-            visual.LoadAnimationColors(compiledColors.BackgroundSets, row);
-            AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
-                $"installed Ceres-door animated RGB5 row {row} matches the cartridge");
+            for (int color = 0; color < CeresDoorVisualDefinitions.AnimationColorCount; color++)
+                AssertEqual(Native(bus, CeresSourceDefinitions.Door.AnimationColors + row * CeresSourceDefinitions.Door.AnimationRowBytes + color * sizeof(ushort)),
+                    visual.AnimationColor(row, color), $"installed Ceres-door animated row {row} colour {color} matches the cartridge");
         }
         // The platform's strips are pictures of the room's floor (#1467); the import pictures each from the native transfer.
         CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
@@ -122,16 +114,16 @@ internal static class EnemyTileArtworkCeresDoorVerification
         CeresDoorVisuals edited = editedDoor.Visuals;
         AssertEqual((byte)(nativeTiles[0] ^ 0x80), editedDoor.Characters.Span[0],
             "Ceres-door PNG override changes the live first tile pixel");
-        var editedCgram = new GameplayColours(new SpriteColourSets());
-        edited.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(editedCgram));
-        AssertTrue(editedCgram.Colors[CeresDoorVisualConstants.NormalTargetColor] !=
-            compiledColors.Colors[CeresDoorVisualConstants.NormalTargetColor],
-            "Ceres-door palette override changes the live normal color");
-        edited.LoadAnimationColors(editedCgram.BackgroundSets, 0);
-        var stockAnimationCgram = new GameplayColours(new SpriteColourSets());
-        visual.LoadAnimationColors(stockAnimationCgram.BackgroundSets, 0);
-        AssertTrue(editedCgram.Colors[CeresDoorVisualConstants.AnimationTargetColor] !=
-            stockAnimationCgram.Colors[CeresDoorVisualConstants.AnimationTargetColor],
-            "Ceres-door animation override changes the live selected frame");
+        AssertTrue(edited.NormalColor(0) != visual.NormalColor(0),
+            "Ceres-door palette override changes the installed normal colour");
+        AssertTrue(edited.AnimationColor(0, 0) != visual.AnimationColor(0, 0),
+            "Ceres-door animation override changes the installed first glow step");
+    }
+
+    /// <summary>The colour the cartridge's colour word at <paramref name="address"/> holds: five bits each of red, green and blue.</summary>
+    private static RgbColor Native(ISnesAddressSpace bus, int address)
+    {
+        int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        return new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31);
     }
 }

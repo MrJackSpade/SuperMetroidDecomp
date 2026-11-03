@@ -6,9 +6,9 @@ internal static class EnemyArtworkClosedContractDefinitions
     /// <summary>Constrains ordinary enemy sheets and palettes to the installed catalog and its reviewed source owners.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog", "installed-enemy-sheets-and-palettes", ["LoadTo", "LoadPaletteTo"],
+        new("SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork", "installed-enemy-sheets-and-palettes", ["TryGetPalette", "PaletteOf"],
             [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtwork.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyTileSourceArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyGameplayArtworkParts.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyTileSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyTileSources.cs"),
@@ -24,7 +24,7 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipFrameEvent.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipLoadScenario.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/Artwork/RoomCharacterAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyPaletteSheet.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyPaletteSheet.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/Artwork/CeresEscapeTileArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/Artwork/CeresEscapeTileArtworkDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresEscapeOverlays.cs"),

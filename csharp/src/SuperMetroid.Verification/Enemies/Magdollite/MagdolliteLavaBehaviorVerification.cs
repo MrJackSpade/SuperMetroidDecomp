@@ -29,7 +29,7 @@ internal static class MagdolliteLavaBehaviorVerification
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.TileIndexBase = 256;
-        source.Colouring = SpriteColouring.InFixtureSet(6);
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
         enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
         foreach ((ushort direction, MagdolliteLavaProgram program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaProgram.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaProgram.Right) })

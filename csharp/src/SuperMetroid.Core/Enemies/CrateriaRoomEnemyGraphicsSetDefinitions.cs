@@ -9,151 +9,151 @@ internal static class CrateriaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.EastOcean), [
-            new(EnemyDefinitionId.Choot, ColourStore: new(1)),
-            new(EnemyDefinitionId.Skultera, ColourStore: new(2)),
-            new(EnemyDefinitionId.Kamer2, ColourStore: new(3)),
+            new(EnemyDefinitionId.Choot),
+            new(EnemyDefinitionId.Skultera),
+            new(EnemyDefinitionId.Kamer2),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaPowerBombs), [
-            new(EnemyDefinitionId.Alcoon, ColourStore: new(1)),
-            new(EnemyDefinitionId.Zero, ColourStore: new(1)),
+            new(EnemyDefinitionId.Alcoon),
+            new(EnemyDefinitionId.Zero),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Terminator), [
-            new(EnemyDefinitionId.Waver, ColourStore: new(1)),
-            new(EnemyDefinitionId.Zoomer, ColourStore: new(2)),
+            new(EnemyDefinitionId.Waver),
+            new(EnemyDefinitionId.Zoomer),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombway1), [
-            new(EnemyDefinitionId.FaceBlock, ColourStore: new(7)),
-            new(EnemyDefinitionId.Stoke, ColourStore: new(7)),
+            new(EnemyDefinitionId.FaceBlock),
+            new(EnemyDefinitionId.Stoke),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissileBombway0), [
-            new(EnemyDefinitionId.FaceBlock, ColourStore: new(7)),
-            new(EnemyDefinitionId.Stoke, ColourStore: new(7)),
+            new(EnemyDefinitionId.FaceBlock),
+            new(EnemyDefinitionId.Stoke),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Parlor1), [
-            new(EnemyDefinitionId.Zoomer, ColourStore: new(1)),
-            new(EnemyDefinitionId.Skree, ColourStore: new(2)),
-            new(EnemyDefinitionId.Ripper, ColourStore: new(3)),
+            new(EnemyDefinitionId.Zoomer),
+            new(EnemyDefinitionId.Skree),
+            new(EnemyDefinitionId.Ripper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Flyway01), [
-            new(EnemyDefinitionId.Waver, ColourStore: new(1)),
-            new(EnemyDefinitionId.Mellow, ColourStore: new(2)),
+            new(EnemyDefinitionId.Waver),
+            new(EnemyDefinitionId.Mellow),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Pit1), [
-            new(EnemyDefinitionId.PirateGreyWalking, ColourStore: new(1)),
-            new(EnemyDefinitionId.PirateGreyWall, ColourStore: new(2)),
+            new(EnemyDefinitionId.PirateGreyWalking),
+            new(EnemyDefinitionId.PirateGreyWall),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GauntletEntrance), [
-            new(EnemyDefinitionId.YappingMaw, ColourStore: new(1)),
-            new(EnemyDefinitionId.Waver, ColourStore: new(2)),
+            new(EnemyDefinitionId.YappingMaw),
+            new(EnemyDefinitionId.Waver),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizo01), [
-            new(EnemyDefinitionId.BombTorizo, ColourStore: new(1)),
+            new(EnemyDefinitionId.BombTorizo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft), [
-            new(EnemyDefinitionId.PirateGreenWalking, ColourStore: new(1)),
-            new(EnemyDefinitionId.Beetom, ColourStore: new(2)),
+            new(EnemyDefinitionId.PirateGreenWalking),
+            new(EnemyDefinitionId.Beetom),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarElev), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissile0), [
-            new(EnemyDefinitionId.Eye, ColourStore: new(1)),
+            new(EnemyDefinitionId.Eye),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaMap), [
-            new(EnemyDefinitionId.BombTorizo, ColourStore: new(1)),
+            new(EnemyDefinitionId.BombTorizo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FinalMissile1), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Climb2), [
-            new(EnemyDefinitionId.PirateSilverNinja, ColourStore: new(2)),
+            new(EnemyDefinitionId.PirateSilverNinja),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElbow), [
-            new(EnemyDefinitionId.FaceBlock, ColourStore: new(1)),
+            new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Moat), [
-            new(EnemyDefinitionId.FaceBlock, ColourStore: new(1)),
+            new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Climb0), [
-            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
-            new(EnemyDefinitionId.FaceBlock, ColourStore: new(7)),
+            new(EnemyDefinitionId.Sbug),
+            new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WestOcean), [
-            new(EnemyDefinitionId.Skultera, ColourStore: new(1)),
-            new(EnemyDefinitionId.Zeb, ColourStore: new(2)),
-            new(EnemyDefinitionId.GRipper, ColourStore: new(3)),
-            new(EnemyDefinitionId.Tripper, ColourStore: new(7)),
+            new(EnemyDefinitionId.Skultera),
+            new(EnemyDefinitionId.Zeb),
+            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.Tripper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Parlor0), [
-            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
+            new(EnemyDefinitionId.Sbug),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSite012), [
-            new(EnemyDefinitionId.ShipTop, ColourStore: new(2)),
-            new(EnemyDefinitionId.ShipBottomEntrance, ColourStore: new(7)),
+            new(EnemyDefinitionId.ShipTop),
+            new(EnemyDefinitionId.ShipBottomEntrance),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaSuper), [
-            new(EnemyDefinitionId.Boyon, ColourStore: new(1)),
-            new(EnemyDefinitionId.YappingMaw, ColourStore: new(2)),
+            new(EnemyDefinitionId.Boyon),
+            new(EnemyDefinitionId.YappingMaw),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PreBowling), [
-            new(EnemyDefinitionId.HZoomer, ColourStore: new(1)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(1)),
+            new(EnemyDefinitionId.HZoomer),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Climb1), [
-            new(EnemyDefinitionId.PirateGreyWall, ColourStore: new(1)),
+            new(EnemyDefinitionId.PirateGreyWall),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BowlingAlleyPath), [
-            new(EnemyDefinitionId.Waver, ColourStore: new(1)),
-            new(EnemyDefinitionId.Choot, ColourStore: new(7)),
+            new(EnemyDefinitionId.Waver),
+            new(EnemyDefinitionId.Choot),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedBinstarElev), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GauntletETank), [
-            new(EnemyDefinitionId.YappingMaw, ColourStore: new(1)),
-            new(EnemyDefinitionId.Zebbo, ColourStore: new(2)),
+            new(EnemyDefinitionId.YappingMaw),
+            new(EnemyDefinitionId.Zebbo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Pit0), [
-            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
-            new(EnemyDefinitionId.FaceBlock, ColourStore: new(7)),
+            new(EnemyDefinitionId.Sbug),
+            new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrabMaze), [
-            new(EnemyDefinitionId.Sciser, ColourStore: new(7)),
-            new(EnemyDefinitionId.Puyo, ColourStore: new(7)),
+            new(EnemyDefinitionId.Sciser),
+            new(EnemyDefinitionId.Puyo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaTube), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayKagos), [
-            new(EnemyDefinitionId.Kago, ColourStore: new(1)),
+            new(EnemyDefinitionId.Kago),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ElevToBlueBrinstar), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ForgottenHighwayElev), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PreMapFlyway), [
-            new(EnemyDefinitionId.Mellow, ColourStore: new(1)),
-            new(EnemyDefinitionId.Rio, ColourStore: new(2)),
+            new(EnemyDefinitionId.Mellow),
+            new(EnemyDefinitionId.Rio),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LowerMushrooms), [
-            new(EnemyDefinitionId.Kago, ColourStore: new(2)),
-            new(EnemyDefinitionId.MZoomer, ColourStore: new(3)),
+            new(EnemyDefinitionId.Kago),
+            new(EnemyDefinitionId.MZoomer),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LandingSite3), [
-            new(EnemyDefinitionId.ShipTop, ColourStore: new(2)),
-            new(EnemyDefinitionId.ShipBottomEntrance, ColourStore: new(7)),
+            new(EnemyDefinitionId.ShipTop),
+            new(EnemyDefinitionId.ShipBottomEntrance),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Parlor2), [
-            new(EnemyDefinitionId.Sbug, ColourStore: new(7)),
+            new(EnemyDefinitionId.Sbug),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BombTorizo2), [
-            new(EnemyDefinitionId.EtecoonEscape, ColourStore: new(1)),
-            new(EnemyDefinitionId.DachoraEscape, ColourStore: new(7)),
+            new(EnemyDefinitionId.EtecoonEscape),
+            new(EnemyDefinitionId.DachoraEscape),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Flyway2), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrateriaKihunter), [
-            new(EnemyDefinitionId.KihunterGreen, ColourStore: new(1)),
-            new(EnemyDefinitionId.Sciser, ColourStore: new(2)),
-            new(EnemyDefinitionId.Zero, ColourStore: new(2)),
+            new(EnemyDefinitionId.KihunterGreen),
+            new(EnemyDefinitionId.Sciser),
+            new(EnemyDefinitionId.Zero),
         ]),
     ];
 }

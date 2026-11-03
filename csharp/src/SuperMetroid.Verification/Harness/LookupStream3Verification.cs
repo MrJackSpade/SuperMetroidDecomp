@@ -77,6 +77,8 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Escape.Artwork;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Verification.Bosses;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {
@@ -2198,17 +2200,11 @@ internal static class LookupStream3Verification
             new MemoryStream(WorkRobotPaletteCycleFile.Write(document), writable: false));
         void Check(WorkRobotPaletteCycle cycle)
         {
-            var cgram = new GameplayColours(new SpriteColourSets());
             for (int frame = 0; frame < 6; frame++)
             {
-                cycle.ApplyFrame(cgram.SpriteSets.Set(0).Slice(9, 4), frame);
                 for (int color = 0; color < 4; color++)
-                {
                     AssertEqual(words[frame][color], cycle.Resolve(frame, color),
                         "stream 3 Work Robot selected color");
-                    AssertEqual(words[frame][color], cgram.Colors[128 + 9 + color],
-                        "stream 3 Work Robot applied color");
-                }
             }
             string expectedIdentity = SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1",
                 content => content.AppendWordFrames("frames", words));

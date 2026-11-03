@@ -1,67 +1,114 @@
-using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
-/// Verification access at the native boundary (#1464): the sprite palette rows actors' colourings occupy, for checks that
-/// compare against the cartridge's palette words, and the colourings a native row denotes under a loaded graphics set,
-/// for checks that import native state.
+/// Verification access at the native boundary (#1464, #1512): the sprite palette row the cartridge would select for an
+/// actor's draw, for checks that compare against its palette words, and the shading a native row denotes for an actor,
+/// for checks that import native state. Rows are the import's knowledge (<see cref="GraphicsSetRows"/>); gameplay names
+/// shades only.
 /// </summary>
 internal static class SpriteColouringAccess
 {
-    /// <summary>The shared set each role row holds, which a row imported or recorded as a number denotes.</summary>
-    private static readonly Dictionary<int, SharedSpriteColouring> RoleRows = new()
+    /// <summary>The shared row each selection shade selects, which a draw showing it selects on the cartridge.</summary>
+    private static readonly Dictionary<PictureShade, int> ShadeRows = new()
     {
-        [SpriteColourSetDefinitions.Common.Set] = SharedSpriteColouring.Common,
-        [SpriteColourSetDefinitions.EnemyProjectiles.Set] = SharedSpriteColouring.EnemyProjectiles,
-        [SpriteColourSetDefinitions.Frozen.Set] = SharedSpriteColouring.Frozen,
+        [EnemyShades.HitFlash] = EnemySheetRowDefinitions.Common,
+        [EnemyShades.EnemyProjectileColours] = EnemySheetRowDefinitions.EnemyProjectiles,
+        [EnemyShades.Frozen] = EnemySheetRowDefinitions.Beams,
+        [NinjaSpacePirateShades.GoldWall] = EnemySheetRowDefinitions.NinjaGoldWall,
+        [CeresDoorShades.Normal] = EnemySheetRowDefinitions.CeresDoorActive,
+        [CeresDoorShades.Escaping] = EnemySheetRowDefinitions.CeresDoorActive,
+        [TourianCorpseShades.Drained] = EnemySheetRowDefinitions.DrainedCorpses,
     };
+
+    /// <summary>
+    /// The row a draw under <paramref name="shading"/> selects, for a sprite whose sheet is coloured in
+    /// <paramref name="standardRow"/>: the row its last selection shade selects, otherwise the sheet's own.
+    /// </summary>
+    internal static int RowSelectedBy(PictureShading shading, int standardRow) => SelectedRow(shading) ?? standardRow;
+
+    /// <summary>The row the last selection shade of <paramref name="shading"/> selects, or null when it selects none.</summary>
+    internal static int? SelectedRow(PictureShading shading)
+    {
+        Ensure.NotNull(shading);
+        int? row = null;
+        foreach (PictureShade shade in shading.Shades)
+        {
+            if (ShadeRows.TryGetValue(shade, out int selected))
+                row = selected;
+        }
+        return row;
+    }
+
+    /// <summary>
+    /// The shading a native row <paramref name="row"/> denotes for a sprite whose sheet is coloured in
+    /// <paramref name="standardRow"/>: its standard colours in its own row, otherwise the shared selection the row is.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The row is neither the sprite's own nor a shared selection's.</exception>
+    internal static PictureShading ShadingInRow(int row, int standardRow)
+    {
+        if (row == standardRow)
+            return PictureShading.Standard;
+        return row switch
+        {
+            EnemySheetRowDefinitions.Common => EnemyShades.HitFlashed,
+            EnemySheetRowDefinitions.EnemyProjectiles => EnemyShades.InEnemyProjectileColours,
+            EnemySheetRowDefinitions.Beams => EnemyShades.FrozenLook,
+            _ => throw new InvalidDataException($"Native palette row {row} is neither the sprite's own row {standardRow} nor a shared selection's."),
+        };
+    }
 
     /// <summary>Rows of an enemy's colours.</summary>
     extension(RoomEnemySlot self)
     {
-        /// <summary>The row holding the slot's colours under <paramref name="enemies"/>' loaded graphics set.</summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.StoreOf(self.Colouring).Set;
+        /// <summary>The row the slot's draws select under <paramref name="enemies"/>' loaded graphics set.</summary>
+        internal int PaletteRowIn(RoomEnemySystem enemies) =>
+            RowSelectedBy(self.Shading, enemies.GraphicsSet.DrawRow(self.DefinitionId));
 
-        /// <summary>Gives the slot the colours native row <paramref name="row"/> denotes under <paramref name="enemies"/>' loaded set.</summary>
-        internal void SetPaletteRow(RoomEnemySystem enemies, int row) => self.Colouring = enemies.GraphicsSet.ColouringInRow(row);
+        /// <summary>Gives the slot the shading native row <paramref name="row"/> denotes under <paramref name="enemies"/>' loaded set.</summary>
+        internal void SetPaletteRow(RoomEnemySystem enemies, int row) =>
+            self.Shading = ShadingInRow(row, enemies.GraphicsSet.DrawRow(self.DefinitionId));
     }
 
     /// <summary>Rows of a sprite's graphics.</summary>
     extension(SpriteGraphics self)
     {
-        /// <summary>The row holding the graphics' colours under <paramref name="enemies"/>' loaded graphics set.</summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => enemies.Presentation.Placement.StoreOf(self.Colouring).Set;
+        /// <summary>
+        /// The row the graphics' draws select under <paramref name="enemies"/>' loaded graphics set: their sheet's, the row
+        /// of the member drawing at their tile base or the common row at character zero, unless a selection shade names another.
+        /// </summary>
+        internal int PaletteRowIn(RoomEnemySystem enemies) => RowSelectedBy(self.Shading, enemies.GraphicsSet.RowAtTileBase(self.TileBase));
 
-        /// <summary>The row holding colours that need no graphics set: a shared role's or an encounter's.</summary>
-        internal int FixedPaletteRow => GraphicsSetColourPlacement.FixedStore(self.Colouring).Set;
+        /// <summary>The row graphics at character zero select: the common row, unless a selection shade names another.</summary>
+        internal int FixedPaletteRow => RowSelectedBy(self.Shading, EnemySheetRowDefinitions.Common);
     }
 
     /// <summary>Rows of a loaded graphics set's members.</summary>
     extension(EnemyGraphicsSet self)
     {
-        /// <summary>The row holding the colours <paramref name="enemy"/> draws in under the set.</summary>
-        internal int DrawRow(EnemyDefinitionId enemy) => self.Placement.StoreOf(self.DrawIndexes(enemy).Colouring).Set;
+        /// <summary>The row <paramref name="enemy"/>'s sheets are coloured in under the set.</summary>
+        internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(self.LoadedSet).RowOf(enemy);
 
-        /// <summary>
-        /// The colouring native sprite palette row <paramref name="row"/> denotes under the set, for state imported as
-        /// rows: the shared set its role places there, the member the set loaded into it last, whose colours it holds,
-        /// or, for a row neither names, a fixture colouring held in that row. The set's placement places the result back
-        /// in <paramref name="row"/>.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The row is not a sprite palette row.</exception>
-        internal SpriteColouring ColouringInRow(int row)
+        /// <summary>The row of the first member drawing at tile base <paramref name="tileBase"/>, or the common row at character zero.</summary>
+        internal int RowAtTileBase(int tileBase)
         {
-            Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, row);
-            if (RoleRows.TryGetValue(row, out SharedSpriteColouring? role))
-                return role;
-            for (int index = self.Entries.Count - 1; index >= 0; index--)
+            if (tileBase == 0)
+                return EnemySheetRowDefinitions.Common;
+            foreach (RoomEnemyGraphicsSetEntry entry in self.Entries)
             {
-                if (self.Entries[index].ColourStore.Set == row)
-                    return new GraphicsSetMemberColouring(self.Entries[index].DefinitionId);
+                if (self.DrawIndexes(entry.DefinitionId).TileBase == tileBase)
+                    return self.DrawRow(entry.DefinitionId);
             }
-            return SpriteColouring.InFixtureSet(row);
+            throw new InvalidDataException($"No member of graphics set {self.LoadedSet.Name} draws at tile base {tileBase}.");
         }
+
+        /// <summary>The shading native row <paramref name="row"/> denotes for a sprite drawn by <paramref name="owner"/> under the set.</summary>
+        internal PictureShading ShadingInRow(int row, EnemyDefinitionId owner) => SpriteColouringAccess.ShadingInRow(row, self.DrawRow(owner));
     }
 }

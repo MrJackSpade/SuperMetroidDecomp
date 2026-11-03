@@ -7,45 +7,45 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.GrappleTutorial3), [
-            new(EnemyDefinitionId.Gamet, ColourStore: new(1)),
-            new(EnemyDefinitionId.Puyo, ColourStore: new(2)),
+            new(EnemyDefinitionId.Gamet),
+            new(EnemyDefinitionId.Puyo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocShaft), [
-            new(EnemyDefinitionId.Viola, ColourStore: new(1)),
+            new(EnemyDefinitionId.Viola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MetalPirates), [
-            new(EnemyDefinitionId.PirateGoldNinja, ColourStore: new(1)),
+            new(EnemyDefinitionId.PirateGoldNinja),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.AcidStatue), [
-            new(EnemyDefinitionId.Chozo, ColourStore: new(1)),
-            new(EnemyDefinitionId.Magdollite, ColourStore: new(3)),
-            new(EnemyDefinitionId.Holtz, ColourStore: new(7)),
+            new(EnemyDefinitionId.Chozo),
+            new(EnemyDefinitionId.Magdollite),
+            new(EnemyDefinitionId.Holtz),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PurpleFarming), [
-            new(EnemyDefinitionId.Gamet, ColourStore: new(1)),
+            new(EnemyDefinitionId.Gamet),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeamGate), [
-            new(EnemyDefinitionId.ShutterGrowing, ColourStore: new(1)),
-            new(EnemyDefinitionId.Dessgeega, ColourStore: new(2)),
-            new(EnemyDefinitionId.Mella, ColourStore: new(3)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(7)),
+            new(EnemyDefinitionId.ShutterGrowing),
+            new(EnemyDefinitionId.Dessgeega),
+            new(EnemyDefinitionId.Mella),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyAcidSnakesTunnel), [
-            new(EnemyDefinitionId.YappingMaw, ColourStore: new(1)),
+            new(EnemyDefinitionId.YappingMaw),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedKihunterShaft), [
-            new(EnemyDefinitionId.KihunterRed, ColourStore: new(1)),
-            new(EnemyDefinitionId.Reflec, ColourStore: new(2)),
+            new(EnemyDefinitionId.KihunterRed),
+            new(EnemyDefinitionId.Reflec),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FastRipper), [
-            new(EnemyDefinitionId.Ripper2, ColourStore: new(1)),
+            new(EnemyDefinitionId.Ripper2),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WaveBeam), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FastPillarsSetup), [
-            new(EnemyDefinitionId.PirateGoldWall, ColourStore: new(1)),
-            new(EnemyDefinitionId.PirateGoldWalking, ColourStore: new(2)),
-            new(EnemyDefinitionId.Viola, ColourStore: new(3)),
+            new(EnemyDefinitionId.PirateGoldWall),
+            new(EnemyDefinitionId.PirateGoldWalking),
+            new(EnemyDefinitionId.Viola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LowerNorfairElev), [
         ]),
@@ -56,14 +56,14 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.NorfairMap), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MickeyMouse), [
-            new(EnemyDefinitionId.DessgeegaLarge, ColourStore: new(1)),
-            new(EnemyDefinitionId.Multiviola, ColourStore: new(2)),
+            new(EnemyDefinitionId.DessgeegaLarge),
+            new(EnemyDefinitionId.Multiviola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GTEnergyRefill), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Ridley), [
-            new(EnemyDefinitionId.Ridley, ColourStore: new(1)),
-            new(EnemyDefinitionId.RidleyExplosion, ColourStore: new(1), StagingBlock: 2),
+            new(EnemyDefinitionId.Ridley),
+            new(EnemyDefinitionId.RidleyExplosion, StagingBlock: 2),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocPowerBombs), [
         ]),
@@ -74,69 +74,69 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FrogSpeedway), [
-            new(EnemyDefinitionId.Beetom, ColourStore: new(1)),
+            new(EnemyDefinitionId.Beetom),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RisingTide), [
-            new(EnemyDefinitionId.Squeept, ColourStore: new(1)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(2)),
-            new(EnemyDefinitionId.Dragon, ColourStore: new(3)),
+            new(EnemyDefinitionId.Squeept),
+            new(EnemyDefinitionId.Sova),
+            new(EnemyDefinitionId.Dragon),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocFarming), [
-            new(EnemyDefinitionId.Gamet, ColourStore: new(1)),
-            new(EnemyDefinitionId.GRipper, ColourStore: new(2)),
-            new(EnemyDefinitionId.Kamer2, ColourStore: new(3)),
+            new(EnemyDefinitionId.Gamet),
+            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.Kamer2),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WorstRoomInTheGame), [
-            new(EnemyDefinitionId.Namihe, ColourStore: new(1)),
-            new(EnemyDefinitionId.PirateGoldWall, ColourStore: new(2)),
-            new(EnemyDefinitionId.PirateGoldWalking, ColourStore: new(3)),
+            new(EnemyDefinitionId.Namihe),
+            new(EnemyDefinitionId.PirateGoldWall),
+            new(EnemyDefinitionId.PirateGoldWalking),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.DoubleChamber), [
-            new(EnemyDefinitionId.Fune, ColourStore: new(1)),
-            new(EnemyDefinitionId.Kamer, ColourStore: new(2)),
-            new(EnemyDefinitionId.Kago, ColourStore: new(3)),
-            new(EnemyDefinitionId.GRipper, ColourStore: new(7)),
+            new(EnemyDefinitionId.Fune),
+            new(EnemyDefinitionId.Kamer),
+            new(EnemyDefinitionId.Kago),
+            new(EnemyDefinitionId.GRipper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GrappleBeam), [
-            new(EnemyDefinitionId.Multiviola, ColourStore: new(1)),
+            new(EnemyDefinitionId.Multiviola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedPirateShaft), [
-            new(EnemyDefinitionId.PirateRedWalking, ColourStore: new(1)),
-            new(EnemyDefinitionId.MZoomer, ColourStore: new(3)),
+            new(EnemyDefinitionId.PirateRedWalking),
+            new(EnemyDefinitionId.MZoomer),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrocomireSpeedway), [
-            new(EnemyDefinitionId.PirateRedWalking, ColourStore: new(1)),
-            new(EnemyDefinitionId.Multiviola, ColourStore: new(2)),
-            new(EnemyDefinitionId.Cacatac, ColourStore: new(3)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(3)),
+            new(EnemyDefinitionId.PirateRedWalking),
+            new(EnemyDefinitionId.Multiviola),
+            new(EnemyDefinitionId.Cacatac),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Plowerhouse), [
-            new(EnemyDefinitionId.Zebbo, ColourStore: new(1)),
-            new(EnemyDefinitionId.Holtz, ColourStore: new(7)),
+            new(EnemyDefinitionId.Zebbo),
+            new(EnemyDefinitionId.Holtz),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LNFireflea), [
-            new(EnemyDefinitionId.Fireflea, ColourStore: new(1)),
-            new(EnemyDefinitionId.Boulder, ColourStore: new(2)),
-            new(EnemyDefinitionId.Fune, ColourStore: new(3)),
+            new(EnemyDefinitionId.Fireflea),
+            new(EnemyDefinitionId.Boulder),
+            new(EnemyDefinitionId.Fune),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MagdolliteTunnel), [
-            new(EnemyDefinitionId.Multiviola, ColourStore: new(1)),
-            new(EnemyDefinitionId.Magdollite, ColourStore: new(7)),
+            new(EnemyDefinitionId.Multiviola),
+            new(EnemyDefinitionId.Magdollite),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.UnusedState8FB3EEB48899), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LavaDive), [
-            new(EnemyDefinitionId.Namihe, ColourStore: new(1)),
+            new(EnemyDefinitionId.Namihe),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Pillar), [
-            new(EnemyDefinitionId.Puromi, ColourStore: new(7)),
+            new(EnemyDefinitionId.Puromi),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrocomireEscape), [
-            new(EnemyDefinitionId.Dragon, ColourStore: new(1)),
-            new(EnemyDefinitionId.Geruta, ColourStore: new(2)),
+            new(EnemyDefinitionId.Dragon),
+            new(EnemyDefinitionId.Geruta),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LNSpringBallMaze), [
-            new(EnemyDefinitionId.Alcoon, ColourStore: new(1)),
+            new(EnemyDefinitionId.Alcoon),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LNEscapePowerBombs), [
         ]),
@@ -147,132 +147,132 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.ScrewAttack), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBubblesMissiles), [
-            new(EnemyDefinitionId.ShutterShootable, ColourStore: new(7)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(2)),
-            new(EnemyDefinitionId.Geruta, ColourStore: new(3)),
+            new(EnemyDefinitionId.ShutterShootable),
+            new(EnemyDefinitionId.Sova),
+            new(EnemyDefinitionId.Geruta),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Amphitheatre), [
-            new(EnemyDefinitionId.PirateGoldWalking, ColourStore: new(7)),
+            new(EnemyDefinitionId.PirateGoldWalking),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CathedralEntrance), [
-            new(EnemyDefinitionId.Sova, ColourStore: new(1)),
-            new(EnemyDefinitionId.Dessgeega, ColourStore: new(2)),
+            new(EnemyDefinitionId.Sova),
+            new(EnemyDefinitionId.Dessgeega),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MainHall), [
-            new(EnemyDefinitionId.Hibashi, ColourStore: new(1)),
-            new(EnemyDefinitionId.Dragon, ColourStore: new(7)),
-            new(EnemyDefinitionId.Gamet, ColourStore: new(7)),
+            new(EnemyDefinitionId.Hibashi),
+            new(EnemyDefinitionId.Dragon),
+            new(EnemyDefinitionId.Gamet),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocJump), [
-            new(EnemyDefinitionId.Mella, ColourStore: new(1)),
-            new(EnemyDefinitionId.GRipper, ColourStore: new(2)),
-            new(EnemyDefinitionId.Kamer2, ColourStore: new(3)),
+            new(EnemyDefinitionId.Mella),
+            new(EnemyDefinitionId.GRipper),
+            new(EnemyDefinitionId.Kamer2),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FrogSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrocomireSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrumbleShaft), [
-            new(EnemyDefinitionId.Sova, ColourStore: new(1)),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Wasteland), [
-            new(EnemyDefinitionId.Hibashi, ColourStore: new(1)),
-            new(EnemyDefinitionId.DessgeegaLarge, ColourStore: new(2)),
-            new(EnemyDefinitionId.ShutterShootable, ColourStore: new(3)),
-            new(EnemyDefinitionId.KzanTop, ColourStore: new(7)),
+            new(EnemyDefinitionId.Hibashi),
+            new(EnemyDefinitionId.DessgeegaLarge),
+            new(EnemyDefinitionId.ShutterShootable),
+            new(EnemyDefinitionId.KzanTop),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.AcidSnakesTunnel), [
-            new(EnemyDefinitionId.Dragon, ColourStore: new(1)),
-            new(EnemyDefinitionId.Gamet, ColourStore: new(2)),
+            new(EnemyDefinitionId.Dragon),
+            new(EnemyDefinitionId.Gamet),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GrappleTutorial1), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BubbleMountainSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.HiJumpETank), [
-            new(EnemyDefinitionId.Sova, ColourStore: new(1)),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BubbleMountain), [
-            new(EnemyDefinitionId.Waver, ColourStore: new(1)),
-            new(EnemyDefinitionId.Ripper2, ColourStore: new(1)),
-            new(EnemyDefinitionId.Cacatac, ColourStore: new(2)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(2)),
+            new(EnemyDefinitionId.Waver),
+            new(EnemyDefinitionId.Ripper2),
+            new(EnemyDefinitionId.Cacatac),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeamAcid), [
-            new(EnemyDefinitionId.Tripper, ColourStore: new(7)),
+            new(EnemyDefinitionId.Tripper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeamTutorial), [
-            new(EnemyDefinitionId.Boyon, ColourStore: new(1)),
-            new(EnemyDefinitionId.Ripper2, ColourStore: new(2)),
+            new(EnemyDefinitionId.Boyon),
+            new(EnemyDefinitionId.Ripper2),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocMissile), [
-            new(EnemyDefinitionId.Metaree, ColourStore: new(1)),
-            new(EnemyDefinitionId.Gamet, ColourStore: new(2)),
+            new(EnemyDefinitionId.Metaree),
+            new(EnemyDefinitionId.Gamet),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Cathedral), [
-            new(EnemyDefinitionId.Sova, ColourStore: new(1)),
-            new(EnemyDefinitionId.Geruta, ColourStore: new(2)),
+            new(EnemyDefinitionId.Sova),
+            new(EnemyDefinitionId.Geruta),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.NorfairReserveTank), [
-            new(EnemyDefinitionId.Dragon, ColourStore: new(1)),
-            new(EnemyDefinitionId.Sova, ColourStore: new(2)),
+            new(EnemyDefinitionId.Dragon),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GrappleTutorial2), [
-            new(EnemyDefinitionId.Fune, ColourStore: new(1)),
-            new(EnemyDefinitionId.Multiviola, ColourStore: new(2)),
+            new(EnemyDefinitionId.Fune),
+            new(EnemyDefinitionId.Multiviola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.IceBeamSnake), [
-            new(EnemyDefinitionId.Sova, ColourStore: new(1)),
-            new(EnemyDefinitionId.Fune, ColourStore: new(2)),
+            new(EnemyDefinitionId.Sova),
+            new(EnemyDefinitionId.Fune),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GoldenTorizo), [
-            new(EnemyDefinitionId.GoldenTorizo, ColourStore: new(1)),
+            new(EnemyDefinitionId.GoldenTorizo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpikyPlatformsTunnel), [
-            new(EnemyDefinitionId.Tripper, ColourStore: new(7)),
-            new(EnemyDefinitionId.ShutterShootable, ColourStore: new(2)),
+            new(EnemyDefinitionId.Tripper),
+            new(EnemyDefinitionId.ShutterShootable),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpeedBooster), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LNFarming), [
-            new(EnemyDefinitionId.Viola, ColourStore: new(1)),
-            new(EnemyDefinitionId.Zebbo, ColourStore: new(7)),
+            new(EnemyDefinitionId.Viola),
+            new(EnemyDefinitionId.Zebbo),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SingleChamber), [
-            new(EnemyDefinitionId.Multiviola, ColourStore: new(1)),
-            new(EnemyDefinitionId.Alcoon, ColourStore: new(2)),
+            new(EnemyDefinitionId.Multiviola),
+            new(EnemyDefinitionId.Alcoon),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpeedBoosterHall), [
-            new(EnemyDefinitionId.Geruta, ColourStore: new(1)),
-            new(EnemyDefinitionId.Metaree, ColourStore: new(2)),
+            new(EnemyDefinitionId.Geruta),
+            new(EnemyDefinitionId.Metaree),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BatCave), [
-            new(EnemyDefinitionId.Gamet, ColourStore: new(1)),
-            new(EnemyDefinitionId.Skree, ColourStore: new(2)),
+            new(EnemyDefinitionId.Gamet),
+            new(EnemyDefinitionId.Skree),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.KronicBoost), [
-            new(EnemyDefinitionId.Viola, ColourStore: new(1)),
+            new(EnemyDefinitionId.Viola),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BusinessCenter), [
-            new(EnemyDefinitionId.Sova, ColourStore: new(2)),
+            new(EnemyDefinitionId.Sova),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ThreeMusketeers), [
-            new(EnemyDefinitionId.Hibashi, ColourStore: new(1)),
-            new(EnemyDefinitionId.KihunterRed, ColourStore: new(2)),
-            new(EnemyDefinitionId.ShutterShootable, ColourStore: new(3)),
+            new(EnemyDefinitionId.Hibashi),
+            new(EnemyDefinitionId.KihunterRed),
+            new(EnemyDefinitionId.ShutterShootable),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Crocomire), [
-            new(EnemyDefinitionId.Crocomire, ColourStore: new(7), StagingBlock: 1),
+            new(EnemyDefinitionId.Crocomire, StagingBlock: 1),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LNElevSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Volcano), [
-            new(EnemyDefinitionId.Fune, ColourStore: new(1)),
-            new(EnemyDefinitionId.LavaRocks, ColourStore: new(2)),
+            new(EnemyDefinitionId.Fune),
+            new(EnemyDefinitionId.LavaRocks),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.UpperNorfairFarming), [
-            new(EnemyDefinitionId.Fune, ColourStore: new(1)),
-            new(EnemyDefinitionId.Gamet, ColourStore: new(2)),
+            new(EnemyDefinitionId.Fune),
+            new(EnemyDefinitionId.Gamet),
         ]),
     ];
 }

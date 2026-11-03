@@ -1,6 +1,6 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -8,20 +8,14 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class CeresRidleyFades
 {
-    /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
-    private readonly EnemyPresentation _presentation;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives the battle music the finished body fade starts.</summary>
     private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyFades(EnemyPresentation presentation, BossArtworkBinding bossArtwork, EnemyAudioQueue audio)
+    internal CeresRidleyFades(EnemyAudioQueue audio)
     {
         _audio = audio;
-        _bossArtwork = bossArtwork;
-        _presentation = presentation;
     }
 
     /// <summary>Advances the eye-fade schedule one step on each AI call before enabling the body fade.</summary>
@@ -44,9 +38,7 @@ internal sealed class CeresRidleyFades
             return;
         }
 
-        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley eye fade requires installed colors."))
-            .ApplyEyeFade(_presentation.Colours, fadeStep.Shade);
+        state.Colours.Sprites.Lay(RidleyShades.EyeFade(fadeStep.Shade));
         state.FadeStep++;
     }
 
@@ -60,9 +52,8 @@ internal sealed class CeresRidleyFades
 
         // Each step of the body fade shows the next shade, from black to the full body colours.
         int shade = state.FadeStep;
-        if (_bossArtwork.CeresRidleyColors is { } bodyColors &&
-            shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
-            bodyColors.ApplyBodyFade(_presentation.Colours, shade);
+        if (shade < CeresRidleyPaletteDefinitions.BodyFadeShadeCount)
+            state.Colours.Sprites.Lay(RidleyShades.BodyFade(shade));
         else throw new InvalidOperationException(
             $"Ceres Ridley body-fade shade {shade} is outside the installed shades.");
         state.FadeStep++;

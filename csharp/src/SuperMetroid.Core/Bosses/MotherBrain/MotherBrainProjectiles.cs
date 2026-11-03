@@ -435,7 +435,7 @@ internal sealed class MotherBrainProjectiles
             WordWrap.Signed(ReadSignedSineSample(angle)) * 4));
         int animationIndex = ((angleOffset >> 4) & 30) >> 1;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
-        shard.Graphics = MotherBrainGlassShardDefinitions.Graphics;
+        shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(_motherBrainEncounter.Colours.SpriteShading);
 
         MotherBrainGlassShardPlacement placement =
             MotherBrainGlassShards.Placement(request.Shard);
@@ -486,7 +486,7 @@ internal sealed class MotherBrainProjectiles
         sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
             source.Position.X.Whole + (_room.Random.Generate() % 32) - 16), CoordinateAxis.Wrap(
             source.Position.Y.Whole + (_room.Random.Generate() % 32) - 16)));
-        sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics;
+        sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(_motherBrainEncounter.Colours.SpriteShading);
     }
 
     /// <summary>Reads the signed sine table as its raw two-byte sample.</summary>

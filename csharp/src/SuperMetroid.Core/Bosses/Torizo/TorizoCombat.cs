@@ -93,40 +93,34 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>Restores the normal body colours on alternating Bomb Torizo hurt frames.</summary>
-    private void LoadTorizoDeathPalette() =>
-        _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.Normal);
+    private static void LoadTorizoDeathPalette(RoomEnemySlot torizo, TorizoEnemyState state) =>
+        TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
 
     /// <summary>Selects Golden Torizo's body and belly health band from health bits 11 through 14.</summary>
-    private void LoadGoldenTorizoHealthPalette(int health)
+    private static void LoadGoldenTorizoHealthPalette(RoomEnemySlot torizo, TorizoEnemyState state, int health)
     {
         // The health gradient selects one of eight health bands using bits 11..14 of health, clamping
         // the upper half to the last band; each band resolves its colours from the installed health palettes.
         int healthBand = Ensure.BetweenInclusive(0, ushort.MaxValue, health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
-        var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
-            "Golden Torizo health palettes require installed artwork.");
-        ColourRun body = _presentation.BossColours().TorizoBody;
-        for (int color = 0; color < body.Count; color++)
-            body.Write(color, colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBody, band, color));
-        ColourRun belly = _presentation.BossColours().TorizoBelly;
-        for (int color = 0; color < belly.Count; color++)
-            belly.Write(color, colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.GoldenTorizoBelly, band, color));
+        TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
     }
 
     /// <summary>Runs Bomb Torizo's custom hurt callback.</summary>
     internal void ApplyBombTorizoHurt(RoomEnemySlot torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
+        TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
         if (!torizo.FlashTimer.IsInAlternatePhase(1))
         {
             if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
-                LoadGoldenTorizoHealthPalette(torizo.Health);
+                LoadGoldenTorizoHealthPalette(torizo, state, torizo.Health);
             else
-                LoadTorizoDeathPalette();
+                LoadTorizoDeathPalette(torizo, state);
         }
         else
         {
-            _presentation.BossColours().TorizoBodyAndBelly.Fill(RgbColor.White);
+            TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.White));
         }
     }
 

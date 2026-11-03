@@ -66,14 +66,9 @@ internal sealed class RuntimeArtwork
             field = value;
             _hud.BindPresentation(value?.GameplayHud, _player.Samus);
             _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
-            _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
-            _bossArtwork.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
-            _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;
-            _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
-            _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
             _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
         }
@@ -157,11 +152,8 @@ internal sealed class RuntimeArtwork
     }
 
 
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
-    /// <summary>Installed base room palettes, rebound when a saved game state is restored.</summary>
-    public RoomStaticPalettes? RoomPaletteArt { get; set; }
 
     /// <summary>Installed visual room layouts, rebound when a saved game state is restored.</summary>
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }

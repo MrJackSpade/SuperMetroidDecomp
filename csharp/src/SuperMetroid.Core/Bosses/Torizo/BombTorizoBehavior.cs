@@ -77,17 +77,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Health below which the later core-break list interrupts active AI.</summary>
     internal const int BombTorizoCoreExplosionHealth = 100;
 
-    /// <summary>Creates the per-statue gradual color transition against the live colours on first use.</summary>
-    private GradualPaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
-        state.PaletteTransition ??= new GradualPaletteTransition(
-            new ColourImage([.. TorizoBodyColours.Runs]), TorizoPaletteDefinitions.FadeDenominator, _presentation.GradualColorChange);
-
-    /// <summary>The body and belly colours the statue's fades change, body first.</summary>
-    private ColourRunSequence TorizoBodyColours => _presentation.BossColours().TorizoBodyAndBelly;
-
-    /// <summary>Sets the authored palette fade's target colors: the body's, then the belly's.</summary>
-    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<RgbColor> colors) =>
-        TorizoBodyColours.CopyInto(GetTorizoPaletteTransition(state).Target, colors);
+    /// <summary>Names the colouring the statue's fade runs toward (#1512).</summary>
+    private static void SetTorizoPaletteTarget(TorizoEnemyState state, TorizoLookKind look) =>
+        state.Colours.FadeToward(new TorizoLook(look));
 
     /// <summary>Ports <c>Torizo_Main</c> and its <c>toriz_var_E</c> dispatcher.</summary>
     private void RunBombTorizoMain(
@@ -287,7 +279,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FadeToBlack }:
-                SetTorizoPaletteTarget(state, new RgbColor[32]);
+                SetTorizoPaletteTarget(state, TorizoLookKind.Black);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FinishDeath }:
@@ -295,11 +287,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.AdvancePaletteFade }:
-                GetTorizoPaletteTransition(state).Step();
+                state.Colours.Step(_presentation.GradualColorChange);
+                torizo.Shading = state.Colours.Shading;
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.FadeToNormalColors }:
-                SetTorizoPaletteTarget(state, TorizoPaletteDefinitions.Normal);
+                SetTorizoPaletteTarget(state, TorizoLookKind.Normal);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
@@ -454,7 +447,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return torizo.Position.Y.Whole == 375 ? null : AnimationProgramCursor<TorizoBodyProgram>.Start(branch.Target);
 
             case TorizoCue.Command { Kind: TorizoCueKind.LoadGoldenTorizoPalettes }:
-                SetTorizoPaletteTarget(state, TorizoPaletteDefinitions.Golden);
+                SetTorizoPaletteTarget(state, TorizoLookKind.Golden);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:

@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 
@@ -43,14 +44,9 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { BotwoonColors = BotwoonColorFile.Read(colors) },
         };
-        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState()
-        {
-            // Retail Botwoon's head draws in its body's colours, which the health bands rewrite.
-            HealthColouring = new SuperMetroid.Core.Enemies.Drawing.EncounterSpriteColouring(SuperMetroid.Core.Bosses.Artwork.BossColourDefinitions.BotwoonBody),
-        };
+        var state = new BotwoonEnemyState();
 
         for (int phase = 0; phase < BotwoonHealthPaletteDefinitions.CompletePhase; phase++)
         {

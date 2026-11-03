@@ -36,6 +36,7 @@ using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hoppers;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Inert;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.KiHunters;
@@ -540,6 +541,33 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 
+    /// <inheritdoc />
+    IEnumerable<IGameplayShadingSource> IEnemyDisplaySources.ShadingSources
+    {
+        get
+        {
+            yield return CeresDoorBehavior;
+            yield return TourianEntranceStatueBehavior;
+            if (RidleyEncounter.Ridley is { } ridley)
+                yield return ridley.Colours;
+            if (MotherBrainEncounter.MotherBrain is { } motherBrain)
+                yield return motherBrain.Colours;
+            if (SporeSpawnBehavior.SporeSpawn is { } sporeSpawn)
+                yield return sporeSpawn.Colours;
+            if (PhantoonBehavior.Combat.Phantoon is { } phantoon)
+                yield return phantoon.Colours;
+            if (DraygonBehavior.Parts.Draygon is { } draygon)
+                yield return draygon.Colours;
+            if (CrocomireBehavior.Access.Crocomire is { } crocomire)
+                yield return crocomire.Colours;
+            if (KraidBehavior.Access.Kraid is { } kraid)
+            {
+                yield return kraid.Backdrop;
+                yield return kraid.Colours;
+            }
+        }
+    }
+
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
     internal IGrappleTargets GrappleTargets => GrappleBehavior;
 
@@ -603,7 +631,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, Presentation = Presentation, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision , BossArtwork = BossArtworkBinding });
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, SpriteObjects, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior(Presentation);
@@ -621,7 +649,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior(Audio);
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, DeadMonsters = DeadMonsters });
-        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, Presentation, ZebetiteBehavior, BossFrameResults, BossArtworkBinding, Audio);
+        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, ZebetiteBehavior, BossFrameResults, Audio);
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, SlotTable, Collision);
         SbugBehavior = new SbugBehavior(Room, Terrain);
         RipperBehavior = new RipperBehavior(Terrain);
@@ -644,7 +672,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         NoobTubeBehavior = new NoobTubeBehavior(Room, Projectiles);
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, SpriteObjects, Presentation, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
-        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = Dispatch, Room = Room, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter , BossArtwork = BossArtworkBinding });
+        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = Dispatch, Room = Room, Audio = Audio, SlotTable = SlotTable, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
         MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, SpriteObjects, FrameContext, DeathsAndDrops);
@@ -1454,17 +1482,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             context => Collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
 }
 
-
-    /// <summary>
-    /// Publishes enemy-authored target colors to the current room-fade owner. Only written
-    /// entries are transferred: untouched HUD, suit, and room rows retain their own targets.
-    /// The current colours must not be changed by instructions which target the fade buffer.
-    /// </summary>
-    internal void ConsumeTargetPaletteWrites(Action<SporeSpawnStagedColour> write)
-    {
-        Ensure.NotNull(write);
-        SporeSpawnBehavior.ConsumeTargetColors(write);
-    }
 
     /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
     /// <remarks>Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt

@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Fx;
 /// <param name="State">The state.</param>
 /// <param name="Bus">The bus.</param>
 /// <param name="Cgram">The cgram.</param>
-internal readonly record struct ConstructBlendLoadResult(RoomLayer3FxState State, CartridgeReadGuard Bus, GameplayColours Cgram);
+internal readonly record struct ConstructBlendLoadResult(RoomLayer3FxState State, CartridgeReadGuard Bus);

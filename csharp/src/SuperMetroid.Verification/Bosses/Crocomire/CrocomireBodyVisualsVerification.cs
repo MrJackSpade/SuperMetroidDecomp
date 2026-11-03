@@ -241,10 +241,10 @@ internal static class CrocomireBodyVisualsVerification
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // He draws as his room draws him: at his tile base and in his palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire), new SpriteColourSets());
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
             slot.TileIndexBase = indexes.TileBase;
-            slot.Colouring = indexes.Colouring;
+            slot.Shading = indexes.Shading;
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);
             if (newFrame)
@@ -261,7 +261,7 @@ internal static class CrocomireBodyVisualsVerification
         static EnemyGraphicsSet CrocomireSet(InstalledEnemyArtwork art)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire), new SpriteColourSets());
+            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             return enemies.GraphicsSet;
         }
     }

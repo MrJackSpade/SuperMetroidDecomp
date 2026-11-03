@@ -4,6 +4,12 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -32,7 +38,31 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             installed.Areas,
             StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters,
             GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
-            LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)));
+            LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)))
+        {
+            BeamPalettes = LoadBeamPalettes(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName, BeamPaletteFile.FileName)),
+            Maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null),
+            RoomPalettes = RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName), null),
+        };
+    }
+
+    /// <summary>The installed beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
+    internal InstalledBeamPalettes? BeamPalettes { get; init; }
+
+    /// <summary>
+    /// The installed map presentation, which holds the colours the Ceres Ridley and Mother Brain encounters load over
+    /// their sprites (#1512); null for fixtures that draw neither encounter.
+    /// </summary>
+    internal AreaMapPresentation? Maps { get; init; }
+
+    /// <summary>The tilesets' installed colours, which Mother Brain's escape copies room colours from (#1512); null for fixtures that draw no escape.</summary>
+    internal RoomStaticPalettes? RoomPalettes { get; init; }
+
+    /// <summary>The installed beam colours at <paramref name="path"/>.</summary>
+    private static InstalledBeamPalettes LoadBeamPalettes(string path)
+    {
+        using FileStream json = File.OpenRead(path);
+        return BeamPaletteFile.Read(json);
     }
 
     /// <summary>The installed escape timer characters at <paramref name="path"/>.</summary>

@@ -45,17 +45,13 @@ internal static class RoomFxRecordDefinitionsVerification
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Ceres station has no room.")).Pointer);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
-        var nativeCgram = new GameplayColours(new SpriteColourSets());
-        var compiledCgram = new GameplayColours(new SpriteColourSets());
-        RoomFxBlendInks colors = RoomFxPaletteBlendFile.Read(
-            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(bus)));
-        var nativeFxSession = new RoomFxSession{ PaletteBlendColors = colors };
+        var nativeFxSession = new RoomFxSession();
         RoomLayer3FxState nativeFx;
-        var compiledFxSession = new RoomFxSession{ PaletteBlendColors = colors };
+        var compiledFxSession = new RoomFxSession();
         RoomLayer3FxState compiledFx;
-        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, nativeCgram.BackgroundSets, room.State.Fx,
+        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, compiledCgram.BackgroundSets, room.State.Fx,
+        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
@@ -67,8 +63,8 @@ internal static class RoomFxRecordDefinitionsVerification
             "Ceres compiled FX liquid options");
         AssertTrue(nativeVram.ImageEquals(compiledVram),
             "Ceres compiled FX retains VRAM output");
-        AssertTrue(new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(compiledCgram.AsPaletteColors())),
-            "Ceres compiled FX retains CGRAM output");
+        // The blend's colours are the layer-3 pictures' shade of it (#1512); the room names the same blend.
+        AssertEqual(nativeFx.PaletteBlend, compiledFx.PaletteBlend, "Ceres compiled FX palette blend");
 
         var nativePaletteSession = new PaletteFxSessionState();
         RoomPaletteFxSystem nativePalette;

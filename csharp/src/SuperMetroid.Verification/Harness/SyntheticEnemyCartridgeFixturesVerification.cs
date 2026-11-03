@@ -32,6 +32,9 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         WriteTestByte(bus, address + 2, deathQuota);
     }
 
+    /// <summary>The palette row seeded records name; gameplay reads no row, so every fixture record names the first enemy row (#1512).</summary>
+    private const int FixturePaletteRow = 1;
+
     /// <summary>
     /// Seeds a terminated bank-$B4 enemy graphics set at <paramref name="tileset"/>: each
     /// record's definition pointer and packed VRAM/palette word, then the <c>$FFFF</c> terminator.
@@ -42,7 +45,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xb40000 | tileset;
         foreach (RoomEnemyGraphicsSetHeader record in records)
         {
-            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), record.NativePlacement);
+            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), record.NativePlacement(paletteRow: FixturePaletteRow));
             address += 4;
         }
         WriteTestWord(bus, address, 0xffff);

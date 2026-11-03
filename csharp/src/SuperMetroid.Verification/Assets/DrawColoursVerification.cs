@@ -31,17 +31,7 @@ internal static class DrawColoursVerification
         colourSets.Set(7).Fill(white);
         ShownColourSets colours = ShownColourSets.Of(colourSets);
 
-        // The colouring, held in store 5, combines with part group 2 into store 7, which blends; the kept part shows group 3.
-        var flashed = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None, DrawnColouring.InFixtureSet(5));
-        DrawColours shown = DrawColours.Resolve(flashed, colours);
-        AssertTrue(shown.FollowsPartGroups, "a recoloured draw keys its pixels by part group");
-        int overridden = shown.Key(ImageColourGroup.OfInk(indices[0]), partGroups[0]);
-        int fixedPart = shown.Key(ImageColourGroup.OfInk(indices[1]), partGroups[1]);
-        AssertEqual(white, shown.Colour(overridden, 5), "a following part group shows the store the colouring combines it into");
-        AssertTrue(shown.Blends(overridden), "a following part group blends as the store it shows does");
-        AssertEqual(standard[indices[1]], shown.Colour(fixedPart, 6), "a part keeping its group shows that group's store");
-        AssertTrue(!shown.Blends(fixedPart), "a part keeping group 3 does not blend");
-        AssertTrue(!shown.IsOwn, "a flashed draw is not drawn in its own colours");
+        // A drawn colouring's part-group combination is the import's now: enemy draws name selection shades it paints (#1512).
 
         // Without a colouring, an untouched frame keeps the image's own colours; a changed store shows the frame's.
         var plain = new ImageSpriteDraw(new(SpriteSourceKind.Enemy), frame, default, SpriteMirror.None);
@@ -56,7 +46,7 @@ internal static class DrawColoursVerification
         AssertTrue(changed.ShowsOwnColours(changed.Key(kept, partGroups[1])), "an unchanged store keeps the image's own colours");
 
         // The frame publishes its draws resolved.
-        var paint = new FramePaint(new BackgroundColours(ShownBackgroundColourSets.Of(new BackgroundColourSets()), ShownColourSets.Of(untouched)), [plain]);
+        var paint = new FramePaint(new BackgroundColours(RgbColor.Black, ShownColourSets.Of(untouched)), [plain]);
         AssertEqual(white, ((ImageSpriteDraw)paint.SpriteDraws[0]).Colours!.Colour(2, 5), "a frame publishes its draws' colours");
         // An ink group the part group does not name: a plain draw shows the ink group, as the hardware shows a pixel's index.
         ImageColourGroup inkGroup = ImageColourGroup.Numbered(4);

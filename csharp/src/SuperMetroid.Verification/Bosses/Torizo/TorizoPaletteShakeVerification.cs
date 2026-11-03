@@ -1,12 +1,14 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingLifetimeVerification;
 using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -14,13 +16,10 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Torizo palette instruction steps without extending the authored landing earthquake.</summary>
 internal static class TorizoPaletteShakeVerification
 {
-    /// <summary>Checks shake duration, masked fades, save-state continuation, and palette catalog bytes.</summary>
+    /// <summary>Checks shake duration, the fades' shades, save-state continuation, and the import's palette colours.</summary>
     internal static int VerifyTorizoPaletteShake()
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var cgram = new SamusColourRig();
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, RgbColor.FromWord(0x7fff));
-        enemies.Presentation.BindColours(cgram.Gameplay);
         var actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
         actor.Bind(actor.DefinitionId, RoomEnemyHeaders.Get(actor.DefinitionId));
@@ -34,8 +33,8 @@ internal static class TorizoPaletteShakeVerification
                 "Torizo palette cue runs on");
         enemies.Earthquake.EarthquakeType = 4;
         enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
-        // The native awakening loop invokes B271 every four frames. It must not
-        // extend a pending landing quake, regardless of the palette target.
+        // The native awakening loop invokes B271 every four frames. It must not extend a pending landing quake.
+        Execute(TorizoCueKind.FadeToNormalColors);
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
@@ -50,65 +49,61 @@ internal static class TorizoPaletteShakeVerification
                 AssertEqual((short)(((32 - frame) & 2) == 0 ? 2 : -2), shake.Bg1.Y, "Landing BG1 Y");
             }
         }
+        // Sixteen steps: fourteen move the colours, the fifteenth settles them, the sixteenth starts again from the settled colours.
+        AssertEqual(PictureShading.Shaded(HitFlash()).With(TorizoShades.Shared).With(
+            TorizoShades.Fading(new TorizoLook(TorizoLookKind.Normal), new TorizoLook(TorizoLookKind.Normal), 0)), state.Colours.Shading,
+            "A fade toward the settled colours starts again from them");
+
+        PictureShading beforeBlack = state.Colours.Shading;
         Execute(TorizoCueKind.FadeToBlack);
-        AssertEqual(0x7fff, cgram.Colors[144], "Black target setup does not black out current palette");
+        AssertEqual(beforeBlack, state.Colours.Shading, "Black target setup does not black out the current colours");
+        // The running fade's counter stands at one: thirteen more steps move the colours and the fourteenth settles them.
         for (int call = 0; call < 14; call++)
             Execute(TorizoCueKind.AdvancePaletteFade);
-        for (int i = 0; i < 256; i++)
-            AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
+        AssertEqual(PictureShading.Shaded(HitFlash()).With(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Black))),
+            state.Colours.Shading, "The completed fade settles the body and belly in black");
         AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue, "Completed fade does not create an earthquake");
-        state.PaletteTransition = null;
-        for (int i = 0; i < 256; i++) cgram.SetColor(i, RgbColor.FromWord(0x7fff));
+
         Execute(TorizoCueKind.FadeToNormalColors);
-        AssertEqual(0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
         Execute(TorizoCueKind.AdvancePaletteFade);
-        AssertEqual(0x7fff, cgram.Colors[145], "Native transition number zero is a no-op");
         Execute(TorizoCueKind.AdvancePaletteFade);
-        AssertEqual(0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
-        // Save mid-fade: target and numerator must survive, not restart from white.
+        // Save mid-fade: the fade's start, target and step must survive, not restart.
         using var saved = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, state);
         saved.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
-        // The restored fade carries its own copy of the statue's colours, which it steps as the live one steps them.
-        GradualPaletteTransition restoredFade = restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.");
-        for (int call = 2; call < 14; call++)
-        {
-            Execute(TorizoCueKind.AdvancePaletteFade);
-            restoredFade.Step();
-            // The fade's target holds the body's colours, then the belly's, as one run each.
-            RgbColor[] restoredColours = [.. restoredFade.Target.Run(0).Colors, .. restoredFade.Target.Run(1).Colors];
-            AssertTrue(restoredColours.AsSpan().SequenceEqual(cgram.Colors.Slice(144, 32)), "Mid-fade save preserves each color step");
-        }
-        VerifyTorizoPaletteCatalogsAgainstRetailRom(cgram);
+        AssertEqual(state.Colours.Shading, restored.Colours.Shading, "Mid-fade save preserves the fade's step");
+
+        // The import pre-colours each step: the black fade's last moving step and the normal fade's are their targets'.
+        IReadOnlyList<SheetShade> shades = TorizoSheetShades.Of(InstalledFixtures.EnemyTiles.AuxiliaryColors
+            ?? throw new InvalidOperationException("The installed enemy artwork holds the Torizos' colours."));
+        SheetShade toBlack = shades.Single(shade => shade.Shade == TorizoShades.Fading(new TorizoLook(TorizoLookKind.Normal), new TorizoLook(TorizoLookKind.Black), 13));
+        AssertTrue(toBlack.Inks.SequenceEqual(Enumerable.Range(16, 32)), "The fades recolour only sprite rows one and two");
+        AssertTrue(toBlack.Colours.All(colour => colour == RgbColor.Black), "The black fade's last step is black");
+        SheetShade toNormal = shades.Single(shade => shade.Shade == TorizoShades.Fading(new TorizoLook(TorizoLookKind.Black), new TorizoLook(TorizoLookKind.Normal), 13));
+        VerifyTorizoPaletteCatalogsAgainstRetailRom(toNormal, shades);
         Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
-        Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, defer target writes, fade only sprite palettes 1/2, and create no quake; all five cataloged Torizo palette pairs match the cartridge.");
+        Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, name their fade's shades, fade only sprite rows 1/2, save mid-fade and create no quake; the import's Torizo colours match the cartridge.");
         return 0;
+
+        static PictureShade HitFlash() => SuperMetroid.Core.Enemies.Drawing.EnemyShades.HitFlash;
     }
 
-    /// <summary>Compares the faded body colors and every cataloged Torizo palette row with bank $AA.</summary>
-    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SamusColourRig cgram)
+    /// <summary>Compares the normal fade's last step and every imported Torizo colouring with bank $AA.</summary>
+    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SheetShade toNormal, IReadOnlyList<SheetShade> shades)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        SheetShade golden = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.Golden)));
+        SheetShade shared = shades.Single(shade => shade.Shade == TorizoShades.Shared);
+        SheetShade bombInitial = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.BombStatue)));
+        SheetShade goldenInitial = shades.Single(shade => shade.Shade == TorizoShades.Body(new TorizoLook(TorizoLookKind.GoldenInitial)));
         for (int i = 0; i < 32; i++)
         {
-            int address = 0xaa8707 + i * 2;
-            ushort native = rom.ReadCartridgeWord(address);
-            AssertEqual(native, cgram.Colors[144 + i], "Normal fade reaches pinned cartridge target");
-            address = 0xaa8787 + i * 2;
-            native = rom.ReadCartridgeWord(address);
-            AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
-            foreach ((int source, string name, RgbColor catalog) in new[]
-            {
-                new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa8687, "shared orb/flame and statue-shading colours", TorizoPaletteDefinitions.Shared[i]),
-                new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa86c7, "Bomb Torizo initial body", TorizoPaletteDefinitions.BombInitial[i]),
-                new VerifyTorizoPaletteCatalogsAgainstRetailRomCase(0xaa8747, "Golden Torizo initial body", TorizoPaletteDefinitions.GoldenInitial[i]),
-            })
-            {
-                address = source + i * 2;
-                native = rom.ReadCartridgeWord(address);
-                AssertEqual(native, catalog, $"Torizo {name} color {i} matches cartridge");
-            }
+            AssertEqual(rom.ReadCartridgeWord(0xaa8707 + i * 2), toNormal.Colours[i].ToWord(), "Normal fade reaches pinned cartridge target");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8787 + i * 2), golden.Colours[i].ToWord(), "Shared Golden fade target matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8687 + i * 2), shared.Colours[i].ToWord(), $"Torizo shared orb/flame and statue-shading colour {i} matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa86c7 + i * 2), bombInitial.Colours[i].ToWord(), $"Bomb Torizo initial body colour {i} matches cartridge");
+            AssertEqual(rom.ReadCartridgeWord(0xaa8747 + i * 2), goldenInitial.Colours[i].ToWord(), $"Golden Torizo initial body colour {i} matches cartridge");
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Tooling;
@@ -188,55 +189,92 @@ internal static class EnemyTileArtworkKraidColorsVerification
         return guard;
     }
 
-    /// <summary>Runs one Kraid palette consumer and captures the resulting complete CGRAM image.</summary>
+    /// <summary>
+    /// Runs one Kraid colour consumer and lays the shades and colours his typed colour state names into a black colour
+    /// image at the cartridge's colour positions (#1512): a background picture's ink is its position, a sprite picture's
+    /// ink lies past the 128 background colours.
+    /// </summary>
     private static RgbColor[] CaptureKraidPaletteConsumer(
         InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-        var cgram = new SamusColourRig();
-        enemies.Presentation.BindColours(cgram.Gameplay);
+        var colours = new RgbColor[SnesCgram.ColorCount];
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
         enemies.KraidBehavior.Access.Kraid = state;
+        KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         switch (consumer)
         {
             case KraidPaletteConsumer.BackdropLoad:
+                // The defeated room shows Kraid's backdrop: the import's shade of it lays his colours over the backdrop's inks.
+                state.Backdrop.ShowKraidColours();
+                AssertEqual(KraidBackdropShows.KraidColours, state.Backdrop.Shows, "Kraid's defeated room shows his backdrop");
+                Lay(colours, KraidBackdropShades.Of(new RgbColor[SpriteImage.SpriteColourCount], kraid), KraidShades.Backdrop, 0);
+                break;
             case KraidPaletteConsumer.InitialTargetLoad:
-                new Action<KraidPaletteSource, ColourRun>(enemies.KraidBehavior.Rise.LoadKraidColorBand)(
-                        consumer == KraidPaletteConsumer.BackdropLoad
-                            ? KraidPaletteSource.RoomBackdrop
-                            : KraidPaletteSource.InitialTarget,
-                        consumer == KraidPaletteConsumer.BackdropLoad
-                            ? new BossColours(cgram.Gameplay).KraidRoomBackdrop
-                            : new BossColours(cgram.Gameplay).KraidSprites);
+                // His rocks draw in the import's shade of his initialization's colours, over the sprite row they draw in.
+                Lay(colours, BossSheetShades.SpawnedObjects(artwork.Bosses), KraidShades.Rocks, SpriteImage.SpriteColourCount);
                 break;
             case KraidPaletteConsumer.BackdropFade:
+                // Step thirteen of the growth fade shows the import's shade of the fade's end: Kraid's colours exactly.
                 for (int step = 0; step < 13; step++)
                     enemies.Presentation.GradualColorChange.Advance();
                 _ = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToRoomColors);
+                AssertEqual(KraidBackdropShows.FadingInFromRoomColours, state.Backdrop.Shows, "Kraid's growth fades his backdrop in");
+                Lay(colours, KraidBackdropShades.Of(new RgbColor[SpriteImage.SpriteColourCount], kraid),
+                    KraidShades.BackdropFadingInFromRoomColours(state.Backdrop.Steps), 0);
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:
+            {
                 state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
                     ? (ushort)1 : (ushort)0;
                 new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthPalettes)(body, state);
+                int band = state.Colours.Band ?? throw new InvalidOperationException("Kraid's health update names no band.");
+                AssertEqual(PictureShading.Shaded(KraidShades.Health(band)), body.Shading, $"Kraid's body slot draws in band {band}");
+                // His body shows the band's shade over its sixth tile colours, his parts over their sprite row.
+                Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], new RgbColor[SpriteImage.SpriteColourCount]),
+                    KraidShades.Health(band), 0);
+                Lay(colours, BossSheetShades.OwnRow(artwork.Bosses, EnemyDefinitionId.Kraid, KraidPartsRow * 16), KraidShades.Health(band),
+                    SpriteImage.SpriteColourCount);
                 break;
+            }
             case KraidPaletteConsumer.EyeUnglow:
-                for (int eye = 0; eye < 3; eye++)
-                    cgram.SetColor(113 + eye, RgbColor.FromWord(0x03ff));
+            {
+                // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
+                state.Colours.EyeGlow.ShowBand([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
                 new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
+                ReadOnlySpan<RgbColor> eyes = state.Colours.EyeGlow.Shown;
+                for (int eye = 0; eye < eyes.Length; eye++)
+                    colours[113 + eye] = eyes[eye];
                 break;
+            }
             case KraidPaletteConsumer.DeathArm:
                 new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath)(body, state);
+                AssertTrue(state.Colours.ShowsDeathArm, "Kraid's death shows his death colours");
+                Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], new RgbColor[SpriteImage.SpriteColourCount]),
+                    KraidShades.DeathArm, 0);
                 break;
             default:
                 throw new InvalidOperationException($"Unknown Kraid palette consumer {consumer}.");
         }
-        return cgram.Colors.ToArray();
+        return colours;
     }
+
+    /// <summary>The sprite row Kraid's parts draw in, past the background colours.</summary>
+    private const int KraidPartsRow = 7;
+
+    /// <summary>Lays the import's <paramref name="shade"/> among <paramref name="made"/> into <paramref name="colours"/> from <paramref name="offset"/>.</summary>
+    private static void Lay(RgbColor[] colours, IReadOnlyList<SheetShade> made, PictureShade shade, int offset)
+    {
+        SheetShade found = made.Single(candidate => candidate.Shade == shade);
+        for (int index = 0; index < found.Inks.Length; index++)
+            colours[offset + found.Inks[index]] = found.Colours[index];
+    }
+
 
     /// <summary>Production paths that load or animate Kraid's installed palette rows.</summary>
     internal enum KraidPaletteConsumer

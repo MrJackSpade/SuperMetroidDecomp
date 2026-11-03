@@ -32,25 +32,31 @@ internal static class RoomBlockSheetComposer
         var sheets = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
         var appearances = new Dictionary<TilesetDefinition, RoomBlockAppearances>();
         var backgrounds = new Dictionary<string, ComposedRoomBackground>(StringComparer.Ordinal);
+        // Every room picture of a tileset is pre-coloured in the shades its rooms' colour effects show (#1512).
+        Dictionary<TilesetDefinition, IReadOnlyList<SheetShade>> roomShades =
+            tilesets.Keys.ToDictionary(tileset => tileset, tileset => RoomSheetShades.Room(inputs, tileset));
         foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
         {
             ComposedBlocks composed = Compose(inputs, tileset, uploads, blocks[tileset.Blocks]);
-            sheets.Add(tileset, composed.Sheet);
+            sheets.Add(tileset, ShadedSheets.With(composed.Sheet, roomShades[tileset]));
             appearances.Add(tileset, composed.Appearances);
             foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
-                backgrounds.Add(background.Name, ComposeBackground(inputs, tileset, background, composed.Cells[background.Name]));
+                backgrounds.Add(background.Name, RoomSheetShades.With(
+                    ComposeBackground(inputs, tileset, background, composed.Cells[background.Name]), roomShades[tileset]));
         }
         var written = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
         foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
         {
             if (uploads.WordContent is { } content)
-                written.Add(tileset, WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
+                written.Add(tileset, RoomSheetShades.With(
+                    WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content), roomShades[tileset]));
         }
         return new RoomSheetComposition(sheets, appearances, backgrounds, written,
-            tilesets.ToDictionary(entry => entry.Key, entry => WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value)),
+            tilesets.ToDictionary(entry => entry.Key, entry => RoomSheetShades.With(WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value),
+                RoomSheetShades.Layer3(inputs, entry.Key))),
             tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset)),
             tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
-                entry => RoomFloorSheetComposer.Compose(inputs, entry.Key)));
+                entry => ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, entry.Key), roomShades[entry.Key])));
     }
 
     /// <summary>

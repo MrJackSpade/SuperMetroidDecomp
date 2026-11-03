@@ -133,16 +133,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         SporeSpawn = state;
 
-        // Writes these sixteen colors to the target copy of sprite colour set 7. Room loading currently
-        // presents completed fades directly, so install the identical final colours now
-        // while retaining the independent target copy above.
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-        {
-            RgbColor value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
-                "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
-            state.WriteTargetColor(BossColourDefinitions.SporeSpawnSpores, color, value);
-            _presentation.BossColours().SporeSpawnSpores.Write(color, value);
-        }
+        // His spores' colours, which he loads as he initializes, are the import's shade of them (#1512).
+        body.Shading = state.Colours.Sprites;
 
         // SpawnEprojWithGfx searches the eighteen-slot pool downward. Four calls therefore
         // occupy physical slots 17..14, which SporeSpawn_Func_5 later addresses directly.
@@ -585,10 +577,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = setFunction.Function;
                 return;
             case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
-                LoadSporeSpawnDeathPalette(loadDeathPalette.DeathPaletteStep, copy: SporeSpawnPaletteCopy.CurrentAndTarget);
+                LoadSporeSpawnDeathPalette(loadDeathPalette.DeathPaletteStep);
                 return;
             case SporeSpawnCue.LoadDeathTargetPalette loadDeathTargetPalette:
-                LoadSporeSpawnDeathPalette(loadDeathTargetPalette.DeathPaletteStep, copy: SporeSpawnPaletteCopy.TargetOnly);
+                LoadSporeSpawnDeathPalette(loadDeathTargetPalette.DeathPaletteStep);
                 return;
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.SpawnHardeningDust }:
                 SpawnSporeSpawnHardeningDust(state);
@@ -604,63 +596,24 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>SporeSpawn_Func_7</c>: shows health-stage body image <paramref name="frame"/>.</summary>
     internal void LoadSporeSpawnHealthPalette(int frame)
     {
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-        {
-            _presentation.BossColours().SporeSpawnBody.Write(
-                color,
-                (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
-                    "Spore Spawn health palette requires installed artwork.")).ResolveHealth(frame, color));
-        }
+        SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
+            "Spore Spawn's health colours show once Spore Spawn is loaded.");
+        state.Colours.ShowHealth(Ensure.BetweenInclusive(0, SporeSpawnColorDefinitions.HealthFrameCount - 1, frame));
+        state.Body.Shading = state.Colours.Sprites;
     }
 
-    /// <summary>Loads sprite, level, and background death colors into the current colours or fade targets.</summary>
-    internal void LoadSporeSpawnDeathPalette(int step, SporeSpawnPaletteCopy copy)
+    /// <summary>
+    /// Shows step <paramref name="step"/> of his death fade over his body, the room's level and its background (#1512),
+    /// as the import's shades of it. A defeated room's initialization loads it as the fade's target only, which the door's
+    /// fade then brings in, so both copies show it.
+    /// </summary>
+    internal void LoadSporeSpawnDeathPalette(int step)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn palette instruction ran without the boss state.");
-        WriteSporeSpawnDeathColours(
-            SporeSpawnDeathPaletteLayer.Sprite,
-            step,
-            state,
-            copy == SporeSpawnPaletteCopy.TargetOnly);
-        WriteSporeSpawnDeathColours(
-            SporeSpawnDeathPaletteLayer.Level,
-            step,
-            state,
-            copy == SporeSpawnPaletteCopy.TargetOnly);
-        WriteSporeSpawnDeathColours(
-            SporeSpawnDeathPaletteLayer.Background,
-            step,
-            state,
-            copy == SporeSpawnPaletteCopy.TargetOnly);
+        state.Colours.ShowDeath(step);
+        state.Body.Shading = state.Colours.Sprites;
     }
-
-    /// <summary>Writes death fade step <paramref name="step"/>'s colours for <paramref name="layer"/> to its live colours or the fade's targets.</summary>
-    private void WriteSporeSpawnDeathColours(
-        SporeSpawnDeathPaletteLayer layer,
-        int step,
-        SporeSpawnEnemyState state,
-        bool targetOnly)
-    {
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-        {
-            RgbColor value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
-                "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, step, color);
-            if (targetOnly)
-                state.WriteTargetColor(DeathColours(layer), color, value);
-            else
-                _presentation.BossColours().SporeSpawnDeath(layer).Write(color, value);
-        }
-    }
-
-    /// <summary>The colours Spore Spawn's death fades on <paramref name="layer"/>.</summary>
-    private static IColourSetRun DeathColours(SporeSpawnDeathPaletteLayer layer) => layer switch
-    {
-        SporeSpawnDeathPaletteLayer.Sprite => BossColourDefinitions.SporeSpawnBody,
-        SporeSpawnDeathPaletteLayer.Level => BossColourDefinitions.SporeSpawnDeathLevel,
-        SporeSpawnDeathPaletteLayer.Background => BossColourDefinitions.SporeSpawnDeathBackground,
-        _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined Spore Spawn death palette layer."),
-    };
 
     /// <summary>Uses one RNG word to place a hardening dust burst and request its sound.</summary>
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
@@ -695,9 +648,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.DeathDropRequested = true;
     }
-    /// <summary>Graphics bits assigned to newly spawned spores.</summary>
-    private static readonly SpriteGraphics SporeSpawnGraphicsIndex =
-        SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.SporeSpawnBody));
+    /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
+    private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.CharacterZeroIn((SporeSpawn
+        ?? throw new InvalidOperationException("Spore Spawn's spores spawn once Spore Spawn is loaded.")).Colours.Sprites);
 
     /// <summary>Spawns Spore Spawn's stalk projectile and runs its initializer.</summary>
     internal void SpawnSporeSpawnStalk(RoomEnemySlot body, int spawnArgument)
@@ -834,7 +787,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SporeSpawnEnemyState? SporeSpawn { get; set; }
 
     /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
-    internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write) => SporeSpawn?.ConsumeTargetColors(write);
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
     internal static bool? FindSporeSpawnHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)

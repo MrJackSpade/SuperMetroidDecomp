@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Fx;
 /// The translated BG3 effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomLayer3FxState
+public sealed class RoomLayer3FxState : IGameplayShadingSource
 {
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
@@ -37,8 +37,11 @@ public sealed class RoomLayer3FxState
     /// <summary>The BG3 plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
     public Layer3Plane EffectPlane => Layer3Plane.Of(EffectPageType);
 
-    /// <summary>The installed room-FX blend colors.</summary>
-    public RoomFxBlendInks? PaletteBlendColors => _session.PaletteBlendColors;
+    /// <summary>
+    /// The palette blend the last FX record loaded selected for layer 3's blend colours (#1512), or null while no record
+    /// has loaded one and the colours stay the tileset's.
+    /// </summary>
+    public RoomFxPaletteBlend? PaletteBlend { get; private set; }
     /// <summary>
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
     /// byte offsets BG3 scroll before the next velocity step.
@@ -180,21 +183,19 @@ public sealed class RoomLayer3FxState
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomLayer3FxState ForRoom(
         RoomFxSession session,
-        BackgroundColourSets colours,
         RoomFxHeader? fx,
         DoorDefinition? door,
         int randomNumber,
         RoomHeaderDefinition? room = null) =>
-        ForRecord(session, colours, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForRecord(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
-    /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="source">The FX record's source.</param>
-    internal static RoomLayer3FxState ForRecord(RoomFxSession session, BackgroundColourSets colours, RoomFxLoadSource source)
+    internal static RoomLayer3FxState ForRecord(RoomFxSession session, RoomFxLoadSource source)
     {
         var fx = new RoomLayer3FxState(session);
-        fx.SelectRecord(colours, source);
+        fx.SelectRecord(source);
         return fx;
     }
 
@@ -202,10 +203,8 @@ public sealed class RoomLayer3FxState
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
     /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="Layer3Plane"/>).
     /// </summary>
-    private void SelectRecord(BackgroundColourSets colours, RoomFxLoadSource source)
+    private void SelectRecord(RoomFxLoadSource source)
     {
-        Ensure.NotNull(colours);
-
         if (source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room))
             EarthquakeSoundTimer = WrappingCountdown.Start(ushort.MaxValue);
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
@@ -221,7 +220,7 @@ public sealed class RoomLayer3FxState
         Type = definition.Type;
         LayerBlendConfiguration = definition.Layer3LayerBlend;
         animatedTiles.Load(Type);
-        ApplyPaletteBlend(colours, definition.PaletteBlend);
+        PaletteBlend = definition.PaletteBlend;
 
         if (Type == RoomFxType.Fireflea)
             Fireflea.Initialize();
@@ -443,8 +442,7 @@ public sealed class RoomLayer3FxState
     /// LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// per-line effects, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal LayerBlendingConfiguration ApplyEntry(BackgroundColourSets colours,
-        RoomFxRecordDefinition definition)
+    internal LayerBlendingConfiguration ApplyEntry(RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
         BaseY = BaseY.WithWhole(definition.BaseYPosition ?? UnnamedSurfaceY);
@@ -453,15 +451,21 @@ public sealed class RoomLayer3FxState
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
         LayerBlendConfiguration = definition.Layer3LayerBlend;
-        ApplyPaletteBlend(colours, definition.PaletteBlend);
+        PaletteBlend = definition.PaletteBlend;
         return definition.DefaultLayerBlend;
     }
 
-    /// <summary>Applies the selected FX blend colors from installed presentation data.</summary>
-    private void ApplyPaletteBlend(BackgroundColourSets colours, RoomFxPaletteBlend selection)
+    /// <summary>
+    /// Lays the shade of the palette blend the last record selected over the layer-3 pictures (#1512): the effect's
+    /// pages, and the HUD's, which show the same colours.
+    /// </summary>
+    public void ShadeGameplay(GameplayShadingBuilder frame)
     {
-        (PaletteBlendColors ?? throw new InvalidOperationException(
-            "Room FX requires installed palette-blend colors.")).Apply(colours, selection);
+        Ensure.NotNull(frame);
+        if (PaletteBlend is not { } blend)
+            return;
+        frame.Shade(GameplayPictures.Layer3, RoomFxBlendShading.Of(blend));
+        frame.Shade(GameplayPictures.Hud, RoomFxBlendShading.Of(blend));
     }
 
     /// <summary>

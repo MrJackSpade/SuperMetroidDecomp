@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks Kraid's growth transition when a head command is interrupted by a foot lunge.</summary>
 internal static class KraidGrowthCommandCursorVerification

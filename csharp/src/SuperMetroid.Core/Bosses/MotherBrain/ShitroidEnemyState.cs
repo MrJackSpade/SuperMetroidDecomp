@@ -11,9 +11,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class ShitroidEnemyState
 {
-    /// <summary>The colours each of the encounter's target colour sets fades to, staged across its colour transitions (#1405).</summary>
-    private readonly Dictionary<ShitroidColorTarget, RgbColor[]> targetColours = new();
-
     /// <summary>Creates the state for the Shitroid's slot.</summary>
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
 
@@ -79,11 +76,13 @@ public sealed class ShitroidEnemyState
     /// side effect directly auditable.
     /// </summary>
     public bool VictimActivationFlag { get; internal set; }
-    /// <summary>The colours <paramref name="target"/>'s colour set fades to, which encounter colour updates change in place.</summary>
-    internal Span<RgbColor> TargetColours(ShitroidColorTarget target) =>
-        targetColours.TryGetValue(target, out RgbColor[]? colours)
-            ? colours
-            : targetColours[target] = new RgbColor[ShitroidColorDefinitions.TargetColorCount];
+    /// <summary>The membrane pulse phase last shown, or null before its first step (#1512).</summary>
+    internal int? MembraneShown { get; set; }
+
+    /// <summary>The shading the Shitroid draws in: its entry's colours, with the membrane's pulse phase over them once shown.</summary>
+    internal PictureShading Shading => MembraneShown is int phase
+        ? ShitroidShades.InTargetColours.With(ShitroidShades.Membrane(phase))
+        : ShitroidShades.InTargetColours;
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Shitroid's private reactions (parameter two): set while

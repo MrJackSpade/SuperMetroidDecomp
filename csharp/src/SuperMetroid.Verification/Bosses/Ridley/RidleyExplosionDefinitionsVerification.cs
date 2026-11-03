@@ -207,8 +207,8 @@ internal static class RidleyExplosionDefinitionsVerification
 
                 AssertEqual((ushort)1, fragment.FrameHold.RawValue,
                     "Ridley breakup production instruction timer");
-                AssertEqual(SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours, fragment.Colouring,
-                    "Ridley breakup production colours: Ridley's own, sprite set seven");
+                AssertEqual(state.Colours.SpriteShading(flashing: false), fragment.Shading,
+                    "Ridley breakup production colours: the shades Ridley laid over his own sprites");
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("The initialized fragment has no state.");
                 AssertEqual(

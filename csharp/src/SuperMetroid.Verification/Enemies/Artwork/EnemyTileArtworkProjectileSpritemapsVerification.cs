@@ -60,7 +60,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     /// The graphics the production-drawn checks give a projectile: the enemy projectiles' colours, palette row five, at
     /// character zero, where every set composes each object it can spawn (#1392).
     /// </summary>
-    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
+    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours);
 
     /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
     private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
@@ -1010,7 +1010,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             // The spawner holds the tile base and colours its set gives it, as a room's spawn would.
             SpriteGraphics graphics = enemies.GraphicsSet.DrawIndexes(spawner);
             enemy.TileIndexBase = graphics.TileBase;
-            enemy.Colouring = graphics.Colouring;
+            enemy.Shading = graphics.Shading;
             spawn(enemy);
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))

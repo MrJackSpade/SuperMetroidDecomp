@@ -343,7 +343,7 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.TileIndexBase = 256;
-        enemy.Colouring = SpriteColouring.InFixtureSet(6);
+        enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Properties = (EnemyProperties.RespawnIfKilled);
 
         // A Fireflea with health nine proves health above four selects the small explosion.
@@ -405,7 +405,7 @@ internal static class EnemyDropsVerification
 
         RoomLevelData level = CreateEmptyRoom(new(1, 1));
         var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
-        system.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())) { Level = level, Samus = samus });
+        system.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9000), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = samus });
         return new EnemyDropFixture(bus, system, level);
     }
 

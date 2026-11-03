@@ -46,7 +46,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 256,
-            Colouring = SharedSpriteColouring.Frozen,
+            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         var state = new FakeKraidEnemyState();
 

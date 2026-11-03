@@ -25,16 +25,10 @@ internal sealed record MotherBrainFakeDeathDependencies
     /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
 
 
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     public required MotherBrainEncounterAccess Access { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

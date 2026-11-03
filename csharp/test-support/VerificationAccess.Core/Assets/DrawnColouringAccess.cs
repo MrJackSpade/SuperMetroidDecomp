@@ -1,21 +1,12 @@
-
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Verification access to <see cref="DrawnColouring"/> at the native boundary (#1464): fixture draws in a numbered sprite
-/// set, and the sprite palette rows a drawn colouring selects, for checks that compare with the cartridge's attribute words.
+/// Verification access to <see cref="DrawnColouring"/> at the native boundary (#1464): the sprite palette rows a drawn
+/// colouring selects, for checks of the screen draws still coloured that way that compare with the cartridge's attribute
+/// words. Enemy draws name their shading instead (#1512); <c>SpriteColouringAccess</c> gives their rows.
 /// </summary>
 internal static class DrawnColouringAccess
 {
-    /// <summary>Draws a fixture in a numbered sprite set.</summary>
-    extension(DrawnColouring)
-    {
-        /// <summary>A draw in the colours of sprite set <paramref name="set"/>, whose owner a fixture does not name.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The set is not a sprite set.</exception>
-        internal static DrawnColouring InFixtureSet(int set) =>
-            new(SpriteColouring.InFixtureSet(set), FixtureSpriteColourPlacement.Instance);
-    }
-
     /// <summary>The native rows a drawn colouring selects.</summary>
     extension(DrawnColouring self)
     {

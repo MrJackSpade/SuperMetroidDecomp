@@ -3,28 +3,27 @@ using static SuperMetroid.Core.Enemies.Artwork.WreckedShipPowerPaintDefinitions;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Paints the powered Wrecked Ship colours of the seven background sets the power-on fades from the catalog's selected hues: repeats, shared channels, ramps, lighting offsets and fills calculate.</summary>
+/// <summary>Paints the powered Wrecked Ship colours of the seven parts the power-on fades from the catalog's selected hues: repeats, shared channels, ramps, lighting offsets and fills calculate.</summary>
 internal static class WreckedShipPowerPaint
 {
-    /// <summary>Gets the powered Wrecked Ship colour <paramref name="ink"/> of background set <paramref name="set"/>.</summary>
-    internal static RgbColor Color(BackgroundColourSet set, int ink)
+    /// <summary>Gets the powered Wrecked Ship colour <paramref name="ink"/> of <paramref name="part"/>.</summary>
+    internal static RgbColor Color(WreckedShipPoweredPart part, int ink)
     {
         if ((uint)ink >= ColourSets.SetColours) throw new ArgumentOutOfRangeException(nameof(ink));
-        if (ink == 0) return set is BackgroundColourSet.HudItemsAndEffects or BackgroundColourSet.TilesFirst
+        if (ink == 0) return part is WreckedShipPoweredPart.GreenDoors or WreckedShipPoweredPart.MagentaDoors
             ? DoorTransparentMetadata
             : RgbColor.Black;
         if (ink == ColourSets.SetColours - 1) return RgbColor.Black;
-        return set switch
+        return part switch
         {
-            BackgroundColourSet.Hud => Common(ink),
-            BackgroundColourSet.HudItemsAndEffects => GreenDoor(ink),
-            BackgroundColourSet.TilesFirst => MagentaDoor(ink),
-            BackgroundColourSet.TilesSecond => BlueDoor(ink),
-            BackgroundColourSet.TilesThird => Foreground(ink),
-            BackgroundColourSet.TilesFourth => Background(ink),
-            BackgroundColourSet.TilesFifth => ink == 14 ? White : Neutral(CommonNeutral),
-            BackgroundColourSet.TilesSixth => throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on leaves the sixth tile set unpainted."),
-            _ => throw new ArgumentOutOfRangeException(nameof(set), set, "The Wrecked Ship's power-on does not paint this set."),
+            WreckedShipPoweredPart.Shared => Common(ink),
+            WreckedShipPoweredPart.GreenDoors => GreenDoor(ink),
+            WreckedShipPoweredPart.MagentaDoors => MagentaDoor(ink),
+            WreckedShipPoweredPart.BlueDoors => BlueDoor(ink),
+            WreckedShipPoweredPart.Foreground => Foreground(ink),
+            WreckedShipPoweredPart.Background => Background(ink),
+            WreckedShipPoweredPart.Lights => ink == 14 ? White : Neutral(CommonNeutral),
+            _ => throw new ArgumentOutOfRangeException(nameof(part), part, "The Wrecked Ship's power-on does not paint this part."),
         };
     }
     /// <summary>Builds shared gold, machinery, indicator, and neutral inks for the HUD set.</summary>

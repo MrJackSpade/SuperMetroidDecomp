@@ -40,6 +40,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Bosses;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Enemies;
@@ -54,6 +55,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -98,7 +100,6 @@ internal static void VerifyRoomEnemyLoading()
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     // The first header is intentionally filled at every documented offset. Besides making
     // the parsed record useful to future damage/interaction translations, this catches a
@@ -116,9 +117,8 @@ internal static void VerifyRoomEnemyLoading()
     SeedRoomEnemyLoadingArtworkAndSpawnData(bus, primaryPaletteBytes, specialPaletteBytes, primaryTileBytes, specialTileBytes);
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
-        new(primaryDefinitionPointer, ColourStore: new(3)),
-        // Row 4 is Samus's own colours (#1405), which no retail set loads an enemy into; the fixed-block member uses row 2.
-        new(specialDefinitionPointer, ColourStore: new(2), StagingBlock: 1));
+        new(primaryDefinitionPointer),
+        new(specialDefinitionPointer, StagingBlock: 1));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(primaryDefinitionPointer, 0x0456, 0x0789, 0, 0x2000, 0x0004, 0x1357, 0x2468));
@@ -157,7 +157,7 @@ internal static void VerifyRoomEnemyLoading()
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
     AssertEqual(enemies.SlotTable.Slots[1], enemies.SlotTable.FindFreeSlot(), "a spawn takes the slot after the population");
@@ -180,15 +180,12 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x80, shown[0x2000], "ordinary enemy first tile byte");
     AssertEqual(0xbf, shown[0x203f], "ordinary enemy final tile byte");
     AssertEqual(0xc0, shown[0x1a00], "special enemy first tile byte");
-    AssertEqual(0x2120, cgram.Colors[(3 + 8) * 16],
-        "ordinary enemy palette destination and source");
-    AssertEqual(0x6160, cgram.Colors[(2 + 8) * 16],
-        "special enemy palette destination and source");
+    // The members' colours are their pre-coloured sheets' (#1512): the load writes no palette row.
 
     RoomEnemySlot slot = enemies.SlotTable.Slots[0];
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
-    AssertEqual(3, slot.PaletteRowIn(enemies), "graphics-set OBJ palette row holding the slot's colours");
+    AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
     AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
@@ -222,14 +219,11 @@ internal static void VerifyRoomEnemyLoading()
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     var installedVram = new SnesVram();
-    var installedCgram = new SamusColourRig();
-    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram), installedCgram.Gameplay));
+    installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram)));
     installedEnemies.GraphicsSet.ShowGraphics();
     byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteLooks, seededTiles).Characters.ToArray();
     AssertTrue(shown.SequenceEqual(installedShown),
         "installed enemy PNGs preserve both native ordinary and high-bit OBJ placements");
-    AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
-        "enemy tile overrides cannot alter native palettes");
     AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
     AssertEqual(slot.Definition.Health, installedEnemies.SlotTable.Slots[0].Definition.Health,
@@ -253,16 +247,14 @@ internal static void VerifyRoomEnemyLoading()
     enemies = new RoomEnemySystem(enemies.Room.Session, bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
-    cgram.SetColor(128, RgbColor.FromWord(0x4567));
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram)));
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
     AssertEqual(enemies.SlotTable.Slots[0], enemies.SlotTable.FindFreeSlot(), "an empty population leaves the first slot free");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
-    AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
     AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart, enemies.GraphicsSet.LoadedSet),
         "empty population draws its spawned objects under the standard sprites alone, whatever the outgoing room loaded");
@@ -358,7 +350,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
     var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
 
     RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
@@ -429,7 +421,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     const ushort vulnerabilityPointer = 0xedea;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 32, PalettePointer = 0xe457, Bank = 0xa2, TileDataAddress = 0xa28000, BossId = 0, NamePointer = 0, FieldSeed = 0x5200 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 4, 200);
@@ -480,7 +471,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     {
         TileArtwork = InstalledFixtures.EnemyTiles,
     };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
     RoomEnemySlot ripper = enemies.SlotTable.Slots[0];
     if (verifyXrayTimers)
     {
@@ -705,7 +696,6 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     const ushort tilesetPointer = 0x9480;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4300 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
@@ -725,7 +715,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
     var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus) } };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorLight), map.Drawn.Single(),
         "Ceres elevator landed platform light floor frame");
@@ -750,7 +740,6 @@ internal static void VerifyCeresDoorBossBranch()
     const ushort tilesetPointer = 0x94c0;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4380 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
@@ -778,7 +767,7 @@ internal static void VerifyCeresDoorBossBranch()
             areaBossReads++;
             return areaBossDefeated;
         } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus) } };
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay) { Samus = samus });
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.FrameHold = WrappingCountdown.Start(1);
 
@@ -832,7 +821,6 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     SeedCeresRidleyRoomEntryCartridge(bus, definitionPointer, populationPointer, tilesetPointer);
     const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
@@ -892,10 +880,6 @@ internal static void VerifyCeresRidleyRoomEntry()
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
-            CeresRidleyColors = CeresRidleyColorFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
-            CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
             // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
             CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays,
         },
@@ -904,24 +888,32 @@ internal static void VerifyCeresRidleyRoomEntry()
         SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.BossArtworkBinding.EscapeTypewriterPresentation = EscapeTypewriterPresentationFile.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
-    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
+    enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
 
     RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
     RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
+    // The colours the encounter shows are the import's shades of its installed colours, laid as its AI laid them (#1512).
+    SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = CeresRidleyColorFile.Read(new MemoryStream(
+        SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus)));
+    var ridleySprites = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(ceresColours);
+    var ridleyRoom = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresRoom(ceresColours,
+        CeresRidleyMode7ColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
+        new RgbColor[BossShadeColours.Sprites]);
+    ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
     AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
-    AssertEqual(SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours, ridley.Colouring, "Ceres Ridley's own colours");
+    AssertEqual(state.Colours.SpriteShading(flashing: false), state.CommonDrawShading, "Ceres Ridley's own colours");
     AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
     AssertEqual(0x3c00, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(ridley.Properties), "Ceres Ridley native initialized properties");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
     AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
         "Ceres Ridley initial dispatcher function");
-    AssertEqual(0x2000, cgram.Colors[0xa0], "Ceres Ridley first added palette color");
-    AssertEqual(0x201f, cgram.Colors[0xbf], "Ceres Ridley final added palette color");
-    AssertEqual(0, cgram.Colors[0xf1], "Ceres Ridley hidden body palette starts black");
-    AssertEqual(0, cgram.Colors[0xff], "Ceres Ridley hidden body palette ends black");
+    AssertEqual(0x2000, Shown()[0xa0], "Ceres Ridley first added palette color");
+    AssertEqual(0x201f, Shown()[0xbf], "Ceres Ridley final added palette color");
+    AssertEqual(0, Shown()[0xf1], "Ceres Ridley hidden body palette starts black");
+    AssertEqual(0, Shown()[0xff], "Ceres Ridley hidden body palette ends black");
 
     // Ridley's private `$A6:A2F2` door overlay bypasses WriteEnemyOAM and reproduces the
     // retail byte-index bug in its word table. Earthquake timer two therefore reads byte
@@ -986,7 +978,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
         "Ceres Ridley body fade completes");
     AssertEqual(4, state.FunctionTimer.RawValue, "Ceres Ridley pre-roar timer");
-    AssertEqual(0x5000 + 0x14a / 2, cgram.Colors[0x91],
+    AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
@@ -1119,13 +1111,13 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= state.CommonDrawColouring == SuperMetroid.Core.Bosses.Ridley.RidleyEnemyState.OwnColours;
-        observedFlashRidleyPalette |= state.CommonDrawColouring == SharedSpriteColouring.Common;
+        observedNormalRidleyPalette |= !state.BodyFlashing;
+        observedFlashRidleyPalette |= state.BodyFlashing;
         if (hit == 49)
-            AssertEqual(0x7000, cgram.Colors[0xf1],
+            AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
         if (hit == 69)
-            AssertEqual(0x7200, cgram.Colors[0xf1],
+            AssertEqual(0x7200, Shown()[0xf1],
                 "Ceres Ridley 70-hit missing-branch palette quirk");
 
         // The hit publishes an unconsumed first frame. Run its full native lifetime
@@ -1162,7 +1154,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
         // first getaway step replaces it with the Mode-7 zoom palette from $51.
         if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
-            retreatBackgroundColor ??= cgram.Colors[0x51];
+            retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
         enemies.CeresRidleyBehavior.Getaway.RunCeresRidleyGetawayRoomMain(samus, 0);
         observedFakeRetreat |= state.Function is
@@ -1188,9 +1180,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley spawns both native Mode-7 wall actors");
     AssertEqual((RgbColor?)RgbColor.FromWord(0x6100), retreatBackgroundColor,
         "Ceres Ridley retreat copies BG palette-five colors");
-    AssertEqual(0x6200, cgram.Colors[0x21],
+    AssertEqual(0x6200, Shown()[0x21],
         "Ceres Ridley retreat copies BG palette-two colors");
-    AssertEqual(0x6200, cgram.Colors[0xf1],
+    AssertEqual(0x6200, Shown()[0xf1],
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
     AssertTrue(enemies.Audio.SoundRequests.Contains(

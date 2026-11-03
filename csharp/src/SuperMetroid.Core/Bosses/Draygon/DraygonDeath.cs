@@ -162,7 +162,7 @@ internal sealed class DraygonDeath
         RoomSpriteObjectSlot? sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
             kind,
-            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite)));
+            graphics: SpriteGraphics.CharacterZeroIn(DraygonColours.MaterialSprites));
         if (sprite is null)
         {
             throw new InvalidOperationException(

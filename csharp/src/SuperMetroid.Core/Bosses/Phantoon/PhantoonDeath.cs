@@ -212,7 +212,7 @@ internal sealed class PhantoonDeath
             return;
 
         state.Parts[state.Eye.SlotIndex].FadeDenominator = 12;
-        if (!AdvanceWreckedShipPowerPalette(state.Parts[state.Eye.SlotIndex]))
+        if (!AdvanceWreckedShipPowerPalette(state, state.Parts[state.Eye.SlotIndex]))
             return;
 
         // The death drops scatter sixteen room-graphics pickups over the visible boss arena.
@@ -240,29 +240,22 @@ internal sealed class PhantoonDeath
         state.WreckedShipPowerPaletteComplete = true;
     }
 
-    /// <summary>Steps every background set the power-on fades toward its powered colours.</summary>
-    internal bool AdvanceWreckedShipPowerPalette(PhantoonPartState eye)
+    /// <summary>
+    /// Takes one step of the Wrecked Ship's power coming on over the room (#1512): every colour but Phantoon's body's fades
+    /// toward its powered colour, which the room shows as the import's shade of each step.
+    /// </summary>
+    /// <returns>Whether the power had finished coming on.</returns>
+    internal static bool AdvanceWreckedShipPowerPalette(PhantoonEnemyState state, PhantoonPartState eye)
     {
         int denominator = eye.FadeDenominator;
         int numerator = eye.FadeNumerator;
         if (denominator + 1 < numerator)
         {
             eye.FadeNumerator = 0;
+            state.Colours.CompletePowerOn();
             return true;
         }
-
-        // Each faded set steps every colour toward its own powered target; no colour depends on another.
-        PhantoonColorCatalog targets = _bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
-            "Wrecked Ship power-on palette requires installed artwork.");
-        foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
-        {
-            ColourRun room = _presentation.BackgroundSets.Set(set);
-            for (int color = 0; color < room.Count; color++)
-                room.Write(
-                    color,
-                    PhantoonPresentation.CalculatePhantoonTransitionColor(
-                        numerator, denominator, room[color], targets.ResolvePowerOn(set, color)));
-        }
+        state.Colours.PowerOn(numerator);
         eye.FadeNumerator = numerator + 1;
         return false;
     }

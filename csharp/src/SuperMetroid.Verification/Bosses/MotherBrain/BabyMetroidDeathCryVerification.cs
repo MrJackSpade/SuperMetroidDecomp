@@ -20,10 +20,11 @@ internal static class BabyMetroidDeathCryVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var installation = RepositoryInstallation.Installation;
-        enemies.BossArtworkBinding.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
-        var cgram = new SamusColourRig();
-        for (int index = 0; index < 256; index++) cgram.SetColor(index, RgbColor.FromWord((ushort)(index + 1)));
-        enemies.Presentation.BindColours(cgram.Gameplay);
+        // The Baby's scene runs while Mother Brain's encounter is loaded; the room shows the shades it lays (#1512).
+        var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
+        enemies.MotherBrainEncounter.MotherBrain = motherBrain;
+        ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.Maps, InstalledFixtures.BossArtwork,
+            [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 79;
@@ -32,14 +33,16 @@ internal static class BabyMetroidDeathCryVerification
         Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         apply(baby.Step(samus, sequence, HeadOf(sequence)));
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");
+        ushort[] charged = Shown();
         for (int index = 0; index < 256; index++)
-            AssertEqual((ushort)(index + 1), cgram.Colors[index], "Live final charge preserves room colors");
+            AssertEqual((ushort)(index + 1), charged[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(80);
         var fatal = baby.Step(samus, sequence, HeadOf(sequence));
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
         apply(fatal);
+        ushort[] blackout = Shown();
         for (int index = 0; index < 256; index++)
-            AssertEqual((ushort)(IsBlackoutColor(index) ? 0 : index + 1), cgram.Colors[index],
+            AssertEqual((ushort)(IsBlackoutColor(index) ? 0 : index + 1), blackout[index],
                 $"Fatal blow blacks out only native background colors: {index}");
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "Fatal transition emits exactly one death cry");
         var request = enemies.Audio.SoundRequests.Single();
@@ -58,13 +61,14 @@ internal static class BabyMetroidDeathCryVerification
             var recovery = baby.Step(samus, sequence, HeadOf(sequence));
             AssertEqual(frame, (recovery.RecoveryLightsFrame ?? throw new InvalidOperationException("Verification requires recovery.RecoveryLightsFrame.")), "Recovery publishes each native light row");
             apply(recovery);
+            ushort[] cgram = Shown();
             for (int index = 0; index < 256; index++)
             {
                 int offset = index is >= 49 and <= 62 ? index - 49 : 14 + index - 81;
                 ushort expected = IsBlackoutColor(index)
                     ? bus.ReadCartridgeWord(0xadf3d3 - frame * 0x38 + offset * 2)
                     : (ushort)(index + 1);
-                AssertEqual(expected, cgram.Colors[index], $"Recovery row {frame} restores exact cartridge colors and preserves other palettes: {index}");
+                AssertEqual(expected, cgram[index], $"Recovery row {frame} restores exact cartridge colors and preserves other palettes: {index}");
             }
         }
         var audio = new AudioQueues();

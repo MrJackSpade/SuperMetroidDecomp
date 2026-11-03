@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,6 +15,18 @@ public sealed class DraygonEnemyState
 {
     /// <summary>Anchors the encounter-wide state to Draygon's physical body slot.</summary>
     internal DraygonEnemyState(RoomEnemySlot body) => Body = body;
+
+    /// <summary>Draygon's body layer's, room background's and sprites' colours (#1512).</summary>
+    internal DraygonColours Colours { get; } = new();
+
+    /// <summary>Gives his body and his attached tail and arms the shading his colours show now (#1512).</summary>
+    internal void ShadeSprites()
+    {
+        PictureShading sprites = Colours.Sprites;
+        Body.Shading = sprites;
+        Tail.Shading = sprites;
+        Arms.Shading = sprites;
+    }
 
     /// <summary>The first enemy slot, which owns encounter movement, health, and the body-function dispatcher.</summary>
     public RoomEnemySlot Body { get; }

@@ -33,20 +33,17 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Exposes slot zero for the singleton statue's cross-slot writes.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives tube-crack and statue palette changes in the live palette.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Receives statue-authored layer-three FX motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
 
-    /// <summary>Binds statue behavior to room, movement, palette, FX, sound and projectile owners.</summary>
-    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyRoomFx roomFx)
+    /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
+    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyRoomFx roomFx)
     {
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
         _audio = audio;
         _slotTable = slotTable;
-        _presentation = presentation;
         _roomFx = roomFx;
     }
 
@@ -77,14 +74,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     public bool ChozoStatueAcidLoweringStarted { get; private set; }
 
     /// <summary>
-    /// Runs the complete palette-only initializer. The retail record begins
-    /// with the deletion property, so it exists solely long enough to replace the Chozo-and-tube
-    /// sprite colour sets; the scheduler removes it before any main-AI frame.
+    /// Runs the palette-only initializer. The retail record begins with the deletion property, so it exists solely long
+    /// enough to install the glass tube's crack colours, and the scheduler removes it before any main-AI frame. Those
+    /// colours are the shade every tube projectile draws in (<see cref="ChozoAndTubeShades.TubeCracks"/>, #1512), so
+    /// the initializer changes nothing the game keeps.
     /// </summary>
-    internal void InitializeN00bTubeCracks()
+    internal static void InitializeN00bTubeCracks()
     {
-        (_room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
-            "Tube crack colors require installed artwork.")).ApplyTubeCracks(ChozoAndTubeColours());
     }
 
     /// <summary>Initializes either shipped statue.</summary>
@@ -106,7 +102,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Frame = EnemyFrameId.Empty;
         statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
-        statue.Colouring = SharedSpriteColouring.Common;
+
+        // The initializer selects the common sprite colours and installs the statue's own colours over two of the room's
+        // palettes; the statue's sheet is coloured as that selection shows it, and its draws show the statue's shade, which
+        // no other enemy sharing those palettes takes (#1512).
+        statue.Shading = PictureShading.Shaded(variant == 0 ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
         var state = new ChozoStatueState
         {
@@ -124,25 +124,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWreckedShip)
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
-            ChozoStatueColors().ApplyWreckedShip(ChozoAndTubeColours());
             PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
             PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
-            ChozoStatueColors().ApplyLowerNorfair(ChozoAndTubeColours());
             PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
     }
-
-    /// <summary>Applies the installed Wrecked Ship or Lower Norfair statue palette to the live palette.</summary>
-    private ChozoAndTubeColorCatalog ChozoStatueColors() =>
-        _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException("Chozo statue colors require installed artwork.");
-
-    /// <summary>The two sprite colour stores the Chozo statues and the glass tube colour, in write order (#1405, #1464).</summary>
-    private ColourRunSequence ChozoAndTubeColours() =>
-        SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, _presentation.Colours.SpriteSets);
 
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the Chozo hand

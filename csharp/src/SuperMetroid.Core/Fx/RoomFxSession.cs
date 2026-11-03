@@ -18,6 +18,4 @@ public sealed class RoomFxSession
     /// <summary>The installed liquid/rain frame art.</summary>
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
 
-    /// <summary>The installed room-FX blend colors.</summary>
-    public RoomFxBlendInks? PaletteBlendColors { get; set; }
 }

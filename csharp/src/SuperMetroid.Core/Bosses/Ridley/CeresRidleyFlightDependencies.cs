@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
@@ -24,12 +23,6 @@ internal sealed record CeresRidleyFlightDependencies
     /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
-    /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     public required RidleyEncounter RidleyEncounter { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

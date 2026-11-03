@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies;
@@ -30,11 +31,11 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         MagdollitePaletteCycle native = stock.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");
         for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
-        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
+        for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
         {
             int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                 (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
-                 MagdollitePaletteDefinitions.FirstAnimatedColor + color) * sizeof(ushort);
+                 MagdollitePaletteCycle.FirstAnimatedColor + color) * sizeof(ushort);
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
                 native.Resolve(frame, color),
                 $"Magdollite palette frame {frame} color {color} preserves native RGB5");
@@ -65,7 +66,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
                 .Enemies.MagdollitePaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MagdollitePaletteCycle.")).Resolve(1, 0),
             "Magdollite color override persists across catalog reload");
         for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
-        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
+        for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
             if (frame != 1 || color != 0)
                 AssertEqual(native.Resolve(frame, color), cycle.Resolve(frame, color),
                     $"Magdollite color edit leaves frame {frame} color {color} unchanged");
@@ -73,35 +74,28 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-        var cgram = new SamusColourRig();
-        enemies.Presentation.BindColours(cgram.Gameplay);
+        // The hook names the glow frame every Magdollite shows (#1512); the frame's colours are the import's shade.
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
-        enemies.MagdolliteBehavior.MagdolliteColouring = SharedSpriteColouring.Common;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
-        const int destination = 0x80 + MagdollitePaletteDefinitions.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
         int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {
-            RgbColor[] before = cgram.Colors.Slice(destination,
-                MagdollitePaletteDefinitions.AnimatedColorCount).ToArray();
+            PictureShading before = enemies.MagdolliteBehavior.MagdolliteGlow;
             step();
-            int frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);
             if ((tick + 1) % 8 != 0)
             {
-                AssertTrue(before.SequenceEqual(cgram.Colors.Slice(destination,
-                        MagdollitePaletteDefinitions.AnimatedColorCount)),
-                    $"Magdollite colors do not change before tick {tick + 1} reaches the hook boundary");
+                AssertEqual(before, enemies.MagdolliteBehavior.MagdolliteGlow,
+                    $"Magdollite glow does not change before tick {tick + 1} reaches the hook boundary");
             }
             else
             {
-                frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);
-                for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
-                    AssertEqual(cycle.Resolve(frame, color), cgram.Colors[destination + color],
-                        $"Magdollite draw-hook tick {tick + 1} color {color}");
+                int frame = (tick + 1) / 8 & (MagdollitePaletteDefinitions.FrameCount - 1);
+                AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(frame)), enemies.MagdolliteBehavior.MagdolliteGlow,
+                    $"Magdollite draw-hook tick {tick + 1} glow frame");
             }
         }
         AssertEqual(healthBefore, untouched.Health,

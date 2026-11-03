@@ -39,16 +39,13 @@ internal static class RoomFxLayer3TilemapsVerification
         Suite(nameof(VerifySporeTilemapAttributes), () => VerifySporeTilemapAttributes(rom, catalog));
         Suite(nameof(VerifyAtmosphereTilemapFields), () => VerifyAtmosphereTilemapFields(rom, catalog));
         Suite(nameof(VerifyFxTilemapPageDispatch), () => VerifyFxTilemapPageDispatch(rom, catalog));
-        RoomFxBlendInks paletteColors = RoomFxPaletteBlendFile.Read(
-            new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
             int source = RoomFxLayer3TilemapSources.Page(type).Value;
             byte[] native = RomDataReader.ReadFixedBank(rom, source,
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
-            ushort[] plane = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
-                out CartridgeReadGuard guarded);
+            ushort[] plane = LoadConstructedRoomFxTilemap(type, catalog, out CartridgeReadGuard guarded);
             int first = Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns;
             for (int index = 0; index < native.Length / sizeof(ushort); index++)
                 AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]), plane[first + index],
@@ -109,8 +106,7 @@ internal static class RoomFxLayer3TilemapsVerification
     /// spells for the BG3 plane it shows under a blank HUD (#1466): the plane names its page, the catalog gives its words.
     /// </summary>
     private static ushort[] LoadConstructedRoomFxTilemap(RoomFxType type,
-        RoomFxLayer3Pages catalog, RoomFxBlendInks paletteColors,
-        out CartridgeReadGuard guarded)
+        RoomFxLayer3Pages catalog, out CartridgeReadGuard guarded)
     {
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.FirstOrDefault(candidate =>
             candidate.DoorPointer == 0 && candidate.Type == type)
@@ -118,9 +114,8 @@ internal static class RoomFxLayer3TilemapsVerification
         var memory = new TestAddressSpace();
         guarded = NewForbiddenRoomFxTilemapBus(memory);
         var stateSession = new RoomFxSession{
-            PaletteBlendColors = paletteColors,
         };
-        RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, new GameplayColours(new SpriteColourSets()), record, randomNumber: 0);
+        RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         AssertEqual<RoomFxType?>(type, state.EffectPlane.EffectPage, "the room's BG3 plane shows the selected FX type's page");
         return state.EffectPlane.WordsIn(catalog);

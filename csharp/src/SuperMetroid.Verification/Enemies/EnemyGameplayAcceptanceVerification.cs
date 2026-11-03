@@ -163,7 +163,7 @@ internal static class EnemyGameplayAcceptanceVerification
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var vram = new SnesVram(); var colors = new SamusColourRig();
-            enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors.Gameplay));
+            enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram)));
             // The room's enemy tile set reaches the OBJ characters as named transfers.
             var transfers = new EnemyTileTransfers(artwork);
             enemies.GraphicsSet.ShowGraphics();

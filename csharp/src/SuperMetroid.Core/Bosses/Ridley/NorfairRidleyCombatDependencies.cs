@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
@@ -18,9 +17,6 @@ internal sealed record NorfairRidleyCombatDependencies
     /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Publishes Ridley's health and transition palettes.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Owns fight state shared with cutscenes and room transitions.</summary>
     public required RidleyEncounter RidleyEncounter { get; init; }
 
@@ -32,7 +28,4 @@ internal sealed record NorfairRidleyCombatDependencies
 
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

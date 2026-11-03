@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -23,6 +24,7 @@ internal static class ClosedPresentationContractChecks
         const string consumer = """
             using SuperMetroid.AssetExtraction.Artwork;
             using SuperMetroid.AssetExtraction.Samus.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -46,7 +48,7 @@ internal static class ClosedPresentationContractChecks
                 void Inspect(GameplayHudPresentation hud, FileSelectPresentation menu,
                     MotherBrainRoomColorPresentation colors, GameOptionsPresentation options,
                     GameOverPresentation gameOver, PauseReserveUiPresentation reserve, PauseReserveArrowColours arrow,
-                    InstalledBeamPalettes beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
+                    InstalledBeamPalettes beam, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatuePalettes statues,
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
@@ -58,8 +60,6 @@ internal static class ClosedPresentationContractChecks
                     hud.MinimapCell(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0), SuperMetroid.Core.Hud.MinimapHiddenCell.Instance);
                     FileSelectPresentation.DrawCursor(oam, sheet, dynamicIndex, new(0,0));
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
-                    colors.ApplyRecoveryLights(cgram, dynamicIndex);
-                    colors.ApplyFlash(cgram, 14);
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyPalette.Idle);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
@@ -67,35 +67,23 @@ internal static class ClosedPresentationContractChecks
                     reserve.ApplyDigit(cells, 0, 10);
                     beam.LoadTo(screen.SpriteSets.Set(6), 0);
                     beam.LoadTo(screen.SpriteSets.Set(6), SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
-                    ridley.ApplyHealth(cgram, 0);
-                    ridley.ApplyHealth(cgram, 3);
-                    crocomire.ApplyFightBody(cgram);
-                    ridley.ResolveRetreatShared(0);
                     spores.ResolveSpore(0);
                     spores.ResolveDeath(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
-                    draygon.ApplyHealthBand(cgram, 7);
-                    draygon.ApplyHealthBand(cgram, 8);
-                    draygon.ApplyHurt(cgram, true, 8);
-                    phantoon.ResolvePowerOn(BackgroundColourSet.TilesFifth, 15);
-                    phantoon.ResolvePowerOn(BackgroundColourSet.TilesFifth, 16);
-                    statues.ApplyEye(cgram, 6);
-                    statues.ApplyEye(cgram, 1);
+                    phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);
+                    phantoon.ResolvePowerOn(SuperMetroid.Core.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
+                    statues.ResolveEye(3, 0);
+                    statues.ResolveEye(4, 0);
                     rainbow.TryReadBeamColor(38, out _);
                     rainbow.TryReadBeamColor(39, out _);
-                    rainbow.ApplyRainbow(cgram, 9);
-                    rainbow.ApplyRainbow(cgram, 10);
-                    rainbow.ApplyFakeDeathToGrey(cgram, 7);
-                    rainbow.ApplyFakeDeathFromGrey(cgram, 8);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
-                    chozo.ApplyLowerNorfair(new ColourRunSequence(screen.SpriteSets.All.Slice(16, 32)));
+                    chozo.ResolveTubeCracks(31);
                     chozo.ResolveTubeCracks(0);
                     basePalette.LoadEnemyProjectileSprites(screen.SpriteSets.Set(dynamicIndex));
                     samusDeath.SuitedColor(2, 9, 15);
                     samusDeath.SuitedColor(3, 9, 15);
                     samusDeath.ExplosionPaletteIndex(8);
                     samusDeath.ExplosionPaletteIndex(9);
-                    rainbow.ApplyFromGrey(cgram, 7);
                 }
             }
             """;
@@ -113,16 +101,16 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 42, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
+        Require(before.UnresolvedCount == 28, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 24 && report.MissingCount == 0 && report.UnresolvedCount == 18,
+        Require(report.Classifications.Count == 16 && report.MissingCount == 0 && report.UnresolvedCount == 12,
             $"only reviewed valid-domain operations qualify; invalid selections must fail " +
-            $"(classified {report.Classifications.Count}/24, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/18; " +
+            $"(classified {report.Classifications.Count}/16, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/12; " +
             $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
-        Require(report.Consumers.Count == 42, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/42; unbound: " +
+        Require(report.Consumers.Count == 28, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/28; unbound: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
 
         InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();

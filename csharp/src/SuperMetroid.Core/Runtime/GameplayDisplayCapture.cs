@@ -315,10 +315,9 @@ public static class GameplayDisplayCapture
         // Phase five deletes the per-line effect object but its blend bits have already been
         // published for this pass. Only its fixed color is cleared immediately.
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
-        BackgroundColours colours = basis.Paint.Backgrounds;
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
-        if (!settingUp) colours = colours.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
-        var paint = new FramePaint(colours, basis.Paint.SpriteDraws);
+        FramePaint paint = settingUp ? basis.Paint
+            : basis.Paint.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
         // Releasing Run merely advances the beam to phase three. That
         // phase closes the beam's window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.

@@ -21,9 +21,6 @@ internal sealed record BabyMetroidCutsceneBehaviorDependencies
     /// <summary>Slot table.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
@@ -32,7 +29,4 @@ internal sealed record BabyMetroidCutsceneBehaviorDependencies
 
     /// <summary>Mother brain encounter.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
-
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

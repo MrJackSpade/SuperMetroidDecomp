@@ -58,9 +58,6 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
-    /// <summary>The brain's colours, forced to the corpse colours when the dying brain effects shut down (#1464).</summary>
-    public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
-
     /// <summary>Number of calls made to the body flicker producer.</summary>
     public uint BodyFlickerCallCount { get; private set; }
 
@@ -304,7 +301,6 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.DisableSmallPurpleBreathGeneration();
             _state.BrainPaletteHandlingEnabled = false;
             _state.HealthBasedPaletteHandlingEnabled = false;
-            BrainColouring = new EncounterSpriteColouring(BossColourDefinitions.MotherBrainCorpse);
             requests.PaletteRequested = true;
             // Disabling the brain's effects clears the death-explosion counters before the fade-out explosions.
             DeathExplosionIntervalTimer = WrappingCountdown.Start(0);

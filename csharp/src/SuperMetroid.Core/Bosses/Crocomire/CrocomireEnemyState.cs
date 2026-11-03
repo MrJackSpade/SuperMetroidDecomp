@@ -25,6 +25,9 @@ public sealed class CrocomireEnemyState
     /// <summary>Creates the state for Crocomire's body slot.</summary>
     internal CrocomireEnemyState(RoomEnemySlot body) => Body = body;
 
+    /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
+    internal CrocomireColours Colours { get; } = new();
+
     /// <summary>The saturating count of mouth hits (<see cref="HitCount"/>).</summary>
     private int _hitCount;
 

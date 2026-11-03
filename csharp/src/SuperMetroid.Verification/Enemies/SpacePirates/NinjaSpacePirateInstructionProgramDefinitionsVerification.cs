@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
@@ -220,8 +221,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
                 $"ninja Pirate dive program {program} function");
-            AssertEqual(7, slot.PaletteRowIn(enemies),
-                $"ninja Pirate dive program {program} palette");
+            AssertEqual(SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash, slot.Shading,
+                $"ninja Pirate dive program {program} gold wall look");
             AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.Audio.PublishedSoundFrom(EnemySoundSource.SpacePirate) ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
                 $"ninja Pirate dive program {program} sound");
         }
@@ -230,7 +231,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
-            enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);

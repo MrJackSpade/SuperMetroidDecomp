@@ -29,7 +29,7 @@ public sealed class TorizoEnemyState
     public bool IsGolden { get; }
 
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
-    internal GradualPaletteTransition? PaletteTransition { get; set; }
+    internal TorizoColours Colours { get; } = new();
 
     /// <summary>The body program's cursor, in place of the instruction pointer.</summary>
     internal AnimationProgramCursor<TorizoBodyProgram> BodyProgram { get; set; }

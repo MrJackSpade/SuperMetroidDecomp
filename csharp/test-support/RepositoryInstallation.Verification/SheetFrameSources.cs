@@ -80,7 +80,9 @@ internal static class SheetFrameSources
             return new CharacterSpriteDraw(draw.Source, source.Frame, characters ?? source.Page, draw.Origin, flip, frontend.HoldingRow, 0);
         // A family's palette bits, or the draw's override in their place, OR into each part's own row, as the
         // cartridge ORs an enemy's.
-        int bits = draw.Colouring is { } overriding ? overriding.HoldingRow : source.PaletteBits;
+        // A shaded draw selects the row of its last selection shade, as a hit or freeze flash does (#1512).
+        int bits = draw.Shading is { } shading ? SuperMetroid.Core.Enemies.Drawing.SpriteColouringAccess.RowSelectedBy(shading, source.PaletteBits)
+            : draw.Colouring is { } overriding ? overriding.HoldingRow : source.PaletteBits;
         SpriteFrame frame = bits == 0 ? source.Frame
             : new SpriteFrame(source.Frame.Name, [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | bits })]);
         return new CharacterSpriteDraw(draw.Source, frame, characters ?? source.Page, draw.Origin, flip, source.FramePalette ?? 0, 0);

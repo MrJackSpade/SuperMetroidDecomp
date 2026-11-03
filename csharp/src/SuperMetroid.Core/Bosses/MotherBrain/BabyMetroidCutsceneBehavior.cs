@@ -29,8 +29,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Allocates the Baby in the first free enemy slot.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies Baby and Mother Brain color changes to the live colours.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Supplies the enemy-frame counter used to gate incremental healing sound.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns release dust and Baby death explosions.</summary>
@@ -38,20 +36,16 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shares physical body, head, rainbow sequence, and requested music state with Mother Brain.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Connects the cutscene Baby to its Mother Brain encounter and room services.</summary>
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
         _slotTable = dependencies.SlotTable;
-        _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _projectiles = dependencies.Projectiles;
     }
@@ -109,7 +103,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyAppliedProgram = baby.Program;
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
 
-        CopyBabyMetroidActorToPhysicalSlot(slot, baby);
+        CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
         slot.FrameHold = baby.FrameHold;
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -118,14 +112,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         LoadBabyMetroidCutsceneInitialPalette();
     }
 
-    /// <summary>Copies installed Baby start colors while leaving the transparent entry untouched.</summary>
-    internal void LoadBabyMetroidCutsceneInitialPalette()
-    {
-        var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
-            "Baby Metroid cutscene requires installed colors.");
-        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
-            _presentation.BossColours().BabyMetroidCutscene.Write(color, colors.InitialColor(color));
-    }
+    /// <summary>Lays the Baby's start colours, which leave the transparent entry untouched.</summary>
+    internal void LoadBabyMetroidCutsceneInitialPalette() =>
+        _motherBrainEncounter.Colours.Sprites.Lay(MotherBrainShades.BabyArrives);
 
     /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby list changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
@@ -190,20 +179,19 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         if (baby.Program != state.BabyAppliedProgram)
             SetBabyMetroidCutsceneProgram(state, slot, baby.Program);
-        CopyBabyMetroidActorToPhysicalSlot(slot, baby);
+        CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
         ApplyBabyMetroidFrameEffects(step);
     }
 
     /// <summary>Copies cutscene position, property, palette, tile, and health state into the live enemy record.</summary>
     private static void CopyBabyMetroidActorToPhysicalSlot(
         RoomEnemySlot slot,
-        BabyMetroidCutsceneState baby)
+        BabyMetroidCutsceneState baby,
+        MotherBrainColours colours)
     {
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
-        slot.Colouring = baby.HitFlashPaletteShown
-            ? SharedSpriteColouring.Common
-            : new EncounterSpriteColouring(BossColourDefinitions.BabyMetroidCutscene);
+        slot.Shading = baby.HitFlashPaletteShown ? EnemyShades.HitFlashed : colours.SpriteShading;
         slot.TileIndexBase = baby.TileBase;
         slot.Health = baby.Health;
     }
@@ -214,7 +202,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.FatalBlowStarted)
         {
             _audio.QueueEnemySound(Library3Sound.BabyMetroidDeath, priority: SoundRequestPriority.Normal);
-            SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Colours);
+            _motherBrainEncounter.Colours.Background.Lay(MotherBrainShades.LightsOut);
             _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }
         if (step.SamusThemeStarted)
@@ -251,19 +239,20 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shows room-light recovery frame <paramref name="frame"/> (0..6) from the installed room colours.</summary>
     /// <exception cref="InvalidDataException">The frame is not one of the seven authored images.</exception>
-    internal void LoadMotherBrainRecoveryLights(int frame) =>
-        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
-            "Mother Brain recovery requires installed room colors."))
-            .ApplyRecoveryLights(_presentation.Colours, frame);
+    internal void LoadMotherBrainRecoveryLights(int frame)
+    {
+        if ((uint)frame >= MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
+            throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
+        _motherBrainEncounter.Colours.Background.Lay(MotherBrainShades.RecoveryLights(frame));
+    }
 
     /// <summary>Shows the Baby's black-fade shade <paramref name="shade"/> (1..6) from its installed colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shade is not one of the six authored images.</exception>
     internal void LoadBabyMetroidCutsceneFadePalette(int shade)
     {
-        var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
-            "Baby Metroid fade requires installed colors.");
-        for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.FadeColorCount; color++)
-            _presentation.BossColours().BabyMetroidCutscene.Write(color, colors.FadeColor(shade, color));
+        if (shade < 1 || shade > BabyMetroidCutsceneColorDefinitions.FadeFrameCount)
+            throw new ArgumentOutOfRangeException(nameof(shade), shade, "The Baby's fade has six shades.");
+        _motherBrainEncounter.Colours.Sprites.Lay(MotherBrainShades.BabyFade(shade));
     }
 
     /// <summary>Ports BabyMetroidCutscene's main AI.</summary>

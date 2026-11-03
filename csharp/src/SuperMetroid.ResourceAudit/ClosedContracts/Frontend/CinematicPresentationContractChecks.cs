@@ -50,10 +50,10 @@ internal static class CinematicPresentationContractChecks
                     motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
                     explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
-                    door.LoadNormalColors(screen.SpriteSets.Set(2));
-                    door.LoadEscapeColors(screen.SpriteSets.Set(7));
-                    door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationStepCount - 1);
-                    door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationStepCount);
+                    door.NormalColor(0);
+                    door.EscapeColor(0);
+                    door.AnimationColor(CeresDoorVisualDefinitions.AnimationStepCount - 1, 0);
+                    door.AnimationColor(CeresDoorVisualDefinitions.AnimationStepCount, 0);
                     timer.Draw(countdown, sprites, timerSheet);
                 }
             }

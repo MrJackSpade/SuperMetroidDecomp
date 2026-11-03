@@ -17,7 +17,7 @@ internal static class PhantoonColorEdits
     /// <param name="fadeOut">The materialization fade-out target.</param>
     /// <param name="powerOn">Each background set the power-on fades, with its sixteen target colours.</param>
     internal static PhantoonColorSelection Select(RgbColor[][] healthBands, RgbColor[] fadeOut,
-        IReadOnlyDictionary<BackgroundColourSet, RgbColor[]> powerOn) =>
+        IReadOnlyDictionary<WreckedShipPoweredPart, RgbColor[]> powerOn) =>
         new(HealthEdits(healthBands), FadeOutEdits(fadeOut), PowerEdits(powerOn));
 
     /// <summary>Keeps the health-band colours that differ from the calculated material and damage shades.</summary>
@@ -41,25 +41,25 @@ internal static class PhantoonColorEdits
     }
 
     /// <summary>
-    /// Keeps the powered-ship colours that differ from the calculated paint, each under the background set it targets.
-    /// Every set the power-on fades must be supplied with all of its colours, and no other set.
+    /// Keeps the powered-ship colours that differ from the calculated paint, each under the part it paints. Every part the
+    /// power-on fades must be supplied with all of its colours, and no other part.
     /// </summary>
-    private static Dictionary<BackgroundSetColour, RgbColor> PowerEdits(IReadOnlyDictionary<BackgroundColourSet, RgbColor[]> powerOn)
+    private static Dictionary<WreckedShipPoweredColour, RgbColor> PowerEdits(IReadOnlyDictionary<WreckedShipPoweredPart, RgbColor[]> powerOn)
     {
         Ensure.NotNull(powerOn);
-        if (powerOn.Count != PhantoonColorDefinitions.PowerOnSets.Length)
-            throw new ArgumentException("The power-on targets must name exactly the sets the power-on fades.", nameof(powerOn));
-        var edits = new Dictionary<BackgroundSetColour, RgbColor>();
-        foreach (BackgroundColourSet set in PhantoonColorDefinitions.PowerOnSets)
+        if (powerOn.Count != PhantoonColorDefinitions.PoweredParts.Length)
+            throw new ArgumentException("The power-on targets must name exactly the parts the power-on fades.", nameof(powerOn));
+        var edits = new Dictionary<WreckedShipPoweredColour, RgbColor>();
+        foreach (WreckedShipPoweredPart part in PhantoonColorDefinitions.PoweredParts)
         {
-            RgbColor[] colours = powerOn.TryGetValue(set, out RgbColor[]? supplied)
+            RgbColor[] colours = powerOn.TryGetValue(part, out RgbColor[]? supplied)
                 ? supplied
-                : throw new ArgumentException($"The power-on targets have no colours for {set}.", nameof(powerOn));
+                : throw new ArgumentException($"The power-on targets have no colours for {part}.", nameof(powerOn));
             if (colours.Length != ColourSets.SetColours)
-                throw new ArgumentException($"The power-on targets of {set} must hold one set's colours.", nameof(powerOn));
+                throw new ArgumentException($"The power-on targets of {part} must hold one group's colours.", nameof(powerOn));
             for (int color = 0; color < colours.Length; color++)
-                if (colours[color] != WreckedShipPowerPaint.Color(set, color))
-                    edits.Add(new BackgroundSetColour(set, color), colours[color]);
+                if (colours[color] != WreckedShipPowerPaint.Color(part, color))
+                    edits.Add(new WreckedShipPoweredColour(part, color), colours[color]);
         }
         return edits;
     }

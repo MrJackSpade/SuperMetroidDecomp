@@ -38,9 +38,6 @@ internal interface IGameplayArtwork
     /// <summary>Samus body tiles, palettes and death palettes.</summary>
     InstalledSamusBodyArtwork? SamusBodyArt { get; }
 
-    /// <summary>Room static palettes.</summary>
-    RoomStaticPalettes? RoomPaletteArt { get; }
-
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     InstalledRoomArtwork? RoomBlockSheets { get; }
 
@@ -130,7 +127,6 @@ internal interface IGameplayArtwork
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }
-
 
     /// <summary>Timed projectile frame sprite choices.</summary>
     InstalledProjectileFrameBindings? ProjectileFrameBindings { get; }

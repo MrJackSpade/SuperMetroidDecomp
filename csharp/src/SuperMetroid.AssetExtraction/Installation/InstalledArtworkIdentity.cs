@@ -16,11 +16,14 @@ public static class InstalledArtworkIdentity
     /// <summary>Fingerprints an already loaded set; nothing is read here. Every catalog must be bound.</summary>
     /// <param name="artwork">The bound artwork set.</param>
     /// <param name="standardObjects">The installed standard object characters, which only the import reads (#1484).</param>
-    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, RoomCharacterAtlas standardObjects)
+    /// <param name="roomPalettes">The tilesets' installed colours, which only the import reads (#1512).</param>
+    public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, RoomCharacterAtlas standardObjects,
+        RoomStaticPalettes roomPalettes)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(standardObjects);
-        return RoomPresentationIdentity.Create(Require(artwork.RoomPaletteArt), Require(artwork.RoomVisualLayouts))
+        Ensure.NotNull(roomPalettes);
+        return RoomPresentationIdentity.Create(roomPalettes, Require(artwork.RoomVisualLayouts))
             .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, Require(artwork.SamusBodyArt).ContentIdentity))
             .Concat(RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet
             {

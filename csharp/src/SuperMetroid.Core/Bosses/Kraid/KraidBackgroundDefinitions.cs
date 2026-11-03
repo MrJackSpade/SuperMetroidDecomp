@@ -9,4 +9,9 @@ public static class KraidBackgroundDefinitions
 
     /// <summary>The size of the background plane Kraid's body shows on: two screens wide and two screens tall.</summary>
     public static Extent16<TilemapCells> BodyPlaneSize { get; } = new(64, 64);
+
+    /// <summary>
+    /// The last step of the room backdrop's fades that moves its colours (#1512): the step after it completes the fade.
+    /// </summary>
+    public const int BackdropFadeLastStep = 13;
 }

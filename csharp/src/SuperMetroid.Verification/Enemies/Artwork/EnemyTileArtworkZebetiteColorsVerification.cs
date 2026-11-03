@@ -14,12 +14,18 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Verification.Bosses;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks Zebetite's eight-frame two-color pulse against native
 /// CGRAM updates while preserving its runtime gates and counter.</summary>
 internal static class EnemyTileArtworkZebetiteColorsVerification
 {
+    /// <summary>The colour the Zebetites' pulse starts at: the second enemy row's colour twelve.</summary>
+    private const int PulseFirstColour = 0xac;
+
     /// <summary>Compares live pulse frames with cartridge colors, then checks
     /// one edited channel, override persistence, and malformed asset rejection.</summary>
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
@@ -35,7 +41,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                     ZebetiteColorFormat.FrameCount * ZebetiteColorFormat.ColorsPerFrame *
                     sizeof(ushort)),
             address => $"Installed Zebetite pulse read migrated ROM color ${address:X6}.");
-        (RoomEnemySystem installed, SamusColourRig installedCgram) = Create(guard, stock);
+        RoomEnemySystem installed = Create(guard, stock);
         for (int call = 0; call < ZebetiteColorFormat.FrameCount * 2; call++)
         {
             ReferenceCycle(nativeCgram, ref nativeCounter);
@@ -45,7 +51,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                 "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
             AssertEqual(nativeCounter, Counter(installed),
                 "Installed Zebetite pulse keeps native frame selection");
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installed, stock))),
                 "Installed Zebetite pulse preserves full native CGRAM and neighbors");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -62,21 +68,22 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         byte[] selectedBytes = System.Text.Encoding.UTF8.GetBytes(editedDocument.ToJsonString());
         File.WriteAllBytes(overridePath, selectedBytes);
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        (RoomEnemySystem selected, SamusColourRig selectedCgram) = Create(guard, edited);
+        RoomEnemySystem selected = Create(guard, edited);
         SamusColourRig controlCgram = SeedColors();
         ushort controlCounter = 0;
         for (int call = 0; call < 2; call++)
         {
             Cycle(selected);
             ReferenceCycle(controlCgram, ref controlCounter);
-            AssertTrue(new CgramPalettes(controlCgram).ImageEquals(new CgramPalettes(selectedCgram)),
+            AssertTrue(new CgramPalettes(controlCgram).ImageEquals(new CgramPalettes(Shown(selected, edited))),
                 "Zebetite edit leaves preceding pulse frames unchanged");
         }
         Cycle(selected);
         ReferenceCycle(controlCgram, ref controlCounter);
+        SamusColourRig selectedCgram = Shown(selected, edited);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(controlCgram.Colors[color].ToWord() ^
-                (color == ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1 ? 1 : 0)),
+                (color == PulseFirstColour + 1 ? 1 : 0)),
                 selectedCgram.Colors[color],
                 "Zebetite visual edit changes only one color channel at the selected frame");
         AssertEqual(controlCounter, Counter(selected),
@@ -96,10 +103,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves the Zebetite color override");
         var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        var persistedCgram = new SamusColourRig();
-        (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(ZebetiteDefinitions.PulseColours.In(persistedCgram.Gameplay), 3);
-        AssertEqual(selectedCgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1],
-            persistedCgram.Colors[ColourSetRunPositions.First(ZebetiteDefinitions.PulseColours) + 1],
+        AssertEqual(Pulse(edited, 3).Colours[1], Pulse(reloaded, 3).Colours[1],
             "Reload retains edited Zebetite pulse color");
 
         File.WriteAllText(overridePath, "broken");
@@ -120,17 +124,32 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");
 
-        static CreateResult Create(
+        static RoomEnemySystem Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            SamusColourRig cgram = SeedColors();
-            enemies.Presentation.BindColours(cgram.Gameplay);
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
             primarySlot.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
             primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);
-            return new CreateResult(enemies, cgram);
+            return enemies;
+        }
+
+        // The import's shade of pulse frame <frame> among <artwork>'s Zebetite shades (#1512).
+        static SheetShade Pulse(InstalledEnemyArtwork artwork, int frame) =>
+            MotherBrainSheetShades.Zebetites(artwork.Bosses).Single(shade => shade.Shade == ZebetiteShades.Pulse(frame));
+
+        // The colours the Zebetites show over the seeded colours: the pulse frame last shown, as the import pre-coloured it.
+        static SamusColourRig Shown(RoomEnemySystem enemies, InstalledEnemyArtwork artwork)
+        {
+            SamusColourRig cgram = SeedColors();
+            if (enemies.ZebetiteBehavior.PulseShown is int frame)
+            {
+                SheetShade pulse = Pulse(artwork, frame);
+                for (int index = 0; index < pulse.Inks.Length; index++)
+                    cgram.SetColor(BossShadeColours.Sprites + pulse.Inks[index], pulse.Colours[index]);
+            }
+            return cgram;
         }
 
         static int Counter(RoomEnemySystem enemies) => enemies.ZebetiteBehavior.SharedPaletteCycle;
@@ -142,7 +161,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             for (int color = 0; color < 2; color++)
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
-                cgram.SetColor(0xac + color,
+                cgram.SetColor(PulseFirstColour + color,
                     RgbColor.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
             }
         }

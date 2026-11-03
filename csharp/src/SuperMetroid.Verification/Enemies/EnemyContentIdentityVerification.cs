@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks canonical identity and compatibility reporting for the selected enemy artwork bundle.</summary>
 internal static class EnemyContentIdentityVerification

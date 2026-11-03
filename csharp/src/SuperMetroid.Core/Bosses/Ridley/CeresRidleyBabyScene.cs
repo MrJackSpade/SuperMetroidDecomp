@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Areas.Ceres;
+﻿using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -28,14 +27,11 @@ internal sealed class CeresRidleyBabyScene
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter, BossArtworkBinding bossArtwork)
+    internal CeresRidleyBabyScene(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter)
     {
-        _bossArtwork = bossArtwork;
         _room = room;
         _earthquake = earthquake;
         _audio = audio;
@@ -120,7 +116,7 @@ internal sealed class CeresRidleyBabyScene
             DrawRidleyWorldSpritemap(
                 sprites,
                 new SpriteSource(SpriteSourceKind.RidleyTail, 6),
-                state.SpritemapColouring,
+                state.SpritemapShading,
                 tip,
                 tipFrame,
                 camera);
@@ -132,7 +128,7 @@ internal sealed class CeresRidleyBabyScene
                 DrawRidleyWorldSpritemap(
                     sprites,
                     new SpriteSource(SpriteSourceKind.RidleyTail, index),
-                    state.SpritemapColouring,
+                    state.SpritemapShading,
                     state.TailSegments[index],
                     RidleySupplementalVisualDefinitions.SegmentFrames.Of(index),
                     camera);
@@ -144,7 +140,7 @@ internal sealed class CeresRidleyBabyScene
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingFrameIndex);
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            new(CoordinateAxis.Wrap(slot.Position.X.Whole - camera.X), CoordinateAxis.Wrap(slot.Position.Y.Whole - camera.Y)), state.SpritemapColouring);
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole - camera.X), CoordinateAxis.Wrap(slot.Position.Y.Whole - camera.Y)), state.SpritemapShading);
     }
 
     /// <summary>
@@ -201,7 +197,7 @@ internal sealed class CeresRidleyBabyScene
             if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
                 _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-                    state.BabyPosition.Whole.ToScreen(camera), SharedSpriteColouring.Common);
+                    state.BabyPosition.Whole.ToScreen(camera), EnemyShades.HitFlashed);
             }
         }
 
@@ -220,7 +216,7 @@ internal sealed class CeresRidleyBabyScene
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
                 new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),
-                new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive));
+                CeresDoorShades.InNormalColours);
         }
     }
 
@@ -267,10 +263,7 @@ internal sealed class CeresRidleyBabyScene
                 _audio.QueueEnemySound(Library3Sound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
-                if (_bossArtwork.CeresRidleyColors is { } babyColors)
-                    babyColors.ApplyBaby(_presentation.Colours, updateColors.Shade);
-                else throw new InvalidOperationException(
-                    "Ceres Ridley requires installed Baby Metroid colors.");
+                state.Colours.Sprites.Lay(RidleyShades.Baby(updateColors.Shade));
                 return null;
             case CeresBabyCue.GoToIfMoving goToIfMoving:
                 return state.BabyVerticalVelocity != 0 ? goToIfMoving.Target : null;
@@ -283,7 +276,7 @@ internal sealed class CeresRidleyBabyScene
     private void DrawRidleyWorldSpritemap(
         SpriteFrameBuffer sprites,
         SpriteSource source,
-        SpriteColouring colouring,
+        PictureShading colouring,
         RidleyTailSegment segment,
         EnemyFrameId frame,
         Position16<RoomPixels> camera)

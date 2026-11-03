@@ -514,6 +514,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         RoomBackgroundLayer? floor = null;
         Layer3Cells? bg3 = rooms?.Bg3;
         AffineFloor? floorMap = null;
+        // A gameplay room's turning floor shows the room's shading; a frontend screen's its screen's colours (#1512).
+        D3D11PictureColouring floorColouring = D3D11PictureColouring.Frame;
         // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
@@ -524,7 +526,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         foreach (DisplayLayer layer in scene.Layers)
         {
             if (layer is TurningFloorLayer frontendMode7)
+            {
                 floorMap = SameFloor(floorMap, frontendMode7.Floor);
+                floorColouring = D3D11PictureColouring.Frame;
+            }
             if (layer is PictureGridLayer { Grid: { } grid } && !grids.Contains(grid))
                 grids.Add(grid);
             // The pictured planes (#1467), each once.
@@ -537,6 +542,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             {
                 floor = mode7.Floor?.Room ?? floor;
                 floorMap = SameFloor(floorMap, mode7.Map);
+                floorColouring = D3D11PictureColouring.Room;
             }
             else if (layer is OverlayBlendLayer math)
                 bg3 = SameBg3(bg3, math.Plane);
@@ -546,7 +552,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
             rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
             messagePicture, hud,
-            planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]));
+            planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
+            scene.Paint.Gameplay is null ? D3D11PictureColouring.Frame : D3D11PictureColouring.Hud, floorColouring);
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
         D3D11SpriteDrawBuffer.Collect(scene.Paint.SpriteDraws.AsSpan(), images.Needed);
@@ -560,7 +567,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             fixed (uint* source = roomLevels.Upload) UploadBuffer(roomLevels.Buffer, (nint)source, roomLevels.Upload.Length * sizeof(uint));
         // The colours change every frame a colour effect runs, so they are packed every frame, for the slots the
         // pictures were packed with.
-        sceneColours.Pack(scene.Paint.Backgrounds, roomLevels.ColourSlots);
+        sceneColours.Pack(scene.Paint, roomLevels.ColourSlots);
         fixed (uint* source = sceneColours.Upload) UploadBuffer(sceneColours.Buffer, (nint)source, sceneColours.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);

@@ -15,7 +15,6 @@ internal static class WreckedShipGhostBehaviorVerification
     internal static void VerifyWreckedShipGhostBehavior()
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
         ghost.Bind(ghost.DefinitionId, default(RoomEnemyDefinition));

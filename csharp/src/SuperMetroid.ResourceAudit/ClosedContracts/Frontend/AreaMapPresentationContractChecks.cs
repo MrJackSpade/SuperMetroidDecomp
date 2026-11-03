@@ -20,23 +20,23 @@ internal static class AreaMapPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies;
             using SuperMetroid.Core.Frontend.Map.Artwork;
             using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             class MapConsumer {
-                void Inspect(AreaMapPresentation maps, EnemyTileArtworkCatalog enemies) {
+                void Inspect(AreaMapPresentation maps, EnemyTileSourceArtwork enemies) {
                     maps.Get(AreaId.Crateria);
                     maps.Get(AreaId.Ceres);
                     maps.Get((AreaId)7);
-                    enemies.LoadPaletteTo(default, default);
+                    enemies.PaletteOf(default);
                 }
             }
             """, path: "fixture-area-map-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("AreaMapProviderFixture", sources,
-            platforms.Append(typeof(AreaMapPresentation).Assembly.Location).Distinct()
+            platforms.Append(typeof(AreaMapPresentation).Assembly.Location).Append(typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -54,7 +54,7 @@ internal static class AreaMapPresentationContractChecks
         Require(before.UnresolvedCount == 4, "the fixture must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 2 && after.MissingCount == 0 &&
             after.Consumers.Count == 4, "all installed areas qualify, not unknown areas" + " (" + after.Describe() + ")");
-        Require(after.Findings.Any(item => item.Owner == "EnemyTileArtworkCatalog.LoadPaletteTo"),
+        Require(after.Findings.Any(item => item.Owner == "EnemyTileSourceArtwork.PaletteOf"),
             "an enemy catalog without its own reviewed sources must not borrow the atomic map install proof");
     }
 

@@ -37,7 +37,7 @@ internal static class CeresElevatorArrivalVerification
 
         // With tile base zero in the common colours, whose row is zero, each actor shows its composition at tile base zero
         // in the parts' own palettes; leaked enemy graphics would add a base tile and select other colours.
-        var noGraphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common);
+        var noGraphics = SpriteGraphics.CharacterZeroIn(PictureShading.Standard);
         VerificationAssertions.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
             "Ceres arrival actors draw with tile base zero in the common sprite colours");
         var oam = new OamBuffer();

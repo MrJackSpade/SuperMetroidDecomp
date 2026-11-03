@@ -70,7 +70,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Level = CreateSolidRowsRoom(new(roomBlocks, roomBlocks), floorRow, roomBlocks - floorRow);
             Enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
-            Enemies.Presentation.BindColours(Colors.Gameplay);
             Enemies.VerificationServices().NextRandom = NextRandom;
             Enemies.VerificationServices().ReadRandom = () => RandomWord;
             Enemies.VerificationServices().SeedRandom = value => RandomWord = value;
@@ -87,10 +86,10 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.FrameHold = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {
-                Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet, Colors.Gameplay.SpriteSets);
+                Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet);
                 SpriteGraphics indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
                 Actor.TileIndexBase = indexes.TileBase;
-                Actor.Colouring = indexes.Colouring;
+                Actor.Shading = indexes.Shading;
             }
             if (golden)
             {

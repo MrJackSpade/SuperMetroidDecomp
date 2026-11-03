@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -25,8 +26,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private readonly EnemyTerrain _terrain;
     /// <summary>Exposes the companion enemy slot whose invisibility suppresses the initial victim.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives the victim's staged palette changes.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Supplies the enemy counter used to pace dust sound effects.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns dust from each completed corpse row.</summary>
@@ -44,7 +43,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
         _slotTable = dependencies.SlotTable;
-        _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
         _projectiles = dependencies.Projectiles;
         _collision = dependencies.Collision;
@@ -96,6 +94,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the Shitroid victim layout.</summary>
     private void InitializeShitroidVictimSidehopper(RoomEnemySlot slot)
     {
+        // The Shitroid's entry loads the victim's colours, the target the room's colours fade to (#1512).
+        slot.Shading = ShitroidShades.InTargetColours;
         // The mask clears the solid bit and any inherited process-offscreen bit,
         // then explicitly reinstalls only process-offscreen. Do not replace this with an
         // enum union: preserving the unrelated population-property bits is observable.
@@ -106,7 +106,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));
-        slot.Colouring = SharedSpriteColouring.DeadSidehopperFade;
         slot.Radius = slot.Radius.WithY(21);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
@@ -122,7 +121,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Runs the already-dead Tourian layout.</summary>
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
-        slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
+        slot.Shading = TourianCorpseShades.InDrainedColours;
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
@@ -324,15 +323,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
 
         state.PaletteFrameCounter = 0;
-        var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
-            "Dead-sidehopper palette transformation requires installed artwork.");
-        for (int color = 0; color < 15; color++)
-        {
-            _presentation.ColourSetOf(SharedSpriteColouring.DeadSidehopperFade).Slice(1, ColourSets.SetColours - 1).Write(
-                color,
-                colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.DeadSidehopper,
-                    state.PaletteStage - 1, color));
-        }
+
+        // The game writes the stage's colours into the palette it fades the victim in, which every enemy sharing that
+        // palette also showed; only the victim shows the drain here (#1512).
+        slot.Shading = PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(state.PaletteStage - 1));
 
         state.PaletteStage++;
         if (state.PaletteStage < 8)

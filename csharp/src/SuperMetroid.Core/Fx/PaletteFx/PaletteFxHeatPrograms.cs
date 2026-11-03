@@ -80,6 +80,13 @@ public static class PaletteFxHeatPrograms
         _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
     };
 
+    /// <summary>Every heat program of every suit, its starting program and each phase's (#1512).</summary>
+    internal static IReadOnlyList<PaletteFxProgram> Every { get; } =
+    [
+        PaletteFxProgram.SamusInHeatPowerSuit0, PaletteFxProgram.SamusInHeatVariaSuit0, PaletteFxProgram.SamusInHeatGravitySuit0,
+        .. PowerPrograms, .. VariaPrograms, .. GravityPrograms,
+    ];
+
     /// <summary>The program of heat <paramref name="phase"/> for <paramref name="suit"/>.</summary>
     public static PaletteFxProgram Phase(PaletteFxHeatSuit suit, int phase)
     {

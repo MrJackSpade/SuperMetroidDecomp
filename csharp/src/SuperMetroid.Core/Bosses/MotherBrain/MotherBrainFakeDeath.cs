@@ -26,27 +26,21 @@ internal sealed class MotherBrainFakeDeath
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
-        _presentation = dependencies.Presentation;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
 
         _access = dependencies.Access;
@@ -83,10 +77,7 @@ internal sealed class MotherBrainFakeDeath
                 // Fake-death fade replaces colors 145..147 only. Copying a convenient
                 // whole palette would visibly alter unrelated room art and is not what
                 // the fake-death fade does.
-                if (_bossArtwork.MotherBrainRainbowColors is { } colors)
-                    colors.ApplyFakeDeathToGrey(_presentation.Colours, step);
-                else throw new InvalidOperationException(
-                    "Mother Brain fake-death fade requires installed colors.");
+                state.Colours.Sprites.Lay(MotherBrainShades.FakeDeathToGrey(step));
             }
         }
 
@@ -101,9 +92,7 @@ internal sealed class MotherBrainFakeDeath
     {
         state.RoomFlashFrame = null;
         state.RoomFlashTimer = 0;
-        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
-            "Mother Brain room finale requires installed colors."))
-            .ApplyFinal(_presentation.Colours);
+        state.Colours.Background.Lay(MotherBrainShades.FinalRoom);
     }
 
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
@@ -273,7 +262,7 @@ internal sealed class MotherBrainFakeDeath
         if (projectile is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.TubeProjectiles)));
+        MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.CharacterZeroIn(_motherBrainEncounter.Colours.SpriteShading));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.State = new MotherBrainTopTubeState();
@@ -562,10 +551,7 @@ internal sealed class MotherBrainFakeDeath
         if (paletteStep < MotherBrainFakeDeathPaletteDefinitions.FrameCount)
         {
             // Fake-death restoration changes only brain sprite colors one through three.
-            if (_bossArtwork.MotherBrainRainbowColors is { } colors)
-                colors.ApplyFakeDeathFromGrey(_presentation.Colours, paletteStep);
-            else throw new InvalidOperationException(
-                "Mother Brain revival requires installed colors.");
+            state.Colours.Sprites.Lay(MotherBrainShades.FakeDeathFromGrey(paletteStep));
             return;
         }
 

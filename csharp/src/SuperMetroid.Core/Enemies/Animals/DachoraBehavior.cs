@@ -18,26 +18,23 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DachoraEntity(this, slot, common);
 
-    /// <summary>Provides the room bus and active context for Dachora's AI.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Provides the four physical echo slots immediately after Dachora's body.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Supplies installed palette art for speed and shine color cycles.</summary>
-    private readonly EnemyPresentation _presentation;
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds the room, terrain, echo slots, and presentation used by Dachora's AI callbacks.</summary>
-    internal DachoraBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyAudioQueue audio)
+    /// <summary>
+    /// Binds the terrain and echo slots used by Dachora's AI callbacks; its glows are shades its draws name (#1512), so
+    /// it needs no palette or colour artwork.
+    /// </summary>
+    internal DachoraBehavior(EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _audio = audio;
-        _room = room;
         _terrain = terrain;
         _slotTable = slotTable;
-        _presentation = presentation;
     }
 
     /// <summary>Horizontal proximity threshold for activating the bird.</summary>
@@ -482,18 +479,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AdvanceShinePaletteCycle();
     }
 
-    /// <summary>Copies one full OBJ palette into the actor-selected sprite palette.</summary>
-    internal void LoadDachoraPalette(
+    /// <summary>
+    /// Shows Dachora in one frame of a colour phase (#1512): its normal colours, or a frame of its speed or stored-shine
+    /// glow, which the import pre-coloured its pictures in. The game copies the frame's colours into the Dachora's own
+    /// palette, which any other enemy sharing it would also have shown; only the Dachora shows it here.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The phase has no such frame.</exception>
+    internal static void LoadDachoraPalette(
         RoomEnemySlot slot, DachoraPalettePhase phase, int frame)
     {
-        ColourRun destination = _presentation.ColourSetOf(slot);
-        if (_room.Artwork?.DachoraColors is { } colors)
-        {
-            for (int color = 0; color < DachoraColorDefinitions.ColorsPerFrame; color++)
-                destination.Write(color, colors.Resolve(phase, frame, color));
-            return;
-        }
-        throw new InvalidOperationException("Dachora requires installed palette-cycle colors.");
+        int lastFrame = phase == DachoraPalettePhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
+        slot.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 
     /// <summary>Finds the four consecutive Dachora echoes following the body and rejects a malformed formation.</summary>

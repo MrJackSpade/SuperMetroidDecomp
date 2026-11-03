@@ -220,10 +220,7 @@ internal sealed class KraidDeath
     {
         if (state.HurtFrame != 0)
             return;
-        for (int color = 0; color < 16; color++)
-            _presentation.BossColours().KraidBody.Write(
-                color,
-                _background.ReadKraidColor(KraidPaletteSource.DeathArm, color));
+        state.Colours.ShowDeathArm();
         _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;

@@ -16,6 +16,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Verification.Bosses;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -98,11 +100,9 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     < (DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
-        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                 ? colors.ResolveHealthBand(1, color - 9)
                 : colors.ResolveBackground(color);
             AssertEqual(expected,
-                cgram.Colors[DraygonColorDestinations.BackgroundDestination + color],
+                Shown()[DraygonColorDestinations.BackgroundDestination + color],
                 $"Draygon hurt background color {color}");
         }
         AssertBand(DraygonColorDestinations.SpriteDestination,
@@ -142,14 +142,14 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             enemies.DraygonBehavior.Combat.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
-                    cgram.Colors[DraygonColorDestinations.HealthDestination + color],
+                    Shown()[DraygonColorDestinations.HealthDestination + color],
                     $"Draygon live health band {band} color {color}");
         }
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "visual health-band checks leave Draygon AI unchanged");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram.Gameplay, -1),
+        AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(-1, 0),
             "negative Draygon health band fails loudly");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram.Gameplay, 8),
+        AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(8, 0),
             "out-of-range Draygon health-band index fails loudly");
 
         File.WriteAllBytes(overrideFile, [0]);
@@ -181,9 +181,23 @@ internal static class EnemyTileArtworkDraygonColorsVerification
 
         void AssertBand(int destination, int count, Func<int, RgbColor> resolve, string name)
         {
+            RgbColor[] shown = Shown();
             for (int color = 0; color < count; color++)
-                AssertEqual(resolve(color), cgram.Colors[destination + color],
+                AssertEqual(resolve(color), shown[destination + color],
                     $"installed Draygon {name} color {color}");
+        }
+
+        // The colours Draygon shows: the import's shades of his edited colours, laid as his colour state names them over
+        // his room's pictures and his sprites (#1512).
+        RgbColor[] Shown()
+        {
+            IReadOnlyList<SheetShade> background = BossSheetShades.DraygonBackground(edited.Bosses);
+            IReadOnlyList<SheetShade> sprites = BossSheetShades.OwnRow(edited.Bosses, EnemyDefinitionId.DraygonBody, 0);
+            ushort[] colours = BossShadeColours.Laid(GameplayShadingProbe.ShadingOf(state.Colours, GameplayPictures.Room,
+                background.Select(shade => shade.Shade)).Shades, background, BossShadeColours.Room, 0);
+            foreach (PictureShade shade in state.Colours.Sprites.Shades)
+                BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
+            return [.. colours.Select(RgbColor.FromWord)];
         }
 
         static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with

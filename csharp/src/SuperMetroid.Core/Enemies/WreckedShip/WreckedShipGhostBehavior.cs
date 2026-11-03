@@ -16,15 +16,6 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WreckedShipGhostEntity(this, slot, common);
 
-    /// <summary>Owns the live OBJ colour set whitened and restored during each apparition.</summary>
-    private readonly EnemyPresentation _presentation;
-
-    /// <summary>Binds the ghost's palette updates to the room's shared presentation buffer.</summary>
-    internal WreckedShipGhostBehavior(EnemyPresentation presentation)
-    {
-        _presentation = presentation;
-    }
-
     /// <summary>Initialization combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
     private const int WreckedShipGhostInitialDelay = 280;
     /// <summary>Frames the ghost remains visible after its appearance cycle enters bobbing.</summary>
@@ -73,13 +64,17 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // Retail clears the actor palette's target-buffer entries here. Its room fade then
         // settles the independently stored current palette to that black target long before
-        // the 280-frame appearance delay expires. The actor's shown colours are this runtime's already-settled
-        // visible buffer, so clear it alongside the retained target buffer; otherwise the
-        // first white ramp would begin from the graphics-set palette and overflow BGR fields.
-        state.MutableTargetColours.Clear();
-        WreckedShipGhostPalette(slot).Fill(RgbColor.Black);
+        // the 280-frame appearance delay expires. The ghost's fade is that already-settled
+        // value, so darken both; otherwise the first white ramp would begin from the
+        // graphics-set palette and carry between channels.
+        state.Fade.Darken();
+        ShowFade(slot, state);
         slot.SetSpeciesState(state, state.ClearWithRecord);
     }
+
+    /// <summary>Shows the ghost in the shade its fading colours are in (#1512).</summary>
+    private static void ShowFade(RoomEnemySlot slot, WreckedShipGhostEnemyState state) =>
+        slot.Shading = PictureShading.Shaded(state.Fade.Shade);
 
     /// <summary>Ports the indirect dispatch in <c>WreckedShipGhost_Main</c>.</summary>
     private void RunWreckedShipGhostMain(
@@ -237,33 +232,21 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Runs the white-flash ramp and its flicker helper.</summary>
-    internal void RunWreckedShipGhostBrightening(
+    internal static void RunWreckedShipGhostBrightening(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
         AdvanceWreckedShipGhostFlicker(slot, state);
-        ColourRun palette = WreckedShipGhostPalette(slot);
-        int colorsChanged = 0;
-        for (int color = 0; color < palette.Count; color++)
-        {
-            RgbColor current = palette[color];
-            if (current.Red >= 31)
-                continue;
 
-            // The game adds 0x0421 as a word, raising red, green, and blue together. It gates
-            // only on red and does not saturate the others: a full green or blue carries
-            // into the next field exactly as the word sum does, and the palette keeps 15 bits.
-            palette.Write(color,
-                RgbColor.FromWordIgnoringTopBit(WordWrap.Unsigned(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel)));
-            colorsChanged++;
-        }
-
+        // The brightening gates only on red and does not saturate the others: a full green or blue carries into the
+        // next channel, as the fade value reproduces.
+        int colorsChanged = state.Fade.Brighten();
+        ShowFade(slot, state);
         if (colorsChanged != 0)
             return;
 
         state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
-        for (int color = 0; color < state.MutableTargetColours.Length; color++)
-            state.MutableTargetColours[color] = WreckedShipGhostAppearance.PaletteColor(color);
+        state.Fade.BeginMaterializing();
     }
 
     /// <summary>Fades to the ghost palette, including the simultaneous flicker and per-component fade.</summary>
@@ -313,7 +296,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.MutableTargetColours.Fill(RgbColor.White);
+        state.Fade.BeginVanishing();
     }
 
     /// <summary>Finishes whitening, hides, and restarts the 120-frame delay.</summary>
@@ -369,48 +352,17 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Steps a palette fade. Every BGR555 component moves exactly one colour level toward its
-    /// target per frame; the return value counts component changes, not changed colors.
+    /// Steps the ghost's fade: every colour channel moves exactly one level toward its target per frame; the return value
+    /// counts channel changes, not changed colours.
     /// </summary>
-    internal int StepWreckedShipGhostPaletteTowardTarget(
+    internal static int StepWreckedShipGhostPaletteTowardTarget(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        ColourRun palette = WreckedShipGhostPalette(slot);
-        int componentsChanged = 0;
-        ReadOnlySpan<RgbColor> target = state.TargetColours.Span;
-        for (int color = 0; color < palette.Count; color++)
-        {
-            RgbColor current = palette[color];
-            RgbColor next = current;
-            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Red, ref componentsChanged);
-            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Green, ref componentsChanged);
-            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Blue, ref componentsChanged);
-            if (next != current)
-                palette.Write(color, next);
-        }
+        int componentsChanged = state.Fade.StepTowardTarget();
+        ShowFade(slot, state);
         return componentsChanged;
     }
-
-    /// <summary>Moves one five-bit color component by a single level and counts an actual change.</summary>
-    private static RgbColor StepWreckedShipGhostPaletteComponent(
-        RgbColor current,
-        RgbColor target,
-        ColorChannel channel,
-        ref int componentsChanged)
-    {
-        int currentComponent = current[channel];
-        int targetComponent = target[channel];
-        if (currentComponent == targetComponent)
-            return current;
-
-        currentComponent += currentComponent > targetComponent ? -1 : 1;
-        componentsChanged++;
-        return current.With(channel, currentComponent);
-    }
-
-    /// <summary>The colour set the ghost's palette bits select.</summary>
-    private ColourRun WreckedShipGhostPalette(RoomEnemySlot slot) => _presentation.ColourSetOf(slot);
 
     /// <summary>Advances WreckedShipGhost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>

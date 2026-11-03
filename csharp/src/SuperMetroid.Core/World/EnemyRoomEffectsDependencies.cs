@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
@@ -9,9 +8,6 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="EnemyRoomEffects"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyRoomEffectsDependencies
 {
-    /// <summary>Gameplay's colours.</summary>
-    public required GameplayColours Colours { get; init; }
-
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 

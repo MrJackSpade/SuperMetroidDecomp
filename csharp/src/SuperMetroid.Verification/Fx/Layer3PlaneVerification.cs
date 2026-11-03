@@ -66,8 +66,8 @@ internal static class Layer3PlaneVerification
         var presentation = runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("The retail fixture installs the FX artwork.");
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { BaseYPosition = 0x0080 };
-        var session = new RoomFxSession { PaletteBlendColors = presentation.RoomFxPaletteBlends };
-        RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, new GameplayColours(new SpriteColourSets()), record, 0);
+        var session = new RoomFxSession();
+        RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, record, 0);
         AssertEqual<RoomFxType?>(RoomFxType.Water, water.EffectPageType, "the water room shows the water page");
 
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.

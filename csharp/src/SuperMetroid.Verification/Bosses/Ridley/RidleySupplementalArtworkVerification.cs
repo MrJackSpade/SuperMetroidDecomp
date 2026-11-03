@@ -81,7 +81,6 @@ internal static class RidleySupplementalArtworkVerification
             MovementAnimationEnabled = true,
             FacingDirection = facing,
             WingFrame = wingFrame,
-            SpritemapColouring = new GraphicsSetMemberColouring(EnemyDefinitionId.RidleyCeres),
             TailSegments = tailDirection is null ? [] :
                 [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 {

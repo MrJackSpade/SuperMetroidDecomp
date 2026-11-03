@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -45,13 +46,9 @@ internal sealed class CrocomireCombat
     internal void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
         bool white = !body.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0;
-        if (!white)
-        {
-            (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidDataException(
-                "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Colours);
-            return;
-        }
-        _presentation.BossColours().CrocomireFightBody.Fill(RgbColor.White);
+        // His body shows its fight colours or the white flash as the import's shades of them (#1512).
+        (_access.Crocomire ?? throw new InvalidOperationException("Crocomire's hurt flash runs once Crocomire is loaded."))
+            .Colours.ShowBody(white);
     }
 
     /// <summary>Registers component-specific bomb hit reactions, consulted before the ignoring-shot gate.</summary>
@@ -301,7 +298,7 @@ internal sealed class CrocomireCombat
         // carry. It also writes the graphics word of physical projectile slot zero rather
         // than the current slot, as the game does.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-        _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
+        _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.CharacterZeroIn(CrocomireColours.ProjectileShading);
         projectile.GeneralTimer = WordWrap.Unsigned(
             projectile.GeneralTimer + projectile.Velocity.X.RawValue);
 

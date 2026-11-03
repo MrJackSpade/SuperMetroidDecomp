@@ -12,6 +12,9 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Bosses;
+using SuperMetroid.Verification.Bosses.MotherBrain;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -84,28 +87,31 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             "cutscene Baby color override survives catalog reload");
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512).
+        var motherBrain = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
+        enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
-        cgram.SetColor(destination - 1, RgbColor.FromWord(0x1234));
+        ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.Maps, edited.Bosses, BossShadeColours.Filled(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
-        AssertEqual(0x1234, cgram.Colors[destination - 1],
+        ushort[] cgram = Shown();
+        AssertEqual(0x1234, cgram[destination - 1],
             "cutscene Baby initial load preserves palette color zero");
         for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.InitialColorCount; color++)
-            AssertEqual(colors.InitialColor(color), cgram.Colors[destination + color],
+            AssertEqual(colors.InitialColor(color).ToWord(), cgram[destination + color],
                 $"live cutscene Baby initial color {color}");
-        RgbColor initialLastColor = cgram.Colors[destination + 14];
+        ushort initialLastColor = cgram[destination + 14];
 
         for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
             enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneFadePalette(index);
+            cgram = Shown();
             for (int color = 0; color < BabyMetroidCutsceneColorDefinitions.FadeColorCount; color++)
-                AssertEqual(colors.FadeColor(index, color), cgram.Colors[destination + color],
+                AssertEqual(colors.FadeColor(index, color).ToWord(), cgram[destination + color],
                     $"live cutscene Baby fade {index} color {color}");
-            AssertEqual(initialLastColor, cgram.Colors[destination + 14],
+            AssertEqual(initialLastColor, cgram[destination + 14],
                 $"cutscene Baby fade {index} preserves color fifteen");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

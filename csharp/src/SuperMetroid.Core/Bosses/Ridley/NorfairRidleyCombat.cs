@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -22,8 +22,6 @@ internal sealed class NorfairRidleyCombat
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Publishes Ridley's health and transition palettes.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Owns fight state shared with cutscenes and room transitions.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Advances Ridley's independent tail segments and their hit checks.</summary>
@@ -32,18 +30,14 @@ internal sealed class NorfairRidleyCombat
     private readonly RidleyProjectiles _ridleyProjectiles;
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     private readonly EnemyRoomFx _roomFx;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal NorfairRidleyCombat(NorfairRidleyCombatDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
-        _presentation = dependencies.Presentation;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _ridleyTail = dependencies.RidleyTail;
         _ridleyProjectiles = dependencies.RidleyProjectiles;
@@ -71,7 +65,6 @@ internal sealed class NorfairRidleyCombat
                 EnemyProperties.Invisible);
             return;
         }
-        slot.Colouring = RidleyEnemyState.OwnColours;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
         // One property bit blocks Plasma Beam penetration. Its meaning is established
@@ -85,8 +78,6 @@ internal sealed class NorfairRidleyCombat
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
-            SpritemapColouring = RidleyEnemyState.OwnColours,
-            CommonDrawColouring = RidleyEnemyState.OwnColours,
             MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Right,
             IdleTailWhipEnabled = false,
@@ -111,11 +102,9 @@ internal sealed class NorfairRidleyCombat
         // The initial colours install both the body and the tail/wing
         // source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
-        (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
-            "Norfair Ridley requires installed colors."))
-            .ApplyInitial(_presentation.Colours);
-        _presentation.BossColours().NorfairRidleyBody.Fill(RgbColor.Black);
-        _presentation.BossColours().NorfairRidleyTail.Fill(RgbColor.Black);
+        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.NorfairStart);
+        _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.NorfairHidden);
+        _ridleyEncounter.Ridley.Colours.Room.Lay(RidleyShades.NorfairHidden);
     }
 
     /// <summary>
@@ -131,13 +120,11 @@ internal sealed class NorfairRidleyCombat
         state.FunctionTimer = WrappingCountdown.Start(2);
         int step = state.FadeStep;
         bool hasPalette;
-        var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
-            "Norfair Ridley reveal requires installed colors.");
         if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
             throw new InvalidDataException($"Norfair Ridley reveal step {step} escaped its terminator.");
         hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
         if (hasPalette)
-            colors.ApplyReveal(_presentation.Colours, step);
+            state.Colours.Room.Lay(RidleyShades.NorfairReveal(step));
         state.FadeStep++;
         if (hasPalette)
             return;

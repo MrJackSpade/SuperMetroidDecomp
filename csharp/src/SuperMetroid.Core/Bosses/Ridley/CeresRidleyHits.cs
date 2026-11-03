@@ -1,9 +1,11 @@
+using SuperMetroid.Core.Enemies.Drawing;
 ﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -15,23 +17,17 @@ internal sealed class CeresRidleyHits
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves the door and Mode-7 wall enemy records beside Ridley.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Performs Samus and projectile contact against Ridley's extended body.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyHits(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, RidleyEncounter ridleyEncounter, BossArtworkBinding bossArtwork)
+    internal CeresRidleyHits(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyCollision collision, RidleyEncounter ridleyEncounter)
     {
-        _bossArtwork = bossArtwork;
         _room = room;
         _slotTable = slotTable;
-        _presentation = presentation;
         _collision = collision;
         _ridleyEncounter = ridleyEncounter;
     }
@@ -127,15 +123,8 @@ internal sealed class CeresRidleyHits
         RidleyEnemyState state,
         int enemyMainExecutionCounter)
     {
-        state.CommonDrawColouring = !slot.FlashTimer.IsZero &&
-            (enemyMainExecutionCounter & 2) != 0
-                ? SharedSpriteColouring.Common
-                : slot.Colouring;
-
-        state.SpritemapColouring = slot.FlashTimer.IsAbove(1) &&
-            ((enemyMainExecutionCounter + 1) & 2) != 0
-                ? SharedSpriteColouring.Common
-                : RidleyEnemyState.OwnColours;
+        state.BodyFlashing = !slot.FlashTimer.IsZero && (enemyMainExecutionCounter & 2) != 0;
+        state.SpritemapFlashing = slot.FlashTimer.IsAbove(1) && ((enemyMainExecutionCounter + 1) & 2) != 0;
     }
 
     /// <summary>
@@ -151,9 +140,7 @@ internal sealed class CeresRidleyHits
         int band = state.HitCounter < 70
             ? CeresRidleyPaletteDefinitions.HealthMidBand
             : CeresRidleyPaletteDefinitions.HealthLateBand;
-        (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
-            "Ceres Ridley damage requires installed health colors."))
-            .ApplyHealth(_presentation.Colours, band);
+        state.Colours.Sprites.Lay(RidleyShades.Health(band));
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common overlap.</summary>

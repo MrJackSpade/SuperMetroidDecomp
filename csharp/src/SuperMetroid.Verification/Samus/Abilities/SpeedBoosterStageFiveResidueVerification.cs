@@ -48,12 +48,10 @@ internal static class SpeedBoosterStageFiveResidueVerification
         {
             BossArtworkBinding =
             {
-                CeresRidleyFloorColors = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(bus))),
                 CeresRidleyGetawayBoostDelays = CeresRidleyGetawayBoostDelayFiles.Read(new MemoryStream(CeresRidleyGetawayBoostDelayFiles.Extract(bus))),
             },
         };
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
 
         // The first NMI advances both: capsule phase one, then wing frame one.

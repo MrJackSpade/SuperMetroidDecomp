@@ -47,9 +47,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives Botwoon's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>The colours Botwoon's body loads for itself, which its health bands rewrite.</summary>
-    private static readonly EncounterSpriteColouring BodyColouring = new(BossColourDefinitions.BotwoonBody);
-
 
     /// <summary>Binds Botwoon's head, body, palette, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
@@ -129,7 +126,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
         state.PreviousHealth = head.Health;
-        state.HealthColouring = head.Colouring;
         // The initializer makes the head intangible: it starts hidden in its hole, out of every collision pass.
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
@@ -672,28 +668,18 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Copies the next health-band OBJ palette when Botwoon's health crosses its threshold.</summary>
+    /// <summary>
+    /// Shows the next health band's colours when Botwoon's health crosses its threshold (#1512): his head and body take
+    /// the import's shade of the band.
+    /// </summary>
     internal void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.PalettePhase == BotwoonHealthPaletteDefinitions.CompletePhase)
             return;
         if (!BotwoonHealthPalette.ShouldAdvance(state.PalettePhase, head.Health))
             return;
-
-        if (_bossArtwork.Artwork?.BotwoonColors is { } colors)
-        {
-            // The original game writes the bands from the head's colours to the end of the sprite colours, one whole set only
-            // where the head draws in the last set, its body's. Over any other colours the copy would run past this
-            // authored image into adjacent data; do not silently substitute a different visual result for that state.
-            if (state.HealthColouring is not { } health || !_presentation.Placement.SharesColours(health, BodyColouring))
-                throw new InvalidDataException(
-                    $"Botwoon's health colours {state.HealthColouring?.ToString() ?? "(none)"} are not its body's, the retail sprite set.");
-            int band = state.PalettePhase;
-            for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
-                _presentation.BossColours().BotwoonBody.Write(color, colors.HealthColor(band, color));
-        }
-        else throw new InvalidOperationException("Botwoon requires installed health colors.");
         state.PalettePhase++;
+        head.Shading = state.BodyShading;
     }
 
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
@@ -769,7 +755,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 _spriteObjects.SpawnRoomSpriteObject(
                     new(WordWrap.Unsigned((_room.Random.Generate() & 31) + 232), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
-                    graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
+                    graphics: SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
@@ -784,7 +770,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     _spriteObjects.SpawnRoomSpriteObject(
                         new(WordWrap.Unsigned((_room.Random.Generate() & 63) + 224), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
-                        graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
+                        graphics: SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours));
                 }
             }
         }
@@ -1007,10 +993,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
-        segment.Graphics = segment.Graphics.In(BodyColouring);
         RoomEnemySlot head = _slotTable.Slots[0];
-        if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
-            segment.Graphics = segment.Graphics.In(SharedSpriteColouring.Common);
+        segment.Graphics = segment.Graphics.In(!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0
+            ? EnemyShades.HitFlashed
+            : (BotwoonState ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.")).BodyShading);
     }
 
     /// <summary>Accelerates a dying segment to Y=200 and marks the tail cap's final landing.</summary>
@@ -1034,7 +1020,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
-        segment.Graphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
+        segment.Graphics = SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);

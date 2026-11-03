@@ -69,7 +69,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.Colouring = SharedSpriteColouring.Common;
+        // The initializer selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
 
         EscapeEtecoonInitialization initialization =
             EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);

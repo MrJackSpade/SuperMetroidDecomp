@@ -56,20 +56,31 @@ internal sealed class KraidHead
         }
     }
 
-    /// <summary>Updates Kraid body and background colors from the current health band.</summary>
+    /// <summary>
+    /// Shows Kraid's colours for his current health band, or the hurt flash on an odd hurt frame (#1512): his body and
+    /// every sprite part take the band's shade, and his eyes the band's colours at once.
+    /// </summary>
     internal void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
     {
-        int sourceColor = BandColorStart((state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state));
-        for (int color = 0; color < 16; color++)
-        {
-            _presentation.BossColours().KraidBody.Write(
-                color,
-                _background.ReadKraidColor(KraidPaletteSource.Health, sourceColor + color));
-            _presentation.BossColours().KraidSecondary.Write(
-                color,
-                _background.ReadKraidColor(KraidPaletteSource.Secondary, sourceColor + color));
-        }
+        int band = (state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state);
+        state.Colours.ShowBand(band, BandEyes(band));
+        PictureShading parts = state.Colours.Parts;
+        for (int part = 0; part < state.Parts.Length; part++)
+            _slotTable.Slots[part].Shading = parts;
     }
+
+    /// <summary>The eye colours of health band <paramref name="band"/>, or of the hurt flash for minus one.</summary>
+    internal RgbColor[] BandEyes(int band)
+    {
+        int first = BandColorStart(band) + KraidPalettes.FirstEyeColour;
+        var eyes = new RgbColor[KraidEyeGlow.Eyes];
+        for (int eye = 0; eye < eyes.Length; eye++)
+            eyes[eye] = _background.ReadKraidColor(KraidPaletteSource.Health, first + eye);
+        return eyes;
+    }
+
+    /// <summary>The health band his colours start in, before any update: the band of his health as he initializes.</summary>
+    internal int InitialBand(RoomEnemySlot body, KraidEnemyState state) => HealthBand(body, state);
 
     /// <summary>The band a hurt flash shows, before the health bands in the health colours.</summary>
     private const int HurtBand = -1;
@@ -246,64 +257,17 @@ internal sealed class KraidHead
     internal void GlowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         _ = ProcessKraidHeadInstruction(body, state);
-        int completedChannels = 0;
-        ColourRun eyeColors = _presentation.BossColours().KraidEye;
-        for (int colorIndex = 0; colorIndex < eyeColors.Count; colorIndex++)
-        {
-            RgbColor color = eyeColors[colorIndex];
-            int red = color.Red;
-            int green = color.Green;
-            if (red >= 30)
-            {
-                red = 31;
-                completedChannels++;
-            }
-            else
-            {
-                red++;
-            }
-            if (green >= 30)
-            {
-                green = 31;
-                completedChannels++;
-            }
-            else
-            {
-                green++;
-            }
-            eyeColors.Write(colorIndex, new RgbColor(red, green, color.Blue));
-        }
-        if (completedChannels >= 6)
+        // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
+        if (state.Colours.EyeGlow.Glow())
             state.Parts[body.SlotIndex].Function = KraidAiFunction.UnglowEye;
     }
 
     /// <summary>Restores the eye palette after the reaction completes.</summary>
     internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
-        int sourceColor = BandColorStart(HealthBand(body, state)) + 1;
-        int changedChannels = 0;
-        ColourRun eyeColors = _presentation.BossColours().KraidEye;
-        for (int eye = 0; eye < eyeColors.Count; eye++)
-        {
-            RgbColor current = eyeColors[eye];
-            RgbColor target = _background.ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
-            int red = current.Red;
-            int green = current.Green;
-            // Decrements toward any differing target and masks each field, so a
-            // channel below its target wraps within its five bits without borrowing.
-            if (red != target.Red)
-            {
-                red = (red - 1) & RgbColor.MaxChannel;
-                changedChannels++;
-            }
-            if (green != target.Green)
-            {
-                green = (green - 1) & RgbColor.MaxChannel;
-                changedChannels++;
-            }
-            eyeColors.Write(eye, new RgbColor(red, green, current.Blue));
-        }
-        if (changedChannels == 0)
+        // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
+        bool unglowed = state.Colours.EyeGlow.Unglow(BandEyes(HealthBand(body, state)));
+        if (unglowed)
         {
             state.Parts[body.SlotIndex].Function = KraidAiFunction.MouthOpenReaction;
             state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
@@ -321,13 +285,13 @@ internal sealed class KraidHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidSpitRock,
-            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
+            graphics: SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + 16), CoordinateAxis.Wrap(body.Position.Y.Whole - 96)));
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
         rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromSignedRaw(-1024));
-        rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
+        rock.Graphics = SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading);
         return true;
     }
 

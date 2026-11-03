@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -19,7 +20,7 @@ namespace SuperMetroid.Core.Fx;
 /// screenshot's colors as a room-specific correction.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomPaletteFxSystem
+public sealed class RoomPaletteFxSystem : IGameplayShadingSource
 {
     /// <summary>Palette-FX pool capacity and descending handler range.</summary>
     private const int SlotCount = 8;
@@ -28,6 +29,8 @@ public sealed class RoomPaletteFxSystem
     internal readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
+    /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
+    private readonly PaletteFxShown shown = new();
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
@@ -359,7 +362,7 @@ public sealed class RoomPaletteFxSystem
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
                 slot.FrameHold = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
-                WritePaletteRecord(owners, colors, slot, shown.Frame);
+                ShowPaletteRecord(owners, colors, slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
                 slot.Clear();
@@ -400,11 +403,30 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>The record <paramref name="colours"/> last showed in this room, or null while it has shown none (#1512).</summary>
+    internal PaletteFxFrame? RecordOf(PaletteFxColours colours) => shown.RecordOf(colours);
+
     /// <summary>
-    /// Writes one timed colour record to the colours the slot animates, skipping the colours its layout skips. A
-    /// program names its colours before its first record, so a record shown before that is a defect in the program.
+    /// Lays the shade of the record each of the room's colour groups last showed over the room's pictures, in the order
+    /// they were shown (#1512).
     /// </summary>
-    private static void WritePaletteRecord(
+    public void ShadeGameplay(GameplayShadingBuilder frame)
+    {
+        Ensure.NotNull(frame);
+        foreach ((PaletteFxColours colours, PaletteFxFrame record) in shown.InOrder)
+        {
+            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
+                frame.Shade(GameplayPictures.Room, PaletteFxShades.Of(colours, record));
+        }
+    }
+
+    /// <summary>
+    /// Shows one timed colour record in the colours the slot animates (#1512): the group's pictures take the record's
+    /// shade, and a group another owner still holds as colours (a screen's, a sprite store's or Samus's) is also written
+    /// there, skipping the colours its layout skips. A program names its colours before its first record, so a record
+    /// shown before that is a defect in the program.
+    /// </summary>
+    private void ShowPaletteRecord(
         IPaletteFxColourOwners owners,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot,
@@ -412,6 +434,9 @@ public sealed class RoomPaletteFxSystem
     {
         PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
             $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
+        shown.Show(animated, frame);
+        if (PaletteFxRoomColourDefinitions.RoomColours.Contains(animated))
+            return;
         PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[animated];
         ColourRun target = placement.From(owners);
         int colorIndex = 0;

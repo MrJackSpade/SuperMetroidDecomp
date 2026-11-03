@@ -1068,6 +1068,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>
     private IEnumerable<IGameplayShadingSource> ShadingSources()
     {
+        yield return Room.LoadedScope.PaletteFx;
         yield return Room.LoadedScope.Layer3Fx;
         yield return DoorFade;
     }

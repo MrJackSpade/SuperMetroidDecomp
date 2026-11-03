@@ -2,15 +2,12 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The owners whose colours palette-FX objects write (#1405, #1464): gameplay's background sets by the set each is, the
-/// colours a frontend screen holds for a title or cinematic effect, the sprite sets, and Samus's suit and beams.
+/// The owners whose colours palette-FX objects write (#1405, #1464): the colours a frontend screen holds for a title or
+/// cinematic effect, the sprite sets, and Samus's suit and beams. The room's own colour groups are shades of its pictures
+/// (#1512), which no owner holds as colours.
 /// </summary>
 public interface IPaletteFxColourOwners
 {
-    /// <summary>The colours of gameplay's background set <paramref name="set"/>.</summary>
-    /// <exception cref="InvalidOperationException">The owners are a frontend screen's, which holds no gameplay background set.</exception>
-    ColourRun BackgroundSet(BackgroundColourSet set);
-
     /// <summary>
     /// The colours a frontend screen holds for the effect colour group <paramref name="colours"/>, from the group's
     /// first written colour.

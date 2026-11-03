@@ -43,7 +43,7 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         LoadedRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomPalettes(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SamusColourRig();
-        assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram.Gameplay.BackgroundSets);
+        assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram.Gameplay) { Level = assets.LevelData, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) });
 

@@ -4,11 +4,10 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// The colours a frame's images show (#1408, #1464): the backdrop, and for each colour group of the frame's images the
-/// colours its owner holds now. A gameplay background image's group shows the background set the import pipeline named
-/// for it, a frontend screen's background image's group the screen's set of the same identity, an actor's group the
-/// sprite set of the same identity, and a perspective floor's groups its background groups and then the sprite sets. An
-/// image is coloured with its standard colours; a colour effect that changes what an owner holds (a glow, a fade, a
-/// liquid's tint, the message box's text colours) recolours it. Backends colour a picture from
+/// colours its owner holds now. A frontend screen's background image's group shows the screen's set of the same identity, an actor's group the
+/// sprite set of the same identity, and a perspective floor's groups its background groups and then the sprite sets. A
+/// gameplay background picture holds no group here: it is coloured from its frame's <see cref="GameplayShading"/>
+/// (#1512), and a gameplay frame keeps only its backdrop. Backends colour a picture from
 /// <see cref="ShowsOwnColours"/> and <see cref="Colour(SpriteImage, int)"/> alone.
 /// </summary>
 public sealed class BackgroundColours
@@ -19,11 +18,14 @@ public sealed class BackgroundColours
     /// <summary>The background groups of a perspective floor's image, which its sprite groups follow.</summary>
     private const int FloorBackgroundGroups = SpriteImage.SpriteColourCount / GroupColours;
 
-    /// <summary>Keeps gameplay's background and sprite sets as the frame shows them.</summary>
-    /// <param name="backgrounds">Gameplay's background sets, whose backdrop set's first colour is the backdrop.</param>
+    /// <summary>
+    /// Keeps a gameplay frame's backdrop and sprite sets (#1512): its background pictures are coloured from the frame's
+    /// <see cref="GameplayShading"/>, so it holds no background set.
+    /// </summary>
+    /// <param name="backdrop">The colour shown where nothing is drawn.</param>
     /// <param name="sprites">The sprite sets, with the colours their owners show over them laid on.</param>
-    public BackgroundColours(ShownBackgroundColourSets backgrounds, ShownColourSets sprites)
-        : this(new GameplayShownBackgrounds(backgrounds), sprites)
+    public BackgroundColours(RgbColor backdrop, ShownColourSets sprites)
+        : this(new GameplayBackdrop(backdrop), sprites)
     {
     }
 
@@ -42,13 +44,6 @@ public sealed class BackgroundColours
         Sprites = Ensure.NotNull(sprites);
     }
 
-    /// <summary>Gameplay's colours as a frame shows them now.</summary>
-    public static BackgroundColours Of(GameplayColours colours)
-    {
-        Ensure.NotNull(colours);
-        return new BackgroundColours(colours.ShownBackgrounds(), colours.ShownSprites());
-    }
-
     /// <summary>The background colours as the frame shows them.</summary>
     internal ShownBackgrounds Backgrounds { get; }
 
@@ -60,13 +55,6 @@ public sealed class BackgroundColours
 
     /// <summary>These colours with the backdrop shown in <paramref name="backdrop"/>.</summary>
     public BackgroundColours WithBackdrop(RgbColor backdrop) => new(Backgrounds.WithBackdrop(backdrop), Sprites);
-
-    /// <summary>These colours with colour <paramref name="colour"/> of gameplay's background set <paramref name="set"/> shown in <paramref name="value"/>.</summary>
-    /// <exception cref="InvalidOperationException">These are a frontend screen's colours, which hold no gameplay background set.</exception>
-    public BackgroundColours WithBackgroundColour(BackgroundColourSet set, int colour, RgbColor value) =>
-        Backgrounds is GameplayShownBackgrounds gameplay
-            ? new(gameplay.WithBackgroundColour(set, colour, value), Sprites)
-            : throw new InvalidOperationException($"A frontend screen holds no gameplay background set {set}.");
 
     /// <summary>The colour groups <paramref name="sheet"/>'s inks fall in.</summary>
     public static int Groups(SpriteImage sheet) => Ensure.NotNull(sheet).StandardColours.Length / GroupColours;

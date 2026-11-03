@@ -105,18 +105,13 @@ internal static class RoomCharacterInstallationVerification
         RoomStaticPalettes editedPalettes = installed.LoadRoomPalettes();
         LoadedRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing,
             paletteArt: editedPalettes);
-        var stockCgram = new GameplayColours(new SpriteColourSets());
-        var editedCgram = new GameplayColours(new SpriteColourSets());
-        native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), stockCgram.BackgroundSets);
-        editedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedCgram.BackgroundSets);
-        AssertTrue(stockCgram.Colors[0] != editedCgram.Colors[0] &&
-            stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
-                .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
-            "installed RGB5 override changes only its room CGRAM color");
-        var compiledStockCgram = new SnesCgram();
-        new CgramPalettes(compiledStockCgram).Background.LoadPortBytes(RoomStaticPaletteImage.PackedColours(stockPalettes.GetAt(paletteSource)));
-        AssertTrue(new CgramPalettes(stockCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(compiledStockCgram)),
-            "installed stock room palette matches native room CGRAM");
+        // A room's pictures carry its palette's colours, which the import pre-colours them in (#1512): the installed
+        // override changes the palette the import composes from, colour for colour.
+        AssertEqual(editedPaletteRoom.Tileset, native.Tileset, "the edited palette's room loads");
+        RgbColor[] stockColours = RoomStaticPaletteImage.Colours(stockPalettes.GetAt(paletteSource));
+        RgbColor[] editedColours = RoomStaticPaletteImage.Colours(editedPalettes.GetAt(paletteSource));
+        AssertTrue(stockColours[0] != editedColours[0] && stockColours.AsSpan(1).SequenceEqual(editedColours.AsSpan(1)),
+            "installed RGB5 override changes only its room palette colour");
 
         AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
                 RoomMetatileArtworkFiles.ManifestFileName)),
@@ -258,9 +253,8 @@ internal static class RoomCharacterInstallationVerification
             "repaired installation restores the stock room characters");
         LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
             paletteArt: repaired.LoadRoomPalettes());
-        var repairedCgram = new GameplayColours(new SpriteColourSets());
-        repairedPaletteRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), repairedCgram.BackgroundSets);
-        AssertTrue(new CgramPalettes(repairedCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(editedCgram.AsPaletteColors())),
+        AssertEqual(repairedPaletteRoom.Tileset, native.Tileset, "the repaired palette's room loads");
+        AssertTrue(RoomStaticPaletteImage.Colours(repaired.LoadRoomPalettes().GetAt(paletteSource)).AsSpan().SequenceEqual(editedColours),
             "repaired installation retains the selected user room palette");
         AssertEqual(installedSheets.ContentIdentity, repaired.LoadRoomBlockSheets().ContentIdentity,
             "repaired installation composes the same block pictures and character records from the restored stock blocks");

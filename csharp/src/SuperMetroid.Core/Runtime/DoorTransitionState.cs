@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -25,11 +24,13 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 internal sealed class DoorTransitionState
 {
-    /// <summary>The door's palette transition, which exists from the start of the door fade.</summary>
+    /// <summary>
+    /// The steps of the door's current fade on the shared step counter, which exist from the start of the door fade: the
+    /// source room's fade out, then the destination's fade in (#1512). What the fade shows is the runtime's
+    /// <see cref="DoorFade"/>.
+    /// </summary>
     [AllowNull]
-    private GradualPaletteTransition PaletteTransition { get => field ?? throw new InvalidOperationException("The door palette transition has not started."); set; }
-    /// <summary>The faded source colours, restored after atomic destination room construction.</summary>
-    private ColourImage? fadedSource;
+    private GradualFadeSteps FadeSteps { get => field ?? throw new InvalidOperationException("The door fade has not started."); set; }
     /// <summary>Door header captured before the destination room replaces the source.</summary>
     private DoorDefinition? door;
     /// <summary>Samus's source-room position used to compute the final door-scroll placement.</summary>
@@ -64,11 +65,9 @@ internal sealed class DoorTransitionState
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
         sourceSamus = runtime.Player.Samus.Position;
-        PaletteTransition = new GradualPaletteTransition(
-            BuildSourceFadeTarget(runtime),
-            denominator: 12,
-            runtime.EnemySession.GradualColorChange);
-        fadedSource = null;
+        FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.EnemySession.GradualColorChange);
+        // Between two common rooms the fade keeps the HUD's item and minimap backgrounds lit as well.
+        runtime.DoorFade.FadeOut(FadeSteps, commonRooms: !sourceIsolated && !destinationIsolated);
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
 
@@ -123,8 +122,9 @@ internal sealed class DoorTransitionState
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 // Each palette step is one update, with its own effects and random draw.
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope);
-                if (PaletteTransition.Step())
+                if (FadeSteps.Step())
                 {
+                    runtime.DoorFade.Darken();
                     runtime.Sprites.BeginFrame();
                     runtime.Sprites.FinalizeFrame();
                     Phase = DoorTransitionPhase.LoadDoorHeader;
@@ -195,17 +195,11 @@ internal sealed class DoorTransitionState
                 // PLMs, FX and backgrounds, and then waits one update at a time until the
                 // door's scroll finishes. The room constructor performs that setup
                 // atomically; the following updates run the scroll's real coordinate path.
-                fadedSource = runtime.Colours.Capture();
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
                 runtime.EffectPhaseOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
-                // elevator AI stays frozen through the final palette fade.
-                ColourImage destinationTarget = runtime.Colours.Capture();
-                fadedSource.Restore();
-                // The beam's colours are written live during loading, unlike the destination
-                // room, enemy and suit colours, which wait for the fade.
-                ColourRun beam = runtime.Player.Colours.Beam;
-                beam.CopyFrom(destinationTarget.Of(beam));
+                // elevator AI stays frozen through the final palette fade. The destination stays dark until its fade in
+                // takes its first step.
                 runtime.RoomLoader.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamus,
@@ -219,10 +213,8 @@ internal sealed class DoorTransitionState
                     samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
                     samus.AutoCancelHudItemIndex = SuperMetroid.Core.Samus.HudItem.Beam;
                 }
-                PaletteTransition = new GradualPaletteTransition(
-                    destinationTarget,
-                    denominator: 12,
-                    runtime.EnemySession.GradualColorChange);
+                FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.EnemySession.GradualColorChange);
+                runtime.DoorFade.FadeIn(FadeSteps);
                 Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;
 
@@ -300,12 +292,11 @@ internal sealed class DoorTransitionState
                 runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
-                // Enemy instruction lists run after the initial destination palette copy.
-                // Their target writes belong to this same fade, not a private dead buffer.
-                runtime.Room.LoadedScope.Enemies.ConsumeTargetPaletteWrites(staged =>
-                    PaletteTransition.Target.Of(staged.Run.In(runtime.Colours))[staged.Colour] = staged.Value);
-                if (PaletteTransition.Step())
+                // The destination fades in toward the colours its owners show, which enemy instruction lists running
+                // during the fade change as their typed colour state changes (#1512).
+                if (FadeSteps.Step())
                 {
+                    runtime.DoorFade.End();
                     // The last fade step releases the door's enemy gate after the enemies run.
                     // Movement resumes on the following gameplay frame, not this one.
                     runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = false;
@@ -328,36 +319,4 @@ internal sealed class DoorTransitionState
                 throw new InvalidOperationException($"Unknown door transition phase {Phase}.");
         }
     }
-
-    /// <summary>Fades room colors while preserving HUD and applicable common CRE or escape-timer colors.</summary>
-    private static ColourImage BuildSourceFadeTarget(SuperMetroidRuntime runtime)
-    {
-        ColourImage target = runtime.Colours.Capture();
-        target.Fill(RgbColor.Black);
-
-        // Keep HUD colors legible while the source room palette disappears.
-        Keep(runtime.Colours, target, DoorTransitionColourDefinitions.Hud);
-
-        SelectedRoom sourceRoom = runtime.Room.ActiveRoom ??
-            throw new InvalidOperationException(
-                "Door palette fade started without an active source room header.");
-        if (!sourceRoom.UsesIsolatedDoorTransition && !runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition)
-        {
-            Keep(runtime.Colours, target, DoorTransitionColourDefinitions.CommonRoom);
-            if (runtime.EscapeTimer.IsActive)
-                Keep(runtime.Colours, target, DoorTransitionColourDefinitions.EscapeTimer);
-        }
-        return target;
-    }
-
-    /// <summary>Puts <paramref name="kept"/>' current colours into <paramref name="target"/>.</summary>
-    private static void Keep(GameplayColours colours, ColourImage target, IReadOnlyList<IColourSetRun> kept)
-    {
-        foreach (IColourSetRun run in kept)
-        {
-            ColourRun live = run.In(colours);
-            live.Colors.CopyTo(target.Of(live));
-        }
-    }
-
 }

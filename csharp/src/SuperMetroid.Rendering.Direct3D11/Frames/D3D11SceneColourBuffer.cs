@@ -6,7 +6,7 @@ using Vortice.Direct3D11;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
-/// The shader's <c>Colours</c> buffer (#1408): the scene's backdrop, then the word of each colour slot's table, then the
+/// The shader's <c>Colours</c> buffer (#1408, #1512): the scene's backdrop, then the word of each colour slot's table, then the
 /// tables. A table is a word of one bit per sixteen-ink group still showing its image's own colours, then the colour each
 /// of the image's inks shows now. Packed every frame, as colour effects change what the inks show.
 /// </summary>
@@ -33,11 +33,13 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
     internal ID3D11ShaderResourceView View { get; private set; }
 
     /// <summary>Packs the backdrop and each slot's colours under <paramref name="frame"/>, growing the buffer to fit.</summary>
-    /// <param name="frame">The colours the frame's background art shows.</param>
+    /// <param name="frame">What the frame paints with: a frontend screen's colours, or a gameplay frame's shading (#1512).</param>
     /// <param name="slots">The images the scene's pictures were packed with, in slot order.</param>
-    internal void Pack(BackgroundColours frame, IReadOnlyList<D3D11ColourSlot> slots)
+    /// <exception cref="InvalidOperationException">A gameplay picture's slot is packed for a frame with no gameplay shading.</exception>
+    internal void Pack(FramePaint frame, IReadOnlyList<D3D11ColourSlot> slots)
     {
         Ensure.NotNull(frame);
+        BackgroundColours backgrounds = frame.Backgrounds;
         int words = 1 + slots.Count;
         foreach (D3D11ColourSlot slot in slots)
             words += 1 + BackgroundColours.Groups(slot.Sheet) * BackgroundColours.GroupColours;
@@ -47,14 +49,13 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
             Create(Math.Max(words, Upload.Length * 2));
         }
         Span<uint> upload = Upload;
-        upload[0] = Shown(frame.Backdrop);
-        BackgroundColours? messageText = null;
+        upload[0] = Shown(backgrounds.Backdrop);
         int table = 1 + slots.Count;
         for (int slot = 0; slot < slots.Count; slot++)
         {
             SpriteImage sheet = slots[slot].Sheet;
             upload[1 + slot] = (uint)table;
-            if (slots[slot].Shading is { } shading)
+            if (Shading(frame, slots[slot]) is { } shading)
             {
                 // A shaded picture's groups all take the table, which holds every ink's colour under its shading.
                 RgbColor[] shaded = shading.InkColours(sheet);
@@ -64,26 +65,34 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
                 table += 1 + shaded.Length;
                 continue;
             }
-            BackgroundColours colours = slots[slot].Colouring switch
-            {
-                D3D11PictureColouring.Frame => frame,
-                D3D11PictureColouring.MessageText => messageText ??= MessageBoxLayer.ShownIn(frame),
-                _ => throw new InvalidDataException($"Unknown picture colouring {slots[slot].Colouring}."),
-            };
-            upload[1 + slot] = (uint)table;
             int groups = BackgroundColours.Groups(sheet);
             uint own = 0;
             for (int group = 0; group < groups; group++)
             {
-                if (colours.ShowsOwnColours(sheet, group))
+                if (backgrounds.ShowsOwnColours(sheet, group))
                     own |= 1u << group;
             }
             upload[table] = own;
             int inks = groups * BackgroundColours.GroupColours;
             for (int ink = 0; ink < inks; ink++)
-                upload[table + 1 + ink] = Shown(colours.Colour(sheet, ink));
+                upload[table + 1 + ink] = Shown(backgrounds.Colour(sheet, ink));
             table += 1 + inks;
         }
+    }
+
+    /// <summary>
+    /// The shading <paramref name="slot"/>'s pictures show: its own, or its group's in a gameplay frame's shading (#1512);
+    /// null for a frontend screen's picture coloured from the screen's sets.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A gameplay picture's slot is packed for a frame with no gameplay shading.</exception>
+    private static PictureShading? Shading(FramePaint frame, D3D11ColourSlot slot)
+    {
+        if (slot.Shading is { } own)
+            return own;
+        if (D3D11ColourSlot.GameplayGroupOf(slot.Colouring) is not { } group)
+            return null;
+        return (frame.Gameplay ?? throw new InvalidOperationException(
+            $"Picture {slot.Sheet.Name} is coloured as gameplay's {group} in a frame with no gameplay shading.")).Of(group);
     }
 
     /// <summary>A colour as the shaders write an opaque output pixel.</summary>

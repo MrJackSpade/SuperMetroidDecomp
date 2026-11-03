@@ -56,7 +56,7 @@ internal static class DrawColoursVerification
         AssertTrue(changed.ShowsOwnColours(changed.Key(kept, partGroups[1])), "an unchanged store keeps the image's own colours");
 
         // The frame publishes its draws resolved.
-        var paint = new FramePaint(new BackgroundColours(ShownBackgroundColourSets.Of(new BackgroundColourSets()), ShownColourSets.Of(untouched)), [plain]);
+        var paint = new FramePaint(new BackgroundColours(RgbColor.Black, ShownColourSets.Of(untouched)), [plain]);
         AssertEqual(white, ((ImageSpriteDraw)paint.SpriteDraws[0]).Colours!.Colour(2, 5), "a frame publishes its draws' colours");
         // An ink group the part group does not name: a plain draw shows the ink group, as the hardware shows a pixel's index.
         ImageColourGroup inkGroup = ImageColourGroup.Numbered(4);

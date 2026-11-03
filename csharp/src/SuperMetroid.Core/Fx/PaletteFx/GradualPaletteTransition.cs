@@ -59,24 +59,7 @@ internal sealed class GradualPaletteTransition
     /// <summary>The colours the transition fades to, which a caller may change without resetting fade progress or current colours.</summary>
     internal ColourImage Target { get; }
 
-    /// <summary>Applies fixed-point interpolation independently to each RGB5 channel.</summary>
+    /// <summary>Applies the shared gradual fade's step to each RGB5 channel (#1512).</summary>
     private RgbColor CalculateColor(int step, RgbColor current, RgbColor destination) =>
-        current.Zip(destination, (_, from, to) => CalculateComponent(step, from, to));
-
-    /// <summary>Moves one channel toward its target using the remaining-step divisor and 8.8 truncation.</summary>
-    private int CalculateComponent(int step, int current, int destination)
-    {
-        if (step == 0)
-            return current;
-        int zeroBasedStep = step - 1;
-        if (zeroBasedStep == denominator)
-            return destination;
-
-        // An 8.8 fixed-point step: the channel distance in 256ths per remaining step.
-        int fixedDelta = Math.Abs(destination - current) * 256 /
-                         (denominator - zeroBasedStep);
-        if (destination < current)
-            fixedDelta = -fixedDelta;
-        return EightEight.WholeOf(EightEight.FromWhole(current) + fixedDelta);
-    }
+        GradualColourFade.Step(step, current, destination, denominator);
 }

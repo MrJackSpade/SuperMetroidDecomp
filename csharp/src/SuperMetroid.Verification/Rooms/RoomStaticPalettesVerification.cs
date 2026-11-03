@@ -53,13 +53,10 @@ internal static class RoomStaticPalettesVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            LoadedRoomAssets native = LoadFixtureRoomAssets(header);
+            // The room loads from the installed palettes with source reads blocked; its pictures carry the palette's
+            // colours, so the load colours nothing (#1512).
             LoadedRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
-            var nativeCgram = new GameplayColours(new SpriteColourSets());
-            var installedCgram = new GameplayColours(new SpriteColourSets());
-            native.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), nativeCgram.BackgroundSets);
-            installed.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), installedCgram.BackgroundSets);
-            AssertTrue(new CgramPalettes(nativeCgram.AsPaletteColors()).ImageEquals(new CgramPalettes(installedCgram.AsPaletteColors())),
+            AssertEqual(RoomTilesets.Get(header.State.GraphicsSet), installed.Tileset,
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
 
@@ -81,13 +78,6 @@ internal static class RoomStaticPalettesVerification
             stockCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
             "editing one RGB5 component changes only its selected runtime CGRAM color");
-        compiled[selectedSource] = replacement;
-        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
-            paletteArt: new RoomStaticPalettes(compiled.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)));
-        var editedRoomCgram = new GameplayColours(new SpriteColourSets());
-        editedRoom.LoadGraphics(BgArtworkFixtures.For(new SnesVram()), editedRoomCgram.BackgroundSets);
-        AssertEqual(editedCgram.Colors[0], editedRoomCgram.Colors[0],
-            "edited RGB5 room palette changes real room-loader CGRAM");
 
         color["red"] = 32;
         byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited);
@@ -96,7 +86,7 @@ internal static class RoomStaticPalettesVerification
             "room palette rejects out-of-range RGB5 components");
         Console.WriteLine($"  Room static palettes: {files.Count} distinct palettes cover all " +
             $"{RoomTilesetDefinitions.Count} graphics sets; Landing Site/Ceres load without source reads, " +
-            "and RGB5 edits reach room CGRAM.");
+            "and RGB5 edits change only their colour.");
     }
 
     /// <summary>Runs the room static palette extraction and installation check.</summary>

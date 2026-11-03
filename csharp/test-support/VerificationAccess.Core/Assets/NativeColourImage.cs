@@ -27,7 +27,8 @@ internal static class NativeColourImage
     internal static ReadOnlySpan<RgbColor> Of(BackgroundColours colours) =>
         Published.GetValue(colours, shown => shown.Backgrounds switch
         {
-            GameplayShownBackgrounds gameplay => Encode(gameplay.Sets, shown.Sprites),
+            // A gameplay frame's pictures are shaded (#1512): its native image holds only the backdrop and the sprite sets.
+            GameplayBackdrop gameplay => EncodeBackdrop(gameplay.Backdrop, shown.Sprites),
             // A screen's sets lie in the native image in their own order, as the import pipeline decodes them.
             ScreenShownBackgrounds screen => EncodeScreen(screen.Sets, shown.Sprites),
             _ => throw new InvalidOperationException($"Unknown shown background colours {shown.Backgrounds}."),
@@ -43,6 +44,17 @@ internal static class NativeColourImage
             backgrounds.Set(set).CopyTo(image.AsSpan(GameplayColourPositionDefinitions.BackgroundSetsFirst + set * ColourSets.SetColours));
             sprites.Set(set).CopyTo(image.AsSpan(GameplayColourPositionDefinitions.SpriteSetsFirst + set * ColourSets.SetColours));
         }
+        return image;
+    }
+
+    /// <summary>The native image of a gameplay frame's backdrop and sprite sets: the backdrop first, then the sprite sets.</summary>
+    [WholeImageFixture("a 256-colour native colour image")]
+    private static RgbColor[] EncodeBackdrop(RgbColor backdrop, ShownColourSets sprites)
+    {
+        var image = new RgbColor[ColorCount];
+        image[GameplayColourPositionDefinitions.BackgroundSetsFirst] = backdrop;
+        for (int set = 0; set < ColourSets.SetCount; set++)
+            sprites.Set(set).CopyTo(image.AsSpan(GameplayColourPositionDefinitions.SpriteSetsFirst + set * ColourSets.SetColours));
         return image;
     }
 
@@ -66,11 +78,10 @@ internal static class NativeColourImage
     internal static BackgroundColours Decode(ReadOnlySpan<RgbColor> image)
     {
         Ensure.LengthEqual(image, ColorCount);
-        BackgroundColourSets backgrounds = BackgroundColourSetImage.Decode(
-            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
+        // A gameplay frame's background pictures are shaded (#1512); the image gives it only its backdrop and sprite sets.
         var sprites = new SpriteColourSets();
         sprites.All.CopyFrom(image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
-        return new BackgroundColours(ShownBackgroundColourSets.Of(backgrounds), ShownColourSets.Of(sprites));
+        return new BackgroundColours(image[GameplayColourPositionDefinitions.BackgroundSetsFirst], ShownColourSets.Of(sprites));
     }
 
     /// <summary>
@@ -80,7 +91,7 @@ internal static class NativeColourImage
     internal static BackgroundColours DecodeLike(BackgroundColours like, ReadOnlySpan<RgbColor> image) =>
         Ensure.NotNull(like).Backgrounds switch
         {
-            GameplayShownBackgrounds => Decode(image),
+            GameplayBackdrop => Decode(image),
             ScreenShownBackgrounds => DecodeScreen(image),
             _ => throw new InvalidOperationException($"Unknown shown background colours {like.Backgrounds}."),
         };

@@ -1,0 +1,78 @@
+using System.Collections.Immutable;
+
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>
+/// A gradual fade between the colour an ink shows and one fixed colour (#1512), as the game's shared gradual colour change
+/// moves colours: each step moves every channel by its remaining distance over the steps left, in 8.8 fixed point, step
+/// zero changes nothing and the step after the last reaches the far colour exactly. The fade keeps the step counter's
+/// value at each step it took, as a fade that shares the counter with another sees the values that fade leaves it.
+/// </summary>
+public sealed record GradualColourFade : ColourEffect
+{
+    /// <summary>Keeps a fade's fixed colour, direction, length and the steps it has taken.</summary>
+    /// <param name="endpoint">The fixed colour: the one faded toward, or the one faded in from.</param>
+    /// <param name="direction">Whether the colour shown fades toward the fixed colour or in from it.</param>
+    /// <param name="denominator">The fade's length: its last moving step is this one, one through 65534.</param>
+    /// <param name="steps">The step counter's value at each step taken, in order.</param>
+    public GradualColourFade(RgbColor endpoint, GradualFadeDirection direction, int denominator, ImmutableArray<int> steps)
+    {
+        if (!Enum.IsDefined(direction))
+            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined gradual fade direction.");
+        Denominator = Ensure.BetweenInclusive(1, ushort.MaxValue - 1, denominator);
+        Endpoint = endpoint;
+        Direction = direction;
+        Steps = steps.IsDefault ? [] : steps;
+    }
+
+    /// <summary>The fixed colour: the one faded toward, or the one faded in from.</summary>
+    public RgbColor Endpoint { get; }
+
+    /// <summary>Whether the colour shown fades toward <see cref="Endpoint"/> or in from it.</summary>
+    public GradualFadeDirection Direction { get; }
+
+    /// <summary>The fade's length: its last moving step is this one.</summary>
+    public int Denominator { get; }
+
+    /// <summary>The step counter's value at each step taken, in order.</summary>
+    public ImmutableArray<int> Steps { get; }
+
+    /// <inheritdoc />
+    public override RgbColor Apply(RgbColor shown)
+    {
+        RgbColor current = Direction == GradualFadeDirection.Toward ? shown : Endpoint;
+        RgbColor goal = Direction == GradualFadeDirection.Toward ? Endpoint : shown;
+        foreach (int step in Steps)
+            current = Step(step, current, goal, Denominator);
+        return current;
+    }
+
+    /// <summary>Moves <paramref name="current"/> one step of a fade of length <paramref name="denominator"/> toward <paramref name="goal"/>.</summary>
+    /// <param name="step">The step counter's value at this step.</param>
+    /// <param name="current">The colour before the step.</param>
+    /// <param name="goal">The colour the fade ends in.</param>
+    /// <param name="denominator">The fade's length.</param>
+    public static RgbColor Step(int step, RgbColor current, RgbColor goal, int denominator) =>
+        current.Zip(goal, (_, from, to) => Component(step, from, to, denominator));
+
+    /// <summary>
+    /// Moves one channel one step toward its goal: step zero keeps it, the step after the last reaches the goal, and every
+    /// other step moves it by its distance in 256ths over the steps left, truncated in 8.8 fixed point.
+    /// </summary>
+    /// <param name="step">The step counter's value at this step.</param>
+    /// <param name="current">The channel before the step.</param>
+    /// <param name="destination">The channel the fade ends in.</param>
+    /// <param name="denominator">The fade's length.</param>
+    public static int Component(int step, int current, int destination, int denominator)
+    {
+        if (step == 0)
+            return current;
+        int zeroBasedStep = step - 1;
+        if (zeroBasedStep == denominator)
+            return destination;
+        int fixedDelta = Math.Abs(destination - current) * 256 / (denominator - zeroBasedStep);
+        if (destination < current)
+            fixedDelta = -fixedDelta;
+        return EightEight.WholeOf(EightEight.FromWhole(current) + fixedDelta);
+    }
+}

@@ -1,45 +1,18 @@
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.World;
 
-/// <summary>The colours a door's source-room fade keeps (#1405), as <c>GameState_A_LoadingNextRoom</c> copies them.</summary>
+/// <summary>The colours and timing of a door's fades (#1405, #1512), as <c>GameState_A_LoadingNextRoom</c> runs them.</summary>
 public static class DoorTransitionColourDefinitions
 {
     /// <summary>The ordinary green visor colour loaded when door scrolling completes.</summary>
     public static readonly RgbColor DoorCompletionVisorGreen = new(0, 31, 14);
 
-    /// <summary>The minimap's explored colours and its explored feature colour, always kept.</summary>
-    public static readonly BackgroundColourRun MinimapExplored = new(BackgroundColourSet.Hud, 9, 2);
+    /// <summary>The length of a door's fades: the source room fades out, and the room it enters fades in, over this many steps.</summary>
+    public const int FadeDenominator = 12;
 
-    /// <summary>The minimap's unexplored colours and its unexplored feature colour, always kept.</summary>
-    public static readonly BackgroundColourRun MinimapUnexplored = new(BackgroundColourSet.Hud, 13, 2);
-
-    /// <summary>The highlighted HUD item's background outline, background and outline, always kept.</summary>
-    public static readonly BackgroundColourRun HighlightedItem = new(BackgroundColourSet.HudItemsAndEffects, 1, 3);
-
-    /// <summary>The minimap's room highlight, always kept.</summary>
-    public static readonly BackgroundColourRun MinimapRoomHighlight = new(BackgroundColourSet.HudItemsAndEffects, 13, 1);
-
-    /// <summary>The HUD's background and its items' background outline, background and outline, kept between common rooms.</summary>
-    public static readonly BackgroundColourRun HudItems = new(BackgroundColourSet.HudItemsAndEffects, 4, 4);
-
-    /// <summary>The minimap's background, kept between common rooms.</summary>
-    public static readonly BackgroundColourRun MinimapBackground = new(BackgroundColourSet.HudItemsAndEffects, 12, 1);
-
-    /// <summary>The escape timer's first two colours, kept between common rooms while it runs.</summary>
-    public static readonly SpriteColourRun TimerFirst = new(SpriteColourStore.EnemyProjectiles, 1, 2);
-
-    /// <summary>The escape timer's fourth colour, kept between common rooms while it runs.</summary>
-    public static readonly SpriteColourRun TimerFourth = new(SpriteColourStore.EnemyProjectiles, 4, 1);
-
-    /// <summary>The escape timer's thirteenth colour, kept between common rooms while it runs.</summary>
-    public static readonly SpriteColourRun TimerThirteenth = new(SpriteColourStore.EnemyProjectiles, 13, 1);
-
-    /// <summary>The colours every door's source fade keeps.</summary>
-    public static readonly IColourSetRun[] Hud = [MinimapExplored, MinimapUnexplored, HighlightedItem, MinimapRoomHighlight];
-
-    /// <summary>The colours a fade between two common rooms also keeps.</summary>
-    public static readonly IColourSetRun[] CommonRoom = [HudItems, MinimapBackground];
-
-    /// <summary>The colours a fade between two common rooms also keeps while the escape timer runs.</summary>
-    public static readonly IColourSetRun[] EscapeTimer = [TimerFirst, TimerFourth, TimerThirteenth];
+    /// <summary>
+    /// The HUD pictures' shades a door's fade shows, one per step taken, from none through every step and the completing
+    /// call: the fade's length plus two.
+    /// </summary>
+    public const int HudFadeShades = FadeDenominator + 3;
 }

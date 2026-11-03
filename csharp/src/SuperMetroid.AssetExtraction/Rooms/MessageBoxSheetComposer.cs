@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -23,9 +22,8 @@ internal static class MessageBoxSheetComposer
         Ensure.NotNull(inputs);
         GameplayMessageArtwork messages = GameplayMessageArtwork.Of(inputs.Maps);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        int textSet = BackgroundColourSetImage.First(GameplayMessageBoxDefinitions.Palette.TextSet);
-        colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryLightColour] = GameplayMessageBoxDefinitions.Palette.TemporaryLightColor;
-        colours[textSet + GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour] = GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor;
+        colours[MessageBoxColourDefinitions.LightInk] = MessageBoxColourDefinitions.Light;
+        colours[MessageBoxColourDefinitions.DarkInk] = MessageBoxColourDefinitions.Dark;
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
         MessageForm[] forms = [.. GameplayMessageArtwork.Forms().Select(form => new MessageForm(form, messages.Tiles(form)))];
         int rows = forms.Sum(form => form.Tiles.Length / width);

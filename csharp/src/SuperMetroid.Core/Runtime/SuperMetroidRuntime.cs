@@ -344,6 +344,9 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
     public PaletteFxSessionState PaletteFxSession { get; } = new();
 
+    /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
+    internal DoorFade DoorFade { get; } = new();
+
     /// <summary>The sprite frame the update is building for the next frame boundary: sprites plus whole-frame draws.</summary>
     public SpriteFrameBuffer Sprites { get; } = new();
 
@@ -1045,7 +1048,27 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, new FramePaint(BackgroundColours.Of(Colours), Player.Colours.ColourOwnDraws(DisplayedSprites.Draws)));
+        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(), Colours.ShownSprites(),
+            Player.Colours.ColourOwnDraws(DisplayedSprites.Draws)));
+    }
+
+    /// <summary>
+    /// The published frame's gameplay shading (#1512): each owner of a colour effect names the shades and effects its
+    /// state shows, in the order later colour writes won over earlier ones: the room's palette effects and layer-3 colours,
+    /// then its bosses', then the door's fade over all of them.
+    /// </summary>
+    private GameplayShading PublishShading()
+    {
+        var shading = new GameplayShadingBuilder();
+        foreach (IGameplayShadingSource source in ShadingSources())
+            source.ShadeGameplay(shading);
+        return shading.Build(Room.LoadedScope.Assets.BlockSheet.Sheet.Image);
+    }
+
+    /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>
+    private IEnumerable<IGameplayShadingSource> ShadingSources()
+    {
+        yield return DoorFade;
     }
 
     /// <summary>

@@ -21,18 +21,71 @@ public sealed class FramePaint
     public FramePaint(BackgroundColours backgrounds, ImmutableArray<SpriteDraw> spriteDraws)
     {
         Ensure.NotNull(backgrounds);
-        if (spriteDraws.IsDefault)
-            throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
-        foreach (SpriteDraw draw in spriteDraws)
-            if (draw is null)
-                throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
+        Check(spriteDraws);
         Backgrounds = backgrounds;
         SpriteDraws = DrawColours.ResolveAll(spriteDraws, backgrounds.Sprites);
+    }
+
+    /// <summary>
+    /// Keeps a gameplay frame's shading and its whole-frame sprite draws (#1512): its background pictures show their
+    /// groups' shadings, its backdrop is the shading's, and each sprite draw that names its shading also shows the
+    /// shading's sprite effects.
+    /// </summary>
+    /// <param name="gameplay">How the frame's background pictures are coloured, and its backdrop.</param>
+    /// <param name="sprites">The sprite sets, for colouring the sprite draws that name no shading.</param>
+    /// <param name="spriteDraws">The draws, frontmost first.</param>
+    /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
+    public FramePaint(GameplayShading gameplay, ShownColourSets sprites, ImmutableArray<SpriteDraw> spriteDraws)
+    {
+        Ensure.NotNull(gameplay);
+        Ensure.NotNull(sprites);
+        Check(spriteDraws);
+        Gameplay = gameplay;
+        Backgrounds = new BackgroundColours(gameplay.Backdrop, sprites);
+        ImmutableArray<SpriteDraw> draws = gameplay.Sprites.IsEmpty ? spriteDraws
+            : ImmutableArray.CreateRange(spriteDraws, draw => Affected(draw, gameplay.Sprites));
+        SpriteDraws = DrawColours.ResolveAll(draws, sprites);
+    }
+
+    /// <summary>Keeps <paramref name="paint"/>'s draws with <paramref name="backgrounds"/>' colours and <paramref name="gameplay"/>'s shading.</summary>
+    private FramePaint(FramePaint paint, BackgroundColours backgrounds, GameplayShading? gameplay)
+    {
+        Gameplay = gameplay;
+        Backgrounds = backgrounds;
+        SpriteDraws = paint.SpriteDraws;
     }
 
     /// <summary>What the frame's background art shows: its backdrop and each ink's colour (#1408).</summary>
     public BackgroundColours Backgrounds { get; }
 
+    /// <summary>How a gameplay frame's background pictures are coloured (#1512); null for a frontend screen's frame.</summary>
+    public GameplayShading? Gameplay { get; }
+
     /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first, each with its colours resolved.</summary>
     public ImmutableArray<SpriteDraw> SpriteDraws { get; }
+
+    /// <summary>This frame with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>
+    public FramePaint WithBackdrop(RgbColor backdrop) =>
+        new(this, Backgrounds.WithBackdrop(backdrop), Gameplay?.WithBackdrop(backdrop));
+
+    /// <summary>A shaded sprite draw with <paramref name="effects"/> after its own; a draw that names no shading is left alone.</summary>
+    private static SpriteDraw Affected(SpriteDraw draw, ImmutableArray<ColourEffect> effects)
+    {
+        if (draw is not ImageSpriteDraw { Shading: { } shading } image)
+            return draw;
+        foreach (ColourEffect effect in effects)
+            shading = shading.With(effect);
+        return image with { Shading = shading };
+    }
+
+    /// <summary>Checks that a draw list is present and holds no missing draw.</summary>
+    /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
+    private static void Check(ImmutableArray<SpriteDraw> spriteDraws)
+    {
+        if (spriteDraws.IsDefault)
+            throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
+        foreach (SpriteDraw draw in spriteDraws)
+            if (draw is null)
+                throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
+    }
 }

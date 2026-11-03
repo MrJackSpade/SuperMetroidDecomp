@@ -41,7 +41,7 @@ internal static class FramePaintAccess
         /// frame's own colour model, gameplay's or a frontend screen's; its sprite draws are kept.
         /// </summary>
         internal FramePaint WithNativeColours(ReadOnlySpan<RgbColor> nativeColours) =>
-            new(NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), memory.SpriteDraws);
+            Rebuilt(memory, NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), memory.SpriteDraws);
 
         /// <summary>
         /// This frame with its colour memory holding <paramref name="nativeColours"/>, read in the frame's own colour model,
@@ -49,11 +49,20 @@ internal static class FramePaintAccess
         /// </summary>
         internal FramePaint WithNativeColoursAndOam(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> nativeColours,
             ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
-            new(NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), OamDraws(vram, oamUpload, spriteCount, objectSelection));
+            Rebuilt(memory, NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), OamDraws(vram, oamUpload, spriteCount, objectSelection));
 
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);
     }
+
+    /// <summary>
+    /// <paramref name="memory"/> with <paramref name="colours"/> and <paramref name="draws"/>: a gameplay frame keeps its
+    /// pictures' shading with the decoded backdrop (#1512), a frontend screen's frame takes the decoded sets.
+    /// </summary>
+    private static FramePaint Rebuilt(FramePaint memory, BackgroundColours colours, ImmutableArray<SpriteDraw> draws) =>
+        memory.Gameplay is { } gameplay
+            ? new FramePaint(gameplay.WithBackdrop(colours.Backdrop), colours.Sprites, draws)
+            : new FramePaint(colours, draws);
 
     /// <summary>The sprite draws an OAM fixture's records make over <paramref name="vram"/>, as a frontend capture converts them.</summary>
     private static ImmutableArray<SpriteDraw> OamDraws(ReadOnlySpan<byte> vram, ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)

@@ -885,7 +885,7 @@ internal sealed class RoomLoader
             ? new ScrollingSkyState(ScrollingSkyState.VariantOf(room.State.MainCallback), skyHasBands)
             : null;
 
-        assets.LoadGraphics(_colours.BackgroundSets);
+        // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.
         // Ceres rooms show their tileset's turning floor, which the door and Ridley then draw over (#1349, #1467).
         scope.Floor = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloor() : null;
 

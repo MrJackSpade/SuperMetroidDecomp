@@ -44,16 +44,6 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <summary>The screen line after the last one the reveal window shows.</summary>
     public int EndLine => GameplayMessageBoxDefinitions.Layout.WindowCenterY + RadiusPixels;
 
-    /// <summary>
-    /// The colours the message's text shows in over <paramref name="room"/>, the frame's: the room's, with the box's light
-    /// and dark text colours in place of the two inks they replace while the box is open.
-    /// </summary>
-    public static BackgroundColours ShownIn(BackgroundColours room) => Ensure.NotNull(room)
-        .WithBackgroundColour(GameplayMessageBoxDefinitions.Palette.TextSet, GameplayMessageBoxDefinitions.Palette.TemporaryLightColour,
-            GameplayMessageBoxDefinitions.Palette.TemporaryLightColor)
-        .WithBackgroundColour(GameplayMessageBoxDefinitions.Palette.TextSet, GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour,
-            GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor);
-
     /// <summary>Publishes the image of the currently exposed message (#1392, #1466); inactive or zero-radius messages emit none.</summary>
     /// <param name="messageBox">The message box state.</param>
     /// <param name="messages">The room's message box images; required while a message is exposed.</param>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -27,7 +26,6 @@ public sealed class LoadedRoomAssets
         Header = header;
         LevelData = levelData;
         Scrolls = scrolls;
-        TilesetColours = tileset.Colours;
         Tileset = tileset.Tileset;
         Pictures = tileset.Pictures;
     }
@@ -38,8 +36,6 @@ public sealed class LoadedRoomAssets
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
-    /// <summary>The tileset's colours for each background set, which <see cref="LoadGraphics"/> gives the sets, leaving the sprite sets alone.</summary>
-    public ShownBackgroundColourSets TilesetColours { get; }
     /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed block pictures, characters, and palette artwork.</summary>
     public TilesetDefinition Tileset { get; }
 
@@ -55,7 +51,6 @@ public sealed class LoadedRoomAssets
         Ensure.NotNull(scrollStorage);
         Ensure.NotNull(header);
         Ensure.NotNull(catalogs);
-        RoomStaticPalettes paletteArt = catalogs.Palettes;
         RoomLevelArtworks visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesets.Get(header.State.GraphicsSet);
 
@@ -68,7 +63,7 @@ public sealed class LoadedRoomAssets
             header,
             levelData,
             scrolls,
-            new RoomTilesetArtwork(tileset, paletteArt.Get(tileset.Palette).Sets, catalogs.BlockSheets));
+            new RoomTilesetArtwork(tileset, catalogs.BlockSheets));
     }
 
     /// <summary>
@@ -77,12 +72,6 @@ public sealed class LoadedRoomAssets
     /// </summary>
     /// <exception cref="InvalidDataException">No floor is installed for the room's tileset.</exception>
     public RoomFloor CreateFloor() => new(Pictures.FloorOf(Tileset));
-
-    /// <summary>
-    /// Gives every background set the tileset's colours for it (#1464). The room's tileset artwork shows in its block sheet's
-    /// pictures (#1392, #1466), so nothing is bound.
-    /// </summary>
-    public void LoadGraphics(BackgroundColourSets colours) => TilesetColours.CopyTo(Ensure.NotNull(colours));
 
     /// <summary>
     /// Builds the room's grid from its installed level, with its own terrain beyond the room for this room's lifetime.

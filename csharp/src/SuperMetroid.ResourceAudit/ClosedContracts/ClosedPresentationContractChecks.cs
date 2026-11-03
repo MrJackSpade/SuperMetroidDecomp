@@ -23,6 +23,7 @@ internal static class ClosedPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.AssetExtraction.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -78,8 +79,8 @@ internal static class ClosedPresentationContractChecks
                     draygon.ApplyHurt(cgram, true, 8);
                     phantoon.ResolvePowerOn(BackgroundColourSet.TilesFifth, 15);
                     phantoon.ResolvePowerOn(BackgroundColourSet.TilesFifth, 16);
-                    statues.ApplyEye(cgram, 6);
-                    statues.ApplyEye(cgram, 1);
+                    statues.ResolveEye(3, 0);
+                    statues.ResolveEye(4, 0);
                     rainbow.TryReadBeamColor(38, out _);
                     rainbow.TryReadBeamColor(39, out _);
                     rainbow.ApplyRainbow(cgram, 9);
@@ -88,7 +89,7 @@ internal static class ClosedPresentationContractChecks
                     rainbow.ApplyFakeDeathFromGrey(cgram, 8);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
-                    chozo.ApplyLowerNorfair(new ColourRunSequence(screen.SpriteSets.All.Slice(16, 32)));
+                    chozo.ResolveTubeCracks(31);
                     chozo.ResolveTubeCracks(0);
                     basePalette.LoadEnemyProjectileSprites(screen.SpriteSets.Set(dynamicIndex));
                     samusDeath.SuitedColor(2, 9, 15);

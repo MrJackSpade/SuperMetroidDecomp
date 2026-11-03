@@ -95,7 +95,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         Type type = typeof(RoomEnemySystem);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;
-        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationColouring = SharedSpriteColouring.Common;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];

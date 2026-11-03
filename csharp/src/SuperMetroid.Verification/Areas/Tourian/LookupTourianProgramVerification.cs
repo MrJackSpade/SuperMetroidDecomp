@@ -23,6 +23,22 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 /// </summary>
 internal static class LookupTourianProgramVerification
 {
+    /// <summary>
+    /// The colour index the cartridge's clear and grey instructions name for each statue look (#1512): the first colour
+    /// of the three eye colours blacked out, or of the eight colours greyed, among the 256 colours, sprite rows from 128.
+    /// </summary>
+    private static readonly Dictionary<PictureShade, int> NativeColourIndexes = new()
+    {
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.PhantoonCleared] = 128 + 2 * 16 + 12,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.PhantoonGrey] = 128 + 2 * 16,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.RidleyCleared] = 128 + 1 * 16 + 9,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.RidleyGrey] = 128 + 1 * 16,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.KraidCleared] = 7 * 16 + 12,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.KraidGrey] = 7 * 16,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.DraygonCleared] = 6 * 16 + 9,
+        [SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueShades.DraygonGrey] = 6 * 16,
+    };
+
     /// <summary>Compares every statue's typed programs with its native list.</summary>
     internal static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
@@ -104,7 +120,7 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.GoToIfReleaseInProgress, Label(labels, operand, at)));
                     break;
                 case AnimatedTileInstruction.ClearThreePaletteColors:
-                    AssertEqual(ColourSetRunPositions.First(definition.ClearedColours) * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
+                    AssertEqual(NativeColourIndexes[definition.ClearedShade] * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
                     steps.Add(Cue(TourianStatueTileCueKind.ClearThreeColors));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
@@ -124,7 +140,7 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.SetGreyEvent));
                     break;
                 case AnimatedTileInstruction.WriteEightTargetPaletteColors:
-                    AssertEqual(ColourSetRunPositions.First(definition.GreyColours) * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
+                    AssertEqual(NativeColourIndexes[definition.GreyShade] * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
                     steps.Add(Cue(TourianStatueTileCueKind.ApplyGreyColors));
                     break;
                 case AnimatedTileInstruction.Goto:

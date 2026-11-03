@@ -2837,7 +2837,7 @@ internal static class EnemySpritemapArtworkVerification
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.TileIndexBase = indexes.TileBase;
-            slot.Colouring = indexes.Colouring;
+            slot.Shading = indexes.Shading;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             byte frameBank = spritemapBank ?? (definition == EnemyDefinitionId.YappingMaw

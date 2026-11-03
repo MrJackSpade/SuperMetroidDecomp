@@ -1031,28 +1031,27 @@ internal static class LookupStream5Verification
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
 
+        static RgbColor Shown(PaletteRgb5 rgb) => new(rgb.Red, rgb.Green, rgb.Blue);
+
         static TourianStatuePalettes Check(TourianStatueColorDocument expected)
         {
             var actual = TourianStatueColorFile.Read(new MemoryStream(TourianStatueColorFile.Write(expected), writable: false));
-            var cgram = new GameplayColours(new SpriteColourSets());
-            actual.ApplyEntrance(cgram);
+            // The installed colours the import pre-colours the statue scene's shades from (#1512).
             for (int color = 0; color < expected.Base.Length; color++)
             {
                 AssertEqual(Pack(expected.Base[color]), actual.ResolveBase(color), "Exact independent base ramp color");
-                AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteConstants.BaseCgramIndex + color], "Actual base CGRAM");
-                AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteConstants.StatueCgramIndex + color], "Unchanged statue CGRAM");
+                AssertEqual(Shown(expected.Base[color]), actual.BaseColor(color), "Installed base colour");
+                AssertEqual(Shown(expected.Statue[color]), actual.StatueColor(color), "Installed statue colour");
             }
-            actual.ApplyGrey(cgram.BackgroundSets.Set(BackgroundColourSet.Hud).Slice(0, expected.Grey.Length));
             for (int color = 0; color < expected.Grey.Length; color++)
             {
                 AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact independent grey ramp color");
-                AssertEqual(Pack(expected.Grey[color]), cgram.Colors[color], "Actual grey CGRAM");
+                AssertEqual(Shown(expected.Grey[color]), actual.GreyColor(color), "Installed grey colour");
             }
             for (int row = 0; row < expected.Eye.Length; row++)
             {
-                actual.ApplyEye(cgram, (ushort)(row * 2));
                 for (int color = 0; color < expected.Eye[row].Length; color++)
-                    AssertEqual(Pack(expected.Eye[row][color]), cgram.Colors[TourianStatuePaletteConstants.EyeCgramIndex + color], "Unchanged eye CGRAM");
+                    AssertEqual(Shown(expected.Eye[row][color]), actual.ResolveEye(row, color), "Installed eye glow colour");
             }
             string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
             {
@@ -1125,25 +1124,22 @@ internal static class LookupStream5Verification
             };
             Check(native with { Frames = rows });
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyFrame(new SpriteColourSets().Set(0).Slice(0, 4), -1),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1, 0),
             "Magdollite pulse lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyFrame(new SpriteColourSets().Set(0).Slice(0, 4), 4),
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(4, 0),
             "Magdollite pulse upper frame bound");
         Console.WriteLine("Magdollite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; four independent glow colors remain pending.");
 
         static MagdollitePaletteCycle Check(MagdollitePaletteCycleDocument expected)
         {
             var actual = MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(expected), writable: false));
-            var cgram = new GameplayColours(new SpriteColourSets());
             ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
                 (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
-            for (int frame = 0; frame < packed.Length; frame++)
+            for (int frame = 0; frame < expected.Frames.Length; frame++)
             {
-                actual.ApplyFrame(cgram.SpriteSets.Set(1).Slice(0, 4), frame);
-                for (int color = 0; color < packed[frame].Length; color++)
-                    AssertEqual(packed[frame][color],
-                        cgram.Colors[144 + color],
-                        "Magdollite pulse exact selected CGRAM color");
+                for (int color = 0; color < expected.Frames[frame].Length; color++)
+                    AssertEqual(new RgbColor(expected.Frames[frame][color].Red, expected.Frames[frame][color].Green, expected.Frames[frame][color].Blue),
+                        actual.Resolve(frame, color), "Magdollite pulse exact installed glow colour");
             }
             string identity = SelectedPresentationHash.Create("MagdollitePaletteCycle-v1",
                 content => content.AppendWordFrames("frames", packed));
@@ -1588,8 +1584,8 @@ internal static class LookupStream5Verification
             var changed = document with { Animation = rows };
             Check(Load(changed),changed);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.LoadAnimationColors(new BackgroundColourSets(),-1),"Ceres animation lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.LoadAnimationColors(new BackgroundColourSets(),8),"Ceres animation upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.AnimationColor(-1, 0),"Ceres animation lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Visuals.AnimationColor(8, 0),"Ceres animation upper bound");
         Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM,90 independent setup-channel edits, six shared setup slots and canonical identities pass; stock seeds, phases and escape colors store no edits.");
 
         PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
@@ -1601,16 +1597,13 @@ internal static class LookupStream5Verification
         void Check(CeresDoorSourceArtwork source,CeresDoorVisualDocument expected)
         {
             CeresDoorVisuals actual = source.Visuals;
-            var cgram = new GameplayColours(new SpriteColourSets());
+            static RgbColor Shown(PaletteRgb5 rgb) => new(rgb.Red, rgb.Green, rgb.Blue);
             for(int row =0;row<8;row++)
             {
-                actual.LoadAnimationColors(cgram.BackgroundSets,row);
-                for(int color=0;color<6;color++) AssertEqual(Pack(expected.Animation[row][color]),cgram.Colors[CeresDoorVisualConstants.AnimationTargetColor+color],"Ceres independent animation color");
+                for(int color=0;color<6;color++) AssertEqual(Shown(expected.Animation[row][color]),actual.AnimationColor(row,color),"Ceres independent animation color");
             }
-            actual.LoadNormalColors(cgram.BackgroundSets.Set(BackgroundColourSet.Hud).Slice(0, 15));
-            for(int color=0;color<15;color++) AssertEqual(Pack(expected.Normal[color]),cgram.Colors[color],"Ceres normal palette unchanged");
-            actual.LoadEscapeColors(cgram.BackgroundSets.Set(BackgroundColourSet.Hud).Slice(0, 15));
-            for(int color=0;color<15;color++) AssertEqual(Pack(expected.Escape[color]),cgram.Colors[color],"Ceres escape palette unchanged");
+            for(int color=0;color<15;color++) AssertEqual(Shown(expected.Normal[color]),actual.NormalColor(color),"Ceres normal palette unchanged");
+            for(int color=0;color<15;color++) AssertEqual(Shown(expected.Escape[color]),actual.EscapeColor(color),"Ceres escape palette unchanged");
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
             {
                 content.Append("tiles",planar);

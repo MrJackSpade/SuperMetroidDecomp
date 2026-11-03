@@ -33,7 +33,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainExplodedDoorPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainFinalRoomPaintDefinitions.cs")]),
         new("SuperMetroid.AssetExtraction.Enemies.Artwork.ChozoAndTubeColorCatalog", "chozo-tube-v1-complete-fixed-palettes",
-            ["ApplyTubeCracks", "ApplyWreckedShip", "ApplyLowerNorfair"],
+            ["ResolveTubeCracks", "ResolveStatue"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/ChozoAndTubeColorCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/ChozoAndTubeColorSelection.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/ChozoAndTubeColorDefinitions.cs"),

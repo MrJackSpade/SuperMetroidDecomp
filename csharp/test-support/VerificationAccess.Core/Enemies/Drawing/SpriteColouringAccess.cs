@@ -31,10 +31,13 @@ internal static class SpriteColouringAccess
     /// The row a draw under <paramref name="shading"/> selects, for a sprite whose sheet is coloured in
     /// <paramref name="standardRow"/>: the row its last selection shade selects, otherwise the sheet's own.
     /// </summary>
-    internal static int RowSelectedBy(PictureShading shading, int standardRow)
+    internal static int RowSelectedBy(PictureShading shading, int standardRow) => SelectedRow(shading) ?? standardRow;
+
+    /// <summary>The row the last selection shade of <paramref name="shading"/> selects, or null when it selects none.</summary>
+    internal static int? SelectedRow(PictureShading shading)
     {
         Ensure.NotNull(shading);
-        int row = standardRow;
+        int? row = null;
         foreach (PictureShade shade in shading.Shades)
         {
             if (ShadeRows.TryGetValue(shade, out int selected))

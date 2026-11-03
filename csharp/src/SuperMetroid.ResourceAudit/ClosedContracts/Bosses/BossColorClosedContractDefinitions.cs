@@ -76,7 +76,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PhantoonHealthPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonColorDefinitions.cs")]),
         new("SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatuePalettes", "tourian-statue-v1-complete-eye-palettes",
-            ["ApplyEntrance", "ApplyEye", "ApplyGrey"],
+            ["ResolveEye", "BaseColor", "StatueColor", "GreyColor"],
             [new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatuePalettes.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatuePaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatuePaint.cs"),

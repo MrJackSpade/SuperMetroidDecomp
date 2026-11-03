@@ -30,7 +30,7 @@ internal static class PolypRockBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 256,
-            Colouring = SharedSpriteColouring.Frozen,
+            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         enemies.PolypBehavior.SpawnPolypRock(source, 16, unchecked((ushort)-256));
         RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);

@@ -29,7 +29,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             TileIndexBase = 256,
-            Colouring = SharedSpriteColouring.Frozen,
+            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleProgram program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {

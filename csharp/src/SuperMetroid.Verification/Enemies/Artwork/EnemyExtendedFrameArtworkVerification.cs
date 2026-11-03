@@ -1371,7 +1371,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId));
             SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(slot.DefinitionId);
             slot.TileIndexBase = indexes.TileBase;
-            slot.Colouring = indexes.Colouring;
+            slot.Shading = indexes.Shading;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // the colours his body draws in; this fixture's animation is off and its latch holds the slot's colours.

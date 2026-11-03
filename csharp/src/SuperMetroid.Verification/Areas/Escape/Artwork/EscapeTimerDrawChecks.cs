@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
@@ -62,8 +61,8 @@ internal static class EscapeTimerDrawChecks
         }
         var cgram = new ScreenPalette();
         BackgroundColourSetImage.LoadStarting(palettes, cgram);
-        palettes.LoadCommonSprites(SpriteColourSetDefinitions.Common.In(cgram.SpriteSets));
-        palettes.LoadEnemyProjectileSprites(SpriteColourSetDefinitions.EnemyProjectiles.In(cgram.SpriteSets));
+        palettes.LoadCommonSprites(SpriteColourStore.Common.In(cgram.SpriteSets));
+        palettes.LoadEnemyProjectileSprites(SpriteColourStore.EnemyProjectiles.In(cgram.SpriteSets));
 
         var vram = new SnesVram();
         vram.LoadBytes(ObjCharacterImage.ResolveTileByteAddress(FirstCharacter, TimerObjectSelection), characters.Characters);

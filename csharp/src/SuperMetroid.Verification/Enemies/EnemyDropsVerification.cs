@@ -353,7 +353,7 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.TileIndexBase = 256;
-        enemy.Colouring = SpriteColouring.InFixtureSet(6);
+        enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Properties = (EnemyProperties.RespawnIfKilled);
 
         // A Fireflea with health nine proves health above four selects the small explosion.

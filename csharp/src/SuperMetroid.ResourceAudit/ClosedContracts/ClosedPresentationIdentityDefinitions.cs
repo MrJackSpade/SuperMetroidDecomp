@@ -69,7 +69,9 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomFxBlendInks", "Apply", "selection") => RoomFxPaletteBlendDocumentRules.Ids.Select(id => (int)id).Append(0).ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sheet") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => (int)sheet.Sheet).ToArray(),
-        ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All
+        ("EnemyTileArtworkCatalog", "LoadTo", "definitionId") => EnemyTileSourceDefinitions.All
+            .Select(definition => (int)definition.DefinitionId).ToArray(),
+        ("EnemyTileSourceArtwork", "PaletteOf" or "TryGetPalette", "enemy") => EnemyTileSourceDefinitions.All
             .Select(definition => (int)definition.DefinitionId).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "Get", "frame") => EnemyProjectileSpritemapDefinitions.FrameNames
             .Select(name => (int)EnemyProjectileFrames.Identity(name)).Append((int)EnemyProjectileFrameId.Blank).ToArray(),

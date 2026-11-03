@@ -63,7 +63,7 @@ internal static class SpawnedObjectFixtures
             return;
         SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(enemy);
         slot.TileIndexBase = indexes.TileBase;
-        slot.Colouring = indexes.Colouring;
+        slot.Shading = indexes.Shading;
     }
 
     /// <summary>The installed enemy artwork with <paramref name="spritemaps"/> in place of its compositions.</summary>

@@ -27,14 +27,14 @@ internal static class BackgroundTransferPresentationContractChecks
             using SuperMetroid.Core.Fx.Artwork;
             class BackgroundConsumer {
                 void Inspect(RoomFxLayer3Pages pages, RoomFxBlendInks blends,
-                    SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
+                    SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork ending, GunshipLiftoffArtworkCatalog ship) {
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
-                    blends.Apply(backgrounds, 0);
-                    blends.Apply(backgrounds, RoomFxPaletteBlend.Lava);
-                    blends.Apply(backgrounds, (RoomFxPaletteBlend)200);
-                    blends.Apply(backgrounds, (RoomFxPaletteBlend)255);
-                    blends.Apply(backgrounds, RoomFxPaletteBlend.Fog);
+                    blends.Inks(0);
+                    blends.Inks(RoomFxPaletteBlend.Lava);
+                    blends.Inks((RoomFxPaletteBlend)200);
+                    blends.Inks((RoomFxPaletteBlend)255);
+                    blends.Inks(RoomFxPaletteBlend.Fog);
                     ending.Fragment(EndingObjectFragmentId.Segment7C);
                     ending.Fragment((EndingObjectFragmentId)4);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);

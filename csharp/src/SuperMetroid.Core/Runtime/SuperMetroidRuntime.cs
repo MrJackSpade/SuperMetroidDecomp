@@ -198,8 +198,6 @@ internal sealed class SuperMetroidRuntime
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
-        Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
-
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
     }
@@ -225,7 +223,6 @@ internal sealed class SuperMetroidRuntime
         }
 
         Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
-        Bind(a => a.GameplayBasePalettes, value => Artwork.InitialPaletteArt = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);

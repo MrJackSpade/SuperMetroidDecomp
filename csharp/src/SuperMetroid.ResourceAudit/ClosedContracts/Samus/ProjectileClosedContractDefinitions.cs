@@ -30,7 +30,6 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Projectiles/ProjectileWaveEnvelope.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePalette.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteComposition.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.InstalledProjectileTrails", "trail-complete-timed-appearances", ["Resolve"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledProjectileTrails.cs"),
@@ -43,8 +42,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Projectiles/ProjectileWaveEnvelopeDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Projectiles/ProjectileWaveEnvelope.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePalette.cs")]),
+             new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.InstalledGrappleSprites", "grapple-complete-endpoint-and-segments", ["Segment"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledGrappleSprites.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/GrappleSpriteDefinitions.cs")]),
@@ -58,7 +56,6 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Projectiles/ProjectileWaveEnvelope.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePalette.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/ChargeFlareSprites.cs")]),
     ];
 }

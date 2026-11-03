@@ -42,7 +42,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName));
         var sources = new SamusShadeSources(
-            palettes.starting,
+            palettes.Starting,
             [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
             [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
             Read(map, SamusSuitColorFile.FileName, SamusSuitColorFile.Read),

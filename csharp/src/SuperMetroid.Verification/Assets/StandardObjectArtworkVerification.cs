@@ -41,14 +41,13 @@ internal static class StandardObjectArtworkVerification
         string overrides = copy.Installation.StandardObjectOverrideDirectory;
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         RoomCharacterAtlas baseline = StandardObjectArtworkFiles.Load(stock, overrides);
-        GameplayBasePalette palettes = InstalledFixtures.GameplayBasePalettes;
         for (int offset = 0; offset < StandardObjectArtworkFormat.ByteCount; offset++)
             AssertEqual(native.ReadCartridgeByte(NativeStandardObjects + offset),
                 baseline.Characters.Span[offset], $"standard OBJ native byte {offset:X4}");
 
         var guard = NewFrontendCartridgeReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: palettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.HudSetup.ShowStandardObjectCharacters();
         AssertTrue(ShownStandardObjects(runtime, baseline).SequenceEqual(baseline.Characters.Span),
             "gameplay setup selects the installed OBJ bytes without reading ROM");
@@ -69,7 +68,7 @@ internal static class StandardObjectArtworkVerification
         RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
         AssertTrue(!edited.Characters.Span.SequenceEqual(baseline.Characters.Span),
             "selected indexed PNG changes the native standard OBJ transfer");
-        var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: palettes);
+        var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         editedRuntime.HudSetup.ShowStandardObjectCharacters();
         AssertTrue(ShownStandardObjects(editedRuntime, edited).SequenceEqual(edited.Characters.Span),
             "edited OBJ tile is what gameplay setup selects over the OBJ characters");

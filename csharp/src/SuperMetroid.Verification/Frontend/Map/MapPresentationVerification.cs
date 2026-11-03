@@ -235,8 +235,6 @@ internal static class MapPresentationVerification
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
-        /// <summary>Initial CGRAM colors loaded when the fixture enters gameplay.</summary>
-        public GameplayBasePalette InitialPalettes { get; }
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public InstalledEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
@@ -245,7 +243,6 @@ internal static class MapPresentationVerification
         /// <summary>Loads the complete installed room artwork set once for live-map override checks.</summary>
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.Installation.GameInstallation installation)
         {
-            InitialPalettes = installation.LoadGameplayBasePalettes();
             roomCharacters = installation.LoadRoomCharacters();
             roomBlockSheets = installation.LoadRoomBlockSheets();
             visualLayouts = installation.LoadRoomVisualLayouts();
@@ -310,7 +307,7 @@ internal static class MapPresentationVerification
         /// <summary>Supplies the catalog checks' shared arguments.</summary>
         internal void Deconstruct(out SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, out string root,
             out string stock, out string overrides, out AreaMapPresentation original,
-            out MapPresentationInstalledRoomAssets fixtureAssets, out GameplayBasePalette initialPalettes)
+            out MapPresentationInstalledRoomAssets fixtureAssets)
         {
             bus = Bus;
             root = copy.Root;
@@ -318,7 +315,6 @@ internal static class MapPresentationVerification
             overrides = Overrides;
             original = Original;
             fixtureAssets = FixtureAssets;
-            initialPalettes = FixtureAssets.InitialPalettes;
         }
 
         /// <summary>Deletes the private installation copy.</summary>
@@ -329,7 +325,7 @@ internal static class MapPresentationVerification
     private static void VerifyMapPresentationCatalog()
     {
         using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, overrides, original, fixtureAssets, initialPalettes) = fixture;
+        var (bus, root, stock, overrides, original, fixtureAssets) = fixture;
         string repaired = Path.Combine(root, "replacement-stock");
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
         var reopened = MapPresentationFiles.Load(stock, overrides);
@@ -362,7 +358,7 @@ internal static class MapPresentationVerification
             AssertEqual(original.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "override cannot alter station reveal");
             AssertEqual(original.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "override cannot alter slope exploration");
         }
-        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(), initialPalettes,
+        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(),
             fixtureAssets));
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).Cell(new(0, 0)) != original.Get(AreaId.Crateria).Cell(new(0, 0)), "catalog prefers valid override");
@@ -372,7 +368,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(repaired));
         Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray()));
         Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original,
-            rules.Values.ToArray(), initialPalettes, fixtureAssets));
+            rules.Values.ToArray(), fixtureAssets));
         Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray()));
         Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray()));
         Suite(nameof(VerifyWorldMapLabels), () => VerifyWorldMapLabels(bus, stock, Path.Combine(root, "label-overrides"), original));
@@ -399,7 +395,7 @@ internal static class MapPresentationVerification
     private static void VerifyMapPresentationColorOverrides()
     {
         using var fixture = new MapCatalogFixture();
-        var (bus, _, stock, overrides, original, fixtureAssets, initialPalettes) = fixture;
+        var (bus, _, stock, overrides, original, fixtureAssets) = fixture;
         Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(stock, overrides, original));
         Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(stock, overrides, original));
@@ -411,17 +407,17 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
         Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, fixtureAssets));
         Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,
+        Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus,
             fixtureAssets));
-        Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus, initialPalettes));
-        Suite(nameof(VerifySamusHyperBeamColorOverride), () => VerifySamusHyperBeamColorOverride(stock, overrides, original, bus, initialPalettes,
+        Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifySamusHyperBeamColorOverride), () => VerifySamusHyperBeamColorOverride(stock, overrides, original, bus,
             fixtureAssets));
         Suite(nameof(VerifyMotherBrainHealthPaletteOverride), () => VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original));
     }
 
@@ -429,7 +425,7 @@ internal static class MapPresentationVerification
     private static void VerifyPausePresentationAssets()
     {
         using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, _, original, _, _) = fixture;
+        var (bus, root, stock, _, original, _) = fixture;
         Suite(nameof(VerifyMapScreens), () => VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original));
         Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original));
         Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original));
@@ -447,11 +443,11 @@ internal static class MapPresentationVerification
     private static void VerifyFrontendPresentationAssets()
     {
         using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, _, original, _, initialPalettes) = fixture;
+        var (bus, root, stock, _, original, _) = fixture;
         Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus, stock,
             Path.Combine(root, "escape-timer-overrides"), original));
         Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
-            Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes));
+            Path.Combine(root, "gameplay-hud-overrides"), original));
         Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original));
         Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(original));
         Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original));
@@ -476,8 +472,7 @@ internal static class MapPresentationVerification
         ISnesAddressSpace bus,
         string stock,
         string overrides,
-        AreaMapPresentation original,
-        GameplayBasePalette initialPalettes)
+        AreaMapPresentation original)
     {
         string source = Path.Combine(stock, MotherBrainRainbowPaletteFile.FileName);
         MotherBrainRainbowPaletteDocument document =
@@ -623,7 +618,7 @@ internal static class MapPresentationVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain rainbow edit changes installed-content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = edited;
         MotherBrainRainbowPalettePresentation editedRainbow = runtime.BossArtwork.MotherBrainRainbowColors
             ?? throw new InvalidOperationException("Verification requires runtime.BossArtwork.MotherBrainRainbowColors.");
@@ -1040,7 +1035,7 @@ internal static class MapPresentationVerification
             PaletteFxColours animated = PaletteFxObjectAccess.FromNative(definitionPointer).AnimatedColours;
             string context = $"runtime catalog binding consumes {description} palette-FX override in its {animated}";
             // A title or cinematic effect animates a frontend screen's colours (#1464); every other one animates gameplay's.
-            if (PaletteFxScreenColourDefinitions.ScreenColours.Contains(animated))
+            if (PaletteFxScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
             {
                 // A frontend screen's step shows the record without writing colours (#1512); the import pre-colours its shade
                 // from the installed colours, so the override reaches the shade the screen names.
@@ -1280,8 +1275,7 @@ internal static class MapPresentationVerification
 
     /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentation original,
-        AreaMapPresentation edited, ImportedAreaMap[] rules,
-        GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
+        AreaMapPresentation edited, ImportedAreaMap[] rules, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
@@ -1297,7 +1291,7 @@ internal static class MapPresentationVerification
         AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
 
         var guard = NewMapDataGuard(bus, rules);
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

@@ -18,13 +18,15 @@ public static class InstalledArtworkIdentity
     /// <param name="enemies">The installed enemy directory the set's enemy and boss artwork was bound from, whose area artwork only the import reads (#1512).</param>
     /// <param name="standardObjects">The installed standard object characters, which only the import reads (#1484).</param>
     /// <param name="roomPalettes">The tilesets' installed colours, which only the import reads (#1512).</param>
+    /// <param name="basePalette">The installed starting and common sprite colours, which only the import reads (#1512).</param>
     public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, InstalledEnemyArtwork enemies,
-        RoomCharacterAtlas standardObjects, RoomStaticPalettes roomPalettes)
+        RoomCharacterAtlas standardObjects, RoomStaticPalettes roomPalettes, GameplayBasePalette basePalette)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(enemies);
         Ensure.NotNull(standardObjects);
         Ensure.NotNull(roomPalettes);
+        Ensure.NotNull(basePalette);
         return RoomPresentationIdentity.Create(roomPalettes, Require(artwork.RoomVisualLayouts))
             .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, Require(artwork.SamusBodyArt).ContentIdentity))
             .Concat(RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet
@@ -56,7 +58,7 @@ public static class InstalledArtworkIdentity
                 MotherBrainFakeDeath = Require(artwork.RoomPlmMotherBrainFakeDeathVisuals),
                 Collectible = Require(artwork.RoomPlmCollectibleVisuals),
             }))
-            .Concat(GameplayPresentationIdentity.Create(Require(artwork.GameplayBasePalettes), standardObjects,
+            .Concat(GameplayPresentationIdentity.Create(basePalette, standardObjects,
                 Require(artwork.XrayRevealVisuals)))
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingFloorArt), Require(artwork.EndingObjectArt),
                 Require(artwork.EndingPaletteArt)))

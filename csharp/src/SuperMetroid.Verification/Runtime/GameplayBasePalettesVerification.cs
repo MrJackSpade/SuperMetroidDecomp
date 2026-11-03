@@ -32,17 +32,18 @@ internal static class GameplayBasePalettesVerification
         try
         {
             GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(stock, overrides);
+            // The starting image holds the background colours, then the sprite colours, in the cartridge's order.
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),
-                    baseline.Initial[color], $"installed starting CGRAM color {color}");
+                    StartingColour(baseline, color), $"installed starting colour {color}");
             for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
                 AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette + color * 2),
                     baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
             var guarded = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-            // Runtime construction binds the installed palettes without cartridge reads; it writes no colours (#1512).
-            _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: baseline);
+            // Runtime construction reads no cartridge and binds no base palette: only the import reads it (#1512).
+            _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
 
             var document = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(
                 File.ReadAllBytes(Path.Combine(stock, GameplayBasePaletteFormat.ArtworkFileName)),
@@ -56,7 +57,7 @@ internal static class GameplayBasePalettesVerification
             string overridePath = Path.Combine(overrides, GameplayBasePaletteFormat.ArtworkFileName);
             File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
             GameplayBasePalette edited = GameplayBasePaletteFiles.Load(stock, overrides);
-            AssertTrue(edited.Initial[1] != baseline.Initial[1], "edited starting color differs from stock");
+            AssertTrue(edited.Starting.BackgroundColours[1] != baseline.Starting.BackgroundColours[1], "edited starting color differs from stock");
 
             document.Initial[1] = document.Initial[1] with { Red = 32 };
             File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
@@ -65,7 +66,8 @@ internal static class GameplayBasePalettesVerification
                 "invalid RGB5 override fails loudly");
             File.Delete(overridePath);
             GameplayBasePalette restored = GameplayBasePaletteFiles.Load(stock, overrides);
-            AssertTrue(restored.Initial.SequenceEqual(baseline.Initial) &&
+            AssertTrue(restored.Starting.BackgroundColours.SequenceEqual(baseline.Starting.BackgroundColours) &&
+                restored.Starting.SpriteColours.SequenceEqual(baseline.Starting.SpriteColours) &&
                 restored.CommonSprites.SequenceEqual(baseline.CommonSprites),
                 "removing override restores stock palette");
             Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors, guarded runtime construction, override and malformed data pass.");
@@ -74,6 +76,10 @@ internal static class GameplayBasePalettesVerification
         {
             if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
         }
+
+        static RgbColor StartingColour(GameplayBasePalette palette, int color) =>
+            color < palette.Starting.BackgroundColours.Length ? palette.Starting.BackgroundColours[color]
+                : palette.Starting.SpriteColours[color - palette.Starting.BackgroundColours.Length];
 
         static ushort ReadWord(ISnesAddressSpace addressSpace, int address) =>
             LittleEndianBytes.Word(GameplayBasePalettesRomByte(addressSpace, address), GameplayBasePalettesRomByte(addressSpace, address + 1));

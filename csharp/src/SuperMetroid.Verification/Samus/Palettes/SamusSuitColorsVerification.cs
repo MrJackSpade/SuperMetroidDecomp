@@ -115,7 +115,6 @@ internal static class SamusSuitColorsVerification
         string overrideDirectory,
         AreaMapPresentation original,
         ISnesAddressSpace bus,
-        GameplayBasePalette initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus);
@@ -197,7 +196,7 @@ internal static class SamusSuitColorsVerification
             samusColours.ShownSuit(editedSources)[1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

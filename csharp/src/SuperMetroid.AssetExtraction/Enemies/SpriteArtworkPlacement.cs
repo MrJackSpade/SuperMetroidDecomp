@@ -27,8 +27,4 @@ public sealed record SpriteArtworkPlacement(SpriteArtworkSource Source, int Firs
 
     /// <summary>The table bytes the placement shows.</summary>
     internal int ByteCount => CharacterCount * SpriteCharacterTableLayout.CharacterByteCount;
-
-    /// <summary>Whether the placement shows over every one of <paramref name="characterCount"/> characters from <paramref name="firstCharacter"/>.</summary>
-    public bool Covers(int firstCharacter, int characterCount) =>
-        FirstCharacter <= firstCharacter && firstCharacter + characterCount <= FirstCharacter + CharacterCount;
 }

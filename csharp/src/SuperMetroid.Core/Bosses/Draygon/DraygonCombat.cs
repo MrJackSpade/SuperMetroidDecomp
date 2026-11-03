@@ -105,9 +105,11 @@ internal sealed class DraygonCombat
         SamusState? samus)
     {
         bool whiteFrame = body.FlashTimer.IsInAlternatePhase(2);
-        (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
-            "Draygon damage requires installed color artwork."))
-            .ApplyHurt(_presentation.Colours, whiteFrame, RequireHealthPaletteBand(state));
+        // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
+        state.Colours.ShowHurt(whiteFrame);
+        if (!whiteFrame)
+            state.Colours.ShowBand(RequireHealthPaletteBand(state));
+        state.ShadeSprites();
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
@@ -196,9 +198,7 @@ internal sealed class DraygonCombat
     /// <summary>Copies the selected installed health palette band into the live colours.</summary>
     internal void CopyDraygonHealthColors(DraygonEnemyState state)
     {
-        (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidDataException(
-            "Draygon health colors require installed artwork."))
-            .ApplyHealthBand(_presentation.Colours, RequireHealthPaletteBand(state));
+        state.Colours.ShowBand(RequireHealthPaletteBand(state));
     }
 
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>

@@ -117,7 +117,8 @@ internal sealed class EnemySheetShades
                 foreach ((PictureShade shade, RgbColor[] fade) in GhostFadeSteps())
                     shades.Add(SheetShade.Run(shade, first, fade));
                 break;
-            case EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
+            case EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
+                or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
                 or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad:
                 // The bosses' own effects over the row they draw in (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));

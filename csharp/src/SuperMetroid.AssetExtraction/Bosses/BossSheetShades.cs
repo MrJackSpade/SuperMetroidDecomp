@@ -6,6 +6,8 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using CrocomireBand = SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Band;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
@@ -27,6 +29,22 @@ internal static class BossSheetShades
 
     /// <summary>The sprite row Kraid's rocks draw in, which his initialization loads.</summary>
     private const int KraidRocksRow = 3;
+
+    /// <summary>The first ink of a room or body picture's fourth tile colour group, which Draygon's background colours recolour.</summary>
+    private const int DraygonBackgroundFirstInk = 80;
+
+    /// <summary>The colour of the fourth tile colour group his health bands start at.</summary>
+    private const int DraygonHealthFirstColour = 9;
+
+    /// <summary>The sprite row his opening's colours start at; they run on into the next row.</summary>
+    private const int DraygonIntroRow = 1;
+
+    /// <summary>The sprite row his body and parts draw in.</summary>
+    private const int DraygonSpriteRow = 7;
+
+    /// <summary>Draygon's sprites, which draw in his sprite row and show his opening's colours.</summary>
+    private static readonly HashSet<EnemyDefinitionId> DraygonParts =
+        [EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms];
 
     /// <summary>The first ink of a body picture's sixth tile colour group, which Crocomire's fight colours recolour.</summary>
     private const int CrocomireBodyFirstInk = 112;
@@ -67,6 +85,8 @@ internal static class BossSheetShades
         ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(bosses);
+        if (owner == BossBodyOwner.Draygon)
+            return DraygonBackground(bosses);
         if (owner == BossBodyOwner.Crocomire)
         {
             CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire's body is shaded from the installed Crocomire colours.");
@@ -97,6 +117,8 @@ internal static class BossSheetShades
         Ensure.NotNull(bosses);
         if (enemy == EnemyDefinitionId.Botwoon)
             return Botwoon(bosses, firstInk);
+        if (DraygonParts.Contains(enemy))
+            return DraygonSprites(bosses);
         if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)
         {
             CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire is shaded from the installed Crocomire colours.");
@@ -119,6 +141,7 @@ internal static class BossSheetShades
         return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
             [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))]),
             .. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours),
+            .. DraygonSprites(bosses),
             SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
                 Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
     }
@@ -135,6 +158,43 @@ internal static class BossSheetShades
         RgbColor[] projectiles = Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialProjectile);
         return [new(CrocomireShades.Projectiles, CrocomireProjectileRow,
             colours.With(CrocomireProjectileRow, 0, projectiles[..LoadedSetColours.RowColours]))];
+    }
+
+    /// <summary>
+    /// The shades of Draygon's background colours, which his body layer and his room's pictures share: his material
+    /// colours, their white flash and his eight health bands.
+    /// </summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    internal static IReadOnlyList<SheetShade> DraygonBackground(BossArtworkCatalog bosses)
+    {
+        DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
+        var shades = new List<SheetShade>
+        {
+            SheetShade.Run(DraygonShades.Background, DraygonBackgroundFirstInk,
+                [.. Enumerable.Range(0, DraygonColorDefinitions.BackgroundCount).Select(draygon.ResolveBackground)]),
+            SheetShade.Run(DraygonShades.BackgroundWhite, DraygonBackgroundFirstInk,
+                [.. Enumerable.Range(0, DraygonColorDefinitions.WhiteFlashCount).Select(draygon.ResolveWhiteFlash)]),
+        };
+        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        {
+            int shown = band;
+            shades.Add(SheetShade.Run(DraygonShades.Health(shown), DraygonBackgroundFirstInk + DraygonHealthFirstColour,
+                [.. Enumerable.Range(0, DraygonColorDefinitions.HealthBandColorCount).Select(colour => draygon.ResolveHealthBand(shown, colour))]));
+        }
+        return shades;
+    }
+
+    /// <summary>The shades of Draygon's sprites: his opening's colours and his sprite row's material colours and white flash.</summary>
+    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
+    private static IEnumerable<SheetShade> DraygonSprites(BossArtworkCatalog bosses)
+    {
+        DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
+        yield return SheetShade.Run(DraygonShades.Intro, DraygonIntroRow * LoadedSetColours.RowColours,
+            [.. Enumerable.Range(0, DraygonColorDefinitions.IntroCount).Select(draygon.ResolveIntro)]);
+        yield return SheetShade.Run(DraygonShades.Sprite, DraygonSpriteRow * LoadedSetColours.RowColours,
+            [.. Enumerable.Range(0, DraygonColorDefinitions.SpriteCount).Select(draygon.ResolveSprite)]);
+        yield return SheetShade.Run(DraygonShades.SpriteWhite, DraygonSpriteRow * LoadedSetColours.RowColours,
+            [.. Enumerable.Range(0, DraygonColorDefinitions.WhiteFlashCount).Select(draygon.ResolveWhiteFlash)]);
     }
 
     /// <summary>Every colour of Crocomire's <paramref name="band"/>.</summary>

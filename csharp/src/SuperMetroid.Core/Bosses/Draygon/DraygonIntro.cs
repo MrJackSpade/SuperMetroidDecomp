@@ -49,7 +49,7 @@ internal sealed class DraygonIntro
                     if (_spriteObjects.SpawnRoomSpriteObject(
                             new(16, 384),
                             RoomSpriteObjectKind.DraygonIntroEvir,
-                            SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite))) is not null)
+                            SpriteGraphics.CharacterZeroIn(state.Colours.Sprites)) is not null)
                     {
                         state.IntroEvirsSpawned++;
                     }

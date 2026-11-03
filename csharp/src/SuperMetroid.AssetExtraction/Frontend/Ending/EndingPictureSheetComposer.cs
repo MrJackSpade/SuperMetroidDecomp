@@ -48,10 +48,17 @@ internal static class EndingPictureSheetComposer
     /// <summary>The ending's picture sheets.</summary>
     internal static IEnumerable<SpriteSheetId> Sheets => PictureSheets.Keys;
 
-    /// <summary>Composes ending picture sheet <paramref name="sheet"/> from the installed artwork <paramref name="sources"/> read.</summary>
+    /// <summary>
+    /// Composes ending picture sheet <paramref name="sheet"/> from the installed artwork <paramref name="sources"/> read,
+    /// shaded in every ending shade over its background colours (#1512).
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending picture sheet.</exception>
-    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources) =>
-        Ensure.Listed(PictureSheets, sheet).Compose(Ensure.NotNull(sources));
+    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
+    {
+        ComposedSpriteSheet composed = Ensure.Listed(PictureSheets, sheet).Compose(Ensure.NotNull(sources));
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx));
+        return composed with { Manifest = composed.Manifest with { Shades = SheetShade.Documents(shades) } };
+    }
 
     /// <summary>The frames ending picture sheet <paramref name="sheet"/> holds.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending picture sheet.</exception>

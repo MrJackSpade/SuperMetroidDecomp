@@ -52,11 +52,11 @@ internal static class FrontendFloorSheetComposer
         {
             [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
             [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro),
-            [SpriteSheetId.EndingEscapeAFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape),
-            [SpriteSheetId.EndingEscapeBFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape),
-            [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion),
-            [SpriteSheetId.EndingFlyawayFloor] = sources => Flyaway(sources.Intro.CeresFlight, sources.EndingPalettes),
-            [SpriteSheetId.EndingRewardIconFloor] = sources => RewardIcon(sources.EndingMode7, sources.EndingPalettes),
+            [SpriteSheetId.EndingEscapeAFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape), sources),
+            [SpriteSheetId.EndingEscapeBFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape), sources),
+            [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources),
+            [SpriteSheetId.EndingFlyawayFloor] = sources => EndingShaded(Flyaway(sources.Intro.CeresFlight, sources.EndingPalettes), sources),
+            [SpriteSheetId.EndingRewardIconFloor] = sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources),
         }.ToFrozenDictionary();
 
     /// <summary>
@@ -168,6 +168,18 @@ internal static class FrontendFloorSheetComposer
             return cells;
         }
     }
+
+    /// <summary>
+    /// An ending floor shaded in every ending shade (#1512): a floor's inks are the screen's colours, so each shade covers
+    /// the floor's colours it writes.
+    /// </summary>
+    private static ComposedSpriteSheet EndingShaded(ComposedSpriteSheet floor, ScreenTileSources sources) => floor with
+    {
+        Manifest = floor.Manifest with
+        {
+            Shades = SheetShade.Documents(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx)),
+        },
+    };
 
     /// <summary>An ending escape or explosion scene's floor: its map laid out twice, one copy after the other, over its characters.</summary>
     private static ComposedSpriteSheet EndingScene(ScreenTileSources sources, EndingFloorSceneId scene, EndingPaletteId palette)

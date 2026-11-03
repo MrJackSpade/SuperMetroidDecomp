@@ -16,8 +16,7 @@ public static class EndingPaletteWords
     public static ReadOnlyMemory<byte> Of(EndingPalette palette)
     {
         Ensure.NotNull(palette);
-        if (palette.screen is not null) return Of([.. palette.screen.Backgrounds, .. palette.screen.Sprites]);
-        if (palette.colorBytes is not null) return palette.colorBytes;
+        if (!palette.IsLogoCrossfade) return Of(palette.Colours.AsSpan());
         var colours = new List<RgbColor>(EndingLogoPaletteFade.ColorCount);
         for (int step = 0; step < EndingLogoDefinitions.PaletteSteps; step++)
         foreach (EndingLogoLayer layer in Enum.GetValues<EndingLogoLayer>())

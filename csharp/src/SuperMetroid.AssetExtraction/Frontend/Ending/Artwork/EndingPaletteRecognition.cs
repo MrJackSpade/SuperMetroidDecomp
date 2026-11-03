@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -15,13 +14,13 @@ public static class EndingPaletteRecognition
     /// <summary>The step whose sprite colours are the sprites' endpoint: the first, not yet darkened.</summary>
     private const int SpriteEndpointStep = 0;
 
-    /// <summary>Keeps a whole ending screen's selected colours, which the import pipeline decoded by owner.</summary>
-    /// <param name="colours">The screen's colours by owner.</param>
-    public static EndingPalette FromScreen(ScreenColours colours) => new(Ensure.NotNull(colours));
+    /// <summary>Keeps a whole ending screen's selected colours, which the import pipeline decoded (#1512).</summary>
+    /// <param name="colours">The screen's background colours, then its sprite colours.</param>
+    public static EndingPalette FromScreen(ReadOnlySpan<RgbColor> colours) => new([.. colours], screen: true);
 
-    /// <summary>Keeps one ending colour run's selected colours.</summary>
+    /// <summary>Keeps one ending colour run's selected colours, which the import pipeline decoded (#1512).</summary>
     /// <param name="colours">The selected colours.</param>
-    public static EndingPalette FromRun(ReadOnlySpan<RgbColor> colours) => new(EndingPaletteWords.Of(colours));
+    public static EndingPalette FromRun(ReadOnlySpan<RgbColor> colours) => new([.. colours], screen: false);
 
     /// <summary>
     /// Keeps the logo crossfade's selected colours, which the import pipeline decoded by step and layer, recognising the

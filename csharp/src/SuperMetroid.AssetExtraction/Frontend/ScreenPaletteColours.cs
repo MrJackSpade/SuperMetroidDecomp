@@ -26,7 +26,10 @@ internal static class ScreenPaletteColours
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
     internal static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteSet palettes, EndingPaletteId palette)
     {
-        return ScreenColourImage.Encode(palettes[palette].Screen);
+        EndingPalette screen = Ensure.NotNull(palettes)[palette];
+        return screen.IsScreen
+            ? screen.Colours.AsSpan()
+            : throw new ArgumentOutOfRangeException(nameof(palette), palette, "Not a whole ending screen's colours.");
     }
 
     /// <summary>The Ceres flight's palette.</summary>

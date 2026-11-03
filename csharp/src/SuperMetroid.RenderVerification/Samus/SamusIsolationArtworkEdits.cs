@@ -1,6 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 
@@ -12,23 +13,24 @@ internal static class SamusIsolationArtworkEdits
     /// <summary>Writes valid body-frame, offset, spritemap, and death-palette overrides while retaining native frame identities and timing.</summary>
     internal static void WriteBody(GameInstallation installation)
     {
+        // Every name is the installed manifest's own member, so a change to its format fails to compile here.
         Edit(SamusBodyArtworkFiles.ManifestFileName, document =>
         {
-            Shift(document.Required("graphicsYOffsets"), 3, signed: true);
-            Shift(document.Required("landingYOffsets"), 3, signed: false);
-            Shift(document.Required("postureYOffsets"), 3, signed: true);
-            Shift(document.Required("drainedYOffsets"), 3, signed: true);
-            foreach (JsonNode? map in document.Required("spritemaps").AsArray().RequiredElements())
-            foreach (JsonNode? part in map.Required("parts").AsArray().RequiredElements())
-                part["x"] = unchecked((ushort)(part.Required("x").GetValue<int>() + 2));
+            Shift(document.Required(Json(nameof(SamusBodyArtworkFiles.Manifest.GraphicsYOffsets))), 3, signed: true);
+            Shift(document.Required(Json(nameof(SamusBodyArtworkFiles.Manifest.LandingYOffsets))), 3, signed: false);
+            Shift(document.Required(Json(nameof(SamusBodyArtworkFiles.Manifest.PostureYOffsets))), 3, signed: true);
+            Shift(document.Required(Json(nameof(SamusBodyArtworkFiles.Manifest.DrainedYOffsets))), 3, signed: true);
+            foreach (JsonNode? map in document.Required(Json(nameof(SamusBodyArtworkFiles.Manifest.Spritemaps))).AsArray().RequiredElements())
+            foreach (JsonNode? part in map.AsArray().RequiredElements())
+                part[Json(nameof(SpriteVisualPart.OffsetX))] = part.Required(Json(nameof(SpriteVisualPart.OffsetX))).GetValue<int>() + 2;
             // Keep the native frame-list identities and animation-frame count. Replace
             // only each valid DMA character selection, not the compiled delay program.
-            foreach (JsonNode? frame in document.Required("frames").AsArray().RequiredElements())
+            foreach (JsonNode? frame in document.Required(Json(nameof(SamusBodyArtworkFiles.Manifest.Frames))).AsArray().RequiredElements())
             {
-                if (frame.Required("topSet").GetValue<int>() < SamusBodySources.TopSetCount)
-                    frame["topPosition"] = 0;
-                if (frame.Required("bottomSet").GetValue<int>() < SamusBodySources.BottomSetCount)
-                    frame["bottomPosition"] = 0;
+                if (frame.Required(Json(nameof(SamusBodyFrameSelection.TopSet))).GetValue<int>() < SamusBodySources.TopSetCount)
+                    frame[Json(nameof(SamusBodyFrameSelection.TopPosition))] = 0;
+                if (frame.Required(Json(nameof(SamusBodyFrameSelection.BottomSet))).GetValue<int>() < SamusBodySources.BottomSetCount)
+                    frame[Json(nameof(SamusBodyFrameSelection.BottomPosition))] = 0;
             }
         });
         Edit(SamusDeathPaletteArtworkFiles.ArtworkFileName, document =>
@@ -40,6 +42,9 @@ internal static class SamusIsolationArtworkEdits
             for (int index = 0; index < selectors.Count; index++)
                 selectors[index] = (selectors.Required(index).GetValue<int>() + 1) % SamusPaletteDefinitions.Death.PaletteCount;
         });
+
+        // The manifests serialize their members in camel case.
+        static string Json(string member) => System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(member);
 
         void Edit(string name, Action<JsonNode> change)
         {

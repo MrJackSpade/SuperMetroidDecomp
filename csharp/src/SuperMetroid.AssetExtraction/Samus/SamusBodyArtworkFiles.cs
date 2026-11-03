@@ -358,8 +358,11 @@ public static class SamusBodyArtworkFiles
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
 
-    /// <summary>Persists split-DMA identities, pose selectors, spritemaps, offsets, and stock PNG hashes.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256,
+    /// <summary>
+    /// Persists split-DMA identities, pose selectors, spritemaps, offsets, and stock PNG hashes. Verification edits an
+    /// installed manifest by these members' names (#1510).
+    /// </summary>
+    internal sealed record Manifest(int Version, string SourceCartridgeSha256,
         int[] TopSetStarts, int[] BottomSetStarts, int[] PoseFirstFrames,
         sbyte[] GraphicsYOffsets,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
@@ -370,7 +373,7 @@ public static class SamusBodyArtworkFiles
         Dictionary<string, string> Hashes);
 
     /// <summary>Retains one native DMA source address and the two transfer lengths sharing its PNG slot.</summary>
-    private sealed record DefinitionEntry(int SourceAddress, int FirstSize, int SecondSize)
+    internal sealed record DefinitionEntry(int SourceAddress, int FirstSize, int SecondSize)
     {
         /// <summary>The first transfer's byte count, 0 through 65535 (a DMA size).</summary>
         public int FirstSize { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, FirstSize);

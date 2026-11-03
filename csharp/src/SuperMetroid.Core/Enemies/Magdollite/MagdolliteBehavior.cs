@@ -24,8 +24,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Resolves the three adjacent records that form one Magdollite.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Provides the live palette target for the palette cycle.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Runs common contact damage before the species reaction.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Creates the item drop when a thrown lava projectile is destroyed.</summary>
@@ -35,13 +33,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects the Magdollite AI, projectile, combat and palette services.</summary>
-    internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyAudioQueue audio)
+    internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyAudioQueue audio)
     {
         _audio = audio;
         _room = room;
         _projectiles = projectiles;
         _slotTable = slotTable;
-        _presentation = presentation;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
     }
@@ -50,8 +47,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
     /// <summary>The palette cycle's current frame, 0 through <see cref="MagdollitePaletteDefinitions.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
-    /// <summary>The colours the final initialized Magdollite record draws in, whose set the cycle animates.</summary>
-    internal SpriteColouring MagdolliteColouring { get; set; } = SharedSpriteColouring.Common;
+    /// <summary>
+    /// The glow every Magdollite in the room shows (#1512): its standard colours until the cycle first steps, then the
+    /// glow frame it stepped to last.
+    /// </summary>
+    internal PictureShading MagdolliteGlow { get; private set; } = PictureShading.Standard;
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool MagdollitePaletteAnimationInstalled { get; set; }
 
@@ -84,9 +84,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every one of the three initializers installs the same global graphics-drawn hook.
         // Retail's last Magdollite record therefore resets this clock to eight and selects
-        // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
+        // its OBJ palette. Model the resulting singleton hook, not nine independent cycles. Every Magdollite part shows the
+        // glow; the game's hook recolours the last record's palette, which other enemies sharing it also showed (#1512).
         MagdollitePaletteAnimationInstalled = true;
-        MagdolliteColouring = slot.Colouring;
+        slot.Shading = MagdolliteGlow;
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = 0;
     }
@@ -524,12 +525,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteDefinitions.FrameCount;
-        int paletteFrame = MagdollitePaletteFrame;
-        ColourRun animated = _presentation.ColourSetOf(MagdolliteColouring)
-            .Slice(MagdollitePaletteDefinitions.FirstAnimatedColor, MagdollitePaletteDefinitions.AnimatedColorCount);
-        (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
-            "Magdollite palette animation requires installed artwork."))
-            .ApplyFrame(animated, paletteFrame);
+        MagdolliteGlow = PictureShading.Shaded(MagdolliteShades.Glow(MagdollitePaletteFrame));
+        foreach (RoomEnemySlot part in _slotTable.Slots)
+        {
+            if (part.DefinitionId == EnemyDefinitionId.Magdollite)
+                part.Shading = MagdolliteGlow;
+        }
     }
 
     /// <summary>

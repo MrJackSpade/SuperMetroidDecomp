@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
@@ -9,9 +8,6 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </summary>
 public sealed class WreckedShipGhostEnemyState
 {
-    /// <summary>The colours the ghost fades to, kept separate from the colours it shows.</summary>
-    private readonly RgbColor[] _targetColours = new RgbColor[16];
-
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
 
@@ -75,12 +71,8 @@ public sealed class WreckedShipGhostEnemyState
     public WrappingCountdown StableDirectionTimer { get; internal set; }
 
     /// <summary>
-    /// Actor-selected sixteen-color target palette. Retail stores this in global target
-    /// palette; the sidecar preserves that second buffer because the actor's shown colours
-    /// model the independently visible current palette.
+    /// The ghost's fading colours and the target its fade moves toward (#1512): the compatibility value whose step
+    /// results end the ghost's brightening and fades. The extension outlives a kill, as these colours do.
     /// </summary>
-    public ReadOnlyMemory<RgbColor> TargetColours => _targetColours;
-
-    /// <summary>Allows the palette transition to update all sixteen target colors in place.</summary>
-    internal Span<RgbColor> MutableTargetColours => _targetColours;
+    public WreckedShipGhostFade Fade { get; } = new();
 }

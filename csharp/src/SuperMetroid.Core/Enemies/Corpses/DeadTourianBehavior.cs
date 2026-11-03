@@ -93,7 +93,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
+        slot.Shading = TourianCorpseShades.InDrainedColours;
         state.Function = DeadTourianCorpseFunction.Waiting;
         state.Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         _deadMonsters.BeginRot(state.Flesh);

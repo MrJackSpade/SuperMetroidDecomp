@@ -21,7 +21,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NinjaSpacePirateEntity(this, slot, common);
 
-    /// <summary>Provides the shared RNG used by divekick selection and installed palette artwork.</summary>
+    /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves floor contact during divekick descent.</summary>
     private readonly EnemyTerrain _terrain;
@@ -29,21 +29,18 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns paired landing dust sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Provides the palette for the gold ninja's copied palette.</summary>
-    private readonly EnemyPresentation _presentation;
 
     /// <summary>Receives sound requests from shared Space Pirate instruction opcodes.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
-    internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
+    internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
         _spriteObjects = spriteObjects;
-        _presentation = presentation;
     }
 
     /// <summary>8.8 speed assigned at the start of a divekick jump and descent.</summary>
@@ -122,12 +119,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.Function = NinjaSpacePirateFunction.NoOperation;
         state.SpawnPosition = slot.Position.Whole;
 
-        // Copies the gold non-ninja Pirate's color image, not this actor's initial
-        // room-graphics palette. Share that installed image so the same authored edit
-        // affects both consumers without changing the ninja's animation or slot state.
-        (_room.Artwork ?? throw new InvalidOperationException(
-            "Gold Space Pirate requires installed palette artwork."))
-            .LoadPaletteTo(EnemyDefinitionId.PirateGoldWall, _presentation.ColourSetOf(SharedSpriteColouring.NinjaSpacePirateGoldWall));
+        // The game copies the gold wall Pirate's colours into the palette the divekick flashes in. Those colours are the
+        // gold wall shade the Pirate's pictures are pre-coloured in (NinjaSpacePirateShades.GoldWall, #1512).
     }
 
     /// <summary>Dispatches the literal function installed in variable A.</summary>
@@ -612,9 +605,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             case NinjaSpacePirateCue.SetFunction setFunction:
                 state.Function = setFunction.Function;
                 return null;
-            case NinjaSpacePirateCue.SetColouring setColouring:
-                slot.Colouring = setColouring.Colouring ?? throw new InvalidOperationException(
-                    "A ninja Space Pirate colouring cue carries no colouring.");
+            case NinjaSpacePirateCue.SetShading setShading:
+                slot.Shading = setShading.Shading;
                 return null;
             case NinjaSpacePirateCue.PlaySound playSound:
                 _walkingSpacePirateBehavior.RequestSpacePirateSound(playSound.Sound ?? throw new InvalidOperationException(

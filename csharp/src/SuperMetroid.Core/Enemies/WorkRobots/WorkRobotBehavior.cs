@@ -25,8 +25,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Writes the shared animated robot palette into its OBJ colour set.</summary>
-    private readonly EnemyPresentation _presentation;
+    /// <summary>The room's enemy slots, whose powered robots all show the shared glow.</summary>
+    private readonly EnemySlotTable _slotTable;
 
     /// <summary>Whether Phantoon's area-boss bit is set, which powers the work robots.</summary>
     internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
@@ -35,13 +35,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds robot locomotion, power state, lasers, and palette animation to room services.</summary>
-    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio)
+    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _audio = audio;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
-        _presentation = presentation;
+        _slotTable = slotTable;
     }
 
     /// <summary>The leftward laser velocity, two pixels per update; only its X is meaningful.</summary>
@@ -70,8 +70,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// hook resolves back to record zero before loading.
     /// </summary>
     internal int WorkRobotPaletteAnimationRecord { get; set; }
-    /// <summary>The colours whose set the robot graphics-drawn hook animates.</summary>
-    internal SpriteColouring WorkRobotPaletteAnimationColouring { get; set; } = SharedSpriteColouring.Common;
+    /// <summary>
+    /// The glow every powered robot in the room shows (#1512): its standard colours until the hook first loads a record,
+    /// then the record it loaded last.
+    /// </summary>
+    internal PictureShading WorkRobotGlow { get; private set; } = PictureShading.Standard;
 
     /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
@@ -103,10 +106,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LaserCooldown = WrappingCountdown.Start(0);
 
         // The graphics-drawn hook is global. Every powered initialization resets its shared
-        // clock/table and remembers this actor's sprite palette exactly as the game does.
+        // clock/table as the game does. The game's hook recolours this actor's palette, which other enemies sharing it
+        // also showed; here every powered robot, and only a powered robot, shows the glow (#1512).
         WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         WorkRobotPaletteAnimationRecord = 0;
-        WorkRobotPaletteAnimationColouring = slot.Colouring;
+        slot.Shading = WorkRobotGlow;
     }
 
     /// <summary>Initializes the unpowered Work Robot.</summary>
@@ -359,15 +363,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (WorkRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
             WorkRobotPaletteAnimationRecord = 0;
         int record = WorkRobotPaletteAnimationRecord;
-        int recordByteOffset = Ensure.BetweenInclusive(0, ushort.MaxValue, record * WorkRobotPaletteTimingDefinitions.RecordByteCount);
 
-        ColourRun animated = _presentation.ColourSetOf(WorkRobotPaletteAnimationColouring)
-            .Slice(WorkRobotPaletteDefinitions.FirstAnimatedColor, WorkRobotPaletteDefinitions.ColorCount);
-        (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
-            "Work Robot palette animation requires installed artwork."))
-            .ApplyFrame(animated, record);
-        WorkRobotPaletteAnimationTimer =
-            WrappingCountdown.FromRaw(WorkRobotPaletteTiming.DurationForByteOffset(recordByteOffset));
+        WorkRobotGlow = PictureShading.Shaded(WorkRobotShades.Glow(record));
+        foreach (RoomEnemySlot robot in _slotTable.Slots)
+        {
+            if (robot.SpeciesState<WorkRobotEnemyState>() is { Powered: true })
+                robot.Shading = WorkRobotGlow;
+        }
+        WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(WorkRobotPaletteTiming.DurationOf(record));
         WorkRobotPaletteAnimationRecord = record + 1;
     }
 

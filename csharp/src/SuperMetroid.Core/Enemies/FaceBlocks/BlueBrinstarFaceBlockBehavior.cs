@@ -26,30 +26,21 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BlueBrinstarFaceBlockEntity(this, slot, common);
 
-    /// <summary>Supplies installed auxiliary colors for the face-block animation.</summary>
-    private readonly EnemyRoomBinding _room;
-    /// <summary>Provides the live OBJ colour sets written by the graphics hook.</summary>
-    private readonly EnemyPresentation _presentation;
+    /// <summary>The room's enemy slots, whose face blocks all show the room-wide glow.</summary>
+    private readonly EnemySlotTable _slotTable;
 
     /// <summary>Exposes the door-transition pause condition for the shared graphics hook.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
 
-    /// <summary>Binds the species to room artwork, palette memory, and door-transition state.</summary>
-    internal BlueBrinstarFaceBlockBehavior(EnemyRoomBinding room, EnemyPresentation presentation, ElevatorBehavior elevatorBehavior)
+    /// <summary>Binds the species to the room's slots and door-transition state.</summary>
+    internal BlueBrinstarFaceBlockBehavior(EnemySlotTable slotTable, ElevatorBehavior elevatorBehavior)
     {
         _elevatorBehavior = elevatorBehavior;
-        _room = room;
-        _presentation = presentation;
+        _slotTable = slotTable;
     }
 
     /// <summary>Enemy frames between shared face-block palette advances.</summary>
     private const int BlueBrinstarFaceBlockPalettePeriod = 16;
-    /// <summary>Number of frames in the installed auxiliary-color sequence.</summary>
-    private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
-    /// <summary>Consecutive OBJ colors replaced on each palette advance.</summary>
-    private const int BlueBrinstarFaceBlockAnimatedColorCount = 4;
-    /// <summary>First OBJ palette color affected by the graphics-drawn hook.</summary>
-    private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
     /// <summary>Whether an eligible block installed the room-wide graphics hook.</summary>
     /// <remarks>The game stores this animation in the shared enemy-graphics-drawn hook words, not per enemy.
@@ -60,8 +51,11 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private WrappingCountdown _blueBrinstarFaceBlockPaletteTimer;
     /// <summary>Shared eight-frame color index, 0 through 7, intentionally retained when an actor activates.</summary>
     private int _blueBrinstarFaceBlockPaletteFrame;
-    /// <summary>The colours of the last eligible block processed by main AI, whose set the animation writes.</summary>
-    private SpriteColouring _blueBrinstarFaceBlockColouring = SharedSpriteColouring.Common;
+    /// <summary>
+    /// The glow every face block in the room shows (#1512): its standard colours until the hook first advances, then
+    /// the glow frame it advanced to last.
+    /// </summary>
+    private PictureShading _blueBrinstarFaceBlockGlow = PictureShading.Standard;
 
     /// <summary>Initializes the Blue Brinstar face block.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
@@ -147,13 +141,15 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private static int AbsoluteFaceBlockDelta(int delta) =>
         WordWrap.Signed(delta) < 0 ? WordWrap.Unsigned(-delta) : Ensure.BetweenInclusive(0, ushort.MaxValue, delta);
 
-    /// <summary>Selects the block's OBJ colour set as the singleton graphics-hook target.</summary>
+    /// <summary>
+    /// Installs the singleton graphics hook and shows the room's glow on the block. The game's hook recolours the palette
+    /// of the last eligible block, which every block sharing it, and Stoke where it shares the face blocks' palette, shows;
+    /// here every face block, and only a face block, shows the glow (#1512).
+    /// </summary>
     private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)
     {
         _blueBrinstarFaceBlockPaletteHookInstalled = true;
-
-        // The glow recolours colour nine of the face block's own colour set.
-        _blueBrinstarFaceBlockColouring = slot.Colouring;
+        slot.Shading = _blueBrinstarFaceBlockGlow;
     }
 
     /// <summary>
@@ -172,20 +168,16 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
-        int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
-        var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
-            "Face-block palette animation requires installed artwork.");
-        ColourRun animated = _presentation.ColourSetOf(_blueBrinstarFaceBlockColouring)
-            .Slice(FirstAnimatedFaceBlockPaletteColor, BlueBrinstarFaceBlockAnimatedColorCount);
-        for (int color = 0; color < BlueBrinstarFaceBlockAnimatedColorCount; color++)
+        int frame = _blueBrinstarFaceBlockPaletteFrame % FaceBlockShades.GlowFrames;
+        _blueBrinstarFaceBlockGlow = PictureShading.Shaded(FaceBlockShades.Glow(frame));
+        foreach (RoomEnemySlot block in _slotTable.Slots)
         {
-            animated.Write(
-                color,
-                colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.FaceBlock, frame, color));
+            if (block.DefinitionId == EnemyDefinitionId.FaceBlock)
+                block.Shading = _blueBrinstarFaceBlockGlow;
         }
 
-        // The index cycles through the eight colors, as the game's increment and low-bits mask do.
-        _blueBrinstarFaceBlockPaletteFrame = (_blueBrinstarFaceBlockPaletteFrame + 1) % BlueBrinstarFaceBlockPaletteFrameCount;
+        // The index cycles through the eight frames, as the game's increment and low-bits mask do.
+        _blueBrinstarFaceBlockPaletteFrame = (_blueBrinstarFaceBlockPaletteFrame + 1) % FaceBlockShades.GlowFrames;
     }
 
     /// <summary>Rejects AI dispatch for a face-block slot that was not initialized on room load.</summary>

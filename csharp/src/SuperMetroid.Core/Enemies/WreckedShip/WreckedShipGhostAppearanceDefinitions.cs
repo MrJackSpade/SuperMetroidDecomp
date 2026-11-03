@@ -43,7 +43,4 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// from max(1, stage), the odd interval falls from 8-stage. The final -1 terminates flickering.
     /// </summary>
     internal static readonly short[] FlickerDurations = [1, 8, 1, 8, 1, 7, 1, 7, 2, 6, 2, 6, 3, 5, 3, 5, -1];
-
-    /// <summary>Adds one to each of a colour word's three five-bit channels.</summary>
-    internal const int ColorStepEachChannel = 0b00001_00001_00001;
 }

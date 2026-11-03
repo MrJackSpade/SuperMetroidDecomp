@@ -20,19 +20,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>The room's enemy presentation, whose current placement holds the colours whose palette selection Evir reads as a number.</summary>
-    private readonly EnemyPresentation _presentation;
-
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
-    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyPresentation presentation, EnemyAudioQueue audio)
+    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyAudioQueue audio)
     {
         _audio = audio;
         _slotTable = slotTable;
         _collision = collision;
-        _presentation = presentation;
     }
 
     /// <summary>Carries out one cue of the Evir projectile's animations: the spit sound and the regeneration steps.</summary>
@@ -125,8 +121,15 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 EvirHalfCycleSourceField.DirectionChangePeriod => enemy.DefinitionId == EnemyDefinitionId.None
                     ? 0
                     : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
-                // The game reads the enemy's palette selection as the count.
-                EvirHalfCycleSourceField.Palette => _presentation.Placement.SelectionNumber(enemy.Colouring),
+                // The game reads the enemy's colour selection as the count: the empty record's is zero, an Evir spit's
+                // gives the retail rooms' half-cycle.
+                EvirHalfCycleSourceField.SpitColours => enemy.DefinitionId switch
+                {
+                    EnemyDefinitionId.None => 0,
+                    EnemyDefinitionId.EvirProjectile => EvirInitDefinitions.SpitColoursHalfCycle,
+                    _ => throw new InvalidDataException(
+                        $"An Evir body reads the colours of {enemy.DefinitionId}, which no retail room places where it reads."),
+                },
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             });
         }
@@ -152,7 +155,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
         // The projectile definition has no graphics-set entry of its own. Copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
-        slot.Colouring = body.Colouring;
+        slot.Shading = body.Shading;
         slot.TileIndexBase = body.TileIndexBase;
         ResetEvirProjectilePosition(slot, state);
 

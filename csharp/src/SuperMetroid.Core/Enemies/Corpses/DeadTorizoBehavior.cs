@@ -62,7 +62,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.CorpseTorizo);
 
         DeadTorizo = new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
         {
@@ -262,7 +261,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.AsSigned(screenY) < 0)
             return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
-            new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), colouring: SharedSpriteColouring.Common, rot: ShownRot(state));
+            new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), PictureShading.Standard, rot: ShownRot(state));
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

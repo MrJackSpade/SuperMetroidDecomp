@@ -14,6 +14,14 @@ public static class EvirInitDefinitions
     public static IReadOnlyList<EvirFirstHalfCycleSource> FirstHalfCycleSources { get; } =
     [
         new(SpeedRecord: 8, SlotIndex: 1, EvirHalfCycleSourceField.DirectionChangePeriod),
-        new(SpeedRecord: 12, SlotIndex: 2, EvirHalfCycleSourceField.Palette),
+        new(SpeedRecord: 12, SlotIndex: 2, EvirHalfCycleSourceField.SpitColours),
     ];
+
+    /// <summary>
+    /// The first half-cycle of a body that reads an Evir spit's colours (#1512). The game reads the spit's palette
+    /// selection, the row its room's graphics set loads Evir's colours into, kept nine bits up, so halving its upper
+    /// eight bits gives the row. Both retail rooms holding Evirs load them into the first row the graphics set fills, so
+    /// the half-cycle is one; the row itself is the import's.
+    /// </summary>
+    public const int SpitColoursHalfCycle = 1;
 }

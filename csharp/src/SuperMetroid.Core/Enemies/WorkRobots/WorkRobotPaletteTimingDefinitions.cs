@@ -1,26 +1,19 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// Compiled cadence and wrap metadata for the Work Robot palette cycle. The four colors
-/// in each record remain presentation data; this catalog owns the engine timing consumed
-/// by <c>AnimatePalette</c>.
+/// Cadence and wrap metadata for the Work Robot's glow. The colours each record shows are the import's shades (#1512);
+/// this catalog owns the timing <c>AnimatePalette</c> consumes.
 /// </summary>
 internal static class WorkRobotPaletteTimingDefinitions
 {
-
-    /// <summary>Number of authored palette records before the terminator.</summary>
+    /// <summary>Number of authored glow records before the terminator.</summary>
     public const int RecordCount = 6;
 
-    /// <summary>Four color words plus one timer word per record.</summary>
-    public const int RecordByteCount = 10;
-
-    /// <summary>The duration of each authored palette record: a three-record cadence of 64 ticks then 16 and 16.</summary>
+    /// <summary>The duration of each authored glow record: a three-record cadence of 64 ticks then 16 and 16.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A8.asm:
-    /// the six unsigned timer words+10*i repeat a three-record cadence,
-    /// 64 ticks at i%3==0 and 16 otherwise. Validate offsets before division/modulo;
-    /// only 0,10,20,30,40,50 are durations. The separate color terminator is
-    /// resolved by NormalizeByteOffset at offset 60, never a seventh duration.
+    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A8.asm: the six records' timers repeat a
+    /// three-record cadence, 64 ticks at i%3==0 and 16 otherwise. The terminator after the last record resolves back to
+    /// the first and is never a seventh duration.
     /// </remarks>
-    internal static readonly ushort[] Durations = [64, 16, 16, 64, 16, 16];
+    internal static readonly int[] Durations = [64, 16, 16, 64, 16, 16];
 }

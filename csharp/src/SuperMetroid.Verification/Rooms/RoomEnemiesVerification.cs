@@ -99,7 +99,6 @@ internal static void VerifyRoomEnemyLoading()
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     // The first header is intentionally filled at every documented offset. Besides making
     // the parsed record useful to future damage/interaction translations, this catches a
@@ -219,14 +218,11 @@ internal static void VerifyRoomEnemyLoading()
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     var installedVram = new SnesVram();
-    var installedCgram = new SamusColourRig();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram)));
     installedEnemies.GraphicsSet.ShowGraphics();
     byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteLooks, seededTiles).Characters.ToArray();
     AssertTrue(shown.SequenceEqual(installedShown),
         "installed enemy PNGs preserve both native ordinary and high-bit OBJ placements");
-    AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
-        "enemy tile overrides cannot alter native palettes");
     AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
     AssertEqual(slot.Definition.Health, installedEnemies.SlotTable.Slots[0].Definition.Health,
@@ -250,7 +246,6 @@ internal static void VerifyRoomEnemyLoading()
     enemies = new RoomEnemySystem(enemies.Room.Session, bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
-    cgram.SetColor(128, RgbColor.FromWord(0x4567));
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram)));
 
@@ -259,7 +254,6 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(enemies.SlotTable.Slots[0], enemies.SlotTable.FindFreeSlot(), "an empty population leaves the first slot free");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
-    AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
     AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart, enemies.GraphicsSet.LoadedSet),
         "empty population draws its spawned objects under the standard sprites alone, whatever the outgoing room loaded");
@@ -426,7 +420,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     const ushort vulnerabilityPointer = 0xedea;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 32, PalettePointer = 0xe457, Bank = 0xa2, TileDataAddress = 0xa28000, BossId = 0, NamePointer = 0, FieldSeed = 0x5200 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 4, 200);
@@ -702,7 +695,6 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     const ushort tilesetPointer = 0x9480;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4300 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
@@ -747,7 +739,6 @@ internal static void VerifyCeresDoorBossBranch()
     const ushort tilesetPointer = 0x94c0;
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4380 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
@@ -829,7 +820,6 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
-    var cgram = new SamusColourRig();
 
     SeedCeresRidleyRoomEntryCartridge(bus, definitionPointer, populationPointer, tilesetPointer);
     const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;

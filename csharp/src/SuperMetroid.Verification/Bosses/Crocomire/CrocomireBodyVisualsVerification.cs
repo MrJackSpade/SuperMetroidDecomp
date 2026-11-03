@@ -244,7 +244,7 @@ internal static class CrocomireBodyVisualsVerification
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
             slot.TileIndexBase = indexes.TileBase;
-            slot.Colouring = indexes.Colouring;
+            slot.Shading = indexes.Shading;
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);
             if (newFrame)

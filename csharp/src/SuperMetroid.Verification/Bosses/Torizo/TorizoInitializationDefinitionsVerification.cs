@@ -41,7 +41,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
-                actor.Colouring = SpriteColouring.InFixtureSet(7);
+                actor.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
                 actor.Timer = WrappingCountdown.Start(0xffff);
                 actor.FrameHold = WrappingCountdown.Start(0xffff);
                 initialize(actor);

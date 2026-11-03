@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -38,7 +37,6 @@ internal static class GunshipLandingVerification
 
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
-        var cgram = new SamusColourRig();
         bool zebesTimebombSet = false;
 
         SeedPostCeresGunshipCartridge(bus, topDefinition, bottomDefinition, populationPointer, tilesetPointer);

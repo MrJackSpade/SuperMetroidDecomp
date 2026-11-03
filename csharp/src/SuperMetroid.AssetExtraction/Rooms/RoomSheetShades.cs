@@ -26,24 +26,13 @@ internal static class RoomSheetShades
         Ensure.NotNull(inputs);
         (RoomHeaderDefinition Room, RoomStateSettings State)[] rooms = [.. RoomsOf(tileset)];
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
-        if (rooms.Any(room => Holds(room.State, EnemyDefinitionId.Kraid)))
+        if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid)))
         {
             RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
             shades.AddRange(KraidBackdropShades.Of(standard, inputs.Bosses.KraidColors
                 ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours.")));
         }
         return shades;
-    }
-
-    /// <summary>Whether <paramref name="state"/> places <paramref name="enemy"/>.</summary>
-    private static bool Holds(RoomStateSettings state, EnemyDefinitionId enemy)
-    {
-        foreach (var record in state.EnemyPopulation.Records.Span)
-        {
-            if (record.DefinitionId == enemy)
-                return true;
-        }
-        return false;
     }
 
     /// <summary>

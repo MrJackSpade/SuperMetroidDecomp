@@ -95,7 +95,8 @@ public static class TitlePaletteFile
         DropCalculatedAmbientColors(screen, animatedColors);
         return new TitlePalettePresentation(screen, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
-            PackColor(document.SkipCopyrightRed, "skip copyright red"));
+            PackColor(document.SkipCopyrightRed, "skip copyright red"),
+            colors[0]);
     }
 
     /// <summary>Drops each selected ambient colour the shared ambient calculation already produces from <paramref name="colours"/>.</summary>

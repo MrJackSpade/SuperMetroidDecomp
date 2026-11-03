@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;
@@ -56,9 +57,9 @@ internal static class GenericSpriteArtworkVerification
         foreach (ushort x in new ushort[] { 0, 255, ushort.MaxValue })
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
         // Two title colourings, whose sprite sets the cartridge oracle takes as its palette bits.
-        foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.TitleText, ScreenColourGroup.TitleLogo })
+        foreach (TitleSpriteColouring colouring in new[] { TitleSpriteColouring.Text, TitleSpriteColouring.Logo })
         {
-            int palette = ScreenColourGroups.SpriteSet(colouring);
+            int palette = SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(colouring);
             title.ActiveSprite = frame.Sprite;
             title.ActiveOrigin = new(x, y);
             title.ActiveObjectColouring = colouring;
@@ -79,7 +80,7 @@ internal static class GenericSpriteArtworkVerification
             (int)new SnesAddress(FrontendSourceDefinitions.TitleSpritemapBank,
                 FrontendSourceDefinitions.TitleCopyrightSpritemap),
             new(TitleSequenceDefinitions.Sprites.CopyrightOrigin.X, TitleSequenceDefinitions.Sprites.CopyrightOrigin.Y),
-            SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.TitleCopyright), 0).PaletteBits);
+            SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Copyright), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualSprites(expected, title.objects, "title copyright owner parity");
 

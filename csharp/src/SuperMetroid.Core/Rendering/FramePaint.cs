@@ -30,6 +30,21 @@ public sealed class FramePaint
         SpriteDraws = DrawColours.ResolveAll(spriteDraws, backgrounds.Sprites);
     }
 
+    /// <summary>
+    /// Keeps a frontend screen's backdrop and its whole-frame sprite draws (#1512): every picture and draw the screen
+    /// shows names its shading, so the frame holds no colours but the backdrop.
+    /// </summary>
+    /// <param name="backdrop">The solid colour shown behind every layer, where nothing is drawn.</param>
+    /// <param name="spriteDraws">The draws, frontmost first, each naming its shading.</param>
+    /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>
+    public FramePaint(RgbColor backdrop, ImmutableArray<SpriteDraw> spriteDraws)
+        : this(BackgroundColours.ScreenBackdrop(backdrop), spriteDraws)
+    {
+    }
+
+    /// <summary>The solid colour the frame shows behind every layer, where nothing is drawn.</summary>
+    public RgbColor Backdrop => Backgrounds.Backdrop;
+
     /// <summary>What the frame's background art shows: its backdrop and each ink's colour (#1408).</summary>
     public BackgroundColours Backgrounds { get; }
 

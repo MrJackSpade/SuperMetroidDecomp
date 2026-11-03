@@ -161,7 +161,7 @@ internal static class TitleGradientVerification
         // Independent native OBJ records retain the cartridge reference now that both
         // scene owners require installed graphics rather than a ROM-backed draw path.
         // Both draws show the title cards' text colours: the native records take their sprite set as palette bits.
-        ushort textPaletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(ScreenColourGroup.TitleText), 0).PaletteBits;
+        ushort textPaletteBits = SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Text), 0).PaletteBits;
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
             var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();
@@ -175,7 +175,7 @@ internal static class TitleGradientVerification
                     new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(textPaletteBits),
                     new Position16<SpritePixels>(128, 112));
             }
-            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), ScreenColourGroup.TitleText);
+            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), TitleSpriteColouring.Text);
             nativeOam.FinalizeFrame(); installedOam.FinishFrame();
             AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
         }
@@ -261,10 +261,11 @@ internal static class TitleGradientVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSourceDefinitions.Palette);
         if (!presentation.Colors.SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
-        AssertEqual(TitleSequenceDefinitions.Palette.CopyrightWhite,
+        AssertEqual(SuperMetroid.AssetExtraction.Frontend.Title.TitleSkipCopyrightColours.White,
             presentation.SkipCopyrightWhite, "extracted title skip copyright white");
-        AssertEqual(TitleSequenceDefinitions.Palette.CopyrightRed,
+        AssertEqual(SuperMetroid.AssetExtraction.Frontend.Title.TitleSkipCopyrightColours.Red,
             presentation.SkipCopyrightRed, "extracted title skip copyright red");
+        AssertEqual(expected.Colors[0], presentation.Backdrop, "extracted title backdrop is the cartridge's first colour");
 
         Suite(nameof(VerifyExtractedTitleAmbientPalette), () => VerifyExtractedTitleAmbientPalette(bus, presentation));
 
@@ -274,7 +275,7 @@ internal static class TitleGradientVerification
             CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
         var title = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
-        if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||
+        if (title.CaptureRenderSnapshot().Paint.Backdrop != presentation.Backdrop ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
@@ -290,12 +291,9 @@ internal static class TitleGradientVerification
             installedSkip.Step(0);
         }
         AssertEqual(nativeSkip.Phase, installedSkip.Phase, "title skip phase unaffected by installed colors");
-        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
-            installedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
-            "installed title skip white matches native");
-        AssertEqual(nativeSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightRed)],
-            installedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightRed)],
-            "installed title skip red matches native");
+        AssertTrue(nativeSkip.CopyrightRestored && installedSkip.CopyrightRestored, "the skip restores the copyright's glyph colours");
+        AssertEqual(nativeSkip.CopyrightShading, installedSkip.CopyrightShading,
+            "installed title skip names the native copyright shading");
         Console.WriteLine(
             $"  Title palette presentation: {SnesCgram.ColorCount} initial, 36 ambient, and two skip " +
             $"editable colors match ROM; production avoided {paletteAddresses.Count} " +

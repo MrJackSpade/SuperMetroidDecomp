@@ -25,12 +25,6 @@ public enum ScreenColourGroup
     /// <summary>The file-copy arrows' visible colours, which rotate while a copy destination is chosen.</summary>
     FileCopyArrows,
 
-    /// <summary>The title copyright glyph's white.</summary>
-    TitleCopyrightWhite,
-
-    /// <summary>The title copyright glyph's red.</summary>
-    TitleCopyrightRed,
-
     /// <summary>The colours of the baby Metroid's tube on the title, which the tube light dims and brightens.</summary>
     TitleTubeLight,
 
@@ -188,15 +182,6 @@ public enum ScreenColourGroup
 
     /// <summary>The colours of the planet's name shown as the Ceres destruction's escape reaches Zebes.</summary>
     CeresDestructionTitle,
-
-    /// <summary>The colours the title's opening text cards draw in.</summary>
-    TitleText,
-
-    /// <summary>The colours the title logo draws in.</summary>
-    TitleLogo,
-
-    /// <summary>The colours the title's copyright line draws in, among them its white and red glyph colours.</summary>
-    TitleCopyright,
 
     /// <summary>The colours of the gunship's engine in the opening cutscene, which its flicker animates.</summary>
     CinematicGunshipEngine,

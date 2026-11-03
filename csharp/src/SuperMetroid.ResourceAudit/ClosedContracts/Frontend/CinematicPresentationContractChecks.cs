@@ -40,9 +40,9 @@ internal static class CinematicPresentationContractChecks
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     palette.Apply(screen);
                     gradient.Resolve(ushort.MaxValue);
-                    TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.ScreenColourGroup.TitleLogo);
-                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.ScreenColourGroup.TitleLogo);
-                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.ScreenColourGroup.TitleLogo);
+                    TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
+                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
+                    TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroCrossFadeObjects);

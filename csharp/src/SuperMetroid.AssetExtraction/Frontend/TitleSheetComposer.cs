@@ -12,7 +12,8 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the title sheet (#1392): each title composition over the title OBJ page, its parts in the sheet's frame
-/// palette, coloured as the title loads its palette. A draw's palette places them in its row.
+/// palette, coloured as the title loads its palette, with a shade for each colouring the compositions draw in and for
+/// the copyright's colours as the skip restores them (#1512).
 /// </summary>
 internal static class TitleSheetComposer
 {
@@ -34,7 +35,24 @@ internal static class TitleSheetComposer
         })];
         var colours = new ScreenPalette();
         palette.Apply(colours);
-        return new SpriteSheetSources(frames, colours.SpriteSets.All.Colors.ToArray(),
-            ObjectSelectionCodec.Sizes(TitleSourceDefinitions.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true);
+        RgbColor[] sprites = colours.SpriteSets.All.Colors.ToArray();
+        // A frame's palette-inheriting parts are coloured in its frame group's inks; each shade recolours those inks.
+        var shades = new List<SheetShade>();
+        foreach (TitleSpriteColouring colouring in Enum.GetValues<TitleSpriteColouring>())
+        {
+            shades.Add(SheetShade.Run(TitleShades.Drawn(colouring), FrameInk,
+                sprites.AsSpan(TitleSheetInks.SpriteSet(colouring) * TitleSheetInks.GroupColours, TitleSheetInks.GroupColours)));
+        }
+        shades.Add(new SheetShade(TitleShades.RestoredCopyright,
+            [FrameInk + TitleSheetInks.CopyrightWhiteColour, FrameInk + TitleSheetInks.CopyrightRedColour],
+            [palette.SkipCopyrightWhite, palette.SkipCopyrightRed]));
+        return new SpriteSheetSources(frames, sprites,
+            ObjectSelectionCodec.Sizes(TitleSourceDefinitions.ObjectSizeAndBaseSelector), PartsKeepOwnRows: true)
+        {
+            Shades = shades,
+        };
     }
+
+    /// <summary>The first ink of the frame group that a title frame's palette-inheriting parts are coloured in.</summary>
+    private static int FrameInk => FrontendSheetPalette.FrameColourGroup.Number * TitleSheetInks.GroupColours;
 }

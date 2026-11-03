@@ -125,6 +125,30 @@ internal static class MenuSheetFixtures
             });
     }
 
+    /// <summary>Installed sheets with a title sheet already composed, by title palette.</summary>
+    private static readonly ConditionalWeakTable<TitlePalettePresentation, InstalledSpriteSheets> titlePalettes = new();
+
+    /// <summary>
+    /// The installed sheets with the title and title floor sheets the installation's title graphics compose under
+    /// <paramref name="palette"/> (#1512): a fixture's edited title colours reach the screen through the shades the import
+    /// pre-colours its sheets in.
+    /// </summary>
+    internal static InstalledSpriteSheets WithTitle(TitlePalettePresentation palette)
+    {
+        ArgumentNullException.ThrowIfNull(palette);
+        return ReferenceEquals(palette, InstalledFixtures.Maps.TitlePalette) ? InstalledFixtures.SpriteSheets
+            : titlePalettes.GetValue(palette, key =>
+            {
+                TitleGraphicsPresentation graphics = InstalledFixtures.Maps.TitleGraphics;
+                var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
+                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, key),
+                    $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
+                    FrontendFloorSheetComposer.Title(graphics, key), $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");
+                return new InstalledSpriteSheets(sheets);
+            });
+    }
+
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
         SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),

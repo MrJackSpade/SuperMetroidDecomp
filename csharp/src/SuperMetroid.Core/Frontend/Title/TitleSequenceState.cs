@@ -48,8 +48,13 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>The title's colors: the installed palette and live console palette-FX changes (#1358).</summary>
-    internal readonly ScreenPalette palette = new();
+    /// <summary>
+    /// The record the tube light last showed (#1512), which the floor's shading names. It outlasts the skip's restart of
+    /// the console lights, as a record's colours stay shown until the restarted lights show their first.
+    /// </summary>
+    private PaletteFxFrame? tubeLightRecord;
+    /// <summary>The record the flickering displays last showed (#1512), kept as <see cref="tubeLightRecord"/> is.</summary>
+    private PaletteFxFrame? displaysRecord;
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
     /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
@@ -74,8 +79,13 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal TitleSprite? ActiveSprite { get; set; }
     /// <summary>Screen origin used when drawing the active title spritemap.</summary>
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
-    /// <summary>The title's colours, one whole sprite set, every part of the active composition draws in.</summary>
-    internal ScreenColourGroup ActiveObjectColouring { get; set; }
+    /// <summary>What the title shows every part of the active composition as (#1512).</summary>
+    internal TitleSpriteColouring ActiveObjectColouring { get; set; }
+    /// <summary>
+    /// Whether the title objects' rebuild after a skip, or on the return from the demo, has restored the copyright's
+    /// glyph colours (#1512), which the copyright then shows over its drawn colours.
+    /// </summary>
+    internal bool CopyrightRestored { get; private set; }
     /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<FloorPixels> panPosition;
     /// <summary>8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
@@ -139,7 +149,6 @@ public sealed class TitleSequenceState : IFrontendScreen
         // Title setup expands the four artwork streams; the title binds that
         // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
         objects = new ScreenSprites();
-        titlePalettePresentation.Apply(palette);
         ResetConsolePaletteFx();
 
         // The Year object's frame behaviour forces full brightness on the first
@@ -190,17 +199,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Binds installed title colors when the game is bound to its installed content.</summary>
     internal void BindTitlePalette(TitlePalettePresentation? presentation)
     {
+        // The restored copyright is a shade of the installed title sheet (#1512), so a new installation's glyph colours
+        // show with its sheet; only the backdrop is read from the presentation.
         titlePalettePresentation = presentation;
-        // EnterImmediateTitleObjects already overlaid these two cells before a saved
-        // title-screen state was captured. Reapply the currently installed colors so
-        // loading that state cannot pin the previous installation's glyph colors.
-        if (Phase is TitleSequencePhase.TitleScreenFadeIn or
-            TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
-        {
-            WriteCopyright(
-                presentation?.SkipCopyrightWhite ?? TitleSequenceDefinitions.Palette.CopyrightWhite,
-                presentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);
-        }
     }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
@@ -260,7 +261,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     ActiveSprite = TitleSprite.SuperMetroidLogo;
                     ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-                    ActiveObjectColouring = ScreenColourGroup.TitleLogo;
+                    ActiveObjectColouring = TitleSpriteColouring.Logo;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                 }
@@ -340,8 +341,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         StepBabyMetroidAnimation();
         // The title calls the same palette-FX interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.Step(new ScreenPaletteFxColours(palette), titlePalettePresentation ?? throw new InvalidOperationException(
-                "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        tubeLightRecord = consolePaletteFx.RecordOf(PaletteFxColours.BabyMetroidTubeLight) ?? tubeLightRecord;
+        displaysRecord = consolePaletteFx.RecordOf(PaletteFxColours.TitleScreenDisplays) ?? displaysRecord;
         // The skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
@@ -364,14 +366,42 @@ public sealed class TitleSequenceState : IFrontendScreen
     public FloorScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        return new(new FramePaint(palette.Shown(), objects.Draws),
+        return new(new FramePaint(Backdrop, objects.Draws),
             floorBackgroundEnabled
                 ? new AffineTransform(WordWrap.Signed(Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
                     0, WordWrap.Signed(Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
                 : null,
             Ensure.BetweenInclusive(0, byte.MaxValue, Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
-            floorBackgroundEnabled ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame]) : null);
+            floorBackgroundEnabled
+                ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame]).Shaded(FloorShading)
+                : null);
     }
+
+    /// <summary>The colour the title shows behind its floor and objects: the installed title palette's backdrop (#1512).</summary>
+    private RgbColor Backdrop => (titlePalettePresentation ?? throw new InvalidOperationException(
+        "Title rendering requires installed title colours.")).Backdrop;
+
+    /// <summary>
+    /// The floor's shading (#1512): the shade of the record each console light last showed, the tube light's then the
+    /// displays', which recolour different colours of the floor.
+    /// </summary>
+    internal PictureShading FloorShading
+    {
+        get
+        {
+            PictureShading shading = PictureShading.Standard;
+            if (tubeLightRecord is { } tube)
+                shading = shading.With(PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, tube));
+            if (displaysRecord is { } displays)
+                shading = shading.With(PaletteFxShades.Of(PaletteFxColours.TitleScreenDisplays, displays));
+            return shading;
+        }
+    }
+
+    /// <summary>The copyright's shading: its drawn colours, with its glyph colours restored once the skip has rebuilt the title objects (#1512).</summary>
+    internal PictureShading CopyrightShading => CopyrightRestored
+        ? PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Copyright)).With(TitleShades.RestoredCopyright)
+        : PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Copyright));
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
     private ScreenGradient ResolveTitleGradient()
@@ -401,7 +431,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         {
             TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
-                ScreenColourGroup.TitleCopyright);
+                CopyrightShading);
         }
 
         objects.FinishFrame();
@@ -480,25 +510,16 @@ public sealed class TitleSequenceState : IFrontendScreen
         floorBackgroundEnabled = false;
     }
 
-    /// <summary>Writes the copyright glyph's white and red colours.</summary>
-    private void WriteCopyright(RgbColor white, RgbColor red)
-    {
-        palette.Colours(ScreenColourGroup.TitleCopyrightWhite).Fill(white);
-        palette.Colours(ScreenColourGroup.TitleCopyrightRed).Fill(red);
-    }
-
     /// <summary>Installs the logo, gradient, copyright colors, and identity Mode 7 scene used after a skip.</summary>
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
-        // The skip transition explicitly overwrites the two glyph colors used by
-        // the Nintendo copyright spritemap after restoring the sprite colours.
-        WriteCopyright(
-            titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceDefinitions.Palette.CopyrightWhite,
-            titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);
+        // The skip transition explicitly overwrites the two glyph colours the Nintendo copyright draws in after
+        // restoring the sprite colours; the copyright shows them as a shade from now on (#1512).
+        CopyrightRestored = true;
         ActiveSprite = TitleSprite.SuperMetroidLogo;
         ActiveOrigin = TitleSequenceDefinitions.Sprites.LogoOrigin;
-        ActiveObjectColouring = ScreenColourGroup.TitleLogo;
+        ActiveObjectColouring = TitleSpriteColouring.Logo;
         floorBackgroundEnabled = true;
         panPosition = new(panPosition.X.WithWhole(0), panPosition.Y.WithWhole(0));
         Zoom = TitleSequenceDefinitions.Scenes.IdentityScale;

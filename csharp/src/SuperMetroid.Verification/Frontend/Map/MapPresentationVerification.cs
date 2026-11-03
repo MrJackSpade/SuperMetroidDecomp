@@ -1161,30 +1161,31 @@ internal static class MapPresentationVerification
             "title palette override changes installed-content identity");
         var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitlePalette));
         var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        AssertTrue(editedTitle.PaletteColors.SequenceEqual(edited.TitlePalette.Colors),
-            "production title consumes selected palette override");
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitlePalette));
+        AssertEqual(edited.TitlePalette.Backdrop, editedTitle.CaptureRenderSnapshot().Paint.Backdrop,
+            "production title shows the selected palette override's backdrop");
         stockTitle.Step(0);
         editedTitle.Step(0);
-        TitleScreenAmbientPaletteFxColorDefinition tube =
-            TitleScreenAmbientPaletteOwners.All.Single(
-                definition => definition.Owner ==
-                    TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
-        AssertTrue(stockTitle.PaletteColors[tube.Colours.CartridgeColour] !=
-            editedTitle.PaletteColors[tube.Colours.CartridgeColour],
-            "production title consumes selected ambient palette override");
+        // Both titles name the same console-light records; the override reaches the floor through the shades the import
+        // pre-colours the edited title's floor sheet in (#1512).
+        AssertEqual(stockTitle.FloorShading, editedTitle.FloorShading, "the floor's shading names the lights' records, not their colours");
+        PictureShade tubeShade = editedTitle.FloorShading.Shades.Single(shade =>
+            shade.Effect == PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, new PaletteFxFrame(0)).Effect);
+        AssertTrue(!MenuSheetFixtures.WithTitle(original.TitlePalette).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours
+                .SequenceEqual(MenuSheetFixtures.WithTitle(edited.TitlePalette).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours),
+            "the import pre-colours the selected ambient palette override's tube light");
         AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
 
         var stockSkip = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
+            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitlePalette));
         var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
+            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitlePalette));
         stockSkip.Step(ControllerButton.Start);
         editedSkip.Step(ControllerButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -1194,26 +1195,16 @@ internal static class MapPresentationVerification
         }
         AssertEqual(stockSkip.Phase, editedSkip.Phase,
             "skip copyright palette override preserves title phase");
-        AssertEqual(edited.TitlePalette.SkipCopyrightWhite,
-            editedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
-            "skip route uses edited copyright white");
-        AssertEqual(edited.TitlePalette.SkipCopyrightRed,
-            editedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightRed)],
-            "skip route uses edited copyright red");
+        AssertTrue(editedSkip.CopyrightRestored && editedSkip.CopyrightShading.Shades.Contains(TitleShades.RestoredCopyright),
+            "skip route restores the copyright's glyph colours");
+        AssertTrue(MenuSheetFixtures.WithTitle(edited.TitlePalette).Get(SpriteSheetId.Title).Image.Shade(TitleShades.RestoredCopyright).Colours
+                .SequenceEqual([edited.TitlePalette.SkipCopyrightWhite, edited.TitlePalette.SkipCopyrightRed]),
+            "skip route's restored copyright shows the edited copyright white and red");
         AssertTrue(!stockSkip.Render().SequenceEqual(editedSkip.Render()),
             "skip copyright palette override changes rendered title output");
+        // The restored copyright is a shade of the installed sheet (#1512): rebinding the palette keeps the skip's state.
         editedSkip.BindTitlePalette(original.TitlePalette);
-        AssertEqual(original.TitlePalette.SkipCopyrightWhite,
-            editedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
-            "restored title uses current stock skip white");
-        AssertEqual(original.TitlePalette.SkipCopyrightRed,
-            editedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightRed)],
-            "restored title uses current stock skip red");
-        editedSkip.BindTitlePalette(edited.TitlePalette);
-        AssertEqual(edited.TitlePalette.SkipCopyrightWhite,
-            editedSkip.PaletteColors[ScreenColourPositions.Of(ScreenColourGroup.TitleCopyrightWhite)],
-            "live title rebind applies edited skip white");
-
+        AssertTrue(editedSkip.CopyrightRestored, "a rebound title keeps its restored copyright");
         File.Delete(replacement);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(original.ContentIdentity, restored.ContentIdentity,

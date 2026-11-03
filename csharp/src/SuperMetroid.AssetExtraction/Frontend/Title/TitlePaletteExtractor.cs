@@ -29,8 +29,8 @@ internal static class TitlePaletteExtractor
                 TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight),
             FlickeringDisplays = ExtractAmbient(
                 TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays),
-            SkipCopyrightWhite = PaletteRgb5.From(TitleSequenceDefinitions.Palette.CopyrightWhite),
-            SkipCopyrightRed = PaletteRgb5.From(TitleSequenceDefinitions.Palette.CopyrightRed),
+            SkipCopyrightWhite = PaletteRgb5.From(TitleSkipCopyrightColours.White),
+            SkipCopyrightRed = PaletteRgb5.From(TitleSkipCopyrightColours.Red),
         });
         return json.ToArray();
 

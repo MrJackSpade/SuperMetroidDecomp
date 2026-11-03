@@ -6,6 +6,9 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -84,7 +87,17 @@ internal static class FrontendFloorSheetComposer
                 .CopyTo(pixels.AsSpan(TitleFloorTileDefinitions.BabyFirstTile * FloorSheetComposer.TileBytes));
             pictures.Add(FloorSheetComposer.Whole(TitleFloors.FrameName(page), map, pixels));
         }
-        return FloorSheetComposer.Compose(pictures, ScreenPaletteColours.TitleColours(palette));
+        ComposedSpriteSheet floor = FloorSheetComposer.Compose(pictures, ScreenPaletteColours.TitleColours(palette));
+        // The floor shows each record the console lights show (#1512), over the inks each light recolours.
+        var shades = new List<SheetShade>();
+        foreach (PaletteFxColours light in TitleSheetInks.FloorLights)
+        {
+            (int first, int end) = TitleSheetInks.FloorLight(light);
+            shades.AddRange(PaletteFxScreenShades.Of(
+                [TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, TitleSequenceDefinitions.ConsolePaletteFx.FastLights],
+                light, first, end, palette));
+        }
+        return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(shades) } };
     }
 
     /// <summary>

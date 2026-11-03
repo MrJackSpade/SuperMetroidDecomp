@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
-
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>Verification access to <see cref="TitleSequenceState"/> members production does not use.</summary>
@@ -11,9 +8,6 @@ internal static class TitleSequenceStateAccess
     {
         /// <summary>Current screen brightness level; zero is black and fifteen is full.</summary>
         internal byte Brightness => (byte)self.Brightness;
-
-        /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
-        internal ReadOnlySpan<RgbColor> PaletteColors => self.palette.Colors;
 
         /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>
         internal ushort Mode7MatrixScale => unchecked((ushort)self.Zoom);

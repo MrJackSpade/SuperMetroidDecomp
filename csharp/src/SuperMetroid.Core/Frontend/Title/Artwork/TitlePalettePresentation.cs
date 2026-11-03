@@ -21,13 +21,16 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <param name="animatedColors">The selected ambient-program colours the import found the shared calculation does not produce.</param>
     /// <param name="skipCopyrightWhite">The selected skip-only white.</param>
     /// <param name="skipCopyrightRed">The selected skip-only red.</param>
+    /// <param name="backdrop">The colour the title shows where nothing is drawn.</param>
     internal TitlePalettePresentation(
         ScreenColours colours,
         Dictionary<PaletteFxColorKey, RgbColor> animatedColors,
         RgbColor skipCopyrightWhite,
-        RgbColor skipCopyrightRed)
+        RgbColor skipCopyrightRed,
+        RgbColor backdrop)
     {
         this.colours = colours;
+        Backdrop = backdrop;
         this.animatedColors = animatedColors;
         SkipCopyrightWhite = skipCopyrightWhite;
         SkipCopyrightRed = skipCopyrightRed;
@@ -37,6 +40,8 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     public RgbColor SkipCopyrightWhite { get; }
     /// <summary>Selected BGR555 copyright tint the fast skip restores to the copyright glyph's red; the legacy Red name does not restrict its channels, and the stock word is 32128.</summary>
     public RgbColor SkipCopyrightRed { get; }
+    /// <summary>The colour the title shows behind its floor and objects, where nothing is drawn (#1512).</summary>
+    public RgbColor Backdrop { get; }
 
     /// <inheritdoc />
     /// <param name="key">A color the tube-light or display program writes.</param>

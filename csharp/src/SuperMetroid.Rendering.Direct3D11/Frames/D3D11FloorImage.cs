@@ -46,7 +46,8 @@ internal sealed class D3D11FloorImage : IDisposable
     internal unsafe void Show(AffineFloor floor)
     {
         Ensure.NotNull(floor);
-        if (floor.Equals(shown))
+        // The image holds the pictures' pixels and inks; what the inks show is the colour slots' (#1512).
+        if (floor.SamePictures(shown))
             return;
         Lay(floor, floor.Image, 0, 0);
         foreach (SpriteSheetFrame picture in floor.DrawnOver)

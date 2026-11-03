@@ -47,9 +47,21 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     /// <summary>The image and every picture drawn over it, each once, the image first.</summary>
     public ImmutableArray<SpriteSheetFrame> Pictures { get; }
 
-    /// <inheritdoc />
-    public bool Equals(AffineFloor? other) =>
+    /// <summary>
+    /// The shading every picture of the floor shows (#1512), or null for the frame's colours: a frontend screen's floor
+    /// names the shades of its palette effects here.
+    /// </summary>
+    public PictureShading? Shading { get; init; }
+
+    /// <summary>This floor's pictures shown under <paramref name="shading"/>.</summary>
+    public AffineFloor Shaded(PictureShading shading) => new(Image, DrawnOver) { Shading = Ensure.NotNull(shading) };
+
+    /// <summary>Whether <paramref name="other"/> lays the same pictures, whatever each shows them in.</summary>
+    public bool SamePictures(AffineFloor? other) =>
         other is not null && ReferenceEquals(Image, other.Image) && DrawnOver.AsSpan().SequenceEqual(other.DrawnOver.AsSpan(), ReferenceEqualityComparer.Instance);
+
+    /// <inheritdoc />
+    public bool Equals(AffineFloor? other) => SamePictures(other) && Equals(Shading, other!.Shading);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => Equals(obj as AffineFloor);

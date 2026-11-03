@@ -12,8 +12,8 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>
 /// Turns a fixture's memory image into pictured backgrounds (#1467): a tilemap's cells over the characters at a character
 /// base become one picture of the whole map on a pictured plane, or a grid of one-cell pictures each mirrored as its cell
-/// mirrors it. The import's frontend picture composer paints them under the fixture's palette, naming the gameplay
-/// background set of each colour group as installed room sheets do, so gameplay and frontend frames both colour them (#1493).
+/// mirrors it. The import's frontend picture composer paints them under the fixture's palette, and each picture shows
+/// those standard colours in <see cref="PictureShading.Standard"/> (#1493, #1512).
 /// </summary>
 internal static class VramPictureFixtures
 {
@@ -74,7 +74,7 @@ internal static class VramPictureFixtures
         BackgroundTile[] cells = Tilemap(image, tilemapWord, size);
         SpriteSheet sheet = Load(ScreenPictureSheetComposerConstants.ComposeRoom([ScreenPictureSubject.Page(MapFrame, cells, size.X)],
             Characters(image, characterWord, depth), palette), $"vram-plane-{tilemapWord:X4}-{characterWord:X4}-{depth}");
-        return new PicturedPlane(size, [new PlacedPlanePicture(sheet.Frame(MapFrame), Position16<TilePlanePixels>.Zero)]);
+        return new PicturedPlane(size, [new PlacedPlanePicture(sheet.Frame(MapFrame), Position16<TilePlanePixels>.Zero, PictureShading.Standard)]);
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ internal static class VramPictureFixtures
         SpriteSheet sheet = Load(ScreenPictureSheetComposerConstants.ComposeRoom(
             [.. unmirrored.Select(tile => ScreenPictureSubject.Block(CellFrame(tile), default, CellSize, [tile]))],
             Characters(image, characterWord, depth), palette), $"vram-grid-{tilemapWord:X4}-{characterWord:X4}-{depth}");
-        return new PictureGrid(size, [.. cells.Select(cell => (GridPicture?)new GridPicture(sheet.Frame(CellFrame(Unmirrored(cell))), cell.Flip))]);
+        return new PictureGrid(size, [.. cells.Select(cell => (GridPicture?)new GridPicture(sheet.Frame(CellFrame(Unmirrored(cell))), cell.Flip, PictureShading.Standard))]);
     }
 
     /// <summary><paramref name="tile"/> without its mirroring.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed record FloorScene
 {
-    /// <summary>The frame's colours and sprite draws, retained by reference without another copy.</summary>
+    /// <summary>The frame's backdrop, shading and sprite draws, retained by reference without another copy.</summary>
     public FramePaint Paint { get; }
     /// <summary>The floor's transform; null shows no floor, leaving the backdrop.</summary>
     public AffineTransform? Background { get; }
@@ -24,7 +24,7 @@ public sealed record FloorScene
     public ScreenGradientLayer? Gradient { get; }
 
     /// <summary>Captures a 256-by-224 frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
-    /// <param name="paint">The frame's colours and sprite draws; retained rather than recaptured.</param>
+    /// <param name="paint">The frame's backdrop, shading and sprite draws; retained rather than recaptured.</param>
     /// <param name="background">The floor's transform, or null to show the backdrop behind the sprites. The floor is measured from screen column zero, with the first visible row at line one.</param>
     /// <param name="brightness">The frame's brightness, 0 (black) through 15.</param>
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>

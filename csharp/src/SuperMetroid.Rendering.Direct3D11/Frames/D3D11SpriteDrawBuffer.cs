@@ -6,10 +6,12 @@ using Vortice.Direct3D11;
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>
-/// The shaders' <c>SpriteDraws</c> buffer (#1408): one frame's whole-frame sprite draws, each an instanced quad that
+/// The shaders' <c>SpriteDraws</c> buffer (#1408, #1512): one frame's whole-frame sprite draws, each an instanced quad that
 /// Sprites.hlsl draws from its image in the image texture. Word 0 holds the record count, then five words per draw in
-/// front-to-back order (position, extent, flags, the image's place in the texture, the first colour word), then each
-/// recoloured draw's colours (#1405). The GPU buffer grows to fit the largest frame seen.
+/// front-to-back order (position, extent, flags, the image's place in the texture, the first colour word), then, for each
+/// draw whose shading changes its picture's colours, the colour of each of its picture's inks under that shading. Which
+/// of a sprite's pixels take part in colour math is the shader's rule, by the pixel's colour group. The GPU buffer grows
+/// to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
@@ -17,24 +19,20 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const int HeaderWords = 1;
     /// <summary>Words per packed record: position, extent, flags, the image's place, first colour word.</summary>
     private const int RecordWords = 5;
-    /// <summary>
-    /// Words of a recoloured draw's colours: a word of one blending bit per key, with the part-group keying flag above
-    /// them, then each key's sixteen colours.
-    /// </summary>
-    private const int ColourWords = 1 + DrawColours.Keys * DrawColours.KeyColours;
-    /// <summary>Colour header bit: the draw's pixels take their part colour group's colours rather than their ink's group's.</summary>
-    private const uint FollowsPartGroupsFlag = 1 << 16;
     /// <summary>Allocation for a frame with no or few draws; larger frames grow it.</summary>
     private const int InitialWords = 1024;
     /// <summary>Flags bit mirroring a record horizontally.</summary>
     private const uint FlipXFlag = 1;
     /// <summary>Flags bit mirroring a record vertically.</summary>
     private const uint FlipYFlag = 2;
-    /// <summary>Flags bit marking a draw whose pixels show its colours rather than its image's own.</summary>
+    /// <summary>Flags bit marking a draw whose pixels show its shading's ink colours rather than its image's own.</summary>
     private const uint RecolourFlag = 1 << 9;
 
     /// <summary>Device that owns the buffer.</summary>
     private readonly ID3D11Device device;
+
+    /// <summary>The ink colours of each shaded draw the last <see cref="Pack"/> packed; reused across frames.</summary>
+    private readonly List<RgbColor[]?> shadedInks = [];
 
     /// <summary>Creates the initial buffer on the render owner's device.</summary>
     internal D3D11SpriteDrawBuffer(ID3D11Device device)
@@ -53,27 +51,28 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     internal int Count { get; private set; }
 
     /// <summary>Adds the image each draw shows to <paramref name="needed"/>.</summary>
-    /// <exception cref="InvalidDataException">A draw is not an image draw, or its colours were not resolved.</exception>
+    /// <exception cref="InvalidDataException">A draw is not an image draw, or names no shading.</exception>
     internal static void Collect(ReadOnlySpan<SpriteDraw> draws, ISet<SpriteSheetFrame> needed)
     {
         foreach (SpriteDraw draw in draws)
-        {
-            if (draw is not (ImageSpriteDraw { Colours: not null } or ImageSpriteDraw { Shading: not null }) || draw is not ImageSpriteDraw image)
-                throw Unsupported(draw);
-            needed.Add(image.Image);
-        }
+            needed.Add(Shaded(draw).Draw.Image);
     }
 
     /// <summary>Packs the draws in emission order, growing the buffer first when they do not fit.</summary>
-    /// <param name="draws">The frame's draws, each with its colours resolved.</param>
+    /// <param name="draws">The frame's draws, each naming its shading.</param>
     /// <param name="atlas">The texture holding every image the draws show.</param>
+    /// <exception cref="InvalidDataException">A draw is not an image draw, or names no shading.</exception>
     internal void Pack(ReadOnlySpan<SpriteDraw> draws, D3D11ImageAtlas atlas)
     {
         int words = HeaderWords + draws.Length * RecordWords;
+        shadedInks.Clear();
         foreach (SpriteDraw draw in draws)
         {
-            if (IsRecoloured((ImageSpriteDraw)draw))
-                words += ColourWords;
+            (ImageSpriteDraw image, PictureShading shading) = Shaded(draw);
+            // A draw in its picture's standard colours shows the image's pre-coloured pixels and packs no colours.
+            RgbColor[]? inks = shading.IsStandard ? null : shading.InkColours(image.Image.Sheet);
+            shadedInks.Add(inks);
+            words += inks?.Length ?? 0;
         }
         if (words > Upload.Length)
         {
@@ -85,18 +84,19 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         Count = draws.Length;
         int record = HeaderWords;
         int colourWords = HeaderWords + draws.Length * RecordWords;
-        foreach (SpriteDraw draw in draws)
+        for (int index = 0; index < draws.Length; index++)
         {
-            var image = (ImageSpriteDraw)draw;
+            var image = (ImageSpriteDraw)draws[index];
             int colours = 0;
-            if (IsRecoloured(image))
+            if (shadedInks[index] is { } inks)
             {
                 colours = colourWords;
-                if (image.Shading is { } shading)
-                    PackShading(upload.Slice(colourWords, ColourWords), image, shading);
-                else
-                    PackColours(upload.Slice(colourWords, ColourWords), image);
-                colourWords += ColourWords;
+                for (int ink = 0; ink < inks.Length; ink++)
+                {
+                    RgbaPixel shown = inks[ink].ToRgbaPixel();
+                    upload[colourWords + ink] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
+                }
+                colourWords += inks.Length;
             }
             PackImage(upload.Slice(record, RecordWords), image, atlas.Place(image.Image), colours);
             record += RecordWords;
@@ -119,52 +119,14 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[4] = (uint)colourWords;
     }
 
-    /// <summary>
-    /// Packs a recoloured draw's colours: one blending bit per key and the part-group keying flag, then each key's sixteen
-    /// colours, its image's own where the key shows them.
-    /// </summary>
-    private static void PackColours(Span<uint> words, ImageSpriteDraw draw)
+    /// <summary><paramref name="draw"/> as an image draw and the shading it names.</summary>
+    /// <exception cref="InvalidDataException">The draw is not an image draw, or names no shading.</exception>
+    private static (ImageSpriteDraw Draw, PictureShading Shading) Shaded(SpriteDraw draw) => draw switch
     {
-        DrawColours colours = draw.Colours!;
-        ReadOnlySpan<RgbColor> own = draw.Image.Sheet.StandardColours;
-        uint header = colours.FollowsPartGroups ? FollowsPartGroupsFlag : 0;
-        for (int key = 0; key < colours.KeyCount; key++)
-        {
-            if (colours.Blends(key))
-                header |= 1u << key;
-            for (int colour = 0; colour < DrawColours.KeyColours; colour++)
-            {
-                RgbaPixel shown = (colours.ShowsOwnColours(key)
-                    ? own[key * DrawColours.KeyColours + colour]
-                    : colours.Colour(key, colour)).ToRgbaPixel();
-                words[1 + key * DrawColours.KeyColours + colour] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
-            }
-        }
-        words[0] = header;
-    }
-
-    /// <summary>Whether a draw shows colours other than its image's own, and so packs a colour table.</summary>
-    private static bool IsRecoloured(ImageSpriteDraw draw) => draw.Shading is { } shading ? !shading.IsStandard : !draw.Colours!.IsOwn;
-
-    /// <summary>
-    /// Packs a shaded draw's colours (#1512): its image's own groups' blending bits, then each ink's colour under the
-    /// shading, keyed by the ink's colour group.
-    /// </summary>
-    private static void PackShading(Span<uint> words, ImageSpriteDraw draw, PictureShading shading)
-    {
-        RgbColor[] inks = shading.InkColours(draw.Image.Sheet);
-        for (int ink = 0; ink < inks.Length; ink++)
-        {
-            RgbaPixel shown = inks[ink].ToRgbaPixel();
-            words[1 + ink] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
-        }
-        words[0] = (uint)DrawColours.OwnBlending;
-    }
-
-    /// <summary>The error for a kind of draw this buffer cannot pack.</summary>
-    private static InvalidDataException Unsupported(SpriteDraw draw) => draw is ImageSpriteDraw
-        ? new("A sprite draw reaches the Direct3D 11 sprite buffer once its frame has resolved its colours.")
-        : new($"The Direct3D 11 sprite buffer cannot pack a {draw.GetType().Name}.");
+        ImageSpriteDraw { Shading: { } shading } image => (image, shading),
+        ImageSpriteDraw image => throw new InvalidDataException($"Sprite draw {image} reaches the Direct3D 11 sprite buffer naming no shading."),
+        _ => throw new InvalidDataException($"The Direct3D 11 sprite buffer cannot pack a {draw.GetType().Name}."),
+    };
 
     /// <summary>Allocates the GPU buffer, its view and the CPU upload words.</summary>
     [System.Diagnostics.CodeAnalysis.MemberNotNull(nameof(Buffer), nameof(View), nameof(Upload))]

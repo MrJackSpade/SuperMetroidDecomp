@@ -2,7 +2,8 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A sprite draw of a finished, pre-coloured image: one frame of a sheet placed at an origin and mirrored about it. Its
-/// colours and each pixel's priority against the backgrounds come from the image (#1392).
+/// colours and each pixel's priority against the backgrounds come from the image, under the shading its owner names
+/// (#1392, #1512).
 /// </summary>
 public sealed record ImageSpriteDraw : SpriteDraw
 {
@@ -11,33 +12,20 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <param name="image">The sheet frame shown.</param>
     /// <param name="origin">The screen point the frame's origin lands on; each coordinate is a signed 16-bit value.</param>
     /// <param name="mirror">Mirrors the frame about its origin.</param>
-    /// <param name="colouring">
-    /// The colours shown in place of the ones the image was coloured with, as an enemy's hit or freeze flash supplies,
-    /// shown over each part group as their placement decides; or null for the image's own colours.
-    /// </param>
-    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror,
-        DrawnColouring? colouring = null)
+    public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror)
         : base(source, origin)
     {
         Image = Ensure.NotNull(image);
         Mirror = mirror;
-        Colouring = colouring;
     }
 
     /// <summary>
-    /// The colours shown in place of the ones the image was coloured with, shown over each part group as their placement
-    /// decides, or null for the image's own colours (#1464).
-    /// </summary>
-    public DrawnColouring? Colouring { get; }
-
-    /// <summary>
-    /// The shades and colour effects the draw's owner shows its picture in (#1512), or null for a draw still coloured
-    /// through <see cref="Colouring"/> and the frame's colour sets.
+    /// The shades and colour effects the draw's owner shows its picture in (#1512); <see cref="PictureShading.Standard"/>
+    /// where the owner shows no effect. Null only until the owner names it: Samus's draws are made before
+    /// Samus's colours name her shading at publication, and a frame refuses a draw
+    /// that still names none.
     /// </summary>
     public PictureShading? Shading { get; init; }
-
-    /// <summary>What the draw's pixels show, resolved when its frame is published; null until then.</summary>
-    public DrawColours? Colours { get; init; }
 
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }

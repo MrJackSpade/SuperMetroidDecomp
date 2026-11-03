@@ -113,7 +113,7 @@ internal static class SpriteDrawSmokeTests
                 sheetIndices[pixel] = (byte)(random.Next(8) * 16 + random.Next(1, 16));
                 sheetPriorities[pixel] = (byte)random.Next(4);
                 // A part's own group is part of the group it was coloured with, the rest being the draw's ORed bits; a part
-                // naming its group may keep it under a drawn colouring.
+                // naming its group may have kept it when the import composed it.
                 sheetPartGroups[pixel] = (byte)(random.Next(4) == 0 ? PartColourGroup.Keeping(ImageColourGroup.OfInk(sheetIndices[pixel]))
                     : PartColourGroup.Following(ImageColourGroup.Numbered(sheetIndices[pixel] / 16 & random.Next(8)))).Code;
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();

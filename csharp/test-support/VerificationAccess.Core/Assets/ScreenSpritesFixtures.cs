@@ -110,7 +110,7 @@ internal static class ScreenSpritesFixtures
         /// checks fill the frame.
         /// </summary>
         internal void AddOccupyingPart(Position16<SpritePixels> position, SnesObjAttributeWord attributes) =>
-            self.AddImage(PartFrame(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes), position);
+            self.AddImage(PartFrame(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes), position, PictureShading.Standard);
 
     }
 

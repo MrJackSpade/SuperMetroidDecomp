@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// How one pixel of a <see cref="SpriteImage"/> was inked beside its colour (#1403): the palette entry it shows, its
-/// priority against the backgrounds and the part colour group a drawn colouring recolours.
+/// priority against the backgrounds and the colour group of the part it belongs to.
 /// </summary>
 /// <remarks>
 /// Installed images hold billions of pixels, so the three values share one word per pixel, a byte each, instead of
@@ -22,7 +22,7 @@ public readonly record struct SpriteImageInk
     /// <summary>Records one pixel's ink.</summary>
     /// <param name="paletteIndex">The pixel's colour group's place times sixteen plus its colour; zero where it is transparent.</param>
     /// <param name="priority">The pixel's priority against the backgrounds 0..3, as the part that shows it had it.</param>
-    /// <param name="partGroup">The colour group of the part the pixel belongs to, and whether that part keeps it under a drawn colouring.</param>
+    /// <param name="partGroup">The colour group of the part the pixel belongs to, and whether that part kept it when the import composed it.</param>
     /// <exception cref="ArgumentOutOfRangeException">A value is negative or does not fit its field.</exception>
     public SpriteImageInk(int paletteIndex, int priority, PartColourGroup partGroup)
     {
@@ -39,6 +39,6 @@ public readonly record struct SpriteImageInk
     /// <summary>The pixel's priority against the backgrounds 0..3, as the part that shows it had it.</summary>
     public int Priority => fields >> FieldBits & FieldMaximum;
 
-    /// <summary>The colour group of the part the pixel belongs to, and whether that part keeps it under a drawn colouring.</summary>
+    /// <summary>The colour group of the part the pixel belongs to, and whether that part kept it when the import composed it.</summary>
     public PartColourGroup PartGroup => PartColourGroup.FromCode(fields >> 2 * FieldBits & FieldMaximum);
 }

@@ -10,8 +10,8 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>
 /// The installed images a scene draws, as one texture (#1408): each sprite frame, block picture, background image and
 /// tile sheet a scene shows is copied in once, at a place it keeps while later scenes show it. Each texel holds the
-/// image's pre-coloured pixel and, beside it, the pixel's ink, priority and part colour group, so a colour effect recolours the
-/// image as it shows it.
+/// image's pre-coloured pixel and, beside it, the pixel's ink and priority, so a shading recolours the image as it shows
+/// it (#1512).
 /// </summary>
 internal sealed class D3D11ImageAtlas : IDisposable
 {
@@ -23,8 +23,6 @@ internal sealed class D3D11ImageAtlas : IDisposable
     internal const uint KeepsGroupInk = 1u << 17;
     /// <summary>Where an ink word keeps the pixel's priority.</summary>
     private const int PriorityShift = 8;
-    /// <summary>Where an ink word keeps the code of the pixel's part colour group.</summary>
-    private const int PartGroupShift = 10;
     /// <summary>Words per texel: the colour, then the ink.</summary>
     private const int TexelWords = 2;
 
@@ -164,7 +162,7 @@ internal sealed class D3D11ImageAtlas : IDisposable
                 SpriteImageInk ink = inks[source + column];
                 bool colourZero = sheet.IsColourZero(ink);
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = (uint)ink.PaletteIndex | (uint)ink.Priority << PriorityShift | (uint)ink.PartGroup.Code << PartGroupShift
+                texels[target + 1] = (uint)ink.PaletteIndex | (uint)ink.Priority << PriorityShift
                     | (colourZero ? ColourZeroInk : 0) | (colourZero && sheet.ColourZeroKeepsGroup ? KeepsGroupInk : 0);
             }
         }

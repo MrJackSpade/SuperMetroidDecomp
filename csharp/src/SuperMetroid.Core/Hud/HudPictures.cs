@@ -27,6 +27,6 @@ public sealed class HudPictures(SpriteSheet sheet)
 
     /// <summary><paramref name="hud"/> as the backend draws it under this sheet's palette (#1466).</summary>
     /// <param name="hud">The HUD shown.</param>
-    /// <param name="shading">The shading a frontend screen shows every picture in (#1512), or null while gameplay colours them.</param>
+    /// <param name="shading">The shading a frontend screen shows every picture in (#1512), or null for gameplay's HUD, which shows its frame's HUD shading.</param>
     public PicturedHud Pictured(ShownHud hud, PictureShading? shading = null) => Ensure.NotNull(hud).Pictured(PictureOf, shading);
 }

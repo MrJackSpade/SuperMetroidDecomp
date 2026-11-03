@@ -514,8 +514,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         RoomBackgroundLayer? floor = null;
         Layer3Cells? bg3 = rooms?.Bg3;
         AffineFloor? floorMap = null;
-        // A gameplay room's turning floor shows the room's shading; a frontend screen's its screen's colours (#1512).
-        D3D11PictureColouring floorColouring = D3D11PictureColouring.Frame;
+        // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
+        D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;
         // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
@@ -528,7 +528,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             if (layer is TurningFloorLayer frontendMode7)
             {
                 floorMap = SameFloor(floorMap, frontendMode7.Floor);
-                floorColouring = D3D11PictureColouring.Frame;
+                floorColouring = D3D11PictureColouring.OwnShading;
             }
             if (layer is PictureGridLayer { Grid: { } grid } && !grids.Contains(grid))
                 grids.Add(grid);
@@ -553,7 +553,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
-            scene.Paint.Gameplay is null ? D3D11PictureColouring.Frame : D3D11PictureColouring.Hud, floorColouring);
+            scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
         D3D11SpriteDrawBuffer.Collect(scene.Paint.SpriteDraws.AsSpan(), images.Needed);

@@ -68,7 +68,7 @@ internal sealed class MenuScreen
     /// standard colours the import pre-coloured it in under the menu's colours (#1512).
     /// </summary>
     private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell) =>
-        PlacedPlanePicture.AtCell(picture, cell, PageSize).ShadedIn(PictureShading.Standard);
+        PlacedPlanePicture.AtCell(picture, cell, PageSize, PictureShading.Standard);
 
     /// <summary>The installed world-map characters.</summary>
     [AllowNull]

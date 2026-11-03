@@ -22,7 +22,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <param name="Hud">The HUD's placed pictures the frame draws, or null (#1466).</param>
 /// <param name="Planes">The pictured planes the frame draws, or null (#1467).</param>
 /// <param name="Grids">The picture grids the frame draws, or null (#1467).</param>
-/// <param name="HudColouring">How the HUD's pictures are coloured: gameplay's HUD shading, or the pause screen's colours (#1512).</param>
-/// <param name="FloorColouring">How the turning floor's pictures are coloured: the gameplay room's shading, or a frontend screen's colours (#1512).</param>
+/// <param name="HudColouring">How the HUD's pictures are coloured: gameplay's HUD shading, or the pause screen's own shading of each picture (#1512).</param>
+/// <param name="FloorColouring">How the turning floor's pictures are coloured: the gameplay room's shading, or the shading a frontend screen's floor names (#1512).</param>
 internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomOverlayPictures? Overlay, SkyPictures? Sky, Layer3Cells? Bg3, RoomOverlayPictures? Bg2Overlay, AffineFloor? Floor, ShownBossBody? BossBody, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? Bg2Image, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, PicturedHud? Hud, PicturedPlaneTables? Planes, PictureGridTables? Grids,
     D3D11PictureColouring HudColouring, D3D11PictureColouring FloorColouring);

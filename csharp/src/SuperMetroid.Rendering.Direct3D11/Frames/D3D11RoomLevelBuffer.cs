@@ -428,7 +428,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             PlacedPlanePicture placed = pictures[index];
             int record = offset + PlaneTableHeaderWords + index * PlanePictureWords;
-            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.Frame, placed.Shading)];
+            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.OwnShading, placed.Shading)];
             upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
         }
     }
@@ -445,7 +445,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (cells[index] is not { } cell)
                 continue;
-            upload[offset + 1 + index] = (uint)pictureWords[new(cell.Picture, D3D11PictureColouring.Frame, cell.Shading)]
+            upload[offset + 1 + index] = (uint)pictureWords[new(cell.Picture, D3D11PictureColouring.OwnShading, cell.Shading)]
                 | ((cell.Mirroring & TileFlip.Horizontal) != 0 ? GridFlipHorizontally : 0)
                 | ((cell.Mirroring & TileFlip.Vertical) != 0 ? GridFlipVertically : 0);
         }
@@ -513,14 +513,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])
         {
             foreach (PlacedPlanePicture placed in plane.Pictures)
-                yield return new(placed.Picture, D3D11PictureColouring.Frame, placed.Shading);
+                yield return new(placed.Picture, D3D11PictureColouring.OwnShading, placed.Shading);
         }
         foreach (PictureGrid grid in frame.Grids?.Grids ?? [])
         {
             foreach (GridPicture? cell in grid.Cells)
             {
                 if (cell is { } shown)
-                    yield return new(shown.Picture, D3D11PictureColouring.Frame, shown.Shading);
+                    yield return new(shown.Picture, D3D11PictureColouring.OwnShading, shown.Shading);
             }
         }
         foreach (BgTilePicture? tile in Tiles(frame.Bg2Overlay?.Pictures).Concat(Tiles(frame.Overlay?.Pictures)))

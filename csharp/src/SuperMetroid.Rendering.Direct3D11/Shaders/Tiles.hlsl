@@ -25,7 +25,7 @@ cbuffer TileParameters : register(b0)
     uint4 LineScrolls[24];
 };
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
-// a word of one bit per sixteen-ink group still showing its image's own colours, then each ink's colour.
+// each ink's colour under the slot's shading (#1512).
 StructuredBuffer<uint> Colours : register(t0);
 // Room level planes (D3D11RoomLevelBuffer): layer-1, layer-2 and door-source plane records, the door window, the layer-1 overlay,
 // and the pre-coloured block pictures the planes' definitions show (#1392).
@@ -300,10 +300,9 @@ uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha 
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
-// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408): whether it shows a colour
-// other than colour zero (`index`), its tile priority, and its colour: the image's own while its ink's group shows its
-// image's own colours, else the ink's colour now. A colour-zero pixel shows nothing, or, where it keeps its group, that
-// group's colour zero when its layer shows it.
+// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512): whether it shows a
+// colour other than colour zero (`index`), its tile priority, and its ink's colour under the slot's shading. A
+// colour-zero pixel shows nothing, or, where it keeps its group, that group's colour zero when its layer shows it.
 uint TexelColour(uint2 texel, uint slot, out uint index, out bool high)
 {
     uint meta = texel.y;
@@ -313,11 +312,10 @@ uint TexelColour(uint2 texel, uint slot, out uint index, out bool high)
     if ((meta & InkColourZero) != 0)
     {
         index = 0;
-        return (meta & InkKeepsGroup) != 0 ? Colours[table + 1 + ink] : 0;
+        return (meta & InkKeepsGroup) != 0 ? Colours[table + ink] : 0;
     }
     index = 1;
-    bool own = ((Colours[table] >> (ink >> 4)) & 1) != 0;
-    return own ? texel.x : Colours[table + 1 + ink];
+    return Colours[table + ink];
 }
 // A picture's pixel (#1392, #1408), as TexelColour colours it from the picture's colour slot.
 uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)

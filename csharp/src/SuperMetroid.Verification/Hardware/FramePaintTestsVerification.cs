@@ -55,7 +55,7 @@ internal static class FramePaintTestsVerification
             [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.StandardColours.ToArray())];
         static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2)];
 
-        // The paint resolves each draw's colours (#1405), so a draw is known by what it shows and where, in order.
+        // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.
         static IEnumerable<(SpriteSource Source, Position16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>
             draws.Select(draw => (draw.Source, draw.Origin));
     }

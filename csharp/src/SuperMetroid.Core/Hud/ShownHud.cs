@@ -43,7 +43,7 @@ public sealed class ShownHud
 
     /// <summary>The HUD as the backend draws it: each placed image's installed picture, in drawing order (#1466).</summary>
     /// <param name="pictureOf">The installed picture of each image, under the palette the HUD shows in.</param>
-    /// <param name="shading">The shading a frontend screen shows every picture in (#1512), or null while gameplay colours them.</param>
+    /// <param name="shading">The shading a frontend screen shows every picture in (#1512), or null for gameplay's HUD, which shows its frame's HUD shading.</param>
     /// <exception cref="ArgumentException">A picture is not whole cells, or runs past the HUD's edge.</exception>
     public PicturedHud Pictured(Func<HudImage, SpriteSheetFrame> pictureOf, PictureShading? shading = null)
     {

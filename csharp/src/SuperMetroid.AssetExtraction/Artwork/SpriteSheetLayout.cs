@@ -47,6 +47,9 @@ internal sealed class SpriteSheetLayout
     /// <summary>Each laid frame's top-left corner on the sheet.</summary>
     private readonly Position16<ImagePixels>[] corners;
 
+    /// <summary>For each row shade, the colour each ink its painted pixels hold shows under it (#1512).</summary>
+    private readonly Dictionary<int, RgbColor>[] rowShadeInks;
+
     /// <summary>Lays out a sheet's frames in order, then their part images.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
@@ -57,6 +60,7 @@ internal sealed class SpriteSheetLayout
         this.sources = Ensure.NotNull(sources);
         this.palette = palette;
         this.priority = priority;
+        rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, RgbColor>())];
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
@@ -144,8 +148,37 @@ internal sealed class SpriteSheetLayout
         return new SpriteSheetDocument
         {
             Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest,
-            Shades = SheetShade.Documents(sources.Shades),
+            Shades = SheetShade.Documents([.. sources.Shades ?? [], .. RowShades()]),
         };
+    }
+
+    /// <summary>
+    /// Each row shade as the inks the painted pixels hold and the colour each shows under it, leaving out inks that show
+    /// their standard colour (#1512).
+    /// </summary>
+    private IEnumerable<SheetShade> RowShades()
+    {
+        IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
+        for (int index = 0; index < shades.Count; index++)
+        {
+            KeyValuePair<int, RgbColor>[] changed = [.. rowShadeInks[index].Where(ink => ink.Value != sources.SpriteColours[ink.Key]).OrderBy(ink => ink.Key)];
+            yield return new SheetShade(shades[index].Shade, [.. changed.Select(ink => ink.Key)], [.. changed.Select(ink => ink.Value)]);
+        }
+    }
+
+    /// <summary>Records that a pixel of colour <paramref name="colour"/>, inked <paramref name="ink"/> in a part taking its draw's row from <paramref name="partRow"/>, shows each row shade's colour.</summary>
+    /// <exception cref="InvalidDataException">The ink already shows another colour under a row shade.</exception>
+    private void ShadeRows(int ink, int partRow, int colour)
+    {
+        IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
+        for (int index = 0; index < shades.Count; index++)
+        {
+            SheetRowShade shade = shades[index];
+            RgbColor shown = shade.SpriteColours[(partRow | shade.Row) * RowColours + colour];
+            if (rowShadeInks[index].TryGetValue(ink, out RgbColor known) && known != shown)
+                throw new InvalidDataException($"Sheet ink {ink} shows two colours under shade {shade.Shade.Key}: its parts take different rows.");
+            rowShadeInks[index][ink] = shown;
+        }
     }
 
     /// <summary>Paints the <paramref name="index"/>th laid frame at its corner and returns the colour groups it was coloured from.</summary>
@@ -183,6 +216,9 @@ internal sealed class SpriteSheetLayout
                     // Parts are laid back to front, so each pixel ends with the priority of the part in front.
                     planes.Priorities[at] = (byte)(part.Priority ?? priority);
                     planes.PartGroups[at] = (byte)partGroup.Code;
+                    // A part keeping its own row under a drawn row keeps its colours under every row shade.
+                    if (part.Palette is null || !sources.PartsKeepOwnRows)
+                        ShadeRows(paletteRow * RowColours + colour, part.Palette ?? framePalette, colour);
                 }
             }
         }
@@ -204,7 +240,22 @@ internal sealed class SpriteSheetLayout
             writer.Write(sources.PaletteBits);
             writer.Write(sources.PartsKeepOwnRows);
             foreach (RgbColor colour in sources.SpriteColours)
-                writer.Write(colour.ToWord());
+                WriteColour(writer, colour);
+            foreach (SheetShade shade in sources.Shades ?? [])
+            {
+                writer.Write(shade.Shade.Key);
+                foreach (int ink in shade.Inks)
+                    writer.Write(ink);
+                foreach (RgbColor colour in shade.Colours)
+                    WriteColour(writer, colour);
+            }
+            foreach (SheetRowShade shade in sources.RowShades ?? [])
+            {
+                writer.Write(shade.Shade.Key);
+                writer.Write(shade.Row);
+                foreach (RgbColor colour in shade.SpriteColours)
+                    WriteColour(writer, colour);
+            }
             writer.Write(frameCount);
             writer.Write(laid.Length);
             for (int index = 0; index < laid.Length; index++)
@@ -226,6 +277,14 @@ internal sealed class SpriteSheetLayout
             }
         }
         return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
+    }
+
+    /// <summary>Writes a colour's three channels.</summary>
+    private static void WriteColour(BinaryWriter writer, RgbColor colour)
+    {
+        writer.Write((byte)colour.Red);
+        writer.Write((byte)colour.Green);
+        writer.Write((byte)colour.Blue);
     }
 
     /// <summary>Writes what painting reads of one part: its place, size, flip, row, priority and the characters it reads.</summary>

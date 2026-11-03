@@ -14,6 +14,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Whether a part that names its own row keeps it under a draw's palette override, as frontend spritemaps place only
 /// their palette-inheriting parts in the draw's palette; enemies' draws OR their bits into every part instead.
 /// </param>
-/// <param name="Shades">The shades the sheet is pre-coloured in besides its standard colours (#1512).</param>
+/// <param name="Shades">The shades the sheet is pre-coloured in besides its standard colours, by ink (#1512).</param>
+/// <param name="RowShades">The shades the sheet is pre-coloured in as its draws show it in another palette row (#1512).</param>
 internal sealed record SpriteSheetSources(IReadOnlyList<SheetFrameSource> Frames, RgbColor[] SpriteColours,
-    ScreenObjectSizes ObjectSizes, int PaletteBits = 0, bool PartsKeepOwnRows = false, IReadOnlyList<SheetShade>? Shades = null);
+    ScreenObjectSizes ObjectSizes, int PaletteBits = 0, bool PartsKeepOwnRows = false, IReadOnlyList<SheetShade>? Shades = null,
+    IReadOnlyList<SheetRowShade>? RowShades = null);

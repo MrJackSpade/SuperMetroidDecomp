@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -18,7 +17,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// standard OBJ characters with each member's tiles uploaded after them, and each member's palette loaded into its
 /// row. Every member's sheet holds the frames its behaviour shows, composed at its tile index and coloured in its row
 /// as the set leaves it, so a row a later member overwrites shows that member's colours, as on the cartridge. Each
-/// pixel keeps its part's own row, so a hit or freeze flash can still OR in its palette.
+/// sheet is also pre-coloured in the shades its enemy shows (#1512): a hit or freeze flash and the enemy projectiles'
+/// colours as the cartridge ORs their row into each part's own, and its own effects.
 /// </summary>
 internal static class EnemySheetComposer
 {
@@ -220,22 +220,23 @@ internal static class EnemySheetComposer
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
-            [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours))]);
+            [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours.SpriteColours, loaded.Shades))]);
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
     private static IEnumerable<EnemySheetSource> EnemySources(EnemySheetInputs inputs, LoadedGraphicsSet loaded)
     {
         EnemyGraphicsSet graphics = loaded.Graphics;
-        RgbColor[] colours = loaded.Colours;
+        RgbColor[] colours = loaded.Colours.SpriteColours;
         foreach (EnemyDefinitionId enemy in loaded.Drawn)
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
-            // The sheet is coloured in the sprite set the set places the enemy's colours in.
-            int paletteBits = graphics.Placement.StoreOf(indexes.Colouring).Set;
+            // The sheet is coloured in the row the set loads, or the enemy's initialization selects, its colours in.
+            int paletteBits = loaded.Colours.RowOf(enemy);
+            (IReadOnlyList<SheetShade> fixedShades, IReadOnlyList<SheetRowShade> rowShades) = loaded.Shades.Fixed(enemy);
             var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
@@ -249,7 +250,9 @@ internal static class EnemySheetComposer
                     rots.Add(framePictures.Name, corpse);
             }
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
-                ObjectSelectionCodec.GameplaySizes, paletteBits), pictures, rots);
+                ObjectSelectionCodec.GameplaySizes, paletteBits,
+                Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],
+                RowShades: [.. loaded.Shades.Shared(), .. rowShades]), pictures, rots);
         }
     }
 
@@ -264,8 +267,8 @@ internal static class EnemySheetComposer
         Ensure.NotNull(set);
         var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { TileArtwork = inputs.Enemies },
             CompiledRoomEnemyDefinitions.Instance, services: null));
-        ScreenPalette cgram = RoomLoadPalettes.Colours(inputs.Palettes);
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set, cgram.SpriteSets);
+        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set);
+        LoadedSetColours colours = LoadedSetColours.Of(inputs, set);
         List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
@@ -278,15 +281,17 @@ internal static class EnemySheetComposer
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
         var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
         return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
-            [.. corpses.Where(corpse => corpse.Kind is not null)]), cgram.SpriteSets.All.Colors.ToArray(), drawn);
+            [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
     }
 
     /// <summary>A room graphics set as a room load leaves it.</summary>
-    /// <param name="Graphics">Its enemy graphics, which give each enemy's tile base and palette.</param>
+    /// <param name="Graphics">Its enemy graphics, which give each enemy's tile base.</param>
     /// <param name="Characters">Its OBJ characters, as its room load and its encounters' uploads leave them.</param>
-    /// <param name="Colours">Its sprite colours.</param>
+    /// <param name="Colours">Its sprite colours and the row each enemy drawn under it draws in.</param>
+    /// <param name="Shades">The shades its sheets are pre-coloured in.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
-    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, RgbColor[] Colours, IReadOnlyList<EnemyDefinitionId> Drawn);
+    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
+        IReadOnlyList<EnemyDefinitionId> Drawn);
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static byte[] Table(EnemySheetInputs inputs, EnemyGraphicsSet graphics)

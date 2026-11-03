@@ -29,13 +29,12 @@ public sealed class SpriteImage
     /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</param>
     /// <param name="palette">Which half of the colour table the palette indices name, and the 128 colours of it the pixels were coloured with.</param>
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3, or a background pixel's tile priority 0..1.</param>
-    /// <param name="partGroups">Each pixel's <see cref="PartColourGroup.Code"/>, as the installed image stores it.</param>
     /// <exception cref="ArgumentException">
-    /// The name is empty, a dimension is zero, a length does not match, a priority exceeds 3 or a code names no part group.
+    /// The name is empty, a dimension is zero, a length does not match or a priority exceeds 3.
     /// </exception>
     public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels, ReadOnlySpan<byte> paletteIndices,
-        SpriteImagePalette palette, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partGroups)
-        : this(name, size, palette, new Lazy<Content>(Check(name, size, pixels, paletteIndices, priorities, partGroups)))
+        SpriteImagePalette palette, ReadOnlySpan<byte> priorities)
+        : this(name, size, palette, new Lazy<Content>(Check(name, size, pixels, paletteIndices, priorities)))
     {
     }
 
@@ -60,7 +59,7 @@ public sealed class SpriteImage
         return new(() =>
         {
             SpriteImageLayers layers = decode();
-            return Check(name, size, layers.Pixels, layers.PaletteIndices, layers.Priorities, layers.PartGroups);
+            return Check(name, size, layers.Pixels, layers.PaletteIndices, layers.Priorities);
         });
     }
 
@@ -84,9 +83,9 @@ public sealed class SpriteImage
     }
 
     /// <summary>Checks one image's layers against its size and keeps its pixels and inks.</summary>
-    /// <exception cref="ArgumentException">A length does not match, a priority exceeds 3 or a code names no part group.</exception>
+    /// <exception cref="ArgumentException">A length does not match or a priority exceeds 3.</exception>
     private static Content Check(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partGroups)
+        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities)
     {
         Ensure.LengthEqual(pixels, size.X * size.Y);
         Ensure.LengthEqual(paletteIndices, size.X * size.Y);
@@ -96,24 +95,15 @@ public sealed class SpriteImage
             if (priority > 3)
                 throw new ArgumentException($"Sprite image {name} has a pixel of priority {priority}; priorities are 0..3.", nameof(priorities));
         }
-        Ensure.LengthEqual(partGroups, size.X * size.Y);
-        foreach (int code in partGroups)
-        {
-            if (!PartColourGroup.IsCode(code))
-            {
-                throw new ArgumentException(
-                    $"Sprite image {name} has a pixel of part group {code}; part groups are 0..{PartColourGroup.Codes - 1}.", nameof(partGroups));
-            }
-        }
         var inks = new SpriteImageInk[pixels.Length];
         for (int pixel = 0; pixel < inks.Length; pixel++)
-            inks[pixel] = new(paletteIndices[pixel], priorities[pixel], PartColourGroup.FromCode(partGroups[pixel]));
+            inks[pixel] = new(paletteIndices[pixel], priorities[pixel]);
         return new Content(pixels.ToArray(), inks);
     }
 
     /// <summary>An image's pixels and how each was inked.</summary>
     /// <param name="Pixels">The pixels, row by row from the top.</param>
-    /// <param name="Inks">How each pixel was inked: its palette entry, priority and part colour group.</param>
+    /// <param name="Inks">How each pixel was inked: its palette entry and priority.</param>
     private sealed record Content(RgbaPixel[] Pixels, SpriteImageInk[] Inks);
 
     /// <summary>The standard colours an image coloured as <paramref name="colours"/> keeps: all 256 for a full-palette image.</summary>
@@ -148,7 +138,7 @@ public sealed class SpriteImage
     /// <summary>The pixels, row by row from the top; a pixel with zero alpha is transparent.</summary>
     public ReadOnlySpan<RgbaPixel> Pixels => content.Value.Pixels;
 
-    /// <summary>How each pixel was inked, row by row from the top: its palette entry, priority and part colour group.</summary>
+    /// <summary>How each pixel was inked, row by row from the top: its palette entry and priority.</summary>
     public ReadOnlySpan<SpriteImageInk> Inks => content.Value.Inks;
 
     /// <summary>The 128 colours of the image's half of the colour table the pixels were coloured with.</summary>

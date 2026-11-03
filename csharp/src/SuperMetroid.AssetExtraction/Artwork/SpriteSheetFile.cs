@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 5;
+    public const int Version = 6;
 
     /// <summary>Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings.</summary>
     internal static readonly JsonSerializerOptions Options = new()
@@ -28,16 +28,15 @@ public static class SpriteSheetFile
     /// <param name="pixels">The image's pixels.</param>
     /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour.</param>
     /// <param name="priorities">Each pixel's priority against the backgrounds 0..3.</param>
-    /// <param name="partGroups">Each pixel's <see cref="PartColourGroup.Code"/>.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels,
-        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities, ReadOnlySpan<byte> partGroups)
+        ReadOnlySpan<byte> paletteIndices, ReadOnlySpan<byte> priorities)
     {
         SpriteSheetDocument document = ReadDocument(manifest, name);
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, pixels, paletteIndices, PaletteOf(document), priorities, partGroups);
+            image = new SpriteImage(name, size, pixels, paletteIndices, PaletteOf(document), priorities);
         }
         catch (ArgumentException error)
         {
@@ -54,7 +53,7 @@ public static class SpriteSheetFile
     /// <param name="manifest">The frame list and standard colours.</param>
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
-    /// <param name="decode">Produces the image's pixels, palette indices, priorities and part groups.</param>
+    /// <param name="decode">Produces the image's pixels, palette indices and priorities.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<SpriteImageLayers> decode)
     {

@@ -87,8 +87,8 @@ internal sealed class SpriteSheetStore
         Parallel.For(0, sheets.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
-            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities,
-                sheet.PartGroups), sheet.Manifest);
+            encoded[index] = encoder.Encode(new SpriteSheetPlanes(sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities),
+                sheet.Manifest);
             return encoder;
         }, encoder => encoder.Dispose());
         for (int index = 0; index < sheets.Count; index++)
@@ -128,7 +128,7 @@ internal sealed class SpriteSheetStore
             // A player's image is read whole now, so a malformed one fails as the sheet loads.
             SpriteImageLayers layers = Decode(name, out Extent16<ImagePixels> size);
             return SpriteSheetFile.Load(new MemoryStream(frames, writable: false), name, size, layers.Pixels,
-                layers.PaletteIndices, layers.Priorities, layers.PartGroups);
+                layers.PaletteIndices, layers.Priorities);
         }
         // A stock image's files passed their hashes when the installation was published and opened; its pixels are
         // decoded when it is first drawn (#1430).
@@ -176,14 +176,13 @@ internal sealed class SpriteSheetStore
             throw new InvalidDataException($"Sprite sheet {PaletteFile(name)} is not the size of {ImageFile(name)}.");
         var paletteIndices = new byte[indices.Length];
         var priorities = new byte[indices.Length];
-        var partGroups = new byte[indices.Length];
         for (int pixel = 0; pixel < indices.Length; pixel++)
         {
             paletteIndices[pixel] = indices[pixel].R;
             priorities[pixel] = indices[pixel].G;
-            partGroups[pixel] = indices[pixel].B;
         }
-        return new SpriteImageLayers(pixels, paletteIndices, priorities, partGroups);
+        // The palette-index image's blue channel is unused (#1512).
+        return new SpriteImageLayers(pixels, paletteIndices, priorities);
     }
 
     /// <summary>A sheet's image file name.</summary>
@@ -191,7 +190,7 @@ internal sealed class SpriteSheetStore
 
     /// <summary>
     /// A sheet's palette-index image file name: each pixel's colour group's place times sixteen plus its colour in red,
-    /// its priority in green and its part colour group's code in blue.
+    /// its priority in green; blue is unused (#1512).
     /// </summary>
     internal static string PaletteFile(string name) => name + ".palette.png";
 

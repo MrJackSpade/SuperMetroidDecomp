@@ -103,5 +103,5 @@ internal static class VramPictureFixtures
     /// <summary>The composed sheet as an installed sheet would load.</summary>
     private static SpriteSheet Load(ComposedSpriteSheet composed, string name) =>
         SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), name,
-            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
+            composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities);
 }

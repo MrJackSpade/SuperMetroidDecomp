@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies;
@@ -87,7 +87,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             new MemoryStream(WorkRobotPaletteCycleFile.Write(visual), writable: false));
 
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
@@ -117,11 +116,10 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                         WorkRobotPaletteTimingDefinitions.RecordByteCount))),
                 enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer.RawValue,
                 $"production Work Robot palette load {nextLoad} timer");
-            for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
-            {
-                AssertEqual(edited.Resolve(record, color), cgram.Colors[137 + color],
-                    $"production Work Robot palette load {nextLoad} color {color}");
-            }
+            // The robots draw in the record's glow shade, which the import pre-colours from the cycle's colours for the
+            // record (#1512); those colours are compared with bank $A3 above.
+            AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(record)), enemies.WorkRobotBehavior.WorkRobotGlow,
+                $"production Work Robot palette load {nextLoad} shows the record's glow shade");
             nextLoad++;
         }
 

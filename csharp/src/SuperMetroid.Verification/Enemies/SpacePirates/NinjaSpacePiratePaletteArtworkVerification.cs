@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -11,14 +13,20 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
-/// <summary>Checks Ninja Space Pirate target colors sourced from shared Gold Pirate artwork.</summary>
+/// <summary>
+/// Checks Ninja Space Pirate target colors sourced from shared Gold Pirate artwork (#1512): the gold wall shade the
+/// import pre-colours the ninja's sheet in shows the gold wall Pirate's colours, which the cartridge copies into the
+/// palette the divekick flashes in.
+/// </summary>
 internal static class NinjaSpacePiratePaletteArtworkVerification
 {
-    /// <summary>Compares native CGRAM, checks an isolated live color edit, and verifies guard and override persistence.</summary>
+    /// <summary>The gold wall Pirate colour the override edits.</summary>
+    private const int EditedColour = 4;
+
+    /// <summary>Compares the installed gold wall shade with the cartridge, checks an isolated colour edit, and verifies override persistence.</summary>
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -28,21 +36,18 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
 
         // $B2:F5DE copies sixteen raw gold-Pirate colors into target palette seven.
         // Keep the oracle independent of the installed catalog and runtime callback.
-        var nativeColors = new SnesCgram();
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            nativeColors.SetColor(color, RgbColor.FromWord((ushort)(color * 17)));
-        for (int color = 0; color < 16; color++)
-        {
-            int address = 0xb28727 + color * 2;
-            nativeColors.SetColor(240 + color,
-                RgbColor.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
-        }
+        var native = new ushort[16];
+        for (int color = 0; color < native.Length; color++)
+            native[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord(0xb28727 + color * 2);
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;
-        (RoomEnemySlot stockSlot, SamusColourRig stockColors, AnimationProgramCursor<NinjaSpacePirateProgram> stockProgram) = Initialize(stock);
-        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(stockColors)),
-            "Installed ninja target palette preserves full native CGRAM including neighbors");
+        (RoomEnemySlot stockSlot, AnimationProgramCursor<NinjaSpacePirateProgram> stockProgram) = Initialize(stock);
+        SpriteSheetShadeDocument stockShade = GoldWallShade(stock);
+        AssertTrue(stockShade.Inks.Length > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
+        for (int index = 0; index < stockShade.Inks.Length; index++)
+            AssertEqual(native[stockShade.Inks[index] % native.Length], stockShade.Colours[index],
+                $"Installed ninja gold wall shade ink {stockShade.Inks[index]} shows the gold Pirate's native colour");
         AssertEqual(nativeX, stockSlot.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         // Facing left, the ninja starts at the native initial list $B2:F2DA.
@@ -59,12 +64,12 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         edit.Required("colors").Required(4)["red"] = red.GetValue<int>() ^ 1;
         File.WriteAllText(overridePath, edit.ToJsonString());
         var selected = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
-        (RoomEnemySlot editedSlot, SamusColourRig editedColors, _) = Initialize(selected);
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual((ushort)(nativeColors.Colors[color].ToWord() ^
-                (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
-                editedColors.Colors[color],
-                "Gold-Pirate color edit changes only its shared ninja target color");
+        (RoomEnemySlot editedSlot, _) = Initialize(selected);
+        SpriteSheetShadeDocument editedShade = GoldWallShade(selected);
+        AssertTrue(editedShade.Inks.SequenceEqual(stockShade.Inks), "Gold-Pirate color edit keeps the shade's inks");
+        for (int index = 0; index < editedShade.Inks.Length; index++)
+            AssertEqual((ushort)(native[editedShade.Inks[index] % native.Length] ^ (editedShade.Inks[index] % native.Length == EditedColour ? 1 : 0)),
+                editedShade.Colours[index], "Gold-Pirate color edit changes only its shared ninja target color");
         AssertEqual(nativeX, editedSlot.Position.X.Whole,
             "Edited ninja palette does not change physical post placement");
 
@@ -72,28 +77,41 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
-        (RoomEnemySlot restoredSlot, SamusColourRig restoredColors, _) = Initialize(
-            EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
-        AssertTrue(new CgramPalettes(restoredColors).ImageEquals(new CgramPalettes(editedColors)),
+        InstalledEnemyArtwork restored = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
+        (RoomEnemySlot restoredSlot, _) = Initialize(restored);
+        AssertTrue(GoldWallShade(restored).Colours.SequenceEqual(editedShade.Colours),
             "Reload after stock repair retains the selected ninja target colors");
         AssertEqual(editedSlot.Position.X.Whole, restoredSlot.Position.X.Whole,
             "Reload after stock repair retains ninja placement");
-        Console.WriteLine("Ninja Pirate palette: shared gold-Pirate sheet matches native CGRAM; live edit, ROM guard, placement isolation and override persistence pass.");
+        Console.WriteLine("Ninja Pirate palette: the gold wall shade matches the native gold-Pirate colours; edit, placement isolation and override persistence pass.");
+
+        // The gold wall shade the import pre-colours the first ninja its graphics sets place in, from artwork's enemy colours.
+        static SpriteSheetShadeDocument GoldWallShade(InstalledEnemyArtwork artwork)
+        {
+            EnemySheetInputs inputs = EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory) with { Enemies = artwork.Enemies };
+            RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
+                candidate.Records.ToArray().Any(record => IsNinja(record.DefinitionId)));
+            EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.First(sheet => IsNinja(sheet.Enemy));
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+            return (sheet.Manifest.Shades ?? throw new InvalidOperationException("The ninja's sheet installs its shades."))
+                [NinjaSpacePirateShades.GoldWall.Key];
+        }
+
+        static bool IsNinja(EnemyDefinitionId enemy) => enemy is EnemyDefinitionId.PirateGoldNinja or EnemyDefinitionId.PirateGreenNinja
+            or EnemyDefinitionId.PirateGreyNinja or EnemyDefinitionId.PirateMagentaNinja or EnemyDefinitionId.PirateRedNinja
+            or EnemyDefinitionId.PirateSilverNinja;
 
         static InitializeResult Initialize(
             InstalledEnemyArtwork artwork)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
-            var colors = new SamusColourRig();
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-                colors.SetColor(color, RgbColor.FromWord((ushort)(color * 17)));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
-            return new InitializeResult(slot, colors, (enemies.NinjaSpacePirateStates[0]
+            return new InitializeResult(slot, (enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program);
         }
     }

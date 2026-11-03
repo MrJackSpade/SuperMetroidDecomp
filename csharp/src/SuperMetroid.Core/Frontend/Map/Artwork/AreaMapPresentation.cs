@@ -63,16 +63,10 @@ public class AreaMapPresentation : IGameplayPresentationContent
         RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
-        SamusVisorColors = parts.SamusVisorColors;
-        SamusHurtColors = parts.SamusHurtColors;
-        SamusSuitColors = parts.SamusSuitColors;
-        SamusFullBodyCycleColors = parts.SamusFullBodyCycleColors;
         CrystalFlashColors = parts.CrystalFlashColors;
-        SamusChargeColors = parts.SamusChargeColors;
         CeresRidleyColors = parts.CeresRidleyColors;
         CeresRidleyFloorColors = parts.CeresRidleyFloorColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
-        SamusHyperBeamColors = parts.SamusHyperBeamColors;
     }
 
     /// <summary>Uppercase SHA-256 identity of length-framed stock map rules, station masks, and selected presentation resources in fixed order; override edits affect identity without changing stock provenance.</summary>
@@ -144,26 +138,17 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public RoomFxBlendInks RoomFxPaletteBlends { get; }
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
-    /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    public InstalledSamusVisorColors SamusVisorColors { get; }
-    /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    public InstalledSamusHurtColors SamusHurtColors { get; }
-    /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    public InstalledSamusSuitColors SamusSuitColors { get; }
-    /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public SamusFullBodyCycleColours SamusFullBodyCycleColors { get; }
+
     /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     public InstalledCrystalFlashColors CrystalFlashColors { get; }
-    /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public SamusChargeColours SamusChargeColors { get; }
+
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
     public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
-    /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public SamusHyperBeamColours SamusHyperBeamColors { get; }
+
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
     /// <param name="area">One of the seven retail area identities, including Ceres.</param>
     /// <returns>The immutable view compiled when this catalog was loaded.</returns>

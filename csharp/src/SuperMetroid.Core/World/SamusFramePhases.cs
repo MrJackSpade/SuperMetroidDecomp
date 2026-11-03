@@ -137,9 +137,7 @@ internal sealed class SamusFramePhases
         {
             // Cancellation, drop, wall-jump and swing-release tails all
             // reload the equipped beam palette before returning to inactive.
-            (_artwork.BeamPalettes ?? throw new InvalidOperationException(
-                "Grapple cleanup requires installed beam artwork."))
-                .LoadTo(_player.Colours.Beam, SamusBeamCombinations.Of(_player.Samus.EquippedBeams));
+            _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 
         // The grapple's bottom-boundary check runs after every grapple function, including inactive.
@@ -1338,7 +1336,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 samus,
                 _colours,
                 _player.Colours,
-                _artwork.SamusBodyArt?.DeathPalettes);
+                _artwork.SamusBodyArt?.DeathSteps);
         }
         // Command six's empty beta skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))

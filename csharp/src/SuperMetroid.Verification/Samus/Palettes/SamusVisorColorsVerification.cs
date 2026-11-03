@@ -28,6 +28,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
 internal static class SamusVisorColorsVerification
@@ -195,12 +196,12 @@ internal static class SamusVisorColorsVerification
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
         // Samus binds no colour table (#1512): the edited table reaches her through the shades the import makes from it.
-        var editedSources = InstalledFixtures.SamusShadeSources with { Visor = edited.SamusVisorColors };
+        var editedSources = InstalledFixtures.SamusShadeSources with { Visor = InstalledAreaMapPresentation.SamusColoursOf(edited).Visor };
         var visor = new SamusVisorPaletteState();
         var cgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(new TestAddressSpace());
         _ = visor.Update(cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop28);
-        AssertEqual(edited.SamusVisorColors.Resolve(3), cgram.Samus.ShownVisor(editedSources),
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(3), cgram.Samus.ShownVisor(editedSources),
             "edited visor color reaches the room cycle's shade");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "edited visor color avoids native table");
         SamusState xraySamus = CreateXraySamus();
@@ -208,7 +209,7 @@ internal static class SamusVisorColorsVerification
         var guardedXray = NewForbiddenVisorColorBus(rom);
         AssertTrue(xraySamus.Xray.UpdatePalette(xrayCgram.Samus, xraySamus.EquippedItems),
             "edited X-ray widening cycle shows a visor shade");
-        AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Samus.ShownVisor(editedSources),
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(0), xrayCgram.Samus.ShownVisor(editedSources),
             "edited visor color reaches the X-ray shade");
         AssertEqual(0, guardedXray.ForbiddenReadAttempts, "edited X-ray color avoids native table");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Write(document with

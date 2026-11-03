@@ -182,7 +182,7 @@ internal sealed class SuperMetroidRuntime
         Freeze = new GameplayTimeFreeze(Player);
         Assists = new ActiveAssists(Player, System, assists);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
-        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, Player = Player, ChainsawColours = SamusOverreads.ChainsawColours });
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
@@ -274,8 +274,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
         Bind(a => a.GrappleFlarePlacement, value => Artwork.GrappleFlarePlacement = value);
         Bind(a => a.GrappleSwingFrames, value => Artwork.GrappleSwingFrames = value);
-        Bind(a => a.BeamPalettes, value => Artwork.BeamPalettes = value);
-        Bind(a => a.HyperBeamFxColors, value => Artwork.HyperBeamFxColors = value);
+
         Bind(a => a.BossArtwork, value => BossArtwork.Artwork = value);
         Bind(a => a.BossBodySheets, value => BossArtwork.BodySheets = value);
         Bind(a => a.AreaArtwork, value => AreaArtwork.Artwork = value);

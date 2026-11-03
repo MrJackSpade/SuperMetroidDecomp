@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -36,7 +37,18 @@ public static class SamusOverreadFiles
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
     /// <param name="directory">Installed overread directory holding the file and its manifest.</param>
     /// <exception cref="InvalidDataException">The manifest, digest, provenance or file shape is invalid.</exception>
-    public static SamusOverreadServices Load(string directory)
+    public static SamusOverreadServices Load(string directory) => SamusOverreadServicesReader.Read(LoadDocument(directory));
+
+    /// <summary>
+    /// Loads the colours Samus's palette loaders read past their tables from a verified overread installation, which
+    /// only the import reads to pre-colour her sheets (#1512).
+    /// </summary>
+    /// <param name="directory">The installed overread directory.</param>
+    /// <exception cref="InvalidDataException">The manifest, its hash, or a colour run is invalid.</exception>
+    public static SamusOverrunColours LoadColours(string directory) => SamusOverreadServicesReader.ReadColours(LoadDocument(directory));
+
+    /// <summary>Reads the overread document of a verified installation after checking its manifest and hash.</summary>
+    private static SamusOverreadDocument LoadDocument(string directory)
     {
         Manifest manifest;
         try
@@ -55,16 +67,29 @@ public static class SamusOverreadFiles
         byte[] bytes = File.ReadAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName));
         if (!string.Equals(manifest.FileSha256, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Installed Samus overread file failed its manifest hash.");
-        return Read(new MemoryStream(bytes, writable: false));
+        return Document(new MemoryStream(bytes, writable: false));
     }
 
     /// <summary>Checks the installed file's provenance, digest and shape.</summary>
     /// <param name="directory">Installed overread directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory);
+    public static void ValidateStock(string directory)
+    {
+        SamusOverreadDocument document = LoadDocument(directory);
+        _ = SamusOverreadServicesReader.Read(document);
+        _ = SamusOverreadServicesReader.ReadColours(document);
+    }
 
     /// <summary>Reads and validates an overread document and builds its services.</summary>
-    private static SamusOverreadServices Read(Stream json) =>
-        SamusOverreadServicesReader.Read(JsonAssetDocument.Read<SamusOverreadDocument>(json, SamusOverreadFormat.JsonOptions, "Samus overread"));
+    private static SamusOverreadServices Read(Stream json)
+    {
+        SamusOverreadDocument document = Document(json);
+        _ = SamusOverreadServicesReader.ReadColours(document);
+        return SamusOverreadServicesReader.Read(document);
+    }
+
+    /// <summary>Parses an overread document.</summary>
+    private static SamusOverreadDocument Document(Stream json) =>
+        JsonAssetDocument.Read<SamusOverreadDocument>(json, SamusOverreadFormat.JsonOptions, "Samus overread");
 
     /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256, string FileSha256);

@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -39,6 +40,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     public SamusBodySources(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity)
         : base(Content(Ensure.NotNull(parts)))
     {
+        DeathPalettes = Ensure.NotNull(parts.DeathPalettes);
         DeathTilesContentIdentity = Ensure.NotNull(parts.DeathTilesContentIdentity);
         BodyCharactersContentIdentity = Ensure.NotNull(bodyCharactersContentIdentity);
         topSetStarts = (int[])parts.TopSetStarts.Clone();
@@ -49,6 +51,12 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
 
     /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
     public string DeathTilesContentIdentity { get; }
+
+    /// <summary>
+    /// The fatal-damage suit, suitless and whiteout colours her death shades are pre-coloured from (#1512); gameplay
+    /// reads only the order of those steps, through <see cref="InstalledSamusBodyArtwork.DeathSteps"/>.
+    /// </summary>
+    public InstalledSamusDeathPalettes DeathPalettes { get; }
 
     /// <summary>Identity of the selected body characters, whose pre-coloured sheets are installed separately.</summary>
     public string BodyCharactersContentIdentity { get; }
@@ -185,7 +193,7 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
             DrainedYOffsets = parts.DrainedYOffsets,
             Spritemaps = parts.Spritemaps,
             Atmosphere = parts.Atmosphere,
-            DeathPalettes = parts.DeathPalettes,
+            DeathSteps = parts.DeathPalettes.Steps,
             ArmCannon = parts.ArmCannon,
         };
     }

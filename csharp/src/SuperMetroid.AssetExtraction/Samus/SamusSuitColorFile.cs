@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -30,11 +31,11 @@ public static class SamusSuitColorFile
     }
 
     /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
-    private static Dictionary<ColourCell, RgbColor> Differences(RgbColor[] supplied, RgbColor[] power)
+    private static Dictionary<TableColourPlace, RgbColor> Differences(RgbColor[] supplied, RgbColor[] power)
     {
-        var differences = new Dictionary<ColourCell, RgbColor>();
+        var differences = new Dictionary<TableColourPlace, RgbColor>();
         for (int index = 0; index < supplied.Length; index++)
-            if (supplied[index] != power[index]) differences.Add(new ColourCell(0, index), supplied[index]);
+            if (supplied[index] != power[index]) differences.Add(new TableColourPlace(0, index), supplied[index]);
         return differences;
     }
 

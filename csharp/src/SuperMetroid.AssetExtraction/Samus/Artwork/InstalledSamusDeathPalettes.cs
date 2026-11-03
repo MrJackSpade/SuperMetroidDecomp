@@ -2,8 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Editable suit, suitless, and whiteout colors for Samus's death sequence.</summary>
 /// <remarks>The suited base steps are the same logical artwork as the independently reviewed full-body bases. Their 25
@@ -45,11 +46,11 @@ public sealed class InstalledSamusDeathPalettes
     private static readonly RgbColor WhiteInkColor = new(31, 31, 31);
 
     /// <summary>Independent edits to selected suited RGB5 ink words.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> suited = new();
+    internal readonly Dictionary<TableColourPlace, RgbColor> suited = new();
     /// <summary>Channel overrides for suited whitening steps derived from base inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
     /// <summary>Independent edits to selected suitless RGB5 ink words.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> suitless = new();
+    internal readonly Dictionary<TableColourPlace, RgbColor> suitless = new();
     /// <summary>Channel overrides for suitless whitening steps derived from base inks.</summary>
     internal readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
     /// <summary>Edits to neutral shades shared by death palette derivations.</summary>
@@ -90,7 +91,7 @@ public sealed class InstalledSamusDeathPalettes
         for (int color = 0; color < ColorCount; color++)
         {
             int key = (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * ColorCount + color;
-            var keyCell = new ColourCell((suit * SamusPaletteDefinitions.Death.PaletteCount + palette), color);
+            var keyCell = new TableColourPlace((suit * SamusPaletteDefinitions.Death.PaletteCount + palette), color);
             RgbColor value = suited[suit][palette][color];
             if (palette == 0 && suit != 0 && value == suited[0][0][color]) continue;
             if (palette == 1 && (suit != 0 || color != 0) && value == suited[0][1][0]) continue;
@@ -107,7 +108,7 @@ public sealed class InstalledSamusDeathPalettes
         for (int color = 0; color < ColorCount; color++)
         {
             int key = palette * ColorCount + color;
-            var keyCell = new ColourCell(palette, color);
+            var keyCell = new TableColourPlace(palette, color);
             RgbColor value = suitless[palette][color];
             if (palette == 9 && color != 0 && value == suitless[9][0]) continue;
             if (palette == 1 && value == suitless[0][color]) continue;
@@ -194,7 +195,7 @@ public sealed class InstalledSamusDeathPalettes
         if ((uint)color >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         int key = (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * ColorCount + color;
-        var keyCell = new ColourCell((suit * SamusPaletteDefinitions.Death.PaletteCount + palette), color);
+        var keyCell = new TableColourPlace((suit * SamusPaletteDefinitions.Death.PaletteCount + palette), color);
         if (suited.TryGetValue(keyCell, out RgbColor value)) return value;
         if (palette == 0) return SuitedColor(0, 0, color);
         if (palette == 1) return suit == 0 && color == 0 ? YellowFlashColor : SuitedColor(0, 1, 0);
@@ -220,7 +221,7 @@ public sealed class InstalledSamusDeathPalettes
         if ((uint)color >= ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
         int key = palette * ColorCount + color;
-        var keyCell = new ColourCell(palette, color);
+        var keyCell = new TableColourPlace(palette, color);
         if (suitless.TryGetValue(keyCell, out RgbColor value)) return value;
         if (palette == 0 && color == 5)
             return neutralInputs.TryGetValue(key, out var whiteInput) ? whiteInput.Apply(WhiteInkColor) : WhiteInkColor;
@@ -434,6 +435,14 @@ public sealed class InstalledSamusDeathPalettes
         int expected = DefaultExplosionPaletteIndex(frame);
         return Ensure.BetweenInclusive(0, ushort.MaxValue, explosionPaletteIndices.ContainsKey(frame) ? explosionPaletteIndices[frame] : expected);
     }
+
+    /// <summary>
+    /// The order the death sequence steps through and the room's whiteout colours, which gameplay reads (#1512); the
+    /// suit and suitless colours stay here, where the import pre-colours her death shades from them.
+    /// </summary>
+    public SamusDeathSteps Steps => new(
+        [.. Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount).Select(ExplosionPaletteIndex)],
+        [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Select(WhiteoutColor)]);
 
     /// <summary>Maps frame zero to base step zero and later frames past the flash-only step.</summary>
     private static int DefaultExplosionPaletteIndex(int frame)

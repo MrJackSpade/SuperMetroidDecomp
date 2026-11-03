@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -32,8 +33,8 @@ public sealed record SamusBodyArtworkContent
     /// <summary>The selected appearance of the atmospheric effects.</summary>
     public required InstalledSamusAtmosphericArtwork Atmosphere { get; init; }
 
-    /// <summary>Editable fatal-damage and death palettes.</summary>
-    public required InstalledSamusDeathPalettes DeathPalettes { get; init; }
+    /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
+    public required SamusDeathSteps DeathSteps { get; init; }
 
     /// <summary>Where each pose places the arm-cannon cover.</summary>
     public required InstalledSamusArmCannonArtwork ArmCannon { get; init; }

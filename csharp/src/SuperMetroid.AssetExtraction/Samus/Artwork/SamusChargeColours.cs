@@ -1,8 +1,9 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// Samus's charge colours (#1464): the suit colours the charged-beam pulse and pseudo Screw Attack show for each suit and

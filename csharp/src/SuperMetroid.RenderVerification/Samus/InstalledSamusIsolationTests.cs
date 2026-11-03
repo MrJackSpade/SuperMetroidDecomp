@@ -20,6 +20,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// Finite, source-selected production-owner fixtures for #541. These compare stock
@@ -599,9 +600,9 @@ internal sealed class InstalledSamusIsolationTests
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)
         {
             var stockStep = pair.Stock.Samus.DeathSequence.Step(pair.Stock.Samus,
-                pair.Stock.Colors.Gameplay, pair.Stock.Colors.Samus, pair.Stock.Body.DeathPalettes);
+                pair.Stock.Colors.Gameplay, pair.Stock.Colors.Samus, pair.Stock.Body.DeathSteps);
             var editedStep = pair.Edited.Samus.DeathSequence.Step(pair.Edited.Samus,
-                pair.Edited.Colors.Gameplay, pair.Edited.Colors.Samus, pair.Edited.Body.DeathPalettes);
+                pair.Edited.Colors.Gameplay, pair.Edited.Colors.Samus, pair.Edited.Body.DeathSteps);
             Require(stockStep == editedStep, context + ": death timing/publication changed");
             pair.Check(context + $" frame {frames}");
             if (stockStep.DrawPose) pair.Draw(context + $" pose {frames}");

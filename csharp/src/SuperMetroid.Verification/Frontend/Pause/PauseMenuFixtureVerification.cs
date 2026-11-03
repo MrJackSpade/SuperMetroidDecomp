@@ -107,16 +107,10 @@ internal static class PauseMenuFixtureVerification
             RoomFxAnimatedTiles = stock.RoomFxAnimatedTiles,
             RoomFxPaletteBlends = stock.RoomFxPaletteBlends,
             PowerBombFixedColors = stock.PowerBombFixedColors,
-            SamusVisorColors = stock.SamusVisorColors,
-            SamusHurtColors = stock.SamusHurtColors,
-            SamusSuitColors = stock.SamusSuitColors,
-            SamusFullBodyCycleColors = stock.SamusFullBodyCycleColors,
             CrystalFlashColors = stock.CrystalFlashColors,
-            SamusChargeColors = stock.SamusChargeColors,
             CeresRidleyColors = stock.CeresRidleyColors,
             CeresRidleyFloorColors = stock.CeresRidleyFloorColors,
             CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
-            SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return new InstalledAreaMapPresentation(parts, new InstalledPresentationSources(new MapCharacterArtwork(
@@ -126,6 +120,7 @@ internal static class PauseMenuFixtureVerification
             InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
-                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng)));
+                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
+            InstalledAreaMapPresentation.SamusColoursOf(stock)));
     }
 }

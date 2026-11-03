@@ -428,14 +428,14 @@ internal static class SamusHyperBeamColorsVerification
         SamusState samus = runtime.Player.Samus ??
             throw new InvalidOperationException("Ceres initialization did not construct Samus.");
         // Samus binds no colour table (#1512); the edited glow reaches her through the import's shades.
-        var editedSources = InstalledFixtures.SamusShadeSources with { HyperBeamSuit = edited.SamusHyperBeamColors };
+        var editedSources = InstalledFixtures.SamusShadeSources with { HyperBeamSuit = InstalledAreaMapPresentation.SamusColoursOf(edited).HyperBeam };
         samus.Drained.EnableRainbow(samus);
         var cgram = new SamusColourRig();
         var guarded = NewForbiddenHyperBeamColorBus(rom);
         for (int frame = 0; frame <= 4; frame++)
             AssertTrue(samus.Drained.UpdatePalette(cgram.Samus, samus.EquippedItems),
                 $"edited Hyper Beam frame {frame} writes colors");
-        AssertEqual(edited.SamusHyperBeamColors.Resolve(4, 7), cgram.Samus.ShownSuit(editedSources)[7],
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).HyperBeam.Resolve(4, 7), cgram.Samus.ShownSuit(editedSources)[7],
             "edited Hyper Beam color reaches the shade of its selected frame");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited Hyper Beam colors avoid pointer and palette ROM tables");

@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Samus.Artwork.SamusVisorColorDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.Artwork.SamusVisorColorDefinitions;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>The visor colour of each step of the visor cycle.</summary>
 internal static class SamusVisorColorSteps

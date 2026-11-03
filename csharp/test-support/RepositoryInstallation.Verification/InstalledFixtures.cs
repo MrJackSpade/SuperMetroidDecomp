@@ -149,11 +149,12 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
         new(() => RepositoryInstallation.Installation.LoadStandardObjects());
 
-    /// <summary>Binds the installed beam artwork and the sprite sheets a runtime's projectiles draw from.</summary>
+    /// <summary>
+    /// Binds the sprite sheets a runtime's projectiles draw from; their beam colours are shades pre-coloured on the sheets
+    /// (#1512).
+    /// </summary>
     internal static void BindProjectileArtwork(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
     {
-        runtime.Artwork.BeamPalettes = Projectiles.BeamTiles.Palettes;
-        runtime.Artwork.HyperBeamFxColors = Projectiles.BeamTiles.HyperBeamFxColors;
         runtime.Artwork.SpriteSheets = SpriteSheets;
     }
 

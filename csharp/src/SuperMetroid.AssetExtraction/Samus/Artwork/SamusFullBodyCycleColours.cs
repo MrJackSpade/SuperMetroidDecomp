@@ -1,8 +1,9 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// Samus's full-body cycle colours by cycle palette (#1464): for each family's shade and suit, the colours her suit shows.

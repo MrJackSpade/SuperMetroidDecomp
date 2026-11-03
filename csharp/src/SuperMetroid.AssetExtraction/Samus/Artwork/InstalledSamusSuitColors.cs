@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Three editable, full-body normal suit palettes; suit selection remains gameplay code.</summary>
 /// <remarks>Issue #1165 retains the22 distinct opaque ink colors and two
@@ -21,9 +22,9 @@ public sealed class InstalledSamusSuitColors
     /// <summary>Complete authored Power suit palette, including its transparent-slot payload.</summary>
     private readonly RgbColor[] power;
     /// <summary>Only Varia slots differing from the Power palette's shared inks.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> varia;
+    internal readonly Dictionary<TableColourPlace, RgbColor> varia;
     /// <summary>Only Gravity slots differing from the Power palette's shared inks.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> gravity;
+    internal readonly Dictionary<TableColourPlace, RgbColor> gravity;
 
     /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
     /// <remarks>The original suit palettes share twelve of sixteen slots
@@ -34,8 +35,8 @@ public sealed class InstalledSamusSuitColors
     /// <param name="power">The complete Power palette.</param>
     /// <param name="varia">The Varia slots the import found differing from the Power palette.</param>
     /// <param name="gravity">The Gravity slots the import found differing from the Power palette.</param>
-    internal InstalledSamusSuitColors(RgbColor[] power, Dictionary<ColourCell, RgbColor> varia,
-        Dictionary<ColourCell, RgbColor> gravity)
+    internal InstalledSamusSuitColors(RgbColor[] power, Dictionary<TableColourPlace, RgbColor> varia,
+        Dictionary<TableColourPlace, RgbColor> gravity)
     {
         this.power = power;
         this.varia = varia;
@@ -48,7 +49,7 @@ public sealed class InstalledSamusSuitColors
     /// <returns>The suit's colour.</returns>
     public RgbColor Resolve(SamusSuit suit, int colorIndex)
     {
-        Dictionary<ColourCell, RgbColor>? differences = suit switch
+        Dictionary<TableColourPlace, RgbColor>? differences = suit switch
         {
             SamusSuit.Power => null,
             SamusSuit.Varia => varia,
@@ -57,7 +58,7 @@ public sealed class InstalledSamusSuitColors
         };
         if ((uint)colorIndex >= SamusSuitColorFormat.ColorsPerSuit)
             throw new ArgumentOutOfRangeException(nameof(colorIndex));
-        return differences is not null && differences.TryGetValue(new ColourCell(0, colorIndex), out RgbColor color)
+        return differences is not null && differences.TryGetValue(new TableColourPlace(0, colorIndex), out RgbColor color)
             ? color : power[colorIndex];
     }
 }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

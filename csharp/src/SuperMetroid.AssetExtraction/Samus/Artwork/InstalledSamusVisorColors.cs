@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Editable RGB5 visor colors shared by X-ray and room palette cycling.</summary>
 public sealed class InstalledSamusVisorColors
 {
     /// <summary>Only installed color edits differing from the reviewed stock visor words.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> colors;
+    internal readonly Dictionary<TableColourPlace, RgbColor> colors;
 
     /// <summary>Retains copied visor color edits independently of the mutable JSON document.</summary>
-    internal InstalledSamusVisorColors(Dictionary<ColourCell, RgbColor> colors) => this.colors = colors;
+    internal InstalledSamusVisorColors(Dictionary<TableColourPlace, RgbColor> colors) => this.colors = colors;
 
     /// <summary>Returns a visor shade for the owners that animate Samus's visor colour.</summary>
     /// <param name="index">Visor shade 0..5: 0..2 are X-ray widening colors and 3..5 are the steady X-ray/room-backdrop cycle.</param>
@@ -19,6 +20,6 @@ public sealed class InstalledSamusVisorColors
     {
         if ((uint)index >= SamusVisorColorFormat.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return colors.TryGetValue(new ColourCell(0, index), out RgbColor color) ? color : SamusVisorColorSteps.Color(index);
+        return colors.TryGetValue(new TableColourPlace(0, index), out RgbColor color) ? color : SamusVisorColorSteps.Color(index);
     }
 }

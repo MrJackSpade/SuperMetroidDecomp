@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>
 internal static class BeamPaletteArtworkVerification
@@ -86,7 +87,7 @@ internal static class BeamPaletteArtworkVerification
     /// </summary>
     private static void VerifyCrystalFlashFinishBeamPalette(InstalledBeamPalettes palettes)
     {
-        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusOverreads.ChainsawColours;
+        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusShadeSources.Chainsaw;
         SamusBeamFlags chainsawBeams = SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Wave;
         AssertEqual(ChainsawBeamGraphicsDefinitions.Selection, SamusBeamCombinations.Of(chainsawBeams), "Spazer, Plasma and Wave select the Chainsaw beam");
         foreach (SamusBeamFlags beams in new[] { SamusBeamFlags.Plasma | SamusBeamFlags.Wave, chainsawBeams })

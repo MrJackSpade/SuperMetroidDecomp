@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Calculated cinematic shade composition and hurt white blend, with narrowly retained paint policies.</summary>
 internal static class SamusHurtColorDefinitions

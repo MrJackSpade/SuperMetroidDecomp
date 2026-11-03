@@ -25,6 +25,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks extracted suit palettes and edited installed colors through Samus's normal palette paths.</summary>
 internal static class SamusSuitColorsVerification
@@ -150,7 +151,7 @@ internal static class SamusSuitColorsVerification
         var cgram = new SamusColourRig();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         // The edited catalog reaches Samus through the shades the import makes from it (#1512).
-        var editedSources = InstalledFixtures.SamusShadeSources with { Suits = edited.SamusSuitColors };
+        var editedSources = InstalledFixtures.SamusShadeSources with { Suits = InstalledAreaMapPresentation.SamusColoursOf(edited).Suits };
         ushort[] equipment =
         [
             0,
@@ -161,11 +162,11 @@ internal static class SamusSuitColorsVerification
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
             SamusNormalSuitPalette.Load(cgram.Samus, samus.EquippedItems);
-            AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
+            AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(offsets[suit], 1),
                 cgram.Samus.ShownSuit(editedSources)[1],
                 $"edited suit {suit} reaches live Samus CGRAM");
             AssertTrue(cgram.Samus.ShownSuit(editedSources)[1] !=
-                original.SamusSuitColors.Resolve(offsets[suit], 1),
+                InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(offsets[suit], 1),
                 $"edited suit {suit} differs from stock");
         }
 
@@ -174,7 +175,7 @@ internal static class SamusSuitColorsVerification
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
                 cgram.Samus, samus.EquippedItems),
             "momentum cancellation admits installed normal suit restoration");
-        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Varia, 1),
             cgram.Samus.ShownSuit(editedSources)[1],
             "momentum cancellation preserves edited Varia color");
 
@@ -185,14 +186,14 @@ internal static class SamusSuitColorsVerification
             cgram.Samus, samus, controllerInput: 0);
         AssertEqual(SamusShades.Suit(SamusSuit.Varia), cgram.Samus.Suit,
             "even hurt-flash frame restores the normal suit's shade");
-        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Varia, 1),
             cgram.Samus.ShownSuit(editedSources)[1],
             "hurt-flash recovery preserves edited Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
         AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
             "Screw Attack recovery frame restores the normal suit");
-        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Varia, 1),
             cgram.Samus.ShownSuit(editedSources)[1],
             "Screw Attack recovery preserves edited Varia color");
 
@@ -202,7 +203,7 @@ internal static class SamusSuitColorsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Power, 1),
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Suits.Resolve(SamusSuit.Power, 1),
             runtime.Player.Colours.ShownSuit(editedSources)[1],
             "installed production Ceres entry uses edited Power Suit color");
         AssertEqual(0, guard.ForbiddenReadAttempts,

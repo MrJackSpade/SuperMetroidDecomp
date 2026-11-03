@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks Samus pose-input matching, horizontal speed, and external displacement arithmetic.</summary>
 internal static class SamusMotionCoreVerification

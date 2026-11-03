@@ -28,6 +28,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

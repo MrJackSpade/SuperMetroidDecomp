@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks Chainsaw beam DMA and glitched palette reads against native cartridge behavior.</summary>
 internal static class InvalidBeamGraphicsVerification
@@ -26,7 +27,7 @@ internal static class InvalidBeamGraphicsVerification
         // ROM oracle for the installed Chainsaw colours (#1500): colour c is the word whose low byte is the
         // byte before Samus_Animate's byte 2c (the open-bus pointer bank for colour zero) and
         // whose high byte is Samus_Animate's byte 2c, kept as CGRAM keeps it.
-        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusOverreads.ChainsawColours;
+        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusShadeSources.Chainsaw;
         AssertEqual(BeamPaletteDefinitions.ColorCount, chainsaw.Colours.Count, "the installed Chainsaw palette holds a beam palette's colours");
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
         {

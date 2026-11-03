@@ -1,13 +1,10 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 using SuperMetroid.Core.Rendering;
@@ -33,7 +30,6 @@ internal static class ProjectileHostBindingVerification
         {
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
             CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
-            CheckBeams(session.Game.Artwork.BeamPalettes ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamPalettes."), installation.LoadProjectiles().BeamTiles);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
@@ -85,7 +81,6 @@ internal static class ProjectileHostBindingVerification
         using (var session = new InstalledGameSession(root))
         {
             CheckGrapple(session.Game.Artwork, installation.LoadProjectiles().GrappleTiles);
-            CheckBeams(session.Game.Artwork.BeamPalettes ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamPalettes."), installation.LoadProjectiles().BeamTiles);
             CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
         File.WriteAllText(path, "invalid override");
@@ -127,18 +122,4 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host restored stale Grapple swing frames.");
     }
 
-    /// <summary>Checks each beam selection's loaded CGRAM palette.</summary>
-    private static void CheckBeams(InstalledBeamPalettes actual, BeamTileCatalog expected)
-    {
-        if (actual is null) throw new InvalidDataException("Host did not bind beam palettes.");
-        for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-        {
-            var boundColors = new SamusColourRig();
-            var diskColors = new SamusColourRig();
-            actual.LoadTo(boundColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
-            (expected.Palettes ?? throw new InvalidOperationException("Verification requires expected.Palettes.")).LoadTo(diskColors.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
-            if (!new CgramPalettes(boundColors).ImageEquals(new CgramPalettes(diskColors)))
-                throw new InvalidDataException("Host restored stale palette colors instead of current selection.");
-        }
-    }
 }

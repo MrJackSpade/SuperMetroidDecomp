@@ -162,11 +162,7 @@ internal interface IGameplayArtwork
     /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
     InstalledGrappleSwingFrames? GrappleSwingFrames { get; }
 
-    /// <summary>The beam palettes, by beam combination.</summary>
-    InstalledBeamPalettes? BeamPalettes { get; }
 
-    /// <summary>The Hyper Beam palette effect's colour cycle.</summary>
-    HyperBeamFxColours? HyperBeamFxColors { get; }
 
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }

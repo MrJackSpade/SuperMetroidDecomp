@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 

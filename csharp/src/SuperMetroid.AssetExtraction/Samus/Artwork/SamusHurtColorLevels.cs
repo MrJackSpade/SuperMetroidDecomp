@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Samus.Artwork.SamusHurtColorDefinitions;
+using static SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorDefinitions;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>The intro and hurt colour levels each step selects.</summary>
 internal static class SamusHurtColorLevels

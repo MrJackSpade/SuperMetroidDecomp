@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Compatibility;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// The suit colours Gravity Speed Booster copies from past its cycle (#1411, #1474). Speed Booster's cycle step is shared
@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TPhase">The inherited step past the cycle.</typeparam>
 /// <typeparam name="TColour">A suit colour.</typeparam>
-[CompatibilityService("Gravity Speed Booster's steps past its cycle copy colours from what follows the cycle list")]
 public sealed class SpeedBoosterOverrunColours<TPhase, TColour>
     where TPhase : notnull
 {

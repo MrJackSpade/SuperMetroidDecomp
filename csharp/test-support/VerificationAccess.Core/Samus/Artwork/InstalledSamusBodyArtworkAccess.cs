@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -38,6 +39,9 @@ internal static class InstalledSamusBodyArtworkAccess
 
         /// <summary>The identity of the death-explosion characters the import pipeline installed with the body.</summary>
         internal string DeathTilesContentIdentity => self.Source.DeathTilesContentIdentity;
+
+        /// <summary>The death colours the import pre-colours her death shades from (#1512).</summary>
+        internal InstalledSamusDeathPalettes DeathPalettes => self.Source.DeathPalettes;
 
         /// <summary>The identity of the body characters the import pipeline composed the body's sheets from.</summary>
         internal string BodyCharactersContentIdentity => self.Source.BodyCharactersContentIdentity;

@@ -23,6 +23,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
@@ -71,7 +72,7 @@ internal static class SamusChargeColorsVerification
             EquippedBeams = SamusBeamFlags.Charge,
         };
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the edited charge colours.
-        var editedSources = InstalledFixtures.SamusShadeSources with { Charge = edited.SamusChargeColors };
+        var editedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledAreaMapPresentation.SamusColoursOf(edited).Charge };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         var cgram = new SamusColourRig();
@@ -92,7 +93,7 @@ internal static class SamusChargeColorsVerification
                 AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
                 for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                    AssertEqual(edited.SamusChargeColors.ResolveCharge(family != 0, suit, phase, color),
+                    AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Charge.ResolveCharge(family != 0, suit, phase, color),
                         cgram.Samus.ShownSuit(editedSources)[color],
                         $"edited charge CGRAM {family}/{suit}/{phase}/{color}");
             }
@@ -119,7 +120,7 @@ internal static class SamusChargeColorsVerification
             // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
             AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                AssertEqual(edited.SamusChargeColors.ResolveHyper(frame, color),
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Charge.ResolveHyper(frame, color),
                     cgram.Samus.ShownSuit(editedSources)[color],
                     $"edited Hyper-shot colour {frame}/{color}");
         }

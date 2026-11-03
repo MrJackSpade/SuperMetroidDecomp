@@ -27,6 +27,7 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Verifies Samus body, arm cannon, visor, and hurt palette rendering with cartridge-shaped fixtures.</summary>
 internal static class SamusRenderingVerification

@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// The Hyper Beam's full-body colour cycle (#1464): for each of its frames, the colours Samus's suit shows. The import

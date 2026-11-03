@@ -457,8 +457,7 @@ public sealed record GameInstallation(string Root)
             RoomPlmCollectibleVisuals = LoadRoomPlmCollectibleVisuals(),
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             ProjectileFrameBindings = projectiles.FrameBindings,
-            BeamPalettes = projectiles.BeamTiles.Palettes,
-            HyperBeamFxColors = projectiles.BeamTiles.HyperBeamFxColors,
+
             EnemyTileArtwork = enemies.Enemies,
             BossArtwork = enemies.Bosses,
             AreaArtwork = enemies.Areas,

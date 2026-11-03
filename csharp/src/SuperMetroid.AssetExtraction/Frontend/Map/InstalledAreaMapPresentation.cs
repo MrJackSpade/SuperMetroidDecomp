@@ -5,6 +5,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -26,7 +27,16 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         Messages = Ensure.NotNull(sources.Messages);
         RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
         Sprites = Ensure.NotNull(sources.Sprites);
+        SamusColours = Ensure.NotNull(sources.SamusColours);
     }
+
+    /// <summary>Samus's selected colour tables, which only the import reads to pre-colour her sheets (#1512).</summary>
+    public SamusMapColourTables SamusColours { get; }
+
+    /// <summary>Samus's colour tables the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static SamusMapColourTables SamusColoursOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.SamusColours
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Samus colour tables.");
 
     /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, which the import composes from these (#1463).</summary>
     public MapSpriteCompositions Sprites { get; }

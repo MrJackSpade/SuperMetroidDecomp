@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -13,11 +14,11 @@ internal static class SamusPaletteRecognition
     /// <summary>Stores independently edited beam colors while deriving unchanged words from stock paint.</summary>
     internal static InstalledBeamPalettes Beams(RgbColor[][] selections)
     {
-        var palettes = new Dictionary<ColourCell, RgbColor>();
+        var palettes = new Dictionary<TableColourPlace, RgbColor>();
         for (int index = 0; index < selections.Length; index++)
             for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
                 if (selections[index][color] != BeamPaint.Color(SamusBeamCombinations.FromTableIndex(index), color))
-                    palettes.Add(new ColourCell(index, color), selections[index][color]);
+                    palettes.Add(new TableColourPlace(index, color), selections[index][color]);
         return new(palettes);
     }
 
@@ -45,13 +46,13 @@ internal static class SamusPaletteRecognition
         Dictionary<int, int> introLevels = Enumerable.Range(1, 15)
             .Where(index => intro[index].Red != SamusHurtColorLevels.DefaultIntroLevel(index))
             .ToDictionary(index => index, index => intro[index].Red);
-        Dictionary<ColourCell, RgbColor> introOverrides = Enumerable.Range(1, 15)
+        Dictionary<TableColourPlace, RgbColor> introOverrides = Enumerable.Range(1, 15)
             .Where(index => intro[index] != SamusHurtColorLevels.IntroFromLevel(
                 introLevels.TryGetValue(index, out int level) ? level : SamusHurtColorLevels.DefaultIntroLevel(index)))
-            .ToDictionary(index => new ColourCell(0, index), index => intro[index]);
-        Dictionary<ColourCell, RgbColor> hurtOverrides = Enumerable.Range(1, 15)
+            .ToDictionary(index => new TableColourPlace(0, index), index => intro[index]);
+        Dictionary<TableColourPlace, RgbColor> hurtOverrides = Enumerable.Range(1, 15)
             .Where(index => hurt[index] != SamusHurtColorLevels.HurtFromIntro(intro[index]))
-            .ToDictionary(index => new ColourCell(0, index), index => hurt[index]);
+            .ToDictionary(index => new TableColourPlace(0, index), index => hurt[index]);
         return new(hurt[0] == SamusHurtColorDefinitions.HurtTransparentWord ? null : hurt[0],
             intro[0] == SamusHurtColorDefinitions.IntroTransparentWord ? null : intro[0],
             introLevels, introOverrides, hurtOverrides);

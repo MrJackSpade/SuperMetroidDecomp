@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
@@ -26,8 +25,5 @@ internal sealed record RuntimeArtworkDependencies
 
     /// <summary>The session that holds every room's installed FX catalogs.</summary>
     public required RoomFxSession RoomFx { get; init; }
-
-    /// <summary>The colours the Chainsaw beam's palette loader reads past its table, which the beam palette load writes.</summary>
-    public required ChainsawBeamColours<RgbColor> ChainsawColours { get; init; }
 
 }

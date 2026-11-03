@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using static SuperMetroid.Core.Samus.Artwork.BeamPaintDefinitions;
+using SuperMetroid.Core.Samus.Artwork;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>The colour each slot of each stock beam material palette is painted.</summary>
 internal static class BeamPaint

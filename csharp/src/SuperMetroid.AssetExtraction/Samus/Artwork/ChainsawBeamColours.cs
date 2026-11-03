@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Compatibility;
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>
 /// The colours the Chainsaw beam (Spazer, Plasma and Wave together) is drawn in (#1318, #1500). The beam palette loader
@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// every colour with this service (owner decision on #1318, row 2).
 /// </remarks>
 /// <typeparam name="TColour">A colour.</typeparam>
-[CompatibilityService("the Chainsaw beam's palette is read from the code past the beam palette table")]
 public sealed class ChainsawBeamColours<TColour>
 {
     /// <summary>The number of colours a beam palette holds.</summary>

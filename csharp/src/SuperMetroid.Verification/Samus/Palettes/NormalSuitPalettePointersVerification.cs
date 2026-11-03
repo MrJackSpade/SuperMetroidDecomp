@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks normal suit pointer selection and live palette restoration against retail colors.</summary>
 internal static class NormalSuitPalettePointersVerification

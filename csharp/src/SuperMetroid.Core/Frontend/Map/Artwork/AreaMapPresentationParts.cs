@@ -126,23 +126,10 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public required InstalledPowerBombFixedColors PowerBombFixedColors { get; init; }
 
-    /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    public required InstalledSamusVisorColors SamusVisorColors { get; init; }
-
-    /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    public required InstalledSamusHurtColors SamusHurtColors { get; init; }
-
-    /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    public required InstalledSamusSuitColors SamusSuitColors { get; init; }
-
-    /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    public required SamusFullBodyCycleColours SamusFullBodyCycleColors { get; init; }
 
     /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     public required InstalledCrystalFlashColors CrystalFlashColors { get; init; }
 
-    /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    public required SamusChargeColours SamusChargeColors { get; init; }
 
     /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
     public required CeresRidleyColorCatalog CeresRidleyColors { get; init; }
@@ -152,7 +139,4 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public required CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; init; }
-
-    /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    public required SamusHyperBeamColours SamusHyperBeamColors { get; init; }
 }

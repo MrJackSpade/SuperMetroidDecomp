@@ -23,6 +23,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks installed full-body palette cycles and editable shade components against the retail color tables.</summary>
@@ -432,7 +433,7 @@ internal static class SamusFullBodyCycleColorsVerification
         string replacement = Path.Combine(overrideDirectory, SamusFullBodyCycleColorFormat.FileName);
         File.WriteAllBytes(replacement, SamusFullBodyCycleColorFile.Write(document));
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        var editedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = edited.SamusFullBodyCycleColors };
+        var editedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledAreaMapPresentation.SamusColoursOf(edited).FullBodyCycles };
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "full-body cycle edit changes installed-content identity");
 
@@ -533,7 +534,7 @@ internal static class SamusFullBodyCycleColorsVerification
         {
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
-                AssertEqual(edited.SamusFullBodyCycleColors.Resolve(pointer, color),
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).FullBodyCycles.Resolve(pointer, color),
                     cgram.Samus.ShownSuit(editedSources)[color],
                     $"{family} suit {suit}, shade {shade}, color {color} reaches live CGRAM");
         }

@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification
@@ -780,7 +781,7 @@ internal static void VerifySamusDeathSequence()
     var deathSources = InstalledFixtures.SamusShadeSources with { Death = artwork };
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
+        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -790,7 +791,7 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
+        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork.Steps);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
@@ -807,7 +808,7 @@ internal static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
+        step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork.Steps);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }

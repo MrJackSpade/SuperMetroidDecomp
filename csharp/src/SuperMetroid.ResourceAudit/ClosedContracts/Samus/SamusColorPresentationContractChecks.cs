@@ -20,6 +20,7 @@ internal static class SamusColorPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.Core.Assets;
+            using SuperMetroid.AssetExtraction.Samus.Artwork;
             using SuperMetroid.Core.Samus.Artwork;
             using SuperMetroid.Core.Samus.Palettes;
             class ColorConsumer {
@@ -50,7 +51,7 @@ internal static class SamusColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("SamusColorProviderFixture", trees,
-            platforms.Append(typeof(InstalledSamusSuitColors).Assembly.Location).Distinct()
+            platforms.Append(typeof(SamusChargePalette).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "Samus color provider confirmation");

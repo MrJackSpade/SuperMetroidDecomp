@@ -21,6 +21,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Artwork;
 /// <summary>Checks installed Samus body, death, and arm-cannon artwork against retail selectors and rendering transfers.</summary>
 internal static class SamusBodyArtworkVerification
@@ -31,6 +32,7 @@ internal static class SamusBodyArtworkVerification
     {
         SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         InstalledSamusBodyArtwork stock = stockCharacters.Body;
+        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         SamusDeathTileAtlas stockDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
@@ -213,7 +215,7 @@ internal static class SamusBodyArtworkVerification
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(deathSamus, deathCgram.Gameplay, deathCgram.Samus, stock.DeathPalettes);
+            deathSamus.DeathSequence.Step(deathSamus, deathCgram.Gameplay, deathCgram.Samus, stock.DeathSteps);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
@@ -240,10 +242,10 @@ internal static class SamusBodyArtworkVerification
                 int suitedAt = SamusSourceDefinitions.PaletteBank.Value | suitPointer + color * 2;
                 int suitlessColorAt = SamusSourceDefinitions.PaletteBank.Value | suitlessPointer + color * 2;
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitedAt),
-                    stock.DeathPalettes.SuitedColor(suit, palette, color),
+                    stockDeathPalettes.SuitedColor(suit, palette, color),
                     $"death suit {suit} palette {palette} color {color}");
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessColorAt),
-                    stock.DeathPalettes.SuitlessColor(palette, color),
+                    stockDeathPalettes.SuitlessColor(palette, color),
                     $"death suitless palette {palette} color {color}");
             }
         }
@@ -251,11 +253,11 @@ internal static class SamusBodyArtworkVerification
         {
             int at = SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort);
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
-                stock.DeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
+                stockDeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
         }
         for (int frame = 0; frame < SamusDeathExplosionTimingDefinitions.RecordCount; frame++)
             AssertEqual(bus.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value +
-                frame * 2 + 1), stock.DeathPalettes.ExplosionPaletteIndex(frame),
+                frame * 2 + 1), stockDeathPalettes.ExplosionPaletteIndex(frame),
                 $"death explosion frame {frame} visual palette selector");
         for (int suit = 0; suit < InstalledSamusDeathPalettes.SuitCount; suit++)
         {
@@ -281,15 +283,15 @@ internal static class SamusBodyArtworkVerification
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors.Gameplay, nativeColors.Samus, stock.DeathPalettes);
-                installedSamus.DeathSequence.Step(installedSamus, installedColors.Gameplay, installedColors.Samus, stock.DeathPalettes);
+                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors.Gameplay, nativeColors.Samus, stock.DeathSteps);
+                installedSamus.DeathSequence.Step(installedSamus, installedColors.Gameplay, installedColors.Samus, stock.DeathSteps);
             }
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    nativeSamus, nativeColors.Gameplay, nativeColors.Samus, stock.DeathPalettes);
+                    nativeSamus, nativeColors.Gameplay, nativeColors.Samus, stock.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    installedSamus, installedColors.Gameplay, installedColors.Samus, stock.DeathPalettes);
+                    installedSamus, installedColors.Gameplay, installedColors.Samus, stock.DeathSteps);
                 AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.AnimationTimer.RawValue ==
@@ -412,6 +414,7 @@ internal static class SamusBodyArtworkVerification
         SamusBodyCharacterArtwork replacementCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         // The edited body shows its own characters, so its sheets compose from them.
         InstalledSamusBodyArtwork replacement = SamusBodySheetFixtures.Register(replacementCharacters);
+        InstalledSamusDeathPalettes replacementDeathPalettes = SamusDeathPaletteArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         SamusDeathTileAtlas replacementDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
         AssertTrue(stock.ArmCannon.ReadDrawingByteAt(armXAddress) !=
                 replacement.ArmCannon.ReadDrawingByteAt(armXAddress),
@@ -509,12 +512,12 @@ internal static class SamusBodyArtworkVerification
         var editedDeathColors = new SamusColourRig();
         for (int frame = 0; frame < 16; frame++)
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
-                editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathPalettes);
+                editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathSteps);
         for (int frame = 0; frame < 60; frame++)
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
-                editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathPalettes);
+                editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathSteps);
         AssertEqual((ushort)(originalDeathColor + 1),
-            editedDeathColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources with { Death = replacement.DeathPalettes })[0],
+            editedDeathColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources with { Death = replacementDeathPalettes })[0],
             "edited death suit color reaches the death shade the import makes");
         AssertTrue(!stockDeathTiles.Explosion.Characters.SequenceEqual(replacementDeathTiles.Explosion.Characters),
             "edited death explosion PNG reaches the explosion characters its sheet is composed from");

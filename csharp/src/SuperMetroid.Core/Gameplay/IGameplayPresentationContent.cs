@@ -53,24 +53,8 @@ public interface IGameplayPresentationContent : IAreaMapSource
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     InstalledPowerBombFixedColors PowerBombFixedColors { get; }
 
-    /// <summary>Samus hurt-flash and cinematic-restoration color artwork.</summary>
-    InstalledSamusHurtColors SamusHurtColors { get; }
 
     /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
     InstalledCrystalFlashColors CrystalFlashColors { get; }
 
-    /// <summary>Visor colors shared by X-ray and room palette cycling, separate from complete suit palettes.</summary>
-    InstalledSamusVisorColors SamusVisorColors { get; }
-
-    /// <summary>Base Power, Varia, and Gravity Suit colors, separate from transient full-body and charge cycles.</summary>
-    InstalledSamusSuitColors SamusSuitColors { get; }
-
-    /// <summary>Samus full-body palette-cycle inputs, separate from static suit, visor, and charged-beam colors.</summary>
-    SamusFullBodyCycleColours SamusFullBodyCycleColors { get; }
-
-    /// <summary>Charged-beam and pseudo-Screw-Attack palette inputs, separate from base suit colors.</summary>
-    SamusChargeColours SamusChargeColors { get; }
-
-    /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
-    SamusHyperBeamColours SamusHyperBeamColors { get; }
 }

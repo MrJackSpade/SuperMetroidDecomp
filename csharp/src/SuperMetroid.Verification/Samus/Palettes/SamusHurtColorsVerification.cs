@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks installed Samus hurt and intro flash palettes against native CGRAM behavior.</summary>
 internal static class SamusHurtColorsVerification
@@ -125,11 +126,11 @@ internal static class SamusHurtColorsVerification
             var guarded = NewForbiddenHurtColorBus(rom);
             SamusHurtFlashPalette.Update(
                 cgram.Samus, samus, 0);
-            var editedSources = InstalledFixtures.SamusShadeSources with { Hurt = edited.SamusHurtColors };
+            var editedSources = InstalledFixtures.SamusShadeSources with { Hurt = InstalledAreaMapPresentation.SamusColoursOf(edited).Hurt };
             SamusHurtColorVariant variant = cinematic
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                AssertEqual(edited.SamusHurtColors.Resolve(variant, index),
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Hurt.Resolve(variant, index),
                     cgram.Samus.ShownSuit(editedSources)[index],
                     $"edited {variant} path remains selected by native counter (colour {index})");
             AssertEqual(SamusShades.Hurt(variant), cgram.Samus.Suit,

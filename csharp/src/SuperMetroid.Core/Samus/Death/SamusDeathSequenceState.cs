@@ -119,7 +119,7 @@ public sealed class SamusDeathSequenceState
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
         GameplayColours colours, SamusColours samusColours,
-        InstalledSamusDeathPalettes? artwork = null)
+        SamusDeathSteps? artwork = null)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(colours);
@@ -231,7 +231,7 @@ public sealed class SamusDeathSequenceState
         GameplayColours colours, SamusColours samusColours,
         ref bool paletteChanged,
         ref bool whiteoutChanged,
-        InstalledSamusDeathPalettes? artwork)
+        SamusDeathSteps? artwork)
     {
         AnimationTimer = AnimationTimer.Decrement().Remaining;
         if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
@@ -251,7 +251,7 @@ public sealed class SamusDeathSequenceState
         AnimationTimer =
             WrappingCountdown.FromRaw(SamusDeathExplosionTiming.DurationForIndex(AnimationIndex));
         int paletteIndex = (artwork ?? throw new InvalidOperationException(
-            "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
+            "Samus death requires installed palette artwork.")).ExplosionStep(AnimationIndex);
         WritePalettePair(samus, samusColours, paletteIndex);
         paletteChanged = true;
         return true;
@@ -259,7 +259,7 @@ public sealed class SamusDeathSequenceState
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
     private bool ApplyWhiteout(GameplayColours colours, SamusColours samusColours,
-        InstalledSamusDeathPalettes? artwork)
+        SamusDeathSteps? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
         // frame remains over the original room even though game state `$18` has begun.
@@ -267,7 +267,7 @@ public sealed class SamusDeathSequenceState
             return false;
 
         RgbColor shade = (artwork ?? throw new InvalidOperationException(
-            "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
+            "Samus death whiteout requires installed palette artwork.")).WhiteoutColour(AnimationCounter);
         // Everything but Samus's body whitens: the room, every other sprite, and her beams and grapple flare, which
         // show the whiteout's shade (#1512). Her body's suit and suitless colours are her own shades and never whiten;
         // the sprites that shared their sets with her no longer keep her colours through the whiteout.

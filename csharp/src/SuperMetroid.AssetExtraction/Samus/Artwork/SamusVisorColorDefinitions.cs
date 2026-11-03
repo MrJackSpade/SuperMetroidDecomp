@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Calculated visor color phases with narrowly retained painted-light composition choices.</summary>
 internal static class SamusVisorColorDefinitions

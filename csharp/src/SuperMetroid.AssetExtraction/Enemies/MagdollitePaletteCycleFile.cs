@@ -30,7 +30,7 @@ public static class MagdollitePaletteCycleFile
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = document.Frames[frame];
-            if (source is null || source.Length != MagdollitePaletteDefinitions.AnimatedColorCount)
+            if (source is null || source.Length != MagdollitePaletteCycle.AnimatedColorCount)
                 throw new InvalidDataException($"Magdollite palette frame {frame} requires four RGB5 colors.");
             compiled[frame] = new RgbColor[source.Length];
             for (int color = 0; color < source.Length; color++)

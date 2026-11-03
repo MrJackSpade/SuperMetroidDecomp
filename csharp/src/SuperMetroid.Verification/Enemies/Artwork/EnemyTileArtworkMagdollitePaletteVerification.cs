@@ -31,11 +31,11 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         MagdollitePaletteCycle native = stock.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");
         for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
-        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
+        for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
         {
             int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                 (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
-                 MagdollitePaletteDefinitions.FirstAnimatedColor + color) * sizeof(ushort);
+                 MagdollitePaletteCycle.FirstAnimatedColor + color) * sizeof(ushort);
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
                 native.Resolve(frame, color),
                 $"Magdollite palette frame {frame} color {color} preserves native RGB5");

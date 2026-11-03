@@ -125,13 +125,13 @@ public static class EnemyTileArtworkFiles
                     Version = 1,
                     Colors = colors,
                 });
-                var nativeCgram = new SnesCgram();
-                var compiledCgram = new ScreenPalette();
-                new CgramPalettes(nativeCgram).All.LoadPortBytes(nativeColors);
-                EnemyPaletteSheetFile.Read(new MemoryStream(paletteJson, writable: false))
-                    .LoadTo(compiledCgram.BackgroundSets.Set(0));
-                if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
-                    throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
+                // The written document must read back as the native colours, channel for channel (#1512).
+                ReadOnlySpan<RgbColor> readBack = EnemyPaletteSheetFile.Read(new MemoryStream(paletteJson, writable: false)).Colours;
+                for (int color = 0; color < colors.Length; color++)
+                {
+                    if (readBack[color] != new RgbColor(colors[color].Red, colors[color].Green, colors[color].Blue))
+                        throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
+                }
                 File.WriteAllBytes(Path.Combine(directory,
                     PaletteFileName(definitionPointer)), paletteJson);
                 entries.Add(headerWord, new EnemyTileFileEntry(

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -42,16 +43,16 @@ public sealed class CeresFlightPalette
     /// The first background sets' visible colours after the first set's independent ones, which repeat the neutral fill:
     /// the first, and how many.
     /// </summary>
-    private static readonly (int First, int Count) NeutralFillColours = (4, 60);
+    private static readonly InkRange NeutralFillColours = InkRange.Run(4, 60);
 
     /// <summary>
     /// The sprite colours that are the sprites' own: the fifth set's and five hue colours of the seventh, each its first
     /// colour and count. Every other visible sprite colour repeats the background colour of the same set and colour.
     /// </summary>
-    private static readonly (int First, int Count)[] SpritesOwnColours =
+    private static readonly InkRange[] SpritesOwnColours =
     [
-        (OwnerColours + 5 * SetColours, 16),
-        (OwnerColours + 7 * SetColours + 9, 5),
+        InkRange.Run(OwnerColours + 5 * SetColours, 16),
+        InkRange.Run(OwnerColours + 7 * SetColours + 9, 5),
     ];
 
     /// <summary>Independent painted colours by colour; only repeated sections and endpoint-defined ramps are calculated.</summary>
@@ -98,17 +99,13 @@ public sealed class CeresFlightPalette
         bool sprite = colour >= OwnerColours;
         if (colour % SetColours == 0)
             return colour == BackdropColour ? BackdropColour : sprite ? SpriteTransparent : BackgroundTransparent;
-        if (sprite && !SpritesOwnColours.Any(region => Within(region, colour)))
+        if (sprite && !SpritesOwnColours.Any(region => region.Contains(colour)))
             colour -= OwnerColours;
-        return Within(NeutralFillColours, colour) ? NeutralFill : colour;
+        return NeutralFillColours.Contains(colour) ? NeutralFill : colour;
     }
 
-    /// <summary>Whether <paramref name="colour"/> lies in <paramref name="region"/>.</summary>
-    private static bool Within((int First, int Count) region, int colour) =>
-        colour >= region.First && colour < region.First + region.Count;
-
     /// <summary>The ramp's six colours between its endpoints interpolate them with nearest-integer rounding.</summary>
-    private static bool IsRampInterior(int colour) => colour > RampStart && colour < RampEnd;
+    private static bool IsRampInterior(int colour) => colour is > RampStart and < RampEnd;
 
     /// <summary>Calculates repeated colours or interpolated ramp colours from independent inputs.</summary>
     private RgbColor Calculate(int colour)

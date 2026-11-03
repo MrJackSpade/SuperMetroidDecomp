@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -53,10 +52,10 @@ internal static class EndingScreenShades
         foreach (EndingFade postCreditsFade in (EndingFade[])[EndingFade.WaitingBackdrop, EndingFade.SuitlessSamus, EndingFade.SuitedSamus,
             EndingFade.Shot, EndingFade.ShootingSamus])
             AddFade(shades, postCreditsFade, postCredits);
-        foreach ((EndingFlash flash, RgbColor colour) in Flashes)
+        foreach (EndingFlashColour flashed in Flashes)
         {
-            int[] inks = EndingScreenInks.Flash(flash);
-            shades.Add(new SheetShade(EndingShades.Flashed(flash), inks, [.. inks.Select(_ => colour)]));
+            int[] inks = EndingScreenInks.Flash(flashed.Flash);
+            shades.Add(new SheetShade(EndingShades.Flashed(flashed.Flash), inks, [.. inks.Select(_ => flashed.Colour)]));
         }
         EndingPalette crossfade = palettes[EndingPaletteId.LogoCrossfade];
         for (int step = 0; step < EndingShades.LogoCrossfadeSteps; step++)
@@ -70,14 +69,8 @@ internal static class EndingScreenShades
             shades.Add(new SheetShade(EndingShades.LogoCrossfade(step), EndingScreenInks.LogoCrossfade, colours));
         }
         // Every record any ending object can show, over the colours its group writes.
-        var shown = new SortedSet<(PaletteFxColours Colours, int Record)>();
-        foreach (PaletteFxObject shownObject in EndingPaletteFxDefinitions.Objects)
-            PaletteFxScreenShades.Collect(RoomPaletteFxSelection.Get(shownObject).InitialProgram, shown);
-        foreach ((PaletteFxColours group, int record) in shown)
-        {
-            (int first, int end) = EndingScreenInks.PaletteFx(group);
-            shades.Add(PaletteFxScreenShades.Shade(group, new PaletteFxFrame(record), first, end, paletteFx));
-        }
+        foreach ((PaletteFxColours group, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy(EndingPaletteFxDefinitions.Objects))
+            shades.Add(PaletteFxRecordShades.Shade(group, record, EndingScreenInks.PaletteFx(group), paletteFx));
         return shades;
     }
 
@@ -122,13 +115,13 @@ internal static class EndingScreenShades
     }
 
     /// <summary>The colour each flash shows.</summary>
-    private static readonly (EndingFlash Flash, RgbColor Colour)[] Flashes =
+    private static readonly EndingFlashColour[] Flashes =
     [
-        (EndingFlash.PlanetGlow, new RgbColor(1, 0, 0)),
-        (EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor),
-        (EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor),
-        (EndingFlash.WhiteoutCleared, RgbColor.Black),
-        (EndingFlash.LogoBackground, RgbColor.Black),
+        new(EndingFlash.PlanetGlow, new RgbColor(1, 0, 0)),
+        new(EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor),
+        new(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor),
+        new(EndingFlash.WhiteoutCleared, RgbColor.Black),
+        new(EndingFlash.LogoBackground, RgbColor.Black),
     ];
 
     /// <summary>The part of <paramref name="shade"/> on screen colours from <paramref name="first"/> to before <paramref name="end"/>, each moved by <paramref name="shift"/>.</summary>

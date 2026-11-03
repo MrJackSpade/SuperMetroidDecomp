@@ -340,7 +340,7 @@ internal static class LookupStream4Verification
                     int frame = tick / program.FrameDuration % program.FrameCount;
                     PaletteFxFrame record = fx.RecordOf(program.Colours)
                         ?? throw new InvalidOperationException($"{program.Colours} shows no record on tick {tick}.");
-                    RgbColor[] shown = PaletteFxScreenShades.Shade(program.Colours, record, 0, int.MaxValue, selected).Colours;
+                    RgbColor[] shown = PaletteFxRecordShades.Shade(program.Colours, record, new InkRange(0, int.MaxValue), selected).Colours;
                     for (int index = 0; index < program.ColorsPerFrame; index++)
                         AssertEqual(Pack(rows[frame][index]), shown[index].ToWord(),
                             "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");

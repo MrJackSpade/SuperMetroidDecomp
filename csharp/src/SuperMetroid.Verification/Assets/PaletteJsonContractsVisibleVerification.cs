@@ -59,8 +59,8 @@ internal static class PaletteJsonContractsVisibleVerification
             AssertTrue(stockShown.SequenceEqual(editedShown), "color replacement shows the same records on the same frames");
             foreach ((PaletteFxColours colours, PaletteFxFrame record) in stockShown)
             {
-                SheetShade stockShade = PaletteFxScreenShades.Shade(colours, record, 0, int.MaxValue, original);
-                SheetShade editedShade = PaletteFxScreenShades.Shade(colours, record, 0, int.MaxValue, replacement);
+                SheetShade stockShade = PaletteFxRecordShades.Shade(colours, record, new InkRange(0, int.MaxValue), original);
+                SheetShade editedShade = PaletteFxRecordShades.Shade(colours, record, new InkRange(0, int.MaxValue), replacement);
                 AssertTrue(stockShade.Inks.SequenceEqual(editedShade.Inks), "an inverted record recolours the same inks");
                 for (int colour = 0; colour < stockShade.Colours.Length; colour++)
                     AssertEqual((ushort)(stockShade.Colours[colour].ToWord() ^ 0x7fff), editedShade.Colours[colour].ToWord(),

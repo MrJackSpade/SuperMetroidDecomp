@@ -124,8 +124,8 @@ internal sealed class EnemySheetShades
                     first, inputs.Maps?.RoomPaletteFx ?? throw Missing("Tourian shutter flash colours")));
                 break;
             case EnemyDefinitionId.Coven:
-                foreach ((PictureShade shade, RgbColor[] fade) in GhostFadeSteps())
-                    shades.Add(SheetShade.Run(shade, first, fade));
+                foreach (ShadeColours step in GhostFadeSteps())
+                    shades.Add(SheetShade.Run(step.Shade, first, step.Colours));
                 break;
             case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb:
                 // The Torizos' colourings over their own rows (#1512).
@@ -170,6 +170,46 @@ internal sealed class EnemySheetShades
                 }
                 break;
             }
+            case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.Stoke or EnemyDefinitionId.MamaTurtle
+                or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
+                or EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
+                or EnemyDefinitionId.Menu or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
+                or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
+                or EnemyDefinitionId.Choot or EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper
+                or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
+                or EnemyDefinitionId.ShutterHorizShootable or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
+                or EnemyDefinitionId.Fireflea or EnemyDefinitionId.Skultera or EnemyDefinitionId.Elevator or EnemyDefinitionId.Sciser
+                or EnemyDefinitionId.Zero or EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or EnemyDefinitionId.Sbug
+                or EnemyDefinitionId.Sbug2 or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
+                or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
+                or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Respawn or EnemyDefinitionId.Bang or EnemyDefinitionId.Skree
+                or EnemyDefinitionId.Yard or EnemyDefinitionId.Reflec or EnemyDefinitionId.HZoomer or EnemyDefinitionId.Zeela
+                or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer or EnemyDefinitionId.Metroid
+                or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
+                or EnemyDefinitionId.Hibashi or EnemyDefinitionId.Puromi or EnemyDefinitionId.MiniKraid or EnemyDefinitionId.Steam
+                or EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
+                or EnemyDefinitionId.PhantoonMouth or EnemyDefinitionId.Etecoon or EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile
+                or EnemyDefinitionId.Eye or EnemyDefinitionId.Fune or EnemyDefinitionId.Namihe or EnemyDefinitionId.YappingMaw
+                or EnemyDefinitionId.Kago or EnemyDefinitionId.Beetom or EnemyDefinitionId.Powamp or EnemyDefinitionId.RobotNoPower
+                or EnemyDefinitionId.Bull or EnemyDefinitionId.Alcoon or EnemyDefinitionId.Atomic or EnemyDefinitionId.Spark
+                or EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellow
+                or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterRedWings
+                or EnemyDefinitionId.MotherBrainTubes or EnemyDefinitionId.CorpseTorizo or EnemyDefinitionId.CorpseSidehopper2
+                or EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree
+                or EnemyDefinitionId.TourianStatue or EnemyDefinitionId.TourianStatueGhost or EnemyDefinitionId.Shaktool
+                or EnemyDefinitionId.NoobTubeCrack or EnemyDefinitionId.Chozo or EnemyDefinitionId.UnusedSpinningTurtleEye or EnemyDefinitionId.Zeb
+                or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega or EnemyDefinitionId.EtecoonEscape
+                or EnemyDefinitionId.DachoraEscape or EnemyDefinitionId.PirateGreyWall or EnemyDefinitionId.PirateGreenWall
+                or EnemyDefinitionId.PirateRedWall or EnemyDefinitionId.PirateGoldWall or EnemyDefinitionId.PirateMagentaWall
+                or EnemyDefinitionId.PirateSilverWall or EnemyDefinitionId.PirateGreyNinja or EnemyDefinitionId.PirateGreenNinja
+                or EnemyDefinitionId.PirateRedNinja or EnemyDefinitionId.PirateGoldNinja or EnemyDefinitionId.PirateMagentaNinja
+                or EnemyDefinitionId.PirateSilverNinja or EnemyDefinitionId.PirateGreyWalking or EnemyDefinitionId.PirateGreenWalking
+                or EnemyDefinitionId.PirateRedWalking or EnemyDefinitionId.PirateGoldWalking or EnemyDefinitionId.PirateMagentaWalking
+                or EnemyDefinitionId.PirateSilverWalking:
+                // Every other enemy shows no effect over the row it draws in.
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(enemy), enemy, "Undefined enemy definition.");
         }
         return shades;
     }
@@ -179,7 +219,7 @@ internal sealed class EnemySheetShades
     /// row, which hold wherever its sheets lie: the Chozo statues', the Tourian statue scene's, the drained corpses', the
     /// Ninja Pirates' gold wall and the Ceres doors'.
     /// </summary>
-    internal (IReadOnlyList<SheetShade> Inks, IReadOnlyList<SheetRowShade> Rows) Fixed(EnemyDefinitionId enemy)
+    internal SheetShadeSet Fixed(EnemyDefinitionId enemy)
     {
         var inks = new List<SheetShade>();
         var rows = new List<SheetRowShade>();
@@ -207,17 +247,17 @@ internal sealed class EnemySheetShades
         }
         if (enemy == EnemyDefinitionId.CeresDoor)
             rows.AddRange(CeresDoorLooks());
-        return (inks, rows);
+        return new SheetShadeSet(inks, rows);
     }
 
     /// <summary>
     /// The shades every character-zero spawned-object sheet takes, for the objects any room spawns there: the n00b tube's
     /// cracks and the Ceres doors' looks, which the escape's falling tiles show.
     /// </summary>
-    internal (IReadOnlyList<SheetShade> Inks, IReadOnlyList<SheetRowShade> Rows) Anywhere()
+    internal SheetShadeSet Anywhere()
     {
         ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
-        return ([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
+        return new SheetShadeSet([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
             Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
             // A new game clears the enemy projectiles' last colour, the Ceres elevator concealer's solid pixels.
             SheetShade.Run(CeresElevatorShades.ConcealerCleared,
@@ -282,7 +322,7 @@ internal sealed class EnemySheetShades
     /// darkened, brightened, materialized, vanished and materialized again from white, as its AI drives it.
     /// </summary>
     /// <exception cref="InvalidDataException">A step's shade names two different colourings.</exception>
-    internal static IReadOnlyList<(PictureShade Shade, RgbColor[] Colours)> GhostFadeSteps()
+    internal static IReadOnlyList<ShadeColours> GhostFadeSteps()
     {
         var steps = new Dictionary<PictureShade, RgbColor[]>();
         var fade = new WreckedShipGhostFade();
@@ -299,14 +339,14 @@ internal sealed class EnemySheetShades
             while (fade.StepTowardTarget() != 0)
                 Record(steps, fade);
         }
-        return [.. steps.Select(step => (step.Key, step.Value))];
+        return [.. steps.Select(step => new ShadeColours(step.Key, step.Value))];
     }
 
     /// <summary>Records the fade's colours under its shade.</summary>
     private static void Record(Dictionary<PictureShade, RgbColor[]> steps, WreckedShipGhostFade fade)
     {
         RgbColor[] shown = fade.Shown.ToArray();
-        if (steps.TryGetValue(fade.Shade, out RgbColor[]? known) && !known.AsSpan().SequenceEqual(shown))
+        if (steps.TryGetValue(fade.Shade, out RgbColor[]? known) && !known.SequenceEqual(shown))
             throw new InvalidDataException($"Wrecked Ship ghost shade {fade.Shade.Key} names two colourings.");
         steps[fade.Shade] = shown;
     }

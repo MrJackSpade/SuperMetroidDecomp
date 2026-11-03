@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 public enum GameOverMenuPhase
 {
     /// <summary>Step one setup: queues music stop and data load, starts the Baby animation, selects Yes, and begins with zero brightness.</summary>
-    /// <remarks>Ordinals are serialized; ConfigureGraphics is appended rather than placed first.</remarks>
     Initialize,
     /// <summary>Step two music gate: continues Baby animation while waiting for the shared music queue to empty, then queues the game-over track.</summary>
     WaitForInitialMusic,

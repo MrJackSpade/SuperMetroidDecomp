@@ -22,11 +22,9 @@ internal sealed class GameplayScreenLayers
     }
 
     /// <summary>The layers the main loop chose for the next accepted frame.</summary>
-    [field: NonSerialized]
     internal ScreenLayers Chosen { get; private set; } = OrdinaryLayers;
 
     /// <summary>The layers the most recent accepted frame shows.</summary>
-    [field: NonSerialized]
     public ScreenLayers Displayed { get; private set; }
 
     /// <summary>

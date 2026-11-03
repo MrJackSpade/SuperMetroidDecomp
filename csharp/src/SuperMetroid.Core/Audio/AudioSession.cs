@@ -35,13 +35,16 @@ public sealed class AudioSession
     private readonly AudioEventSource eventSource;
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
-    /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>
+    /// <summary>The clip player's playback state, which the session's audio continues from.</summary>
     private ClipPlaybackState? clipState;
-    /// <summary>Host-bound backend that renders each update's events.</summary>
+    /// <summary>
+    /// The renderer of each update's events over the bound clips: the clips' decoded samples and a mix buffer, kept per
+    /// clip as clips first play. None of it is game state; <see cref="clipState"/> is, and binding the clips builds a
+    /// renderer over it.
+    /// </summary>
     [NonSerialized]
     private ClipAudioBackend? backend;
     /// <summary>The most recent update's interleaved 48-kHz PCM, copied out by hosts.</summary>
-    [NonSerialized]
     private short[]? lastPcm;
 
     /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
@@ -49,7 +52,7 @@ public sealed class AudioSession
 
     /// <summary>
     /// Binds the installed clips (#1305) so each following update also renders host PCM from them.
-    /// A restored session keeps its saved playback state; otherwise the binding must precede the
+    /// A session that has playback state keeps it; otherwise the binding must precede the
     /// first update, because the backend has to see the power-on data set.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>

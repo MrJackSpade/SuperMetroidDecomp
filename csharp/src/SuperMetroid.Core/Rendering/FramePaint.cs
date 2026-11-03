@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
-using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -15,9 +14,6 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class FramePaint
 {
-    /// <summary>The draws as a plain array, which a stored copy of the frontend's display can hold; an immutable collection cannot be stored.</summary>
-    private readonly SpriteDraw[] spriteDraws;
-
     /// <summary>Keeps the colours the frame's images show and the frame's whole-frame sprite draws.</summary>
     /// <param name="backgrounds">The colours each owner shows: the background sets', and the sprite sets' for draws no owner coloured.</param>
     /// <param name="spriteDraws">The draws, frontmost first.</param>
@@ -31,13 +27,12 @@ public sealed class FramePaint
             if (draw is null)
                 throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
         Backgrounds = backgrounds;
-        this.spriteDraws = ImmutableCollectionsMarshal.AsArray(DrawColours.ResolveAll(spriteDraws, backgrounds.Sprites))
-            ?? throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
+        SpriteDraws = DrawColours.ResolveAll(spriteDraws, backgrounds.Sprites);
     }
 
     /// <summary>What the frame's background art shows: its backdrop and each ink's colour (#1408).</summary>
     public BackgroundColours Backgrounds { get; }
 
     /// <summary>The displayed whole-frame sprite draws in emission order, frontmost first, each with its colours resolved.</summary>
-    public ImmutableArray<SpriteDraw> SpriteDraws => ImmutableCollectionsMarshal.AsImmutableArray(spriteDraws);
+    public ImmutableArray<SpriteDraw> SpriteDraws { get; }
 }

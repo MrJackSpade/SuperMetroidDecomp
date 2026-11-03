@@ -17,7 +17,6 @@ internal sealed class KraidBodyLayer
     private readonly BossArtworkBinding _bossArtwork;
 
     /// <summary>The last body frame drawn, and its layer.</summary>
-    [NonSerialized]
     private KraidShownBody? shown;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

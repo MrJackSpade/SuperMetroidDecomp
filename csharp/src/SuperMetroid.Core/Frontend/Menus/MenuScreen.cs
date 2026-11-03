@@ -23,7 +23,6 @@ internal sealed class MenuScreen
     }
 
     /// <summary>The installed sheets the screen's pictures come from (#1467).</summary>
-    [field: NonSerialized]
     [AllowNull]
     private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's pictures are bound when the game is bound to its installed content."); set; }
 
@@ -65,7 +64,6 @@ internal sealed class MenuScreen
         PlacedPlanePicture.AtCell(picture, cell, PageSize);
 
     /// <summary>The installed world-map characters.</summary>
-    [field: NonSerialized]
     [AllowNull]
     public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are bound when the game is bound to its installed content."); private set; }
 

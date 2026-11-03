@@ -28,35 +28,27 @@ public sealed class SuperMetroidGame
     /// <summary>The owner of FrontendSession's moved members.</summary>
     internal FrontendSession Session { get; }
     /// <summary>The owner of MenuGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private MenuGamePhases MenuPhases => field ??= new MenuGamePhases(Session);
 
     /// <summary>The owner of LoadingGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private LoadingGamePhases LoadingPhases => field ??= new LoadingGamePhases(Session);
 
     /// <summary>The owner of GameplayGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(Session);
 
     /// <summary>The owner of PauseGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private PauseGamePhases PausePhases => field ??= new PauseGamePhases(Session);
 
     /// <summary>The owner of DeathGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private DeathGamePhases DeathPhases => field ??= new DeathGamePhases(Session);
 
     /// <summary>The owner of DoorGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private DoorGamePhases DoorPhases => field ??= new DoorGamePhases(Session);
 
     /// <summary>The owner of CinematicGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private CinematicGamePhases CinematicPhases => field ??= new CinematicGamePhases(Session);
 
     /// <summary>The owner of AttractGamePhases's moved members.</summary>
-    [field: NonSerialized]
     private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
     /// <summary>
@@ -240,7 +232,6 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>One phase per game state; each runs that state's update.</summary>
-    [field: NonSerialized]
     private GamePhaseTable Phases => field ??= new GamePhaseTable(
         [
             new GamePhase(SuperMetroidGameState.Reset,

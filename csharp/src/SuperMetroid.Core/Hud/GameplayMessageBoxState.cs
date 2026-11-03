@@ -42,7 +42,6 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     private int _pauseUpdatesRemaining;
 
     /// <summary>The audio processing and per-line effect advance of the update <see cref="Step"/> just ran.</summary>
-    [field: NonSerialized]
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
     /// <summary>Current Shoot binding used when panel artwork includes a button glyph.</summary>
     private ControllerButton _shootBinding = ControllerButton.X;

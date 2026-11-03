@@ -31,7 +31,7 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
-    [NonSerialized] private IActivePowerBomb? audioPowerBomb;
+    private IActivePowerBomb? audioPowerBomb;
     /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
     private readonly List<DelayedMusicRequest> musicRequests = [];
     /// <summary>The handler enable bit and heat palette phases, which outlive each room's slots.</summary>
@@ -140,8 +140,8 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Runs one <c>PaletteFXObject_Handler</c> pass in descending slot order.</summary>
     /// <remarks>
     /// Colors are a required execution dependency, not an optional bind operation.
-    /// Every caller, including a restored owner, must supply its current installed
-    /// presentation on every step. Construction creates only serializable program
+    /// Every caller must supply its current installed
+    /// presentation on every step. Construction creates only program
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
     public void Step(IPaletteFxColourOwners owners, IPaletteFxColorSource colors, PaletteFxConditions conditions,
@@ -439,7 +439,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    /// <summary>Serializable object state retained between palette-FX handler passes.</summary>
+    /// <summary>Object state retained between palette-FX handler passes.</summary>
     internal sealed class PaletteFxSlot
     {
         /// <summary>The palette-FX object the slot runs; null marks an available slot.</summary>

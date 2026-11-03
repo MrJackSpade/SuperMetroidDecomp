@@ -18,9 +18,9 @@ public sealed class FileSelectRoomMapGraphics
     internal readonly FileSelectMapIcons icons;
 
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
-    [NonSerialized] private SpriteSheet? mapSheet;
+    private SpriteSheet? mapSheet;
     /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
-    [NonSerialized] private SpriteSheet? roomPictures;
+    private SpriteSheet? roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
     internal ShownAreaMap AreaMap { get; private set; }
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>

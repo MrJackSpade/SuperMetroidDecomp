@@ -4,9 +4,9 @@
 internal sealed class ProjectileImpactAudio
 {
     /// <summary>Transient requests for the current published frame; enemy collision and projectile movement can both append impacts.</summary>
-    [NonSerialized] private List<SoundRequest>? _impactSoundRequests;
+    private List<SoundRequest>? _impactSoundRequests;
     /// <summary>Frame-local gate that omits missile impact requests during a cinematic.</summary>
-    [NonSerialized] private bool _cinematicImpactAudioSuppressed;
+    private bool _cinematicImpactAudioSuppressed;
 
     /// <summary>Borrowed current-owner-frame missile impact requests for library two with queue limit six; reading the list does not consume or play them.</summary>
     /// <remarks>The backing list is cleared by <see cref="ProjectileImpactAudio.BeginImpactAudioFrame"/> and is not a snapshot. Cinematic suppression omits requests; an active Power Bomb is recorded in each request's sound-suppression flag for queue handling.</remarks>

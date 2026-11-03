@@ -13,7 +13,7 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class InstalledFileSelectMapVerification
 {
     /// <summary>Compares stock frames through entry, scroll, debugger restore, and exit handoffs with map ROM blocked.</summary>
-    internal static void VerifyInstalledFileSelectMenu(AreaMapPresentation original, AreaMapPresentation edited, bool verifyCapturedRendering = false)
+    internal static void VerifyInstalledFileSelectMenu(AreaMapPresentation original, bool verifyCapturedRendering = false)
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
@@ -51,18 +51,9 @@ internal static class InstalledFileSelectMapVerification
         for (int i = 0; i < 16; i++) StepBoth(ControllerButton.Left);
         AssertTrue(initialScrollX != ScrollX(installed), "installed menu test actually scrolls before saving");
 
-        // Preserve a live, scrolled menu with its old delegate closure. The catalog
-        // must be rebound, not captured into that closure or the debugger graph.
-        using var state = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, installed);
-        installed.BindFixtureArtwork(edited);
-        using var reboundState = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(reboundState, installed);
-        AssertTrue(state.WrittenBytes().SequenceEqual(reboundState.WrittenBytes()),
-            "catalog-only identity change outside this area is not serialized into menu graph");
-        state.Position = 0;
-        installed = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
-        installed.BindFixtureArtwork(original);
+        // Preserve a live, scrolled menu; the stored state names the catalog it is bound to, and a restore draws from it.
+        byte[] state = GraphDigestVerification.SerializeGraph(installed, original, MenuSheetFixtures.For(original));
+        installed = GraphDigestVerification.RestoreGraph<FileSelectMapMenuState>(state, original, MenuSheetFixtures.For(original));
         AssertTrue(control.Render().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
         StepBoth(ControllerButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);

@@ -100,7 +100,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.SpeedMultiplierMirror = state.SpeedMultiplier;
-        bool samusIsClose = IsBoyonSamusWithinHorizontalRange(slot, state, samus);
+        bool samusIsClose = IsBoyonSamusWithinHorizontalRange(slot, samus);
         if (samusIsClose)
         {
             // Proximity continuously permits another bounce. The separate Bouncing latch
@@ -202,12 +202,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
 
     /// <summary>Ports <c>IsSamusWithinAPixelColumnsOfEnemy</c> for Boyon's init1 radius.</summary>
-    private static bool IsBoyonSamusWithinHorizontalRange(
-        RoomEnemySlot slot,
-        BoyonEnemyState state,
-        SamusState samus)
+    private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemySlot slot, SamusState samus)
     {
-        _ = state; // Keeps the same signature as the family's other trigger tests.
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
         return EnemyMath.IsNegative16(distance - slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
     }

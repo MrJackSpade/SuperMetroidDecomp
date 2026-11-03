@@ -7,6 +7,5 @@ namespace SuperMetroid.Core.Areas;
 public sealed class AreaArtworkBinding
 {
     /// <summary>The installed area artwork, or null before any is installed.</summary>
-    [field: NonSerialized]
     public AreaArtworkBundle? Artwork { get; set; }
 }

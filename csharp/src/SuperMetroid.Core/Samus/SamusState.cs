@@ -906,12 +906,8 @@ level, probe, this, amount, scanLeftToRight, plms);
         SamusPresentation.InitializeAnimation(this);
     }
 
-    /// <summary>
-    /// Transition-owned pose history. Lazy construction also covers a restored game
-    /// whose state predates this history. Such a game has no recoverable historical value;
-    /// zero is not a claim that its actual history was zero.
-    /// </summary>
-    public SamusPoseHistoryState PoseHistory => field ??= new();
+    /// <summary>Transition-owned pose history.</summary>
+    public SamusPoseHistoryState PoseHistory { get; } = new();
 
     /// <summary>
     /// Commits current pose metadata through the four-word history shift.

@@ -36,15 +36,12 @@ internal sealed class SamusPresentation
     public SamusBodyFrameState BodyFrames { get; } = new();
 
     /// <summary>Installed normal suit colors: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public InstalledSamusSuitColors? SuitColors { get; set; }
 
     /// <summary>Installed full-body cycle colors: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public SamusFullBodyCycleColours? FullBodyCycleColors { get; set; }
 
-    /// <summary>Host-bound charge and Hyper-shot body colors; not serialized.</summary>
-    [field: NonSerialized]
+    /// <summary>The installed charge and Hyper-shot body colors.</summary>
     public SamusChargeColours? ChargeColors { get; set; }
 
     /// <summary>

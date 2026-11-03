@@ -602,7 +602,7 @@ internal sealed class EnemyTerrain
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.
     /// </summary>
-    [NonSerialized] private EnemyBreakableTerrainPlms? _collisionPlms;
+    private EnemyBreakableTerrainPlms? _collisionPlms;
 
     /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)

@@ -72,17 +72,10 @@ internal static class EscapeTypewriterPresentationVerification
             presentation.Get(EscapeTypewriterProgramId.Zebes));
         var savedVram = new SnesVram();
         saved.StepInto(savedVram);
-        using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
-        snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
-            .Deserialize<EscapeTypewriterState>(snapshot);
+        // A debugger state names the bound warning text by its path in the installed presentation.
+        var restored = GraphDigestVerification.RoundTrip(saved, presentation);
         AssertEqual(EscapeTypewriterProgramId.Zebes, restored.ProgramId,
             "debugger state retains compiled escape program identity");
-        AssertThrows<InvalidOperationException>(() =>
-            restored.StepInto(new SnesVram()),
-            "restored escape text fails loudly until host content is rebound");
-        restored.BindProgram(presentation.Get(EscapeTypewriterProgramId.Zebes));
         restored.StepInto(savedVram);
         AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'I' - 'A'),
             savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");

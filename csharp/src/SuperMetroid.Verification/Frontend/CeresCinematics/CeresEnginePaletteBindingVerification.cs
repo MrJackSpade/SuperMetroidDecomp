@@ -58,9 +58,8 @@ internal static class CeresEnginePaletteBindingVerification
                 $"#1150 stock engine color and native one-frame cadence, tick {frame}");
         }
 
-        // A state restore deliberately loses nonserialized presentation bindings.
-        // Rebind through the same frontend entry point as the desktop host; an art
-        // replacement must change the next color, not restart the program's timer.
+        // Restore, then bind edited art through the same frontend entry point as the desktop
+        // host; an art replacement must change the next color, not restart the program's timer.
         using var state = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(state, game);
         state.Position = 0;

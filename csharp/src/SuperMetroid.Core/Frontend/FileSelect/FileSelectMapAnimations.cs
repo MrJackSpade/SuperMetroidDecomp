@@ -12,11 +12,11 @@ public sealed class FileSelectMapAnimations
     internal readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
     /// <summary>Palette cycle state advanced separately from arrow timing.</summary>
     private readonly MapPaletteAnimation palette;
-    /// <summary>Installed visual phases rebound after state restoration without serializing artwork.</summary>
-    [NonSerialized] private MapArrowPresentation? presentation;
+    /// <summary>The installed arrow phases.</summary>
+    private MapArrowPresentation? presentation;
 
     /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading the game's animation data.</summary>
-    /// <param name="presentation">Required installed arrow definitions, retained as host content rather than serialized with the counters.</param>
+    /// <param name="presentation">Required installed arrow definitions.</param>
     /// <exception cref="ArgumentNullException">The address space is null.</exception>
     /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
     public FileSelectMapAnimations(MapArrowPresentation? presentation = null)
@@ -25,7 +25,7 @@ public sealed class FileSelectMapAnimations
         BindPresentation(presentation);
     }
 
-    /// <summary>Rebind current artwork after restoration without resetting visible-arrow timing.</summary>
+    /// <summary>Binds the installed arrow phases when the game is bound to its installed content, without resetting visible-arrow timing.</summary>
     internal void BindPresentation(MapArrowPresentation? content)
     {
         for (int index = 0; index < arrows.Length; index++)

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainRainbowBeamEffect
 {
     /// <summary>Host-owned visual colors; the beam geometry and update cadence stay logic.</summary>
-    [field: NonSerialized]
     public MotherBrainRainbowPalettePresentation? PresentationColors { get; set; }
     /// <summary>Whether the last simulation update showed the beam; hiding it keeps the previous colour and geometry stored but stops them being drawn.</summary>
     public bool Active { get; private set; }

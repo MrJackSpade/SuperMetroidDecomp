@@ -159,18 +159,10 @@ public sealed class PhantoonPartState
     public bool FlameRainRequested { get => _parameterTwo != 0; internal set => _parameterTwo = value ? 1 : 0; }
 
     /// <summary>
-    /// The tentacles' hit-reaction marker, one or two, which no reader consumes. The original game keeps
-    /// <see cref="HurtFlashShown"/> in the same value, so setting the marker also clears that flag.
+    /// A landed hit lets the next hurt flash paint the body again: the game writes a hit marker over the value that
+    /// holds <see cref="HurtFlashShown"/>, and nothing reads the marker itself.
     /// </summary>
-    public int HitReaction
-    {
-        get => _parameterTwo;
-        internal set
-        {
-            _parameterTwo = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-            HurtFlashShown = false;
-        }
-    }
+    internal void RearmHurtFlash() => HurtFlashShown = false;
 
     /// <summary>Whether the hurt flash has painted the body white since the health palette was last restored.</summary>
     public bool HurtFlashShown { get; internal set; }

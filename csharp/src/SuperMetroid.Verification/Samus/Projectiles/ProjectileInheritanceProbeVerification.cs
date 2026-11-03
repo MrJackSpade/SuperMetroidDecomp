@@ -14,7 +14,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
@@ -199,11 +198,8 @@ internal static class ProjectileInheritanceProbeVerification
         AssertTrue((LittleEndianBytes.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
         short expected = unchecked((short)(inherited +
             (weapon == 0 ? ReadPowerBeamLaunchSpeedSum(bus) : 0x0100)));
-        using var stateStream = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(stateStream, runtime);
-        stateStream.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(stateStream);
-        // The host rebinds nonserialized presentation assets after debugger restore.
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(runtime, InstalledFixtures.BoundContent);
+        // The host binds a restored runtime to its content as it binds a new one.
         BindRetailRuntimeFixture(restored);
         runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Shoot));
         restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));

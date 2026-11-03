@@ -57,7 +57,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
-    [NonSerialized] private InstalledSpriteSheets? spriteSheets;
+    private InstalledSpriteSheets? spriteSheets;
 
     /// <summary>Draws <paramref name="family"/>'s frames from the intro sheet.</summary>
     private CinematicSpriteSheet IntroSprites(CinematicSpriteFamily family) =>
@@ -65,7 +65,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             .Get(SpriteSheetId.IntroSprites), family);
 
     /// <summary>The intro's projectile sheet, which the flashbacks' projectiles, bombs and trails draw from.</summary>
-    [NonSerialized] private ProjectileSheets? projectileSheets;
+    private ProjectileSheets? projectileSheets;
 
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
@@ -81,13 +81,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Installed first-font transfer rebound whenever the game is bound to its installed content.</summary>
-    [field: NonSerialized] internal IntroFontAtlas? IntroFont { get; private set; }
+    internal IntroFontAtlas? IntroFont { get; private set; }
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
-    [field: NonSerialized] internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
+    internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
-    [NonSerialized] private InstalledSamusBodyArtwork? samusBodyArtwork;
+    private InstalledSamusBodyArtwork? samusBodyArtwork;
     /// <summary>Host-owned hurt-flash colors consumed by the shared Samus palette handler.</summary>
-    [NonSerialized] private InstalledSamusHurtColors? samusHurtColors;
+    private InstalledSamusHurtColors? samusHurtColors;
     /// <summary>Editable suit-flash colors used by the cinematic's ordinary Samus hurt handler.</summary>
     public void BindSamusHurtColors(InstalledSamusHurtColors? value) => samusHurtColors = value;
     /// <summary>Rebinds installed Samus pixels to active and later intro flashbacks.</summary>
@@ -97,8 +97,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackSamus?.Presentation.BodyFrames.BindArtwork(value);
         CurrentBabyDiscovery?.Samus.Presentation.BodyFrames.BindArtwork(value);
     }
-    /// <summary>Current installed narration content; a stored game keeps only the narration's playback state.</summary>
-    [field: NonSerialized]     public IntroNarrationPresentation? NarrationPresentation
+    /// <summary>The installed narration content.</summary>
+    public IntroNarrationPresentation? NarrationPresentation
     {
         get;
         set
@@ -107,14 +107,14 @@ public sealed class IntroCinematicState : IFrontendScreen
             CurrentObjects?.BindNarration(value);
         }
     }
-    /// <summary>Current host-owned opening font; restored states must explicitly rebind it.</summary>
+    /// <summary>Binds the installed opening font when the game is bound to its installed content.</summary>
     public void BindIntroFont(IntroFontAtlas? value)
     {
         if (value is not null)
             RequireFont(value);
         IntroFont = value;
     }
-    /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
+    /// <summary>Binds the installed BG and OBJ pixels when the game is bound to its installed content.</summary>
     public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
         CharacterArtwork = value;

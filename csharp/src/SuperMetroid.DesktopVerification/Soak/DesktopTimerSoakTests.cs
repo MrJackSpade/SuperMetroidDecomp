@@ -14,6 +14,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 namespace SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -133,7 +134,8 @@ internal static class DesktopTimerSoakTests
     {
         var bus = installation.OpenRuntimeAddressSpace();
         var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options.ToAssists());
-        game.BindAudio(DesktopAccess.LoadAudioClips());
+        var clips = DesktopAccess.LoadAudioClips();
+        game.BindAudio(clips);
         void Step(ControllerButton input) => game.StepCaptured(input);
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
@@ -145,6 +147,7 @@ internal static class DesktopTimerSoakTests
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
         var identity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(installation.LoadAudioClips(),
             installation.LoadMaps(), installation.LoadProjectiles());
-        DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity).Save(0, bus, game);
+        DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity,
+            new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(RepositoryInstallation.Artwork, clips)).Save(0, bus, game);
     }
 }

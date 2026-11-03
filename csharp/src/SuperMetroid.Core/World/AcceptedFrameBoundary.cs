@@ -54,7 +54,10 @@ internal sealed class AcceptedFrameBoundary
     private readonly RoomFxSession _roomFx;
     /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
-    /// <summary>The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466).</summary>
+    /// <summary>
+    /// The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466): a lookup of the bound
+    /// sheet's frames, remade from the sheet when absent, not game state.
+    /// </summary>
     [NonSerialized]
     private HudPictures? _hudPictures;
     /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>

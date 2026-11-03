@@ -59,7 +59,8 @@ internal static class DoorTransitionAutosaveVerification
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
-            var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity);
+            var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity,
+                new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(RepositoryInstallation.Artwork, assets));
             string storeDirectory = (Path.GetDirectoryName(store.GetSlotPath(0)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(store.GetSlotPath(0))."));
             Directory.CreateDirectory((storeDirectory));
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)

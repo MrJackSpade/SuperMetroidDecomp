@@ -24,7 +24,6 @@ internal sealed class PauseScreen
     }
 
     /// <summary>The installed sheets the screen's background tiles come from (#1392).</summary>
-    [field: NonSerialized]
     [AllowNull]
     private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The pause screen's tiles are bound when the game is bound to its installed content."); set; }
 
@@ -71,7 +70,10 @@ internal sealed class PauseScreen
         return new PicturedPlane(MenuScreen.PageSize, [.. PauseEquipmentPictures.Frames(page).Select(frame => AtCorner(pictures.Frame(frame)))]);
     }
 
-    /// <summary>The HUD's images under the pause palette (#1466).</summary>
+    /// <summary>
+    /// The HUD's images under the pause palette (#1466): a lookup of the bound sheet's frames, remade from the sheet when
+    /// absent, not game state.
+    /// </summary>
     [field: NonSerialized]
     [AllowNull]
     private HudPictures HudPictures { get => field ??= new HudPictures(Sheets.Get(SpriteSheetId.PauseHud)); set; }
@@ -83,7 +85,7 @@ internal sealed class PauseScreen
     public ShownHud Hud { get; private set; } = ShownHud.Nothing;
 
     /// <summary>The retained HUD's pictures last resolved, while neither the HUD nor the sheets have changed.</summary>
-    [NonSerialized] private PicturedHud? pictured;
+    private PicturedHud? pictured;
 
     /// <summary>Keeps <paramref name="gameplay"/>, the HUD gameplay displayed at its last frame, resident.</summary>
     internal void RetainHud(ShownHud gameplay)
@@ -106,7 +108,6 @@ internal sealed class PauseScreen
     internal PicturedHud RetainedHudPictures() => pictured ??= HudPictures.Pictured(Hud);
 
     /// <summary>The installed artwork the screen draws.</summary>
-    [field: NonSerialized]
     [AllowNull]
     public AreaMapPresentation Artwork
     {

@@ -19,7 +19,6 @@ internal sealed class PlmSoundQueue
     public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
 
     /// <summary>Live explosion state consulted when each request is created, then rebound after restores.</summary>
-    [NonSerialized]
     private IActivePowerBomb? _audioPowerBomb;
 
     /// <summary>Reconnects the live sound guard before collision setup or instruction execution.</summary>

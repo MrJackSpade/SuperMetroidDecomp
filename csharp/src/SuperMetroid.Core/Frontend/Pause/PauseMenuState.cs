@@ -36,7 +36,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>The installed sprite sheets the map's sprites draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>The map sprite sheet the map's markers, labels, arrows and position indicator draw from.</summary>
     private SpriteSheet MapSheet => spriteSheets.Get(SpriteSheetId.MapSprites);
@@ -59,8 +59,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private readonly Position16<MapTiles> roomMapPosition;
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
-    /// <summary>Installed map artwork, rebound when a stored game is restored.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
+    /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
+    private AreaMapPresentation? mapPresentation;
     /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
@@ -877,7 +877,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
         // rerun controls or rebuild equipment: that would erase the game's same-frame label overruns.
-        // Preserve the serialized scroll position and transition timing. Only refresh
+        // Preserve the live scroll position and transition timing. Only refresh
         // BG1 when it currently contains the map; the equipment page shares that layer.
         if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
     }

@@ -120,7 +120,6 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
     internal static AreaSourceArtwork AreaArtwork => enemyArtwork.Value.Areas;
 
-
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
 
@@ -282,4 +281,17 @@ internal static class InstalledFixtures
         gameBindings.Value(game);
         return game;
     }
+
+    /// <summary>
+    /// The installed content fixture games, runtimes and Samus states are bound to, in a fixed order: what a debugger
+    /// graph names by path rather than holding, as a host's store names the content it binds. Each fixture catalog is
+    /// named through its loader, so a catalog first loaded after a graph was indexed is named from then on.
+    /// </summary>
+    internal static object[] BoundContent => boundContent.Value;
+
+    /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
+    private static readonly Lazy<object[]> boundContent = new(() =>
+        [RepositoryInstallation.Artwork, samusOverreads, enemyOverreads, bossAndIntroOverreads, gameplayBasePalettes, roomAssets,
+            roomCharacters, blockCompositions, maps, enemyArtwork, projectiles, samusBody, introArtwork, enemySheets, spriteSheets,
+            standardObjects]);
 }

@@ -28,7 +28,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -115,8 +114,8 @@ internal static class FrontendRomFreeVerification
     }
 
     /// <summary>
-    /// Binds the installation's catalogs, the ones a host binds, to a new or restored game. Debugger states omit installed
-    /// artwork by design, so a restored room snapshot is bound the same way. <paramref name="enemyArtwork"/> replaces the
+    /// Binds the installation's catalogs, the ones a host binds, to a new or restored game, as a host binds every game it
+    /// runs. <paramref name="enemyArtwork"/> replaces the
     /// installed enemy, boss and area artwork; when the action's second argument is false, the intro cinematic artwork is
     /// left as the game has it.
     /// </summary>
@@ -339,16 +338,8 @@ internal static class FrontendRomFreeVerification
     private static void VerifyFrontendRomFreeRestoredKraidHud(SuperMetroidGame native,
         SuperMetroidGame installed, Action<SuperMetroidGame, bool> bindInstalled)
     {
-        using var nativeSnapshot = new MemoryStream();
-        using var installedSnapshot = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(nativeSnapshot, native);
-        DebuggerObjectGraphSerializer.Serialize(installedSnapshot, installed);
-        nativeSnapshot.Position = 0;
-        installedSnapshot.Position = 0;
-        SuperMetroidGame nativeRoom =
-            DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(nativeSnapshot);
-        SuperMetroidGame installedRoom =
-            DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(installedSnapshot);
+        SuperMetroidGame nativeRoom = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(native, [native.Artwork, .. InstalledFixtures.BoundContent]);
+        SuperMetroidGame installedRoom = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed, [installed.Artwork, .. InstalledFixtures.BoundContent]);
         bindInstalled(nativeRoom, false);
         bindInstalled(installedRoom, false);
         nativeRoom.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
@@ -362,8 +353,8 @@ internal static class FrontendRomFreeVerification
                 : [];
         AssertTrue(Body(nativeRoom).Length != 0 && Body(nativeRoom).SequenceEqual(Body(installedRoom)),
             "restored Kraid body matches before the first accepted NMI");
-        FrontendFrame expected = nativeRoom.Step(0);
-        FrontendFrame actual = installedRoom.Step(0);
+        _ = nativeRoom.Step(0);
+        _ = installedRoom.Step(0);
         RgbaPixel[] expectedPixels = nativeRoom.PublishedPixels(), actualPixels = installedRoom.PublishedPixels();
         AssertTrue(Body(nativeRoom).SequenceEqual(Body(installedRoom)),
             "restored Kraid body remains intact after the deferred HUD refresh");

@@ -44,7 +44,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>The installed sprite sheets the title's compositions draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly AudioQueues? audio;
@@ -56,12 +56,12 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Installed scanline gradient, rebound when a stored game is restored.</summary>
-    [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
-    /// <summary>Installed title palette, rebound when a stored game is restored.</summary>
-    [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
-    /// <summary>Installed title graphics, rebound when a stored game is restored.</summary>
-    [field: NonSerialized] internal TitleGraphicsPresentation? TitleGraphics { get; private set; }
+    /// <summary>Installed scanline gradient, bound when the game is bound to its installed content.</summary>
+    private TitleGradientPresentation? titleGradientPresentation;
+    /// <summary>Installed title palette, bound when the game is bound to its installed content.</summary>
+    private TitlePalettePresentation? titlePalettePresentation;
+    /// <summary>Installed title graphics, bound when the game is bound to its installed content.</summary>
+    internal TitleGraphicsPresentation? TitleGraphics { get; private set; }
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
     /// <summary>The title card whose steps are running.</summary>
@@ -177,17 +177,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         return title;
     }
 
-    /// <summary>Rebinds the installed scanline gradient when a stored game is restored.</summary>
+    /// <summary>Binds the installed scanline gradient when the game is bound to its installed content.</summary>
     internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
         titleGradientPresentation = presentation;
 
-    /// <summary>Rebinds installed sprite compositions when a stored game is restored.</summary>
+    /// <summary>Binds installed sprite compositions when the game is bound to its installed content.</summary>
     internal void BindTitleGraphics(TitleGraphicsPresentation? presentation)
     {
         TitleGraphics = presentation;
     }
 
-    /// <summary>Rebinds installed title colors when a stored game is restored.</summary>
+    /// <summary>Binds installed title colors when the game is bound to its installed content.</summary>
     internal void BindTitlePalette(TitlePalettePresentation? presentation)
     {
         titlePalettePresentation = presentation;

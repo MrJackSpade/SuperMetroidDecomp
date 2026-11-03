@@ -41,7 +41,7 @@ public static class DebuggerSaveStateSmokeTest
                 new string('C', 64),
                 Guid.Parse("01234567-89ab-cdef-0123-456789abcdef"),
                 new Dictionary<string, string> { ["room-layouts"] = new string('E', 64) });
-            var store = DebuggerSaveStateStoreTooling.ForCartridge(fullRomPath, bus.Rom, contentIdentity, temporaryDirectory);
+            var store = DebuggerSaveStateStoreTooling.ForCartridge(fullRomPath, bus.Rom, contentIdentity, content, temporaryDirectory);
             bool emptySlotReported = !store.TryLoad(9, out _);
             if (!emptySlotReported)
                 throw new InvalidDataException("An empty debugger slot was reported as occupied.");
@@ -52,6 +52,7 @@ public static class DebuggerSaveStateSmokeTest
                 temporaryDirectory,
                 hostOptions: null,
                 contentIdentity,
+                content,
                 directoryOverride: temporaryDirectory).Load(0);
             if (installedLoad.Warnings.Count != 0)
                 throw new InvalidDataException("Installer-verified debugger state identity did not match the retail source revision.");
@@ -84,8 +85,7 @@ public static class DebuggerSaveStateSmokeTest
             DebuggerSaveStateLoadResult loaded = store.Load(0);
             if (loaded.Warnings.Count != 2)
                 throw new InvalidDataException("Compatible cross-build state did not emit both build warnings.");
-            // The real hosts rebind nonserialized installed catalogs after restoration.
-            // The audit must use that contract too, not an implicit cartridge fallback.
+            // The real hosts bind a restored game to its content and save storage as they bind a new one.
             loaded.BindGame(content, new GameSaveFile(Path.Combine(temporaryDirectory, "SuperMetroid.save.json")));
 
             GameContentIdentity changedAudioIdentity = GameContentIdentity.Create(
@@ -95,7 +95,7 @@ public static class DebuggerSaveStateSmokeTest
                 contentIdentity.CompiledDefinitionsBuildId,
                 contentIdentity.AdditionalContentSha256);
             DebuggerSaveStateLoadResult changedAudio = DebuggerSaveStateStoreTooling.ForCartridge(
-                fullRomPath, bus.Rom, changedAudioIdentity, temporaryDirectory).Load(0);
+                fullRomPath, bus.Rom, changedAudioIdentity, content, temporaryDirectory).Load(0);
             if (changedAudio.Warnings.Count != 3 ||
                 !changedAudio.Warnings.Any(warning => warning.Contains("audio", StringComparison.Ordinal)))
             {
@@ -132,7 +132,7 @@ public static class DebuggerSaveStateSmokeTest
 
             byte[] wrongRom = bus.Rom.ToArray();
             wrongRom[0] ^= 1;
-            var wrongStore = DebuggerSaveStateStoreTooling.ForCartridge(fullRomPath, wrongRom, contentIdentity, temporaryDirectory);
+            var wrongStore = DebuggerSaveStateStoreTooling.ForCartridge(fullRomPath, wrongRom, contentIdentity, content, temporaryDirectory);
             bool wrongRomRejected = false;
             try
             {

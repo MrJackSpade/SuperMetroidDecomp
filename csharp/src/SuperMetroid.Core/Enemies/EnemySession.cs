@@ -75,21 +75,18 @@ public sealed class EnemySession : ISpriteObjectPage
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
-    /// does not enable a fallback. It is installed content, reinstalled when a saved game state is restored.
+    /// does not enable a fallback. It is installed content, bound with the game's artwork.
     /// </summary>
-    [field: NonSerialized]
     internal EnemyTileArtworkCatalog? TileArtwork { get; set; }
 
-    /// <summary>The installed pre-coloured enemy sheets; artwork, never saved. The host reinstalls them after a restore.</summary>
-    [field: NonSerialized]
+    /// <summary>The installed pre-coloured enemy sheets, bound with the game's artwork.</summary>
     internal IEnemySheetSource? Sheets { get; set; }
 
     /// <summary>
-    /// The installed services reproducing what enemies read past their authored data (#1500); installed content, never
-    /// saved. The host reinstalls them after a restore. An enemy that reaches one of those reads requires them; null
+    /// The installed services reproducing what enemies read past their authored data (#1500), bound with the game's
+    /// artwork. An enemy that reaches one of those reads requires them; null
     /// does not enable a fallback.
     /// </summary>
-    [field: NonSerialized]
     internal EnemyOverreadServices? Overreads { get; set; }
 
     /// <summary>Shows an encounter's <paramref name="look"/> over what showed before it (#1406, #1463).</summary>

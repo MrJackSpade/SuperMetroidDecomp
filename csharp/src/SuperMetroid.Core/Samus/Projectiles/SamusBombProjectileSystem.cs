@@ -26,7 +26,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class SamusBombProjectileSystem
 {
     /// <summary>Shared installed timed-frame sprite choices for the bomb half of the projectile pool.</summary>
-    [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
     /// <summary>How many bombs Samus can have out at once.</summary>
     public const int SlotCount = MorphBallBombDefinitions.SlotCount;
@@ -83,7 +82,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     internal void SetSharedBombCounter(int value) => BombCounter = value;
 
-    /// <summary>Observable result of the most recent translated alpha/interaction pass.</summary>
+    /// <summary>The most recent alpha/interaction pass's result, whose sound requests the frontend routes after the frame.</summary>
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>

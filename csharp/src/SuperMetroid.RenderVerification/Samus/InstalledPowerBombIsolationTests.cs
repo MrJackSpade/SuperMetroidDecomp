@@ -153,16 +153,16 @@ internal static class InstalledPowerBombIsolationTests
         return state;
     }
 
-    /// <summary>Compares all serialized explosion fields except the three deliberately editable COLDATA outputs.</summary>
+    /// <summary>Compares all serialized explosion fields except the editable colour output and the bound colours.</summary>
     internal static void RequireSameMechanics(SamusPowerBombExplosionState first,
         SamusPowerBombExplosionState second, string context)
     {
         // Include private phase timers and every future serialized field. Only the
-        // colour the explosion adds and nonserialized host binding may differ.
+        // colour the explosion adds and the installed colours it is bound to may differ.
         foreach (FieldInfo field in MetadataShape.Fields(typeof(SamusPowerBombExplosionState), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name is
-                "<FixedColor>k__BackingField") continue;
+                "<FixedColor>k__BackingField" or "<PresentationColors>k__BackingField") continue;
             Require(Equals(field.GetValue(first), field.GetValue(second)),
                 $"{context}: {field.Name} differs: stock={field.GetValue(first)}, edited={field.GetValue(second)}");
         }
@@ -217,10 +217,9 @@ internal static class InstalledPowerBombIsolationTests
             var state = Create(colors, crystalFlash);
             do
             {
-                var current = Restore(state, out string currentWarning);
+                var current = Restore(state, colors, out string currentWarning);
                 Require(currentWarning.Length == 0, "A current graph unexpectedly needed a migration.");
-                Require(current.PresentationColors is null, "A debugger graph retained a host catalog.");
-                current.PresentationColors = colors;
+                Require(ReferenceEquals(current.PresentationColors, colors), "A debugger graph did not name its bound colours.");
                 RequireSameMechanics(state, current, "Current graph restore");
                 Require(Colors(state) == Colors(current), "Current graph restore changed display colors.");
                 CompareRemainder(state, current, colors, "Current graph resume");
@@ -231,13 +230,13 @@ internal static class InstalledPowerBombIsolationTests
         Console.WriteLine($"Explosion state compatibility: {restores} checkpoints resume with identical stock state, colors and cleanup.");
     }
 
-    /// <summary>Checks edited checkpoints rebind to the colours supplied after loading.</summary>
+    /// <summary>Checks edited checkpoints restore bound to the colours supplied when loading.</summary>
     private static void CheckEditedRestore(SamusPowerBombExplosionState edited,
         InstalledPowerBombFixedColors reboundColors, string context)
     {
-        var restored = Restore(edited, out string warning);
+        var restored = Restore(edited, reboundColors, out string warning);
         Require(warning.Length == 0, context + ": current edited capture warned");
-        restored.PresentationColors = reboundColors;
+        Require(ReferenceEquals(restored.PresentationColors, reboundColors), context + ": restore did not bind the supplied colours");
         RequireSameMechanics(edited, restored, context + ": edited checkpoint restore");
         CompareRemainder(edited, restored, reboundColors, context + ": edited checkpoint rebind");
 
@@ -247,8 +246,7 @@ internal static class InstalledPowerBombIsolationTests
     private static void CompareRemainder(SamusPowerBombExplosionState state,
         SamusPowerBombExplosionState restored, InstalledPowerBombFixedColors colors, string context)
     {
-        var baseline = Restore(state, out _);
-        baseline.PresentationColors = colors;
+        var baseline = Restore(state, colors, out _);
         int frames = 0;
         do
         {
@@ -259,18 +257,23 @@ internal static class InstalledPowerBombIsolationTests
         } while (baseline.IsActive);
     }
 
-    /// <summary>Serializes the graph, restores it through the production codec, and captures any warning.</summary>
-    private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state, out string warning)
+    /// <summary>
+    /// Serializes the graph with its colours bound, restores it through the production codec bound to
+    /// <paramref name="colors"/>, and captures any warning.
+    /// </summary>
+    private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state,
+        InstalledPowerBombFixedColors colors, out string warning)
     {
         using var data = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(data, state);
+        DebuggerObjectGraphSerializer.Serialize(data, state, new BoundObjectGraph([state.PresentationColors
+            ?? throw new InvalidOperationException("A captured explosion is bound to its colours.")]));
         data.Position = 0;
         using var errors = new StringWriter();
         TextWriter previous = Console.Error;
         try
         {
             Console.SetError(errors);
-            return DebuggerObjectGraphSerializer.Deserialize<SamusPowerBombExplosionState>(data);
+            return DebuggerObjectGraphSerializer.Deserialize<SamusPowerBombExplosionState>(data, new BoundObjectGraph([colors]));
         }
         finally { Console.SetError(previous); warning = errors.ToString(); }
     }

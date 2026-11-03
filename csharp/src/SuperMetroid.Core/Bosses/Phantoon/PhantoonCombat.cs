@@ -275,7 +275,7 @@ internal sealed class PhantoonCombat
         if (body.Health == 0)
         {
             _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
-            state.Parts[state.Tentacles.SlotIndex].HitReaction = 1;
+            state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
             body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
             BeginPhantoonDeathSequence(body, state);
             return;
@@ -312,7 +312,7 @@ internal sealed class PhantoonCombat
                     state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(1);
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutWhileSwooping);
-                state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
+                state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
                 return;
             }
 
@@ -321,7 +321,7 @@ internal sealed class PhantoonCombat
                 int random = _room.Random.Generate() & 7;
                 state.Parts[state.Eye.SlotIndex].ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[random];
                 state.Parts[state.Mouth.SlotIndex].ShotPattern = random;
-                state.Parts[state.Tentacles.SlotIndex].HitReaction = 1;
+                state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
                 if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
                 {
                     state.Parts[state.Tentacles.SlotIndex].SwoopRequested = true;
@@ -332,10 +332,8 @@ internal sealed class PhantoonCombat
             }
         }
 
-        // Writes this otherwise-unused marker even when a valid damaging shot lands
-        // outside the three reaction states; nothing reads it, and it is kept as the game
-        // writes it.
-        state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
+        // A valid damaging shot outside the three reaction states still re-arms the flash.
+        state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
     }
 
     /// <summary>Closes the eye and ends the vulnerable interval after a damaging hit.</summary>
@@ -355,7 +353,7 @@ internal sealed class PhantoonCombat
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         state.Parts[eye.SlotIndex].FadeComplete = false;
-        state.Parts[tentacles.SlotIndex].HitReaction = 2;
+        state.Parts[tentacles.SlotIndex].RearmHurtFlash();
     }
 
     /// <summary>Switches from combat to the fatal swoop and death phases.</summary>

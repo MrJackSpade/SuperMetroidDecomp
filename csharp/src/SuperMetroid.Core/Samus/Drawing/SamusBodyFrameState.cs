@@ -17,14 +17,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed class SamusBodyFrameState
 {
     /// <summary>Currently bound external visual presentation; never part of save state.</summary>
-    [field: NonSerialized]
     public InstalledSamusBodyArtwork? Artwork { get; private set; }
 
     /// <summary>Rebinds the installed body artwork without changing the shown pictures.</summary>
     public void BindArtwork(InstalledSamusBodyArtwork? value) => Artwork = value;
 
     /// <summary>The installed pre-coloured sheets the body draws from; never part of save state.</summary>
-    [field: NonSerialized]
     public InstalledSpriteSheets? Sheets { get; private set; }
 
     /// <summary>Rebind the installed sheets.</summary>

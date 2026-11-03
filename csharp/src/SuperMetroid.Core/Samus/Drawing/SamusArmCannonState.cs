@@ -19,7 +19,6 @@ public sealed class SamusArmCannonState
     internal HudItem PreviousSelectedHudItem { get; set; }
 
     /// <summary>Installed arm-cannon artwork: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public InstalledSamusArmCannonArtwork? Artwork { get; set; }
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>

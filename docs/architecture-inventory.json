@@ -119611,19 +119611,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Movement.DraygonGrabbedMovementResult",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Movement/DraygonGrabbedMovementResult.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Movement.DraygonOwnerPlacement",
       "kind": "record struct",
       "scope": "product",
@@ -129911,6 +129898,58 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph.GrowingCollection",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph.LazyAccess",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph.Origin",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerDelegateIdentity",
       "kind": "static class",
       "scope": "product",
@@ -139715,6 +139754,24 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.BuildPolicyVerification",
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.EnsureVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RunTimeLimit/VerificationRunTimeLimit.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.TestSupport.SamusNativeCodecs.SamusAccelerationModeCodec",

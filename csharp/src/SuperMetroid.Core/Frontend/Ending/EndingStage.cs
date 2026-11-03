@@ -51,7 +51,7 @@ internal sealed class EndingStage
     internal Position16<TilePlanePixels> PostCreditsScroll { get; set; }
 
     /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
-    [field: NonSerialized] internal EndingObjectArtwork? ObjectArtwork { get; set; }
+    internal EndingObjectArtwork? ObjectArtwork { get; set; }
     /// <summary>Current cinematic-function replacement, including terminal display states.</summary>
     public EndingCreditsPhase Phase { get; internal set; }
 
@@ -259,15 +259,12 @@ internal sealed class EndingStage
     internal RoomPaletteFxSystem PaletteFxSystem { get; private set; } = new(new PaletteFxSessionState());
 
     /// <summary>The ending's installed font.</summary>
-    [field: NonSerialized]
     internal EndingFontAtlas? EndingFont { get; private set; }
 
     /// <summary>The ending's installed Mode 7 artwork.</summary>
-    [field: NonSerialized]
     internal EndingFloorArtwork? FloorArtwork { get; private set; }
 
     /// <summary>The ending's installed palettes.</summary>
-    [field: NonSerialized]
     internal EndingPaletteSet? PaletteArtwork { get; private set; }
 
     /// <summary>Raises screen brightness one step every two calls until full brightness.</summary>
@@ -306,14 +303,14 @@ internal sealed class EndingStage
     /// <summary>Restarts the fade cadence: the next fade step lands two calls from now.</summary>
     internal void RestartFadeCadence() => fadeCounter = 1;
 
-    /// <summary>Rebinds the host-owned ending font after catalog reload or restoration.</summary>
+    /// <summary>Binds the installed ending font when the game is bound to its installed content.</summary>
     internal void BindEndingFont(EndingFontAtlas? value)
     {
         EndingFont = value;
     }
 
     /// <summary>
-    /// Selects the installed floor artwork when a stored game is restored. The active
+    /// Selects the installed floor artwork when the game is bound to its installed content. The active
     /// backdrop is refreshed without resetting actors, palette, transform or music.
     /// During the flyaway's artwork loading, already-loaded chunks are reapplied last.
     /// </summary>

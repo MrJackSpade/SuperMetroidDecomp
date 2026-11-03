@@ -159,7 +159,7 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog, catalog));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
         SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(0) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(new AudioQueues(), savedSlot, 0),

@@ -16,12 +16,15 @@ internal static class AndroidFileImport
         var installation = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root);
         var maps = installation.LoadMaps();
         var projectiles = installation.LoadProjectiles();
+        var clips = installation.LoadAudioClips();
+        var artwork = installation.LoadGameArtwork(maps, projectiles);
         var contentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            installation.LoadAudioClips(),
+            clips,
             maps,
             projectiles,
-            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles),
+            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork,
                 installation.LoadStandardObjects()));
+        var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(artwork, clips);
         return ImportStateCore(
             root,
             source,
@@ -30,6 +33,7 @@ internal static class AndroidFileImport
                 root,
                 hostOptions: null,
                 contentIdentity,
+                content,
                 directory));
     }
 

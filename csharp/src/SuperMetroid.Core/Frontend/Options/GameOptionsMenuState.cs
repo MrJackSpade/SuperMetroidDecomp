@@ -21,7 +21,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     }
 
     /// <summary>The installed sprite sheets the headings and cursor draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly AudioQueues? audio;
@@ -30,8 +30,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Provides editable menu art after construction or when a stored game is restored.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
+    /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
+    private AreaMapPresentation? mapPresentation;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
     internal ShownOptionsPage ShownPage { get; private set; }
     /// <summary>Page whose input and cursor policy currently apply.</summary>
@@ -79,7 +79,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         Phase = GameOptionsPhase.FinishFadingOut;
     }
 
-    /// <summary>Rebinds the installed menu art when a stored game is restored.</summary>
+    /// <summary>Binds the installed menu art when the game is bound to its installed content.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         mapPresentation = catalog ?? throw new InvalidOperationException(

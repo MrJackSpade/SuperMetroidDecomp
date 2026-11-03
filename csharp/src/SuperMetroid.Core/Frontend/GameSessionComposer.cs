@@ -31,9 +31,8 @@ public static class GameSessionComposer
 
     /// <summary>
     /// Binds a game to the installed content it draws and plays, and to the storage that keeps its saves. Creation binds
-    /// every new game; a host binds a game it brings back from a saved session the same way, since a saved session
-    /// keeps neither. The clips bind first, then the artwork, then the save storage: a game whose session never bound
-    /// clips is rejected before anything else is bound.
+    /// every new game; a host binds a game it brings back the same way. The clips bind first, then the artwork, then the
+    /// save storage: a game whose session never bound clips is rejected before anything else is bound.
     /// </summary>
     /// <param name="game">The game to bind.</param>
     /// <param name="content">The installed content.</param>

@@ -20,15 +20,14 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusShinesparkState
 {
     /// <summary>Live Power Bomb state consulted when a spark sound request is produced.</summary>
-    [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    private SamusPowerBombExplosionState? _audioPowerBomb;
     /// <summary>The session's held beam charge and flare, canceled when spark windup begins.</summary>
-    [NonSerialized] private BeamChargeState? _charge;
+    private BeamChargeState? _charge;
     /// <summary>One-frame library-one sound request from canceling a sufficiently charged flare.</summary>
-    [NonSerialized] private bool _chargeCancellationSoundRequested;
+    private bool _chargeCancellationSoundRequested;
 
     /// <summary>
-    /// Rebinds the live projectile and sound owners before movement/palette production,
-    /// including restored states. These references are routing, not game state.
+    /// Binds the room's projectile and sound owners before movement/palette production.
     /// </summary>
     internal void BindProjectileOwners(
         BeamChargeState charge,
@@ -157,7 +156,6 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Producer-time Power Bomb guard for the pending charge-cancellation call.</summary>
-    [field: NonSerialized]
     public bool ChargeCancellationSoundSuppressed { get; private set; }
 
     /// <summary>

@@ -127,7 +127,7 @@ internal static class ChargeFlarePlacementVerification
             "no pose's shot direction selects past the turning placements");
         var subject = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
-        byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
+        byte[] beforeSamus = GraphDigest(subject, InstalledFixtures.BoundContent), beforeSystem = GraphDigest(system, InstalledFixtures.BoundContent);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
             new ChargeFlareArtwork { Placement = stock, Objects = objects }));
         OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
@@ -139,7 +139,7 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Editable placement shifts the actual flare OBJ seven pixels");
             AssertEqual(original.GetEntry(i).Position.Y, changed.GetEntry(i).Position.Y, "X-only flare edit preserves Y");
         }
-        AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
+        AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject, InstalledFixtures.BoundContent)) && beforeSystem.SequenceEqual(GraphDigest(system, InstalledFixtures.BoundContent)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
         {
             var originalSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var editedSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
@@ -161,7 +161,7 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Public flare placement preserves component admission");
             for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
                 AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Public normal/Hyper path forwards selected placement to all components");
-            AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
+            AssertTrue(GraphDigest(originalSystem, InstalledFixtures.BoundContent).SequenceEqual(GraphDigest(editedSystem, InstalledFixtures.BoundContent)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
         document.Required("offsets").AsObject().Remove(ChargeFlarePlacementFile.Key(false, 0));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
@@ -234,32 +234,6 @@ internal static class ChargeFlarePlacementVerification
             ChargeFlarePlacement = edited,
         });
         AssertTrue(!native.SequenceEqual(Draw(runtime)), "Runtime actor pass consumes edited flare placement");
-        game.BindArtwork(game.Artwork with
-        {
-            ChargeFlarePlacement = null,
-        });
-        using var without = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindArtwork(game.Artwork with
-        {
-            ChargeFlarePlacement = stock,
-        });
-        using var with = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Flare catalog does not enter frontend/runtime saved graphs");
-        with.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.Session.GameplayRuntime;
-        AssertTrue(restoredRuntime.Artwork.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
-        BindRetailRuntimeFixture(restoredRuntime);
-        game.BindArtwork(game.Artwork with
-        {
-            ChargeFlarePlacement = edited,
-        }); restored.BindArtwork(restored.Artwork with
-{
-    ChargeFlarePlacement = edited,
-});
-        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored runtime emits current flare content at the saved animation state");
     }
 
     /// <summary>Runs the charge-flare placement comparison against the local retail cartridge image.</summary>

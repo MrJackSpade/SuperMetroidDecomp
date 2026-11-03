@@ -15,11 +15,9 @@ internal sealed class BossBodyCanvas
     private readonly string blank;
 
     /// <summary>The last published layer, until a part is placed or another sheet is bound.</summary>
-    [NonSerialized]
     private BossBodyLayer? published;
 
     /// <summary>The sheet <see cref="published"/> was drawn from.</summary>
-    [NonSerialized]
     private BossBodySheet? publishedFrom;
 
     /// <summary>Creates a canvas of <paramref name="rows"/> rows of <paramref name="sheet"/>'s boss, every cell showing its blank.</summary>

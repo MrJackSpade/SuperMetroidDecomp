@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [RoomLifetime]
 internal sealed class EnemyProjectileEngine
 {
-    /// <summary>Serialized handler owners; their delegate table is rebuilt after restore to avoid compiler-generated identities.</summary>
+    /// <summary>The owners whose projectile handlers make up the dispatch table.</summary>
     private readonly List<IEnemyProjectileHandlerSource> _handlerSources = [];
 
     /// <summary>
@@ -31,8 +31,7 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void AddHandlerSource(IEnemyProjectileHandlerSource source) => _handlerSources.Add(source);
 
-    /// <summary>Lazy runtime dispatch table rebuilt from the serialized handler owners.</summary>
-    [field: NonSerialized]
+    /// <summary>The dispatch table, built from the handler owners on the first dispatch, after composition added them all.</summary>
     private EnemyProjectileHandlerTable Handlers => field ??= BuildHandlers();
 
     /// <summary>Registers the stationary behaviour and every species-owned projectile handler.</summary>

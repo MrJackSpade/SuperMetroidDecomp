@@ -33,11 +33,9 @@ internal sealed class EnemyAudioQueue
     private readonly Dictionary<EnemyMusicSource, List<DelayedMusicRequest>> _pendingMusic = [];
 
     /// <summary>
-    /// The power-bomb explosion bound for the current enemy frame. Runtime frame bindings are not duplicate
-    /// serialized owners: EnemyMain refreshes this before AI; later draw and room-main requests
-    /// sample the same owner.
+    /// The power-bomb explosion bound for the current enemy frame: EnemyMain refreshes this before AI; later draw and
+    /// room-main requests sample the same owner.
     /// </summary>
-    [field: NonSerialized]
     internal SamusPowerBombExplosionState? PowerBomb { get; set; }
 
     /// <summary>
@@ -73,7 +71,7 @@ internal sealed class EnemyAudioQueue
 
     /// <summary>The music the loading room's enemies start, consumed in the same update outside the enemy pass.</summary>
     /// <remarks>The requests do not outlive the update that makes them, so a saved game state never holds any.</remarks>
-    [NonSerialized] private List<MusicRequest>? _roomEnemyStartMusic;
+    private List<MusicRequest>? _roomEnemyStartMusic;
 
     /// <summary>
     /// Requests music an enemy's initialization starts as its room loads. Room loading plays it after the room's own

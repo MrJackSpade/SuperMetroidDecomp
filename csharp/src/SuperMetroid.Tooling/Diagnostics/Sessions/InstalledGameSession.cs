@@ -75,7 +75,8 @@ internal sealed class InstalledGameSession : IDisposable
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,
             Options.Game,
-            ContentIdentity);
+            ContentIdentity,
+            content);
         recorder = StartRecorder();
         WriteRecordingMetadata(seedFile: null);
     }

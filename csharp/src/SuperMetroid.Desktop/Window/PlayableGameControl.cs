@@ -415,7 +415,8 @@ public sealed class PlayableGameControl : UserControl
             playerDataDirectory,
             hostOptions.Game,
             installedContentIdentity ?? throw new InvalidOperationException(
-                "Installed desktop session has no content identity."));
+                "Installed desktop session has no content identity."),
+            content ?? throw new InvalidOperationException("Installed desktop session has no bound content."));
     }
 
     /// <summary>Begins a replay recording seeded from the SRAM image of the session's current saves.</summary>

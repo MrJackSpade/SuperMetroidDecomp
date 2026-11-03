@@ -54,7 +54,7 @@ internal sealed class SamusMechanicsSnapshot
         }
     }
 
-    /// <summary>Includes private gameplay fields while excluding nonserialized host catalogs and draw outputs.</summary>
+    /// <summary>Includes private gameplay fields while excluding installed catalogs and draw outputs.</summary>
     [ReflectionAudit("structural snapshot: every serializable field of the Samus graph participates, so new gameplay state cannot escape the comparison")]
     private static FieldInfo[] SerializableFields(Type type)
     {
@@ -64,11 +64,12 @@ internal sealed class SamusMechanicsSnapshot
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
             .OrderBy(field => field.Name, StringComparer.Ordinal))
         {
-            // Host-bound catalogs are not simulation state. The only mutable
-            // exceptions are body draw outputs: OAM selectors/origin, the definition
-            // records shown and the body frame state. Animation/frame timers, radii, pose/history and all
-            // movement/special-sequence children remain compared, including private fields.
+            // Installed catalogs, whose types live in the Artwork namespaces, are not simulation state: the stock and
+            // edited graphs are bound to different ones. The only mutable exceptions are body draw outputs: OAM
+            // selectors/origin, the definition records shown and the body frame state. Animation/frame timers, radii,
+            // pose/history and all movement/special-sequence children remain compared, including private fields.
             if (field.IsDefined(typeof(NonSerializedAttribute)) ||
+                field.FieldType.Namespace?.EndsWith(".Artwork", StringComparison.Ordinal) == true ||
                 field.FieldType == typeof(SamusBodyFrameState) ||
                 (owner == typeof(SamusPresentation) && field.Name is
                     "<TopSpritemap>k__BackingField" or

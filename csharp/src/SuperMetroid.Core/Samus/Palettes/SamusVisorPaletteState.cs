@@ -22,7 +22,6 @@ public sealed class SamusVisorPaletteState
     private const int ResetTimer = 1;
 
     /// <summary>Installed visor artwork: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public InstalledSamusVisorColors? PresentationColors { get; set; }
 
     /// <summary>

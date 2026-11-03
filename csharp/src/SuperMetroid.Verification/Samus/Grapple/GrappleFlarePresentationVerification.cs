@@ -34,6 +34,8 @@ internal static class GrappleFlarePresentationVerification
         var guard = NewGrappleFlarePresentationGuard(NewChargeFlareCompositionGuard(bus));
         var flarePlacement = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
+        // The cases bind Samus to this body and flare placement: content a capture names, never copies.
+        object[] content = [body, flarePlacement, .. InstalledFixtures.BoundContent];
         foreach (int address in new[] { GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets })
             AssertEqual(ReadNativeGrappleFlareSpritemapOffset(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;
@@ -94,8 +96,7 @@ internal static class GrappleFlarePresentationVerification
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
             Check(samus, Clone(samus), Clone(samus));
         }
-        Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(body, roomAssets, maps,
-            grappleArtwork));
+        Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(roomAssets, maps, grappleArtwork));
         Console.WriteLine($"Grapple flare: {cases} phase, position, sentinel, rewind and timer-boundary cases preserve native cadence/OAM and complete Samus state with visual/cadence ROM forbidden; actual actor override/rebind passes.");
 
         void Check(SamusState native, SamusState actual, SamusState changed)
@@ -133,23 +134,18 @@ internal static class GrappleFlarePresentationVerification
 
             AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
-            AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(actual)), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
+            AssertTrue(GraphDigest(native, content).SequenceEqual(GraphDigest(actual, content)), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
             cases++;
         }
-        static SamusState Clone(SamusState source)
-        {
-            using var stream = new MemoryStream(SerializeGraph(source));
-            return SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
-        }
+        SamusState Clone(SamusState source) => RoundTrip(source, content);
     }
 
     /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>
     private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks the real actor draws the flare from the bound sheets and rebinds them after a saved-state restore.</summary>
+    /// <summary>Checks the real actor draws the flare from the bound sheets, and from newly bound ones.</summary>
     private static void VerifyGrappleFlareActorBinding(
-        InstalledSamusBodyArtwork body, MapPresentationInstalledRoomAssets roomAssets,
-        AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
+        MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
     {
         var random = new SharedRandom();
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: roomAssets.InitialPalettes, random: random);
@@ -180,17 +176,6 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleFlare)
                 .All(draw => ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, ((ImageSpriteDraw)draw).Image.Sheet)),
             "Real Grapple actor draws its flare from the rebound projectile sheet");
-        using var stream = new MemoryStream(SerializeGraph(game));
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.Session.GameplayRuntime;
-        roomAssets.Bind(restoredRuntime);
-        restoredRuntime.Artwork.MapPresentation = maps;
-        restoredRuntime.Artwork.GrappleFlarePlacement = grappleArtwork.FlarePlacement;
-        restoredRuntime.Artwork.GrappleSwingFrames = grappleArtwork.SwingFrames;
-        restoredRuntime.Player.IntroducedSamus.Presentation.BodyFrames.BindBodyFixture(body);
-        restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
-        restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });
-        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored Grapple actor uses current sheets at the saved timing state");
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();

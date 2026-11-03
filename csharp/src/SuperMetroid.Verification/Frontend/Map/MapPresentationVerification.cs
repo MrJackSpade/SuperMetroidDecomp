@@ -473,7 +473,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyStaffCreditsAssets), () => VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
     }
@@ -1320,18 +1320,12 @@ internal static class MapPresentationVerification
         GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-        using var withoutContent = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = original,
         });
-        using var withContent = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(withContent, game);
-        AssertTrue(withoutContent.WrittenBytes().SequenceEqual(withContent.WrittenBytes()), "map resources do not enter debugger graph");
-        withContent.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(withContent);
-        AssertTrue(restored.MapPresentationIdentity is null, "restored graph requires host content rebind");
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
+        AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
         restored.BindArtwork(restored.Artwork with
         {
             MapPresentation = edited,
@@ -1354,7 +1348,7 @@ internal static class MapPresentationVerification
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
         _ = pause.Render();
         Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(original, edited));
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, edited));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 

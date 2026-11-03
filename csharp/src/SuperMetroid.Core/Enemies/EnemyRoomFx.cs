@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyRoomFx
 {
-    /// <summary>Current room's effect state; excluded from serialized enemy state and rebound after restoration.</summary>
-    [field: NonSerialized] internal RoomLayer3FxState? Layer3Fx { get; private set; }
+    /// <summary>The current room's effect state, bound when the room loads.</summary>
+    internal RoomLayer3FxState? Layer3Fx { get; private set; }
 
     /// <summary>
     /// Binds the room's effect state before gameplay and when a saved game state is restored.

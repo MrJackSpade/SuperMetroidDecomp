@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// Once-only publication of the sound producers preceding Samus's echo call.
-/// One instance belongs to one frontend Step, never to the serialized game graph.
+/// One instance belongs to one frontend Step, never to the game's retained state.
 /// </summary>
 internal sealed class GameplayAudioFramePublication(AudioQueues audio)
 {

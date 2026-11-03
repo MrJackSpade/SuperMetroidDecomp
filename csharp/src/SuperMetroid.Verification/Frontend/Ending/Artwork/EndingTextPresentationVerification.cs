@@ -85,15 +85,13 @@ internal static class EndingTextPresentationVerification
 
         var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new EndingScreen());
-        using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
-        snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
-            .Deserialize<EndingBackgroundTextState>(snapshot);
-        AssertThrows<InvalidOperationException>(() => restored.Step(new EndingScreen()),
-            "restored ending text fails loudly until host content is rebound");
-        restored.BindPresentation(presentation.Typewriter());
-        restored.Step(new EndingScreen());
+        var restored = GraphDigestVerification.RoundTrip(saved, presentation);
+        var continued = new EndingScreen();
+        var resumed = new EndingScreen();
+        saved.Step(continued);
+        restored.Step(resumed);
+        AssertTrue(GraphDigestVerification.GraphDigest(continued).SequenceEqual(GraphDigestVerification.GraphDigest(resumed)),
+            "restored ending text continues as the saved text does, without being bound again");
 
         editedDocument["finalMessage"] = "lowercase";
         AssertThrows<InvalidDataException>(() => EndingTextPresentation.Load(

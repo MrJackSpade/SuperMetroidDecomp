@@ -437,10 +437,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal RoomEarthquake Earthquake { get; }
 
     /// <summary>
-    /// The reactions several species share. They are rebuilt from their owners on first access, including after a
-    /// saved game state is restored.
+    /// The reactions several species share, built from their owners on first access.
     /// </summary>
-    [field: NonSerialized]
     internal EnemySharedReactions SharedReactions => field ??= BuildSharedReactions();
 
     /// <summary>The shared reactions, for the common participation to resolve at use.</summary>
@@ -495,27 +493,21 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal IElevatorJourney Elevator => ElevatorBehavior;
 
     /// <summary>The gunship's save prompt and health handler.</summary>
-    [field: NonSerialized]
     internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
-    [field: NonSerialized]
     internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior);
 
     /// <summary>The state and hooks the room main routines and scrolling use.</summary>
-    [field: NonSerialized]
     internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(CrocomireBehavior, SporeSpawnBehavior, ZebetiteBehavior);
 
     /// <summary>The operations the room loader runs.</summary>
-    [field: NonSerialized]
     internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
 
     /// <summary>The enemy setup the attract demo's room setups perform.</summary>
-    [field: NonSerialized]
     internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(KraidBehavior);
 
     /// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
-    [field: NonSerialized]
     internal IEnemyPlmSpawns PlmSpawns => field ??= new EnemyPlmSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
         DraygonBehavior, MotherBrainBehavior, BombTorizoBehavior, EscapeExplosionsBehavior);
 
@@ -523,7 +515,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal IEnemyPlmRequests PlmRequests => field ??= new EnemyPlmRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
     /// <summary>The Tourian statue sequence's operations.</summary>
-    [field: NonSerialized]
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
@@ -1156,7 +1147,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     }
 
     /// <summary>
-    /// Rebuilds the shared reactions after construction or a restored game state, in the established first-match order.
+    /// Builds the shared reactions in the established first-match order.
     /// </summary>
     private EnemySharedReactions BuildSharedReactions()
     {

@@ -31,14 +31,13 @@ internal sealed class EndingArtwork
     /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's animation-step boundary.</summary>
     private bool rewardIconUploading;
 
-    /// <summary>Rebinds the installed sprite sheets after a catalog reload or state restoration.</summary>
+    /// <summary>Binds the installed sprite sheets when the game is bound to its installed content.</summary>
     internal void BindSpriteSheets(InstalledSpriteSheets? value) => Sheets = value;
 
     /// <summary>The installed sheet <paramref name="sheet"/>.</summary>
     internal SpriteSheet SpriteSheet(SpriteSheetId sheet) => Sheets.Get(sheet);
 
     /// <summary>The installed sprite sheets the ending's actors and backgrounds draw from (#1392).</summary>
-    [field: NonSerialized]
     [AllowNull]
     internal InstalledSpriteSheets Sheets
     {
@@ -46,7 +45,7 @@ internal sealed class EndingArtwork
         private set;
     }
 
-    /// <summary>Rebinds host-owned ending text after catalog reload or graph restoration.</summary>
+    /// <summary>Binds the installed ending text when the game is bound to its installed content.</summary>
     public void BindEndingText(EndingTypewriterText? value)
     {
         EndingText = value;
@@ -54,7 +53,7 @@ internal sealed class EndingArtwork
     }
 
 
-    /// <summary>Rebinds the ending's installed object artwork after a state restore.</summary>
+    /// <summary>Binds the ending's installed object artwork when the game is bound to its installed content.</summary>
     internal void BindObjectArtwork(EndingObjectArtwork? value)
     {
         _stage.ObjectArtwork = value;
@@ -102,8 +101,8 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>
-    /// Rebinds authored ending colors after state restoration. The current colour image
-    /// remains serialized live state: overwriting it here would discard a partially
+    /// Binds authored ending colors when the game is bound to its installed content. The current colour image
+    /// remains live state: overwriting it here would discard a partially
     /// completed fade or palette-FX step. Future palette loads and
     /// target-color reads use the newly selected resource.
     /// </summary>
@@ -127,11 +126,9 @@ internal sealed class EndingArtwork
     internal EndingLogo? CurrentEndingLogo { get; set; }
 
     /// <summary>The palette effects' installed colors.</summary>
-    [field: NonSerialized]
     internal RoomPaletteFxPresentation? PaletteFxArtwork { get; private set; }
 
     /// <summary>The ending text's installed content.</summary>
-    [field: NonSerialized]
     internal EndingTypewriterText? EndingText { get; private set; }
 
     /// <summary>The post-credits text, once it starts.</summary>

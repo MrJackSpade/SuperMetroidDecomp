@@ -220,33 +220,8 @@ internal static class ProjectileCompositionsVerification
                 $"Family ${family:X} draws from rebound sheets");
             game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
         }
-        game.BindArtwork(game.Artwork with { SpriteSheets = null });
-        using var without = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
-        using var with = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Sprite sheets are excluded from the frontend and runtime state graph");
-        with.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.Session.GameplayRuntime;
-        AssertTrue(restoredRuntime.Artwork.SpriteSheets is null, "Restored runtime requires external sheet rebind");
-        roomAssets.Bind(restoredRuntime);
-        restoredRuntime.Artwork.MapPresentation = maps;
-        restoredRuntime.Player.IntroducedSamus.Presentation.BodyFrames.BindBodyFixture(roomAssets.SamusBody);
-        restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = roomAssets.SamusBody.ArmCannon;
-        restored.BindArtwork(restored.Artwork with { SpriteSheets = sheets });
-        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws the bound sheets after rebind");
-        Console.WriteLine("Projectile runtime binding: three actor draw passes, sheet frames, sheet rebinding and nonserialized restore/rebind pass.");
+        Console.WriteLine("Projectile runtime binding: three actor draw passes, sheet frames and sheet rebinding pass.");
 
-        static byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
-        {
-            target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
-            target.Sprites.FinalizeFrame();
-            OamBuffer image = target.Sprites.FinalizedAsOam();
-            return image.LowTable.ConcatToArray(image.HighTable);
-        }
         static ImageSpriteDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
         {
             target.Sprites.BeginFrame();

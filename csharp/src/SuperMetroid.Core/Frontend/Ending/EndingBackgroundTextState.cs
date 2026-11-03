@@ -22,8 +22,8 @@ internal sealed class EndingBackgroundTextState
     internal WrappingCountdown FrameHold { get; set; } = WrappingCountdown.Start(1);
     /// <summary>Scene-selected text page the staging page is shown on.</summary>
     private readonly EndingTextScreen destinationTilemap;
-    /// <summary>Compiled installed typewriter characters: installed content, rebuilt rather than kept with a stored game.</summary>
-    [NonSerialized] private EndingTextCharacter[]? installedProgram;
+    /// <summary>The installed typewriter characters, compiled when the text is bound.</summary>
+    private EndingTextCharacter[]? installedProgram;
     /// <summary>The installed text sequence's characters.</summary>
     private EndingTextCharacter[] InstalledProgram => installedProgram ??
         throw new InvalidOperationException("No ending text sequence is installed.");
@@ -62,11 +62,11 @@ internal sealed class EndingBackgroundTextState
         Ensure.NotNull(screen);
         if (installedProgram is null)
             throw new InvalidOperationException(
-                "Ending text host content must be rebound after state restoration.");
+                "Ending text requires its installed text to be bound.");
         StepInstalled(screen);
     }
 
-    /// <summary>Rebinds the installed typewriter text when a stored game is restored.</summary>
+    /// <summary>Binds the installed typewriter text when the game is bound to its installed content.</summary>
     public void BindPresentation(EndingTypewriterText? value)
     {
         installedProgram = installedSequence is { } sequence && value is not null

@@ -33,7 +33,6 @@ public sealed class ScreenSprites
     private int finishedCount;
 
     /// <summary>The draws of the finished frame, until the frame changes.</summary>
-    [NonSerialized]
     private SpriteDraw[]? draws;
 
     /// <summary>The draws of the most recently finished frame, frontmost first.</summary>

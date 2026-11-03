@@ -12,24 +12,30 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
-    /// <summary>Writes a debugger snapshot while preserving cycles and private field layout.</summary>
-    public static void Serialize(Stream destination, object root)
+    /// <summary>
+    /// Writes a debugger snapshot while preserving cycles and private field layout. An object <paramref name="bound"/> holds
+    /// is written as its path among the host's bound objects, not as its contents (#1507).
+    /// </summary>
+    public static void Serialize(Stream destination, object root, BoundObjectGraph? bound = null)
     {
         Ensure.NotNull(destination);
         Ensure.NotNull(root);
         using var writer = new BinaryWriter(destination, System.Text.Encoding.UTF8, leaveOpen: true);
-        new GraphWriter(writer).Write(root);
+        new GraphWriter(writer, bound).Write(root);
     }
 
     /// <summary>The message prefix of every rejection of a state this build cannot restore exactly.</summary>
     internal const string UnsupportedVersion = "Unsupported debugger state version";
 
-    /// <summary>Restores a snapshot only when its root and serialized field identities match this build.</summary>
-    public static T Deserialize<T>(Stream source) where T : class
+    /// <summary>
+    /// Restores a snapshot only when its root and serialized field identities match this build, resolving each bound
+    /// object's path against <paramref name="bound"/> (#1507).
+    /// </summary>
+    public static T Deserialize<T>(Stream source, BoundObjectGraph? bound = null) where T : class
     {
         Ensure.NotNull(source);
         using var reader = new BinaryReader(source, System.Text.Encoding.UTF8, leaveOpen: true);
-        object? root = new GraphReader(reader).Read();
+        object? root = new GraphReader(reader, bound).Read();
         return root as T ?? throw new InvalidDataException(
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
@@ -43,6 +49,8 @@ internal static class DebuggerObjectGraphSerializer
         Reference,
         /// <summary>A new object ID, type identity, and payload follow.</summary>
         New,
+        /// <summary>A new object ID and the path of an object the host bound into the session follow.</summary>
+        Bound,
     }
     /// <summary>Selects the decoder for a newly defined debugger graph value.</summary>
     private enum PayloadKind : byte
@@ -61,10 +69,12 @@ internal static class DebuggerObjectGraphSerializer
         Fields,
         /// <summary>Every element of an inline-array struct, after their count.</summary>
         InlineArray,
+        /// <summary>An enum member's name, or names joined for flags, so stored states do not depend on member numbering.</summary>
+        EnumName,
     }
 
     /// <summary>Serializes one graph with reference IDs and strict type/member identities.</summary>
-    private sealed class GraphWriter(BinaryWriter writer)
+    private sealed class GraphWriter(BinaryWriter writer, BoundObjectGraph? bound)
     {
         /// <summary>Preserves identity for shared objects and cycles.</summary>
         private readonly Dictionary<object, int> references =
@@ -87,6 +97,16 @@ internal static class DebuggerObjectGraphSerializer
             {
                 writer.Write((byte)ObjectMarker.Reference);
                 writer.Write(existingId);
+                return;
+            }
+
+            if (tracksReference && bound is not null && bound.TryGetPath(value, out string? path))
+            {
+                int boundId = nextReferenceId++;
+                references.Add(value, boundId);
+                writer.Write((byte)ObjectMarker.Bound);
+                writer.Write(boundId);
+                writer.Write(path);
                 return;
             }
 
@@ -137,10 +157,16 @@ internal static class DebuggerObjectGraphSerializer
             }
         }
 
-        /// <summary>Encodes scalars and enums through their fixed primitive representation.</summary>
+        /// <summary>Encodes scalars through their fixed primitive representation and enums by member name.</summary>
         private bool TryWritePrimitive(Type type, object value)
         {
-            Type primitiveType = type.IsEnum ? Enum.GetUnderlyingType(type) : type;
+            if (type.IsEnum)
+            {
+                writer.Write((byte)PayloadKind.EnumName);
+                writer.Write(value.ToString() ?? throw new InvalidOperationException($"Enum {type.FullName} has no name."));
+                return true;
+            }
+            Type primitiveType = type;
             if (!primitiveType.IsPrimitive && primitiveType != typeof(decimal) &&
                 primitiveType != typeof(DateTime) && primitiveType != typeof(TimeSpan) &&
                 primitiveType != typeof(Guid))
@@ -149,8 +175,6 @@ internal static class DebuggerObjectGraphSerializer
             }
 
             writer.Write((byte)PayloadKind.Primitive);
-            if (type.IsEnum)
-                value = Convert.ChangeType(value, primitiveType, System.Globalization.CultureInfo.InvariantCulture);
             WritePrimitiveValue(primitiveType, value);
             return true;
         }
@@ -230,7 +254,7 @@ internal static class DebuggerObjectGraphSerializer
     }
 
     /// <summary>Restores objects against this build's allowed types and exact field layout.</summary>
-    private sealed class GraphReader(BinaryReader reader)
+    private sealed class GraphReader(BinaryReader reader, BoundObjectGraph? bound)
     {
         /// <summary>Objects registered before child fields are decoded so cycles can close.</summary>
         private readonly Dictionary<int, object> references = [];
@@ -291,6 +315,13 @@ internal static class DebuggerObjectGraphSerializer
                     : throw new InvalidDataException(
                         $"Debugger state references object {id} before its definition.");
             }
+            if (marker == ObjectMarker.Bound)
+            {
+                int boundId = reader.ReadInt32();
+                string path = reader.ReadString();
+                return Register(boundId, (bound ?? throw new InvalidDataException(
+                    "Debugger state names a bound object, but no bound content was supplied to restore it.")).Resolve(path));
+            }
             if (marker != ObjectMarker.New)
                 throw new InvalidDataException($"Unknown debugger-state object marker {(byte)marker}.");
 
@@ -306,9 +337,22 @@ internal static class DebuggerObjectGraphSerializer
                 PayloadKind.Delegate => ReadDelegate(type, referenceId),
                 PayloadKind.Fields => ReadFields(type, referenceId),
                 PayloadKind.InlineArray => ReadInlineArray(type),
+                PayloadKind.EnumName => ReadEnumName(type),
                 _ => throw new InvalidDataException(
                     $"Unknown debugger-state payload kind {(byte)kind} for {type.FullName}."),
             };
+        }
+
+        /// <summary>Decodes an enum stored by member name and validates it in the current context.</summary>
+        private object ReadEnumName(Type type)
+        {
+            if (!type.IsEnum)
+                throw new InvalidDataException($"Debugger state stores an enum name for non-enum {type.FullName}.");
+            string name = reader.ReadString();
+            if (!Enum.TryParse(type, name, ignoreCase: false, out object? parsed))
+                throw new InvalidDataException($"Debugger state {type.FullName} value '{name}' names no member of this build.");
+            object underlying = Convert.ChangeType(parsed, Enum.GetUnderlyingType(type), System.Globalization.CultureInfo.InvariantCulture);
+            return DebuggerEnumValues.Decode(type, underlying, structElementDepth > 0);
         }
 
         /// <summary>Decodes a fixed scalar and validates enum values in the current context.</summary>

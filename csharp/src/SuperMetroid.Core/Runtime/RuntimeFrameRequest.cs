@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>
 /// What a host asks of one runtime frame beyond controller input (#633): the gameplay-state policy,
 /// the audio calls the frame makes at their usual positions, and host work immediately
-/// after the frame boundary. Nothing here is retained after the frame or serialized with the runtime.
+/// after the frame boundary. Nothing here is retained after the frame.
 /// </summary>
 /// <remarks>A default request is an ordinary state-eight frame: departure allowed, game time advancing, deferred audio, no boundary work.</remarks>
 public sealed record RuntimeFrameRequest

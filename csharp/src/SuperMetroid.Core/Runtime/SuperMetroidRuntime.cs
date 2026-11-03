@@ -213,7 +213,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Binds the installed catalogs to the runtime's owners: every catalog when <paramref name="previous"/> is null (a new
-    /// or restored runtime, whose catalogs are never serialized), otherwise only the catalogs whose reference changed.
+    /// runtime), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
     /// The map presentation binds first: its setter pushes the HUD, message-box, layer-3 and Samus palette bindings and
@@ -370,7 +370,6 @@ internal sealed class SuperMetroidRuntime
     /// The game state of the frontend dispatch now running. Samus commands test it from
     /// inside the update; runtime-only hosts run main gameplay.
     /// </summary>
-    [field: NonSerialized]
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one.</summary>
@@ -490,11 +489,11 @@ internal sealed class SuperMetroidRuntime
         return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard, entry: GameplayFrameEntry.Fresh);
     }
 
-    /// <summary>Reattaches the routing references that are deliberately not serialized, then applies pending Chozo statue PLMs.</summary>
+    /// <summary>Points the cross-owner routing at this frame's room owners and Samus, then applies pending Chozo statue PLMs.</summary>
     private void RebindRoutingReferences()
     {
-        // Routing references are deliberately not serialized as duplicate state.
-        // Reattach before any producer executes, including after loading an older snapshot.
+        // Samus and the room's owners are made on separate paths, so the frame's entry, before any producer executes,
+        // is where both exist to be connected.
         Artwork.BindGrapplePresentation();
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);

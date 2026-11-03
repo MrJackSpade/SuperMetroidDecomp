@@ -10,23 +10,63 @@ internal static class GraphDigestVerification
 {
     /// <summary>
     /// SHA-256 of an object's complete debugger-state graph, for whole-state equality checks.
-    /// Streams into the hash so comparing large graphs allocates no serialized copy.
+    /// Streams into the hash so comparing large graphs allocates no serialized copy. The graph names what it reaches of
+    /// <paramref name="content"/> by path, as a host's store names its bound content, so graphs bound to different
+    /// content of the same shape digest alike. The index is used as it stands, without a refresh: an equality check
+    /// compares graphs that reach the same content, so content loaded since is written alike in both.
     /// </summary>
-    internal static byte[] GraphDigest(object value)
+    internal static byte[] GraphDigest(object value, params object[] content)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var stream = new HashingStream(hash))
-            DebuggerObjectGraphSerializer.Serialize(stream, value);
+            DebuggerObjectGraphSerializer.Serialize(stream, value, Bound(content));
         return hash.GetHashAndReset();
     }
 
-    /// <summary>The serialized debugger-state graph, for tests that restore it.</summary>
-    internal static byte[] SerializeGraph(object value)
+    /// <summary>
+    /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path. The index stands
+    /// as it was built, without a refresh: content first loaded later is written by value, which a restore copies.
+    /// </summary>
+    internal static byte[] SerializeGraph(object value, params object[] content)
     {
         using var stream = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(stream, value);
+        DebuggerObjectGraphSerializer.Serialize(stream, value, Bound(content));
         return stream.ToArray();
     }
+
+    /// <summary>Captures <paramref name="value"/> and restores it bound to <paramref name="content"/>, as a host's store does.</summary>
+    internal static T RoundTrip<T>(T value, params object[] content) where T : class =>
+        RestoreGraph<T>(SerializeGraph(value, content), content);
+
+    /// <summary>Restores a serialized graph bound to <paramref name="content"/>, as a host's store does.</summary>
+    internal static T RestoreGraph<T>(byte[] graph, params object[] content) where T : class
+    {
+        using var stream = new MemoryStream(graph);
+        return DebuggerObjectGraphSerializer.Deserialize<T>(stream, Bound(content));
+    }
+
+    /// <summary>
+    /// The bound objects a capture names by path: <paramref name="content"/>, or the fixture's installed content when
+    /// none is given, as a host's store always binds its content. Each list of the same objects in the same order is
+    /// indexed once, so repeated captures do not walk its content again.
+    /// </summary>
+    private static BoundObjectGraph Bound(object[] content)
+    {
+        if (content.Length == 0)
+            content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        lock (boundGraphs)
+        {
+            foreach ((object[] roots, BoundObjectGraph graph) in boundGraphs)
+                if (roots.Length == content.Length && roots.Zip(content).All(pair => ReferenceEquals(pair.First, pair.Second)))
+                    return graph;
+            var indexed = new BoundObjectGraph(content);
+            boundGraphs.Add(([.. content], indexed));
+            return indexed;
+        }
+    }
+
+    /// <summary>Each content list indexed so far, with its graph.</summary>
+    private static readonly List<(object[] Roots, BoundObjectGraph Graph)> boundGraphs = [];
 
     /// <summary>Write-only stream that feeds serialized graph bytes directly into an incremental SHA-256 hash.</summary>
     internal sealed class HashingStream(IncrementalHash hash) : Stream

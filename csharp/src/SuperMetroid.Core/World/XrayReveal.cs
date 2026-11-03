@@ -34,7 +34,6 @@ internal sealed class XrayReveal
         _system = system;
     }
     /// <summary>Installed X-ray art, rebound when a saved game state is restored.</summary>
-    [field: NonSerialized]
     public InstalledXrayReveals? XrayRevealVisuals { get; set; }
 
     /// <summary>

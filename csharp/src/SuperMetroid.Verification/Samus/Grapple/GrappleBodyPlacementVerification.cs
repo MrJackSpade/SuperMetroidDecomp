@@ -82,7 +82,7 @@ internal static class GrappleBodyPlacementVerification
                 AssertEqual(native.AnimationFrameTimer.RawValue, changed.AnimationFrameTimer.RawValue, "Visual mapping cannot change swing timing");
                 int displayed = changed.AnimationFrame;
                 SamusPresentation.SetGrappleSwingAnimationFrame(changed, native.AnimationFrame);
-                AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Entire swing simulation state matches except displayed frame");
+                AssertTrue(GraphDigest(native, [stock, .. InstalledFixtures.BoundContent]).SequenceEqual(GraphDigest(changed, [edited, .. InstalledFixtures.BoundContent])), "Entire swing simulation state matches except displayed frame");
                 SamusPresentation.SetGrappleSwingAnimationFrame(changed, displayed);
             }
         }

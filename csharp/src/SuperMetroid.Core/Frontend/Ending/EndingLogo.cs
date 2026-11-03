@@ -17,8 +17,8 @@ internal sealed class EndingLogo
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
     /// <summary>Stops each half at its respective landing point.</summary>
     private readonly bool[] settled = new bool[2];
-    /// <summary>Selected palette source rebound after scene-state restoration.</summary>
-    [NonSerialized] private EndingPaletteSet? paletteArtwork;
+    /// <summary>The installed palette source the logo's colours come from.</summary>
+    private EndingPaletteSet? paletteArtwork;
     /// <summary>Becomes true when the grey-out instruction begins paired background and OBJ transfers.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of paired palette transfers already applied.</summary>

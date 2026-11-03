@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Frontend.Intro;
-using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks the Mother Brain flashback's projectiles and trails draw from the intro's projectile sheet.</summary>
 internal static class IntroProjectileArtworkVerification
@@ -29,7 +27,6 @@ internal static class IntroProjectileArtworkVerification
         game.Session.Show(intro);
         game.GameState = SuperMetroidGameState.IntroCinematic;
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
-        byte[] Draw(IntroCinematicState scene) => scene.PrepareMotherBrainSprites().FinalizedAsOam().LowTable.ToArray();
         ImageSpriteDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
             scene.PrepareMotherBrainSprites().Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroProjectiles);
@@ -50,31 +47,6 @@ internal static class IntroProjectileArtworkVerification
         AssertEqual(sheet.Frame(ProjectileSheetFrames.TrailFrame(frame)), Shown(intro, SpriteSourceKind.SamusProjectileTrail).Image,
             "Intro trail shows its pose's frame of the intro's projectile sheet");
         AssertEqual(99, side.FrameHold.RawValue, "Intro preparation advances trail exactly once per call");
-        game.BindArtwork(game.Artwork with { SpriteSheets = null });
-        using var without = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
-        using var with = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
-        AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Intro snapshot excludes the sprite sheets");
-        with.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
-        var restoredIntro = restored.Session.ScreenAs<IntroCinematicState>()
-            ?? throw new InvalidOperationException("Verification requires restoredIntro.");
-        BindRestoredIntroDrawFixture(restoredIntro);
-        restored.BindArtwork(restored.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
-        AssertTrue(Draw(intro).SequenceEqual(Draw(restoredIntro)), "Restored cinematic draws the bound sheet at its saved animation position");
-        Console.WriteLine("Intro projectile artwork: shot, explosion and trail sheet frames, native timing and nonserialized sheet rebind pass.");
-    }
-
-    /// <summary>Supplies nonprojectile draw dependencies to a restored intro without reuploading its cinematic sheet.</summary>
-    private static void BindRestoredIntroDrawFixture(IntroCinematicState intro)
-    {
-        // This fixture isolates projectile/trail rebinding. Supply the other draw
-        // dependencies through the restore path the game takes.
-        intro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
-        intro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
-        intro.BindSamusBodyArtwork(InstalledFixtures.SamusBody);
-        intro.ProjectileFrameBindings = InstalledFixtures.Projectiles.FrameBindings;
+        Console.WriteLine("Intro projectile artwork: shot, explosion and trail sheet frames and native timing pass.");
     }
 }

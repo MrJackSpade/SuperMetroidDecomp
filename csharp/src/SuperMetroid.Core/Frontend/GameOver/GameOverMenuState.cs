@@ -20,7 +20,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     }
 
     /// <summary>The installed sprite sheets the Baby, egg and cursor draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly AudioQueues audio;
@@ -40,7 +40,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
+    private AreaMapPresentation? mapPresentation;
     /// <summary>The installed map presentation the game-over screen draws from.</summary>
     private AreaMapPresentation MapPresentation => mapPresentation ??
         throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
@@ -96,7 +96,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public bool TitleRequested { get; private set; }
 
     /// <summary>
-    /// Reattaches the installed map artwork when a stored game is restored and refreshes only
+    /// Binds the installed map artwork when the game is bound to its installed content and refreshes only
     /// presentation-owned display state. Animation phase, answer selection and fade remain live.
     /// </summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)

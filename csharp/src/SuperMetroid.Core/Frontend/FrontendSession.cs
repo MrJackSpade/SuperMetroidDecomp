@@ -49,7 +49,6 @@ internal sealed class FrontendSession
     /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
-    [field: NonSerialized]
     public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
     /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves for the rest of the session.</summary>
     internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();

@@ -54,6 +54,7 @@
       "role": "verification",
       "files": 3,
       "dependsOn": [
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/WindowsConsole"
       ]
     },
@@ -346,7 +347,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
-      "files": 512,
+      "files": 511,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -489,6 +490,7 @@
         "csharp/test-support/MovieReplay",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/SaveMapFixtures",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Desktop",
@@ -501,7 +503,7 @@
     {
       "module": "csharp/src/SuperMetroid.Diagnostics",
       "role": "production",
-      "files": 31,
+      "files": 32,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -546,6 +548,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -584,6 +587,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Tooling",
         "csharp/test-support/WindowsConsole"
@@ -633,6 +637,7 @@
         "csharp/test-support/RenderFixtures",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/SaveMapFixtures",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Desktop",
@@ -754,6 +759,7 @@
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/RoomHeaderImport",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/ScenarioFixtures",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Tooling",
@@ -967,6 +973,12 @@
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Tooling"
       ]
+    },
+    {
+      "module": "csharp/test-support/RunTimeLimit",
+      "role": "verification-support",
+      "files": 1,
+      "dependsOn": []
     },
     {
       "module": "csharp/test-support/SamusNativeCodecs",
@@ -20897,6 +20909,7 @@
         "SuperMetroid.BuildPolicyVerification"
       ],
       "dependsOn": [
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/WindowsConsole"
       ]
     },
@@ -73318,16 +73331,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Movement/DraygonGrabbedMovementResult.cs",
-      "module": "csharp/src/SuperMetroid.Core/Samus",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Samus.Movement",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Core/Samus/Movement/DraygonOwnerPlacement.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
@@ -80504,6 +80507,7 @@
         "SuperMetroid.DesktopVerification"
       ],
       "dependsOn": [
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/WindowsConsole",
         "csharp/test-support/WindowsConsole.Verification"
       ]
@@ -80550,6 +80554,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
@@ -80562,6 +80567,7 @@
         "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Rendering.Direct3D11",
         "csharp/src/SuperMetroid.Tooling",
+        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Desktop",
@@ -80905,6 +80911,18 @@
       "namespace": "SuperMetroid.Diagnostics.Recording",
       "assemblies": [
         "SuperMetroid.Diagnostics"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs",
+      "module": "csharp/src/SuperMetroid.Diagnostics",
+      "role": "production",
+      "namespace": "SuperMetroid.Diagnostics.SaveStates",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
       ]
     },
     {
@@ -82584,7 +82602,8 @@
         "SuperMetroid.EnsureVerification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core"
+        "csharp/src/SuperMetroid.Core",
+        "csharp/test-support/RunTimeLimit"
       ]
     },
     {
@@ -82836,6 +82855,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/WindowsConsole"
       ]
     },
@@ -84288,6 +84308,7 @@
         "csharp/test-support/RenderFixtures",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/RunTimeLimit",
         "csharp/test-support/WindowsConsole"
       ]
     },
@@ -89449,6 +89470,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Diagnostics"
       ]
     },
@@ -90196,7 +90218,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Escape",
         "csharp/src/SuperMetroid.Core/Frontend",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Core",
@@ -110432,7 +110453,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -111446,7 +111466,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -111643,7 +111662,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
         "csharp/test-support/FrameRendering",
@@ -111763,7 +111781,6 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -112325,7 +112342,6 @@
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
@@ -116614,7 +116630,8 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Diagnostics",
-        "csharp/test-support/FrameRendering"
+        "csharp/test-support/FrameRendering",
+        "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
     {
@@ -117056,7 +117073,8 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/test-support/RepositoryInstallation"
+        "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/RunTimeLimit"
       ]
     },
     {
@@ -117319,6 +117337,9 @@
       "namespace": "SuperMetroid.Verification.Harness",
       "assemblies": [
         "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/test-support/RunTimeLimit"
       ]
     },
     {
@@ -117944,6 +117965,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -123667,7 +123689,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -123921,7 +123942,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
@@ -125584,7 +125604,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -125612,7 +125631,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -126022,7 +126040,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -126205,7 +126222,6 @@
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/MovieReplay",
@@ -130180,6 +130196,20 @@
       "role": "verification-support",
       "namespace": "SuperMetroid.TestSupport.RoomHeaderImport",
       "assemblies": [
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/RunTimeLimit/VerificationRunTimeLimit.cs",
+      "module": "csharp/test-support/RunTimeLimit",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.RunTimeLimit",
+      "assemblies": [
+        "SuperMetroid.BuildPolicyVerification",
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.EnsureVerification",
+        "SuperMetroid.IntegrationVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
       ]

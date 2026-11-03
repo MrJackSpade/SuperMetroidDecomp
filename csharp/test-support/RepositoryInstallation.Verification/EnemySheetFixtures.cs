@@ -36,15 +36,26 @@ internal static class EnemySheetFixtures
     /// </summary>
     private sealed class ComposedOnDemand(EnemySheetInputs inputs, InstalledEnemySheets? installed) : IEnemySheetSource
     {
-        /// <summary>Each composed set's sheets.</summary>
-        private readonly ConditionalWeakTable<RoomEnemyGraphicsSetDefinition, ComposedSet> sets = new();
+        /// <summary>Each composed set's sheets, keyed by the set's definition, which lives as long as the process.</summary>
+        private readonly Dictionary<RoomEnemyGraphicsSetDefinition, ComposedSet> sets = [];
+
+        /// <summary>The sheets of <paramref name="set"/>, composed the first time a room loads it.</summary>
+        private ComposedSet Set(RoomEnemyGraphicsSetDefinition set)
+        {
+            lock (sets)
+            {
+                if (!sets.TryGetValue(set, out ComposedSet? composedSet))
+                    sets.Add(set, composedSet = Compose(set));
+                return composedSet;
+            }
+        }
 
         /// <inheritdoc/>
         public SpriteSheet For(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.For(set, enemy);
-            return sets.GetValue(set, Compose).Enemies.TryGetValue(enemy, out SpriteSheet? sheet) ? sheet
+            return Set(set).Enemies.TryGetValue(enemy, out SpriteSheet? sheet) ? sheet
                 : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no sheet for {enemy}.");
         }
 
@@ -53,7 +64,7 @@ internal static class EnemySheetFixtures
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.Spawned(set, tileBase);
-            return sets.GetValue(set, Compose).Spawned.TryGetValue(tileBase, out SpawnedObjectSheet? sheet) ? sheet
+            return Set(set).Spawned.TryGetValue(tileBase, out SpawnedObjectSheet? sheet) ? sheet
                 : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no spawned-object sheet for tile base ${tileBase:X3}.");
         }
 
@@ -62,14 +73,14 @@ internal static class EnemySheetFixtures
 
         /// <inheritdoc/>
         public SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>
-            installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set) ? installed.Coverage(set) : sets.GetValue(set, Compose).Coverage;
+            installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set) ? installed.Coverage(set) : Set(set).Coverage;
 
         /// <inheritdoc/>
         public IReadOnlyList<LookRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.Layers(set, enemy, frame);
-            return sets.GetValue(set, Compose).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
+            return Set(set).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
                 && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
         }
 
@@ -78,7 +89,7 @@ internal static class EnemySheetFixtures
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.SpawnedLayers(set, tileBase, frame);
-            return sets.GetValue(set, Compose).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
+            return Set(set).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
                 && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
         }
 
@@ -87,7 +98,7 @@ internal static class EnemySheetFixtures
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.RotCorpse(set, enemy, frame);
-            return sets.GetValue(set, Compose).RotPictures.TryGetValue(enemy, out IReadOnlyDictionary<string, string>? frames)
+            return Set(set).RotPictures.TryGetValue(enemy, out IReadOnlyDictionary<string, string>? frames)
                 && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
         }
 
@@ -96,7 +107,7 @@ internal static class EnemySheetFixtures
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.SpawnedRotCorpse(set, tileBase, frame);
-            return sets.GetValue(set, Compose).SpawnedRotPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, string>? frames)
+            return Set(set).SpawnedRotPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, string>? frames)
                 && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
         }
 

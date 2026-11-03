@@ -135,13 +135,12 @@ public sealed class SamusDraygonGrabbedState
     /// Ports <see cref="SamusMovementType.DraygonHeld"/> movement. Its entire normal beta handler clears one result; enemy
     /// AI has already supplied position through <see cref="ApplyOwnerPosition"/>.
     /// </summary>
-    public static DraygonGrabbedMovementResult StepMovement(SamusState samus)
+    public static void StepMovement(SamusState samus)
     {
         Ensure.NotNull(samus);
         EnsureGrabbedPose(samus);
 
         samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
-        return new DraygonGrabbedMovementResult();
     }
 
     /// <summary>

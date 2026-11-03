@@ -58,7 +58,7 @@ internal static class MapScreensVerification
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

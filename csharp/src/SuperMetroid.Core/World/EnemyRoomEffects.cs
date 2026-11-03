@@ -240,7 +240,7 @@ internal sealed class EnemyRoomEffects
 
     /// <summary>
     /// Binds transient Chozo services and consumes pending terrain publications.
-    /// Also runs before movement so restored states cannot collide before their pending
+    /// Also runs at the frame's entry, before movement, so Samus cannot collide before a pending
     /// initialization setup has installed the hand block.
     /// </summary>
     internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomEnemySystem enemies)

@@ -31,7 +31,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     }
 
     /// <summary>The installed sprite sheets the borders, cursor, helmets and copy arrows draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly AudioQueues? audio;
@@ -41,8 +41,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     internal readonly MenuScreen screen;
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Installed file-select artwork, rebound when a stored game is restored.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
+    /// <summary>Installed file-select artwork, bound when the game is bound to its installed content.</summary>
+    private AreaMapPresentation? mapPresentation;
     /// <summary>Decoded slots whose null entries failed or lacked save checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     /// <summary>The selection missile's frame cycle.</summary>
@@ -700,7 +700,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private void QueueCursorSound() =>
         audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Rebinds the installed file-select artwork when a stored game is restored.</summary>
+    /// <summary>Binds the installed file-select artwork when the game is bound to its installed content.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)
     {
         if (catalog is null)

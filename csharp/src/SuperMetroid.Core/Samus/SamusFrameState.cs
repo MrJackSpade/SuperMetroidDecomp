@@ -131,16 +131,6 @@ internal sealed class SamusFrameState
     /// <summary>Most recent call of drained Samus's installed falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
 
-    /// <summary>Most recent normal movement-type-`$1A` dispatcher result.</summary>
-    public DraygonGrabbedMovementResult? LastDraygonGrabbedMovement { get; internal set; }
-
     /// <summary>Most recent alternating-D-pad escape-handler result.</summary>
     public DraygonEscapeResult? LastDraygonEscape { get; internal set; }
-
-    /// <summary>
-    /// Selects the grapple without the HUD item selector. When enabled,
-    /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
-    /// this false, so X retains its existing bomb/projectile meaning.
-    /// </summary>
-    public bool DebugGrappleItemSelected { get; private set; }
 }

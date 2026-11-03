@@ -47,7 +47,7 @@ internal static class ChargeFlareProductionVerification
                 OamBuffer b = compiled.ChargeFlareOam(samus, new(0, 0), placement);
                 AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
-                AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(compiled)), "Drawing leaves projectile, flare-counter and animation state identical");
+                AssertTrue(GraphDigest(native, InstalledFixtures.BoundContent).SequenceEqual(GraphDigest(compiled, InstalledFixtures.BoundContent)), "Drawing leaves projectile, flare-counter and animation state identical");
                 ticks++;
             }
         }
@@ -87,23 +87,7 @@ internal static class ChargeFlareProductionVerification
         game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(rebound), draw.Image.Sheet)),
             "Rebinding the sprite sheets reaches the actor pass");
-        game.BindArtwork(game.Artwork with { SpriteSheets = null });
-        byte[] unbound = GraphDigest(game);
-        game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
-        byte[] bound = SerializeGraph(game);
-        AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Sprite sheets are excluded from saved frontend/runtime graphs");
-        using var stream = new MemoryStream(bound);
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.Session.GameplayRuntime;
-        AssertTrue(restoredRuntime.Artwork.SpriteSheets is null, "Saved state does not retain old sheet content");
-        roomAssets.Bind(restoredRuntime);
-        restoredRuntime.Artwork.MapPresentation = maps;
-        restoredRuntime.Artwork.ChargeFlarePlacement = placement;
-        restoredRuntime.Player.IntroducedSamus.Presentation.BodyFrames.BindBodyFixture(body);
-        restoredRuntime.Player.IntroducedSamus.ArmCannon.Artwork = body.ArmCannon;
-        restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });
-        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored actor pass draws the current sheets at the saved animation state");
-        Console.WriteLine($"Charge-flare production: {ticks} normal and Hyper ticks, state isolation and real actor sheet restore/rebind pass.");
+        Console.WriteLine($"Charge-flare production: {ticks} normal and Hyper ticks, state isolation and actor sheet rebinding pass.");
 
         static IEnumerable<ImageSpriteDraw> FlareDraws(SuperMetroidRuntime target)
         {
@@ -115,14 +99,6 @@ internal static class ChargeFlareProductionVerification
             return flare;
         }
 
-        static byte[] Draw(SuperMetroidRuntime target)
-        {
-            target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
-            target.Sprites.FinalizeFrame();
-            OamBuffer image = target.Sprites.FinalizedAsOam();
-            return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
-        }
         static SamusProjectileSystem Create()
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);

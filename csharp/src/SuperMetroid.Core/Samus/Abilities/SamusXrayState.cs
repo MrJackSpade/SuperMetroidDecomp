@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusXrayState
 {
     /// <summary>Installed visor colors: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public InstalledSamusVisorColors? PresentationColors { get; set; }
 
     /// <summary>True while the dedicated X-ray input/movement handlers are installed.</summary>

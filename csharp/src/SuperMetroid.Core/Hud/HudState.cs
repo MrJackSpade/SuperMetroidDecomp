@@ -42,8 +42,7 @@ public sealed class HudState
 
     /// <summary>Previous item selection used to update both icon shades and sound edges.</summary>
     internal HudItem PreviousSelectedItem { get; set; }
-    /// <summary>The installed HUD layout the values are placed by, omitted from serialized gameplay state.</summary>
-    [field: NonSerialized]
+    /// <summary>The installed HUD layout the values are placed by.</summary>
     internal GameplayHudPresentation? Presentation { get; private set; }
 
     /// <summary>Suppresses minimap updates after a boss initializer.</summary>

@@ -54,14 +54,14 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private int pendingFrames;
     /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
     private int brightness = 15;
-    /// <summary>Installed map artwork rebound whenever the game is bound to its installed content instead of serialized with navigation state.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
+    /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
+    private AreaMapPresentation? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
-    /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately when a stored game is restored.</param>
+    /// <param name="mapPresentation">Required installed map artwork/layout catalog.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets or the sprite sheets are absent.</exception>
@@ -102,7 +102,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Latched host request to replace this menu with game options once its cancel/options fade reaches zero brightness; no options state is created by this owner.</summary>
     public bool OptionsRequested { get; private set; }
 
-    /// <summary>Rebinds host presentation after restoration without restarting navigation.</summary>
+    /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
         mapPresentation = catalog;

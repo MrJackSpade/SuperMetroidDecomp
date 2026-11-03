@@ -83,7 +83,7 @@ public sealed class EscapeTimer
     /// <summary>The time-up black-out stops the timer without clearing its countdown or position.</summary>
     public void ClearStatus() => SelectPhase(EscapeTimerPhase.Inactive);
 
-    /// <summary>Sets the remaining countdown directly, as when a saved game state is restored.</summary>
+    /// <summary>Sets the remaining countdown directly, as starting the timer installs its duration.</summary>
     /// <param name="centiseconds">The remaining countdown, 0 through <see cref="LongestTime"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The countdown is negative or longer than the timer shows.</exception>
     public void SetRemaining(int centiseconds) =>

@@ -53,9 +53,9 @@ internal sealed class EnemyDrawList
     internal void Enqueue(int layer, RoomEnemySlot enemy) => DrawQueues[layer].Add(Ensure.NotNull(enemy));
 
     /// <summary>The draws <see cref="AdvanceLayers"/> prepared for the layer range <see cref="DrawLayers"/> publishes next.</summary>
-    [NonSerialized] private List<PreparedEnemyDraw>? _prepared;
+    private List<PreparedEnemyDraw>? _prepared;
     /// <summary>The inclusive layer range <see cref="_prepared"/> covers.</summary>
-    [NonSerialized] private InclusiveRange _preparedLayers;
+    private InclusiveRange _preparedLayers;
 
     /// <summary>
     /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in queue order: each queued

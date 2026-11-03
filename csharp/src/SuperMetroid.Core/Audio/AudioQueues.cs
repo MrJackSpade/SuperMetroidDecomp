@@ -65,11 +65,10 @@ public sealed class AudioQueues
 
     /// <summary>
     /// Door-owned part of the sound-disable switch: set after the entry stop
-    /// commands and cleared after the destination fade. The frontend reconstructs
-    /// it from its serialized coroutine state before every frame, including restores.
+    /// commands and cleared after the destination fade. The frontend sets it from the
+    /// door transition's phase before every frame.
     /// It rejects new SFX only; queued sounds and music continue to advance.
     /// </summary>
-    [field: NonSerialized]
     internal bool DoorTransitionSoundsDisabled { get; set; }
 
     /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>

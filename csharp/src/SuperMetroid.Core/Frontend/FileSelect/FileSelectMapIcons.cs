@@ -9,15 +9,15 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>
-    [NonSerialized] private SpriteSheet? sheet;
+    private SpriteSheet? sheet;
     /// <summary>Binds the installed map sprite sheet every icon draws from.</summary>
     internal void BindSprites(SpriteSheet? mapSheet) => sheet = mapSheet;
     /// <summary>Installed station positions rebound after frontend restoration.</summary>
-    [NonSerialized] private SuperMetroid.Core.Frontend.Map.Artwork.MapStationPositions? stations;
+    private SuperMetroid.Core.Frontend.Map.Artwork.MapStationPositions? stations;
     /// <summary>Binds installed station positions for explored map tiles.</summary>
     internal void BindStations(SuperMetroid.Core.Frontend.Map.Artwork.MapStationPositions? layout) => stations = layout;
     /// <summary>Installed boss, gunship, and elevator landmark positions.</summary>
-    [NonSerialized] private SuperMetroid.Core.Frontend.Map.Artwork.MapLandmarkPositions? landmarks;
+    private SuperMetroid.Core.Frontend.Map.Artwork.MapLandmarkPositions? landmarks;
     /// <summary>Binds landmark positions used for boss, gunship, and elevator icons.</summary>
     internal void BindLandmarks(SuperMetroid.Core.Frontend.Map.Artwork.MapLandmarkPositions? layout) => landmarks = layout;
     /// <summary>Exposes the retained exploration owner to the menu without duplicating its state.</summary>

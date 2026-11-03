@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed class SamusDrainedState
 {
     /// <summary>Installed Hyper Beam palette artwork: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public SamusHyperBeamColours? PresentationColors { get; set; }
 
     /// <summary>

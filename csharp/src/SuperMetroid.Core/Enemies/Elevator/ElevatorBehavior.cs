@@ -73,7 +73,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public bool ElevatorDoorTransitionActive { get; set; }
 
     /// <summary>Arrival slot whose initializer placed Samus; consumed by the door loader this update.</summary>
-    [NonSerialized]
     private int? _arrivalPlacementSlot;
 
     /// <summary>

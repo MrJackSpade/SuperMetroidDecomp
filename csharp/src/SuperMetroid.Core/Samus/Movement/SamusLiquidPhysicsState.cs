@@ -65,7 +65,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
     private readonly List<SoundRequest> _soundRequests = [];
     /// <summary>Transient Power Bomb state that suppresses selected sounds without entering saved Samus state.</summary>
-    [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    private SamusPowerBombExplosionState? _audioPowerBomb;
 
     /// <summary>
     /// Exclusive FX dispatcher identity. Values two and four

@@ -14,7 +14,7 @@ public sealed class RoomFloor
     internal readonly List<string> drawn = [];
 
     /// <summary>The floor as drawn, until the next drawing.</summary>
-    [NonSerialized] private AffineFloor? published;
+    private AffineFloor? published;
 
     /// <summary>Starts from the tileset's floor with nothing drawn over it.</summary>
     /// <param name="sheet">The tileset's installed floor and the pictures drawn over it.</param>

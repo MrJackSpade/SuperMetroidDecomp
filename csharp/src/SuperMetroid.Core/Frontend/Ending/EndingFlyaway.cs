@@ -186,6 +186,5 @@ internal sealed class EndingFlyaway
     internal void UploadFlyawayChunk(int index) => screen.LoadFlyawayChunk(index);
 
     /// <summary>The gunship flight's installed artwork.</summary>
-    [field: NonSerialized]
     internal CeresFlightArtwork? FlightArtwork { get; private set; }
 }

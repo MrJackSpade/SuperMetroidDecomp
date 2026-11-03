@@ -100,14 +100,8 @@ internal static class IntroNarrationPresentationVerification
             narrationPresentation: presentation);
         saved.StartEnglishPageSix();
         saved.Step(0);
-        using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
-        snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
-            .Deserialize<IntroCinematicObjectSystem>(snapshot);
-        AssertThrows<InvalidOperationException>(() => restored.Step(0),
-            "restored opening narration fails loudly until host content is rebound");
-        restored.BindNarration(presentation);
+        // A debugger state names the bound narration by its path in the installed presentation.
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(saved, presentation);
         restored.Step(0);
         AssertEqual((ushort)16, restored.Caret.X,
             "restored opening narration resumes at its saved character");

@@ -18,8 +18,8 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 internal static class GrappleTileBindingVerification
 {
     /// <summary>
-    /// The actual actor pass publishes grapple draws from the bound grapple sheet; rebinding host sheets leaves saved
-    /// state untouched; a restored state draws from whichever sheets the host binds.
+    /// The actual actor pass publishes grapple draws from the bound grapple sheet; a restored state names the sheets it
+    /// was bound to and draws from whichever sheets the host binds next.
     /// </summary>
     internal static void VerifyGrappleTileBinding()
     {
@@ -43,19 +43,13 @@ internal static class GrappleTileBindingVerification
         game.BindArtwork(game.Artwork with { SpriteSheets = stock });
         AssertBoundTo(runtime, stock, "Actual actor pass draws the installed grapple sheet");
 
-        byte[] stockGraph = GraphDigest(game);
-        game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
-        AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Rebinding the sheets does not change saved state before the next draw");
-
-        game.BindArtwork(game.Artwork with { SpriteSheets = stock });
-        using var stream = new MemoryStream(SerializeGraph(game));
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
+        // A saved state names the sheets it is bound to; a restore draws from them, and from whichever the host binds next.
+        var restored = RoundTrip(game, [game.Artwork, stock, .. InstalledFixtures.BoundContent]);
         var restoredRuntime = restored.Session.GameplayRuntime;
-        AssertTrue(restoredRuntime.Artwork.SpriteSheets is null, "Restored state requires the current host sheets");
-        BindRetailRuntimeFixture(restoredRuntime);
+        AssertTrue(ReferenceEquals(stock, restoredRuntime.Artwork.SpriteSheets), "Restored state names the bound sheets");
         restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });
         AssertBoundTo(restoredRuntime, rebound, "Restored state draws the newly bound grapple sheet");
-        Console.WriteLine("Grapple sheet binding: actor draws show the installed sheet; rebinding leaves state untouched; restored states draw the bound sheet.");
+        Console.WriteLine("Grapple sheet binding: actor draws show the installed sheet; restored states name and draw the bound sheet, then the newly bound one.");
 
         static void AssertBoundTo(SuperMetroidRuntime target, InstalledSpriteSheets sheets, string context)
         {

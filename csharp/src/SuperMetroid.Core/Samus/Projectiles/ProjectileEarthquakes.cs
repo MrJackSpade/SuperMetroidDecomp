@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class ProjectileEarthquakes
 {
     /// <summary>
-    /// Nonserialized routing reference rebound before a frame; quake state itself remains
-    /// in the shared room owner rather than in a second emulated state store.
+    /// The room's earthquake, bound when the room loads; quake state itself remains
+    /// in the shared room owner rather than in a second store.
     /// </summary>
-    [NonSerialized]
     private RoomEarthquake? _roomEarthquake;
 
     /// <summary>Reconnects the shared room quake owner before projectile collision can request an impact.</summary>

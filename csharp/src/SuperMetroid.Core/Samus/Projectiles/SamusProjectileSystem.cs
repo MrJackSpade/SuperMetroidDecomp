@@ -139,7 +139,7 @@ public sealed class SamusProjectileSystem
         private set => Charge.LastVisorPaletteStep = value;
     }
 
-    /// <summary>The last alpha-pass result.</summary>
+    /// <summary>The last alpha-pass result, whose queued sounds the frontend routes after the frame.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>

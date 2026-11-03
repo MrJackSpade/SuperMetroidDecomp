@@ -120,11 +120,10 @@ internal sealed class SamusFramePhases
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
-                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.PostureAdmission)) &&
+                 SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.PostureAdmission) &&
                  ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != ControllerButton.None)
         {
-            // Normal HUD item four now reaches the same actor as the
-            // diagnostic entry point, after 's movement-type admission.
+            // Selecting the grapple on the HUD fires it once the pose's movement type admits it.
             SamusGrappleMovement.BeginFiring(_player.Samus, _controller1.Current);
             _player.LastGrappleMovement = new GrappleMovementResult(
                 _player.Samus.Grapple.Phase,
@@ -388,7 +387,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // into 's progression owners during this pass, so later
             // consumers this frame, and saves, observe them.
             room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms,
-                Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
+                Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus), producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
 
             if (!_freeze.TimeIsFrozen)
                 room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer.RemainingFrames);
@@ -463,7 +462,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // outside the normal movement-type dispatcher. Its movement result is the
         // directly inspectable frame returned by `StepMovement` below.
         _player.LastDrainedSamusMovement = null;
-        _player.LastDraygonGrabbedMovement = null;
         _player.LastDraygonEscape = null;
 
         frame.SampleGrappleReleasePoseInput(false);
@@ -976,8 +974,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 // This is the normal dispatcher, which only clears
                 // the vertical solid-collision result. The actual boss grab above
                 // runs its separately installed empty handler instead.
-                _player.LastDraygonGrabbedMovement =
-                    SamusDraygonGrabbedState.StepMovement(samus);
+                SamusDraygonGrabbedState.StepMovement(samus);
                 break;
             case SamusPoseId.AdjacentCodePoseFD:
             case SamusPoseId.AdjacentCodePoseFE:

@@ -18,15 +18,14 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>The map's menu screen: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>The installed area-map world colors, rebound when presentation content changes.</summary>
-    [field: NonSerialized]
     [AllowNull]
     private MapStaticPalettes Palettes { get => field ?? throw new InvalidOperationException("No area-map world colors are installed."); set; }
     /// <summary>Installed world-label positions used when placing the screen's sprites.</summary>
-    [NonSerialized] private WorldMapLabelPositions? labels;
+    private WorldMapLabelPositions? labels;
     /// <summary>The installed sheets the world map's foreground and each area's background are pictured in (#1467).</summary>
-    [NonSerialized] private InstalledSpriteSheets? worldSheets;
+    private InstalledSpriteSheets? worldSheets;
     /// <summary>The installed map sprite sheet the title and area labels draw from.</summary>
-    [NonSerialized] private SpriteSheet? mapSheet;
+    private SpriteSheet? mapSheet;
     /// <summary>Replaces label positions without changing the selected area or display state.</summary>
     internal void BindLabels(WorldMapLabelPositions? content) => labels = content;
 
@@ -79,7 +78,7 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>
-    /// Rebinds every installed resource the area map draws, after a content change or a stored game's restoration, without
+    /// Binds every installed resource the area map draws, when the game is bound to its installed content, without
     /// selecting another area or restarting its palette fade.
     /// </summary>
     internal void BindMapPresentation(AreaMapPresentation? catalog)

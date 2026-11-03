@@ -16,11 +16,11 @@ internal sealed class IntroCeresFlightState
     /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed flight artwork the frame is drawn from, rebound whenever the game is bound to its installed content.</summary>
-    [field: NonSerialized] internal CeresFlightArtwork? Artwork { get; private set; }
+    internal CeresFlightArtwork? Artwork { get; private set; }
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
-    [NonSerialized] private CinematicSpriteSheet? spriteArtwork;
+    private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
-    [NonSerialized] private CeresFlightActorPlacements? actorLayout;
+    private CeresFlightActorPlacements? actorLayout;
     /// <summary>Front-view star actor whose timer also drives the diagonal background rush.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
@@ -94,7 +94,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>The installed sheets the floor's views and the caption are pictured in (#1467); artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets? floorSheets;
+    private InstalledSpriteSheets? floorSheets;
 
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtwork? artwork)

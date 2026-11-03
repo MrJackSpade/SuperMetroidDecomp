@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -61,10 +60,8 @@ internal static class HudAtlasVerification
         using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var edited = MapPresentationFiles.Load(stock, overrides);
         // This snapshot already shows the old HUD. Setup's cleared half now lies under room data.
-        using var displayedSnapshot = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(displayedSnapshot, installed);
-        displayedSnapshot.Position = 0;
-        var displayed = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(displayedSnapshot);
+        object[] content = [original, fixtureAssets, .. InstalledFixtures.BoundContent];
+        var displayed = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed, content);
         fixtureAssets.Bind(displayed);
         // A restored game is rebound to the catalogs it was installed with before any other artwork is selected.
         displayed.Artwork.MapPresentation = original;
@@ -88,10 +85,7 @@ internal static class HudAtlasVerification
         setUp.Artwork.MapPresentation = original;
         fixtureAssets.Bind(setUp);
         Initialize(setUp);
-        using var snapshot = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(snapshot, setUp);
-        snapshot.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(snapshot);
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(setUp, content);
         fixtureAssets.Bind(restored);
         restored.Artwork.MapPresentation = edited;
         restored.FrameBoundary.BeginAcceptedFrame(0);

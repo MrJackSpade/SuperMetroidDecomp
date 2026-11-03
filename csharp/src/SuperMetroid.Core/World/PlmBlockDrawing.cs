@@ -28,13 +28,13 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     /// <summary>The host's installed PLM artwork.</summary>
     private readonly PlmShotBlockVisuals _visuals = Ensure.NotNull(visuals);
 
-    /// <summary>Nonserialized visual-only shot-block selection; collision remains compiled.</summary>
+    /// <summary>Visual-only shot-block selection; collision remains compiled.</summary>
     public InstalledRoomPlmShotBlockVisuals? ShotBlockVisuals => _visuals.RoomPlmShotBlockVisuals;
 
-    /// <summary>Nonserialized Grapple-block art; the compiled terrain owns collision.</summary>
+    /// <summary>Grapple-block art; the compiled terrain owns collision.</summary>
     public InstalledRoomPlmGrappleBlockVisuals? GrappleBlockVisuals => _visuals.RoomPlmGrappleBlockVisuals;
 
-    /// <summary>Nonserialized station appearance; the compiled terrain retains collision.</summary>
+    /// <summary>Station appearance; the compiled terrain retains collision.</summary>
     public InstalledRoomPlmStationVisuals? StationVisuals => _visuals.RoomPlmStationVisuals;
 
     /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
@@ -55,62 +55,62 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
     public InstalledRoomPlmNoobTubeVisuals? NoobTubeVisuals => _visuals.RoomPlmNoobTubeVisuals;
 
-    /// <summary>Nonserialized gate-block appearance; compiled terrain retains collision.</summary>
+    /// <summary>Gate-block appearance; compiled terrain retains collision.</summary>
     public InstalledRoomPlmDownwardGateVisuals? DownwardGateVisuals => _visuals.RoomPlmDownwardGateVisuals;
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
     public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals => _visuals.RoomPlmElevatorPlatformVisuals;
 
-    /// <summary>Nonserialized Mother Brain escape-gate appearance; collision stays compiled.</summary>
+    /// <summary>Mother Brain escape-gate appearance; collision stays compiled.</summary>
     public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals => _visuals.RoomPlmEscapeGateVisuals;
 
-    /// <summary>Nonserialized Bomb Torizo hand art; the draw's terrain stays compiled.</summary>
+    /// <summary>Bomb Torizo hand art; the draw's terrain stays compiled.</summary>
     public RoomPlmBombTorizoHandVisualCatalog? BombTorizoHandVisuals => _visuals.RoomPlmBombTorizoHandVisuals;
 
-    /// <summary>Nonserialized Draygon cannon art; the draw's terrain stays compiled.</summary>
+    /// <summary>Draygon cannon art; the draw's terrain stays compiled.</summary>
     public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals => _visuals.RoomPlmDraygonCannonVisuals;
 
-    /// <summary>Nonserialized Chozo statue PLM art; the draw's terrain stays compiled.</summary>
+    /// <summary>Chozo statue PLM art; the draw's terrain stays compiled.</summary>
     public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals => _visuals.RoomPlmChozoStatueVisuals;
 
-    /// <summary>Nonserialized linked-block restoration art; collision stays compiled.</summary>
+    /// <summary>Linked-block restoration art; collision stays compiled.</summary>
     public InstalledRoomPlmLinkedRestoreVisuals? LinkedRestoreVisuals => _visuals.RoomPlmLinkedRestoreVisuals;
 
-    /// <summary>Nonserialized Tourian access-floor art; the terrain stays compiled.</summary>
+    /// <summary>Tourian access-floor art; the terrain stays compiled.</summary>
     public RoomPlmTourianAccessVisuals? TourianAccessVisuals => _visuals.RoomPlmTourianAccessVisuals;
 
-    /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled terrain still determines collision and breakability.</summary>
+    /// <summary>Gets or replaces Speed Booster block reveal artwork; compiled terrain still determines collision and breakability.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the draw's own appearance.</remarks>
     public InstalledRoomPlmSpeedBoosterVisuals? SpeedBoosterVisuals => _visuals.RoomPlmSpeedBoosterVisuals;
 
-    /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the draw it shares with Kraid's room, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
+    /// <summary>Gets or replaces Maridia elevatube artwork for the draw it shares with Kraid's room, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
     /// <remarks>The catalog is shared by reference. Null preserves the block's own appearance; tube collision and motion remain compiled.</remarks>
     public InstalledRoomPlmMaridiaElevatubeVisuals? MaridiaElevatubeVisuals => _visuals.RoomPlmMaridiaElevatubeVisuals;
 
-    /// <summary>Gets or replaces nonserialized artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
+    /// <summary>Gets or replaces artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each block's own appearance.</remarks>
     public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals => _visuals.RoomPlmSporeSpawnCeilingVisuals;
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
     public InstalledRoomPlmSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomPlmSamusEaterVisuals;
 
-    /// <summary>Gets or replaces nonserialized appearance for the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
+    /// <summary>Gets or replaces appearance for the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     /// <remarks>The catalog is shared by reference. Null uses the clear blocks' own appearance.</remarks>
     public InstalledRoomPlmBotwoonWallVisuals? BotwoonWallVisuals => _visuals.RoomPlmBotwoonWallVisuals;
 
-    /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared crumble draw.</summary>
+    /// <summary>Gets or replaces Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared crumble draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
     public InstalledRoomPlmKraidVisuals? KraidVisuals => _visuals.RoomPlmKraidVisuals;
 
-    /// <summary>Gets or replaces nonserialized Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
+    /// <summary>Gets or replaces Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each block's own appearance.</remarks>
     public RoomPlmCrocomireVisualCatalog? CrocomireVisuals => _visuals.RoomPlmCrocomireVisuals;
 
-    /// <summary>Gets or replaces nonserialized Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
+    /// <summary>Gets or replaces Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
     /// <remarks>The catalog is shared by reference. Null retains the draw's own appearance; compiled run geometry, collision, and PLM timing remain unchanged.</remarks>
     public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals => _visuals.RoomPlmMotherBrainFakeDeathVisuals;
 
-    /// <summary>Nonserialized collectible art; compiled terrain retains collision.</summary>
+    /// <summary>Collectible art; compiled terrain retains collision.</summary>
     public InstalledRoomPlmCollectibleVisuals? CollectibleVisuals => _visuals.RoomPlmCollectibleVisuals;
 
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>

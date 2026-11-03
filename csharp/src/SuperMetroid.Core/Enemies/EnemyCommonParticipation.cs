@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// What the enemy system shares across species: the shared reaction lists and the empty AI of an enemy whose header names no routine.
 /// Entities compose it for every participation they do not own, keeping the shared lists' first-match precedence.
 /// </summary>
-/// <param name="reactions">The enemy system's shared reactions; resolved at use because the system rebuilds them after a restore.</param>
+/// <param name="reactions">The enemy system's shared reactions, resolved at use because the system builds them on first access.</param>
 internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reactions)
 {
     /// <summary>The shared reaction lists.</summary>

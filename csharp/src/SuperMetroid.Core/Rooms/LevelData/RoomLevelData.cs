@@ -33,7 +33,6 @@ public sealed class RoomLevelData
     internal readonly TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> BeyondRoom;
 
     /// <summary>The foreground plane last published for display, until the next visual write; derived, never saved.</summary>
-    [field: NonSerialized]
     private RoomLevelPlane? PublishedForeground { get; set; }
 
     /// <summary>Copies a room's grid; an installed layout changes only what the blocks initially show.</summary>
@@ -116,7 +115,6 @@ public sealed class RoomLevelData
     public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, ShownForeground);
 
     /// <summary>The background plane as the room shows it; nothing changes the background after loading, so it is built once.</summary>
-    [field: NonSerialized]
     public RoomLevelPlane BackgroundPlane => field ??= new(Size, background);
 
     /// <summary>Converts a block coordinate to its row-major index. Coordinates outside the room fail loudly.</summary>

@@ -72,7 +72,6 @@ public enum IntroCinematicPhase
     /// <summary>Runs the SPACE COLONY Ceres approach sequence.</summary>
     CeresFlight,
     /// <summary>The setup dispatch that queues the opening music.</summary>
-    /// <remarks>Stored games hold phases numerically, so this follows the existing members.</remarks>
     Initial,
     /// <summary>The dispatch after the first narration's fade-out that sets up page one.</summary>
     SetupPageOne,

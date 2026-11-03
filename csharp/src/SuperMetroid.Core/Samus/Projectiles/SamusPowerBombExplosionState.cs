@@ -21,7 +21,6 @@ public sealed class SamusPowerBombExplosionState
     internal IActivePowerBomb Activity => field ??= new SamusPowerBombActivity(this);
 
     /// <summary>Installed explosion colors: installed content, not game state, bound again when a game is restored.</summary>
-    [field: NonSerialized]
     public InstalledPowerBombFixedColors? PresentationColors { get; set; }
 
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>

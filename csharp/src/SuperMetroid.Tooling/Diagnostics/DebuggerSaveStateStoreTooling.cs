@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.SaveStates;
 
@@ -16,6 +17,7 @@ internal static class DebuggerSaveStateStoreTooling
         string romPath,
         ReadOnlySpan<byte> cartridgeRom,
         GameContentIdentity contentIdentity,
+        IInstalledSessionContent content,
         string? directoryOverride = null,
         SuperMetroidGameOptions? hostOptions = null)
     {
@@ -29,6 +31,7 @@ internal static class DebuggerSaveStateStoreTooling
                 : Path.GetFullPath(directoryOverride),
             SHA256.HashData(cartridgeRom),
             hostOptions,
-            contentIdentity);
+            contentIdentity,
+            content);
     }
 }

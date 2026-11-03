@@ -26,7 +26,7 @@ public sealed class SaveSlotStore
     private PowerOnEarthquakeSoundDelay? importedEarthquakeDelay;
 
     /// <summary>Installed stock map rules that pack and unpack explored maps; the host binds them with its artwork.</summary>
-    [NonSerialized] private IAreaMapSource? mapPresentation;
+    private IAreaMapSource? mapPresentation;
 
     /// <summary>Creates an empty store: no saved slot, slot A selected, the game not completed.</summary>
     /// <param name="mapPresentation">Installed stock map rules; saving a slot requires them.</param>
@@ -61,7 +61,7 @@ public sealed class SaveSlotStore
     /// <summary>Whether the marker field holds the corrupt-saves signature boot writes when every slot is invalid.</summary>
     public bool CorruptMarkerWritten { get; private set; }
 
-    /// <summary>Installs map rules after a host binds artwork, or after restoring a store that did not serialize them.</summary>
+    /// <summary>Installs map rules when the host binds artwork.</summary>
     internal void BindMapPresentation(IAreaMapSource? maps) => mapPresentation = maps;
 
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>

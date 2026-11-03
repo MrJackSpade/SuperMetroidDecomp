@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>Byte-oriented escape-warning text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
-    /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
-    [NonSerialized] private EscapeTypewriterProgram? installedProgram;
+    /// <summary>The installed warning text the interpreter types.</summary>
+    private EscapeTypewriterProgram? installedProgram;
 
     /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
     /// <param name="programId">The warning program the state will show.</param>
@@ -64,7 +64,7 @@ public sealed class EscapeTypewriterState
     /// <param name="glyph">Receives the glyph typed this call, for the owner to write over its background; null otherwise.</param>
     /// <returns>True once all lines have been consumed; false during countdowns and character processing, including the final character's call.</returns>
     /// <remarks>The timer reload uses the previous delay before first-start initialization, so the first two character calls are consecutive; later characters skip two intervening calls.</remarks>
-    /// <exception cref="InvalidOperationException">An eligible call requires text, but no host program is bound after construction or restoration.</exception>
+    /// <exception cref="InvalidOperationException">An eligible call requires text, but no installed program is bound.</exception>
     public bool Step(out EscapeTypewriterGlyph? glyph)
     {
         ClickRequested = false;

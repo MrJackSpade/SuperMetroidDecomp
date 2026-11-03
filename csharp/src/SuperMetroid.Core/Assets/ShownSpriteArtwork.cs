@@ -16,10 +16,10 @@ public sealed class ShownSpriteArtwork
     private readonly List<long> _stamps = [];
 
     /// <summary>The looks still visible, newest first, as <see cref="visibleUnder"/> judged them; none since the last showing.</summary>
-    [NonSerialized] private SpriteArtworkSource[]? visible;
+    private SpriteArtworkSource[]? visible;
 
     /// <summary>The overlap relation <see cref="visible"/> was judged under.</summary>
-    [NonSerialized] private ISpriteArtworkOverlap? visibleUnder;
+    private ISpriteArtworkOverlap? visibleUnder;
 
     /// <summary>The place of the latest showing among all ever made; zero before the first.</summary>
     public long Recorded { get; private set; }

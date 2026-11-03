@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Setup, flight, title, and handoff dispatches of the Ceres approach.</summary>
-/// <remarks>Stored games hold these numerically, so new members are appended.</remarks>
 internal enum IntroCeresFlightPhase
 {
     /// <summary>The screen stays black until the music queue drains.</summary>

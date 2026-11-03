@@ -7,7 +7,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Map;
-using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Map;
@@ -147,12 +147,9 @@ internal static class ExploredMapPackingDefinitionsVerification
             {
                 MapPresentation = original,
             });
-            using var graph = new MemoryStream();
-            DebuggerObjectGraphSerializer.Serialize(graph, game);
-            graph.Position = 0;
-            var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(graph);
+            var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
             var restoredSaves = restored.Saves;
-            AssertThrows<InvalidOperationException>(() => restoredSaves.SaveSlot(0, snapshot), "debugger graph omits installed map provider");
+            AssertTrue(ReferenceEquals(original, restored.Artwork.MapPresentation), "debugger graph names its bound map provider");
             restored.BindArtwork(restored.Artwork with
             {
                 MapPresentation = edited,

@@ -37,7 +37,7 @@ public sealed class RoomLayer3FxState
     /// <summary>The BG3 plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
     public Layer3Plane EffectPlane => Layer3Plane.Of(EffectPageType);
 
-    /// <summary>Current installed room-FX blend colors; installed content, never kept with a stored game.</summary>
+    /// <summary>The installed room-FX blend colors.</summary>
     public RoomFxBlendInks? PaletteBlendColors => _session.PaletteBlendColors;
     /// <summary>
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
@@ -105,8 +105,8 @@ public sealed class RoomLayer3FxState
     private LiquidRisePhase liquidRisePhase;
     /// <summary>Audio requests emitted in the game's order during the current effect pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
-    /// <summary>Sound recipient for effect requests, rebound when a stored game is restored.</summary>
-    [NonSerialized] private IActivePowerBomb? audioPowerBomb;
+    /// <summary>The room's power-bomb explosion, which suppresses effect sounds while it is active.</summary>
+    private IActivePowerBomb? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
     internal WrappingCountdown EarthquakeSoundTimer { get; set; }
     /// <summary>Position in the room earthquake sound sequence.</summary>

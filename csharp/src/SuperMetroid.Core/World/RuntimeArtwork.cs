@@ -58,11 +58,10 @@ internal sealed class RuntimeArtwork
         ChainsawColours = Ensure.NotNull(dependencies.ChainsawColours);
     }
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
-    [field: NonSerialized]
     public GameplayBasePalette? InitialPaletteArt { get; set; }
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
     /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD word sheet's pictures, so no characters are shown again.</remarks>
-    [field: NonSerialized]     public IGameplayPresentationContent? MapPresentation
+    public IGameplayPresentationContent? MapPresentation
     {
         get;
         set
@@ -101,24 +100,23 @@ internal sealed class RuntimeArtwork
     }
 
     /// <summary>Rebinds authored visual frame choices to both projectile slot owners.</summary>
-    [field: NonSerialized]     public InstalledProjectileFrameBindings? ProjectileFrameBindings
+    public InstalledProjectileFrameBindings? ProjectileFrameBindings
     {
         get;
         set;
     }
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>
-    [field: NonSerialized]
     public ChargeFlarePlacements? ChargeFlarePlacement { get; set; }
 
     /// <summary>Current Grapple flare offsets.</summary>
-    [field: NonSerialized]     public ChargeFlarePlacements? GrappleFlarePlacement
+    public ChargeFlarePlacements? GrappleFlarePlacement
     {
         get;
         set { field = value; BindGrapplePresentation(); }
     }
 
     /// <summary>Current frame Samus's swing pose shows at each grapple angle.</summary>
-    [field: NonSerialized]     public InstalledGrappleSwingFrames? GrappleSwingFrames
+    public InstalledGrappleSwingFrames? GrappleSwingFrames
     {
         get;
         set { field = value; BindGrapplePresentation(); }
@@ -135,7 +133,6 @@ internal sealed class RuntimeArtwork
     }
 
     /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>
-    [field: NonSerialized]
     public InstalledSpriteSheets? SpriteSheets
     {
         get;
@@ -148,21 +145,19 @@ internal sealed class RuntimeArtwork
     }
 
     /// <summary>The projectile sheets Samus's projectiles, bombs, charge flare and trails draw from.</summary>
-    [field: NonSerialized]
     public SuperMetroid.Core.Samus.Artwork.ProjectileSheets? ProjectileSheets { get; private set; }
 
     /// <summary>Beam palettes bound since the last frame boundary, which the next one publishes.</summary>
-    [NonSerialized] private InstalledBeamPalettes? pendingBeamPalette;
+    private InstalledBeamPalettes? pendingBeamPalette;
 
     /// <summary>Current beam palettes.</summary>
-    [field: NonSerialized]     public InstalledBeamPalettes? BeamPalettes
+    public InstalledBeamPalettes? BeamPalettes
     {
         get;
         set { field = value; pendingBeamPalette = value; }
     }
 
     /// <summary>Current Hyper Beam palette effect colours.</summary>
-    [field: NonSerialized]
     public HyperBeamFxColours? HyperBeamFxColors { get; set; }
 
     /// <summary>
@@ -202,20 +197,16 @@ internal sealed class RuntimeArtwork
 
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
-    [field: NonSerialized]
     public InstalledRoomArtwork? RoomBlockSheets { get; set; }
     /// <summary>Installed base room palettes, rebound when a saved game state is restored.</summary>
-    [field: NonSerialized]
     public RoomStaticPalettes? RoomPaletteArt { get; set; }
 
     /// <summary>Installed visual room layouts, rebound when a saved game state is restored.</summary>
-    [field: NonSerialized]
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }
     /// <summary>Installed terrain of every room level, rebound when a saved game state is restored.</summary>
-    [field: NonSerialized]
     public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>
-    [field: NonSerialized]     public InstalledSamusBodyArtwork? SamusBodyArt
+    public InstalledSamusBodyArtwork? SamusBodyArt
     {
         get;
         set

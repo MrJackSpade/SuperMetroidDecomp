@@ -60,10 +60,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal readonly ScreenPalette palette = new();
     /// <summary>The live actors' sprite entries over the OBJ characters the uploads leave (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>Installed art rebound whenever the game is bound to its installed content rather than serialized with scene state.</summary>
-    [field: NonSerialized] internal IntroCinematicArtwork? Artwork { get; private set; }
+    /// <summary>Installed art, bound when the game is bound to its installed content.</summary>
+    internal IntroCinematicArtwork? Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
-    [NonSerialized] private InstalledSpriteSheets spriteSheets;
+    private InstalledSpriteSheets spriteSheets;
 
     /// <summary>
     /// The actors' sheet over the OBJ characters the uploads have left: the Ceres scene's until the Zebes reveal loads
@@ -74,8 +74,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
     internal readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>
-    /// Sprite slot ownership for Ceres actors when explosions reuse freed slots. Entries name their actor by
-    /// reference, which survives restoring a stored game; a hash table keyed by actor would not.
+    /// Sprite slot ownership for Ceres actors when explosions reuse freed slots. A spawning explosion looks a free slot
+    /// up by number and a deleted actor frees its entry by actor, so the few entries are kept as pairs.
     /// </summary>
     private readonly List<CeresActorSlot> ceresActorSlots = [];
     /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
@@ -83,7 +83,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
     internal RoomPaletteFxSystem? PaletteFx { get; set; }
     /// <summary>Installed color provider rebound whenever the game is bound to its installed content.</summary>
-    [NonSerialized] private IPaletteFxColorSource? paletteFxColors;
+    private IPaletteFxColorSource? paletteFxColors;
     /// <summary>Planet actor whose sliding pre-instruction uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
     /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
@@ -164,7 +164,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal bool ResumesAfterFrameWait =>
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
 
-    /// <summary>Rebinds the installed station-blast colors when a stored game is restored.</summary>
+    /// <summary>Binds the installed station-blast colors when the game is bound to its installed content.</summary>
     internal void BindFixedColors(InstalledPowerBombFixedColors? colors) =>
         stationExplosion.PresentationColors = colors;
 
@@ -179,7 +179,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// Rebinds installed artwork when a stored game is restored. Only the
+    /// Binds installed artwork when the game is bound to its installed content. Only the
     /// graphics transfers already reached by the current phase are refreshed; counters,
     /// actors, audio and gameplay timeline remain untouched. The shared Ceres palette
     /// is refreshed only before the later engine-flicker palette program takes ownership.

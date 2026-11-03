@@ -25,15 +25,23 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     private readonly SuperMetroidGameOptions? hostOptions;
     /// <summary>Installed asset receipt compared with each state's serialized content digests.</summary>
     private readonly GameContentIdentity contentIdentity;
+    /// <summary>
+    /// The installed content the host binds into its games, indexed once: a capture names what the game holds of it by
+    /// path, and a restore resolves those paths against it (#1507). Installed content never changes.
+    /// </summary>
+    private readonly Lazy<BoundObjectGraph> bound;
 
     /// <summary>Creates a state store with a verified source digest and optional host policy override.</summary>
     internal DebuggerSaveStateStore(
         string directory,
         byte[] romDigest,
         SuperMetroidGameOptions? hostOptions,
-        GameContentIdentity contentIdentity)
+        GameContentIdentity contentIdentity,
+        IInstalledSessionContent content)
     {
         Ensure.NotNull(contentIdentity);
+        Ensure.NotNull(content);
+        bound = new Lazy<BoundObjectGraph>(() => new BoundObjectGraph([content]));
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Ensure.LengthEqual(romDigest, SHA256.HashSizeInBytes);
         // Null preserves the captured policy for exact replay. Interactive hosts
@@ -52,6 +60,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         string dataDirectory,
         SuperMetroidGameOptions? hostOptions,
         GameContentIdentity contentIdentity,
+        IInstalledSessionContent content,
         string? directoryOverride = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
@@ -69,7 +78,8 @@ internal sealed class DebuggerSaveStateStore : IDisposable
                 : Path.GetFullPath(directoryOverride),
             SupportedCartridge.CreateSha256Digest(),
             hostOptions,
-            contentIdentity);
+            contentIdentity,
+            content);
     }
 
     /// <summary>Formats manual slots as decimal digits and the dedicated automatic slot as <c>auto</c>.</summary>
@@ -154,7 +164,9 @@ internal sealed class DebuggerSaveStateStore : IDisposable
             game.GameplayActiveRoomState?.Name,
             GetSlotPath(slot));
         using var payload = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(payload, new DebuggerSaveStateRoot(addressSpace, game));
+        // The content may have loaded parts of itself since the last save.
+        bound.Value.Refresh();
+        DebuggerObjectGraphSerializer.Serialize(payload, new DebuggerSaveStateRoot(addressSpace, game), bound.Value);
         return new DebuggerSaveStateCapture(metadata, payload.ToArray());
     }
 
@@ -273,7 +285,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         DebuggerSaveStateRoot root;
         try
         {
-            root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(compressed);
+            root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(compressed, bound.Value);
         }
         catch (InvalidDataException exception) when (
             exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))

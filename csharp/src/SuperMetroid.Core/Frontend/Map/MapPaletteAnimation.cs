@@ -13,10 +13,10 @@ public sealed class MapPaletteAnimation
     internal int Timer { get; set; } = 1;
     /// <summary>Index of the most recently applied map palette frame, below the installed cycle's frame count once stepped.</summary>
     internal int Frame { get; set; }
-    /// <summary>Installed host color cycle, excluded from serialized gameplay state.</summary>
-    [NonSerialized] private MapPaletteCycle? content;
+    /// <summary>The installed color cycle.</summary>
+    private MapPaletteCycle? content;
 
-    /// <summary>Rebinds host colors without resetting a saved timer or capturing assets in the state graph.</summary>
+    /// <summary>Binds the installed color cycle when the game is bound to its installed content, without resetting the cycle's timer.</summary>
     public void Bind(MapPaletteCycle? cycle) => content = cycle;
 
     /// <summary>Restores ResetPauseMenuAnimations' initial frame and one-tick delay.</summary>

@@ -24,11 +24,11 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private WrappingCountdown textFrameHold;
     /// <summary>Caller-installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
-    [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    private IntroNarrationPresentation? narrationPresentation;
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame { get; private set; }
-    /// <summary>Compiled page glyphs, rebound from the installed presentation after restore.</summary>
-    [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
+    /// <summary>The page glyphs, compiled from the installed presentation when it is bound.</summary>
+    private IntroNarrationCharacter[]? narrationProgram;
     /// <summary>The bound narration page's characters.</summary>
     private IntroNarrationCharacter[] NarrationProgram => narrationProgram ??
         throw new InvalidOperationException("No narration page is bound.");
@@ -169,7 +169,7 @@ internal sealed class IntroCinematicObjectSystem
         if (narrationPage is not null && narrationProgram is null)
         {
             throw new InvalidOperationException(
-                "Opening narration host content must be rebound after state restoration.");
+                "Opening narration requires its installed presentation to be bound.");
         }
         caretSprite.Step();
         subtitles.Step(newlyPressed, MarkAwaitingInput);
@@ -183,7 +183,7 @@ internal sealed class IntroCinematicObjectSystem
         text.Publish();
     }
 
-    /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>
+    /// <summary>Binds the installed narration content when the game is bound to its installed content.</summary>
     public void BindNarration(IntroNarrationPresentation? presentation)
     {
         narrationPresentation = presentation;

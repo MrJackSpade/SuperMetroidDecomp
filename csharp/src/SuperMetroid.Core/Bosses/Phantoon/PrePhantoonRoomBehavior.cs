@@ -22,7 +22,6 @@ internal sealed class PrePhantoonRoomBehavior
     }
 
     /// <summary>The runtime's BG scroll words, available to the current projectile pass.</summary>
-    [NonSerialized]
     private BackgroundScrollState? _enemyProjectileBackgroundScroll;
 
     /// <summary>Binds the runtime's BG scroll words for the projectile pass that follows.</summary>

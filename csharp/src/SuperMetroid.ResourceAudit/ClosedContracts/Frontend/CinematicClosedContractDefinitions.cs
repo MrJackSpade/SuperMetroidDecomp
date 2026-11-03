@@ -27,7 +27,7 @@ internal static class CinematicClosedContractDefinitions
         new("SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteSheet", "intro-sheet-complete-owned-poses", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteSheet.cs")]),
         new("SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisuals", "ceres-door-complete-tile-and-color-images",
-            ["LoadTiles", "LoadNormalColors", "LoadEscapeColors", "LoadAnimationColors"],
+            ["LoadTiles", "NormalColor", "EscapeColor", "AnimationColor"],
             [new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorVisuals.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorAnimationPaint.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorEscapePaint.cs"),

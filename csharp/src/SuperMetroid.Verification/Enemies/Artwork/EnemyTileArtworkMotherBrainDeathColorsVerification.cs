@@ -126,7 +126,6 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         cgram.SetColor(MotherBrainDeathColorDestinations.BodyColors - 1, RgbColor.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathColorDestinations.BrainColors - 1, RgbColor.FromWord(0x1234));
         cgram.SetColor(MotherBrainDeathColorDestinations.LegColors - 1, RgbColor.FromWord(0x1234));

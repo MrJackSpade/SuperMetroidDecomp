@@ -172,9 +172,8 @@ internal static class LookupStream2Verification
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Colouring = SharedSpriteColouring.Common;
+        slot.Shading = PictureShading.Standard;
         var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
@@ -1539,28 +1538,19 @@ internal static class LookupStream2Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(-1), "tube negative color");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(32), "tube past last color");
-        Console.WriteLine("Tube and statue palettes: 96 native colors, statue paint with no stored stock colors, full CGRAM writes, 96 independent edits and canonical identity pass; the eight tube seeds are authored.");
+        Console.WriteLine("Tube and statue palettes: 96 native colors, statue paint with no stored stock colors, 96 independent edits and canonical identity pass; the eight tube seeds are authored.");
 
         static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
         {
             static ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-            var cgram = new GameplayColours(new SpriteColourSets());
-            catalog.ApplyTubeCracks(SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, cgram.SpriteSets));
+            // The colours the import pre-colours the tube-crack and statue shades from (#1512).
             for (int color = 0; color < 32; color++)
             {
                 ushort word = Word(document.TubeCracks[color]);
                 AssertEqual(word, catalog.ResolveTubeCracks(color), "independent tube color preserved");
-                AssertEqual(word, cgram.Colors[ChozoAndTubeColorTransfer.Destination + color], "tube color reaches CGRAM");
                 AssertEqual(Word(document.WreckedShip[color]), catalog.ResolveWreckedShip(color), "Wrecked Ship palette preserved");
                 AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
             }
-            var statues = new GameplayColours(new SpriteColourSets());
-            catalog.ApplyWreckedShip(SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, statues.SpriteSets));
-            for (int color = 0; color < 32; color++)
-                AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorTransfer.Destination + color], "Wrecked Ship color reaches CGRAM");
-            catalog.ApplyLowerNorfair(SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, statues.SpriteSets));
-            for (int color = 0; color < 32; color++)
-                AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorTransfer.Destination + color], "Lower Norfair color reaches CGRAM");
             string expected = SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
             {
                 content.AppendWords("tubeCracks", document.TubeCracks.Select(Word).ToArray());

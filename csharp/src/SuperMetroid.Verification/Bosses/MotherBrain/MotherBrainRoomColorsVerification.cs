@@ -319,7 +319,6 @@ internal static class MotherBrainRoomColorsVerification
         MotherBrainRoomColorPresentation? colors)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors, BodySheets = BossBodySheetFixtures.Stock.Sheets } };
-        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;
     }

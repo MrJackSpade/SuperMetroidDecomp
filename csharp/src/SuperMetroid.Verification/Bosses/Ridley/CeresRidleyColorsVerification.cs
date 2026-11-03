@@ -105,7 +105,6 @@ internal static class CeresRidleyColorsVerification
             AreaArtwork = fixtureAssets.EnemyTiles.Areas,
         };
         var cgram = new SamusColourRig();
-        enemies.Presentation.BindColours(cgram.Gameplay);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley;
         initialize(slot);
@@ -266,7 +265,6 @@ internal static class CeresRidleyColorsVerification
                     new VerifyCeresAlarmPaletteCase(editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.Presentation.BindColours(palette.Gameplay);
             }
             var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
             var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
@@ -323,7 +321,6 @@ internal static class CeresRidleyColorsVerification
                     new VerifyCeresAlarmPaletteCase(editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.Presentation.BindColours(palette.Gameplay);
             }
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
             var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(stockEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);

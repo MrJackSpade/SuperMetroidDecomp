@@ -96,7 +96,6 @@ internal static class CrocomireRumbleDefinitionsVerification
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
             RumbleStep = CrocomireRumble.FirstStep,
         };
-        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the

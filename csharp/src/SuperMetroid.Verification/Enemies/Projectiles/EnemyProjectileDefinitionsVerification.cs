@@ -49,7 +49,7 @@ internal static class EnemyProjectileDefinitionsVerification
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(setupBus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
+        enemies.Load(new RoomEnemyLoadRequest(setupBus.ReadEnemyPopulation(populationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         Func<RoomEnemyProjectileSlot, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
@@ -59,7 +59,7 @@ internal static class EnemyProjectileDefinitionsVerification
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Clear();
-            initialize(projectile, kind, SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Frozen));
+            initialize(projectile, kind, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.FrameBehavior, projectile.FrameBehavior,
                 $"{kind} production pre-instruction");
@@ -82,7 +82,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production persistence property");
             AssertEqual(definition.BlocksSamusProjectiles, projectile.BlocksSamusProjectiles,
                 $"{kind} production projectile-blocking property");
-            AssertEqual(SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Frozen), projectile.Graphics,
+            AssertEqual(SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook), projectile.Graphics,
                 $"{kind} production graphics: the spawner's tile base and colours");
 
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));

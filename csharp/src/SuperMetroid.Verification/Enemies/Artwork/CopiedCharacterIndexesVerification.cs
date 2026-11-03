@@ -49,9 +49,11 @@ internal static class CopiedCharacterIndexesVerification
             foreach (RoomEnemySlot slot in placed)
             {
                 AssertEqual(composed.TileBase, slot.TileIndexBase, $"{child} in {room.Name} draws at the character index its sheet is composed at");
-                if (EnemyTileBaseDefinitions.DrawsInPaletteOf.ContainsKey(child))
-                    AssertEqual(runtime.Enemies.GraphicsSet.DrawRow(child), slot.PaletteRowIn(runtime.Enemies),
-                        $"{child} in {room.Name} draws in the row its sheet is coloured in");
+                // The import colours the sheet of an enemy copying another's colours in its owner's row (#1512), so the copy
+                // draws in its sheet's standard colours.
+                if (SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.DrawsInRowOf.ContainsKey(child))
+                    AssertEqual(PictureShading.Standard, slot.Shading,
+                        $"{child} in {room.Name} draws in its sheet's standard colours");
                 slots++;
             }
         }

@@ -211,7 +211,6 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
-            enemy.Presentation.BindColours(cgram.Gameplay);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);

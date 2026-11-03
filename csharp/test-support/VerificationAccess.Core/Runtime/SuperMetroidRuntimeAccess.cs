@@ -60,7 +60,7 @@ internal static class SuperMetroidRuntimeAccess
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies });
             enemies.Load(new RoomEnemyLoadRequest(scope.Room.State.EnemyPopulation, scope.Room.State.EnemyGraphicsSet,
-                scope.Appearance, self.Colours)
+                scope.Appearance)
             {
                 Level = scope.LevelData,
                 Samus = self.Player.Samus,

@@ -28,7 +28,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             TileIndexBase = 256,
-            Colouring = SharedSpriteColouring.Frozen,
+            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, false);
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);

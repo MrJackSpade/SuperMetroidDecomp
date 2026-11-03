@@ -20,20 +20,20 @@ internal static class EnemyArtworkStaticContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies;
             class EnemyArtworkConsumer {
-                void Inspect(EnemyTileArtworkCatalog art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer,
-                    VramRegion vram, SuperMetroid.Core.Assets.ColourRun cgram) {
-                    art.LoadPaletteTo(SuperMetroid.Core.Enemies.EnemyDefinitionId.{{first.DefinitionId}}, cgram);
-                    art.LoadPaletteTo(0, cgram);
-                    art.LoadPaletteTo(pointer, cgram);
+                void Inspect(EnemyTileSourceArtwork art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer,
+                    VramRegion vram) {
+                    art.PaletteOf(SuperMetroid.Core.Enemies.EnemyDefinitionId.{{first.DefinitionId}});
+                    art.PaletteOf(0);
+                    art.PaletteOf(pointer);
                 }
             }
             """, path: "fixture-enemy-artwork-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyArtworkFixture", sources,
-            platforms.Append(typeof(EnemyTileArtworkCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(EnemyTileArtworkCatalog).Assembly.Location).Append(typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

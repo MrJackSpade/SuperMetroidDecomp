@@ -72,7 +72,7 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
 
     /// <summary>The installed palette of <paramref name="enemy"/>.</summary>
     /// <exception cref="InvalidDataException">The enemy has no installed palette.</exception>
-    internal EnemyPaletteSheet PaletteOf(EnemyDefinitionId enemy) => TryGetPalette(enemy, out EnemyPaletteSheet? palette) ? palette
+    public EnemyPaletteSheet PaletteOf(EnemyDefinitionId enemy) => TryGetPalette(enemy, out EnemyPaletteSheet? palette) ? palette
         : throw new InvalidDataException($"Enemy {enemy} has no installed palette.");
 
     /// <summary>Four editable Magdollite glow frames.</summary>

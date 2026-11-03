@@ -196,7 +196,7 @@ internal static class KraidAnimationsVerification
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
         TileIndexBase = 256,
-        Colouring = SharedSpriteColouring.Frozen,
+        Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
     };
 
     /// <summary>Every real rock producer, and Kago's bug, starts the typed pose its native list starts.</summary>

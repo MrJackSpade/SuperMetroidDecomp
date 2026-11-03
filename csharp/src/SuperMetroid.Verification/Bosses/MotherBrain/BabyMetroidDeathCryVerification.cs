@@ -23,7 +23,6 @@ internal static class BabyMetroidDeathCryVerification
         enemies.BossArtworkBinding.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
         var cgram = new SamusColourRig();
         for (int index = 0; index < 256; index++) cgram.SetColor(index, RgbColor.FromWord((ushort)(index + 1)));
-        enemies.Presentation.BindColours(cgram.Gameplay);
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 79;

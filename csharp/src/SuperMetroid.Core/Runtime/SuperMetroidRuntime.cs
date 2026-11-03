@@ -1070,6 +1070,8 @@ internal sealed class SuperMetroidRuntime
     {
         yield return Room.LoadedScope.PaletteFx;
         yield return Room.LoadedScope.Layer3Fx;
+        foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
+            yield return boss;
         yield return DoorFade;
     }
 

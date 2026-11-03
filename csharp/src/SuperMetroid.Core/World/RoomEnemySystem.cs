@@ -36,6 +36,7 @@ using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hoppers;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies.Inert;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.KiHunters;
@@ -539,6 +540,16 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CrocomireBehavior.Access.Crocomire is not null ? CrocomireBehavior.BodyLayer.Placement : null;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
+
+    /// <inheritdoc />
+    IEnumerable<IGameplayShadingSource> IEnemyDisplaySources.ShadingSources
+    {
+        get
+        {
+            if (KraidBehavior.Access.Kraid is { } kraid)
+                yield return kraid.Backdrop;
+        }
+    }
 
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
     internal IGrappleTargets GrappleTargets => GrappleBehavior;

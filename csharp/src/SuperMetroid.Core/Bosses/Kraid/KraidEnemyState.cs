@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public sealed class KraidEnemyState
 {
+    /// <summary>The colours Kraid's room backdrop shows (#1512).</summary>
+    internal KraidBackdropColours Backdrop { get; } = new();
+
     /// <summary>Gets eight part workspaces in slot order: body, arm, three lints, foot, and two fingernails; they remain owned by the room after the body is deleted.</summary>
     public KraidPartState[] Parts { get; } = Enumerable.Range(0, 8)
         .Select(_ => new KraidPartState())

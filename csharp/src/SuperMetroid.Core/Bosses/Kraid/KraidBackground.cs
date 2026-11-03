@@ -41,43 +41,27 @@ internal sealed class KraidBackground
         return colors.Resolve(source, index);
     }
 
-    /// <summary>Steps room background colors toward their grown-form target.</summary>
+    /// <summary>
+    /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour
+    /// change (#1512): steps zero through thirteen move the backdrop, the step after completes the fade and resets the
+    /// shared counter. The backdrop's colours are the import's shade of each step.
+    /// </summary>
+    /// <returns>Whether the fade completed on this call.</returns>
     internal bool AdvanceKraidRoomBackgroundFade(
         KraidBackdropFade fade)
     {
+        KraidBackdropColours backdrop = (_access.Kraid ?? throw new InvalidOperationException(
+            "Kraid's backdrop fades once Kraid is loaded.")).Backdrop;
         int step = _presentation.GradualColorChange.Numerator;
-        if (step <= 13)
+        if (step <= KraidBackgroundDefinitions.BackdropFadeLastStep)
         {
-            for (int color = 0; color < 16; color++)
-            {
-                RgbColor current = _presentation.BossColours().KraidRoomBackdrop[color];
-                RgbColor target = fade == KraidBackdropFade.ToBlack
-                    ? RgbColor.Black
-                    : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
-                _presentation.BossColours().KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
-            }
+            backdrop.Step(fade, step);
             _presentation.GradualColorChange.Advance();
             return false;
         }
+        backdrop.Complete();
         _presentation.GradualColorChange.Reset();
         return true;
-    }
-
-    /// <summary>Interpolates one RGB5 color toward its growth-phase target.</summary>
-    private static RgbColor TransitionKraidColor(int step, RgbColor current, RgbColor target) =>
-        current.Zip(target, (_, from, to) => TransitionKraidComponent(step, from, to));
-
-    /// <summary>Moves one color channel toward its target under the step rule.</summary>
-    private static int TransitionKraidComponent(int step, int current, int target)
-    {
-        if (step == 0)
-            return current;
-        if (step == 13)
-            return target;
-        int denominator = 13 - step;
-        int fixedDelta = Math.Abs(target - current) * 256 / denominator;
-        int signedDelta = target < current ? -fixedDelta : fixedDelta;
-        return EightEight.WholeOf(signedDelta + EightEight.FromWhole(current));
     }
 
     /// <summary>Emits a ceiling rock at the scripted horizontal position when a slot is free.</summary>

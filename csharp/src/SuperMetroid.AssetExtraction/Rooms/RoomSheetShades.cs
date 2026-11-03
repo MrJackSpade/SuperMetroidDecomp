@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
@@ -17,12 +19,31 @@ internal static class RoomSheetShades
 {
     /// <summary>
     /// The shades of <paramref name="tileset"/>'s room pictures, its blocks, backgrounds, written pictures and floor: the
-    /// records its rooms' palette effects show.
+    /// records its rooms' palette effects show, and the colours of the bosses its rooms hold that recolour the room.
     /// </summary>
     internal static IReadOnlyList<SheetShade> Room(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
-        return PaletteFxRoomShades.Of(RoomsOf(tileset), inputs.Maps.RoomPaletteFx);
+        (RoomHeaderDefinition Room, RoomStateSettings State)[] rooms = [.. RoomsOf(tileset)];
+        var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
+        if (rooms.Any(room => Holds(room.State, EnemyDefinitionId.Kraid)))
+        {
+            RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
+            shades.AddRange(KraidBackdropShades.Of(standard, inputs.Bosses.KraidColors
+                ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours.")));
+        }
+        return shades;
+    }
+
+    /// <summary>Whether <paramref name="state"/> places <paramref name="enemy"/>.</summary>
+    private static bool Holds(RoomStateSettings state, EnemyDefinitionId enemy)
+    {
+        foreach (var record in state.EnemyPopulation.Records.Span)
+        {
+            if (record.DefinitionId == enemy)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

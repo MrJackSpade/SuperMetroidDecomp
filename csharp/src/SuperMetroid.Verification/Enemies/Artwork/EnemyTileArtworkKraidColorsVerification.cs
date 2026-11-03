@@ -174,6 +174,18 @@ internal static class EnemyTileArtworkKraidColorsVerification
         }
     }
 
+    /// <summary>
+    /// Lays the import's backdrop <paramref name="shade"/>, made from <paramref name="artwork"/>'s Kraid colours over a
+    /// black room, into <paramref name="cgram"/> at the inks it recolours, which are the cartridge's colour positions.
+    /// </summary>
+    private static void LayShade(SamusColourRig cgram, InstalledEnemyArtwork artwork, PictureShade shade)
+    {
+        SheetShade made = KraidBackdropShades.Of(new RgbColor[SpriteImage.SpriteColourCount], artwork.Bosses.KraidColors
+            ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.")).Single(candidate => candidate.Shade == shade);
+        for (int index = 0; index < made.Inks.Length; index++)
+            cgram.SetColor(made.Inks[index], made.Colours[index]);
+    }
+
     /// <summary>Rejects runtime reads from every Kraid palette source range after artwork installation.</summary>
     private static CartridgeReadGuard NewKraidPaletteSourceGuard(ISnesAddressSpace rom)
     {
@@ -204,19 +216,23 @@ internal static class EnemyTileArtworkKraidColorsVerification
         switch (consumer)
         {
             case KraidPaletteConsumer.BackdropLoad:
+                // The defeated room shows Kraid's backdrop: the import's shade of it lays his colours over the backdrop's
+                // inks, which are the cartridge's colours from 96 (#1512).
+                state.Backdrop.ShowKraidColours();
+                AssertEqual(KraidBackdropShows.KraidColours, state.Backdrop.Shows, "Kraid's defeated room shows his backdrop");
+                LayShade(cgram, artwork, KraidShades.Backdrop);
+                break;
             case KraidPaletteConsumer.InitialTargetLoad:
                 new Action<KraidPaletteSource, ColourRun>(enemies.KraidBehavior.Rise.LoadKraidColorBand)(
-                        consumer == KraidPaletteConsumer.BackdropLoad
-                            ? KraidPaletteSource.RoomBackdrop
-                            : KraidPaletteSource.InitialTarget,
-                        consumer == KraidPaletteConsumer.BackdropLoad
-                            ? new BossColours(cgram.Gameplay).KraidRoomBackdrop
-                            : new BossColours(cgram.Gameplay).KraidSprites);
+                    KraidPaletteSource.InitialTarget, new BossColours(cgram.Gameplay).KraidSprites);
                 break;
             case KraidPaletteConsumer.BackdropFade:
+                // Step thirteen of the growth fade shows the import's shade of the fade's end: Kraid's colours exactly.
                 for (int step = 0; step < 13; step++)
                     enemies.Presentation.GradualColorChange.Advance();
                 _ = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToRoomColors);
+                AssertEqual(KraidBackdropShows.FadingInFromRoomColours, state.Backdrop.Shows, "Kraid's growth fades his backdrop in");
+                LayShade(cgram, artwork, KraidShades.BackdropFadingInFromRoomColours(state.Backdrop.Steps));
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:

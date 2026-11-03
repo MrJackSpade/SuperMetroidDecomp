@@ -292,7 +292,23 @@ internal static class SamusBodyArtworkVerification
                     nativeSamus, nativeColors.Samus, stock.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
                     installedSamus, installedColors.Samus, stock.DeathSteps);
-                AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
+                // Samus's death colours are her shades and the whiteout a colour the display shows (#1512): each frame
+                // her shown suit and suitless colours are one of the cartridge's death palette pairs for her suit, and the
+                // whiteout one of the cartridge's whiteout shades.
+                RgbColor[] shownSuit = installedColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources);
+                RgbColor[] shownSuitless = installedColors.Samus.ShownSuitless(InstalledFixtures.SamusShadeSources);
+                AssertTrue(Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount).Any(palette =>
+                        CartridgeDeathColours(bus, SamusSourceDefinitions.SuitPointers.Value +
+                            (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * sizeof(ushort)).SequenceEqual(shownSuit.Select(colour => colour.ToWord())) &&
+                        CartridgeDeathColours(bus, SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort))
+                            .SequenceEqual(shownSuitless.Select(colour => colour.ToWord()))),
+                    $"death suit {suit} frame {frame} shows one of the cartridge's death palette pairs");
+                AssertTrue(installedSamus.DeathSequence.Whiteout is not { } whiteout ||
+                    Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Any(shade =>
+                        CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort))
+                            == whiteout.ToWord()),
+                    $"death suit {suit} frame {frame} whiteout is one of the cartridge's whiteout shades");
+                AssertTrue(nativeSamus.DeathSequence.Whiteout == installedSamus.DeathSequence.Whiteout &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.AnimationTimer.RawValue ==
                         installedSamus.DeathSequence.AnimationTimer.RawValue &&
@@ -600,6 +616,14 @@ internal static class SamusBodyArtworkVerification
             reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
             "repair preserves edited arm-cannon PNG pixels");
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
+    }
+
+    /// <summary>The sixteen colour words of the cartridge's death palette whose pointer lies at <paramref name="pointerAt"/>.</summary>
+    private static ushort[] CartridgeDeathColours(ISnesAddressSpace bus, int pointerAt)
+    {
+        ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAt);
+        return [.. Enumerable.Range(0, InstalledSamusDeathPalettes.ColorCount).Select(colour =>
+            CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.PaletteBank.Value | pointer + colour * 2))];
     }
 
     /// <summary>Compares arm-cannon pose records and tiles to ROM, then checks guarded cover OAM and DMA output.</summary>

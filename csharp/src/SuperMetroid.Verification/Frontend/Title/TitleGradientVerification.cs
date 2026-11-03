@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
@@ -351,7 +352,9 @@ internal static class TitleGradientVerification
         for (int frame = 0; frame < frames; frame++)
         {
             native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
             installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {
                 throw new InvalidDataException(

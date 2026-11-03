@@ -37,4 +37,27 @@ internal static class PaletteFxRoomLook
                 cgram.SetColor(laid.Inks[index], laid.Colours[index]);
         }
     }
+    /// <summary>
+    /// Lays every record <paramref name="fx"/> shows over <paramref name="cgram"/> as the pictures that show it are
+    /// pre-coloured (#1512): the room groups' shades over the room's colours, as <see cref="LayRoomShades"/> lays them, then
+    /// each other group's last record from the native colour its records start at, which Samus, an enemy or a frontend
+    /// screen shows. Both a native and an installed system are laid this way, so their colour tables differ exactly
+    /// where the records shown or the colours they are coloured from differ.
+    /// </summary>
+    internal static void LayShownShades(RoomPaletteFxSystem fx, IPaletteColors cgram, IPaletteFxColorSource colours)
+    {
+        LayRoomShades(fx, cgram, colours);
+        foreach (PaletteFxColours group in Enum.GetValues<PaletteFxColours>())
+        {
+            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(group) || fx.RecordOf(group) is not { } record)
+                continue;
+            int first = group.CartridgeColour;
+            SheetShade shade = PaletteFxRoomShades.Shade(group, record, first, (first / RowColours + 1) * RowColours, colours);
+            for (int index = 0; index < shade.Inks.Length; index++)
+                cgram.SetColor(shade.Inks[index], shade.Colours[index]);
+        }
+    }
+
+    /// <summary>Colours in one colour row.</summary>
+    private const int RowColours = 16;
 }

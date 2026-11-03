@@ -5,21 +5,32 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// A Torizo's colours (#1512): the colouring his body and belly last settled in and the fade running from it toward the
+/// A Torizo's colours (#1512): the colouring his body and belly last showed whole and the fade running from it toward the
 /// colours his program names, each step on the shared gradual colour change. His draws show the import's shade of each.
 /// His initialization clears his draw's palette bits, so his sheets are coloured in the rows his parts name and need no
 /// selection shade; a hurt flash, which clears the same bits, changes nothing he shows.
 /// </summary>
+/// <remarks>
+/// The cartridge moves each colour one step from the colour shown, so a fade starts from what is shown when it takes its
+/// first step. A hurt colouring written in the middle of a fade restarts it from that colouring at the counter value it
+/// stands at, which the fade keeps as the first value it stepped from there; the import pre-colours every such start and
+/// step. A program names a new target only while the colours rest on a whole colouring (his awakening and his death each
+/// name theirs before their steps, and the awakening's last call takes only the counter's zero step, which moves nothing),
+/// so a target named while a fade has moved the colours is not a state the cartridge reaches and is refused.
+/// </remarks>
 internal sealed class TorizoColours
 {
-    /// <summary>The colouring last settled.</summary>
+    /// <summary>The colouring last shown whole: loaded, written by a hurt, or reached by a completed fade.</summary>
     private TorizoLook settled = new(TorizoLookKind.BombStatue);
 
     /// <summary>The colouring the program's fade runs toward, or null before it names one.</summary>
     private TorizoLook? target;
 
-    /// <summary>The running fade's start and the counter value of its last step, or null while none runs.</summary>
-    private (TorizoLook From, int Value)? fade;
+    /// <summary>
+    /// The counter values of the first and last steps the running fade took from <see cref="settled"/>, or null while
+    /// none runs.
+    /// </summary>
+    private (int First, int Last)? fade;
 
     /// <summary>The shading his draws show now.</summary>
     internal PictureShading Shading
@@ -27,27 +38,44 @@ internal sealed class TorizoColours
         get
         {
             PictureShading shading = PictureShading.Shaded(TorizoShades.Shared);
-            return fade is { } running && target is { } to
-                ? shading.With(TorizoShades.Fading(running.From, to, running.Value))
+            return Moved is { } steps && target is { } to
+                ? shading.With(TorizoShades.Fading(settled, to, steps.First, steps.Last))
                 : shading.With(TorizoShades.Body(settled));
         }
     }
 
-    /// <summary>Shows <paramref name="look"/> at once, ending any fade.</summary>
+    /// <summary>
+    /// The running fade's steps that move colours, or null when none has: the counter's zero step changes nothing, so a
+    /// fade's first moving step is its first step past zero.
+    /// </summary>
+    private (int First, int Last)? Moved =>
+        fade is { } running && running.Last > 0 ? (Math.Max(running.First, 1), running.Last) : null;
+
+    /// <summary>Shows <paramref name="look"/> at once; a running fade continues from it on its next step.</summary>
     internal void Show(TorizoLook look)
     {
         settled = look;
         fade = null;
     }
 
-    /// <summary>Names the colouring the fade runs toward; the fade starts from the colouring last settled.</summary>
-    internal void FadeToward(TorizoLook look) => target = look;
+    /// <summary>Names the colouring the fade runs toward; the fade starts from the colours shown.</summary>
+    /// <exception cref="InvalidOperationException">A fade toward another colouring has already moved the colours.</exception>
+    internal void FadeToward(TorizoLook look)
+    {
+        if (target is { } running && running != look && Moved is not null)
+            throw new InvalidOperationException($"A Torizo's program names {look.Key} while its fade toward {running.Key} has moved the colours.");
+        if (Moved is null)
+            fade = null;
+        target = look;
+    }
 
     /// <summary>
     /// Takes one step of the fade on <paramref name="counter"/>: values zero through the fade's length plus one move the
-    /// colours, and the call after completes the fade, settling it in its target, and resets the counter.
+    /// colours from those shown, and the call after completes the fade and resets the counter, leaving the colours shown.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No fade target is named.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// No fade target is named, or the counter skipped a value since the fade's last step.
+    /// </exception>
     internal void Step(GradualColorChangeCounter counter)
     {
         Ensure.NotNull(counter);
@@ -56,11 +84,15 @@ internal sealed class TorizoColours
         if (value > TorizoPaletteDefinitions.FadeDenominator + 1)
         {
             counter.Reset();
-            settled = to;
+            // The last step reached the target's colours exactly; with no step since a hurt colouring, that colouring stays.
+            if (fade is not null)
+                settled = to;
             fade = null;
             return;
         }
-        fade = (fade?.From ?? settled, value);
+        if (fade is { } running && value != running.Last + 1)
+            throw new InvalidOperationException($"A Torizo's fade stepped at counter value {running.Last}, then at {value}.");
+        fade = (fade?.First ?? value, value);
         counter.Advance();
     }
 }

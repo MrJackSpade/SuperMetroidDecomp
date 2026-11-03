@@ -111,7 +111,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, 12);
-            AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(band), PhantoonBodyLook.Health(band), 12, 1), Shown(state),
+            AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(band), PhantoonBodyLook.Health(band), 12, 1, 1), Shown(state),
                 $"Phantoon live materialization band {band}");
             AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
                 $"Phantoon fade-in band {band} retains native numerator advance");
@@ -127,11 +127,27 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.Parts[eye.SlotIndex].FadeNumerator = 13;
         state.Parts[eye.SlotIndex].FadeComplete = false;
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, 12);
-        PictureShade fadedOut = PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 13);
+        PictureShade fadedOut = PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 13, 13);
         AssertEqual(fadedOut, Shown(state), "Phantoon live fade-out names its last step");
         AssertShade(bodyShades, fadedOut, colors.ResolveFadeOut, "Phantoon live fade-out target");
         AssertEqual(14, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon fade-out retains native numerator advance");
+
+        // A hurt colouring written mid-fade restarts the fade from it at the value the fade stands at (#1512): the
+        // cartridge steps each colour from the one shown, so the next step moves white once, not through the steps before.
+        state.Colours.Show(PhantoonBodyLook.Health(2));
+        for (int numerator = 1; numerator <= 4; numerator++)
+            state.Colours.Fade(PhantoonBodyLook.FadedOut, 12, numerator);
+        AssertEqual(PhantoonShades.Fading(PhantoonBodyLook.Health(2), PhantoonBodyLook.FadedOut, 12, 1, 4), Shown(state),
+            "Phantoon's fade names the steps it took from his health colours");
+        state.Colours.Show(PhantoonBodyLook.White);
+        state.Colours.Fade(PhantoonBodyLook.FadedOut, 12, 5);
+        PictureShade restarted = PhantoonShades.Fading(PhantoonBodyLook.White, PhantoonBodyLook.FadedOut, 12, 5, 5);
+        AssertEqual(restarted, Shown(state), "Phantoon's fade restarts from the hurt flash's white at the value it stands at");
+        AssertShade(bodyShades, restarted, color => CartridgeFadeStep(5, RgbColor.White, colors.ResolveFadeOut(color), 12),
+            "Phantoon's fade restarted from white");
+        AssertThrows<InvalidOperationException>(() => state.Colours.Fade(PhantoonBodyLook.Health(2), 12, 6),
+            "A fade toward another target while his colours are mid-fade is refused");
 
         state.Parts[eye.SlotIndex].FadeDenominator = 12;
         state.Parts[eye.SlotIndex].FadeNumerator = 13;
@@ -196,6 +212,15 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             new SpriteImagePalette(SpriteImageColours.Background, [.. new RgbColor[SpriteImage.SpriteColourCount]]), [0], [0]))
             .Of(GameplayPictures.BossBody).Shades.Single();
     }
+
+    /// <summary>
+    /// One step of value <paramref name="step"/> of Phantoon's fade from <paramref name="shown"/> toward
+    /// <paramref name="goal"/>, as the cartridge's per-channel transition moves each channel by its distance in 256ths over
+    /// the steps left.
+    /// </summary>
+    private static RgbColor CartridgeFadeStep(int step, RgbColor shown, RgbColor goal, int denominator) =>
+        shown.Zip(goal, (_, from, to) => step == 0 ? from : step - 1 == denominator ? to
+            : ((from << 8) + Math.Sign(to - from) * (Math.Abs(to - from) * 256 / (denominator - step + 1))) >> 8);
 
     /// <summary>Asserts that the import's <paramref name="shade"/> among <paramref name="made"/> shows <paramref name="expected"/>'s colours.</summary>
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)

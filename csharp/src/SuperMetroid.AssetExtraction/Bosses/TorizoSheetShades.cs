@@ -11,7 +11,10 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <summary>
 /// The shades of the Torizos (#1512), which the import pre-colours their sheets in: the colours both load over their
 /// orb-and-flame and statue-shading rows, each settled colouring of a Torizo's body and belly over its two rows, and each
-/// counter value of the fades between them, as the shared gradual colour change moves each colour.
+/// run of counter values a fade takes from one toward another, as the shared gradual colour change moves each colour one
+/// step from the colour shown. A fade's run starts past zero, as the counter's zero step moves nothing, and at any value
+/// through its last: a hurt colouring written mid-fade restarts the fade from that colouring at the counter value it
+/// stands at.
 /// </summary>
 internal static class TorizoSheetShades
 {
@@ -58,8 +61,11 @@ internal static class TorizoSheetShades
             foreach (TorizoLook to in FadeTargets)
             {
                 RgbColor[] goal = Colours(auxiliary, to);
-                for (int value = 0; value <= TorizoPaletteDefinitions.FadeDenominator + 1; value++)
-                    shades.Add(SheetShade.Run(TorizoShades.Fading(from, to, value), BodyFirstInk, Faded(start, goal, value)));
+                for (int first = 1; first <= TorizoPaletteDefinitions.FadeDenominator + 1; first++)
+                {
+                    for (int last = first; last <= TorizoPaletteDefinitions.FadeDenominator + 1; last++)
+                        shades.Add(SheetShade.Run(TorizoShades.Fading(from, to, first, last), BodyFirstInk, Faded(start, goal, first, last)));
+                }
             }
         }
         return shades;
@@ -82,14 +88,14 @@ internal static class TorizoSheetShades
         _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
     };
 
-    /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s from zero through <paramref name="value"/>.</summary>
-    private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int value)
+    /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s of counter values <paramref name="first"/> through <paramref name="last"/>.</summary>
+    private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int first, int last)
     {
         var faded = new RgbColor[start.Length];
         for (int ink = 0; ink < faded.Length; ink++)
         {
             RgbColor current = start[ink];
-            for (int step = 0; step <= value; step++)
+            for (int step = first; step <= last; step++)
                 current = GradualColourFade.Step(step, current, goal[ink], TorizoPaletteDefinitions.FadeDenominator);
             faded[ink] = current;
         }

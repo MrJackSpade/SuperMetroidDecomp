@@ -129,10 +129,22 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor:
                 // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.CeresRidleyColors, inputs.Bosses));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses));
+                break;
+            case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
+                // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
+                break;
+            case EnemyDefinitionId.BabyMetroid:
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
+                break;
+            case EnemyDefinitionId.Zebetite:
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Zebetites(inputs.Bosses));
                 break;
             case EnemyDefinitionId.CorpseSidehopper:
             {
+                // The Shitroid's victim shows the encounter's entry colours before it is drained (#1512).
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
                 EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("dead Sidehopper drain colours");
                 for (int drain = 0; drain < TourianCorpseShades.SidehopperDrainSteps; drain++)
                 {
@@ -193,7 +205,8 @@ internal sealed class EnemySheetShades
         return ([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
             Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
             .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses),
-            .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.CeresRidleyColors, inputs.Bosses)],
+            .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses),
+            .. SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes)],
             [.. CeresDoorLooks(), .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours)]);
     }
 

@@ -22,9 +22,6 @@ internal sealed record MotherBrainBodyDependencies
     /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
 

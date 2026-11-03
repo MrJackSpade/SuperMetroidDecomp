@@ -70,10 +70,7 @@ internal sealed class MotherBrainHead
         head.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainHead];
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
-        head.Colouring = new EncounterSpriteColouring(MotherBrainColourDefinitions.Brain);
         state.Head = head;
-        state.NeckColouring = new EncounterSpriteColouring(MotherBrainColourDefinitions.Brain);
-        state.BrainColouring = new EncounterSpriteColouring(MotherBrainColourDefinitions.Brain);
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
 
@@ -145,7 +142,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // The custom draw hook bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                head.FlashTimer.IsInAlternatePhase(1) ? EnemyShades.HitFlashed : state.BrainColouring),
+                head.FlashTimer.IsInAlternatePhase(1) ? EnemyShades.HitFlashed : state.Colours.BrainShading),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -163,7 +160,7 @@ internal sealed class MotherBrainHead
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
-                    state.NeckColouring),
+                    state.Colours.SpriteShading),
                 camera);
         }
     }
@@ -184,7 +181,7 @@ internal sealed class MotherBrainHead
 
         // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen,
-            frame.Colouring));
+            frame.Shading));
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>
@@ -420,7 +417,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             bomb,
             RoomEnemyProjectileKind.MotherBrainBomb,
-            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
+            graphics: SpriteGraphics.CharacterZeroIn(state.Colours.SpriteShading));
         RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
 
@@ -449,7 +446,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
-            graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
+            graphics: SpriteGraphics.CharacterZeroIn(state.Colours.SpriteShading));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
         ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(

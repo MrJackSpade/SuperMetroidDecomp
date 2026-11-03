@@ -33,8 +33,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly RoomEarthquake _earthquake;
     /// <summary>Owns physical enemy slots, including slots reused across Zebetite generations.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives the Zebetite's private palette-cycle colors.</summary>
-    private readonly EnemyPresentation _presentation;
 
     /// <summary>Exposes the door transition that keeps newly initialized Zebetites inert.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
@@ -43,8 +41,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves touch reactions through the shared enemy collision rules.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives the Zebetite's shot sound.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -52,7 +48,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Captures the shared systems used by Zebetite initialization, AI, and reactions.</summary>
     internal ZebetiteBehavior(ZebetiteBehaviorDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
         _audio = dependencies.Audio;
         _collision = dependencies.Collision;
         _elevatorBehavior = dependencies.ElevatorBehavior;
@@ -61,7 +56,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
         _slotTable = dependencies.SlotTable;
-        _presentation = dependencies.Presentation;
         _roomStatus = dependencies.RoomStatus;
     }
 
@@ -96,6 +90,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
+    /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
+    internal int? PulseShown { get; private set; }
+
+    /// <summary>The shading every Zebetite draws in: the pulse frame last shown, or the sheet's own colours before it.</summary>
+    internal PictureShading PulseShading => PulseShown is int frame
+        ? PictureShading.Shaded(ZebetiteShades.Pulse(frame))
+        : PictureShading.Standard;
+
     /// <summary>Ports <c>Zebetites_Init</c>.</summary>
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
@@ -113,7 +115,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.Colouring = new EncounterSpriteColouring(ZebetiteDefinitions.PulseColours);
+        slot.Shading = PulseShading;
         slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
         if (slot.SlotIndex == 0)
             SharedPaletteCycle = 0;
@@ -192,6 +194,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunZebetiteActive(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         CycleZebetitePalette(slot);
+        // Every Zebetite shows the shared pulse; slot zero's half steps it before the others run (#1512).
+        slot.Shading = PulseShading;
         SelectZebetiteHealthAnimation(slot, state);
 
         if (slot.Health != 0)
@@ -222,9 +226,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int paletteCycle = (SharedPaletteCycle + 1) % ZebetiteDefinitions.PaletteCycleLength;
         SharedPaletteCycle = paletteCycle;
-        (_bossArtwork.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
-            "Zebetite requires installed palette-cycle colors."))
-            .Apply(ZebetiteDefinitions.PulseColours.In(_presentation.Colours), paletteCycle);
+        PulseShown = paletteCycle;
     }
 
     /// <summary>Restarts the instruction list chosen from the half's pairing and current health.</summary>

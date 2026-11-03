@@ -1,26 +1,16 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's strict health comparisons and three palette copies.</summary>
+/// <summary>Mother Brain's strict health comparisons, which select the health band her colours show.</summary>
 public static class MotherBrainHealthPalette
 {
-    /// <summary>Selects the damage band from <c>MotherBrainHealthBasedPaletteHandling</c> and writes installed body, brain, and rear-leg colors to the colours.</summary>
-    /// <param name="gameplayColours">Mutable destination: body/brain colors replace indices 65 through 79 and 145 through 159, and rear-leg colors replace 177 through 191; transparent slots are preserved.</param>
-    /// <param name="health">Unsigned health from Mother Brain's head slot: bands are at least 9000, 5400 through 8999, 1800 through 5399, and below 1800.</param>
-    /// <param name="presentation">Required installed four-band palette artwork; the optional signature does not supply a fallback when this is <see langword="null"/>.</param>
-    /// <remarks>The caller owns the recovered-corpse-state gate; this method applies the selected band on every call without checking encounter phase.</remarks>
-    /// <exception cref="InvalidOperationException"><paramref name="presentation"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is <see langword="null"/> and presentation artwork is available.</exception>
-    public static void Apply(GameplayColours gameplayColours, int health,
-        MotherBrainHealthPalettePresentation? presentation = null)
-    {
-        int index = health >= MotherBrainHealthPaletteDefinitions.FirstThreshold ? 0 :
-            health >= MotherBrainHealthPaletteDefinitions.SecondThreshold ? 1 :
-            health >= MotherBrainHealthPaletteDefinitions.FinalThreshold ? 2 : 3;
-        (presentation ?? throw new InvalidOperationException(
-            "Mother Brain health palettes require installed presentation assets."))
-            .Apply(gameplayColours, index);
-    }
+    /// <summary>
+    /// The damage band <c>MotherBrainHealthBasedPaletteHandling</c> selects for unsigned head health
+    /// <paramref name="health"/>: zero at 9000 or more, one from 5400, two from 1800, and three below.
+    /// </summary>
+    /// <remarks>The caller owns the recovered-corpse-state gate; this selects the band on every call without checking encounter phase.</remarks>
+    public static int Band(int health) =>
+        health >= MotherBrainHealthPaletteDefinitions.FirstThreshold ? 0 :
+        health >= MotherBrainHealthPaletteDefinitions.SecondThreshold ? 1 :
+        health >= MotherBrainHealthPaletteDefinitions.FinalThreshold ? 2 : 3;
 }

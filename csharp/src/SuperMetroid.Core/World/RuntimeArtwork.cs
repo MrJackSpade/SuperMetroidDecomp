@@ -71,11 +71,7 @@ internal sealed class RuntimeArtwork
             _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
-            _bossArtwork.MotherBrainHealthColors = value?.MotherBrainHealthPalette;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;
-            _bossArtwork.MotherBrainRoomColors = value?.MotherBrainRoomColors;
-            _bossArtwork.CeresRidleyColors = value?.CeresRidleyColors;
-            _bossArtwork.CeresRidleyFloorColors = value?.CeresRidleyFloorColors;
             _bossArtwork.CeresRidleyGetawayBoostDelays = value?.CeresRidleyGetawayBoostDelays;
             _room.Scope?.Enemies.RebindEscapeTypewriters(value?.EscapeTypewriter);
         }

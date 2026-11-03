@@ -14,6 +14,12 @@ using SuperMetroid.Core.Enemies.Drawing;
 /// <summary>Maps Mother Brain's native body, brain, neck, and rainbow-sequence WRAM into a loaded encounter.</summary>
 internal static class NativeSnapshotMotherBrainImport
 {
+    /// <summary>The native sprite row Mother Brain's brain and neck draw in.</summary>
+    private const int NativeBrainRow = 1;
+
+    /// <summary>The native sprite row her death copies her brain's colours into, which her detached brain draws in.</summary>
+    private const int NativeCorpseRow = 7;
+
     /// <summary>
     /// Imports Mother Brain's shared encounter state (enemy records $EC7F/$EC3F) from the
     /// native body/brain slot words and her extended WRAM ($7E:7800-$787B, $7E:8000-$8069).
@@ -44,10 +50,14 @@ internal static class NativeSnapshotMotherBrainImport
         state.FakeDeathExplosionTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         state.EnableUnpauseHook = W(MotherBrainMemory.EnableUnpauseHook) != 0;
-        // The native palette words name rows; the colourings they denote are decoded under the room's loaded set.
-        EnemyGraphicsSet graphicsSet = runtime.Enemies.GraphicsSet;
-        state.NeckColouring = graphicsSet.ColouringInRow(SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex);
-        state.BrainColouring = graphicsSet.ColouringInRow(SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex);
+        // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
+        // copied her brain's colours there, in the corpse's (#1512).
+        int neckRow = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
+        int brainRow = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex;
+        if (neckRow != NativeBrainRow || brainRow is not (NativeBrainRow or NativeCorpseRow))
+            throw new InvalidDataException($"Mother Brain's neck row {neckRow} and brain row {brainRow} are not rows her encounter draws in.");
+        if (brainRow == NativeCorpseRow)
+            state.Colours.CopyBrainToCorpse();
         ushort brain = W(MotherBrainMemory.BrainAnimationScript);
         // Bit 15 clear means the brain list is not live.
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
@@ -102,7 +112,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle);
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
         if (RainbowSequenceFunctions.Contains(state.Function))
-            ImportNativeMotherBrainRainbowSequence(state, state.Function, W, graphicsSet);
+            ImportNativeMotherBrainRainbowSequence(state, state.Function, W);
     }
 
     /// <summary>The body functions the live rainbow sequence runs, which a recorded function in this set resumes.</summary>
@@ -185,7 +195,7 @@ internal static class NativeSnapshotMotherBrainImport
     /// before each step, so only the sequence-owned words are imported here.
     /// </summary>
     private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state,
-        MotherBrainBodyFunction phase, Func<int, ushort> W, EnemyGraphicsSet graphicsSet)
+        MotherBrainBodyFunction phase, Func<int, ushort> W)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = phase;
@@ -201,8 +211,6 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
-        sequence.ThirdPhaseDeath.BrainColouring = graphicsSet.ColouringInRow(
-            SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.BrainPaletteIndex)).PaletteIndex);
         sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled = W(MotherBrainMemory.EnableUnpauseHook) != 0;
         sequence.FinishSamusOff.RainbowBeamPaletteAnimationIndex = W(MotherBrainMemory.RainbowPaletteIndex);
         sequence.ThirdPhaseDeath.DeathExplosionIntervalTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainSubFunction));

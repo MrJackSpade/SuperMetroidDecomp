@@ -4,9 +4,10 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Bosses.Ridley;
-using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -40,22 +41,22 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)))
         {
             BeamPalettes = LoadBeamPalettes(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName, BeamPaletteFile.FileName)),
-            CeresRidleyColors = LoadCeresRidleyColors(Path.Combine(content, GameInstallationLayout.MapDirectoryName, CeresRidleyColorFormat.FileName)),
+            Maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName), null),
+            RoomPalettes = RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName), null),
         };
     }
 
     /// <summary>The installed beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
     internal InstalledBeamPalettes? BeamPalettes { get; init; }
 
-    /// <summary>The installed Ceres Ridley colours, which his encounter's sprites are coloured from (#1512); null for fixtures that draw no Ceres encounter.</summary>
-    internal CeresRidleyColorCatalog? CeresRidleyColors { get; init; }
+    /// <summary>
+    /// The installed map presentation, which holds the colours the Ceres Ridley and Mother Brain encounters load over
+    /// their sprites (#1512); null for fixtures that draw neither encounter.
+    /// </summary>
+    internal AreaMapPresentation? Maps { get; init; }
 
-    /// <summary>The installed Ceres Ridley colours at <paramref name="path"/>.</summary>
-    private static CeresRidleyColorCatalog LoadCeresRidleyColors(string path)
-    {
-        using FileStream json = File.OpenRead(path);
-        return CeresRidleyColorFile.Read(json);
-    }
+    /// <summary>The tilesets' installed colours, which Mother Brain's escape copies room colours from (#1512); null for fixtures that draw no escape.</summary>
+    internal RoomStaticPalettes? RoomPalettes { get; init; }
 
     /// <summary>The installed beam colours at <paramref name="path"/>.</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)

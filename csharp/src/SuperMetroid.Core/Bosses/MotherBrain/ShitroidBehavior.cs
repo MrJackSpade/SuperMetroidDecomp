@@ -35,27 +35,21 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Locates the physical slot-one Sidehopper victim beside Shitroid's slot zero.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives the membrane cycle and the encounter's target palettes.</summary>
-    private readonly EnemyPresentation _presentation;
 
     /// <summary>Controls whether the normal membrane palette can advance during the Zebetite sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives the Baby Metroid's cries and music changes.</summary>
     private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, audio and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, BossFrameResultBuilder frameResults, BossArtworkBinding bossArtwork, EnemyAudioQueue audio)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, ZebetiteBehavior zebetiteBehavior, BossFrameResultBuilder frameResults, EnemyAudioQueue audio)
     {
-        _bossArtwork = bossArtwork;
         _audio = audio;
         _frameResults = frameResults;
         _zebetiteBehavior = zebetiteBehavior;
         _room = room;
         _slotTable = slotTable;
-        _presentation = presentation;
     }
 
     /// <summary>Four authored feeding jitter offsets indexed by <c>frameCounter &amp; 6</c>.</summary>
@@ -95,7 +89,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.RunsAnimationScript);
-        slot.Colouring = new EncounterSpriteColouring(BossColourDefinitions.ShitroidBody);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -118,28 +111,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ReactsToSamus = false;
         Shitroid = state;
         slot.SetSpeciesState(state, state.ClearWithRecord);
-
-        CopyShitroidTargetColours(state, ShitroidColorTarget.Sidehopper);
-        CopyShitroidTargetColours(state, ShitroidColorTarget.Shitroid);
-        CopyShitroidTargetColours(state, ShitroidColorTarget.DeadSidehopper);
-    }
-
-    /// <summary>Copies an installed target colour set into mutable encounter state and the visible boss colours.</summary>
-    private void CopyShitroidTargetColours(
-        ShitroidEnemyState state,
-        ShitroidColorTarget target)
-    {
-        for (int color = 0; color < ShitroidColorDefinitions.TargetColorCount; color++)
-        {
-            RgbColor value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
-                "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
-            state.TargetColours(target)[color] = value;
-
-            // This runtime currently presents completed room fades directly in the live colours.
-            // Keep the separate target copy above, but install the same completed value so
-            // the encounter does not wait on an untranslated global palette-fade owner.
-            _presentation.BossColours().ShitroidTarget(target).Write(color, value);
-        }
+        // The entry's target colours are where the room's colours fade to; this runtime shows the completed fade: the
+        // Shitroid and its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses'
+        // own initializers show.
+        slot.Shading = state.Shading;
     }
 
     /// <summary>Ports <c>Shitroid_Main</c>.</summary>
@@ -770,12 +745,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        for (int color = 0; color < ShitroidColorDefinitions.NormalColorsPerFrame; color++)
-        {
-            RgbColor value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
-                "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
-            _presentation.BossColours().ShitroidMembrane.Write(color, value);
-        }
+        state.MembraneShown = phase;
+        state.Slot.Shading = state.Shading;
     }
 
     /// <summary>Starts <paramref name="program"/> with both instruction timers reset.</summary>

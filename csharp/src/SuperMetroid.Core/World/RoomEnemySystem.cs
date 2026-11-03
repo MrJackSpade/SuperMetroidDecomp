@@ -548,6 +548,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         {
             if (RidleyEncounter.Ridley is { } ridley)
                 yield return ridley.Colours;
+            if (MotherBrainEncounter.MotherBrain is { } motherBrain)
+                yield return motherBrain.Colours;
             if (SporeSpawnBehavior.SporeSpawn is { } sporeSpawn)
                 yield return sporeSpawn.Colours;
             if (PhantoonBehavior.Combat.Phantoon is { } phantoon)
@@ -627,7 +629,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, Presentation = Presentation, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision , BossArtwork = BossArtworkBinding });
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Audio = Audio, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, SpriteObjects, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior(Presentation);
@@ -645,7 +647,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior(Audio);
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, DeadMonsters = DeadMonsters });
-        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, Presentation, ZebetiteBehavior, BossFrameResults, BossArtworkBinding, Audio);
+        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, ZebetiteBehavior, BossFrameResults, Audio);
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, SlotTable, Collision);
         SbugBehavior = new SbugBehavior(Room, Terrain);
         RipperBehavior = new RipperBehavior(Terrain);
@@ -668,7 +670,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         NoobTubeBehavior = new NoobTubeBehavior(Room, Projectiles);
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, SpriteObjects, Presentation, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
-        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = Dispatch, Room = Room, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter , BossArtwork = BossArtworkBinding });
+        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = Dispatch, Room = Room, Audio = Audio, SlotTable = SlotTable, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
         MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, SpriteObjects, FrameContext, DeathsAndDrops);

@@ -73,7 +73,8 @@ internal static class BossBodySheetComposer
         ComposedBossBodySheet composed = painter.Compose(BlankOf(owner));
         // The body is pre-coloured in the shades the boss's colour state names (#1512).
         return composed with { Sheet = ShadedSheets.With(composed.Sheet,
-            BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.PaletteIndices, colours)) };
+            [.. BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.PaletteIndices, colours),
+                .. owner == BossBodyOwner.MotherBrain ? MotherBrainSheetShades.Background(inputs.Maps, inputs.Bosses) : []]) };
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>

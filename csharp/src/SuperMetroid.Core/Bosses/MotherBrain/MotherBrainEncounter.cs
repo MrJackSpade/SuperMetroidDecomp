@@ -27,6 +27,11 @@ internal sealed class MotherBrainEncounter
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
 
+    /// <summary>The colours the loaded encounter has laid (#1512).</summary>
+    /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
+    internal MotherBrainColours Colours => (MotherBrain ?? throw new InvalidOperationException(
+        "Mother Brain's colours are laid while her encounter is loaded.")).Colours;
+
     /// <summary>
     /// Shows <paramref name="page"/> to the sprites on this update (#1406): from now on the frames drawn over its characters
     /// picture what it holds.

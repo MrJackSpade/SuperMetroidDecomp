@@ -78,11 +78,8 @@ public sealed class MotherBrainEnemyState
     public bool EnableUnpauseHook { get; internal set; }
 
 
-    /// <summary>The colours the five neck joints draw in (#1464).</summary>
-    public SpriteColouring NeckColouring { get; internal set; } = EnemyShades.HitFlashed;
-
-    /// <summary>The colours the custom brain draw applies outside its white hurt-flash frames (#1464).</summary>
-    public SpriteColouring BrainColouring { get; internal set; } = EnemyShades.HitFlashed;
+    /// <summary>The colours the encounter has loaded over its sprites, her body layer and her room (#1512).</summary>
+    internal MotherBrainColours Colours { get; } = new();
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame

@@ -22,6 +22,14 @@ internal sealed class LaidShades
         laid.Add(shade);
     }
 
+    /// <summary>A separate layer holding the shades laid here so far, as a copy of these colours into another row holds them.</summary>
+    internal LaidShades Copy()
+    {
+        var copy = new LaidShades();
+        copy.laid.AddRange(laid);
+        return copy;
+    }
+
     /// <summary><paramref name="drawn"/>, a draw's own shading, with the shades laid over it in order.</summary>
     internal PictureShading Over(PictureShading drawn)
     {

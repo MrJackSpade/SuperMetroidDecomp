@@ -29,8 +29,6 @@ internal sealed class MotherBrainBody
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes screen shake during the encounter's collapse and attacks.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Draws encounter artwork and applies installed palette data.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
     /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
@@ -52,7 +50,6 @@ internal sealed class MotherBrainBody
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
-        _presentation = dependencies.Presentation;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _roomActors = dependencies.RoomActors;
 
@@ -111,12 +108,7 @@ internal sealed class MotherBrainBody
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        body.Colouring = EnemyShades.HitFlashed;
-
-        // Both source palettes include transparent color zero. The initializer deliberately
-        // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
-        // ranges used by glass shards and tube projectiles.
-        LoadMotherBrainRoomEntryColors();
+        body.Shading = EnemyShades.HitFlashed;
 
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
         {
@@ -129,17 +121,13 @@ internal sealed class MotherBrainBody
             // transition shows it.
             StagedBody = new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),
         };
+        // Both source palettes include transparent color zero. The initializer deliberately
+        // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
+        // ranges used by glass shards and tube projectiles.
+        _motherBrainEncounter.Colours.Sprites.Lay(MotherBrainShades.RoomEntry);
         // The first LoadFxEntry, which the room loader applies after enemy initialization.
         _frameResults.MotherBrainFxEntry = 1;
         SpawnMotherBrainInitialTurrets();
-    }
-
-    /// <summary>Applies the installed room-entry palette for glass and tube artwork.</summary>
-    internal void LoadMotherBrainRoomEntryColors()
-    {
-        (_bossArtwork.MotherBrainRoomColors ?? throw new InvalidOperationException(
-            "Mother Brain room requires installed color artwork."))
-            .ApplyRoomEntry(_presentation.Colours);
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
@@ -400,7 +388,7 @@ internal sealed class MotherBrainBody
             graphics: new SpriteGraphics(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, EnemyShades.HitFlashed));
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
-        beam.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
+        beam.Graphics = SpriteGraphics.CharacterZeroIn(state.Colours.SpriteShading);
         beam.Position = beam.Position.WithWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 48)));
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);

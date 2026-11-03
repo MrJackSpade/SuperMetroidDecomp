@@ -72,8 +72,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects &&
             step.PhaseAfter != step.PhaseBefore)
         {
-            _presentation.BossColours().MotherBrainCorpse.CopyFrom(_presentation.BossColours().MotherBrainBrain.Colors);
-            state.BrainColouring = sequence.ThirdPhaseDeath.BrainColouring;
+            // Her brain's colours are copied into the corpse's row, which her brain draws in from here (#1512).
+            state.Colours.CopyBrainToCorpse();
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }
@@ -87,7 +87,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 ? state.Body.Properties.With(EnemyProperties.Invisible)
                 : state.Body.Properties.Without(EnemyProperties.Invisible);
             if (step.PaletteRequested)
-                LoadMotherBrainDeathBodyFade(sequence.State.GreyTransitionCounter - 1);
+                state.Colours.LayOverBodyAndSprites(MotherBrainShades.DeathBody(sequence.State.GreyTransitionCounter - 1));
         }
         if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBodyLayerCleared)
         {
@@ -104,7 +104,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Head.Position = state.Head.Position.WithWhole(sequence.State.BrainPosition);
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.PaletteRequested)
-            LoadMotherBrainDeathCorpseFade(sequence.State.GreyTransitionCounter - 1);
+            state.Colours.LayOverCorpse(MotherBrainShades.CorpseFade(sequence.State.GreyTransitionCounter - 1));
         if (step.CorpseRotStepShown is int rotStep) _motherBrainEncounter.ShowCorpseRotStep(rotStep);
         foreach (var dust in step.CorpseDustRequests)
         {
@@ -123,12 +123,12 @@ internal sealed class MotherBrainRainbowAndDeath
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterProgramId.Zebes))
                 : new(EscapeTypewriterProgramId.Zebes);
-            _presentation.ColoursOf(EscapeTypewriterColourDefinitions.Text)
-                .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
+            // The typing copies two of the room's tile colours into the text's sprite colours.
+            state.Colours.Sprites.Lay(EscapeTypewriterShades.Text);
             state.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
         }
         if (step.ExplodedDoorPaletteRequested)
-            LoadMotherBrainDeathDoorPalette();
+            state.Colours.Sprites.Lay(MotherBrainShades.ExplodedDoor);
         if (step.EscapeDoorExplosion is { } doorDust)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
@@ -154,47 +154,6 @@ internal sealed class MotherBrainRainbowAndDeath
             _earthquake.EarthquakeType = Ensure.BetweenInclusive(0, ushort.MaxValue, sequence.State.EarthquakeType);
             _earthquake.EarthquakeTimer = sequence.State.EarthquakeTimer;
         }
-    }
-
-    /// <summary>Applies the requested body-color fade frame during the death fade.</summary>
-    internal void LoadMotherBrainDeathBodyFade(int frame)
-    {
-        if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
-        {
-            for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
-            {
-                RgbColor shared = colors.BodyColor(frame, color);
-                _presentation.BossColours().MotherBrainBody.Write(color, shared);
-                _presentation.BossColours().MotherBrainBrain.Write(color, shared);
-                _presentation.BossColours().MotherBrainLegs.Write(color, colors.LegColor(frame, color));
-            }
-            return;
-        }
-        throw new InvalidOperationException("Mother Brain death requires installed fade colors.");
-    }
-
-    /// <summary>Applies the requested corpse-color fade frame during the death fade.</summary>
-    internal void LoadMotherBrainDeathCorpseFade(int frame)
-    {
-        if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
-        {
-            for (int color = 0; color < MotherBrainDeathDefinitions.CorpseColorCount; color++)
-                _presentation.BossColours().MotherBrainCorpse.Write(color, colors.CorpseColor(frame, color));
-            return;
-        }
-        throw new InvalidOperationException("Mother Brain corpse fade requires installed colors.");
-    }
-
-    /// <summary>Restores the room door colors required after Mother Brain dies.</summary>
-    internal void LoadMotherBrainDeathDoorPalette()
-    {
-        if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
-        {
-            for (int color = 0; color < MotherBrainDeathDefinitions.BodyColorCount; color++)
-                _presentation.BossColours().MotherBrainBrain.Write(color, colors.ExplodedDoorColor(color));
-            return;
-        }
-        throw new InvalidOperationException("Mother Brain exploded door requires installed colors.");
     }
 
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
@@ -352,7 +311,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthBasedPaletteHandlingEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            MotherBrainHealthPalette.Apply(_presentation.Colours, state.Head.Health, _bossArtwork.MotherBrainHealthColors);
+            state.Colours.LayOverBodyAndSprites(MotherBrainShades.Health(MotherBrainHealthPalette.Band(state.Head.Health)));
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -448,26 +407,19 @@ internal sealed class MotherBrainRainbowAndDeath
             // The sequence increments before publishing this request. Keep the distinct
             // copy lengths: revival intentionally preserves two brain/body colors.
             int index = MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).State.GreyTransitionCounter - 1;
-            var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
-                "Mother Brain's grey transition requires installed palette artwork.");
-            if (draining) installed.ApplyToGrey(_presentation.Colours, index);
-            else installed.ApplyFromGrey(_presentation.Colours, index);
+            state.Colours.LayOverBodyAndSprites(draining ? MotherBrainShades.ToGrey(index) : MotherBrainShades.FromGrey(index));
             return;
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
             step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
-            var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
-                "Mother Brain's normal palette requires installed artwork.");
-            installed.ApplyNormal(_presentation.Colours);
+            state.Colours.LayOverBodyAndSprites(MotherBrainShades.Restored);
             return;
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam &&
             step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut)
         {
-            var installed = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
-                "Mother Brain's drained palette requires installed artwork.");
-            installed.ApplyRainbow(_presentation.Colours, MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame);
+            state.Colours.LayOverBodyAndSprites(MotherBrainShades.Rainbow(MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame));
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
@@ -481,8 +433,6 @@ internal sealed class MotherBrainRainbowAndDeath
         if (!rainbowPhase || !step.PaletteRequested || (state.Body.FrameCounter & 2) == 0)
             return;
 
-        var rainbow = _bossArtwork.MotherBrainRainbowColors ?? throw new InvalidDataException(
-            "Mother Brain's rainbow phase requires installed palette artwork.");
         if ((state.RainbowPaletteCursor & 1) != 0 ||
             state.RainbowPaletteCursor > MotherBrainRainbowPaletteFormat.RainbowFrameCount * sizeof(ushort))
             throw new InvalidDataException($"Mother Brain rainbow cursor ${state.RainbowPaletteCursor:X4} is outside the compiled loop.");
@@ -493,6 +443,6 @@ internal sealed class MotherBrainRainbowAndDeath
             frame = 0;
         }
         state.RainbowPaletteCursor += sizeof(ushort);
-        rainbow.ApplyRainbow(_presentation.Colours, frame);
+        state.Colours.LayOverBodyAndSprites(MotherBrainShades.Rainbow(frame));
     }
 }

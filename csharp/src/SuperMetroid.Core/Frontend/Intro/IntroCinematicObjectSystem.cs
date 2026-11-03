@@ -41,7 +41,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
     /// <summary>The persistent text-caret sprite object, running its typed program (#641); <see cref="Caret"/> places it.</summary>
-    private readonly IntroDiscoverySprite caretSprite = new(default, 0, CinematicSpriteProgram.IntroTextCaret);
+    private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroTextCaret);
     /// <summary>Alternates typewriter audio calls while letters appear.</summary>
     private bool typewriterSoundToggle;
     /// <summary>Created by the first glyph to animate per-character glow effects.</summary>

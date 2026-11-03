@@ -34,9 +34,8 @@ internal static class TitleSheetComposer
             string name = TitleSpriteDefinitions.FrameName(sprite);
             return new SheetFrameSource(name, characters.Frame(sprite, name), characters.ObjectPage, FrontendSheetPalette.FrameColourGroup.Number);
         })];
-        var colours = new ScreenPalette();
-        palette.Apply(colours);
-        RgbColor[] sprites = colours.SpriteSets.All.Colors.ToArray();
+        // The title's colours run in cartridge order: its background colours, then its sprite colours.
+        RgbColor[] sprites = palette.Colours.AsSpan(SpriteImage.SpriteColourCount).ToArray();
         // A frame's palette-inheriting parts are coloured in its frame group's inks; each shade recolours those inks.
         var shades = new List<SheetShade>();
         foreach (TitleSpriteColouring colouring in Enum.GetValues<TitleSpriteColouring>())

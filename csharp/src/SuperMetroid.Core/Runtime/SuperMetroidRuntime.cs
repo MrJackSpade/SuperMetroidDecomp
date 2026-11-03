@@ -631,7 +631,7 @@ internal sealed class SuperMetroidRuntime
             // The Torizos' belly glow shows over the statue's own colours as the records that wrote them (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.EnemyShown)
             {
-                if (colours != PaletteFxColours.TorizoBelly)
+                if (colours != SuperMetroid.Core.Fx.PaletteFx.PaletteFxColours.TorizoBelly)
                     throw new InvalidOperationException($"Palette-FX colours {colours} name no enemy that shows them.");
                 Room.LoadedScope.Enemies.BombTorizoBehavior.ShowBellyGlow(record);
             }

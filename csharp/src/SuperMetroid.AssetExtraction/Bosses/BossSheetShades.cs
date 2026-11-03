@@ -118,9 +118,9 @@ internal static class BossSheetShades
     {
         Ensure.NotNull(bosses);
         if (enemy == EnemyDefinitionId.Botwoon)
-            return Botwoon(bosses, firstInk);
+            return [.. Botwoon(bosses, firstInk)];
         if (DraygonParts.Contains(enemy))
-            return DraygonSprites(bosses);
+            return [.. DraygonSprites(bosses)];
         if (enemy == EnemyDefinitionId.SporeSpawn)
             return SporeSpawnSheetShades.Sprites(bosses);
         if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)

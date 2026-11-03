@@ -11,6 +11,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>Extracts the four RGB5 words preceding each compiled Work Robot timer.</summary>
 public static class WorkRobotPaletteCycleExtractor
 {
+    /// <summary>The bytes of one of the cartridge's cycle records: four colour words, then the record's timer word.</summary>
+    private const int CycleRecordBytes = 10;
+
     /// <summary>Exports the four color operands of each of the six Work Robot palette records at $A8:CCC1, excluding their timer words and terminator.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for six ten-byte color/timer records.</param>
     /// <returns>A new UTF-8 JSON buffer with six ordered four-color RGB5 frames for OBJ-row colors nine through twelve, with channels 0..31.</returns>
@@ -28,7 +31,7 @@ public static class WorkRobotPaletteCycleExtractor
             for (int color = 0; color < frames[frame].Length; color++)
             {
                 int source = EnemySourceDefinitions.WorkRobotPaletteCycleRecords +
-                    frame * WorkRobotPaletteTimingDefinitions.RecordByteCount +
+                    frame * CycleRecordBytes +
                     color * sizeof(ushort);
                 int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))

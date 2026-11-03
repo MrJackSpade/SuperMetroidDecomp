@@ -10,5 +10,5 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// </summary>
 /// <param name="SpeedBooster">The suit colours Gravity Speed Booster copies from past its cycle.</param>
 /// <param name="Chainsaw">The colours the Chainsaw beam's palette loader reads past its table.</param>
-public sealed record SamusOverrunColours(SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> SpeedBooster,
+internal sealed record SamusOverrunColours(SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> SpeedBooster,
     ChainsawBeamColours<RgbColor> Chainsaw);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;

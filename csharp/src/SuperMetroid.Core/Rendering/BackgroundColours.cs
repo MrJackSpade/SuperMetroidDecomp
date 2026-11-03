@@ -65,12 +65,6 @@ public sealed class BackgroundColours
 
     /// <summary>These colours with the backdrop shown in <paramref name="backdrop"/>.</summary>
     public BackgroundColours WithBackdrop(RgbColor backdrop) => new(Backgrounds.WithBackdrop(backdrop), Sprites);
-    /// <summary>
-    /// A frontend screen's colours that hold nothing but <paramref name="backdrop"/> (#1512): the screen's pictures and draws
-    /// all name their shading, so no owner's colours colour them.
-    /// </summary>
-    public static BackgroundColours ScreenBackdrop(RgbColor backdrop) =>
-        new BackgroundColours(ShownColourSets.Of(new ScreenColourSets()), ShownColourSets.Of(new ScreenColourSets())).WithBackdrop(backdrop);
 
     /// <summary>The colour groups <paramref name="sheet"/>'s inks fall in.</summary>
     public static int Groups(SpriteImage sheet) => Ensure.NotNull(sheet).StandardColours.Length / GroupColours;

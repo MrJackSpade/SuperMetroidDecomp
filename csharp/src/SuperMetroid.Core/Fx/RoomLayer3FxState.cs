@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx.Artwork;
@@ -176,7 +177,6 @@ public sealed class RoomLayer3FxState : IGameplayShadingSource
 
     /// <summary>Builds one room's layer-3 FX from the current door's FX record.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
-    /// <param name="colours">The background colours receiving the record's palette blend.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>

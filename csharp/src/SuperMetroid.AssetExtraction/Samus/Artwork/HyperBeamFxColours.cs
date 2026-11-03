@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;

@@ -32,10 +32,4 @@ internal static class RoomLoadPalettes
         palettes.starting.EnemyProjectiles.CopyTo(colours.AsSpan(EnemyProjectileGroup * GroupColours, GroupColours));
         return colours;
     }
-
-    /// <summary>
-    /// The eight sprite rows' colours, sixteen each, as a room load leaves them before any room content loads its own
-    /// (#1512): the starting colours with the common and enemy-projectile rows.
-    /// </summary>
-    internal static RgbColor[] SpriteColours(GameplayBasePalette palettes) => Colours(palettes).SpriteSets.All.Colors.ToArray();
 }

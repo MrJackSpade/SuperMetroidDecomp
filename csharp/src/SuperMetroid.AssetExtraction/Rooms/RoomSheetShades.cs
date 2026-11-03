@@ -93,7 +93,6 @@ internal static class RoomSheetShades
     /// <summary>Whether any of <paramref name="rooms"/> places Phantoon, whose death brings the Wrecked Ship's power on over it.</summary>
     private static bool HoldsPhantoon(IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> rooms) =>
         rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.PhantoonBody));
-    }
 
     /// <summary>
     /// The shades of <paramref name="tileset"/>'s layer-3 pictures, the HUD's and the room effects' pages: the HUD's door

@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
-/// <summary>The shape of the Work Robot's colour cycle; its cadence is <see cref="WorkRobotPaletteTimingDefinitions"/>.</summary>
+/// <summary>The shape of the Work Robot's colour cycle; its cadence is <see cref="SuperMetroid.Core.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitions"/>.</summary>
 public static class WorkRobotPaletteDefinitions
 {
     /// <summary>The colours each cycle record replaces.</summary>

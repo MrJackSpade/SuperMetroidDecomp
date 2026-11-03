@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Fx.Artwork;

@@ -32,7 +32,7 @@ internal sealed class IntroRinkaSystem
     {
         // The flashback's setup spawns the invisible spawner while slots 1..14 are all free. Reusing the
         // focused animation interpreter preserves its exact 74 then 128 frame waits.
-        spawner = new(new(0, 0), 0, IntroRinkaDefinitions.SpawnerActor.Program);
+        spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Program);
         slots[SpawnerSlot] = spawner;
     }
 

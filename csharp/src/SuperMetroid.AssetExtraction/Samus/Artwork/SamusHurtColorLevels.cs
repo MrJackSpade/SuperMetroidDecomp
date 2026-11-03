@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Samus.Artwork.SamusHurtColorDefinitions;
 

@@ -192,8 +192,8 @@ internal static class SamusPaletteNative
         /// <summary>One color of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
         internal RgbColor Resolve(ushort pointer, int colorIndex) => colors.Resolve(Palette(pointer), colorIndex);
 
-        /// <summary>Copies the cycle palette at bank-$9B <paramref name="pointer"/> to Samus's suit colors.</summary>
-        internal void Apply(SamusColours colours, ushort pointer) => colors.Apply(colours, Palette(pointer));
+        /// <summary>Shows the shade of the cycle palette at bank-$9B <paramref name="pointer"/> as Samus's suit's (#1512).</summary>
+        internal void Apply(SamusColours colours, ushort pointer) => colours.ShowSuit(SamusShades.FullBodyCycle(Palette(pointer)));
     }
 
     /// <summary>The charge and Hyper-shot lists by bank-$9B palette address.</summary>
@@ -234,12 +234,13 @@ internal static class SamusPaletteNative
         /// <summary>$91:D829: the Hyper-shot glow palette pointer, frames nine down to zero.</summary>
         internal static bool TryHyperShot(ushort tableOffset, out ushort pointer)
         {
-            if (!SamusChargePalettes.IsCompiledHyperShot(tableOffset))
+            // The native table offset is the glow step in words.
+            if ((tableOffset & 1) != 0 || !SamusChargePalettes.IsCompiledHyperShot(tableOffset / sizeof(ushort)))
             {
                 pointer = 0;
                 return false;
             }
-            int frame = (SamusChargePaletteDefinitions.LastHyperTableByteOffset - tableOffset) / sizeof(ushort);
+            int frame = SamusChargePaletteDefinitions.HyperShotSteps - tableOffset / sizeof(ushort);
             pointer = (ushort)(0xa240 + frame * ShadeStride);
             return true;
         }

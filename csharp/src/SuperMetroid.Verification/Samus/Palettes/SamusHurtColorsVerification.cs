@@ -48,9 +48,6 @@ internal static class SamusHurtColorsVerification
 
         CompareHurtCycle(rom, catalog, cinematic: false);
         CompareHurtCycle(rom, catalog, cinematic: true);
-        AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
-            new SamusColourRig().Samus.Suit, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HurtFlashCounter = 1 }, 0),
-            "hurt flash requires installed color artwork instead of a cartridge fallback");
         AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Samus hurt JSON property fails loudly");
@@ -64,28 +61,29 @@ internal static class SamusHurtColorsVerification
         InstalledSamusHurtColors catalog, bool cinematic)
     {
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HurtFlashCounter = 1 };
-        samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(
-            SamusSuitColorExtractor.Extract(rom)));
+        // The flash names shades (#1512); the import resolves them from the catalog and the cartridge's suits.
+        var sources = InstalledFixtures.SamusShadeSources with
+        {
+            Hurt = catalog,
+            Suits = SamusSuitColorFile.Read(new MemoryStream(SamusSuitColorExtractor.Extract(rom))),
+        };
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
         var cgram = new SamusColourRig();
         var guarded = NewForbiddenHurtColorBus(rom);
-        // Each call starts from a sentinel palette, so CGRAM shows whether that call wrote
-        // colors and, when it did, which native source it selected.
-        const ushort sentinel = 0x5a5a;
+        // Each call starts from a sentinel shade, so the suit's shade shows whether that call changed it and, when it
+        // did, which native source its colours come from.
+        PictureShade sentinel = SamusShades.ChargedShotGlow;
         for (int call = 1; call <= 7; call++)
         {
-            for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                cgram.Samus.Suit.Write(index, RgbColor.FromWord(checked(sentinel)));
+            cgram.Samus.ShowSuit(sentinel);
             SamusHurtFlashPalette.Update(
-                cgram.Samus.Suit, samus, 0, catalog);
+                cgram.Samus, samus, 0);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");
             if (call == 7)
             {
-                for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                    AssertEqual(sentinel,
-                        cgram.Samus.Suit[index],
-                        $"{(cinematic ? "intro" : "ordinary")} hurt call {call} leaves CGRAM {index} unchanged");
+                AssertEqual(sentinel, cgram.Samus.Suit,
+                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} leaves the suit's shade unchanged");
                 continue;
             }
             int expectedPaletteAddress = (call & 1) != 0
@@ -95,8 +93,8 @@ internal static class SamusHurtColorsVerification
                     : SamusSourceDefinitions.PowerSuitPalette.Value;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual((ushort)(ReadNativeHurtCycleColor(rom, expectedPaletteAddress, index) & 0x7fff),
-                    cgram.Samus.Suit[index],
-                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source CGRAM {index}");
+                    cgram.Samus.ShownSuit(sources)[index],
+                    $"{(cinematic ? "intro" : "ordinary")} hurt call {call} source colour {index}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
@@ -126,15 +124,16 @@ internal static class SamusHurtColorsVerification
             var cgram = new SamusColourRig();
             var guarded = NewForbiddenHurtColorBus(rom);
             SamusHurtFlashPalette.Update(
-                cgram.Samus.Suit, samus, 0, edited.SamusHurtColors);
+                cgram.Samus, samus, 0);
+            var editedSources = InstalledFixtures.SamusShadeSources with { Hurt = edited.SamusHurtColors };
             SamusHurtColorVariant variant = cinematic
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 AssertEqual(edited.SamusHurtColors.Resolve(variant, index),
-                    cgram.Samus.Suit[index],
-                    $"edited {variant} path remains selected by native counter (CGRAM {index})");
-            AssertEqual(edited.SamusHurtColors.Resolve(variant, 5), cgram.Colors[197],
-                $"edited {variant} color reaches CGRAM");
+                    cgram.Samus.ShownSuit(editedSources)[index],
+                    $"edited {variant} path remains selected by native counter (colour {index})");
+            AssertEqual(SamusShades.Hurt(variant), cgram.Samus.Suit,
+                $"edited {variant} shade is the suit's");
             AssertEqual(0, guarded.ForbiddenReadAttempts, $"edited {variant} avoids native art");
         }
         AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Write(document with

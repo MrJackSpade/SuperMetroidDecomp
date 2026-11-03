@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -26,17 +25,7 @@ internal static class GameplayColoursAccess
             Ensure.BetweenInclusive(0, NativeColourImage.ColorCount - 1, position);
             if (position < GameplayColourPositionDefinitions.SpriteSetsFirst)
                 return NativeBackgroundSets.At(self.BackgroundSets, position - GameplayColourPositionDefinitions.BackgroundSetsFirst);
-            int sprite = position - GameplayColourPositionDefinitions.SpriteSetsFirst;
-            int set = sprite / ColourSets.SetColours;
-            int colour = sprite % ColourSets.SetColours;
-            foreach (IGameplayColourOwner owner in self.owners)
-            {
-                if (owner is SamusColours samus && set == SamusColourDefinitions.SuitColourGroup.Number)
-                    return samus.Suit.Slice(colour, 1);
-                if (owner is SamusColours beams && set == SamusColourDefinitions.BeamColourGroup.Number)
-                    return beams.Beam.Slice(colour, 1);
-            }
-            return self.SpriteSets.All.Slice(sprite, 1);
+            return self.SpriteSets.All.Slice(position - GameplayColourPositionDefinitions.SpriteSetsFirst, 1);
         }
 
         /// <summary>

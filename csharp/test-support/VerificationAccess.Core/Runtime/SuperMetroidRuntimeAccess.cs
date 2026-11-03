@@ -209,7 +209,7 @@ internal static class SuperMetroidRuntimeAccess
             };
             self.Artwork.BindSamusPalettePresentation();
 
-            SamusPresentation.LoadPowerSuitPalette(self.Player.Colours.Suit, self.Artwork.MapPresentation?.SamusSuitColors);
+            SamusNormalSuitPalette.LoadPower(self.Player.Colours);
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             SamusPresentation.InitializeAnimation(self.Player.Samus);
             if (self.Room.LandingSiteEntry is not null)

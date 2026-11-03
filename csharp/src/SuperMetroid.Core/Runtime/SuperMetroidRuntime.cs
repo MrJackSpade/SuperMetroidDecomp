@@ -142,7 +142,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
     internal RuntimeArtwork Artwork { get; }
 
-
     /// <summary>Creates the frame-steppable runtime under its assists, and loads the required initial palette.</summary>
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
@@ -181,7 +180,7 @@ internal sealed class SuperMetroidRuntime
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
         Assists = new ActiveAssists(Player, System, assists);
-        TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
+        TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, Player = Player, ChainsawColours = SamusOverreads.ChainsawColours });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
         ScreenLayers = new GameplayScreenLayers(Room);
@@ -204,7 +203,6 @@ internal sealed class SuperMetroidRuntime
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Colours = Colours, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
         Artwork.InitialPaletteArt = artwork.GameplayBasePalettes;
-
 
         // Gameplay starts from the installed initial palette.
         (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
@@ -326,7 +324,6 @@ internal sealed class SuperMetroidRuntime
         set => EnemySession.JapaneseText = value;
     }
 
-
     /// <summary>The HUD's images the last frame boundary latched (#1351, #1466): the HUD as displayed.</summary>
     /// <exception cref="InvalidOperationException">No frame boundary has latched the HUD yet.</exception>
     public ShownHud AcceptedHud =>
@@ -371,7 +368,6 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The last enemy pass's results, for readers after the frame.</summary>
     internal IEnemyFrameResults EnemyFrameResults => Room.LoadedScope.Enemies;
 
-
     /// <summary>
     /// The game state of the frontend dispatch now running. Samus commands test it from
     /// inside the update; runtime-only hosts run main gameplay.
@@ -392,16 +388,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's layer-3 FX.</summary>
     public RoomFxSession RoomFx { get; } = new();
 
-
-
-
-
-
-
-
     /// <summary>The held beam charge, flare and charge palette, which survive room loads; each room's projectiles share it.</summary>
     internal BeamChargeState BeamCharge { get; }
-
 
     /// <summary>
     /// The gameplay message box. A permanent pickup opens it, and subsequent

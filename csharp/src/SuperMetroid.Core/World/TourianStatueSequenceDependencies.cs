@@ -9,19 +9,11 @@ namespace SuperMetroid.Core.World;
 internal sealed record TourianStatueSequenceDependencies
 {
 
-
-    /// <summary>Gameplay's colours.</summary>
-    public required GameplayColours Colours { get; init; }
-
-
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
-
-
 
     /// <summary>System.</summary>
     public required SharedGameState System { get; init; }

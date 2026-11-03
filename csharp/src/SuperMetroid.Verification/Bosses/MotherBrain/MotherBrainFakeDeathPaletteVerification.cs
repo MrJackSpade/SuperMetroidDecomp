@@ -36,7 +36,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
             };
             Action<MotherBrainEnemyState> step = toGrey
                 ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
-                : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
+                : MotherBrainFakeDeath.TransitionMotherBrainFromGray;
             int table = toGrey ? MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable :
                 MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable;
             for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.GreyFrameCount; frame++)
@@ -101,7 +101,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         };
         Action<MotherBrainEnemyState> step = toGrey
             ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
-            : enemies.MotherBrainBehavior.FakeDeath.TransitionMotherBrainFromGray;
+            : MotherBrainFakeDeath.TransitionMotherBrainFromGray;
         step(state);
         return new CaptureFakeDeathPaletteFrameResult(Shown(state, colors).Colors.ToArray(), state.FunctionTimer.RawValue, state.Function);
     }

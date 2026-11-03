@@ -18,9 +18,6 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>The input half of the frame boundary: the controller latches and the frame counters.</summary>
     public required AcceptedFrameInput Input { get; init; }
 
-    /// <summary>Artwork.</summary>
-    public required RuntimeArtwork Artwork { get; init; }
-
     /// <summary>The HUD whose rows the BG3 plane shows.</summary>
     public required HudState Hud { get; init; }
 

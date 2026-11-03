@@ -396,7 +396,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Runs the rainbow palette step at the body-frame cadence, then its three literal copies.</summary>
-    private void ApplyMotherBrainRainbowPalette(MotherBrainEnemyState state,
+    private static void ApplyMotherBrainRainbowPalette(MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackStepResult step)
     {
         bool draining = step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey;

@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Wrecked Ship's power coming on over his room once he dies. His body and the room show the import's shade of each step.
 /// </summary>
 /// <remarks>
-/// The cartridge moves each of his colours one step from the colour shown, so a fade starts from what is shown when it
+/// The game moves each of his colours one step from the colour shown, so a fade starts from what is shown when it
 /// takes its first step. His hurt flash writes white and his health colours in the middle of the fade that follows the
 /// hit, which restarts that fade from the colouring written at the step value it stands at; the fade keeps that value as
 /// the first it stepped from there, and the import pre-colours every such start and step. Each fade his patterns start
 /// runs to completion before another starts (his first fireball rain's fade-out has at least sixty frames before the
 /// rain, which it needs under thirty for), and his health, which names a fade-in's target, changes only while he is
 /// tangible after his fades, so a fade naming another target while his colours are mid-fade is not a state the
-/// cartridge reaches and is refused.
+/// game reaches and is refused.
 /// </remarks>
 internal sealed class PhantoonColours : IGameplayShadingSource
 {
@@ -26,7 +26,7 @@ internal sealed class PhantoonColours : IGameplayShadingSource
     /// The running fade's target and length, and the values of the first and last steps it took from
     /// <see cref="settled"/>, or null while none runs.
     /// </summary>
-    private (PhantoonBodyLook To, int Denominator, int First, int Last)? fade;
+    private PhantoonBodyFade? fade;
 
     /// <summary>The last step value of the power coming on, or null before it starts.</summary>
     private int? powerOn;
@@ -59,10 +59,10 @@ internal sealed class PhantoonColours : IGameplayShadingSource
                 throw new InvalidOperationException($"Phantoon's fade toward {to.Key} starts while his fade toward {running.To.Key} has moved his colours.");
             if (numerator != running.Last + 1)
                 throw new InvalidOperationException($"Phantoon's fade stepped at value {running.Last}, then at {numerator}.");
-            fade = (running.To, running.Denominator, running.First, numerator);
+            fade = running with { Last = numerator };
             return;
         }
-        fade = (to, denominator, fade?.First ?? numerator, numerator);
+        fade = new PhantoonBodyFade(to, denominator, fade?.First ?? numerator, numerator);
     }
 
     /// <summary>

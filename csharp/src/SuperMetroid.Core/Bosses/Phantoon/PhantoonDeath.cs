@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -27,8 +26,6 @@ internal sealed class PhantoonDeath
     private readonly PhantoonPresentation _phantoonPresentation;
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     private readonly PhantoonPatterns _patterns;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
     /// <summary>Receives the death's explosion sounds, dying cry and music change.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -44,7 +41,6 @@ internal sealed class PhantoonDeath
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _phantoonPresentation = dependencies.PhantoonPresentation;
         _patterns = dependencies.Patterns;
-        _bossArtwork = dependencies.BossArtwork;
     }
 
     /// <summary>Tracks Samus during the fatal swoop and advances once the body reaches the center band.</summary>

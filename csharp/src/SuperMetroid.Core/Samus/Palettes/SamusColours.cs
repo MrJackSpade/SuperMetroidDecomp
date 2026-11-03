@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Palettes;
@@ -22,9 +23,6 @@ public sealed class SamusColours
     /// <summary>The shades laid over the beams', in the order they were laid; the last covers the others.</summary>
     internal readonly List<PictureShade> beamOverlays = [];
 
-    /// <summary>The shading her draws show, until her colours change.</summary>
-    private PictureShading? shading;
-
     /// <summary>The shade the suit shows.</summary>
     public PictureShade Suit { get; private set; } = SamusShades.StartingSuit;
 
@@ -38,14 +36,15 @@ public sealed class SamusColours
     public PictureShade? GrappleFlare { get; private set; }
 
     /// <summary>The shading her draws show now: the suit's and the beams' shades, what lies over each, and the suitless body's.</summary>
-    public PictureShading Shading => shading ??= Compose();
+    [AllowNull]
+    public PictureShading Shading { get => field ??= Compose(); private set; }
 
     /// <summary>Shows <paramref name="shade"/> as the suit's colours, replacing whatever was laid over them.</summary>
     public void ShowSuit(PictureShade shade)
     {
         Suit = shade;
         suitOverlays.Clear();
-        shading = null;
+        Shading = null;
     }
 
     /// <summary>Lays <paramref name="shade"/> over the suit's colours, replacing an earlier shade of its effect.</summary>
@@ -59,7 +58,7 @@ public sealed class SamusColours
     {
         Beams = shade;
         beamOverlays.Clear();
-        shading = null;
+        Shading = null;
     }
 
     /// <summary>Lays <paramref name="shade"/> over the beams' colours, replacing an earlier shade of its effect.</summary>
@@ -69,14 +68,14 @@ public sealed class SamusColours
     public void ShowSuitless(PictureShade shade)
     {
         Suitless = shade;
-        shading = null;
+        Shading = null;
     }
 
     /// <summary>Shows <paramref name="shade"/> as her grapple flare's colour.</summary>
     public void ShowGrappleFlare(PictureShade shade)
     {
         GrappleFlare = shade;
-        shading = null;
+        Shading = null;
     }
 
     /// <summary>Shows the suit's and the beams' colours as gameplay starts, and her suitless body and flare in their own.</summary>
@@ -109,7 +108,7 @@ public sealed class SamusColours
     {
         overlays.RemoveAll(laid => laid.Effect == shade.Effect);
         overlays.Add(shade);
-        shading = null;
+        Shading = null;
     }
 
     /// <summary>

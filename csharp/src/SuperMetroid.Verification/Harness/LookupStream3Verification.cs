@@ -1362,7 +1362,7 @@ internal static class LookupStream3Verification
         PictureShade step = DoorFadeShades.EscapeTimerFadingOut(3);
         var shadings = Enum.GetValues<GameplayPictures>().ToDictionary(pictures => pictures,
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Shaded(step) : PictureShading.Standard);
-        var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), SparesHud: true, SparesSamus: false);
+        var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), GameplayFadeSpares.Hud);
         var gameplay = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
         PictureShading timer = gameplay.OfEscapeTimer(PictureShading.Standard);
         AssertTrue(timer.Shades.SequenceEqual([step]) && timer.Effects.IsEmpty,

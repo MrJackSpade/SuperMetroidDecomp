@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>
 /// The map highlight cycle shared by the pause and file-select maps (#1512): its frame and hold, and the shade the
 /// highlighted sprites show, which the import pre-colours the map sprite sheet in. Until the cycle first applies a frame
-/// the highlighted sprites show the screen's own colours, as the cartridge's highlight colours are the screen's loaded
-/// ones until its first step writes a frame over them.
+/// the highlighted sprites show the screen's own colours, as the game's highlight colours are the screen's own ones
+/// until its first step shows a frame over them.
 /// </summary>
 public sealed class MapPaletteAnimation
 {

@@ -86,7 +86,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Stops the palette effect and restores the encounter's steady room colors.</summary>
-    internal void StopMotherBrainRoomPalette(MotherBrainEnemyState state)
+    internal static void StopMotherBrainRoomPalette(MotherBrainEnemyState state)
     {
         state.RoomFlashFrame = null;
         state.RoomFlashTimer = 0;

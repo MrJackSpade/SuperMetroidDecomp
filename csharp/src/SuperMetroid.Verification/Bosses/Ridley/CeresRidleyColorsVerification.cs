@@ -103,9 +103,9 @@ internal static class CeresRidleyColorsVerification
             document.Start.Length, CeresRidleyPaletteDefinitionsConstants.StartCgramIndex,
             InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveStart, "Ceres Ridley initialization");
 
-        Action<RidleyEnemyState> eyeTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
+        Action<RidleyEnemyState> eyeTick = CeresRidleyFades.TickCeresRidleyEyeFade;
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
-        Action<RidleyEnemyState> healthTick = enemies.CeresRidleyBehavior.Hits.UpdateCeresRidleyHealthPalette;
+        Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthPalette;
         var state = new RidleyEnemyState { Function = RidleyAiFunction.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
@@ -243,12 +243,9 @@ internal static class CeresRidleyColorsVerification
         {
             // Compare every callback, including the three skipped frame counters
             // between each alarm color upload. Only the authored RGB5 row is editable.
-            var nativeEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var stockEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var editedEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
-            var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
-            var editedTick = new Action<RidleyEnemyState, int>(editedEnemy.CeresRidleyBehavior.Getaway.UpdateCeresSelfDestructPalette);
+            var nativeTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
+            var stockTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
+            var editedTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();
@@ -293,9 +290,9 @@ internal static class CeresRidleyColorsVerification
             var nativeEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             var stockEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             var editedEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
-            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(stockEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
-            var editedTick = new Action<RoomEnemySlot, RidleyEnemyState>(editedEnemy.RidleyBehavior.Interactions.UpdateNorfairRidleyHealthPalette);
+            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
+            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
+            var editedTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
             RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];
             RoomEnemySlot stockSlot = stockEnemy.SlotTable.Slots[0];
             RoomEnemySlot editedSlot = editedEnemy.SlotTable.Slots[0];

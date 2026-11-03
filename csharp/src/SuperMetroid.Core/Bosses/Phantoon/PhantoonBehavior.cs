@@ -55,11 +55,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = dependencies.Audio;
         _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
-        Presentation = new PhantoonPresentation(_presentation, dependencies.FrameContext);
+        Presentation = new PhantoonPresentation(dependencies.FrameContext);
         Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation);
         Combat = new PhantoonCombat(_room, dependencies.Projectiles, dependencies.Earthquake, _audio, _slotTable, dependencies.Collision, dependencies.DeathsAndDrops);
-        Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, _presentation, dependencies.FrameContext, Presentation, _bossArtwork);
-        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, BossArtwork = _bossArtwork, Audio = _audio });
+        Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, dependencies.FrameContext, Presentation);
+        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio });
     }
 
     /// <summary>Per-update increase in introductory wave amplitude.</summary>

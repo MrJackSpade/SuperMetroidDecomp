@@ -547,7 +547,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 MotherBrainAscent.WaitForMotherBrainToFinishUncrouching(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray:
-                FakeDeath.TransitionMotherBrainFromGray(state);
+                MotherBrainFakeDeath.TransitionMotherBrainFromGray(state);
                 return;
             case MotherBrainBodyFunction.SecondPhaseStretchingShakeHead:
                 MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state);

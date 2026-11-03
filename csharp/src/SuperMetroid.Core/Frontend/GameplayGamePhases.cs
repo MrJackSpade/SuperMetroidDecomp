@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
@@ -380,7 +381,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
         runtime.FadeOut.Begin(TimeUpDefinitions.WhiteColor, TimeUpDefinitions.WhiteOutDenominator,
-            runtime.EnemySession.GradualColorChange, keepsSamusLit: false);
+            runtime.EnemySession.GradualColorChange, GameplayFadeSpares.Nothing);
         session.GameState = SuperMetroidGameState.TimeUp;
     }
 

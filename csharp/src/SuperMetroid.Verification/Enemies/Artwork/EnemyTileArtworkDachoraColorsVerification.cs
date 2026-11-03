@@ -103,7 +103,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.SetPaletteCycle(frame, ticks: 0);
-            enemies.DachoraBehavior.StepDachoraShinePalette(slot, state);
+            DachoraBehavior.StepDachoraShinePalette(slot, state);
             CheckLive(DachoraPalettePhase.Shine, frame);
             AssertEqual((frame + 1) % 4, state.PaletteFrame,
                 $"Dachora shine frame {frame} retains native next-frame selection");

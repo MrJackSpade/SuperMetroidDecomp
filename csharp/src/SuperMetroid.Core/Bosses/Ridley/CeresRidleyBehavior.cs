@@ -86,7 +86,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.FadeInEyes:
-                Fades.TickCeresRidleyEyeFade(state);
+                CeresRidleyFades.TickCeresRidleyEyeFade(state);
                 break;
 
             case RidleyAiFunction.FadeInBody:
@@ -274,7 +274,7 @@ internal sealed class CeresRidleyBehavior
                 return;
 
             case RidleyAiFunction.CeresSelfDestructPaletteOnly:
-                Getaway.UpdateCeresSelfDestructPalette(state, slot.FrameCounter);
+                CeresRidleyGetaway.UpdateCeresSelfDestructPalette(state, slot.FrameCounter);
                 return;
 
             case RidleyAiFunction.NorfairEnterArena:
@@ -324,7 +324,7 @@ internal sealed class CeresRidleyBehavior
             CeresRidleyFlight.TickRidleyWingAnimation(state);
             _ridleyTail.RandomlyUpdateCeresRidleyTailCurliness(state);
             _ridleyTail.TickRidleyTail(slot, state, samus);
-            Hits.UpdateCeresRidleyHealthPalette(state);
+            CeresRidleyHits.UpdateCeresRidleyHealthPalette(state);
         }
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             CeresRidleyBabyScene.TickCeresBaby(slot, state);

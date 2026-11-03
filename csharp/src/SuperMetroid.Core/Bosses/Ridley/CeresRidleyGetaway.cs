@@ -374,7 +374,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>Ports the three-color alarm palette cycle.</summary>
-    internal void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
+    internal static void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
     {
         if ((frameCounter & 3) != 0)
             return;

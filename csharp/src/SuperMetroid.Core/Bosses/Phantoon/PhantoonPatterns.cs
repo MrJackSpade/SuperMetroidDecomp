@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -16,24 +15,18 @@ internal sealed class PhantoonPatterns
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonPatterns(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyPresentation presentation, EnemyFrameContext frameContext, PhantoonPresentation phantoonPresentation, BossArtworkBinding bossArtwork)
+    internal PhantoonPatterns(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyFrameContext frameContext, PhantoonPresentation phantoonPresentation)
     {
-        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _audio = audio;
-        _presentation = presentation;
         _frameContext = frameContext;
         _phantoonPresentation = phantoonPresentation;
     }

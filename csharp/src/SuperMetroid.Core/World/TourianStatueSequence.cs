@@ -229,7 +229,7 @@ public sealed class TourianStatueSequence
                     return null;
                 case TourianStatueTileCueKind.ClearThreeColors:
                     // The statue shows its eye colours blacked out, then its grey, as the shades the import pre-colours (#1512).
-                    _enemies.TourianEntranceStatueBehavior.ShowStatueLook(definition.ClearedShade);
+                    _enemies.TourianStatue.ShowStatueLook(definition.ClearedShade);
                     return null;
                 case TourianStatueTileCueKind.SpawnEyeGlow:
                     statue.SpawnEyeGlow(definition.UnlockEffectParameter);
@@ -247,7 +247,7 @@ public sealed class TourianStatueSequence
                     statue.AnimationState &= ~(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag);
                     return null;
                 case TourianStatueTileCueKind.ApplyGreyColors:
-                    _enemies.TourianEntranceStatueBehavior.ShowStatueLook(definition.GreyShade);
+                    _enemies.TourianStatue.ShowStatueLook(definition.GreyShade);
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueTileCueKind)} {cue.Kind}.");

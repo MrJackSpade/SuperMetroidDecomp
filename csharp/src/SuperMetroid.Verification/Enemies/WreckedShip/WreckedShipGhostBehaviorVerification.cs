@@ -17,7 +17,7 @@ internal static class WreckedShipGhostBehaviorVerification
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
         ghost.Bind(ghost.DefinitionId, default(RoomEnemyDefinition));
-        enemies.WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
+        WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
         AssertEqual(AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             (enemies.SlotTable.Slots[0].EntityState<WreckedShipGhostEntity, WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException("The ghost has no state.")).Program,
             "real Wrecked Ship ghost initializer starts the floating loop");

@@ -103,7 +103,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     private void PrepareDeathPaletteFade()
     {
         SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Death palette setup requires a runtime.");
-        runtime.FadeOut.Begin(RgbColor.Black, denominator: 6, runtime.EnemySession.GradualColorChange, keepsSamusLit: true);
+        runtime.FadeOut.Begin(RgbColor.Black, denominator: 6, runtime.EnemySession.GradualColorChange, GameplayFadeSpares.Samus);
     }
 
     /// <summary>

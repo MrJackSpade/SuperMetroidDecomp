@@ -62,7 +62,7 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
         other is not null && ReferenceEquals(Image, other.Image) && DrawnOver.AsSpan().SequenceEqual(other.DrawnOver.AsSpan(), ReferenceEqualityComparer.Instance);
 
     /// <inheritdoc />
-    public bool Equals(AffineFloor? other) => SamePictures(other) && Equals(Shading, other!.Shading);
+    public bool Equals(AffineFloor? other) => other is { } floor && SamePictures(floor) && Equals(Shading, floor.Shading);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => Equals(obj as AffineFloor);

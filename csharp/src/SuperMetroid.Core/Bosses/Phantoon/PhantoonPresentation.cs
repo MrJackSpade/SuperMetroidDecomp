@@ -8,16 +8,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonPresentation
 {
-    /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonPresentation(EnemyPresentation presentation, EnemyFrameContext frameContext)
+    internal PhantoonPresentation(EnemyFrameContext frameContext)
     {
-        _presentation = presentation;
         _frameContext = frameContext;
     }
 

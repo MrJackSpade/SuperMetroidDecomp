@@ -1,12 +1,10 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
@@ -44,9 +42,8 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
 
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
         CeresRidleyColorCatalog colours = InstalledAreaMapPresentation.CeresRidleyColorsOf(RetailPresentationFixture());
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
-        Action<RidleyEnemyState> tick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;
+        Action<RidleyEnemyState> tick = CeresRidleyFades.TickCeresRidleyEyeFade;
 
         var state = new RidleyEnemyState
         {

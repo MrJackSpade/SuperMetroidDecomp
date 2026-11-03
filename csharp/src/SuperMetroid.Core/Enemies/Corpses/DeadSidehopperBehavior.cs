@@ -313,7 +313,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             "Dead sidehopper crossed into terrain-driven movement without room level data.");
 
     /// <summary>Steps the draining palette transformation.</summary>
-    private void StepDeadSidehopperPaletteTransformation(
+    private static void StepDeadSidehopperPaletteTransformation(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {

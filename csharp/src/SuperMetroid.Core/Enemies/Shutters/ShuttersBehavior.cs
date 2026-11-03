@@ -23,7 +23,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <paramref name="slots"/> (#1512): the first escape room's shutters draw in the colours the flash recolours, and
     /// each record replaces the one before it.
     /// </summary>
-    internal void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, PaletteFxFrame record)
+    internal static void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, PaletteFxFrame record)
     {
         Ensure.NotNull(slots);
         PictureShade flash = PaletteFxShades.Of(PaletteFxColours.TourianShutters, record);

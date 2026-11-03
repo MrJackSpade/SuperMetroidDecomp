@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -130,7 +129,7 @@ internal sealed class CeresRidleyHits
     /// original missing branch after the 90-shot comparison: 50-69 selects health band zero,
     /// and every value from 70 onward selects health band two.
     /// </summary>
-    internal void UpdateCeresRidleyHealthPalette(RidleyEnemyState state)
+    internal static void UpdateCeresRidleyHealthPalette(RidleyEnemyState state)
     {
         if (state.FightMode == RidleyFightMode.NotFighting || state.HitCounter < 50)
             return;

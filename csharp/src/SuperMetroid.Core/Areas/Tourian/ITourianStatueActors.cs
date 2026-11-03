@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -24,4 +25,9 @@ internal interface ITourianStatueActors
 
     /// <summary>Spawns the descent's dust.</summary>
     void SpawnDescentDust();
+
+    /// <summary>
+    /// Shows a released statue's look, its blacked-out eyes or its grey, as the shade the import pre-coloured it in (#1512).
+    /// </summary>
+    void ShowStatueLook(PictureShade look);
 }

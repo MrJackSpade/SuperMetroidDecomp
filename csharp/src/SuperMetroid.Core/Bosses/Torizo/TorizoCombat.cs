@@ -10,10 +10,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 [RoomLifetime]
 internal sealed class TorizoCombat
 {
-    /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
-    private readonly EnemyRoomBinding _room;
-    /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
-    private readonly EnemyPresentation _presentation;
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
@@ -22,10 +18,8 @@ internal sealed class TorizoCombat
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal TorizoCombat(EnemyRoomBinding room, EnemyPresentation presentation, EnemyCollision collision, TorizoBody body, TorizoEncounterAccess access)
+    internal TorizoCombat(EnemyCollision collision, TorizoBody body, TorizoEncounterAccess access)
     {
-        _room = room;
-        _presentation = presentation;
         _collision = collision;
         _body = body;
         _access = access;

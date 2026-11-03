@@ -63,26 +63,53 @@ internal sealed class DoorFade : IGameplayShadingSource
         GradualFadeSteps fade = steps ?? throw new InvalidOperationException("A door fade shows once its steps have started.");
         // The HUD's shade is the import's of the shared counter's value at the last step taken.
         int? last = fade.Taken.IsEmpty ? null : fade.Taken[^1];
-        (ColourEffect effect, PictureShade? hud) = Stage switch
-        {
-            DoorFadeStage.FadingOut => ((ColourEffect)fade.Toward(RgbColor.Black), last is { } value ? (PictureShade?)HudFadingOut(value) : null),
-            DoorFadeStage.Dark => (new ColourFlash(RgbColor.Black), (PictureShade?)HudDark()),
-            DoorFadeStage.FadingIn => (fade.From(RgbColor.Black), last is { } value ? (PictureShade?)HudFadingIn(value) : HudDark()),
-            _ => throw new InvalidOperationException($"Undefined door fade stage {Stage}."),
-        };
-        frame.Fade(new GameplayDisplayFade(effect, SparesHud: true, SparesSamus: false));
-        if (hud is { } shade)
-            frame.Shade(GameplayPictures.Hud, shade);
-        // The escape timer keeps its lit colours through the fade as the HUD does, faded step for step with it.
-        // A fade out shows the timer's standard colours until its first step, as it shows the HUD's.
-        if (Stage != DoorFadeStage.FadingOut || last is not null)
-            frame.Shade(GameplayPictures.EscapeTimer, Stage switch
-            {
-                DoorFadeStage.FadingIn when last is { } value => DoorFadeShades.EscapeTimerFadingIn(value),
-                DoorFadeStage.FadingOut when last is { } value => DoorFadeShades.EscapeTimerFadingOut(value),
-                _ => DoorFadeShades.EscapeTimerFadingOut(DoorTransitionColourDefinitions.HudFadeShades - 1),
-            });
+        frame.Fade(new GameplayDisplayFade(DisplayEffect(fade), GameplayFadeSpares.Hud));
+        if (HudShade(last) is { } hud)
+            frame.Shade(GameplayPictures.Hud, hud);
+        if (EscapeTimerShade(last) is { } timer)
+            frame.Shade(GameplayPictures.EscapeTimer, timer);
     }
+
+    /// <summary>The effect the fade shows over the whole display at its stage, over <paramref name="fade"/>'s steps.</summary>
+    /// <exception cref="InvalidOperationException">No fade is running, or the stage is undefined.</exception>
+    private ColourEffect DisplayEffect(GradualFadeSteps fade) => Stage switch
+    {
+        DoorFadeStage.FadingOut => fade.Toward(RgbColor.Black),
+        DoorFadeStage.Dark => new ColourFlash(RgbColor.Black),
+        DoorFadeStage.FadingIn => fade.From(RgbColor.Black),
+        DoorFadeStage.None => throw new InvalidOperationException("A door fade shows no effect while no fade runs."),
+        _ => throw new InvalidOperationException($"Undefined door fade stage {Stage}."),
+    };
+
+    /// <summary>
+    /// The HUD's shade at the fade's stage, <paramref name="last"/> the counter value of the last step taken: none before a
+    /// fade out's first step, which shows the HUD's standard colours, and the dark shade before a fade in's first step.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No fade is running, or the stage is undefined.</exception>
+    private PictureShade? HudShade(int? last) => Stage switch
+    {
+        DoorFadeStage.FadingOut => last is { } value ? HudFadingOut(value) : null,
+        DoorFadeStage.Dark => HudDark(),
+        DoorFadeStage.FadingIn => last is { } value ? HudFadingIn(value) : HudDark(),
+        DoorFadeStage.None => throw new InvalidOperationException("A door fade shades the HUD while a fade runs."),
+        _ => throw new InvalidOperationException($"Undefined door fade stage {Stage}."),
+    };
+
+    /// <summary>
+    /// The escape timer's shade at the fade's stage: the timer keeps its lit colours through the fade as the HUD does,
+    /// faded step for step with it, and a fade out shows its standard colours until its first step, as it shows the HUD's.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No fade is running, or the stage is undefined.</exception>
+    private PictureShade? EscapeTimerShade(int? last) => Stage switch
+    {
+        DoorFadeStage.FadingOut => last is { } value ? DoorFadeShades.EscapeTimerFadingOut(value) : null,
+        DoorFadeStage.Dark => DoorFadeShades.EscapeTimerFadingOut(DoorTransitionColourDefinitions.HudFadeShades - 1),
+        DoorFadeStage.FadingIn => last is { } value
+            ? DoorFadeShades.EscapeTimerFadingIn(value)
+            : DoorFadeShades.EscapeTimerFadingOut(DoorTransitionColourDefinitions.HudFadeShades - 1),
+        DoorFadeStage.None => throw new InvalidOperationException("A door fade shades the escape timer while a fade runs."),
+        _ => throw new InvalidOperationException($"Undefined door fade stage {Stage}."),
+    };
 
     /// <summary>The HUD's shade once the room has faded out: the fade out's last step, its faded colours black.</summary>
     private PictureShade HudDark() => HudFadingOut(DoorTransitionColourDefinitions.HudFadeShades - 1);

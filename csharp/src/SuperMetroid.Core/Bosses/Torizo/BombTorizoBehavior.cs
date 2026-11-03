@@ -82,10 +82,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults = dependencies.FrameResults;
         Access = new TorizoEncounterAccess();
         Attacks = new TorizoAttacks(_room, _projectiles, _audio, _deathsAndDrops, Access);
-        Body = new TorizoBody(_room, _presentation, Access, Attacks);
-        Movement = new TorizoMovement(_room, dependencies.Terrain, dependencies.Earthquake, _presentation, Body, Access);
+        Body = new TorizoBody(_room, Access, Attacks);
+        Movement = new TorizoMovement(_room, dependencies.Terrain, dependencies.Earthquake, Body, Access);
         Choices = new TorizoChoices(_room, dependencies.Terrain, Access);
-        Combat = new TorizoCombat(_room, _presentation, dependencies.Collision, Body, Access);
+        Combat = new TorizoCombat(dependencies.Collision, Body, Access);
     }
     /// <summary>Health below which the head-break list interrupts active Bomb Torizo AI.</summary>
     internal const int BombTorizoHeadExplosionHealth = 350;

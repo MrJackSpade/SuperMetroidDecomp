@@ -11,12 +11,12 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// selection shade; a hurt flash, which clears the same bits, changes nothing he shows.
 /// </summary>
 /// <remarks>
-/// The cartridge moves each colour one step from the colour shown, so a fade starts from what is shown when it takes its
+/// The game moves each colour one step from the colour shown, so a fade starts from what is shown when it takes its
 /// first step. A hurt colouring written in the middle of a fade restarts it from that colouring at the counter value it
 /// stands at, which the fade keeps as the first value it stepped from there; the import pre-colours every such start and
 /// step. A program names a new target only while the colours rest on a whole colouring (his awakening and his death each
 /// name theirs before their steps, and the awakening's last call takes only the counter's zero step, which moves nothing),
-/// so a target named while a fade has moved the colours is not a state the cartridge reaches and is refused.
+/// so a target named while a fade has moved the colours is not a state the game reaches and is refused.
 /// Once his fight starts, his belly's glow writes each of its records over the belly's glowing colours, and those colours
 /// show the last record written until his own colouring is written again; a fade steps them from the record shown, so the
 /// glow keeps its own run of steps over its colours.
@@ -33,7 +33,7 @@ internal sealed class TorizoColours
     /// The counter values of the first and last steps the running fade took from <see cref="settled"/>, or null while
     /// none runs.
     /// </summary>
-    private (int First, int Last)? fade;
+    private TorizoFadeSteps? fade;
 
     /// <summary>
     /// The belly glow's record written over the belly's glowing colours after his own colouring, or null while they show
@@ -66,8 +66,8 @@ internal sealed class TorizoColours
     /// The running fade's steps that move colours, or null when none has: the counter's zero step changes nothing, so a
     /// fade's first moving step is its first step past zero.
     /// </summary>
-    private (int First, int Last)? Moved =>
-        fade is { } running && running.Last > 0 ? (Math.Max(running.First, 1), running.Last) : null;
+    private TorizoFadeSteps? Moved =>
+        fade is { } running && running.Last > 0 ? new TorizoFadeSteps(Math.Max(running.First, 1), running.Last) : null;
 
     /// <summary>
     /// Shows <paramref name="look"/> at once over his body and belly, the glowing colours among them; a running fade
@@ -129,7 +129,7 @@ internal sealed class TorizoColours
         }
         if (fade is { } running && value != running.Last + 1)
             throw new InvalidOperationException($"A Torizo's fade stepped at counter value {running.Last}, then at {value}.");
-        fade = (fade?.First ?? value, value);
+        fade = new TorizoFadeSteps(fade?.First ?? value, value);
         if (belly is not null)
             bellyFirst ??= value;
         counter.Advance();

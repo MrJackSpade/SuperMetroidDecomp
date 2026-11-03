@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
@@ -16,13 +17,13 @@ internal sealed class CeresRidleyHealthPaint
     /// <summary>Source healthy body and eye paints from which the three damage bands are calculated.</summary>
     private readonly CeresRidleyFade body, eyes;
     /// <summary>Authored departures from the calculated health shades, keyed by band and color.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the healthy paints and the input colors that differ from the calculated tint.</summary>
     /// <param name="body">The body fade supplying healthy armor and the membrane target.</param>
     /// <param name="eyes">The eye fade supplying healthy eyes.</param>
     /// <param name="edits">The supplied colors the import found differing from the tint.</param>
-    internal CeresRidleyHealthPaint(CeresRidleyFade body, CeresRidleyFade eyes, Dictionary<ColourCell, RgbColor> edits)
+    internal CeresRidleyHealthPaint(CeresRidleyFade body, CeresRidleyFade eyes, Dictionary<PaintColour, RgbColor> edits)
     {
         this.body = body; this.eyes = eyes;
         this.edits = edits;
@@ -33,7 +34,7 @@ internal sealed class CeresRidleyHealthPaint
     {
         if ((uint)band >= CeresRidleyPaletteDefinitions.HealthBandCount) throw new ArgumentOutOfRangeException(nameof(band));
         if ((uint)color >= CeresRidleyPaletteDefinitions.HealthColorCount) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(band, color), out RgbColor edited) ? edited : Calculate(band, color);
+        return edits.TryGetValue(new PaintColour(band, color), out RgbColor edited) ? edited : Calculate(band, color);
     }
 
     /// <summary>Tints healthy armor or eyes toward middle membrane paint, preserving two chosen channel shades.</summary>

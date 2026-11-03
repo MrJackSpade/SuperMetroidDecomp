@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -21,22 +22,22 @@ internal static class PhantoonColorEdits
         new(HealthEdits(healthBands), FadeOutEdits(fadeOut), PowerEdits(powerOn));
 
     /// <summary>Keeps the health-band colours that differ from the calculated material and damage shades.</summary>
-    private static Dictionary<ColourCell, RgbColor> HealthEdits(RgbColor[][] healthBands)
+    private static Dictionary<PaintColour, RgbColor> HealthEdits(RgbColor[][] healthBands)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int band = 0; band < healthBands.Length; band++)
         for (int color = 0; color < healthBands[band].Length; color++)
             if (healthBands[band][color] != PhantoonHealthPaint.Color(band, color))
-                edits.Add(new ColourCell(band, color), healthBands[band][color]);
+                edits.Add(new PaintColour(band, color), healthBands[band][color]);
         return edits;
     }
 
     /// <summary>Keeps the nonblack fade-out targets.</summary>
-    private static Dictionary<ColourCell, RgbColor> FadeOutEdits(RgbColor[] fadeOut)
+    private static Dictionary<PaintColour, RgbColor> FadeOutEdits(RgbColor[] fadeOut)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < fadeOut.Length; color++)
-            if (fadeOut[color] != RgbColor.Black) edits.Add(new ColourCell(0, color), fadeOut[color]);
+            if (fadeOut[color] != RgbColor.Black) edits.Add(new PaintColour(0, color), fadeOut[color]);
         return edits;
     }
 

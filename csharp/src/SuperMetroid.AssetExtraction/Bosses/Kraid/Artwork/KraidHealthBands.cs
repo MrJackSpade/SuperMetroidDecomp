@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
@@ -12,11 +13,11 @@ namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 internal sealed class KraidHealthBands : IReadOnlyList<RgbColor>
 {
     /// <summary>Edited authored endpoints or interior samples that differ from calculated interpolation.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> deviations;
+    internal readonly Dictionary<PaintColour, RgbColor> deviations;
 
     /// <summary>Keeps the supplied colors that differ from the authored or calculated health colors.</summary>
     /// <param name="deviations">The edited endpoints and interior samples the import found.</param>
-    internal KraidHealthBands(Dictionary<ColourCell, RgbColor> deviations) => this.deviations = deviations;
+    internal KraidHealthBands(Dictionary<PaintColour, RgbColor> deviations) => this.deviations = deviations;
 
     /// <summary>
     /// Interpolates one channelwise health color for <paramref name="band"/> between the first
@@ -41,7 +42,7 @@ internal sealed class KraidHealthBands : IReadOnlyList<RgbColor>
         {
             if ((uint)index >= Count)
                 throw new ArgumentOutOfRangeException(nameof(index));
-            return deviations.TryGetValue(new ColourCell(0, index), out RgbColor supplied) ? supplied : Calculate(index);
+            return deviations.TryGetValue(new PaintColour(0, index), out RgbColor supplied) ? supplied : Calculate(index);
         }
     }
 

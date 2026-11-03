@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
@@ -9,4 +10,4 @@ namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 /// <param name="WhiteFlash">Only edited flash colors; stock entries are calculated on lookup.</param>
 /// <param name="HealthBands">Four selected colors for each of Draygon's eight health bands.</param>
 internal sealed record DraygonColorSelection(DraygonIntroPaint Intro, DraygonMaterialPaint Background, DraygonMaterialPaint Sprite,
-    Dictionary<ColourCell, RgbColor> WhiteFlash, DraygonHealthPaint HealthBands);
+    Dictionary<PaintColour, RgbColor> WhiteFlash, DraygonHealthPaint HealthBands);

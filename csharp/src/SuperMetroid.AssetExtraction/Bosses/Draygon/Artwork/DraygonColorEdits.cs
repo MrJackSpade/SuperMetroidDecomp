@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
@@ -27,29 +28,29 @@ internal static class DraygonColorEdits
     private static DraygonMaterialPaint Material(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 16);
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < colors.Length; color++)
-            if (colors[color] != DraygonMaterialPaint.StockColor(color)) edits.Add(new ColourCell(0, color), colors[color]);
+            if (colors[color] != DraygonMaterialPaint.StockColor(color)) edits.Add(new PaintColour(0, color), colors[color]);
         return new DraygonMaterialPaint(edits);
     }
 
     /// <summary>Keeps the supplied flash colours that differ from stock white.</summary>
-    private static Dictionary<ColourCell, RgbColor> WhiteFlashEdits(RgbColor[] whiteFlash)
+    private static Dictionary<PaintColour, RgbColor> WhiteFlashEdits(RgbColor[] whiteFlash)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < whiteFlash.Length; color++)
-            if (whiteFlash[color] != DraygonPalette.StockWhiteFlash(color)) edits.Add(new ColourCell(0, color), whiteFlash[color]);
+            if (whiteFlash[color] != DraygonPalette.StockWhiteFlash(color)) edits.Add(new PaintColour(0, color), whiteFlash[color]);
         return edits;
     }
 
     /// <summary>Keeps the belly colours that differ from the four-shade, eight-band paint calculation.</summary>
     private static DraygonHealthPaint Health(RgbColor[][] healthBands)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int band = 0; band < DraygonHealthPaintDefinitions.Bands; band++)
             for (int shade = 0; shade < DraygonHealthPaintDefinitions.Shades; shade++)
                 if (healthBands[band][shade] != DraygonHealthPaint.Calculate(band, shade))
-                    edits.Add(new ColourCell(band, shade), healthBands[band][shade]);
+                    edits.Add(new PaintColour(band, shade), healthBands[band][shade]);
         return new DraygonHealthPaint(edits);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -21,7 +22,7 @@ internal sealed class SporeSpawnHealthBands
     /// <summary>Authored inks 1 through 8 from the two middle health bands.</summary>
     private readonly RgbColor[][] intermediatePaint;
     /// <summary>Middle-band calculated inks retained only when the supplied RGB5 value differs.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> intermediateEdits;
+    internal readonly Dictionary<PaintColour, RgbColor> intermediateEdits;
 
     /// <summary>Keeps the endpoint bands, the painted middle inks and the independent interpolation edits.</summary>
     /// <param name="healthy">The healthy band, the first band and the interpolation source.</param>
@@ -29,7 +30,7 @@ internal sealed class SporeSpawnHealthBands
     /// <param name="intermediatePaint">Inks 1 through 8 of each middle band.</param>
     /// <param name="intermediateEdits">Middle-band calculated inks whose supplied colour differs from the interpolation.</param>
     internal SporeSpawnHealthBands(RgbColor[] healthy, RgbColor[] critical, RgbColor[][] intermediatePaint,
-        Dictionary<ColourCell, RgbColor> intermediateEdits)
+        Dictionary<PaintColour, RgbColor> intermediateEdits)
     {
         this.healthy = healthy;
         this.critical = critical;
@@ -44,7 +45,7 @@ internal sealed class SporeSpawnHealthBands
         if (frame == 0) return healthy[color];
         if (frame == last) return critical[color];
         if (!IsCalculated(color)) return intermediatePaint[frame - 1][color - 1];
-        return intermediateEdits.TryGetValue(new ColourCell(frame, color), out RgbColor edit)
+        return intermediateEdits.TryGetValue(new PaintColour(frame, color), out RgbColor edit)
             ? edit : Calculate(frame, color);
     }
 

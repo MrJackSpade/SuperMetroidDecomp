@@ -66,13 +66,13 @@ public static class ZebetiteColorFile
     }
 
     /// <summary>Keeps the selected pulse colours that differ from the calculated pulse.</summary>
-    private static Dictionary<ColourCell, RgbColor> Edits(RgbColor[][] frames)
+    private static Dictionary<PaintColour, RgbColor> Edits(RgbColor[][] frames)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int frame = 0; frame < frames.Length; frame++)
             for (int color = 0; color < frames[frame].Length; color++)
                 if (frames[frame][color] != ZebetitePulsePaint.Color(frame, color))
-                    edits.Add(new ColourCell(frame, color), frames[frame][color]);
+                    edits.Add(new PaintColour(frame, color), frames[frame][color]);
         return edits;
     }
 

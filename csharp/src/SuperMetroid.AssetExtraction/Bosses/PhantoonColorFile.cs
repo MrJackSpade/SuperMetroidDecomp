@@ -40,9 +40,9 @@ public static class PhantoonColorFile
     private static Dictionary<WreckedShipPoweredPart, RgbColor[]> PowerOnByPart(RgbColor[] colours)
     {
         var parts = new Dictionary<WreckedShipPoweredPart, RgbColor[]>();
-        for (int first = 0; first < colours.Length; first += ColourSets.SetColours)
-            parts.Add(PhantoonColorDefinitions.PoweredParts[first / ColourSets.SetColours],
-                colours[first..(first + ColourSets.SetColours)]);
+        for (int first = 0; first < colours.Length; first += SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount)
+            parts.Add(PhantoonColorDefinitions.PoweredParts[first / SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount],
+                colours[first..(first + SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount)]);
         return parts;
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
@@ -9,11 +10,11 @@ namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 internal static class DraygonPalette
 {
     /// <summary>Gets one of the 16 selected white-flash colors, preserving transparent entry zero.</summary>
-    internal static RgbColor WhiteFlash(Dictionary<ColourCell, RgbColor> edits, int color)
+    internal static RgbColor WhiteFlash(Dictionary<PaintColour, RgbColor> edits, int color)
     {
         if ((uint)color >= DraygonColorDefinitions.WhiteFlashCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(0, color), out RgbColor selected) ? selected : StockWhiteFlash(color);
+        return edits.TryGetValue(new PaintColour(0, color), out RgbColor selected) ? selected : StockWhiteFlash(color);
     }
 
     /// <summary>Gets one of the four selected colors of one of Draygon's eight health bands.</summary>

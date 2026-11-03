@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities;
 
@@ -12,12 +13,12 @@ public sealed class InstalledCrystalFlashColors
     /// <summary>Complete edited body frames, retained only when any supplied color differs from the calculated pulse.</summary>
     internal readonly RgbColor[][]? body;
     /// <summary>Bubble samples that differ from the rotating ramp, including the independently painted stock white.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> bubble;
+    internal readonly Dictionary<PaintColour, RgbColor> bubble;
 
     /// <summary>Compares all supplied frames with color rules before retaining only independent edits.</summary>
     /// <param name="body">Every supplied body frame when one color differs from the pulse, otherwise null.</param>
     /// <param name="bubble">The bubble samples the import found differing from the rotating ramp.</param>
-    internal InstalledCrystalFlashColors(RgbColor[][]? body, Dictionary<ColourCell, RgbColor> bubble)
+    internal InstalledCrystalFlashColors(RgbColor[][]? body, Dictionary<PaintColour, RgbColor> bubble)
     {
         this.body = body;
         this.bubble = bubble;
@@ -61,7 +62,7 @@ public sealed class InstalledCrystalFlashColors
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= CrystalFlashColorFormat.BubbleColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return bubble.TryGetValue(new ColourCell(frame, color), out RgbColor supplied)
+        return bubble.TryGetValue(new PaintColour(frame, color), out RgbColor supplied)
             ? supplied : CalculateBubble(frame, color);
     }
 

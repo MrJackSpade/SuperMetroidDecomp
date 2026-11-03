@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
@@ -57,12 +58,12 @@ public sealed class TourianStatuePalettes
         /// <summary>Number of indexed colors in this band's palette geometry.</summary>
         private readonly int count;
         /// <summary>Only supplied colors that differ from the calculated stock band.</summary>
-        internal readonly Dictionary<ColourCell, RgbColor> edits;
+        internal readonly Dictionary<PaintColour, RgbColor> edits;
         /// <summary>Keeps a band's geometry and the supplied colors that differ from its stock paint.</summary>
         /// <param name="band">The calculated stock paint family.</param>
         /// <param name="count">The band's colour count.</param>
         /// <param name="edits">The supplied colours the import found differing from the stock paint.</param>
-        internal PaletteBand(TourianStatuePaintBand band, int count, Dictionary<ColourCell, RgbColor> edits)
+        internal PaletteBand(TourianStatuePaintBand band, int count, Dictionary<PaintColour, RgbColor> edits)
         {
             this.band = band;
             this.count = count;
@@ -72,7 +73,7 @@ public sealed class TourianStatuePalettes
         internal RgbColor Read(int color)
         {
             if ((uint)color >= count) throw new ArgumentOutOfRangeException(nameof(color));
-            return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : TourianStatuePaint.Color(band, color);
+            return edits.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : TourianStatuePaint.Color(band, color);
         }
     }
 }

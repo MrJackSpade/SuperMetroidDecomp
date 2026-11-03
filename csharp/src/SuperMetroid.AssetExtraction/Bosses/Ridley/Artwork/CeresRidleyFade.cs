@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 
@@ -29,7 +30,7 @@ internal sealed class CeresRidleyFade
         }
     }
     /// <summary>Imported colors that differ from the common quantized fade formula.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> overrides;
+    internal readonly Dictionary<PaintColour, RgbColor> overrides;
     /// <summary>Number of colors in a shade of the selected fade table.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
@@ -43,7 +44,7 @@ internal sealed class CeresRidleyFade
     /// <param name="bodyPaint">The body endpoint paint of a body fade, or null for an eye fade.</param>
     /// <param name="overrides">The supplied colors the import found differing from the fade formula.</param>
     internal CeresRidleyFade(CeresRidleyFadeKind kind, EyePaint eyePaint, CeresRidleyBodyPaint? bodyPaint,
-        Dictionary<ColourCell, RgbColor> overrides)
+        Dictionary<PaintColour, RgbColor> overrides)
     {
         this.kind = kind;
         this.eyePaint = eyePaint;
@@ -55,7 +56,7 @@ internal sealed class CeresRidleyFade
     internal RgbColor Resolve(int shade, int color)
     {
         Validate(shade, color);
-        var key = new ColourCell(shade, color);
+        var key = new PaintColour(shade, color);
         return overrides.TryGetValue(key, out RgbColor edited) ? edited : Calculate(shade, color);
     }
 

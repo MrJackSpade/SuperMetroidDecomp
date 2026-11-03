@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.NorfairRidleyRevealPaintDefinitions;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
@@ -12,18 +13,18 @@ internal sealed class NorfairRidleyRevealPaint
 {
 
     /// <summary>Independently supplied step colors that differ from the scaled material endpoints.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the palette cells that differ from the calculated fifteen-step reveal.</summary>
     /// <param name="edits">The supplied cells the import found differing from the reveal.</param>
-    internal NorfairRidleyRevealPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
+    internal NorfairRidleyRevealPaint(Dictionary<PaintColour, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Resolves an independently edited reveal cell or scales its stock material endpoint.</summary>
     internal RgbColor ColorAt(int step, int color)
     {
         ValidateStep(step);
         if ((uint)color >= Colors) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(step, color), out RgbColor edited) ? edited : Calculate(step, color);
+        return edits.TryGetValue(new PaintColour(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 
     /// <summary>Restricts lookup to the fifteen reveal phases.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
@@ -20,7 +21,7 @@ internal sealed class CeresDoorEscapePaint
     /// <summary>Blue component of the terminal cyan target-paint slot.</summary>
     private readonly int accentBlue;
     /// <summary>Extracted colors that differ from the derived surface and warm-target paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the derived material paint and every differing supplied ink as an edit.</summary>
     /// <param name="warm">The warm targets the escape palette shares.</param>
@@ -28,7 +29,7 @@ internal sealed class CeresDoorEscapePaint
     /// <param name="accentBlue">The terminal cyan slot's blue.</param>
     /// <param name="edits">The supplied inks the import found differing from the derived paint.</param>
     internal CeresDoorEscapePaint(CeresDoorWarmTargetPaint warm, CeresDoorEscapeSurfacePaint surface, int accentBlue,
-        Dictionary<ColourCell, RgbColor> edits)
+        Dictionary<PaintColour, RgbColor> edits)
     {
         this.warm = warm;
         this.surface = surface;
@@ -40,7 +41,7 @@ internal sealed class CeresDoorEscapePaint
     internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new ColourCell(0, index), out RgbColor edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new PaintColour(0, index), out RgbColor edited) ? edited : Calculate(index);
     }
 
     /// <summary>Combines surface inks, shared warm targets, and the saturated cyan terminal slot.</summary>

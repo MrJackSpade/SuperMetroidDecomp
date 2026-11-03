@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
@@ -22,14 +23,14 @@ internal sealed class CeresDoorNormalPaint
     /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
     internal readonly Dictionary<CeresDoorPaintChannel, int> paint;
     /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the chosen material paint channels, the copied warm targets and the independently edited colors.</summary>
     /// <param name="warmTargets">The copied warm target paint for slots nine through fourteen.</param>
     /// <param name="paint">The categorical channel seeds by slot and channel.</param>
     /// <param name="edits">The supplied colors the import found differing from the composition, keyed by one-based slot.</param>
     internal CeresDoorNormalPaint(CeresDoorWarmTargetPaint warmTargets, Dictionary<CeresDoorPaintChannel, int> paint,
-        Dictionary<ColourCell, RgbColor> edits)
+        Dictionary<PaintColour, RgbColor> edits)
     {
         WarmTargets = warmTargets;
         this.paint = paint;
@@ -44,7 +45,7 @@ internal sealed class CeresDoorNormalPaint
     {
         if ((uint)index >= 15) throw new ArgumentOutOfRangeException(nameof(index));
         int slot = index + 1;
-        var slotCell = new ColourCell(0, index + 1);
+        var slotCell = new PaintColour(0, index + 1);
         return edits.TryGetValue(slotCell, out RgbColor color) ? color : Calculate(slot);
     }
 

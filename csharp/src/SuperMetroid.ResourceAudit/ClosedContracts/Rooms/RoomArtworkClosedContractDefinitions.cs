@@ -14,7 +14,7 @@ internal static class RoomArtworkClosedContractDefinitions
     /// <summary>Closed source sets for all retail tileset artwork.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Rooms.Artwork.RoomStaticPalettes", "room-complete-tileset-palette-sources", ["Get"],
-            [TilesetSources, TilesetSelection, new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomStaticPalettes.cs")]),
+        new("SuperMetroid.AssetExtraction.Rooms.RoomStaticPalettes", "room-complete-tileset-palette-sources", ["Get"],
+            [TilesetSources, TilesetSelection, new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomStaticPalettes.cs")]),
     ];
 }

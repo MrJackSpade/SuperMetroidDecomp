@@ -17,6 +17,7 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// <summary>Checks Crocomire corpse collision data and the two death cutscene camera boundaries.</summary>
 internal static class CrocomireCutsceneVerification
 {

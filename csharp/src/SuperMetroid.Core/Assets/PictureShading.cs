@@ -33,6 +33,21 @@ public sealed record PictureShading
     /// <summary>The colour effects applied after the shades, in order.</summary>
     public ImmutableArray<ColourEffect> Effects { get; }
 
+    /// <summary>Whether both name the same shades and effects in the same order, so show a picture alike.</summary>
+    public bool Equals(PictureShading? other) =>
+        other is not null && Shades.SequenceEqual(other.Shades) && Effects.SequenceEqual(other.Effects);
+
+    /// <summary>Hashes the shades and effects <see cref="Equals(PictureShading)"/> compares.</summary>
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (PictureShade shade in Shades)
+            hash.Add(shade);
+        foreach (ColourEffect effect in Effects)
+            hash.Add(effect);
+        return hash.ToHashCode();
+    }
+
     /// <summary>Whether the picture shows its standard colours.</summary>
     public bool IsStandard => Shades.IsEmpty && Effects.IsEmpty;
 

@@ -16,9 +16,6 @@ internal sealed record DeadSidehopperBehaviorDependencies
     /// <summary>Slot table.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 

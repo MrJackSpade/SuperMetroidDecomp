@@ -44,12 +44,12 @@ public static class MagdollitePaletteCycleFile
             }
         }
         RgbColor[] colors = compiled[0];
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<ColourStep, RgbColor>();
         // Later frames rotate the first frame left one color per frame; keep only the cells that deviate.
         for (int frame = 1; frame < compiled.Length; frame++)
             for (int color = 0; color < colors.Length; color++)
                 if (compiled[frame][color] != colors[(color + frame) % colors.Length])
-                    edits.Add(new ColourCell(frame, color), compiled[frame][color]);
+                    edits.Add(new ColourStep(frame, color), compiled[frame][color]);
         return new MagdollitePaletteCycle(colors, edits);
     }
 

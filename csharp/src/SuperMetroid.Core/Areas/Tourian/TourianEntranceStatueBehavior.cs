@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
@@ -19,18 +19,84 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Allocates the three fixed statue decoration actors in reverse-slot order.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Supplies the visible colours the entrance statue's initialization installs.</summary>
-    private readonly EnemyPresentation _presentation;
-    /// <summary>The session's installed area artwork.</summary>
-    private readonly AreaArtworkBinding _areaArtwork;
+    /// <summary>The room's enemy slots, whose statue records show the scene's look.</summary>
+    private readonly EnemySlotTable _slotTable;
 
+    /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
+    private PictureShade? _eyeGlow;
 
-    /// <summary>Binds room state, projectile allocation, and installed presentation to the statue species.</summary>
-    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemyPresentation presentation, AreaArtworkBinding areaArtwork)
+    /// <summary>The released sprite statues' blacked-out eyes and greys, in the order they were shown.</summary>
+    private readonly List<PictureShade> _statueLooks = [];
+
+    /// <summary>The released statues drawn in the room's tiles: their blacked-out eyes and greys, in the order shown.</summary>
+    private readonly List<PictureShade> _roomLooks = [];
+
+    /// <summary>Binds projectile allocation and the room's slots to the statue species.</summary>
+    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable)
     {
-        _areaArtwork = areaArtwork;
         _projectiles = projectiles;
-        _presentation = presentation;
+        _slotTable = slotTable;
+    }
+
+    /// <summary>
+    /// The statue scene's look (#1512): its standard colours until the statue initializes, then its entrance colours,
+    /// the last eye glow a released boss lit, and each released statue's blacked-out eyes and grey. Every statue scene
+    /// sprite shows it; the game wrote these colours into palettes the scene's sprites share.
+    /// </summary>
+    internal PictureShading SceneShading { get; private set; } = PictureShading.Standard;
+
+    /// <summary>The graphics a statue scene projectile spawns with: character zero in the scene's look.</summary>
+    internal SpriteGraphics SceneGraphics => SpriteGraphics.CharacterZeroIn(SceneShading);
+
+    /// <summary>Lights the eye glow of boss <paramref name="glow"/>, in Phantoon, Ridley, Draygon, Kraid order, over the last.</summary>
+    internal void ShowEyeGlow(int glow)
+    {
+        _eyeGlow = TourianStatueShades.EyeGlow(glow);
+        ShowScene();
+    }
+
+    /// <summary>
+    /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue drawn in the
+    /// room's tiles, otherwise over the scene's sprites.
+    /// </summary>
+    internal void ShowStatueLook(PictureShade look)
+    {
+        if (TourianStatueShades.RoomTileLooks.Contains(look))
+        {
+            _roomLooks.Add(look);
+            return;
+        }
+        _statueLooks.Add(look);
+        ShowScene();
+    }
+
+    /// <summary>Lays the looks of the released statues drawn in the room's tiles over the room's pictures (#1512).</summary>
+    public void LayShades(GameplayShadingBuilder shading)
+    {
+        Ensure.NotNull(shading);
+        foreach (PictureShade look in _roomLooks)
+            shading.Lay(GameplayPictureGroup.Room, look);
+    }
+
+    /// <summary>Recomposes the scene's look and shows it on every statue record and statue scene projectile.</summary>
+    private void ShowScene()
+    {
+        PictureShading shading = PictureShading.Shaded(TourianStatueShades.Entrance);
+        if (_eyeGlow is { } glow)
+            shading = shading.With(glow);
+        foreach (PictureShade look in _statueLooks)
+            shading = shading.With(look);
+        SceneShading = shading;
+        foreach (RoomEnemySlot statue in _slotTable.Slots)
+        {
+            if (statue.DefinitionId == EnemyDefinitionId.TourianStatue)
+                statue.Shading = shading;
+        }
+        foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
+        {
+            if (TourianStatueProjectileStarts.ShowsStatueScene(projectile.Kind))
+                projectile.Graphics = projectile.Graphics.In(shading);
+        }
     }
 
     /// <summary>
@@ -55,7 +121,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         TourianEntranceStatueProgram part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
-        statue.Colouring = SharedSpriteColouring.Common;
         statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
         statue.SetSpeciesState(new TourianEntranceStatueState(AnimationProgramCursor<TourianEntranceStatueProgram>.Start(part)));
@@ -76,11 +141,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 position: new(132, 136));
         }
 
-        // Statue initialization installs the statue's own colours and its decoration colours.
-        // This runtime's colours are the visible ones, so they are installed directly, keeping
-        // every authored colour.
-        (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidDataException(
-            "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Colours);
+        // Statue initialization selects the common sprite colours, which the import colours the statue's sheets in, and
+        // installs the statue's own colours and its decoration colours: the scene's entrance shade (#1512).
+        ShowScene();
     }
 
     /// <summary>Allocates a decorative projectile when a slot is free tied to its authored position.</summary>
@@ -92,7 +155,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (projectile is null)
             return;
 
-        TourianStatueProjectileStarts.Initialize(projectile, kind, graphics: default);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, graphics: SceneGraphics);
         projectile.Position = projectile.Position.WithWhole(position);
         // The decoration stays tied to its authored spawn point as the statue descends.
         projectile.State = new AnchoredProjectileState(position);

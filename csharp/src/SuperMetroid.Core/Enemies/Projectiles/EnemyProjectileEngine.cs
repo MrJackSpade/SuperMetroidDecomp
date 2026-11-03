@@ -372,7 +372,7 @@ internal sealed class EnemyProjectileEngine
             if (frame != EnemyProjectileFrameId.Blank)
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, ProjectileTileBase(projectile.Graphics),
-                    projectile.Graphics.Colouring);
+                    projectile.Graphics.Shading);
         }
     }
 

@@ -174,7 +174,7 @@ public sealed class CeresElevatorArrivalState
 
         presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.CeresElevatorArrival, instance),
             EnemySheetDefinitions.ProjectileFrameName(CeresElevatorArrivalAnimations.Frame(pose)), screen,
-            EnemyProjectileEngine.ProjectileTileBase(projectile.Graphics), projectile.Graphics.Colouring);
+            EnemyProjectileEngine.ProjectileTileBase(projectile.Graphics), projectile.Graphics.Shading);
     }
 
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>

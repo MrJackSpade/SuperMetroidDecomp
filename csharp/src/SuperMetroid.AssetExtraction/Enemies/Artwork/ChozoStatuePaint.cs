@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Enemies.Artwork.ChozoStatuePaintDefinitions;
+using static SuperMetroid.AssetExtraction.Enemies.Artwork.ChozoStatuePaintDefinitions;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Paints the Chozo statues' stock colors from their shared, ramped and authored paint.</summary>
 internal static class ChozoStatuePaint

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>A Chozo statue paint shade and whether it is in the second half.</summary>
 /// <param name="Shade">The shade.</param>

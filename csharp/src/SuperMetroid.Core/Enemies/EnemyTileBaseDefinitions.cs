@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemies whose initialization draws them from other characters, or in another palette, than their room's graphics
-/// set assigns them, and so the characters and palette their pre-coloured sheets compose them in (#1392).
+/// The enemies whose initialization draws them from other characters than their room's graphics set assigns them, and
+/// so the characters their pre-coloured sheets compose them at (#1392); the colours those sheets take are the import's.
 /// </summary>
 public static class EnemyTileBaseDefinitions
 {
@@ -38,22 +38,6 @@ public static class EnemyTileBaseDefinitions
     public static IReadOnlyDictionary<EnemyDefinitionId, EnemyDefinitionId> DrawsAtTilesOf { get; } = new Dictionary<EnemyDefinitionId, EnemyDefinitionId>
     {
         [EnemyDefinitionId.ShipBottomEntrance] = EnemyDefinitionId.ShipTop,
-        [EnemyDefinitionId.BabyTurtle] = EnemyDefinitionId.MamaTurtle,
-        [EnemyDefinitionId.KihunterGreenWings] = EnemyDefinitionId.KihunterGreen,
-        [EnemyDefinitionId.KihunterYellowWings] = EnemyDefinitionId.KihunterYellow,
-        [EnemyDefinitionId.KihunterRedWings] = EnemyDefinitionId.KihunterRed,
-        [EnemyDefinitionId.EvirProjectile] = EnemyDefinitionId.Evir,
-        [EnemyDefinitionId.PhantoonEye] = EnemyDefinitionId.PhantoonBody,
-        [EnemyDefinitionId.PhantoonTentacles] = EnemyDefinitionId.PhantoonBody,
-        [EnemyDefinitionId.PhantoonMouth] = EnemyDefinitionId.PhantoonBody,
-    };
-
-    /// <summary>
-    /// The enemy whose palette each enemy that copies one draws in: a Baby Turtle its Mama's, Ki-Hunter wings their
-    /// body's, an Evir's projectile its Evir's and Phantoon's eye, tentacles and mouth her body's.
-    /// </summary>
-    public static IReadOnlyDictionary<EnemyDefinitionId, EnemyDefinitionId> DrawsInPaletteOf { get; } = new Dictionary<EnemyDefinitionId, EnemyDefinitionId>
-    {
         [EnemyDefinitionId.BabyTurtle] = EnemyDefinitionId.MamaTurtle,
         [EnemyDefinitionId.KihunterGreenWings] = EnemyDefinitionId.KihunterGreen,
         [EnemyDefinitionId.KihunterYellowWings] = EnemyDefinitionId.KihunterYellow,

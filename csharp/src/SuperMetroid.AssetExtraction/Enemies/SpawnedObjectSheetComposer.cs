@@ -38,12 +38,15 @@ internal static class SpawnedObjectSheetComposer
 
     /// <summary>
     /// The spawned-object sheets of a set whose enemy graphics are <paramref name="graphics"/>, drawing
-    /// <paramref name="drawn"/>: by tile base, the spawners whose objects each holds and whether it holds those any room spawns.
+    /// <paramref name="drawn"/>, each enemy in the row <paramref name="rowOf"/> gives: by tile base, the spawners whose
+    /// objects each holds and whether it holds those any room spawns.
     /// </summary>
-    internal static IReadOnlyList<SpawnedObjectSheetPlan> Plans(EnemyGraphicsSet graphics, IReadOnlyList<EnemyDefinitionId> drawn)
+    internal static IReadOnlyList<SpawnedObjectSheetPlan> Plans(EnemyGraphicsSet graphics, IReadOnlyList<EnemyDefinitionId> drawn,
+        Func<EnemyDefinitionId, int> rowOf)
     {
         Ensure.NotNull(graphics);
         Ensure.NotNull(drawn);
+        Ensure.NotNull(rowOf);
         var plans = new SortedDictionary<int, SpawnedObjectSheetPlan>
         {
             [0] = new SpawnedObjectSheetPlan(0, 0, [], Anywhere: true),
@@ -57,7 +60,7 @@ internal static class SpawnedObjectSheetComposer
                 plans[0].Spawners.Add(enemy);
             SpriteGraphics indexes = graphics.DrawIndexes(enemy);
             // The objects' sheet is coloured in the row the set holds their spawner's colours in.
-            int palette = graphics.Placement.StoreOf(indexes.Colouring).Set;
+            int palette = rowOf(enemy);
             // A projectile draws at its tile base's place in its page, a sprite object at the tile base itself, and some
             // spawners' objects also at characters of their own choosing.
             int[] alsoAt = SpawnsAlsoAt.GetValueOrDefault(enemy, []);
@@ -72,12 +75,33 @@ internal static class SpawnedObjectSheetComposer
         return [.. plans.Values];
     }
 
-    /// <summary>What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>.</summary>
+    /// <summary>
+    /// What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>, pre-coloured in
+    /// the shared shades, its spawners' shades and, at character zero, the shades of the objects any room spawns (#1512). A
+    /// spawner's effects on its own row hold only on its own tile bases' sheets, which are coloured in its row.
+    /// </summary>
     internal static SpawnedObjectSheetSource Sources(EnemyTileSourceArtwork enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
-        RgbColor[] colours)
+        RgbColor[] colours, EnemySheetShades shades)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(plan);
+        Ensure.NotNull(shades);
+        var inkShades = new List<SheetShade>();
+        var rowShades = new List<SheetRowShade>(shades.Shared());
+        foreach (EnemyDefinitionId spawner in plan.Spawners)
+        {
+            if (!plan.Anywhere)
+                inkShades.AddRange(shades.OwnRow(spawner, plan.Palette));
+            (IReadOnlyList<SheetShade> fixedInks, IReadOnlyList<SheetRowShade> fixedRows) = shades.Fixed(spawner);
+            inkShades.AddRange(fixedInks);
+            rowShades.AddRange(fixedRows);
+        }
+        if (plan.Anywhere)
+        {
+            (IReadOnlyList<SheetShade> anywhereInks, IReadOnlyList<SheetRowShade> anywhereRows) = shades.Anywhere();
+            inkShades.AddRange(anywhereInks);
+            rowShades.AddRange(anywhereRows);
+        }
         EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps
             ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
         EnemySpritemapCatalog spritemaps = enemies.Spritemaps
@@ -98,7 +122,8 @@ internal static class SpawnedObjectSheetComposer
                 RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
-                ObjectSelectionCodec.GameplaySizes, plan.Palette),
+                ObjectSelectionCodec.GameplaySizes, plan.Palette,
+                Shades: [.. inkShades.DistinctBy(shade => shade.Shade)], RowShades: [.. rowShades.DistinctBy(shade => shade.Shade)]),
             frames.Where(pictures => pictures.Layers.Length > 0)
                 .ToDictionary(pictures => pictures.Name, pictures => pictures.Layers, StringComparer.Ordinal),
             frames.Where(pictures => pictures.RotCorpse is not null)

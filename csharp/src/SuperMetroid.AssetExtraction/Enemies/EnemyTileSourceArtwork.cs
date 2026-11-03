@@ -8,8 +8,8 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The installed enemy artwork as the import pipeline holds it (#1463): beside the palettes and colour catalogs gameplay
-/// reads, each enemy's characters, the enemy, extended-frame and enemy-projectile compositions and the gunship's takeoff pages that the
+/// The installed enemy artwork as the import pipeline holds it (#1463): beside the catalogs gameplay reads, each enemy's
+/// palette and colour cycles, which the sheets and their shades are pre-coloured in (#1512), each enemy's characters, the enemy, extended-frame and enemy-projectile compositions and the gunship's takeoff pages that the
 /// sheet composers compose the pre-coloured enemy sheets from, and the identity of the whole selected presentation.
 /// </summary>
 public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
@@ -17,10 +17,18 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
     /// <summary>Each enemy's installed characters, by definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
 
+    /// <summary>Each enemy's installed palette, by definition.</summary>
+    private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
+
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
     internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts) : base(Paired(parts).Gameplay)
     {
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
+        palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
+        MagdollitePaletteCycle = parts.MagdollitePaletteCycle;
+        WorkRobotPaletteCycle = parts.WorkRobotPaletteCycle;
+        ChozoAndTubeColors = parts.ChozoAndTubeColors;
+        DachoraColors = parts.DachoraColors;
         Spritemaps = parts.Spritemaps;
         ExtendedFrames = parts.ExtendedFrames;
         GunshipLiftoff = parts.GunshipLiftoff;
@@ -57,6 +65,27 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
         sheets.OrderBy(pair => pair.Key).Select(pair => new EnemyInstalledSheet(pair.Key, pair.Value,
             TryGetPalette(pair.Key, out EnemyPaletteSheet? palette) ? palette
                 : throw new InvalidDataException($"Installed enemy {pair.Key} has no palette.")));
+
+    /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
+    internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
+        palettes.TryGetValue(enemy, out palette);
+
+    /// <summary>The installed palette of <paramref name="enemy"/>.</summary>
+    /// <exception cref="InvalidDataException">The enemy has no installed palette.</exception>
+    internal EnemyPaletteSheet PaletteOf(EnemyDefinitionId enemy) => TryGetPalette(enemy, out EnemyPaletteSheet? palette) ? palette
+        : throw new InvalidDataException($"Enemy {enemy} has no installed palette.");
+
+    /// <summary>Four editable Magdollite glow frames.</summary>
+    public MagdollitePaletteCycle? MagdollitePaletteCycle { get; }
+
+    /// <summary>Six editable Work Robot glow records.</summary>
+    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; }
+
+    /// <summary>Editable Chozo statue and n00b-tube crack colours.</summary>
+    public ChozoAndTubeColorCatalog? ChozoAndTubeColors { get; }
+
+    /// <summary>Editable Dachora normal, speed and shine colours.</summary>
+    public DachoraColorCatalog? DachoraColors { get; }
 
     /// <summary>Finds the installed tile sheet of <paramref name="enemy"/>.</summary>
     internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
 
@@ -182,7 +183,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
         if (state.BurrowTimer.IsZero)
         {
-            slot.Colouring = SharedSpriteColouring.EnemyProjectiles;
+            slot.Shading = EnemyShades.InEnemyProjectileColours;
             slot.TileIndexBase = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;
@@ -230,7 +231,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
                 c.Enemy.TileIndexBase = 0;
-                c.Enemy.Colouring = SharedSpriteColouring.Common;
+                c.Enemy.Shading = PictureShading.Standard;
             },
         });
     }
@@ -247,7 +248,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
                 c.Enemy.TileIndexBase = 0;
-                c.Enemy.Colouring = SharedSpriteColouring.Common;
+                c.Enemy.Shading = PictureShading.Standard;
             },
         });
     }

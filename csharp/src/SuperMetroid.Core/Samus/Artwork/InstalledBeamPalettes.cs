@@ -12,6 +12,16 @@ public sealed class InstalledBeamPalettes
     /// <param name="palettes">The selected words the import found differing from the stock beam paint.</param>
     internal InstalledBeamPalettes(Dictionary<ColourCell, RgbColor> palettes) => this.palettes = palettes;
 
+    /// <summary>
+    /// Colour <paramref name="color"/> of retail beam combination <paramref name="selection"/>, which the import also
+    /// pre-colours frozen enemies in (#1512).
+    /// </summary>
+    public RgbColor ColourOf(SamusBeamCombination selection, int color)
+    {
+        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
+        return Color(selection, Ensure.BetweenInclusive(0, BeamPaletteDefinitions.ColorCount - 1, color));
+    }
+
     /// <summary>Gets an edited beam color when supplied, otherwise its calculated stock value.</summary>
     private RgbColor Color(SamusBeamCombination selection, int color) =>
         palettes.TryGetValue(new ColourCell(selection.TableIndex, color), out RgbColor supplied)

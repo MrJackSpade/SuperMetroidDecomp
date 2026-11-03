@@ -1,4 +1,6 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -16,6 +18,10 @@ internal sealed class NoobTubeBehavior
         NoobTubeProjectileProgram.Shard6, NoobTubeProjectileProgram.Shard7, NoobTubeProjectileProgram.Shard8,
         NoobTubeProjectileProgram.Shard9,
     ];
+
+    /// <summary>The characters and shading every tube piece draws with: character zero in the tube's crack colours.</summary>
+    private static readonly SpriteGraphics TubePieceGraphics =
+        SpriteGraphics.CharacterZeroIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
 
     /// <summary>Provides room-load state and the RNG for shard and bubble launch angles.</summary>
     private readonly EnemyRoomBinding _room;
@@ -56,7 +62,8 @@ internal sealed class NoobTubeBehavior
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
+        // The tube's pieces draw at character zero in the crack colours the room's crack initializer installs (#1512).
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: TubePieceGraphics);
 
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;
         int blockY = request.PlmBlockIndex / roomWidthInBlocks;

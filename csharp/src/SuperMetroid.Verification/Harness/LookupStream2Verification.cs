@@ -63,6 +63,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>

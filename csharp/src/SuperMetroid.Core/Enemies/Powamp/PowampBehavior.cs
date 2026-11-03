@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
 
@@ -29,17 +30,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Starts ordinary death processing after the delayed spike burst.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>
-    /// The room's enemy presentation, whose current placement holds the body's colours, whose sharing with the common
-    /// colours a full pool's death animation reads.
-    /// </summary>
-    private readonly EnemyPresentation _presentation;
-
     /// <summary>Connects Powamp's paired body and balloon AI to terrain, projectile, and collision services.</summary>
-    internal PowampBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops,
-        EnemyPresentation presentation)
+    internal PowampBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
-        _presentation = presentation;
         _terrain = terrain;
         _projectiles = projectiles;
         _slotTable = slotTable;
@@ -353,16 +346,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
     private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
-        SpriteColouring originalColouring = body.Colouring;
+        PictureShading originalShading = body.Shading;
         _collision.ResolveNormalEnemyTouch(body, samus);
         if (body.Health != 0)
             return;
 
         PowampBalloon balloon = RequirePowampBalloon(body);
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
-        body.Colouring = originalColouring;
+        body.Shading = originalShading;
         SpawnPowampSpikeBurst(body);
-        body.Colouring = SharedSpriteColouring.EnemyProjectiles;
+        body.Shading = EnemyShades.InEnemyProjectileColours;
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>
@@ -590,7 +583,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </returns>
     internal int SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
-        int graphics = FullPoolDeathAnimation(body);
+        int graphics = FullPoolDeathAnimation;
         int accumulator = 0;
         // The spike loop counts from seven down to zero. Allocation independently searches the
         // eighteen-slot pool from the last slot downward on every iteration.
@@ -617,13 +610,13 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The death animation a Powamp dies with when its spike burst found the projectile pool full. The game leaves
+    /// The death animation a Powamp dies with when its spike burst found the projectile pool full (#1512). The game leaves
     /// the body's graphics, read as one number, as the animation, and EnemyDeath treats any number past its animations
-    /// as the default animation 0. That number names an animation only for a body whose colours are the common colours,
-    /// held where the palette bits read as zero, so it is the body's tile base; any other colours put it past every animation.
+    /// as the default animation 0. That number names an animation only for a body drawn in the common colours, whose
+    /// palette bits read as zero; Powamp's only retail graphics set loads its colours elsewhere, so the number is always
+    /// past every animation and the death is always the default animation.
     /// </summary>
-    private int FullPoolDeathAnimation(RoomEnemySlot body) =>
-        _presentation.Placement.SharesColours(body.Colouring, SharedSpriteColouring.Common) ? body.TileIndexBase : 0;
+    private const int FullPoolDeathAnimation = 0;
 
     /// <summary>Runs the Powamp spike's per-frame behaviour.</summary>
     internal static void RunPowampSpikeFrameBehavior(

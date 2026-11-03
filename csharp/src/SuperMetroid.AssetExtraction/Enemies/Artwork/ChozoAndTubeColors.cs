@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// The installed n00b-tube crack and Chozo statue colors: how each resolves from its edit or its calculated stock paint,
@@ -17,7 +17,7 @@ internal static class ChozoAndTubeColors
     {
         if ((uint)color >= ChozoAndTubeColorDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return colors.selection.TubeColorEdits.TryGetValue(new ColourCell(0, color), out RgbColor edited)
+        return colors.selection.TubeColorEdits.TryGetValue(new ColourStep(0, color), out RgbColor edited)
             ? edited
             : TubeColor(colors.selection.TubeColorSeeds, color);
     }
@@ -39,21 +39,7 @@ internal static class ChozoAndTubeColors
     {
         if ((uint)color >= ChozoAndTubeColorDefinitions.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        Dictionary<ColourCell, RgbColor> edits = palette == ChozoStatuePalette.WreckedShip ? colors.selection.WreckedShipEdits : colors.selection.LowerNorfairEdits;
-        return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : ChozoStatuePaint.Color(palette, color);
-    }
-
-    /// <summary>Writes the tube-crack image's 32 inks.</summary>
-    internal static void ApplyTubeCracks(ChozoAndTubeColorCatalog colors, ColourRunSequence destination)
-    {
-        for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-            destination.Write(color, colors.ResolveTubeCracks(color));
-    }
-
-    /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
-    internal static void ApplyStatue(ChozoAndTubeColorCatalog colors, ColourRunSequence destination, ChozoStatuePalette palette)
-    {
-        for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-            destination.Write(color, Statue(colors, palette, color));
+        Dictionary<ColourStep, RgbColor> edits = palette == ChozoStatuePalette.WreckedShip ? colors.selection.WreckedShipEdits : colors.selection.LowerNorfairEdits;
+        return edits.TryGetValue(new ColourStep(0, color), out RgbColor edited) ? edited : ChozoStatuePaint.Color(palette, color);
     }
 }

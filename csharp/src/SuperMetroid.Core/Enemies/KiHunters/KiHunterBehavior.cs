@@ -127,7 +127,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallKiHunterInstruction(wings, state, KiHunterProgram.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
         state.Function = KiHunterEnemyFunction.FollowBody;
-        wings.Colouring = body.Colouring;
+        wings.Shading = body.Shading;
         wings.TileIndexBase = body.TileIndexBase;
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);

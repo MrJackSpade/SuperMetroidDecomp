@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
@@ -92,7 +93,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = slot.Position.Whole,
             ActivationDistance = slot.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
             RetractedDelayTimer = WrappingCountdown.Start(YappingMawRetractedDelayFrames),
-            OriginalColouring = slot.Colouring,
+            OriginalShading = slot.Shading,
         };
         slot.SetSpeciesState(state);
 
@@ -472,32 +473,32 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         YappingMawEnemyState state)
     {
-        SpriteColouring colouring = SelectYappingMawFrozenColouring(
-            state.OriginalColouring,
+        PictureShading shading = SelectYappingMawFrozenShading(
+            state.OriginalShading,
             slot.FrozenTimer.RemainingFrames);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
             if (body is not null)
-                body.Graphics = body.Graphics.In(colouring);
+                body.Graphics = body.Graphics.In(shading);
         }
 
         if (state.RootSpriteObject is not null)
-            state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.In(colouring);
+            state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.In(shading);
     }
 
     /// <summary>Flashes the frozen colours against the original colours during the last 89 ticks.</summary>
-    private static SpriteColouring SelectYappingMawFrozenColouring(
-        SpriteColouring originalColouring,
+    private static PictureShading SelectYappingMawFrozenShading(
+        PictureShading originalShading,
         int frozenTimer)
     {
         if (frozenTimer == 0)
-            return originalColouring;
+            return originalShading;
 
         // The frozen colours flash back to the actor's own on alternating pairs only
         // during the final 89 ticks. The strict signed comparison excludes timer 90.
         if (WordWrap.Signed(frozenTimer - 90) < 0 && (frozenTimer & 2) == 0)
-            return originalColouring;
-        return SharedSpriteColouring.Frozen;
+            return originalShading;
+        return EnemyShades.FrozenLook;
     }
 
     /// <summary>Animation callback used by all six held-Samus offset opcodes.</summary>

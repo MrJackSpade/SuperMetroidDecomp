@@ -38,8 +38,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The boss bits of <see cref="BossArea"/> any one of which starts the release.</summary>
     public required BossBits DefeatedBossBits { get; init; }
 
-    /// <summary>The statue's three colours blacked out when the release starts.</summary>
-    public required IColourSetRun ClearedColours { get; init; }
+    /// <summary>The statue with its three eye colours blacked out, which it shows from the start of its release (#1512).</summary>
+    public required PictureShade ClearedShade { get; init; }
 
     /// <summary>The even statue selector passed to the eye-glow and soul spawners.</summary>
     public required int UnlockEffectParameter { get; init; }
@@ -47,6 +47,6 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The palette-FX object spawned during release.</summary>
     public required PaletteFxObject PaletteFx { get; init; }
 
-    /// <summary>The statue's eight colours that receive the common grey colours.</summary>
-    public required IColourSetRun GreyColours { get; init; }
+    /// <summary>The statue greyed, which it shows once its eight colours take the common grey colours (#1512).</summary>
+    public required PictureShade GreyShade { get; init; }
 }

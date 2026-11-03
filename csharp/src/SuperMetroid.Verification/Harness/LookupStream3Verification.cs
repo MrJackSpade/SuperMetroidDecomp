@@ -77,6 +77,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Escape.Artwork;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {

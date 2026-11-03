@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The entrance statue's state and the unlock effects the statue sequence drives.</summary>
@@ -23,4 +25,10 @@ internal interface ITourianStatueActors
 
     /// <summary>Spawns the descent's dust.</summary>
     void SpawnDescentDust();
+
+    /// <summary>
+    /// Shows a released statue's look over the scene's (#1512): its blacked-out eyes as its release starts, or its grey
+    /// once released, as the statue's definition names them.
+    /// </summary>
+    void ShowStatueLook(PictureShade look);
 }

@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -18,6 +17,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 
@@ -25,7 +25,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Retail CGRAM and guarded-source checks for editable Tourian entrance statue colors.</summary>
+/// <summary>Native colour-write and guarded-source checks for editable Tourian entrance statue colors (#1512).</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     /// <summary>Checks entrance, eye, and grey-room palette writes, isolated edits, override persistence, and invalid file rejection.</summary>
@@ -50,15 +50,21 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
 
+        // The statue scene's pictures are the installed statue sheet's (#1512): the colours a published shading shows are
+        // that sheet's inks under it, at the places of the native image the import coloured them from.
+        RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
+            candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
+        SpriteImage statueSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.TourianStatue).Image;
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            SamusColourRig nativeCgram = SeedColors();
-            (RoomEnemySystem installed, SamusColourRig installedCgram) = CreateEnemy(guard, stock);
-            ReferenceEntrance(nativeCgram);
+            RoomEnemySystem installed = CreateEnemy(stock);
             Initialize(installed, parameter);
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-                $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
+            RgbColor[] shown = NativeColouredPictures.ShownIn(statueSheet, installed.SlotTable.Slots[0].Shading);
+            AssertNativeWrites(shown, 0xaad785, TourianStatuePaletteConstants.BaseCgramIndex, TourianStatueColorFormat.BaseColorCount,
+                $"Tourian statue entry parameter {parameter} shows the native base colours");
+            AssertNativeWrites(shown, 0xaad765, TourianStatuePaletteConstants.StatueCgramIndex, TourianStatueColorFormat.StatueColorCount,
+                $"Tourian statue entry parameter {parameter} shows the native statue colours");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
                     installed.SlotTable.Slots[0].RequireSpeciesState<TourianEntranceStatueState>().Program.Program),
@@ -69,12 +75,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
         {
-            SamusColourRig nativeCgram = SeedColors();
-            (RoomEnemySystem installed, SamusColourRig installedCgram) = CreateEnemy(guard, stock);
-            ReferenceEye(nativeCgram, parameter);
+            RoomEnemySystem installed = CreateEnemy(stock);
             installed.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
-                $"Tourian eye parameter {parameter} preserves full native CGRAM");
+            AssertNativeWrites(NativeColouredPictures.ShownIn(statueSheet, installed.TourianEntranceStatueBehavior.SceneShading),
+                0x86b91e + parameter * 4, TourianStatuePaletteConstants.EyeCgramIndex, TourianStatueColorDefinitions.EyeColorCount,
+                $"Tourian eye parameter {parameter} shows the native eye glow colours");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
                 installed.Projectiles.EnemyProjectiles.Single(x => x.IsActive).Position.X.Whole,
                 $"Tourian eye parameter {parameter} keeps physical X");
@@ -96,21 +101,22 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         changed.Required("eye").Required(2).Required(1)["blue"] = changed.Required("eye").Required(2).Required(1).Required("blue").GetValue<int>() ^ 1;
         File.WriteAllBytes(overridePath, Encoding.UTF8.GetBytes(changed.ToJsonString()));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        SamusColourRig nativeEntryCgram = SeedColors();
-        (RoomEnemySystem editedEntry, SamusColourRig editedEntryCgram) = CreateEnemy(guard, edited);
-        ReferenceEntrance(nativeEntryCgram);
-        Initialize(editedEntry, 0);
-        CheckOnlyDifferences(nativeEntryCgram, editedEntryCgram,
-            [new Difference(TourianStatuePaletteConstants.BaseCgramIndex + 1, 1),
-             new Difference(TourianStatuePaletteConstants.StatueCgramIndex + 1, 1 << 5)],
-            "Tourian entrance edit");
-        SamusColourRig nativeEyeCgram = SeedColors();
-        (RoomEnemySystem editedEye, SamusColourRig editedEyeCgram) = CreateEnemy(guard, edited);
-        ReferenceEye(nativeEyeCgram, 4);
-        editedEye.TourianUnlockBehavior.SpawnTourianEyeGlow(4);
-        CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
-            [new Difference(TourianStatuePaletteConstants.EyeCgramIndex + 1, 1 << 10)],
-            "Tourian eye edit");
+        // The edit changes exactly the edited channels of the installed colours the import paints the statue's shades from.
+        TourianStatuePalettes editedColors = edited.Areas.TourianStatueColors
+            ?? throw new InvalidDataException("Edited enemy artwork lacks Tourian statue colors.");
+        for (int color = 0; color < TourianStatueColorFormat.BaseColorCount; color++)
+            AssertEqual(color == 1 ? colors.ResolveBase(color).WithRed(colors.ResolveBase(color).Red ^ 1) : colors.ResolveBase(color),
+                editedColors.ResolveBase(color), $"Tourian entrance edit base colour {color}");
+        for (int color = 0; color < TourianStatueColorFormat.StatueColorCount; color++)
+            AssertEqual(color == 1 ? colors.ResolveStatue(color).WithGreen(colors.ResolveStatue(color).Green ^ 1) : colors.ResolveStatue(color),
+                editedColors.ResolveStatue(color), $"Tourian entrance edit statue colour {color}");
+        for (int row = 0; row < TourianStatueColorDefinitions.EyeGlowCount; row++)
+        for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
+        {
+            RgbColor stockEye = colors.ResolveEye(row, color);
+            AssertEqual(row == 2 && color == 1 ? stockEye.WithBlue(stockEye.Blue ^ 1) : stockEye, editedColors.ResolveEye(row, color),
+                $"Tourian eye edit glow {row} colour {color}");
+        }
 
         // The $87:837F grey instruction is reached on re-entry after each
         // defeated-boss statue's grey event. Exercise the actual room program,
@@ -125,31 +131,25 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         var installedRoom = CreateGreyRoom(
             NewTourianStatueColorGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
-        var editedRoom = CreateGreyRoom(
-            NewTourianStatueColorGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), editedGrey);
-        // Use the room's pre-step palette as the unchanged background, then apply
-        // only the native grey instruction writes read from the four retail programs.
-        var nativeGreyCgram = new SamusColourRig();
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            nativeGreyCgram.SetColor(color, installedRoom.Colours.Colors[color]);
-        var greyDestinations = new List<int>();
+        installedRoom.TourianStatues.StepTiles();
+        // After the step, the room's pictures under the room's shading and the statue scene's pictures under the scene's
+        // shading show, at each of the four retail programs' grey destinations, the native grey instruction's colours
+        // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.
+        RgbColor[] greyRoom = GameplayShownColours.Of(installedRoom, InstalledFixtures.SamusShadeSources);
+        RgbColor[] greyScene = NativeColouredPictures.ShownIn(statueSheet, installedRoom.Enemies.TourianEntranceStatueBehavior.SceneShading);
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {
             AssertEqual((ushort)0x837f, ReadReferenceWord(program + 0x62),
                 "native statue program grey-palette instruction");
             int destination = ReadReferenceWord(program + 0x64) / 2;
-            greyDestinations.Add(destination);
-            CopyReferenceColors(nativeGreyCgram, 0x87839c, destination, 8);
+            AssertNativeWrites(destination < SnesCgram.ColorCount / 2 ? greyRoom : greyScene, 0x87839c, destination,
+                TourianStatueColorDefinitions.GreyColorCount, $"Tourian grey room instruction at colour {destination} shows the native grey");
         }
-        installedRoom.TourianStatues.StepTiles();
-        editedRoom.TourianStatues.StepTiles();
-        AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Colours.AsPaletteColors())),
-            "Tourian grey room instruction preserves full native CGRAM");
-        var differences = greyDestinations
-            .Select(destination => new Difference(Index:destination + 1, Mask:1 << 10)).ToArray();
-        CheckOnlyDifferences(nativeGreyCgram, editedRoom.Colours.AsPaletteColors(), differences,
-            "Tourian grey room instruction edit");
+        TourianStatuePalettes editedGreyColors = editedGrey.Areas.TourianStatueColors
+            ?? throw new InvalidDataException("Edited enemy artwork lacks Tourian statue colors.");
+        for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
+            AssertEqual(color == 1 ? colors.ResolveGrey(color).WithBlue(colors.ResolveGrey(color).Blue ^ 1) : colors.ResolveGrey(color),
+                editedGreyColors.ResolveGrey(color), $"Tourian grey edit colour {color}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Tourian statue installed paths avoid migrated ROM colors");
 
@@ -176,7 +176,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
             "Corrupt Tourian statue stock colors fail manifest validation");
         File.WriteAllBytes(stockPath, stockBytes);
-        Console.WriteLine("  Tourian statue colors: 56 native RGB5 words, real entrance/eye/grey CGRAM parity, isolated edits, ROM guard, override persistence and strict failures pass.");
+        Console.WriteLine("  Tourian statue colors: 56 native RGB5 words, entrance/eye/grey shown colours match native writes, isolated edits, ROM guard, override persistence and strict failures pass.");
 
         void CheckSource(int address, ushort expected)
         {
@@ -186,41 +186,27 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 $"Tourian statue palette source ${address:X6}");
         }
 
-        // Native palette writes from $AA:D7C8 and $86:B88E, independent of the
-        // installed catalog and production callbacks used on the actual side.
-        void ReferenceEntrance(SamusColourRig cgram)
-        {
-            CopyReferenceColors(cgram, 0xaad785, 240, 16);
-            CopyReferenceColors(cgram, 0xaad765, 160, 16);
-        }
-
-        void ReferenceEye(SamusColourRig cgram, ushort parameter) =>
-            CopyReferenceColors(cgram, 0x86b91e + parameter * 4, 249, 4);
-
-        void CopyReferenceColors(SamusColourRig cgram, int source, int destination, int count)
+        // Native palette writes from $AA:D7C8, $86:B88E and $87:837F, read from the cartridge independently of the installed
+        // catalog: the colours shown at the written places are the written words.
+        void AssertNativeWrites(RgbColor[] shown, int source, int destination, int count, string context)
         {
             for (int color = 0; color < count; color++)
-                cgram.SetColor(destination + color, RgbColor.FromWord(checked(ReadReferenceWord(source + color * 2))));
+            {
+                ushort word = ReadReferenceWord(source + color * 2);
+                AssertEqual(new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31), shown[destination + color],
+                    $"{context}: colour {destination + color}");
+            }
         }
 
         ushort ReadReferenceWord(int address) =>
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
-        static SamusColourRig SeedColors()
-        {
-            var cgram = new SamusColourRig();
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-                cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));
-            return cgram;
-        }
-
-        static CreateEnemyResult CreateEnemy(
-            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
-        {
-            var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-            SamusColourRig cgram = SeedColors();
-            return new CreateEnemyResult(enemy, cgram);
-        }
+        static RoomEnemySystem CreateEnemy(InstalledEnemyArtwork artwork) =>
+            new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+            {
+                TileArtwork = artwork.Enemies,
+                BossArtwork = artwork.Bosses,
+            };
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
@@ -258,18 +244,5 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         guard.Forbid(forbidden.Contains,
             address => $"Installed Tourian statue color reread ROM byte ${address:X6}.");
         return guard;
-    }
-
-    /// <summary>Requires an edited CGRAM image to differ only at the specified RGB5 channel bits.</summary>
-    private static void CheckOnlyDifferences(SamusColourRig reference, IPaletteColors edited,
-        IReadOnlyList<Difference> differences, string context)
-    {
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-        {
-            int mask = differences.Where(change => change.Index == color)
-                .Aggregate(0, (current, change) => current ^ change.Mask);
-            AssertEqual((ushort)(reference.Colors[color].ToWord() ^ mask), edited.Colors[color],
-                $"{context} CGRAM {color}");
-        }
     }
 }

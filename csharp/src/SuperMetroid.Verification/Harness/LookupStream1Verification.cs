@@ -1302,14 +1302,13 @@ internal static class LookupStream1Verification
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(rom);
         SpriteArtwork characters = EscapeTimerCharacters.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(rom))).Artwork;
-        GameplayBasePalette palettes = InstalledFixtures.GameplayBasePalettes;
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
             timer.SetRemaining(EscapeTimerClock.Time(digit * 11, 0, digit * 11));
             var native = new OamBuffer();
             DrawImportedEscapeTimer(rom, timer, native);
-            EscapeTimerDrawChecks.AssertSamePixels(native, EscapeTimerDrawChecks.Draw(timer, stock, sheet), characters, palettes,
+            EscapeTimerDrawChecks.AssertSamePixels(native, EscapeTimerDrawChecks.Draw(timer, stock, sheet), characters, rom,
                 $"Decimal glyph {digit} paints the native sprites' pixels");
         }
         foreach (string anchor in document.Anchors.Keys)
@@ -1319,7 +1318,7 @@ internal static class LookupStream1Verification
             var compiled = Load(edited);
             AssertEqual(1, compiled.anchors.Count, "One timer anchor edit stores exactly one independent anchor");
             timer.SetRemaining(EscapeTimerClock.Time(12, 34, 56));
-            EscapeTimerDrawChecks.AssertSamePixels(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled, sheet), characters, palettes,
+            EscapeTimerDrawChecks.AssertSamePixels(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled, sheet), characters, rom,
                 "Independent anchor and digit spacing edits move the native sprites");
         }
         Console.WriteLine("Escape timer layout: 4 native anchors, zero stock dictionaries, 10 decimal glyphs pixel-exact from the sheet and independent anchor/spacing edits pass.");

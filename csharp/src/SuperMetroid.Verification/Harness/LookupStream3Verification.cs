@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -1103,7 +1104,8 @@ internal static class LookupStream3Verification
         ];
         int targetPaletteBase = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82e1f5) - 18;
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
-        for (int group = 0; group < nativeDoorCopies.Length; group++)
+        // The first two copies keep the HUD's colours, the third the escape timer's, checked below.
+        for (int group = 0; group < 2; group++)
         {
             // The fade target the copy writes into; slots it leaves alone stay black.
             RgbColor[] actual = ToColors(new ushort[256]);
@@ -1119,7 +1121,6 @@ internal static class LookupStream3Verification
             {
                 0 => DoorTransitionColourDefinitions.Hud,
                 1 => DoorTransitionColourDefinitions.CommonRoom,
-                2 => DoorTransitionColourDefinitions.EscapeTimer,
                 _ => [],
             };
             foreach (IColourSetRun run in kept)
@@ -1132,6 +1133,7 @@ internal static class LookupStream3Verification
             }
             AssertTrue(ToColors(expected).SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
         }
+        VerifyEscapeTimerKeptThroughDoorFade(rom, nativeDoorCopies[2], targetPaletteBase);
         // Confirm the replaced selector for its complete ushort input domain.
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
@@ -1326,6 +1328,47 @@ internal static class LookupStream3Verification
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
         }
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
+    }
+
+    /// <summary>
+    /// Checks that a door's fade keeps the escape timer's colours lit as the cartridge's third fade-target copy does
+    /// (#1512): the colours that copy stores are the timer row's colours its door-fade shades leave unfaded, every other
+    /// colour of the row is faded by them, and the timer's draw shows its group's door shade without the display's fade
+    /// while the rest of the frame shows the fade.
+    /// </summary>
+    /// <param name="rom">The cartridge the copy's stores are read from.</param>
+    /// <param name="timerCopy">The third copy's store instructions.</param>
+    /// <param name="targetPaletteBase">The fade target's first colour's address.</param>
+    private static void VerifyEscapeTimerKeptThroughDoorFade(ISnesAddressSpace rom, int[] timerCopy, int targetPaletteBase)
+    {
+        const int SpriteColoursFirst = 128;
+        const int RowColours = 16;
+        int timerRowFirstInk = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerSheetComposer.PaletteRow * RowColours;
+        int[] nativeKept = [.. timerCopy.Select(instruction =>
+            (CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction + 1) - targetPaletteBase) / 2
+                - SpriteColoursFirst - timerRowFirstInk).Order()];
+        AssertTrue(nativeKept.SequenceEqual(SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShades.Kept),
+            "stream 3 native third door copy keeps exactly the escape timer's kept colours");
+        RgbColor[] standard = [.. Enumerable.Repeat(RgbColor.White, SpriteColoursFirst)];
+        int[] keptInks = [.. nativeKept.Select(colour => timerRowFirstInk + colour)];
+        foreach (SheetShade shade in SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShades.Of(standard,
+                     SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerSheetComposer.PaletteRow))
+        {
+            AssertTrue(shade.Inks.Concat(keptInks).Order().SequenceEqual(Enumerable.Range(timerRowFirstInk, RowColours)),
+                $"escape timer door shade {shade.Shade} fades every colour of the timer's row but the kept ones");
+        }
+
+        // A door fade's step: the display fades with the HUD spared, and the door shades the HUD and the escape timer.
+        PictureShade step = DoorFadeShades.EscapeTimerFadingOut(3);
+        var shadings = Enum.GetValues<GameplayPictures>().ToDictionary(pictures => pictures,
+            pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Shaded(step) : PictureShading.Standard);
+        var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), SparesHud: true, SparesSamus: false);
+        var gameplay = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
+        PictureShading timer = gameplay.OfEscapeTimer(PictureShading.Standard);
+        AssertTrue(timer.Shades.SequenceEqual([step]) && timer.Effects.IsEmpty,
+            "the escape timer's draw shows its door shade, which keeps its lit colours, without the display's fade");
+        AssertTrue(gameplay.OfSprite(PictureShading.Standard, isSamus: false).Effects.SequenceEqual([fade.Effect]),
+            "every other sprite draw shows the door's fade");
     }
 
     /// <summary>Checks death explosion program selectors, native scatter anchors, and their generated burst cadence.</summary>

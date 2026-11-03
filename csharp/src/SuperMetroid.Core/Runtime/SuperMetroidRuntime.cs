@@ -1062,7 +1062,7 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(), Colours.ShownSprites(),
+        return new(Display.Latched, frameEnd, new FramePaint(PublishShading(),
             Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
 

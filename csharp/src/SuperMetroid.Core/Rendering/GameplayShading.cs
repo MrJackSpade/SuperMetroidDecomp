@@ -44,7 +44,8 @@ public sealed record GameplayShading
         PictureShading own = shadings.TryGetValue(pictures, out PictureShading? shading)
             ? shading
             : throw new ArgumentOutOfRangeException(nameof(pictures), pictures, "Undefined group of gameplay pictures.");
-        return Fade is not { } fade || fade.SparesHud && pictures == GameplayPictures.Hud ? own : own.With(fade.Effect);
+        return Fade is not { } fade || fade.SparesHud && pictures is GameplayPictures.Hud or GameplayPictures.EscapeTimer
+            ? own : own.With(fade.Effect);
     }
 
     /// <summary>
@@ -57,6 +58,22 @@ public sealed record GameplayShading
     {
         Ensure.NotNull(shading);
         return Fade is not { } fade || fade.SparesSamus && isSamus ? shading : shading.With(fade.Effect);
+    }
+
+    /// <summary>
+    /// The shading an escape timer draw that names <paramref name="shading"/> shows: its own, then its pictures' group's
+    /// shades and effects, the display's fade among them unless it spares the HUD (#1512).
+    /// </summary>
+    public PictureShading OfEscapeTimer(PictureShading shading)
+    {
+        Ensure.NotNull(shading);
+        PictureShading group = Of(GameplayPictures.EscapeTimer);
+        PictureShading shown = shading;
+        foreach (PictureShade shade in group.Shades)
+            shown = shown.With(shade);
+        foreach (ColourEffect effect in group.Effects)
+            shown = shown.With(effect);
+        return shown;
     }
 
     /// <summary>This shading with the backdrop shown in <paramref name="backdrop"/>, as X-ray shows its own.</summary>

@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;

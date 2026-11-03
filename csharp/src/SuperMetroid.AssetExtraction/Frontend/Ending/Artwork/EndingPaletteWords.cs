@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -22,9 +23,9 @@ public static class EndingPaletteWords
     /// <param name="colours">The colours in resource order.</param>
     internal static byte[] Of(ReadOnlySpan<RgbColor> colours)
     {
-        var words = new byte[colours.Length * RgbColor.ByteCount];
+        var words = new byte[colours.Length * ColourWordCodec.ByteCount];
         for (int index = 0; index < colours.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(index * RgbColor.ByteCount), colours[index].ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(index * ColourWordCodec.ByteCount), colours[index].ToWord());
         return words;
     }
 }

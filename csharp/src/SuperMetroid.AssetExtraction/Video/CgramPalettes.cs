@@ -14,7 +14,7 @@ public readonly struct CgramPalettes(IPaletteColors cgram)
     public const int ColorCount = SnesCgram.ColorCount;
 
     /// <summary>Bytes in a complete CGRAM image of little-endian colour words.</summary>
-    public const int ByteCount = ColorCount * RgbColor.ByteCount;
+    public const int ByteCount = ColorCount * ColourWordCodec.ByteCount;
 
     /// <summary>All 256 colours.</summary>
     public CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);

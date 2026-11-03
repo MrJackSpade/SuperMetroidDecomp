@@ -2,45 +2,29 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One game colour (#1420): three five-bit channels, red, green and blue, each 0 through <see cref="MaxChannel"/>,
-/// the precision every authored palette and colour effect works in. Packed as a word, red takes bits 0-4, green bits
-/// 5-9 and blue bits 10-14; bit 15 is not a colour bit.
+/// the precision every authored palette and colour effect works in. A colour is made from and read as its channels.
 /// </summary>
 /// <remarks>
-/// The packed word is reachable only through explicit <see cref="FromWord"/>/<see cref="ToWord"/>
-/// conversions at the installed palette documents' and serialization boundaries. No implicit numeric
-/// conversion exists, so the representation cannot leak back into colour logic.
-/// This type is the single owner of the RGB5 colour form: channel packing, the bit-15 rule and the
-/// palette-port masking all live here, so its stored word is that form.
+/// The channels are stored packed into one field, which is this type's private storage and nothing else: no member
+/// exposes it. Decoding and encoding a stored colour word belong to the import (<c>ColourWordCodec</c>), never to Core.
 /// </remarks>
-[EncodingOwner("RGB5 colour word of the installed palette documents")]
+[EncodingOwner("five-bit channels packed into the colour's own storage")]
 public readonly record struct RgbColor
 {
-    /// <summary>Bytes in one encoded color word, as installed artwork stores it.</summary>
-    public const int ByteCount = sizeof(ushort);
-
     /// <summary>The largest value of one five-bit channel.</summary>
     public const int MaxChannel = 31;
-
-    /// <summary>Mask for the fifteen CGRAM color bits, excluding the unused high bit.</summary>
-    private const ushort ColorBits = (1 << 15) - 1;
 
     /// <summary>The colour's three five-bit channels, red lowest, as validated.</summary>
     private readonly ushort channels;
 
-    /// <summary>Accepts a previously validated or CGRAM-masked packed word.</summary>
-    private RgbColor(ushort word) => channels = word;
-
     /// <summary>Packs three channels, each 0-<see cref="MaxChannel"/>.</summary>
-    public RgbColor(int red, int green, int blue)
-        : this(Pack(red, green, blue))
-    {
-    }
+    public RgbColor(int red, int green, int blue) => channels = Pack(red, green, blue);
 
     /// <summary>Black: every channel zero.</summary>
     public static RgbColor Black => default;
 
     /// <summary>White: every channel at <see cref="MaxChannel"/>.</summary>
-    public static RgbColor White => new(ColorBits);
+    public static RgbColor White => new(MaxChannel, MaxChannel, MaxChannel);
 
     /// <summary>The red channel, 0-<see cref="MaxChannel"/>.</summary>
     public int Red => channels & MaxChannel;
@@ -100,34 +84,13 @@ public readonly record struct RgbColor
             combine(ColorChannel.Blue, Blue, other.Blue));
     }
 
-    /// <summary>
-    /// Decodes a stored 15-bit color word. A set bit 15 is rejected: it is not part of any
-    /// color, and only <see cref="FromWordIgnoringTopBit"/> defines a result for it.
-    /// </summary>
-    public static RgbColor FromWord(ushort word)
-    {
-        if ((word & ~ColorBits) != 0)
-            throw new ArgumentOutOfRangeException(nameof(word), word, $"BGR555 word ${word:X4} sets bit 15, which is not a color bit.");
-        return new(word);
-    }
-
-    /// <summary>
-    /// The colour a packed word shows when its top bit, which is not a colour bit, may be set: the top bit is dropped. A
-    /// colour step that carries out of the blue channel, and a stored word loaded as a palette, show this colour, as the
-    /// original palette hardware kept only fifteen bits.
-    /// </summary>
-    public static RgbColor FromWordIgnoringTopBit(int word) => new((ushort)(word & ColorBits));
-
-    /// <summary>The packed 15-bit word, for ROM, memory, CGRAM and serialization boundaries.</summary>
-    public ushort ToWord() => channels;
-
     /// <summary>Host RGBA, expanding each five-bit channel to eight bits by bit replication.</summary>
     public RgbaPixel ToRgbaPixel() => new(Expand(Red), Expand(Green), Expand(Blue));
 
     /// <inheritdoc />
-    public override string ToString() => $"BGR555(r{Red}, g{Green}, b{Blue}; ${channels:X4})";
+    public override string ToString() => $"Rgb(r{Red}, g{Green}, b{Blue})";
 
-    /// <summary>Validates and packs three five-bit channels into a SNES color word.</summary>
+    /// <summary>Validates and packs three five-bit channels into the colour's storage.</summary>
     private static ushort Pack(int red, int green, int blue)
     {
         Channel(red, nameof(red));
@@ -140,11 +103,11 @@ public readonly record struct RgbColor
     private static void Channel(int value, string name)
     {
         if ((uint)value > MaxChannel)
-            throw new ArgumentOutOfRangeException(name, value, $"A BGR555 channel is 0-{MaxChannel}.");
+            throw new ArgumentOutOfRangeException(name, value, $"A colour channel is 0-{MaxChannel}.");
     }
 
     /// <summary>
-    /// Replicates the high three bits into the low end, mapping SNES 0..31 across the full
+    /// Replicates the high three bits into the low end, mapping a five-bit channel's 0..31 across the full
     /// 0..255 display range including both endpoints.
     /// </summary>
     private static byte Expand(int channel) => (byte)((channel << 3) | (channel >> 2));

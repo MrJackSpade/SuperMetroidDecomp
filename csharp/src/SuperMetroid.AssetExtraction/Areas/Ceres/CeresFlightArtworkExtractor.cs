@@ -131,7 +131,7 @@ internal static class CeresFlightArtworkExtractor
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
         ImmutableArray<RgbColor> roundTripColours = roundTrip.Palette.Colours;
         for (int index = 0; index < CgramPalettes.ColorCount; index++)
-            if (roundTripColours[index] != RgbColor.FromWordIgnoringTopBit(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * RgbColor.ByteCount))))
+            if (roundTripColours[index] != RgbColor.FromWordIgnoringTopBit(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * ColourWordCodec.ByteCount))))
                 throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {

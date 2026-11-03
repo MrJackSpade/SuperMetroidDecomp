@@ -28,9 +28,12 @@ internal sealed class TorizoBody
         _attacks = attacks;
     }
 
-    /// <summary>Loads <paramref name="bodyAndBelly"/>, the body's colours then the belly's, into the live Torizo body colours.</summary>
-    internal void LoadTorizoBodyColours(ReadOnlySpan<RgbColor> bodyAndBelly) =>
-        _presentation.BossColours().TorizoBodyAndBelly.CopyFrom(bodyAndBelly);
+    /// <summary>Shows <paramref name="look"/> on <paramref name="torizo"/>'s body and belly at once (#1512).</summary>
+    internal static void LoadTorizoBodyColours(RoomEnemySlot torizo, TorizoEnemyState state, TorizoLook look)
+    {
+        state.Colours.Show(look);
+        torizo.Shading = state.Colours.Shading;
+    }
 
     /// <summary>Uses the room RNG to emit drool only while a living Torizo is below the head-break threshold.</summary>
     internal void MaybeSpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo)

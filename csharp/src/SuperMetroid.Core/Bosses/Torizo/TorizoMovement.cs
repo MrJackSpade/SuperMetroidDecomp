@@ -77,7 +77,7 @@ internal sealed class TorizoMovement
         torizo.Radius = definition.Radius;
         torizo.FrameHold = WrappingCountdown.Start(1);
         torizo.Timer = WrappingCountdown.Start(0);
-        torizo.Colouring = EnemyShades.HitFlashed;
+        torizo.Shading = state.Colours.Shading;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
         state.Function = TorizoFunction.Falling;
@@ -87,10 +87,10 @@ internal sealed class TorizoMovement
         // Init writes the shared colours' targets and then selects the encounter-specific body
         // colours. This runtime exposes the live colours rather than separate current/target
         // buffers, so install those final visible colours directly in their owners.
-        LoadTorizoSharedColours();
+        // Both statues draw in the colours they share with their own body colours over them (#1512).
         if (isGolden)
         {
-            LoadGoldenTorizoBasePalette();
+            TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenInitial));
             if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
             {
                 if (samus is null)
@@ -107,23 +107,8 @@ internal sealed class TorizoMovement
             }
         }
         else
-            LoadBombTorizoPalette();
+            TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.BombStatue));
     }
-
-    /// <summary>Loads the orb, flame and statue-shading colours both statue variants share.</summary>
-    private void LoadTorizoSharedColours() =>
-        _presentation.BossColours().TorizoShared.CopyFrom(TorizoPaletteDefinitions.Shared);
-
-    /// <summary>Installs Bomb Torizo's initial body and belly colours.</summary>
-    private void LoadBombTorizoPalette() =>
-        _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.BombInitial);
-
-    /// <summary>
-    /// Installs Golden Torizo's initial body colors before hurt frames begin using the
-    /// health-indexed gradient.
-    /// </summary>
-    private void LoadGoldenTorizoBasePalette() =>
-        _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.GoldenInitial);
 
     /// <summary>Interrupts active AI at the head and core health thresholds before normal pre-instructions resume.</summary>
     internal void RunBombTorizoActiveState(

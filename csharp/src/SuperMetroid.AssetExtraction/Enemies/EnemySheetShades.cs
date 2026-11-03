@@ -117,6 +117,10 @@ internal sealed class EnemySheetShades
                 foreach ((PictureShade shade, RgbColor[] fade) in GhostFadeSteps())
                     shades.Add(SheetShade.Run(shade, first, fade));
                 break;
+            case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb:
+                // The Torizos' colourings over their own rows (#1512).
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours")));
+                break;
             case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
                 or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
                 or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad:

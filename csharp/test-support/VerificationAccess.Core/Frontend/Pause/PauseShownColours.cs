@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -9,8 +8,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
 /// The cartridge-ordered 256-colour image the pause screen's pictures show (#1512): the pause colours the import read,
-/// with the highlight shade the map's highlighted sprites name and the reserve arrow's shade laid over the inks the import
-/// pre-colours them on. The screen keeps no such image; verification composes it from the shadings the screen publishes
+/// with the highlight shade the map's highlighted sprites name once the cycle has applied a frame, and the reserve arrow's
+/// shade, laid over the inks the import pre-colours them on. The screen keeps no such image; verification composes it from the shadings the screen publishes
 /// and the colours the import installs for them, to compare against native colour memory.
 /// </summary>
 internal static class PauseShownColours
@@ -29,8 +28,8 @@ internal static class PauseShownColours
         Ensure.NotNull(pause);
         AreaMapPresentation maps = pause.screen.Artwork;
         RgbColor[] colours = InstalledAreaMapPresentation.PalettesOf(maps).Pause.ToArray();
-        MapPaletteCycle highlight = InstalledAreaMapPresentation.HighlightColoursOf(maps);
-        highlight.Colours(pause.paletteAnimation.Frame).CopyTo(colours.AsSpan(HighlightFirstColour));
+        if (pause.paletteAnimation.ShownFrame is int frame)
+            InstalledAreaMapPresentation.HighlightColoursOf(maps).Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
         PictureShading arrow = pause.ReserveArrowShading;
         if (!arrow.IsStandard)
         {

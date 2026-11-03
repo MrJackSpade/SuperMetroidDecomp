@@ -20,7 +20,7 @@ public sealed class FileSelectMapAnimations
     /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
     public FileSelectMapAnimations(MapArrowPresentation? presentation = null)
     {
-        palette = new MapPaletteAnimation();
+        palette = new MapPaletteAnimation(MapSpriteScreen.FileSelect);
         BindPresentation(presentation);
     }
 

@@ -17,4 +17,7 @@ public enum MapSpriteColouring
 
     /// <summary>The boss marker drawn under a defeated boss's cross.</summary>
     DefeatedBossMarker,
+
+    /// <summary>A highlighted sprite, the map's scroll arrows, in the screen's own colours before the highlight cycle's first frame.</summary>
+    Highlighted,
 }

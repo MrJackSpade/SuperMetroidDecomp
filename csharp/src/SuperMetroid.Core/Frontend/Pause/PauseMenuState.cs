@@ -126,7 +126,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
-        paletteAnimation = new MapPaletteAnimation();
+        paletteAnimation = new MapPaletteAnimation(MapSpriteScreen.Pause);
         paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
         _ = AreaIds.ToIndex(entry.AreaIndex);

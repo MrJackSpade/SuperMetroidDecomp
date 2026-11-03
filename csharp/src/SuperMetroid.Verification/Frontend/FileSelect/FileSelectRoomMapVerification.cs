@@ -196,7 +196,10 @@ internal static class FileSelectRoomMapVerification
         {
             return animations.arrows[index].Frame;
         }
-        // The highlighted sprites name the cycle frame's shade, which the import pre-colours from its colours (#1512).
+        // The highlighted sprites show the screen's own colours until the cycle's first step, then name the shade of the
+        // frame last applied, which the import pre-colours from the cycle's colours (#1512).
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Highlighted)),
+            animations.HighlightShading, "before the first cycle step the map highlight shows file select's own colours");
         AssertTrue(!animations.StepPalette(), "initial map palette tick advances to frame one without loop sound");
         AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
             "map highlight shows frame one's shade");
@@ -204,6 +207,9 @@ internal static class FileSelectRoomMapVerification
         AssertTrue(animations.StepPalette(), "palette sentinel queues exactly one loop sound");
         AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
             "palette sentinel returns the highlight to frame zero's shade");
+        animations.ResetPalette();
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
+            "resetting the cycle keeps the colours its last step applied");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
         {

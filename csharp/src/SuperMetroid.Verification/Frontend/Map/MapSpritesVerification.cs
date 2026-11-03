@@ -30,12 +30,14 @@ internal static class MapSpritesVerification
 {
     /// <summary>
     /// The sprite set the cartridge draws a map sprite's palette-inheriting parts in, by the shading a file-select draw in
-    /// that colouring publishes (#1512): every colouring the map draws in, and the highlight cycle's first frame.
+    /// that colouring publishes (#1512): every colouring the map draws in, the highlighted sprites before the cycle's first
+    /// step, and the highlight cycle's first frame.
     /// </summary>
     internal static IReadOnlyDictionary<PictureShading, int> MapSpriteSets { get; } = new Dictionary<PictureShading, int>
     {
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Labels))] = 0,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.DimLabels))] = 1,
+        [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Highlighted))] = 3,
         [PictureShading.Shaded(MapSpriteShades.Highlight(0))] = 3,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.DefeatedBossMarker))] = 6,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Markers))] = 7,

@@ -70,8 +70,8 @@ internal static class PaletteJsonContractsVisibleVerification
         JsonObject cycle = documents["map cycle"];
         var editedCycle = (JsonObject)cycle.DeepClone();
         InvertPaletteContractColors(editedCycle);
-        var stockMap = new MapPaletteAnimation();
-        var editedMap = new MapPaletteAnimation();
+        var stockMap = new MapPaletteAnimation(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.Pause);
+        var editedMap = new MapPaletteAnimation(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.Pause);
         var stockHighlight = ReadPaletteContract(cycle, MapPaletteCycleFile.Read);
         var editedHighlight = ReadPaletteContract(editedCycle, MapPaletteCycleFile.Read);
         stockMap.Bind(stockHighlight.Timing);

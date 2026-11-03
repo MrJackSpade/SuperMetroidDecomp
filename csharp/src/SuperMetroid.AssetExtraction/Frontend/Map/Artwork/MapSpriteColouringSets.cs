@@ -13,6 +13,7 @@ internal static class MapSpriteColouringSets
     {
         [MapSpriteColouring.Labels] = 0,
         [MapSpriteColouring.DimLabels] = 1,
+        [MapSpriteColouring.Highlighted] = 3,
         [MapSpriteColouring.DefeatedBossMarker] = 6,
         [MapSpriteColouring.Markers] = 7,
     };

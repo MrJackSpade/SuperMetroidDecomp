@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
@@ -12,21 +13,21 @@ namespace SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 internal static class PhantoonColors
 {
     /// <summary>Resolves one health-band colour from its edit or the calculated shade.</summary>
-    internal static RgbColor Health(Dictionary<ColourCell, RgbColor> edits, int band, int color)
+    internal static RgbColor Health(Dictionary<PaintColour, RgbColor> edits, int band, int color)
     {
         _ = CheckBand(band);
         if ((uint)color >= PhantoonColorDefinitions.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        var key = new ColourCell(band, color);
+        var key = new PaintColour(band, color);
         return edits.TryGetValue(key, out RgbColor edit) ? edit : PhantoonHealthPaint.Color(band, color);
     }
 
     /// <summary>Resolves one fade-out target: its edit, or black.</summary>
-    internal static RgbColor FadeOut(Dictionary<ColourCell, RgbColor> edits, int color)
+    internal static RgbColor FadeOut(Dictionary<PaintColour, RgbColor> edits, int color)
     {
         if ((uint)color >= PhantoonColorDefinitions.FadeOutCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.GetValueOrDefault(new ColourCell(0, color));
+        return edits.GetValueOrDefault(new PaintColour(0, color));
     }
 
     /// <summary>Resolves one powered-ship colour of a faded part from its edit or the calculated paint.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
@@ -21,10 +22,10 @@ internal sealed record CeresRidleyColorSelection
     public required CeresRidleyAlarmColors Alarm { get; init; }
 
     /// <summary>Only retreat BG colors that differ from the body, eye, and neutral composition.</summary>
-    public required Dictionary<ColourCell, RgbColor> RetreatBg { get; init; }
+    public required Dictionary<PaintColour, RgbColor> RetreatBg { get; init; }
 
     /// <summary>Only supplied differences from the first eight door paints, which the retreat colours repeat.</summary>
-    public required Dictionary<ColourCell, RgbColor> RetreatShared { get; init; }
+    public required Dictionary<PaintColour, RgbColor> RetreatShared { get; init; }
 
     /// <summary>Private Baby draw shades retain their link to the body fade family.</summary>
     public required CeresBabyPaint Baby { get; init; }

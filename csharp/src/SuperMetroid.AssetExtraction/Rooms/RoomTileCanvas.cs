@@ -154,11 +154,11 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// </summary>
     internal ComposedSpriteSheet ToRoomSheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
         SpriteImageColours kind = SpriteImageColours.Background) =>
-        Sheet(colours, frames, kind, [.. BackgroundColourSetImage.ImageGroups]);
+        Sheet(colours, frames, kind, [.. InstalledPictureColours.CartridgeOrderSets]);
 
     /// <summary>The painted planes as a sheet whose colour groups draw in <paramref name="backgroundSets"/>, or in none named.</summary>
     private ComposedSpriteSheet Sheet(RgbColor[] colours, Dictionary<string, SpriteSheetFrameDocument> frames,
-        SpriteImageColours kind, BackgroundColourSet[]? backgroundSets) =>
+        SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) =>
         new(Size, Pixels, PaletteIndices, Priorities, PartGroups, new SpriteSheetDocument
         {
             Version = SpriteSheetFile.Version,

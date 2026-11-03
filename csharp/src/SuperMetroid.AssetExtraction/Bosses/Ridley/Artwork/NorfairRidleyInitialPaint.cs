@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
@@ -23,7 +24,7 @@ internal sealed class NorfairRidleyInitialPaint
     /// <summary>Copied blue channel shared by the two clear-slot source records.</summary>
     private readonly int clearBlue;
     /// <summary>Supplied clear-slot colors that differ from the copied metadata.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the two materials, the copied clear-slot blue and the independent clear-slot edits.</summary>
     /// <param name="armor">The escape-door armor material of the first fifteen targets.</param>
@@ -31,7 +32,7 @@ internal sealed class NorfairRidleyInitialPaint
     /// <param name="clearBlue">The copied clear-slot blue.</param>
     /// <param name="edits">The clear-slot colors the import found differing from the copied metadata.</param>
     internal NorfairRidleyInitialPaint(CeresDoorEscapePaint armor, CeresBabyPaint organ, int clearBlue,
-        Dictionary<ColourCell, RgbColor> edits)
+        Dictionary<PaintColour, RgbColor> edits)
     {
         this.armor = armor;
         this.organ = organ;
@@ -46,7 +47,7 @@ internal sealed class NorfairRidleyInitialPaint
     internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 32) throw new ArgumentOutOfRangeException(nameof(index));
-        if (edits.TryGetValue(new ColourCell(0, index), out RgbColor edited)) return edited;
+        if (edits.TryGetValue(new PaintColour(0, index), out RgbColor edited)) return edited;
         if (index is 0 or 16) return ClearSlot;
         return index < 16 ? armor.ColorAt(index - 1) : organ.Resolve(CeresBabyShade.Resting, index - 17);
     }

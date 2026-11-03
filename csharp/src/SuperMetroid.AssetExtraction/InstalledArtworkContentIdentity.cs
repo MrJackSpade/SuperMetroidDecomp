@@ -86,7 +86,7 @@ internal static class InstalledArtworkContentIdentity
         {
             content.AppendName("sheet", sheet.Image.Name);
             content.AppendName("palette", sheet.Image.Colours.ToString());
-            foreach (BackgroundColourSet set in sheet.Image.BackgroundSets)
+            foreach (InstalledBackgroundSet set in InstalledPictureColours.BackgroundSetsOf(sheet.Image))
                 content.AppendName("background set", set.ToString());
             content.Append("width", sheet.Image.Size.X);
             content.Append("height", sheet.Image.Size.Y);

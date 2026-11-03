@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -14,7 +15,7 @@ internal static class SporeSpawnColors
     {
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return colors.selection.Spores.TryGetValue(new ColourCell(0, color), out RgbColor selected) ? selected : colors.selection.Health.Resolve(0, color);
+        return colors.selection.Spores.TryGetValue(new PaintColour(0, color), out RgbColor selected) ? selected : colors.selection.Health.Resolve(0, color);
     }
 
     /// <summary>A health band's colour.</summary>
@@ -32,11 +33,11 @@ internal static class SporeSpawnColors
         _ = CheckFrame(frame, SporeSpawnColorDefinitions.DeathSpriteFrameCount);
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (colors.selection.DeathSprite.TryGetValue(new ColourCell(frame, color), out RgbColor selected))
+        if (colors.selection.DeathSprite.TryGetValue(new PaintColour(frame, color), out RgbColor selected))
             return selected;
-        RgbColor first = colors.selection.DeathSprite.TryGetValue(new ColourCell(0, color), out RgbColor suppliedFirst)
+        RgbColor first = colors.selection.DeathSprite.TryGetValue(new PaintColour(0, color), out RgbColor suppliedFirst)
             ? suppliedFirst : colors.selection.Health.Resolve(SporeSpawnColorDefinitions.HealthFrameCount - 1, color);
-        return CalculateDeathSpriteColor(first, colors.selection.DeathSprite[new ColourCell((SporeSpawnColorDefinitions.DeathSpriteFrameCount - 1), color)], frame);
+        return CalculateDeathSpriteColor(first, colors.selection.DeathSprite[new PaintColour((SporeSpawnColorDefinitions.DeathSpriteFrameCount - 1), color)], frame);
     }
 
     /// <summary>
@@ -52,28 +53,28 @@ internal static class SporeSpawnColors
     }
 
     /// <summary>A level death phase's colour: its edit, or the calculated fade.</summary>
-    internal static RgbColor DeathLevel(Dictionary<ColourCell, RgbColor> deathLevel, int frame, int color)
+    internal static RgbColor DeathLevel(Dictionary<PaintColour, RgbColor> deathLevel, int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorDefinitions.DeathSceneFrameCount);
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (deathLevel.TryGetValue(new ColourCell(frame, color), out RgbColor selected))
+        if (deathLevel.TryGetValue(new PaintColour(frame, color), out RgbColor selected))
             return selected;
-        RgbColor finalColor = deathLevel[new ColourCell((SporeSpawnColorDefinitions.DeathSceneFrameCount - 1), color)];
+        RgbColor finalColor = deathLevel[new PaintColour((SporeSpawnColorDefinitions.DeathSceneFrameCount - 1), color)];
         if (SporeSpawnDeathFade.TryLevelColor(finalColor, frame, color, out RgbColor calculated))
             return calculated;
         throw new InvalidOperationException("Required Spore Spawn level color is absent.");
     }
 
     /// <summary>A background death phase's colour: its edit, or the calculated fade.</summary>
-    internal static RgbColor DeathBackground(Dictionary<ColourCell, RgbColor> deathBackground, int frame, int color)
+    internal static RgbColor DeathBackground(Dictionary<PaintColour, RgbColor> deathBackground, int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorDefinitions.DeathSceneFrameCount);
         if ((uint)color >= SporeSpawnColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        if (deathBackground.TryGetValue(new ColourCell(frame, color), out RgbColor selected))
+        if (deathBackground.TryGetValue(new PaintColour(frame, color), out RgbColor selected))
             return selected;
-        RgbColor finalColor = deathBackground[new ColourCell((SporeSpawnColorDefinitions.DeathSceneFrameCount - 1), color)];
+        RgbColor finalColor = deathBackground[new PaintColour((SporeSpawnColorDefinitions.DeathSceneFrameCount - 1), color)];
         return SporeSpawnDeathFade.BackgroundColor(finalColor, frame, color);
     }
 

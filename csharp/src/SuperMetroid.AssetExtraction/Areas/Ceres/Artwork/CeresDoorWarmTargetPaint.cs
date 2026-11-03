@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
@@ -19,12 +20,12 @@ internal sealed class CeresDoorWarmTargetPaint
     /// <summary>Independent paint channels retained from the six supplied target colors so shared shade relationships survive edits.</summary>
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
     /// <summary>Per-color overrides for supplied targets that do not fit the shared warm-paint calculation.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the shared warm channels and the supplied targets that do not fit them.</summary>
     /// <param name="channels">The seven shared paint channels.</param>
     /// <param name="edits">The supplied targets the import found differing from the calculation.</param>
-    internal CeresDoorWarmTargetPaint(CeresDoorWarmTargetChannels channels, Dictionary<ColourCell, RgbColor> edits)
+    internal CeresDoorWarmTargetPaint(CeresDoorWarmTargetChannels channels, Dictionary<PaintColour, RgbColor> edits)
     {
         highlightBlue = channels.HighlightBlue;
         amberRed = channels.AmberRed;
@@ -40,7 +41,7 @@ internal sealed class CeresDoorWarmTargetPaint
     internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 6) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new ColourCell(0, index), out RgbColor edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new PaintColour(0, index), out RgbColor edited) ? edited : Calculate(index);
     }
 
     /// <summary>Builds the white, amber, red, and three descending gold targets from shared five-bit channel parameters.</summary>

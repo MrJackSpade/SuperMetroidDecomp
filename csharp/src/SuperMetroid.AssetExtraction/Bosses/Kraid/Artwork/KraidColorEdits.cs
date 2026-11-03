@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
@@ -26,10 +27,10 @@ internal static class KraidColorEdits
     /// <summary>Records independent edits to one sixteen-color source.</summary>
     private static KraidStockBand StockBand(KraidPaletteSource source, RgbColor[] supplied)
     {
-        var deviations = new Dictionary<ColourCell, RgbColor>();
+        var deviations = new Dictionary<PaintColour, RgbColor>();
         for (int index = 0; index < supplied.Length; index++)
             if (KraidPaint.Color(source, index) != supplied[index])
-                deviations.Add(new ColourCell(0, index), supplied[index]);
+                deviations.Add(new PaintColour(0, index), supplied[index]);
         return new KraidStockBand(source, deviations);
     }
 
@@ -39,16 +40,16 @@ internal static class KraidColorEdits
     /// </summary>
     private static KraidHealthBands HealthBands(RgbColor[] supplied)
     {
-        var deviations = new Dictionary<ColourCell, RgbColor>();
+        var deviations = new Dictionary<PaintColour, RgbColor>();
         for (int index = 0; index < supplied.Length; index++)
             if (KraidPaint.HealthAuthored(index) is RgbColor stock && stock != supplied[index])
-                deviations.Add(new ColourCell(0, index), supplied[index]);
+                deviations.Add(new PaintColour(0, index), supplied[index]);
         var bands = new KraidHealthBands(deviations);
-        var interior = new Dictionary<ColourCell, RgbColor>();
+        var interior = new Dictionary<PaintColour, RgbColor>();
         for (int index = 0; index < supplied.Length; index++)
             if (KraidPaint.HealthAuthored(index) is null && bands[index] != supplied[index])
-                interior.Add(new ColourCell(0, index), supplied[index]);
-        foreach ((ColourCell cell, RgbColor colour) in interior)
+                interior.Add(new PaintColour(0, index), supplied[index]);
+        foreach ((PaintColour cell, RgbColor colour) in interior)
             deviations.Add(cell, colour);
         return bands;
     }

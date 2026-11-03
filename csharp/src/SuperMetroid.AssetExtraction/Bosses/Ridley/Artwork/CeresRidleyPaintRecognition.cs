@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Ceres;
@@ -18,14 +19,14 @@ internal static class CeresRidleyPaintRecognition
         bool eyes = kind == CeresRidleyFadeKind.Eyes;
         int shadeCount = eyes ? CeresRidleyPaletteDefinitions.EyeFadeShadeCount : CeresRidleyPaletteDefinitions.BodyFadeShadeCount;
         int colorCount = eyes ? CeresRidleyPaletteDefinitions.EyeFadeColorCount : CeresRidleyPaletteDefinitions.BodyFadeColorCount;
-        var overrides = new Dictionary<ColourCell, RgbColor>();
+        var overrides = new Dictionary<PaintColour, RgbColor>();
         var fade = eyes
             ? new CeresRidleyFade(kind, Eye(shades[0]), bodyPaint: null, overrides)
             : new CeresRidleyFade(kind, default, Body(shades[shadeCount - 1]), overrides);
         for (int shade = 0; shade < shadeCount; shade++)
             for (int color = 0; color < colorCount; color++)
                 if (shades[shade][color] != fade.Resolve(shade, color))
-                    overrides[new ColourCell(shade, color)] = shades[shade][color];
+                    overrides[new PaintColour(shade, color)] = shades[shade][color];
         return fade;
     }
 
@@ -81,24 +82,24 @@ internal static class CeresRidleyPaintRecognition
     {
         if (colors.Length != 2 * CeresRidleyStartColorDefinitions.PaletteSize)
             throw new ArgumentException("Ceres additional palettes require 32 colors and fifteen Baby colors.");
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var start = new CeresRidleyStartColors(
             CeresDoorPaintRecognition.Normal(colors.Slice(1, CeresRidleyStartColorDefinitions.PaletteSize - 1)), initialBaby, edits);
         for (int color = 0; color < colors.Length; color++)
-            if (start.Resolve(color) != colors[color]) edits.Add(new ColourCell(0, color), colors[color]);
+            if (start.Resolve(color) != colors[color]) edits.Add(new PaintColour(0, color), colors[color]);
         return start;
     }
 
     /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
     internal static CeresRidleyHealthPaint Health(RgbColor[][] bands, CeresRidleyFade body, CeresRidleyFade eyes)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var health = new CeresRidleyHealthPaint(body, eyes, edits);
-        var differing = new Dictionary<ColourCell, RgbColor>();
+        var differing = new Dictionary<PaintColour, RgbColor>();
         for (int band = 0; band < CeresRidleyPaletteDefinitions.HealthBandCount; band++)
             for (int color = 0; color < CeresRidleyPaletteDefinitions.HealthColorCount; color++)
-                if (health.Resolve(band, color) != bands[band][color]) differing.Add(new ColourCell(band, color), bands[band][color]);
-        foreach ((ColourCell cell, RgbColor colour) in differing)
+                if (health.Resolve(band, color) != bands[band][color]) differing.Add(new PaintColour(band, color), bands[band][color]);
+        foreach ((PaintColour cell, RgbColor colour) in differing)
             edits.Add(cell, colour);
         return health;
     }
@@ -106,22 +107,22 @@ internal static class CeresRidleyPaintRecognition
     /// <summary>Compares supplied warning colors with calculated steps and retains only independently edited cells.</summary>
     internal static CeresRidleyAlarmColors Alarm(RgbColor[][] steps)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var alarm = new CeresRidleyAlarmColors(edits);
         for (int step = 0; step < CeresRidleyPaletteDefinitions.AlarmStepCount; step++)
             for (int color = 0; color < CeresRidleyPaletteDefinitions.AlarmColorCount; color++)
-                if (alarm.Resolve(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+                if (alarm.Resolve(step, color) != steps[step][color]) edits.Add(new PaintColour(step, color), steps[step][color]);
         return alarm;
     }
 
     /// <summary>Builds the shared contours from the first zoom step and retains only differences in later steps.</summary>
     internal static CeresRidleyFloorPaint Floor(RgbColor[][] steps)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var floor = new CeresRidleyFloorPaint(Body(steps[0].AsSpan(0, 11)), Eye(steps[0].AsSpan(11, 3)), edits);
         for (int step = 0; step < CeresRidleyPaletteDefinitions.GetawayZoomStepCount; step++)
             for (int color = 0; color < CeresRidleyPaletteDefinitions.GetawayZoomColorCount; color++)
-                if (floor.Resolve(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+                if (floor.Resolve(step, color) != steps[step][color]) edits.Add(new PaintColour(step, color), steps[step][color]);
         return floor;
     }
 
@@ -131,20 +132,20 @@ internal static class CeresRidleyPaintRecognition
         Ensure.LengthEqual(colors, 32);
         int clearBlue = colors[0].Blue;
         var clearSlot = new RgbColor(0, 0, clearBlue);
-        var edits = new Dictionary<ColourCell, RgbColor>();
-        if (colors[0] != clearSlot) edits.Add(new ColourCell(0, 0), colors[0]);
-        if (colors[16] != clearSlot) edits.Add(new ColourCell(0, 16), colors[16]);
+        var edits = new Dictionary<PaintColour, RgbColor>();
+        if (colors[0] != clearSlot) edits.Add(new PaintColour(0, 0), colors[0]);
+        if (colors[16] != clearSlot) edits.Add(new PaintColour(0, 16), colors[16]);
         return new(CeresDoorPaintRecognition.Escape(colors.Slice(1, 15)), StandaloneBaby(colors.Slice(17, 15)), clearBlue, edits);
     }
 
     /// <summary>Captures only palette cells that differ from the calculated fifteen-step reveal.</summary>
     internal static NorfairRidleyRevealPaint NorfairReveal(RgbColor[][] steps)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var reveal = new NorfairRidleyRevealPaint(edits);
         for (int step = 0; step < NorfairRidleyRevealPaintDefinitions.Steps; step++)
             for (int color = 0; color < NorfairRidleyRevealPaintDefinitions.Colors; color++)
-                if (reveal.ColorAt(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
+                if (reveal.ColorAt(step, color) != steps[step][color]) edits.Add(new PaintColour(step, color), steps[step][color]);
         return reveal;
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
@@ -23,11 +24,11 @@ internal static class CeresDoorPaintRecognition
     internal static CeresDoorWarmTargetPaint WarmTargets(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 6);
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var paint = new CeresDoorWarmTargetPaint(new(colors[0].Blue, colors[1].Red, colors[1].Green, colors[2].Red,
             colors[3].Red, colors[3].Green, colors[3].Blue), edits);
         for (int index = 0; index < colors.Length; index++)
-            if (paint.ColorAt(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
+            if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
         return paint;
     }
 
@@ -37,10 +38,10 @@ internal static class CeresDoorPaintRecognition
         Ensure.LengthEqual(colors, 8);
         var levels = new int[4];
         for (int index = 0; index < levels.Length; index++) levels[index] = colors[index].Red;
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var paint = new CeresDoorEscapeSurfacePaint(levels, colors[4].Red, colors[7].Red, colors[5].Blue, edits);
         for (int index = 0; index < colors.Length; index++)
-            if (paint.ColorAt(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
+            if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
         return paint;
     }
 
@@ -53,10 +54,10 @@ internal static class CeresDoorPaintRecognition
             foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())
                 if (StoresPaint(slot, channel))
                     seeds.Add(new CeresDoorPaintChannel(slot, channel), colors[slot - 1][channel]);
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var paint = new CeresDoorNormalPaint(WarmTargets(colors.Slice(8, 6)), seeds, edits);
         for (int slot = 1; slot <= colors.Length; slot++)
-            if (paint.ColorAt(slot - 1) != colors[slot - 1]) edits.Add(new ColourCell(0, slot), colors[slot - 1]);
+            if (paint.ColorAt(slot - 1) != colors[slot - 1]) edits.Add(new PaintColour(0, slot), colors[slot - 1]);
         return paint;
     }
 
@@ -84,10 +85,10 @@ internal static class CeresDoorPaintRecognition
     private static CeresDoorEscapePaint Escape(ReadOnlySpan<RgbColor> colors, CeresDoorWarmTargetPaint warm)
     {
         Ensure.LengthEqual(colors, 15);
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var paint = new CeresDoorEscapePaint(warm, Surface(colors[..8]), colors[14].Blue, edits);
         for (int index = 0; index < colors.Length; index++)
-            if (paint.ColorAt(index) != colors[index]) edits.Add(new ColourCell(0, index), colors[index]);
+            if (paint.ColorAt(index) != colors[index]) edits.Add(new PaintColour(0, index), colors[index]);
         return paint;
     }
 
@@ -97,14 +98,14 @@ internal static class CeresDoorPaintRecognition
         Ensure.NotNull(steps); Ensure.NotNull(normal);
         if (steps.Length != 8 || steps.Any(step => step is null || step.Length != 6))
             throw new ArgumentException("Beacon paint requires eight six-color steps.", nameof(steps));
-        var seedEdits = new Dictionary<ColourCell, RgbColor>();
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var seedEdits = new Dictionary<PaintColour, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         var paint = new CeresDoorAnimationPaint(normal, steps[1][0].Blue, steps[3][4].Red, seedEdits, edits);
         for (int color = 0; color < 6; color++)
-            if (steps[1][color] != paint.SharedSeed(color)) seedEdits.Add(new ColourCell(0, color), steps[1][color]);
+            if (steps[1][color] != paint.SharedSeed(color)) seedEdits.Add(new PaintColour(0, color), steps[1][color]);
         for (int step = 0; step < 8; step++)
             for (int color = 0; color < 6; color++)
-                if (steps[step][color] != paint.ColorAt(step, color)) edits.Add(new ColourCell(step, color), steps[step][color]);
+                if (steps[step][color] != paint.ColorAt(step, color)) edits.Add(new PaintColour(step, color), steps[step][color]);
         return paint;
     }
 }

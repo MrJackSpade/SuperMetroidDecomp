@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
@@ -8,6 +9,6 @@ namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 /// <param name="DeathSprite">Death-sprite endpoint colors plus samples that differ from the calculated seven-step fade.</param>
 /// <param name="DeathLevel">Required final BG palette 4 fade step and independent earlier level-art colors.</param>
 /// <param name="DeathBackground">Required final BG palette 7 fade step and independent earlier backdrop colors.</param>
-internal sealed record SporeSpawnColorSelection(Dictionary<ColourCell, RgbColor> Spores, SporeSpawnHealthBands Health,
-    Dictionary<ColourCell, RgbColor> DeathSprite, Dictionary<ColourCell, RgbColor> DeathLevel,
-    Dictionary<ColourCell, RgbColor> DeathBackground);
+internal sealed record SporeSpawnColorSelection(Dictionary<PaintColour, RgbColor> Spores, SporeSpawnHealthBands Health,
+    Dictionary<PaintColour, RgbColor> DeathSprite, Dictionary<PaintColour, RgbColor> DeathLevel,
+    Dictionary<PaintColour, RgbColor> DeathBackground);

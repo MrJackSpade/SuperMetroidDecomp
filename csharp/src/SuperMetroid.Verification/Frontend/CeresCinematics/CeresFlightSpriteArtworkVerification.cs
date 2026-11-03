@@ -81,7 +81,8 @@ internal static class CeresFlightSpriteArtworkVerification
         AssertEqual(IntroCeresFlightPhase.FlyingIntoCamera, editedFlight.Phase,
             "Ceres star edit reaches the visible front approach");
         AssertTrue(originalVram.SequenceEqual(replacementVram) &&
-                original.Paint.Colors.SequenceEqual(replacement.Paint.Colors),
+                original.Paint.Backdrop == replacement.Paint.Backdrop &&
+                SceneShownColours.Same(SceneShownColours.Of(original), SceneShownColours.Of(replacement)),
             "Ceres sprite composition edit does not change characters or palette");
         AssertTrue(!original.Paint.SpriteParts().SequenceEqual(replacement.Paint.SpriteParts()) &&
                 !DisplayRendering.Render(original).SequenceEqual(

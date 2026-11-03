@@ -14,6 +14,7 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Frontend.Pause;
@@ -158,7 +159,7 @@ internal static class ScreenTilePicturesVerification
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
                 var shownTitle = title.ShownVram();
                 RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(0, new FloorScene(scene.Paint,
-                    scene.Background, scene.Brightness, scene.Gradient, AffineFloorFixtures.Floor(shownTitle, scene.Paint.Colors)))).ToArray();
+                    scene.Background, scene.Brightness, scene.Gradient, FromCharacters(shownTitle, floor)))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);
@@ -194,7 +195,7 @@ internal static class ScreenTilePicturesVerification
     /// <summary>
     /// Asserts each turning floor of <paramref name="scene"/> draws from its pictures what its characters draw: the scene
     /// matches it drawn with each floor composed instead from the scene's own floor map and tile characters in
-    /// <paramref name="vram"/> under the scene's colours, naming the first differing pixel; returns the floors checked.
+    /// <paramref name="vram"/> in the colours each floor shows, naming the first differing pixel; returns the floors checked.
     /// </summary>
     private static int AssertFloorsDrawnFromCharacters(LayeredScene scene, byte[] vram, string name)
     {
@@ -205,7 +206,7 @@ internal static class ScreenTilePicturesVerification
             if (layer is TurningFloorLayer floor)
             {
                 layers++;
-                fromCharacters.Add(floor with { Floor = AffineFloorFixtures.Floor(vram, scene.Paint.Colors) });
+                fromCharacters.Add(floor with { Floor = FromCharacters(vram, floor.Floor) });
             }
             else
                 fromCharacters.Add(layer);
@@ -231,6 +232,8 @@ internal static class ScreenTilePicturesVerification
         BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles, pageSize);
         BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles, MenuScreen.PageSize);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
+        // The colours the pause screen's pictures show, in the cartridge's order (#1512).
+        RgbColor[] pauseColours = PauseShownColours.Of(pause);
         int layers = 0;
         foreach (DisplayLayer layer in scene.Layers)
         {
@@ -247,11 +250,23 @@ internal static class ScreenTilePicturesVerification
             string named = $"{name} layer {layers} ({layer.GetType().Name}, priority {tilemap.Priority?.ToString() ?? "both"})";
             RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [layer], DisplayBrightness.Full), named);
             RgbaPixel[] characters = VramTilemapImage.Draw(tilemap.Rows, tilemap.Size, vram, PauseVramLayout.MapCharacters.Offset,
-                TileInkDepth.SixteenColours, scene.Paint.Colors, tilemap.Scroll, tilemap.Priority, scene.Paint.Backgrounds.Backdrop);
+                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, tilemap.Priority, scene.Paint.Backdrop);
             AssertSamePixels(pictured, characters, $"{named}: its pictures draw what VRAM's characters draw of the cartridge's tilemap");
         }
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");
         return layers;
+    }
+
+    /// <summary>
+    /// The turning floor the cartridge's floor map and tile characters in <paramref name="vram"/> compose, in the native
+    /// colours <paramref name="shown"/>'s picture shows under its shading (#1512), drawn in its standard shading.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The shown floor names no shading.</exception>
+    private static AffineFloor FromCharacters(ReadOnlySpan<byte> vram, AffineFloor shown)
+    {
+        PictureShading shading = shown.Shading
+            ?? throw new InvalidOperationException($"Floor {shown.Image.Sheet.Name} names the shading it shows in.");
+        return AffineFloorFixtures.Floor(vram, NativeColouredPictures.ShownIn(shown.Image.Sheet, shading)).Shaded(PictureShading.Standard);
     }
 
     /// <summary>A tilemap the cartridge lays out for a pictured layer, as that layer shows it.</summary>

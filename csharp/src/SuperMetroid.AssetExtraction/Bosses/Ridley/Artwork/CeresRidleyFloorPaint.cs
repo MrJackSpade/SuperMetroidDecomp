@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -20,13 +21,13 @@ internal sealed class CeresRidleyFloorPaint
     /// <summary>The reviewed eye contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyFade.EyePaint eyes;
     /// <summary>Extracted colors that differ from the computed contour at a step and color index.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the shared contours and the colors that differ from them.</summary>
     /// <param name="body">The body contour.</param>
     /// <param name="eyes">The eye contour.</param>
     /// <param name="edits">The supplied colors the import found differing from the scaled contours.</param>
-    internal CeresRidleyFloorPaint(CeresRidleyBodyPaint body, CeresRidleyFade.EyePaint eyes, Dictionary<ColourCell, RgbColor> edits)
+    internal CeresRidleyFloorPaint(CeresRidleyBodyPaint body, CeresRidleyFade.EyePaint eyes, Dictionary<PaintColour, RgbColor> edits)
     {
         this.body = body;
         this.eyes = eyes;
@@ -43,7 +44,7 @@ internal sealed class CeresRidleyFloorPaint
     {
         if ((uint)step >= CeresRidleyPaletteDefinitions.GetawayZoomStepCount) throw new ArgumentOutOfRangeException(nameof(step));
         if ((uint)color >= CeresRidleyPaletteDefinitions.GetawayZoomColorCount) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(step, color), out RgbColor edited) ? edited : Calculate(step, color);
+        return edits.TryGetValue(new PaintColour(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 
     /// <summary>Applies one exposure step through bucket six and two steps for each remaining zoom bucket.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork.DraygonHealthPaintDefinitions;
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
@@ -10,14 +11,14 @@ namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 internal sealed class DraygonHealthPaint
 {
     /// <summary>Extracted belly colors that differ from the interpolated gold-to-red ramp.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Retains only differences from the four-shade, eight-band paint calculation.</summary>
     /// <param name="edits">The belly colours the import found differing from the calculated ramp.</param>
-    internal DraygonHealthPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
+    internal DraygonHealthPaint(Dictionary<PaintColour, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Uses an extracted edit when present, otherwise interpolates the requested belly shade.</summary>
-    internal RgbColor Color(int band, int shade) => edits.TryGetValue(new ColourCell(band, shade), out RgbColor edited)
+    internal RgbColor Color(int band, int shade) => edits.TryGetValue(new PaintColour(band, shade), out RgbColor edited)
         ? edited : Calculate(band, shade);
 
     /// <summary>

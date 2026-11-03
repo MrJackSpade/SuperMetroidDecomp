@@ -1,39 +1,17 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// Loads a cartridge-ordered 256-colour image into a frontend screen's colour sets, and encodes sets back into that
-/// order (#1464): the one place an installed whole-screen palette's colour order is read. A screen's image holds its
-/// background sets where gameplay's image holds the background sets, and its sprite sets where gameplay's holds the
-/// sprite sets.
+/// Encodes a frontend screen's background and sprite colours into the cartridge's 256-colour order (#1464, #1512): the one
+/// place an installed whole-screen palette's colour order is written. A screen's image holds its background colours where
+/// gameplay's image holds the background sets, and its sprite colours where gameplay's holds the sprite sets.
 /// </summary>
 public static class ScreenColourImage
 {
     /// <summary>The colours of a whole-screen image.</summary>
     public const int ColorCount = SnesCgram.ColorCount;
-
-    /// <summary>Replaces every colour of <paramref name="screen"/> with those <paramref name="image"/>, a whole 256-colour image, holds.</summary>
-    /// <exception cref="ArgumentException"><paramref name="image"/> does not hold 256 colours.</exception>
-    public static void LoadTo(ReadOnlySpan<RgbColor> image, ScreenPalette screen)
-    {
-        Ensure.LengthEqual(image, ColorCount);
-        Ensure.NotNull(screen);
-        screen.BackgroundSets.All.CopyFrom(
-            image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
-        screen.SpriteSets.All.CopyFrom(
-            image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
-    }
-
-    /// <summary>The 256-colour image of <paramref name="screen"/>'s owners as they are now.</summary>
-    public static RgbColor[] Encode(ScreenPalette screen)
-    {
-        Ensure.NotNull(screen);
-        return Encode(screen.BackgroundSets.All.Colors, screen.SpriteSets.All.Colors);
-    }
 
     /// <summary>
     /// The image of a screen's <paramref name="backgrounds"/> and <paramref name="sprites"/> as little-endian colour words,

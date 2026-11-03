@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -16,11 +17,11 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 internal sealed class CeresRidleyAlarmColors
 {
     /// <summary>Independent supplied colors that differ from the reflected sixteen-step trajectory.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the independently edited warning cells.</summary>
     /// <param name="edits">The supplied colors the import found differing from the calculated steps.</param>
-    internal CeresRidleyAlarmColors(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
+    internal CeresRidleyAlarmColors(Dictionary<PaintColour, RgbColor> edits) => this.edits = edits;
 
     /// <summary>The reflected phase of alarm step <paramref name="step"/>: sixteen steps ascend through phase eight, then revisit phases seven to one.</summary>
     internal static int Phase(int step)
@@ -36,7 +37,7 @@ internal sealed class CeresRidleyAlarmColors
         _ = Phase(step);
         if ((uint)color >= CeresRidleyPaletteDefinitions.AlarmColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        var key = new ColourCell(step, color);
+        var key = new PaintColour(step, color);
         return edits.TryGetValue(key, out RgbColor value) ? value : Calculate(step, color);
     }
 

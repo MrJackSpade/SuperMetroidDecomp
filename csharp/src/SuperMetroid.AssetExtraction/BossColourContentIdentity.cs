@@ -164,9 +164,9 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> target = stackalloc RgbColor[PhantoonColorDefinitions.FadeOutCount];
                 for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
                 content.AppendColors("fadeOut", target);
-                var power = new List<RgbColor>(PhantoonColorDefinitions.PoweredParts.Length * ColourSets.SetColours);
+                var power = new List<RgbColor>(PhantoonColorDefinitions.PoweredParts.Length * SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount);
                 foreach (WreckedShipPoweredPart part in PhantoonColorDefinitions.PoweredParts)
-                    for (int color = 0; color < ColourSets.SetColours; color++) power.Add(colors.ResolvePowerOn(part, color));
+                    for (int color = 0; color < SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount; color++) power.Add(colors.ResolvePowerOn(part, color));
                 content.AppendColors("powerOn", power.ToArray());
                 var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
                 for (int band = 0; band < frames.Length; band++)

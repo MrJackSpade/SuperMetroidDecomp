@@ -4,10 +4,13 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Cartridge values and helpers of <see cref="FramePaint"/> that only verification reads.</summary>
+/// <summary>Captures of <see cref="FramePaint"/> from native colour memory that only verification makes (#1512).</summary>
 internal static class FramePaintConstants
 {
-    /// <summary>Captures currently published memories and the displayed frame's whole-frame sprite draws.</summary>
+    /// <summary>
+    /// Captures the displayed frame's whole-frame sprite draws painted from <paramref name="cgram"/>, a native 256-colour
+    /// image, as <see cref="FramePaintAccess"/>'s native frames paint them.
+    /// </summary>
     public static FramePaint Capture(IPaletteColors cgram, SpriteFrameBuffer sprites)
     {
         Ensure.NotNull(cgram);
@@ -15,11 +18,12 @@ internal static class FramePaintConstants
         return FramePaint.FromNative(cgram.Colors, sprites.Draws);
     }
 
-    /// <summary>Captures a screen's colours and the displayed frame's whole-frame sprite draws.</summary>
-    public static FramePaint Capture(ScreenPalette screen, SpriteFrameBuffer sprites) => Capture(Ensure.NotNull(screen).AsPaletteColors(), sprites);
-    /// <summary>Captures a frontend screen's memories, converting its OAM storage into the draw it stands for.</summary>
+    /// <summary>
+    /// Captures a frontend screen's memories, converting its OAM storage into the draws it stands for, painted from its
+    /// native colours.
+    /// </summary>
     /// <param name="vram">The screen's VRAM.</param>
-    /// <param name="cgram">The screen's CGRAM.</param>
+    /// <param name="cgram">The screen's CGRAM, a native 256-colour image.</param>
     /// <param name="oam">The screen's finalized OAM storage.</param>
     /// <param name="objectSelection">The screen's OBSEL value.</param>
     public static FramePaint CaptureFrontend(SnesVram vram, IPaletteColors cgram, OamBuffer oam, int objectSelection)
@@ -28,12 +32,4 @@ internal static class FramePaintConstants
         Ensure.NotNull(cgram);
         return FramePaint.FromNative(cgram.Colors, ObjCharacterImageConstants.Draws(oam, vram, objectSelection));
     }
-
-    /// <summary>Captures a frontend screen's memories, with its own colours in place of a CGRAM.</summary>
-    /// <param name="vram">The screen's VRAM.</param>
-    /// <param name="screen">The screen's colours.</param>
-    /// <param name="oam">The screen's finalized OAM storage.</param>
-    /// <param name="objectSelection">The screen's OBSEL value.</param>
-    public static FramePaint CaptureFrontend(SnesVram vram, ScreenPalette screen, OamBuffer oam, int objectSelection) =>
-        CaptureFrontend(vram, Ensure.NotNull(screen).AsPaletteColors(), oam, objectSelection);
 }

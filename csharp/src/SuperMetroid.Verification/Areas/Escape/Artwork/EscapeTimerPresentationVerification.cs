@@ -24,8 +24,7 @@ internal static class EscapeTimerPresentationVerification
 {
     /// <summary>Checks extraction, installed overrides, VRAM transfers, and rendered OAM against native timer assets.</summary>
     internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentation original,
-        GameplayBasePalette initialPalettes)
+        string overrides, AreaMapPresentation original)
     {
         Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(bus));
 
@@ -80,7 +79,7 @@ internal static class EscapeTimerPresentationVerification
         native.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);
         IReadOnlyList<SpriteDraw> installed = EscapeTimerDrawChecks.Draw(timer, presentation, sheet);
-        EscapeTimerDrawChecks.AssertSamePixels(native, installed, tileAtlas.Artwork, initialPalettes,
+        EscapeTimerDrawChecks.AssertSamePixels(native, installed, tileAtlas.Artwork, bus,
             "installed timer label/digits paint the native OAM sprites' pixels");
         AssertEqual(7, installed.Count, "timer publishes the label and six digits as whole-frame draws");
         string[] frames = ["Label", "Digit.0", "Digit.1", "Digit.2", "Digit.3", "Digit.4", "Digit.5"];

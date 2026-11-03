@@ -1,69 +1,89 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>Verification access to <see cref="FramePaint"/>: OAM fixtures and the parts a frame shows.</summary>
+/// <summary>
+/// Verification access to <see cref="FramePaint"/> (#1512): frames painted from a native 256-colour image, OAM fixtures,
+/// and the parts a frame shows. A native-coloured frame draws each of its pictures as a copy whose standard colours are
+/// the native colours its inks show (<see cref="NativeColouredPictures"/>), in the standard shading, and shows native
+/// colour 0 as its backdrop; production frames stay shading-only.
+/// </summary>
 internal static class FramePaintAccess
 {
-    /// <summary>Builds snapshots from native OAM fixture tables.</summary>
+    /// <summary>Builds frames from native colour images and OAM fixture tables.</summary>
     extension(FramePaint)
     {
         /// <summary>
-        /// A snapshot whose sprites are an OAM fixture's records, converted as a frontend capture converts them
-        /// (the extraction pipeline's ObjCharacterImage), so the records reach both backends only as a frame description.
+        /// A frame whose sprites are an OAM fixture's records, converted as a frontend capture converts them
+        /// (the extraction pipeline's ObjCharacterImage), coloured from <paramref name="cgram"/>, a native 256-colour image,
+        /// so the records reach both backends only as a frame description.
         /// </summary>
         internal static FramePaint FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> cgram,
             ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
             FramePaint.FromNative(cgram, OamDraws(vram, oamUpload, spriteCount, objectSelection));
 
-        /// <summary>A frame whose colour memory holds <paramref name="nativeColours"/>, a native 256-colour image.</summary>
+        /// <summary>
+        /// A frame painted from <paramref name="nativeColours"/>, a native 256-colour image: it shows native colour 0 where
+        /// nothing is drawn, and each draw shows its picture in the native colours its inks name.
+        /// </summary>
+        /// <exception cref="ArgumentException">The image does not hold 256 colours, or the draw list is missing or holds a missing draw.</exception>
         internal static FramePaint FromNative(ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> spriteDraws)
         {
-            BackgroundColours colours = NativeColourImage.Decode(nativeColours);
-            return new FramePaint(colours, spriteDraws);
+            Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
+            return new FramePaint(nativeColours[0], NativeColouredPictures.Draws(spriteDraws, nativeColours));
         }
     }
 
-    /// <summary>Reads what a captured frame description shows.</summary>
+    /// <summary>Repaints and reads what a captured frame description shows.</summary>
     extension(FramePaint memory)
     {
         /// <summary>
-        /// The frame's colours in the cartridge's colour order, for fixtures that compare or rebuild a frame's colours;
-        /// built once per frame, as a published frame's colours never change.
-        /// </summary>
-        internal ReadOnlySpan<RgbColor> Colors => NativeColourImage.Of(memory.Backgrounds);
-
-        /// <summary>
-        /// This frame with its colour memory holding <paramref name="nativeColours"/>, a native 256-colour image read in the
-        /// frame's own colour model, gameplay's or a frontend screen's; its sprite draws are kept.
+        /// This frame painted from <paramref name="nativeColours"/>, a native 256-colour image: its sprite draws show their
+        /// pictures in the native colours their inks name and its backdrop is native colour 0. A gameplay frame's
+        /// background pictures keep the shading the port gave them, without the display's fade over the sprites, as the
+        /// native colours already show it.
         /// </summary>
         internal FramePaint WithNativeColours(ReadOnlySpan<RgbColor> nativeColours) =>
-            Rebuilt(memory, NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), memory.SpriteDraws);
+            Repainted(memory, nativeColours, memory.SpriteDraws);
 
         /// <summary>
-        /// This frame with its colour memory holding <paramref name="nativeColours"/>, read in the frame's own colour model,
-        /// and its sprites an OAM fixture's records, converted as <see cref="FromOam"/> converts them.
+        /// This frame painted from <paramref name="nativeColours"/> as <see cref="WithNativeColours"/> paints it, with its
+        /// sprites an OAM fixture's records, converted as <see cref="FromOam"/> converts them.
         /// </summary>
         internal FramePaint WithNativeColoursAndOam(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> nativeColours,
             ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
-            Rebuilt(memory, NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), OamDraws(vram, oamUpload, spriteCount, objectSelection));
+            Repainted(memory, nativeColours, OamDraws(vram, oamUpload, spriteCount, objectSelection));
 
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);
     }
 
     /// <summary>
-    /// <paramref name="memory"/> with <paramref name="colours"/> and <paramref name="draws"/>: a gameplay frame keeps its
-    /// pictures' shading with the decoded backdrop (#1512), and each of its draws names its shading; a frontend screen's
-    /// frame takes the decoded sets.
+    /// <paramref name="draws"/> painted from <paramref name="nativeColours"/> in <paramref name="memory"/>'s colour model:
+    /// a gameplay frame keeps each group of background pictures' shading with native colour 0 as its backdrop and no fade
+    /// over its draws; a frontend screen's frame shows native colour 0 as its backdrop.
     /// </summary>
-    private static FramePaint Rebuilt(FramePaint memory, BackgroundColours colours, ImmutableArray<SpriteDraw> draws) =>
-        memory.Gameplay is { } gameplay
-            ? new FramePaint(gameplay.WithBackdrop(colours.Backdrop), draws)
-            : new FramePaint(colours, draws);
+    private static FramePaint Repainted(FramePaint memory, ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> draws)
+    {
+        Ensure.NotNull(memory);
+        Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
+        ImmutableArray<SpriteDraw> shown = NativeColouredPictures.Draws(draws, nativeColours);
+        return memory.Gameplay is { } gameplay
+            ? new FramePaint(NativeGameplay(gameplay, nativeColours[0]), shown)
+            : new FramePaint(nativeColours[0], shown);
+    }
+
+    /// <summary>
+    /// <paramref name="gameplay"/> with <paramref name="backdrop"/> shown where nothing is drawn: each group of background
+    /// pictures shows what it showed, the fade included, and no fade or escape timer shading is laid over the
+    /// native-coloured draws, whose native colours already show them.
+    /// </summary>
+    private static GameplayShading NativeGameplay(GameplayShading gameplay, RgbColor backdrop) =>
+        new(backdrop, Enum.GetValues<GameplayPictures>().ToImmutableDictionary(pictures => pictures,
+            pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Standard : gameplay.Of(pictures)), fade: null);
 
     /// <summary>The sprite draws an OAM fixture's records make over <paramref name="vram"/>, as a frontend capture converts them.</summary>
     private static ImmutableArray<SpriteDraw> OamDraws(ReadOnlySpan<byte> vram, ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)

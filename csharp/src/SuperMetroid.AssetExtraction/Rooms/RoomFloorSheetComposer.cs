@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -31,13 +29,9 @@ internal static class RoomFloorSheetComposer
         RgbColor[] background = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
-        var loaded = new ScreenPalette();
-        BackgroundColourSetImage.LoadStarting(inputs.Objects.Palettes, loaded);
-        inputs.Objects.Palettes.LoadCommonSprites(SpriteColourStore.Common.In(loaded.SpriteSets));
-        inputs.Objects.Palettes.LoadEnemyProjectileSprites(SpriteColourStore.EnemyProjectiles.In(loaded.SpriteSets));
         var colours = new RgbColor[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
-        ScreenColourImage.Encode(loaded).CopyTo(colours, 0);
         background.CopyTo(colours, 0);
+        RoomLoadPalettes.SpriteColours(inputs.Objects.Palettes).CopyTo(colours, background.Length);
         // Each VRAM word holds a floor cell in its low byte and a tile pixel in its high byte.
         var map = new byte[FloorSheetComposer.CellCount];
         var pixels = new byte[FloorSheetComposer.TileSetBytes];

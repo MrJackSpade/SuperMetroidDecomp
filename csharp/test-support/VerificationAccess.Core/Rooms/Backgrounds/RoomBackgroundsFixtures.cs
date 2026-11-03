@@ -329,7 +329,7 @@ internal static class RoomBackgroundsFixtures
             Colours = standard,
             // A room's seeded sheets are gameplay background images, whose groups the import pipeline names in the
             // cartridge's set order.
-            BackgroundSets = [.. SuperMetroid.AssetExtraction.Video.BackgroundColourSetImage.ImageGroups],
+            BackgroundSets = [.. InstalledPictureColours.CartridgeOrderSets],
             Frames = frames,
             PartImages = [],
         };

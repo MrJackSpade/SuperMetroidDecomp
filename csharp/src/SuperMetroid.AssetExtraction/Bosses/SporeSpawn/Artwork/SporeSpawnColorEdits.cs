@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -28,68 +29,68 @@ internal static class SporeSpawnColorEdits
         var intermediatePaint = new RgbColor[last - 1][];
         for (int frame = 1; frame < last; frame++)
             intermediatePaint[frame - 1] = supplied[frame].AsSpan(1, LastPaintedColor).ToArray();
-        var calculated = new SporeSpawnHealthBands(supplied[0], supplied[last], intermediatePaint, new Dictionary<ColourCell, RgbColor>());
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var calculated = new SporeSpawnHealthBands(supplied[0], supplied[last], intermediatePaint, new Dictionary<PaintColour, RgbColor>());
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int frame = 1; frame < last; frame++)
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
             if (SporeSpawnHealthBands.IsCalculated(color) && supplied[frame][color] != calculated.Resolve(frame, color))
-                edits.Add(new ColourCell(frame, color), supplied[frame][color]);
+                edits.Add(new PaintColour(frame, color), supplied[frame][color]);
         return new SporeSpawnHealthBands(supplied[0], supplied[last], intermediatePaint, edits);
     }
 
     /// <summary>Keeps the spore colours that differ from the supplied healthy band.</summary>
-    private static Dictionary<ColourCell, RgbColor> SporeEdits(RgbColor[] spores, RgbColor[][] health)
+    private static Dictionary<PaintColour, RgbColor> SporeEdits(RgbColor[] spores, RgbColor[][] health)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-            if (spores[color] != health[0][color]) edits[new ColourCell(0, color)] = spores[color];
+            if (spores[color] != health[0][color]) edits[new PaintColour(0, color)] = spores[color];
         return edits;
     }
 
     /// <summary>Keeps the death sprite's final fade step, its first step where it differs from critical health, and edited middle samples.</summary>
-    private static Dictionary<ColourCell, RgbColor> DeathSpriteEdits(RgbColor[][] deathSprite, RgbColor[][] health)
+    private static Dictionary<PaintColour, RgbColor> DeathSpriteEdits(RgbColor[][] deathSprite, RgbColor[][] health)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         int last = SporeSpawnColorDefinitions.DeathSpriteFrameCount - 1;
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
             if (deathSprite[0][color] != health[SporeSpawnColorDefinitions.HealthFrameCount - 1][color])
-                edits[new ColourCell(0, color)] = deathSprite[0][color];
-            edits[new ColourCell(last, color)] = deathSprite[last][color];
+                edits[new PaintColour(0, color)] = deathSprite[0][color];
+            edits[new PaintColour(last, color)] = deathSprite[last][color];
             for (int frame = 1; frame < last; frame++)
                 if (deathSprite[frame][color] != SporeSpawnColors.CalculateDeathSpriteColor(deathSprite[0][color], deathSprite[last][color], frame))
-                    edits[new ColourCell(frame, color)] = deathSprite[frame][color];
+                    edits[new PaintColour(frame, color)] = deathSprite[frame][color];
         }
         return edits;
     }
 
     /// <summary>Keeps the level fade's final step and every earlier colour that is not the calculated fade.</summary>
-    private static Dictionary<ColourCell, RgbColor> DeathLevelEdits(RgbColor[][] deathLevel)
+    private static Dictionary<PaintColour, RgbColor> DeathLevelEdits(RgbColor[][] deathLevel)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         int levelLast = SporeSpawnColorDefinitions.DeathSceneFrameCount - 1;
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
-            edits[new ColourCell(levelLast, color)] = deathLevel[levelLast][color];
+            edits[new PaintColour(levelLast, color)] = deathLevel[levelLast][color];
             for (int frame = 0; frame < levelLast; frame++)
                 if (!SporeSpawnDeathFade.TryLevelColor(deathLevel[levelLast][color], frame, color, out RgbColor calculated)
                     || deathLevel[frame][color] != calculated)
-                    edits[new ColourCell(frame, color)] = deathLevel[frame][color];
+                    edits[new PaintColour(frame, color)] = deathLevel[frame][color];
         }
         return edits;
     }
 
     /// <summary>Keeps the background fade's final step and every earlier colour that is not the calculated fade.</summary>
-    private static Dictionary<ColourCell, RgbColor> DeathBackgroundEdits(RgbColor[][] deathBackground)
+    private static Dictionary<PaintColour, RgbColor> DeathBackgroundEdits(RgbColor[][] deathBackground)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         int backgroundLast = SporeSpawnColorDefinitions.DeathSceneFrameCount - 1;
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
-            edits[new ColourCell(backgroundLast, color)] = deathBackground[backgroundLast][color];
+            edits[new PaintColour(backgroundLast, color)] = deathBackground[backgroundLast][color];
             for (int frame = 0; frame < backgroundLast; frame++)
                 if (deathBackground[frame][color] != SporeSpawnDeathFade.BackgroundColor(deathBackground[backgroundLast][color], frame, color))
-                    edits[new ColourCell(frame, color)] = deathBackground[frame][color];
+                    edits[new PaintColour(frame, color)] = deathBackground[frame][color];
         }
         return edits;
     }

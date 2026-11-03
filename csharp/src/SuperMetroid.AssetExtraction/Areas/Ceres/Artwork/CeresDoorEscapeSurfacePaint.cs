@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
@@ -17,7 +18,7 @@ internal sealed class CeresDoorEscapeSurfacePaint
     /// <summary>Selected bevel endpoints and middle blue channel retained from the supplied eight-color surface.</summary>
     private readonly int bevelPeak, bevelShadow, middleBevelBlue;
     /// <summary>Per-color exceptions kept when supplied art differs from the calculated shared material.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the selected color parameters and every independently edited supplied color.</summary>
     /// <param name="highlightAndEdgeLevels">The four highlight and edge brightness levels.</param>
@@ -26,7 +27,7 @@ internal sealed class CeresDoorEscapeSurfacePaint
     /// <param name="middleBevelBlue">The middle bevel's blue.</param>
     /// <param name="edits">The supplied colors the import found differing from the calculated material.</param>
     internal CeresDoorEscapeSurfacePaint(int[] highlightAndEdgeLevels, int bevelPeak, int bevelShadow, int middleBevelBlue,
-        Dictionary<ColourCell, RgbColor> edits)
+        Dictionary<PaintColour, RgbColor> edits)
     {
         this.highlightAndEdgeLevels = highlightAndEdgeLevels;
         this.bevelPeak = bevelPeak;
@@ -39,7 +40,7 @@ internal sealed class CeresDoorEscapeSurfacePaint
     internal RgbColor ColorAt(int index)
     {
         if ((uint)index >= 8) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue(new ColourCell(0, index), out RgbColor edited) ? edited : Calculate(index);
+        return edits.TryGetValue(new PaintColour(0, index), out RgbColor edited) ? edited : Calculate(index);
     }
 
     /// <summary>Builds the clipped five-step bevel ramp and blue tint, preserving the selected middle-bevel blue level.</summary>

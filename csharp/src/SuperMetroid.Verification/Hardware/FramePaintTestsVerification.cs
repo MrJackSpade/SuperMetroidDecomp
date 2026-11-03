@@ -7,7 +7,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
-/// <summary>Checks a frame's paint against its sources and source-array ownership (#1403).</summary>
+/// <summary>Checks a native-coloured frame's paint against its sources and source-array ownership (#1403, #1512).</summary>
 internal static class FramePaintTestsVerification
 {
     /// <summary>Confirms CGRAM order, immutable capture of colours and draws, and size validation.</summary>
@@ -27,27 +27,33 @@ internal static class FramePaintTestsVerification
 
         FramePaint first = FramePaintConstants.Capture(cgram, sprites);
         FramePaint repeated = FramePaintConstants.Capture(cgram, sprites);
-        AssertTrue(first.Colors.SequenceEqual(expectedPalette), "CGRAM capture changed native words");
+        AssertTrue(Shown(first).SequenceEqual(NativeShown(expectedPalette)), "CGRAM capture changed native words");
         AssertTrue(Order(first.SpriteDraws).SequenceEqual(Order(sprites.Draws)), "capture keeps the frame's draws in emission order");
-        AssertTrue(repeated.Colors.SequenceEqual(first.Colors) && Order(repeated.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
+        AssertTrue(Shown(repeated).SequenceEqual(Shown(first)) && Order(repeated.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
             "repeat capture changed the paint");
         AssertTrue(cgram.Colors.SequenceEqual(expectedPalette), "capture mutated its source");
 
         cgram.SetColor(1, new RgbColor(0, 0, 0));
         sprites.BeginFrame();
         sprites.FinalizeFrame();
-        AssertTrue(first.Colors.SequenceEqual(expectedPalette) && first.SpriteDraws.Length == 1,
+        AssertTrue(Shown(first).SequenceEqual(NativeShown(expectedPalette)) && first.SpriteDraws.Length == 1,
             "later simulation writes changed a published frame");
 
         var fromFixture = FramePaint.FromNative(expectedPalette, first.SpriteDraws);
         // Flip every color bit (the PPU stores fifteen).
         expectedPalette[0] = RgbColor.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
-        AssertTrue(fromFixture.Colors.SequenceEqual(first.Colors) && Order(fromFixture.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
+        AssertTrue(Shown(fromFixture).SequenceEqual(Shown(first)) && Order(fromFixture.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),
             "fixture arrays escaped into frame ownership");
 
         AssertThrows<ArgumentException>(() => FramePaint.FromNative(ToColors(new ushort[1]), []), "short CGRAM");
         AssertThrows<ArgumentException>(() => FramePaint.FromNative(expectedPalette, default), "missing draw list");
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
+
+        // A native frame shows native colour 0 as its backdrop and draws each picture as a copy coloured from the native
+        // image (#1512): the fixture's sprite picture takes the sprite half.
+        static RgbColor[] Shown(FramePaint paint) =>
+            [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.StandardColours.ToArray())];
+        static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2)];
 
         // The paint resolves each draw's colours (#1405), so a draw is known by what it shows and where, in order.
         static IEnumerable<(SpriteSource Source, Position16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>

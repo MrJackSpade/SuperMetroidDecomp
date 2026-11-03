@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
@@ -21,13 +22,13 @@ internal sealed class CeresRidleyStartColors
     /// <summary>Previously validated Baby material reused by the second palette.</summary>
     private readonly CeresBabyPaint baby;
     /// <summary>Independent supplied changes to either palette, including transparent entries.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the two palettes' source materials and the colors that differ from them.</summary>
     /// <param name="door">The normal door/container material of the first palette.</param>
     /// <param name="baby">The Baby material of the second palette.</param>
     /// <param name="edits">The supplied colors the import found differing from the materials.</param>
-    internal CeresRidleyStartColors(CeresDoorNormalPaint door, CeresBabyPaint baby, Dictionary<ColourCell, RgbColor> edits)
+    internal CeresRidleyStartColors(CeresDoorNormalPaint door, CeresBabyPaint baby, Dictionary<PaintColour, RgbColor> edits)
     {
         this.door = door;
         this.baby = baby;
@@ -38,7 +39,7 @@ internal sealed class CeresRidleyStartColors
     internal RgbColor Resolve(int color)
     {
         if ((uint)color >= 2 * PaletteSize) throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : Calculate(color);
+        return edits.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : Calculate(color);
     }
 
     /// <summary>Calculates copied clear-black entries, door paint, or Baby paint for an unedited index.</summary>

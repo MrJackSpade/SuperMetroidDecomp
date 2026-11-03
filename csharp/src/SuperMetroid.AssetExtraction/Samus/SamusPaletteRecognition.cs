@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -32,11 +33,11 @@ internal static class SamusPaletteRecognition
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
                 calculated &= body[frame][color] == InstalledCrystalFlashColors.CalculateBody(frame, color);
-        var bubbleEdits = new Dictionary<ColourCell, RgbColor>();
+        var bubbleEdits = new Dictionary<PaintColour, RgbColor>();
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
                 if (bubble[frame][color] != InstalledCrystalFlashColors.CalculateBubble(frame, color))
-                    bubbleEdits.Add(new ColourCell(frame, color), bubble[frame][color]);
+                    bubbleEdits.Add(new PaintColour(frame, color), bubble[frame][color]);
         return new(calculated ? null : body, bubbleEdits);
     }
 

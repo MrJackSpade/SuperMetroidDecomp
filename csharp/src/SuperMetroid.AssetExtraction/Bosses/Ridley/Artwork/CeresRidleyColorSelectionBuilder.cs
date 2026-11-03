@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 
@@ -36,12 +37,12 @@ internal static class CeresRidleyColorSelectionBuilder
     }
 
     /// <summary>Keeps the supplied retreat BG colours that differ from their body, eye and neutral composition.</summary>
-    private static Dictionary<ColourCell, RgbColor> RetreatBgEdits(RgbColor[] retreatBg, CeresRidleyFade bodyFade, CeresRidleyFade eyeFade)
+    private static Dictionary<PaintColour, RgbColor> RetreatBgEdits(RgbColor[] retreatBg, CeresRidleyFade bodyFade, CeresRidleyFade eyeFade)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < retreatBg.Length; color++)
             if (retreatBg[color] != CeresRidleyColors.CalculateRetreatBg(bodyFade, eyeFade, color))
-                edits.Add(new ColourCell(0, color), retreatBg[color]);
+                edits.Add(new PaintColour(0, color), retreatBg[color]);
         return edits;
     }
 
@@ -49,12 +50,12 @@ internal static class CeresRidleyColorSelectionBuilder
     /// The retreat copies the normal door/container paints into both drawing domains; keeps only independent supplied
     /// differences from the existing startup owner.
     /// </summary>
-    private static Dictionary<ColourCell, RgbColor> RetreatSharedEdits(RgbColor[] retreatShared, CeresRidleyStartColors start)
+    private static Dictionary<PaintColour, RgbColor> RetreatSharedEdits(RgbColor[] retreatShared, CeresRidleyStartColors start)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < retreatShared.Length; color++)
             if (retreatShared[color] != start.Resolve(color + 1))
-                edits.Add(new ColourCell(0, color), retreatShared[color]);
+                edits.Add(new PaintColour(0, color), retreatShared[color]);
         return edits;
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
@@ -11,12 +12,12 @@ internal sealed class KraidStockBand : IReadOnlyList<RgbColor>
     /// <summary>Named source that supplies calculated unedited colors.</summary>
     private readonly KraidPaletteSource source;
     /// <summary>Only supplied colors that differ from the reviewed stock paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> deviations;
+    internal readonly Dictionary<PaintColour, RgbColor> deviations;
 
     /// <summary>Keeps the independent edits to one sixteen-color source.</summary>
     /// <param name="source">The named source whose stock paint unedited colors calculate.</param>
     /// <param name="deviations">The supplied colors the import found differing from the stock paint.</param>
-    internal KraidStockBand(KraidPaletteSource source, Dictionary<ColourCell, RgbColor> deviations)
+    internal KraidStockBand(KraidPaletteSource source, Dictionary<PaintColour, RgbColor> deviations)
     {
         this.source = source;
         this.deviations = deviations;
@@ -25,7 +26,7 @@ internal sealed class KraidStockBand : IReadOnlyList<RgbColor>
     /// <summary>Color count of this named source.</summary>
     public int Count => KraidPalettes.ColorCount(source);
     /// <summary>Edited color at an index, or its calculated stock paint.</summary>
-    public RgbColor this[int index] => deviations.TryGetValue(new ColourCell(0, index), out RgbColor supplied)
+    public RgbColor this[int index] => deviations.TryGetValue(new PaintColour(0, index), out RgbColor supplied)
         ? supplied : KraidPaint.Color(source, index);
 
     /// <summary>Visits source colors in their palette order.</summary>

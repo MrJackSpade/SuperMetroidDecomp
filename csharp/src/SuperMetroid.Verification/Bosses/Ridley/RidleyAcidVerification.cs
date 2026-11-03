@@ -81,7 +81,7 @@ internal static class RidleyAcidVerification
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             ushort[] plane = fx.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
             var effect = GameplayEffectCapture.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
-                Layer3CellsFixtures.FromWords(plane, runtime.ComposedVram(), memory.Colors));
+                Layer3CellsFixtures.FromWords(plane, runtime.ComposedVram(), GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
             var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
             var actual = DisplayRendering.Render(new LayeredScene(memory,
                 effect is null ? [] : new DisplayLayer[] { effect }, 15));

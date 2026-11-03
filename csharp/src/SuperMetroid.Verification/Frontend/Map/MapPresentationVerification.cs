@@ -449,7 +449,7 @@ internal static class MapPresentationVerification
         using var fixture = new MapCatalogFixture();
         var (bus, root, stock, _, original, _, initialPalettes) = fixture;
         Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus, stock,
-            Path.Combine(root, "escape-timer-overrides"), original, initialPalettes));
+            Path.Combine(root, "escape-timer-overrides"), original));
         Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
             Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes));
         Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original));

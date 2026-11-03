@@ -41,9 +41,9 @@ public static class TourianStatueColorFile
     /// <summary>Compares supplied colors with the band's stock paint and retains the independent edits.</summary>
     private static TourianStatuePalettes.PaletteBand Band(TourianStatuePaintBand band, RgbColor[] supplied)
     {
-        var edits = new Dictionary<ColourCell, RgbColor>();
+        var edits = new Dictionary<PaintColour, RgbColor>();
         for (int color = 0; color < supplied.Length; color++)
-            if (supplied[color] != TourianStatuePaint.Color(band, color)) edits.Add(new ColourCell(0, color), supplied[color]);
+            if (supplied[color] != TourianStatuePaint.Color(band, color)) edits.Add(new PaintColour(0, color), supplied[color]);
         return new TourianStatuePalettes.PaletteBand(band, supplied.Length, edits);
     }
 

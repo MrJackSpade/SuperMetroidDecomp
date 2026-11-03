@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
@@ -10,14 +11,14 @@ namespace SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 internal sealed class BotwoonHealthPaint
 {
     /// <summary>Imported band colors that differ from the reviewed endpoint interpolation.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Retains source colors only where they differ from the eight-band health ramp.</summary>
     /// <param name="edits">The imported colours the import found differing from the ramp.</param>
-    internal BotwoonHealthPaint(Dictionary<ColourCell, RgbColor> edits) => this.edits = edits;
+    internal BotwoonHealthPaint(Dictionary<PaintColour, RgbColor> edits) => this.edits = edits;
 
     /// <summary>Returns an imported exception or interpolates the selected healthy and damaged paints.</summary>
-    internal RgbColor Resolve(int band, int color) => edits.TryGetValue(new ColourCell(band, color), out RgbColor value)
+    internal RgbColor Resolve(int band, int color) => edits.TryGetValue(new PaintColour(band, color), out RgbColor value)
         ? value : Calculate(band, color);
 
     /// <summary>Interpolates RGB5 channels over seven intervals while preserving copied slot-zero metadata.</summary>

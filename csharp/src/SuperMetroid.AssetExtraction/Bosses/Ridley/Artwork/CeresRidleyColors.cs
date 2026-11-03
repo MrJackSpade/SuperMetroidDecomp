@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 
@@ -14,7 +15,7 @@ internal static class CeresRidleyColors
     {
         if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatBgColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return colors.selection.RetreatBg.TryGetValue(new ColourCell(0, color), out RgbColor edited)
+        return colors.selection.RetreatBg.TryGetValue(new PaintColour(0, color), out RgbColor edited)
             ? edited
             : CalculateRetreatBg(colors.selection.BodyFade, colors.selection.EyeFade, color);
     }
@@ -29,6 +30,6 @@ internal static class CeresRidleyColors
     {
         if ((uint)color >= CeresRidleyPaletteDefinitions.RetreatSharedColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return colors.selection.RetreatShared.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : colors.selection.Start.Resolve(color + 1);
+        return colors.selection.RetreatShared.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : colors.selection.Start.Resolve(color + 1);
     }
 }

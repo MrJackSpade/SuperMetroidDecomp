@@ -58,9 +58,9 @@ internal static class ClosedPresentationContractChecks
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatuePalettes statues,
                     MotherBrainRainbowPalettePresentation rainbow, MotherBrainDeathColorCatalog death,
-                    ChozoAndTubeColorCatalog chozo, GameplayBasePalette basePalette,
+                    ChozoAndTubeColorCatalog chozo,
                     InstalledSamusDeathPalettes samusDeath,
-                    SuperMetroid.Core.Rendering.ScreenPalette screen, Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
+                    Span<ushort> tiles, Span<byte> bytes, Span<BackgroundTile> cells,
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.Ammo(dynamicIndex, 123);
                     hud.MinimapCell(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0), SuperMetroid.Core.Hud.MinimapHiddenCell.Instance);
@@ -85,7 +85,6 @@ internal static class ClosedPresentationContractChecks
                     death.CorpseColor(8, 0);
                     chozo.ResolveTubeCracks(31);
                     chozo.ResolveTubeCracks(0);
-                    basePalette.LoadEnemyProjectileSprites(screen.SpriteSets.Set(dynamicIndex));
                     samusDeath.SuitedColor(2, 9, 15);
                     samusDeath.SuitedColor(3, 9, 15);
                     samusDeath.ExplosionPaletteIndex(8);
@@ -107,16 +106,16 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 28, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
+        Require(before.UnresolvedCount == 27, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 16 && report.MissingCount == 0 && report.UnresolvedCount == 12,
+        Require(report.Classifications.Count == 15 && report.MissingCount == 0 && report.UnresolvedCount == 12,
             $"only reviewed valid-domain operations qualify; invalid selections must fail " +
-            $"(classified {report.Classifications.Count}/16, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/12; " +
+            $"(classified {report.Classifications.Count}/15, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/12; " +
             $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
-        Require(report.Consumers.Count == 28, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/28; unbound: " +
+        Require(report.Consumers.Count == 27, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/27; unbound: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
 
         InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();

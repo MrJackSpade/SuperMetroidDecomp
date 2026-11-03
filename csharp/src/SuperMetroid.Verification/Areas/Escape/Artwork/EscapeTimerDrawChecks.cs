@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
@@ -49,20 +50,23 @@ internal static class EscapeTimerDrawChecks
     /// <param name="native">The cartridge routine's sprites; finalized here.</param>
     /// <param name="draws">The timer's published draws.</param>
     /// <param name="characters">The timer characters the cartridge loads at OBJ character $1E0.</param>
-    /// <param name="palettes">The starting and common sprite colours a room load copies into CGRAM.</param>
+    /// <param name="bus">The cartridge, whose starting and common sprite colours a room load copies into CGRAM.</param>
     /// <param name="message">Prefix for every assertion.</param>
     internal static void AssertSamePixels(OamBuffer native, IReadOnlyList<SpriteDraw> draws, SpriteArtwork characters,
-        GameplayBasePalette palettes, string message)
+        ISnesAddressSpace bus, string message)
     {
         foreach (SpriteDraw draw in draws)
         {
             AssertEqual(SpriteSourceKind.EscapeTimer, draw.Source.Kind, message + ": draw source");
             AssertTrue(draw is ImageSpriteDraw, message + ": timer draws are sheet images");
         }
-        var cgram = new ScreenPalette();
-        BackgroundColourSetImage.LoadStarting(palettes, cgram);
-        palettes.LoadCommonSprites(SpriteColourStore.Common.In(cgram.SpriteSets));
-        palettes.LoadEnemyProjectileSprites(SpriteColourStore.EnemyProjectiles.In(cgram.SpriteSets));
+        // The native colour image the sprites draw in: the sprite half as a room load leaves it, the starting image's
+        // upper half with the common sprite colours in its first row (#1512). Only sprites are drawn, over the
+        // background half's colour 0.
+        var cgram = new SnesCgram();
+        RgbColor[] sprites = GameplayBasePaletteFiles.RoomLoadSpriteColours(bus);
+        for (int colour = 0; colour < sprites.Length; colour++)
+            cgram.SetColor(SnesCgram.ColorCount - sprites.Length + colour, sprites[colour]);
 
         var vram = new SnesVram();
         vram.LoadBytes(ObjCharacterImage.ResolveTileByteAddress(FirstCharacter, TimerObjectSelection), characters.Characters);

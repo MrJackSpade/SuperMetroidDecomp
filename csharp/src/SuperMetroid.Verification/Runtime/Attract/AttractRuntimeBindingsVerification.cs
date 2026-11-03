@@ -45,7 +45,8 @@ internal static class AttractRuntimeBindingsVerification
         int incomingRandom = game.DispatcherRandomNumber;
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
         var demo = game.GameplayRuntimeForVerification;
-        AssertTrue(demo.Colours.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
+        // The runtime colours from the installed base palettes it binds (#1512); it holds no colour rows to compare.
+        AssertTrue(ReferenceEquals(palettes, demo.Artwork.InitialPaletteArt), "attract runtime binds the installed initial colours");
         AssertTrue(ReferenceEquals(enemyArtwork.Enemies, demo.EnemySession.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
         AssertTrue(ReferenceEquals(demo.Assists.Current, GameplayAssists.None),
@@ -53,7 +54,7 @@ internal static class AttractRuntimeBindingsVerification
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var selected = game.GameplayRuntimeForVerification;
         AssertTrue(!ReferenceEquals(demo, selected), "selected play and attract playback own separate runtimes");
-        AssertTrue(selected.Colours.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
+        AssertTrue(ReferenceEquals(palettes, selected.Artwork.InitialPaletteArt), "selected runtime retains installed palette binding");
         AssertTrue(selected.Assists.Current is { SamusCannotDie: true, AmmoNeverRunsOut: true, EscapeTimerHoldsAtOneSecond: true },
             "selected runtime plays under the session's assists");
 

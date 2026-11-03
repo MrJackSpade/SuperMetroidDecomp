@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
@@ -11,13 +10,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// </summary>
 public readonly struct CgramPalettes(IPaletteColors cgram)
 {
-    /// <summary>Views a frontend screen's own colours, which it addresses by palette position.</summary>
-    /// <param name="screen">The screen's colours.</param>
-    public CgramPalettes(ScreenPalette screen)
-        : this(new ScreenPaletteColors(Ensure.NotNull(screen)))
-    {
-    }
-
     /// <summary>Colours in a complete CGRAM image.</summary>
     public const int ColorCount = SnesCgram.ColorCount;
 

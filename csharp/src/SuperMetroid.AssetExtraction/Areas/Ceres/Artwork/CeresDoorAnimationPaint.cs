@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
@@ -27,9 +28,9 @@ internal sealed class CeresDoorAnimationPaint
     /// <summary>Red channel retained independently for the dim middle amber phase.</summary>
     internal readonly int dimMiddleAmberRed;
     /// <summary>Seed colors that differ from the shared normal target paint.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> seedEdits;
+    internal readonly Dictionary<PaintColour, RgbColor> seedEdits;
     /// <summary>Individual source cells that differ from the calculated mirrored fade.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<PaintColour, RgbColor> edits;
 
     /// <summary>Keeps the independent paint channels and per-cell edits of the eight six-color steps of the glow cycle.</summary>
     /// <param name="normal">The shared normal target paint supplying the seed colors.</param>
@@ -38,7 +39,7 @@ internal sealed class CeresDoorAnimationPaint
     /// <param name="seedEdits">Seed colors the import found differing from the normal target paint.</param>
     /// <param name="edits">Cells the import found differing from the calculated mirrored fade.</param>
     internal CeresDoorAnimationPaint(CeresDoorNormalPaint normal, int firstSeedBlue, int dimMiddleAmberRed,
-        Dictionary<ColourCell, RgbColor> seedEdits, Dictionary<ColourCell, RgbColor> edits)
+        Dictionary<PaintColour, RgbColor> seedEdits, Dictionary<PaintColour, RgbColor> edits)
     {
         this.normal = normal;
         this.firstSeedBlue = firstSeedBlue;
@@ -62,14 +63,14 @@ internal sealed class CeresDoorAnimationPaint
             throw new ArgumentOutOfRangeException(nameof(step));
         if ((uint)color >= 6)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(step, color), out RgbColor edited) ? edited : Calculate(step, color);
+        return edits.TryGetValue(new PaintColour(step, color), out RgbColor edited) ? edited : Calculate(step, color);
     }
 
     /// <summary>Applies the five-step mirrored fade, peak gold brightening, and dim amber exception.</summary>
     private RgbColor Calculate(int step, int color)
     {
         int phase = Math.Min(step, 7 - step);
-        RgbColor seed = seedEdits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : SharedSeed(color);
+        RgbColor seed = seedEdits.TryGetValue(new PaintColour(0, color), out RgbColor edited) ? edited : SharedSeed(color);
         int red = seed.Red, green = seed.Green, blue = seed.Blue;
         if (phase == 0 && color >= 3)
         {

@@ -1,14 +1,14 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// A Torizo's colours (#1512): the colouring his body and belly last settled in and the fade running from it toward the
-/// colours his program names, each step on the shared gradual colour change. His draws show the import's shade of each,
-/// in the common colours with his own rows kept.
+/// colours his program names, each step on the shared gradual colour change. His draws show the import's shade of each.
+/// His initialization clears his draw's palette bits, so his sheets are coloured in the rows his parts name and need no
+/// selection shade; a hurt flash, which clears the same bits, changes nothing he shows.
 /// </summary>
 internal sealed class TorizoColours
 {
@@ -26,7 +26,7 @@ internal sealed class TorizoColours
     {
         get
         {
-            PictureShading shading = EnemyShades.HitFlashed.With(TorizoShades.Shared);
+            PictureShading shading = PictureShading.Shaded(TorizoShades.Shared);
             return fade is { } running && target is { } to
                 ? shading.With(TorizoShades.Fading(running.From, to, running.Value))
                 : shading.With(TorizoShades.Body(settled));

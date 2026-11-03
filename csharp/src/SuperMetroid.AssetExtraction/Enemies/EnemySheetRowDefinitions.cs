@@ -63,12 +63,15 @@ internal static class EnemySheetRowDefinitions
 
     /// <summary>
     /// The shared row each enemy whose initialization selects one draws in for its whole life: the Tourian statues', the
-    /// Chozo statues' and the escape Etecoons' common colours, Ceres's steam in the enemy projectiles' colours.
+    /// Chozo statues', the Torizos' and the escape Etecoons' common colours (each initialization clears the enemy's palette
+    /// bits, so its parts show the rows their own bits name), Ceres's steam in the enemy projectiles' colours.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> FixedRows { get; } = new Dictionary<EnemyDefinitionId, int>
     {
         [EnemyDefinitionId.TourianStatue] = Common,
         [EnemyDefinitionId.Chozo] = Common,
+        [EnemyDefinitionId.BombTorizo] = Common,
+        [EnemyDefinitionId.GoldenTorizo] = Common,
         [EnemyDefinitionId.EtecoonEscape] = Common,
         [EnemyDefinitionId.Steam] = EnemyProjectiles,
     };

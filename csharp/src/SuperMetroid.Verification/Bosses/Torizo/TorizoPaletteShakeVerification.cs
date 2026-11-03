@@ -50,7 +50,7 @@ internal static class TorizoPaletteShakeVerification
             }
         }
         // Sixteen steps: fourteen move the colours, the fifteenth settles them, the sixteenth starts again from the settled colours.
-        AssertEqual(PictureShading.Shaded(HitFlash()).With(TorizoShades.Shared).With(
+        AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(
             TorizoShades.Fading(new TorizoLook(TorizoLookKind.Normal), new TorizoLook(TorizoLookKind.Normal), 0)), state.Colours.Shading,
             "A fade toward the settled colours starts again from them");
 
@@ -60,7 +60,7 @@ internal static class TorizoPaletteShakeVerification
         // The running fade's counter stands at one: thirteen more steps move the colours and the fourteenth settles them.
         for (int call = 0; call < 14; call++)
             Execute(TorizoCueKind.AdvancePaletteFade);
-        AssertEqual(PictureShading.Shaded(HitFlash()).With(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Black))),
+        AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.Black))),
             state.Colours.Shading, "The completed fade settles the body and belly in black");
         AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue, "Completed fade does not create an earthquake");
 
@@ -85,8 +85,6 @@ internal static class TorizoPaletteShakeVerification
         Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
         Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, name their fade's shades, fade only sprite rows 1/2, save mid-fade and create no quake; the import's Torizo colours match the cartridge.");
         return 0;
-
-        static PictureShade HitFlash() => SuperMetroid.Core.Enemies.Drawing.EnemyShades.HitFlash;
     }
 
     /// <summary>Compares the normal fade's last step and every imported Torizo colouring with bank $AA.</summary>

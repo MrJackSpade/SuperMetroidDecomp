@@ -237,14 +237,16 @@ internal sealed class EnemyDrawList
         if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawShading() is { } owned)
             return owned;
 
-        // A hit flash shows the common sprite colours on alternate phases.
+        // A hit flash shows the common sprite colours on alternate phases. The flash selects another row for the draw, so
+        // it lies over the enemy's own shading: pixels it moves show the selected row, and pixels whose row the selection
+        // leaves as it is keep showing what the enemy's own effects laid there.
         if (!slot.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0)
-            return EnemyShades.HitFlashed;
+            return slot.Shading.With(EnemyShades.HitFlash);
 
         if (!slot.FrozenTimer.IsZero &&
             (slot.FrozenTimer.IsAtLeast(90) || slot.FrozenTimer.IsInAlternatePhase(2)))
         {
-            return EnemyShades.FrozenLook;
+            return slot.Shading.With(EnemyShades.Frozen);
         }
 
         return slot.Shading;

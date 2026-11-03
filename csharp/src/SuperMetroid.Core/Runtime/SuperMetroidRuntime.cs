@@ -636,6 +636,9 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.PaletteFx.Step(PaletteFxColours, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
+            // Her heat glow and her suit's loading show over her suit as the records that wrote it (#1512).
+            foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.SuitShown)
+                Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, record));
         }
         // Hyper Beam's palette object lives in the same pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)

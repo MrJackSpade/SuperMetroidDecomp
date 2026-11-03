@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
@@ -97,6 +98,8 @@ internal static class SamusSheetShades
                 [SamusSheetInks.GrappleFlare, .. Enumerable.Range(SamusSheetInks.Beams, SamusColourDefinitions.SuitColours)],
                 Enumerable.Repeat(white, SamusColourDefinitions.SuitColours + 1).ToArray()));
         }
+        // Her heat glow and her suit's loading are palette-FX records she lays over her suit.
+        shades.AddRange(PaletteFxSamusShades.Of(sources.PaletteFx));
         return shades;
     }
 

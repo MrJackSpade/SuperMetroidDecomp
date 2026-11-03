@@ -93,13 +93,24 @@ internal static class PaletteFxRoomShades
             .Select(entry => Shade(entry.Colours, new PaletteFxFrame(entry.Record), colours))];
     }
 
-    /// <summary>The shade of <paramref name="group"/> showing <paramref name="record"/>, coloured from <paramref name="colours"/>.</summary>
+    /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="record"/>, coloured from <paramref name="colours"/>.</summary>
     /// <exception cref="InvalidDataException">A colour is not installed, or the record writes past its group's colours.</exception>
     internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
     {
-        int ink = FirstInks.TryGetValue(group, out int first) ? first
+        int first = FirstInks.TryGetValue(group, out int ink) ? ink
             : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
-        int end = (first / GroupInks + 1) * GroupInks;
+        return Shade(group, record, first, (first / GroupInks + 1) * GroupInks, colours);
+    }
+
+    /// <summary>
+    /// The shade of <paramref name="group"/> showing <paramref name="record"/> over the inks from <paramref name="first"/>
+    /// to before <paramref name="end"/>, coloured from <paramref name="colours"/>, skipping the colours its layout skips.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A colour is not installed, or the record writes at or past <paramref name="end"/>.</exception>
+    internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame record, int first, int end, IPaletteFxColorSource colours)
+    {
+        Ensure.NotNull(colours);
+        int ink = first;
         var inks = new List<int>();
         var shades = new List<RgbColor>();
         int written = 0;
@@ -128,7 +139,7 @@ internal static class PaletteFxRoomShades
     /// of each program it jumps, falls or repeats into, or switches to above the Crateria lightning's height, each under
     /// the colours its last cue named.
     /// </summary>
-    private static void Collect(PaletteFxProgram start, ISet<(PaletteFxColours Colours, int Record)> shown)
+    internal static void Collect(PaletteFxProgram start, ISet<(PaletteFxColours Colours, int Record)> shown)
     {
         var visited = new HashSet<(PaletteFxProgram Program, PaletteFxColours? Colours)>();
         var pending = new Stack<(PaletteFxProgram Program, PaletteFxColours? Colours)>();

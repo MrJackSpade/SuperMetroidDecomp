@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -21,9 +22,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="CrystalFlash">The Crystal Flash's body and bubble colours.</param>
 /// <param name="HyperBeamCycle">The Hyper Beam's own beam colour cycle.</param>
 /// <param name="Death">The death sequence's suited, suitless and whiteout colours.</param>
+/// <param name="PaletteFx">The palette-FX records' colours, whose heat glow and loading suit recolour her suit (#1512).</param>
 internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbColor[] IntroSuit, RgbColor[] IntroBeams,
     InstalledSamusSuitColors Suits, SamusChargeColours Charge, SamusHyperBeamColours HyperBeamSuit,
     SamusFullBodyCycleColours FullBodyCycles, SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> SpeedBoosterOverrun,
     InstalledSamusHurtColors Hurt, InstalledSamusVisorColors Visor, InstalledBeamPalettes BeamPalettes,
     ChainsawBeamColours<RgbColor> Chainsaw, InstalledCrystalFlashColors CrystalFlash, HyperBeamFxColours HyperBeamCycle,
-    InstalledSamusDeathPalettes Death);
+    InstalledSamusDeathPalettes Death, IPaletteFxColorSource PaletteFx);

@@ -31,6 +31,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         .ToArray();
     /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
     private readonly PaletteFxShown shown = new();
+    /// <summary>The records Samus's suit groups showed during the current handler pass, in order (#1512).</summary>
+    private readonly List<(PaletteFxColours Colours, PaletteFxFrame Record)> suitShown = [];
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
@@ -158,6 +160,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         // Requests are momentary calls into the shared queues, not persistent object state.
         soundRequests.Clear();
         musicRequests.Clear();
+        suitShown.Clear();
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -403,6 +406,12 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         }
     }
 
+    /// <summary>
+    /// The records Samus's suit groups showed during the last handler pass, in order (#1512): she lays the shade of each over
+    /// her suit, as each record overwrote her suit's colours then.
+    /// </summary>
+    internal IReadOnlyList<(PaletteFxColours Colours, PaletteFxFrame Record)> SuitShown => suitShown;
+
     /// <summary>The record <paramref name="colours"/> last showed in this room, or null while it has shown none (#1512).</summary>
     internal PaletteFxFrame? RecordOf(PaletteFxColours colours) => shown.RecordOf(colours);
 
@@ -437,6 +446,11 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         shown.Show(animated, frame);
         if (PaletteFxRoomColourDefinitions.RoomColours.Contains(animated))
             return;
+        if (PaletteFxSamusColourDefinitions.SuitColours.Contains(animated))
+        {
+            suitShown.Add((animated, frame));
+            return;
+        }
         PaletteFxColourPlacement placement = PaletteFxColourPlacementDefinitions.Placements[animated];
         ColourRun target = placement.From(owners);
         int colorIndex = 0;

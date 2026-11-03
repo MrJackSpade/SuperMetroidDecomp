@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -46,11 +47,13 @@ internal static class PostCreditsCharacterArtworkVerification
                     checkedPhases.Add(native.Stage.Phase))
                 {
                     LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                    RgbColor[] expectedColours = EndingShownColours.Of(native);
                     byte[] expectedVram = native.ShownVram();
                     LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                    RgbColor[] actualColours = EndingShownColours.Of(installed);
                     byte[] actualVram = installed.ShownVram();
                     AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                            actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                            actualColours.SequenceEqual(expectedColours) &&
                             DisplayRendering.Render(actual).SequenceEqual(
                                 DisplayRendering.Render(expected)),
                         $"installed post-credits art preserves VRAM, palette, and pixels in {hours}h {native.Stage.Phase}");
@@ -81,11 +84,13 @@ internal static class PostCreditsCharacterArtworkVerification
                 installedAudio.AdvanceFrame(default);
                 if (frame < 47) continue;
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
                 LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                        actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
                     $"installed post-shot logo preserves native VRAM/pixels in {hours}h frame {frame}");
@@ -104,11 +109,13 @@ internal static class PostCreditsCharacterArtworkVerification
                     if (frame % 29 == 0 || native.Stage.Phase == EndingCreditsPhase.PostCreditsLogo)
                     {
                         LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                        RgbColor[] expectedColours = EndingShownColours.Of(native);
                         byte[] expectedVram = native.ShownVram();
                         LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                        RgbColor[] actualColours = EndingShownColours.Of(installed);
                         byte[] actualVram = installed.ShownVram();
                         AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                                actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                                actualColours.SequenceEqual(expectedColours) &&
                                 DisplayRendering.Render(actual).SequenceEqual(
                                     DisplayRendering.Render(expected)),
                             $"installed logo pixels at frame {frame}");
@@ -116,6 +123,7 @@ internal static class PostCreditsCharacterArtworkVerification
                         {
                             installed.InstalledArtwork.BindFixtureObjectArtwork(editedLogo);
                             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                            RgbColor[] changedColours = EndingShownColours.Of(installed);
                             visibleLogoEdit |= !actual.Paint.SpriteParts().SequenceEqual(changed.Paint.SpriteParts()) &&
                                 !DisplayRendering.Render(actual).SequenceEqual(
                                     DisplayRendering.Render(changed));
@@ -231,14 +239,16 @@ internal static class PostCreditsCharacterArtworkVerification
                     if (frame % 8 == 0)
                     {
                         LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+                        RgbColor[] originalColours = EndingShownColours.Of(stockState);
                         byte[] originalVram = stockState.ShownVram();
                         LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+                        RgbColor[] changedColours = EndingShownColours.Of(editedState);
                         byte[] changedVram = editedState.ShownVram();
                         bool artChanged = !originalVram.SequenceEqual(changedVram);
                         if (!postShotLogo || artChanged)
                         {
                             AssertTrue(artChanged &&
-                                    original.Paint.Colors.SequenceEqual(changed.Paint.Colors),
+                                    originalColours.SequenceEqual(changedColours),
                                 $"edited {fileName} changes only art, not palette state");
                             if (fragment)
                             {

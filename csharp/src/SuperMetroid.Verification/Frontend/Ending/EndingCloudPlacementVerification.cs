@@ -70,13 +70,14 @@ internal static class EndingCloudPlacementVerification
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            RgbColor[] actualColours = EndingShownColours.Of(ending);
             int objectSelection = SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(
                 EndingCreditsPresentation.CurrentEscapeObjectSheet(ending));
             byte[] nativeVram = ending.ShownVram();
             nativeCloudCharacters.CopyTo(nativeVram.AsSpan(
                 SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage.ResolveTileByteAddress(0, objectSelection)));
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
-            var expectedMemory = actual.Paint.WithNativeColoursAndOam(nativeVram, actual.Paint.Colors,
+            var expectedMemory = actual.Paint.WithNativeColoursAndOam(nativeVram, actualColours,
                 oamBytes, oam.LastFinalizedSpriteCount, objectSelection);
             var expected = DisplayRendering.Render(new LayeredScene(expectedMemory, actual.Layers, actual.Brightness));
             var pixels = ending.Render();

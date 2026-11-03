@@ -94,11 +94,11 @@ internal static class EndingPlanetBoundaryVerification
     /// The probe's input (csharp/test-fixtures/ending-native-ppu/probe.c): VRAM, CGRAM as little-endian words, the
     /// screen's 544-byte OAM upload, then OBSEL and brightness.
     /// </summary>
-    private static byte[] NativeProbeInput(LayeredScene snapshot, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
+    private static byte[] NativeProbeInput(LayeredScene snapshot, IReadOnlyList<RgbColor> snapshotColours, byte[] snapshotVram, OamBuffer oam, byte objectSelection)
     {
         var input = new List<byte>(SnesVram.ByteCount + SnesCgram.ColorCount * 2 + SnesPpuLayoutConstants.OamUploadByteCount + 2);
         input.AddRange(snapshotVram);
-        foreach (RgbColor color in snapshot.Paint.Colors)
+        foreach (RgbColor color in snapshotColours)
         {
             input.Add(LittleEndianBytes.LowByte(color.ToWord()));
             input.Add(LittleEndianBytes.HighByte(color.ToWord()));
@@ -135,13 +135,14 @@ internal static class EndingPlanetBoundaryVerification
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            RgbColor[] snapshotColours = EndingShownColours.Of(ending);
             var projection = snapshot.LayersOf<TurningFloorLayer>().Single();
             // D837 retains M7SEL=0 from atmospheric setup. Its main is BG1,
             // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
             DisplayLayer[] nativeLayers = [new TurningFloorLayer(projection.Transform with { Outside = FloorOverflowMode.Wrap },
-                    AffineFloorFixtures.Floor(nativeVram, snapshot.Paint.Colors)),
+                    AffineFloorFixtures.Floor(nativeVram, snapshotColours)),
                 new SpritesLayer(AddToScreen: true)];
-            var nativeMemory = snapshot.Paint.WithNativeColours(snapshot.Paint.Colors);
+            var nativeMemory = snapshot.Paint.WithNativeColours(snapshotColours);
             var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
@@ -154,11 +155,12 @@ internal static class EndingPlanetBoundaryVerification
         for (int frame = 0; frame < 2048 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             var live = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
+            RgbColor[] liveColours = EndingShownColours.Of(ending);
             byte[] reconstructed = ending.ShownVram();
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
             // The frame carries no VRAM (#1403): the floor is drawn again from the native reconstruction.
             DisplayLayer[] reconstructedLayers = [.. live.Layers.ToArray().Select(layer => layer is TurningFloorLayer floor
-                ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, live.Paint.Colors) }) : layer)];
+                ? (floor with { Floor = AffineFloorFixtures.Floor(reconstructed, liveColours) }) : layer)];
             var nativePixels = DisplayRendering.Render(new LayeredScene(live.Paint, reconstructedLayers, live.Brightness));
             differences += ending.Render().Zip(nativePixels, (first, second) => first != second).Count(differs => differs);
             if (capture is not null && capture.Frames.Contains(frame))
@@ -168,7 +170,7 @@ internal static class EndingPlanetBoundaryVerification
                 capture.Snapshots[frame] = sample;
                 var shownEnding = ending.ShownVram();
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
-                    NativeProbeInput(sample, shownEnding, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
+                    NativeProbeInput(sample, EndingShownColours.Of(ending), shownEnding, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
                         SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
             }
             ending.Step();

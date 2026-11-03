@@ -276,10 +276,12 @@ internal static class EndingPaletteArtworkVerification
             if (first || frame % 173 == 0)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeState);
+                RgbColor[] expectedColours = EndingShownColours.Of(nativeState);
                 byte[] expectedVram = nativeState.ShownVram();
                 LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedState);
+                RgbColor[] actualColours = EndingShownColours.Of(installedState);
                 byte[] actualVram = installedState.ShownVram();
-                AssertTrue(actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                AssertTrue(actualColours.SequenceEqual(expectedColours) &&
                         actualVram.SequenceEqual(expectedVram) &&
                         actual.Brightness == expected.Brightness,
                     $"installed ending palettes preserve native PPU state at frame {frame}");
@@ -365,8 +367,7 @@ internal static class EndingPaletteArtworkVerification
                 while (editedState.ResumesAfterFrameWait);
                 var shownEditedState = editedState.ShownVram();
                 var shownStockState = stockState.ShownVram();
-                AssertTrue(!EndingCreditsPresentation.CaptureRenderSnapshot(editedState).Paint.Colors.SequenceEqual(
-                        EndingCreditsPresentation.CaptureRenderSnapshot(stockState).Paint.Colors) &&
+                AssertTrue(!EndingShownColours.Of(editedState).SequenceEqual(EndingShownColours.Of(stockState)) &&
                     shownEditedState.SequenceEqual(
                         shownStockState),
                     "edited escape palette reaches the active CGRAM image");
@@ -455,11 +456,13 @@ internal static class EndingPaletteArtworkVerification
         {
             if (frame == 20)
             {
-                RgbColor[] before = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors.ToArray();
+                // The screen names the records it has shown, whose shades the installation holds (#1512): rebinding the
+                // palette-FX colours changes neither the shading nor the backdrop already shown.
+                PictureShading before = editedScene.screen.Colours.Shading;
+                RgbColor beforeBackdrop = editedScene.screen.Colours.Backdrop;
                 editedScene.InstalledArtwork.BindPaletteFxColors(editedColors);
-                AssertTrue(before.SequenceEqual(
-                        EndingCreditsPresentation.CaptureRenderSnapshot(editedScene).Paint.Colors),
-                    "rebinding ending palette-FX preserves already-drawn CGRAM state");
+                AssertTrue(before == editedScene.screen.Colours.Shading && beforeBackdrop == editedScene.screen.Colours.Backdrop,
+                    "rebinding ending palette-FX preserves the already-shown shading and backdrop");
                 reboundDuringScene = true;
             }
             AssertEqual(stockScene.Stage.Phase, editedScene.Stage.Phase,
@@ -470,10 +473,12 @@ internal static class EndingPaletteArtworkVerification
             stockAudio.AdvanceFrame(default);
             if (frame % 3 != 0) continue;
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedScene);
+            RgbColor[] changedColours = EndingShownColours.Of(editedScene);
             byte[] changedVram = editedScene.ShownVram();
             LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockScene);
+            RgbColor[] originalColours = EndingShownColours.Of(stockScene);
             byte[] originalVram = stockScene.ShownVram();
-            if (changed.Paint.Colors.SequenceEqual(original.Paint.Colors)) continue;
+            if (changedColours.SequenceEqual(originalColours)) continue;
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "ending palette-FX edit does not change graphics or transfer timing");
             if (!DisplayRendering.Render(changed).SequenceEqual(
@@ -550,8 +555,10 @@ internal static class EndingPaletteArtworkVerification
             if (stockState.Stage.Phase != EndingCreditsPhase.Credits || stockState.Stage.Brightness == 0 ||
                 frame % 19 != 0) continue;
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+            RgbColor[] changedColours = EndingShownColours.Of(editedState);
             byte[] changedVram = editedState.ShownVram();
             LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+            RgbColor[] originalColours = EndingShownColours.Of(stockState);
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "credits palette edit does not alter graphics VRAM");
@@ -599,8 +606,10 @@ internal static class EndingPaletteArtworkVerification
             if (stockState.Stage.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
                 continue;
             LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
+            RgbColor[] changedColours = EndingShownColours.Of(editedState);
             byte[] changedVram = editedState.ShownVram();
             LayeredScene original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+            RgbColor[] originalColours = EndingShownColours.Of(stockState);
             byte[] originalVram = stockState.ShownVram();
             AssertTrue(changedVram.SequenceEqual(originalVram),
                 "logo fade color edit does not alter graphics VRAM");

@@ -63,11 +63,13 @@ internal static class EndingMode7ArtworkVerification
             if (first || frame % 173 == 0)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                RgbColor[] expectedColours = EndingShownColours.Of(native);
                 byte[] expectedVram = native.ShownVram();
                 LayeredScene actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
+                RgbColor[] actualColours = EndingShownColours.Of(installed);
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
-                        actual.Paint.Colors.SequenceEqual(expected.Paint.Colors) &&
+                        actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
                     $"installed ending art preserves native VRAM and pixels at frame {frame}");

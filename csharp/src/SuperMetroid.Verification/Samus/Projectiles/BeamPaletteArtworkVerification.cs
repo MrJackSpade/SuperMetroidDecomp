@@ -36,24 +36,21 @@ internal static class BeamPaletteArtworkVerification
         Suite(nameof(VerifyCrystalFlashFinishBeamPalette), () => VerifyCrystalFlashFinishBeamPalette(catalog));
         for (ushort selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
-            var expected = new SnesCgram(); var actual = new SamusColourRig();
+            var expected = new SnesCgram(); var actual = new SamusColours();
             for (int i = 0; i < SnesCgram.ColorCount; i++)
-            {
                 expected.SetColor(i, RgbColor.FromWord((ushort)(i * 31)));
-                actual.SetColor(i, RgbColor.FromWord((ushort)(i * 31)));
-            }
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
             // The beams name the selection's shade (#1512); the import resolves it from the extracted catalog.
-            SamusProjectileSystem.LoadBeamPalette(actual.Samus, (SamusBeamFlags)selection);
-            RgbColor[] shown = actual.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
+            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)selection);
+            RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
             for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
                 AssertEqual(expected.Colors[SamusColourNative.BeamFirstCgram + i], shown[i], "Extracted beam palette matches the native beam colours");
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteFile.Read(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            RgbColor[] shownEdited = actual.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = edited });
+            RgbColor[] shownEdited = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = edited });
             for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[SamusColourNative.BeamFirstCgram + i].ToWord() ^ (i == 3 ? 1 : 0)),
                     shownEdited[i], "Palette edit changes exactly the selected color channel bit");
@@ -98,11 +95,11 @@ internal static class BeamPaletteArtworkVerification
             var finishedColours = new SamusColours();
             AssertTrue(samus.CrystalFlash.UpdatePalette(finishedColours, samus),
                 $"{beams}: Crystal Flash's finish runs");
-            var expected = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(expected.Samus, beams);
-            AssertEqual(expected.Samus.Beams, finishedColours.Beams, $"{beams}: Crystal Flash's finish shows the shade equipping the beams shows");
+            var expected = new SamusColours();
+            SamusProjectileSystem.LoadBeamPalette(expected, beams);
+            AssertEqual(expected.Beams, finishedColours.Beams, $"{beams}: Crystal Flash's finish shows the shade equipping the beams shows");
             var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes, Chainsaw = chainsaw };
-            AssertTrue(finishedColours.ShownBeams(sources).SequenceEqual(expected.Samus.ShownBeams(sources)),
+            AssertTrue(finishedColours.ShownBeams(sources).SequenceEqual(expected.ShownBeams(sources)),
                 $"{beams}: Crystal Flash's finish shows the colours equipping the beams shows");
             AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind, $"{beams}: the finish releases the palette");
         }

@@ -101,8 +101,8 @@ internal static class SamusFullBodyCycleColorsVerification
         foreach (ushort pointer in originalPointers)
         {
             AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
-            var cgram = new SamusColourRig();
-            nativeColours.Apply(cgram.Samus, pointer);
+            var cgram = new SamusColours();
+            nativeColours.Apply(cgram, pointer);
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
@@ -182,7 +182,7 @@ internal static class SamusFullBodyCycleColorsVerification
                         RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b9b20 + 2 * color))), RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x9b9b40 + 2 * color)))), "Original Gravity base shared-channel pairs");
                 AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk && !endpoint && !gravityShared && !variaScrew,
                     stored.ContainsKey(new TableColourPlace(paletteIndex, color)), "Only source inputs remain in stock storage");
-                AssertEqual((ushort)(expected & 0x7fff), cgram.Samus.ShownSuit(nativeSources)[color], "Every full-body palette row reaches Samus's shade");
+                AssertEqual((ushort)(expected & 0x7fff), cgram.ShownSuit(nativeSources)[color], "Every full-body palette row reaches Samus's shade");
             }
             foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => native.Resolve(pointer, invalid), "Full-body color bounds");
@@ -452,8 +452,8 @@ internal static class SamusFullBodyCycleColorsVerification
                     SpecialPaletteTimer = WrappingCountdown.Start(1),
                     CyclePaletteStep = phase,
                 };
-                var cgram = new SamusColourRig();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
+                var cgram = new SamusColours();
+                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
@@ -461,8 +461,8 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var screw = new SamusHorizontalSpeedState { CyclePaletteStep = phase };
-                var cgram = new SamusColourRig();
-                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
+                var cgram = new SamusColours();
+                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));
@@ -472,8 +472,8 @@ internal static class SamusFullBodyCycleColorsVerification
             AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine");
             for (int phase = 0; phase < 6; phase++)
             {
-                var cgram = new SamusColourRig();
-                AssertTrue(stored.Shinespark.UpdatePalette(cgram.Samus, items),
+                var cgram = new SamusColours();
+                AssertTrue(stored.Shinespark.UpdatePalette(cgram, items),
                     "stored shine reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.StoredShine, suit,
                     Math.Min(phase, 6 - phase));
@@ -484,8 +484,8 @@ internal static class SamusFullBodyCycleColorsVerification
             active.Shinespark.BeginWindup(active);
             for (int phase = 0; phase < 4; phase++)
             {
-                var cgram = new SamusColourRig();
-                AssertTrue(active.Shinespark.UpdatePalette(cgram.Samus, items),
+                var cgram = new SamusColours();
+                AssertTrue(active.Shinespark.UpdatePalette(cgram, items),
                     "active shinespark reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);
             }
@@ -495,8 +495,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 EquippedItems = items,
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
             };
-            var attachmentColors = new SamusColourRig();
-            AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors.Samus, attached),
+            var attachmentColors = new SamusColours();
+            AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),
                 "Metroid attachment reaches installed Speed Booster color source");
             AssertColors(attachmentColors, SamusFullBodyCycleFamily.SpeedBooster, suit, 3);
         }
@@ -530,12 +530,12 @@ internal static class SamusFullBodyCycleColorsVerification
             "removing cycle-color override restores stock identity");
         Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard, rebind, strict values and override removal pass.");
 
-        void AssertColors(SamusColourRig cgram, SamusFullBodyCycleFamily family, int suit, int shade)
+        void AssertColors(SamusColours cgram, SamusFullBodyCycleFamily family, int suit, int shade)
         {
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
                 AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).FullBodyCycles.Resolve(pointer, color),
-                    cgram.Samus.ShownSuit(editedSources)[color],
+                    cgram.ShownSuit(editedSources)[color],
                     $"{family} suit {suit}, shade {shade}, color {color} reaches live CGRAM");
         }
 

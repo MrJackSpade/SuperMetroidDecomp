@@ -392,7 +392,7 @@ internal static void VerifySamusXray()
 
     SeedXrayCartridge(bus);
 
-    var cgram = new SamusColourRig();
+    var xrayColours = new SamusColours();
     var xrayColors = SamusVisorColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var xraySuitColors = SamusSuitColorFile.Read(new MemoryStream(
@@ -433,9 +433,9 @@ internal static void VerifySamusXray()
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only the visor colour, advances shade zero to one, and reloads five.
-    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
-    AssertEqual(0x3be0, cgram.Samus.ShownVisor(xraySources), "first widening visor shade shows its installed color");
+    AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
     AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
         "widening palette timer reload");
@@ -478,10 +478,10 @@ internal static void VerifySamusXray()
             RotationAngle.QuarterTurn.TableIndex - 10, RotationAngle.QuarterTurn.TableIndex + 10), DisplayScreen.HudHeight),
         xrayWindow, "the full X-ray beam is a cone from Samus's eye, ten units either side of her aim");
 
-    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
         "full beam enters visor cycle");
     AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
-    AssertEqual(0x43ff, cgram.Samus.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
+    AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
     AssertEqual(4, standing.Xray.VisorShade, "full-beam visor shade advances");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
@@ -549,9 +549,9 @@ internal static void VerifySamusXray()
         "X-ray teardown sound is consumable exactly once");
     AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
         "consumed X-ray teardown sound cannot replay");
-    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
-    AssertEqual(0x0104, cgram.Samus.ShownSuit(xraySources)[4], "normal palette replaces visor color");
+    AssertEqual(0x0104, xrayColours.ShownSuit(xraySources)[4], "normal palette replaces visor color");
     AssertEqual(SamusSpecialPaletteType.None, standing.Xray.SpecialPaletteKind, "X-ray palette handler clears");
 
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes

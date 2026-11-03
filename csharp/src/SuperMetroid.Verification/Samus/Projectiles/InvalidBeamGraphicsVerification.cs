@@ -47,9 +47,9 @@ internal static class InvalidBeamGraphicsVerification
         var gameplayBus = NewProjectileCompositionForbiddenBus();
         for (ushort beam = 0; beam < 12; beam++)
         {
-            var ordinary = new SamusColourRig();
-            SamusProjectileSystem.LoadBeamPalette(ordinary.Samus, (SamusBeamFlags)beam);
-            RgbColor[] ordinaryBeams = ordinary.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = artwork.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") });
+            var ordinary = new SamusColours();
+            SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam);
+            RgbColor[] ordinaryBeams = ordinary.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = artwork.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") });
             int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
             int source = (int)new SnesAddress(0x90, LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)

@@ -664,14 +664,15 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // `$8014` supplies ten descending even table offsets with an odd no-write hold after
     // each one. The twenty-first call sees `$8000`, skips the padding pointer, and restores
-    // Power Suit. Verify every ROM word so reversed palette order cannot look plausible.
-    var hyperGlowCgram = new SamusColourRig();
+    // Power Suit. Each palette call names the Hyper-shot frame of the table offset it reads (the import pre-colours
+    // frame f from offset (10 - f) * 2), so reversed palette order shows the wrong frame (#1512).
+    var hyperGlowColours = new SamusColours();
     for (int call = 0; call < 21; call++)
     {
-        RgbColor[] beforeColors = hyperGlowCgram.Colors.ToArray();
+        PictureShade suitBefore = hyperGlowColours.Suit;
         ushort hyperTimerBefore = hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue;
         SamusBeamChargePaletteStepResult paletteStep =
-            hyperProjectiles.UpdateBeamChargePalette(hyperGlowCgram.Samus, hyperSamus);
+            hyperProjectiles.UpdateBeamChargePalette(hyperGlowColours, hyperSamus);
         if (call < 20 && (call & 1) == 0)
         {
             int palette = call / 2;
@@ -681,30 +682,30 @@ internal static void VerifySamusPowerBeamProjectiles()
             // descend from $14, selecting palettes 0..9 in order.
             AssertEqual(0x14 - palette * 2, hyperTimerBefore & 0x001e,
                 $"Hyper body glow call {call + 1} uses descending table index");
-            ushort[] expectedPalette = Enumerable.Range(0, 16)
-                .Select(color => unchecked((ushort)(0x2000 + palette * 0x20 + color)))
-                .ToArray();
-            AssertPaletteSlice(hyperGlowCgram, 192, expectedPalette,
-                $"Hyper body palette {palette}");
+            AssertEqual(SamusShades.HyperShot(palette), hyperGlowColours.Suit,
+                $"Hyper body palette {palette} shows its Hyper-shot frame");
+            RgbColor[] hyperSuit = hyperGlowColours.ShownSuit(projSources);
+            for (int color = 0; color < 16; color++)
+                AssertEqual(unchecked((ushort)(0x2000 + palette * 0x20 + color)), hyperSuit[color],
+                    $"Hyper body palette {palette} colour {color} is the table word the import pre-colours");
         }
         else if (call < 20)
         {
             AssertEqual(SamusBeamChargePaletteAction.HyperHold, paletteStep.Action,
                 $"Hyper body glow call {call + 1} is odd hold");
-            AssertSequenceEqual(
-                beforeColors,
-                hyperGlowCgram.Colors.ToArray(),
-                $"Hyper body glow hold {call + 1} leaves CGRAM unchanged");
+            AssertEqual(suitBefore, hyperGlowColours.Suit,
+                $"Hyper body glow hold {call + 1} keeps the suit's shade");
         }
         else
         {
             AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
                 "Hyper body glow call 21 restores suit");
-            AssertPaletteSlice(hyperGlowCgram, 192,
-                Enumerable.Range(0, 16)
-                    .Select(color => unchecked((ushort)(0x0100 + color)))
-                    .ToArray(),
-                "Hyper body glow restore installs the Power Suit palette");
+            AssertEqual(SamusShades.Suit(SamusSuit.Power), hyperGlowColours.Suit,
+                "Hyper body glow restore shows the Power Suit");
+            RgbColor[] restoredSuit = hyperGlowColours.ShownSuit(projSources);
+            for (int color = 0; color < 16; color++)
+                AssertEqual(unchecked((ushort)(0x0100 + color)), restoredSuit[color],
+                    "Hyper body glow restore shows the Power Suit palette");
         }
     }
     AssertEqual(0, hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue,

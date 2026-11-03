@@ -25,7 +25,7 @@ public sealed class SamusDeathSteps
     public SamusDeathSteps(ImmutableArray<int> explosionSteps, ImmutableArray<RgbColor> whiteout)
     {
         if (explosionSteps.IsDefault || explosionSteps.Length != SamusDeathExplosionTimingDefinitions.RecordCount ||
-            explosionSteps.Any(step => step < 0 || step >= SamusPaletteDefinitions.Death.PaletteCount))
+            explosionSteps.Any(step => step is < 0 or >= SamusPaletteDefinitions.Death.PaletteCount))
             throw new InvalidDataException("Samus's death explosion names one existing death step per explosion frame.");
         if (whiteout.IsDefault || whiteout.Length != SamusPaletteDefinitions.Death.WhiteoutShadeCount)
             throw new InvalidDataException("Samus's death whiteout holds one colour per whiteout step.");

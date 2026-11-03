@@ -123,13 +123,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                     : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
                 // The game reads the enemy's colour selection as the count: the empty record's is zero, an Evir spit's
                 // gives the retail rooms' half-cycle.
-                EvirHalfCycleSourceField.SpitColours => enemy.DefinitionId switch
-                {
-                    EnemyDefinitionId.None => 0,
-                    EnemyDefinitionId.EvirProjectile => EvirInitDefinitions.SpitColoursHalfCycle,
-                    _ => throw new InvalidDataException(
-                        $"An Evir body reads the colours of {enemy.DefinitionId}, which no retail room places where it reads."),
-                },
+                EvirHalfCycleSourceField.SpitColours => enemy.DefinitionId == EnemyDefinitionId.None
+                    ? 0
+                    : enemy.DefinitionId == EnemyDefinitionId.EvirProjectile
+                        ? EvirInitDefinitions.SpitColoursHalfCycle
+                        : throw new InvalidDataException(
+                            $"An Evir body reads the colours of {enemy.DefinitionId}, which no retail room places where it reads."),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             });
         }

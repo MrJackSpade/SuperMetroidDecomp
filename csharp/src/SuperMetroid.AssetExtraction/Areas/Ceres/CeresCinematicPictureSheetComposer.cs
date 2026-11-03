@@ -8,6 +8,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -35,19 +36,25 @@ internal static class CeresCinematicPictureSheetComposer
     /// <summary>The cells along each side of the Zebes planet's map.</summary>
     private const int PlanetCells = 32;
 
-    /// <summary>Composes the sheet from the installed intro artwork.</summary>
+    /// <summary>
+    /// Composes the sheet from the installed intro artwork, with a shade for each record the gunship engine's flicker
+    /// shows over the planet, coloured from <paramref name="paletteFx"/> (#1512).
+    /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro) => Compose(Ensure.NotNull(intro).CeresFlight, intro);
+    internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
+        Compose(Ensure.NotNull(intro).CeresFlight, intro, paletteFx);
 
     /// <summary>
     /// Composes the sheet from the flight artwork <paramref name="ceresFlight"/> and the rest of <paramref name="intro"/>'s
-    /// artwork, as an installation whose flight artwork is replaced composes it.
+    /// artwork, as an installation whose flight artwork is replaced composes it, with the engine flicker's shades coloured
+    /// from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(CeresFlightArtwork ceresFlight, IntroCinematicArtwork intro)
+    internal static ComposedSpriteSheet Compose(CeresFlightArtwork ceresFlight, IntroCinematicArtwork intro, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);
+        Ensure.NotNull(paletteFx);
         byte[] flight = CeresFlightCharacters.Of(ceresFlight).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount].ToArray();
         // The destruction loads the shared cinematic sheet over the start of the flight's objects; the reveal its own over them.
         byte[] zebes = (byte[])flight.Clone();
@@ -80,7 +87,10 @@ internal static class CeresCinematicPictureSheetComposer
             planetGroups = planetGroups.Union(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,
                 planet[cell], zebes, colours));
         frames.Add(CeresCinematicPictures.ZebesPlanet, Frame(0, captionHeight, PlanetCells, planet.Length / PlanetCells, planetGroups));
-        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
+        // The planet shows the gunship engine flicker's colour wherever its tiles name it, as the flicker runs through the
+        // reveal (#1512); the caption, which the flight shows before any flicker, never names a shade.
+        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents(CeresSheetInks.EngineShades(paletteFx)) } };
     }
 
     /// <summary>Paints <paramref name="tile"/> at (<paramref name="left"/>, <paramref name="top"/>) from <paramref name="characters"/>.</summary>

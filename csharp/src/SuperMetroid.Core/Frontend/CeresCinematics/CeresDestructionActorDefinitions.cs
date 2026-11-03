@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>Fixed actor metadata and physical motion for Ceres destruction and Zebes reveal.</summary>
@@ -15,14 +16,14 @@ internal static class CeresDestructionActorDefinitions
     /// Its slide callback accelerates by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteProgram.ZebesPlanet,
-            new(136, 111), ScreenColourGroup.CeresDestructionZebes, 0, false, 64, CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
+            new(136, 111), CeresSpriteColouring.Zebes, 0, false, 64, CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
 
     /// <summary>The PLANET ZEBES text actor: its initializer,
     /// an empty callback and its list. Its operands center the title at (128,186), palette zero.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.ZebesTitle,
-            new(128, 186), ScreenColourGroup.CeresDestructionTitle, 0, false, 0, null, false);
+            new(128, 186), CeresSpriteColouring.ZebesTitle, 0, false, 0, null, false);
 
     /// <summary>The four star sheets' programs, indexed by row-major quadrant.</summary>
     internal static readonly CinematicSpriteProgram[] ZebesStarSheets =

@@ -981,7 +981,7 @@ internal static class LookupStream5Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actualOam.BeginFrame(); expectedOam.BeginFrame();
-            CinematicSheetFixtures.Drawer(catalog).Draw(pose, actualOam, new(128, 112), ScreenColourGroup.CeresFlightSpaceObjects, true);
+            CinematicSheetFixtures.Drawer(catalog).Draw(pose, actualOam, new(128, 112), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects), true);
             expected.DrawOnScreen(expectedOam, new(128, 112), 0x0800);
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertEqual(expectedOam.LastFinalizedSpriteCount, actualOam.LastFinalizedSpriteCount, "Star OAM count/order");
@@ -1894,11 +1894,11 @@ internal static class LookupStream5Verification
             }
             colors[index] = original;
         }
-        // The palette is read by owner set and colour; its byte serialization belongs to the import pipeline.
-        ScreenColours stockColours = stock.Colours;
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = stockColours[new ScreenColourCell(ScreenColourOwner.Backgrounds, -1, 0)], "Ceres palette lower set bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = stockColours[new ScreenColourCell(ScreenColourOwner.Sprites, ColourSets.SetCount, 0)], "Ceres palette upper set bound");
-        AssertEqual(CgramPalettes.ByteCount, ScreenColourImage.Words(stockColours).Length, "Ceres palette serializes every colour of both owners");
+        // The import reads the palette as its background colours then its sprite colours (#1512); the game keeps its backdrop.
+        AssertEqual(SnesCgram.ColorCount, stock.Colours.Length, "Ceres palette holds every colour of both owners");
+        AssertEqual(stock.Colours[0], stock.Backdrop, "Ceres palette's backdrop is its first background colour");
+        AssertEqual(CgramPalettes.ByteCount, ScreenColourImage.Words(stock.BackgroundColours.AsSpan(), stock.SpriteColours.AsSpan()).Length,
+            "Ceres palette serializes every colour of both owners");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightCharacters.Read(Open(CeresFlightArtworkFileFormat.FloorFileName),
             Open(CeresFlightArtworkFileFormat.MapFileName), Open(CeresFlightArtworkFileFormat.ObjectFileName),
@@ -1923,16 +1923,15 @@ internal static class LookupStream5Verification
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
             using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
             CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
-            var cgram = new ScreenPalette(); actual.LoadTo(cgram);
-            RgbColor[] selected = ScreenColourImage.Encode(actual.Colours);
-            RgbColor[] loaded = ScreenColourImage.Encode(cgram);
-            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(actual.Colours);
+            RgbColor[] selected = [.. actual.Colours];
+            RgbColor[] loaded = [.. actual.BackgroundColours, .. actual.SpriteColours];
+            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(actual.BackgroundColours.AsSpan(), actual.SpriteColours.AsSpan());
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5 color = colors[index];
                 ushort expected = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
                 AssertEqual(expected, selected[index], "Every selected color remains independent");
-                AssertEqual(expected, loaded[index], "Calculated colors reach actual CGRAM");
+                AssertEqual(expected, loaded[index], "Calculated colours reach the colours the import pre-colours the scenes in");
                 AssertEqual(expected, System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * sizeof(ushort))), "Serialized colors retain exact native byte order");
             }
             return actual;

@@ -56,7 +56,8 @@ internal static class CeresFlightArtworkVerification
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         // The installed colours in the cartridge's colour order, compared with the native palette colour by colour.
-        byte[] installedWords = ScreenColourImage.Words(stock.Palette.Colours);
+        byte[] installedWords = ScreenColourImage.Words(CeresFlightCharacters.Of(stock).Palette.BackgroundColours.AsSpan(),
+            CeresFlightCharacters.Of(stock).Palette.SpriteColours.AsSpan());
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),
                 System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(installedWords.AsSpan(index * sizeof(ushort))),
@@ -89,7 +90,7 @@ internal static class CeresFlightArtworkVerification
                 byte[] compiledVram = installed.ShownVram();
                 AssertTrue(compiled.Brightness == original.Brightness &&
                         compiledVram.SequenceEqual(originalVram) &&
-                        compiled.Paint.Colors.SequenceEqual(original.Paint.Colors) &&
+                        compiled.Paint.Backdrop == original.Paint.Backdrop &&
                         DisplayRendering.Render(compiled).SequenceEqual(
                             DisplayRendering.Render(original)),
                     $"installed Ceres flight matches native pixels and PPU state at tick {tick}");
@@ -313,17 +314,18 @@ internal static class CeresFlightArtworkVerification
         byte[] editedFrameVram = changed.ShownVram();
         AssertTrue(stockFrameVram.SequenceEqual(editedFrameVram),
             "Ceres palette edit does not change graphics VRAM");
-        AssertTrue(!stockFrame.Paint.Colors.SequenceEqual(editedFrame.Paint.Colors),
-            "Ceres palette edit reaches active CGRAM");
+        // The edit is the flight's backdrop colour, which the scene publishes with its frame (#1512).
+        AssertTrue(stockFrame.Paint.Backdrop != editedFrame.Paint.Backdrop,
+            "Ceres palette edit reaches the approach's backdrop");
         AssertTrue(!DisplayRendering.Render(stockFrame).SequenceEqual(
                 DisplayRendering.Render(editedFrame)),
             "Ceres palette edit changes visible approach pixels");
 
         var restored = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         restored.BindFixtureFlightArtwork(edited);
-        AssertTrue(restored.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
-                new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Paint.Colors),
-            "restored Ceres flight rebinds current palette without restarting phase");
+        AssertEqual(new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited)).CaptureRenderSnapshot().Paint.Backdrop,
+            restored.CaptureRenderSnapshot().Paint.Backdrop,
+            "restored Ceres flight rebinds the current backdrop without restarting phase");
 
         IntroCinematicArtwork stockParent = IntroCinematicArtworkFiles.Load(
             installation.IntroCinematicDirectory, null);
@@ -338,13 +340,11 @@ internal static class CeresFlightArtworkVerification
             restoredDestruction.Step();
             editedDestruction.Step();
         }
-        AssertTrue(!restoredDestruction.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
-                editedDestruction.CaptureRenderSnapshot().Paint.Colors),
-            "shared Ceres palette edit reaches destruction CGRAM");
+        AssertTrue(restoredDestruction.CaptureRenderSnapshot().Paint.Backdrop != editedDestruction.CaptureRenderSnapshot().Paint.Backdrop,
+            "shared Ceres palette edit reaches the destruction's backdrop");
         restoredDestruction.BindFixtureDestructionArtwork(editedParent);
-        AssertTrue(restoredDestruction.CaptureRenderSnapshot().Paint.Colors.SequenceEqual(
-                editedDestruction.CaptureRenderSnapshot().Paint.Colors),
-            "restored destruction rebinds its shared palette before engine FX owns CGRAM");
+        AssertEqual(editedDestruction.CaptureRenderSnapshot().Paint.Backdrop, restoredDestruction.CaptureRenderSnapshot().Paint.Backdrop,
+            "restored destruction rebinds the flight's backdrop before the engine flicker starts");
         File.Delete(overridePath);
 
         File.WriteAllBytes(overridePath, [0]);

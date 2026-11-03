@@ -5,7 +5,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -34,10 +33,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-        {
             BindFixedColors(artwork.MapPresentation?.PowerBombFixedColors);
-            BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
-        }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);
         BindSpriteSheets(artwork.SpriteSheets);
@@ -56,8 +52,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal CeresFloorShot? FloorShot { get; private set; }
     /// <summary>Whether the Zebes reveal has loaded its characters and planet map over the station's (#1467).</summary>
     internal bool ZebesRevealed { get; private set; }
-    /// <summary>The scene's colors: the Ceres base palette and later engine-flicker program (#1358).</summary>
-    internal readonly ScreenPalette palette = new();
+    /// <summary>
+    /// The colour the scene shows behind every layer (#1512): black until the scene loads the flight's colours, then the
+    /// installed flight's backdrop, which the engine flicker never recolours.
+    /// </summary>
+    internal RgbColor Backdrop { get; private set; }
+    /// <summary>
+    /// The record the gunship engine's flicker last showed (#1512), which the floor's shading names, or null before the
+    /// flicker has shown one.
+    /// </summary>
+    private PaletteFxFrame? engineRecord;
     /// <summary>The live actors' sprite entries over the OBJ characters the uploads leave (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Installed art, bound when the game is bound to its installed content.</summary>
@@ -82,8 +86,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
     internal RoomPaletteFxSystem? PaletteFx { get; set; }
-    /// <summary>Installed color provider rebound whenever the game is bound to its installed content.</summary>
-    private IPaletteFxColorSource? paletteFxColors;
     /// <summary>Planet actor whose sliding pre-instruction uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
     /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
@@ -133,7 +135,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="audio">The shared music and sound queue.</param>
     /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
-    /// <param name="paletteFxColors">Installed palette-FX colors for the engine-flicker program.</param>
     /// <param name="outcome">
     /// Game state $25 rather than $22: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
@@ -143,14 +144,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         AudioQueues? audio = null,
         InstalledPowerBombFixedColors? fixedColors = null,
         IntroCinematicArtwork? artwork = null,
-        IPaletteFxColorSource? paletteFxColors = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
         InstalledSpriteSheets? spriteSheets = null)
     {
         BindSpriteSheets(spriteSheets);
         WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = audio;
-        this.paletteFxColors = paletteFxColors;
         Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         stationExplosion.PresentationColors = fixedColors;
@@ -169,27 +168,18 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         stationExplosion.PresentationColors = colors;
 
     /// <summary>
-    /// Reattaches installed palette colors without restarting the cinematic's
-    /// engine-flicker program. The provider is host-owned, just like room FX;
-    /// retain it for lazy owner creation.
-    /// </summary>
-    internal void BindPaletteFxColors(IPaletteFxColorSource? colors)
-    {
-        paletteFxColors = colors;
-    }
-
-    /// <summary>
     /// Binds installed artwork when the game is bound to its installed content. Only the
     /// graphics transfers already reached by the current phase are refreshed; counters,
-    /// actors, audio and gameplay timeline remain untouched. The shared Ceres palette
-    /// is refreshed only before the later engine-flicker palette program takes ownership.
+    /// actors, audio and gameplay timeline remain untouched. The backdrop is refreshed only
+    /// before the later engine-flicker palette program starts, as the scene reloads the
+    /// flight's colours only until then (#1512).
     /// </summary>
     internal void BindArtwork(IntroCinematicArtwork? value)
     {
         Artwork = value;
         if (value is null) return;
         if (CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
-            value.CeresFlight.Palette.LoadTo(palette);
+            Backdrop = value.CeresFlight.Backdrop;
     }
 
     /// <summary>Current dispatcher phase, including the alternate game-over route.</summary>
@@ -406,8 +396,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
                 PaletteFx.SpawnDefinition(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
             }
-            PaletteFx.Step(new ScreenPaletteFxColours(palette), paletteFxColors ?? throw new InvalidOperationException(
-                    "Ceres palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            // The flicker's records are shades the import pre-colours the scene's pictures in (#1512); the scene names the
+            // record its engine last showed, which stays shown should the program be rebuilt.
+            PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            engineRecord = PaletteFx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) ?? engineRecord;
             if (PaletteFx.SoundRequests.Count != 0 || PaletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }
@@ -428,7 +420,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
         // C11B loads the station's two views; the floor shows the station's installed picture (#1467).
         FloorShot = CeresFloorShot.Station;
-        content.CeresFlight.Palette.LoadTo(palette);
+        Backdrop = content.CeresFlight.Backdrop;
 
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
@@ -540,7 +532,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         var actor = new IntroDiscoverySprite(
             definition.Position,
-            definition.Colouring,
+            CeresShades.Drawn(definition.Colouring),
             definition.Program);
         actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
@@ -654,7 +646,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         var cinematicExplosion = new IntroDiscoverySprite(
             new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
                 CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)),
-            ScreenColourGroup.CeresExplosions,
+            CeresShades.Drawn(CeresSpriteColouring.Explosions),
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallFrameBehavior(
             CeresExplosionDefinitions.StationBlastActor.FrameBehavior);
@@ -673,7 +665,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     CoordinateAxis.AsSigned(Background.X.Whole) + placement.Offset.X),
                 CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
                     CoordinateAxis.AsSigned(Background.Y.Whole) + placement.Offset.Y)),
-            ScreenColourGroup.CeresExplosions,
+            CeresShades.Drawn(CeresSpriteColouring.Explosions),
             definition.Program);
         actor.InstallFrameBehavior(definition.FrameBehavior);
 
@@ -864,7 +856,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 Background.Whole.AsSignedWord());
             // Before the station is set up nothing is loaded, and the floor shows nothing.
             layers = FloorShot is { } shot
-                ? [new SpriteDepthLayer(0), new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot)),
+                ? [new SpriteDepthLayer(0), new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot).Shaded(EngineShading)),
                     new SpriteDepthLayer(1), new SpriteDepthLayer(2), new SpriteDepthLayer(3)]
                 : [new SpriteDepthLayer(0), new SpriteDepthLayer(1), new SpriteDepthLayer(2), new SpriteDepthLayer(3)];
         }
@@ -873,13 +865,22 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a game-correctness change, not an implicit part of this extraction.
             // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
-            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed),
+            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed, EngineShading),
                 new Position16<TilePlanePixels>(0, 0), null)];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(new FramePaint(palette.Shown(), objects.Draws), layers, brightness);
+        return new(new FramePaint(Backdrop, objects.Draws), layers, brightness);
     }
+
+    /// <summary>
+    /// The shading of the scene's background pictures (#1512): the shade of the record the gunship engine's flicker last
+    /// showed, which recolours the engine's colour wherever the floor or the planet shows it, or their standard colours
+    /// before the flicker has shown one.
+    /// </summary>
+    internal PictureShading EngineShading => engineRecord is { } record
+        ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, record))
+        : PictureShading.Standard;
 
     /// <summary>One Ceres actor's sprite slot.</summary>
     /// <param name="Actor">The actor holding the slot.</param>

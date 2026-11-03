@@ -73,9 +73,6 @@ public enum ScreenColourGroup
     /// <summary>The Metroid discovery scene's scientists' colours.</summary>
     IntroDiscoveryScientists,
 
-    /// <summary>The Ceres destruction's explosions' colours.</summary>
-    CeresExplosions,
-
     /// <summary>The ending clear-time digits' and colon's colours.</summary>
     EndingClearTimeDigits,
 
@@ -170,21 +167,6 @@ public enum ScreenColourGroup
 
     /// <summary>The colours the opening's explosions draw in.</summary>
     IntroExplosions,
-
-    /// <summary>The colours the Ceres approach's asteroids, stars and vortex draw in.</summary>
-    CeresFlightSpaceObjects,
-
-    /// <summary>The colours the Ceres station draws in as the approach shows it under attack.</summary>
-    CeresFlightStation,
-
-    /// <summary>The colours planet Zebes draws in as the Ceres destruction's escape reaches it.</summary>
-    CeresDestructionZebes,
-
-    /// <summary>The colours of the planet's name shown as the Ceres destruction's escape reaches Zebes.</summary>
-    CeresDestructionTitle,
-
-    /// <summary>The colours of the gunship's engine in the opening cutscene, which its flicker animates.</summary>
-    CinematicGunshipEngine,
 
     /// <summary>The colours of Ceres station's background-drawn navigation lights, which their blink animates.</summary>
     CeresNavigationLights,

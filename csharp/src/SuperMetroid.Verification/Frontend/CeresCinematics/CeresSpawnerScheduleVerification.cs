@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -17,7 +18,7 @@ internal static class CeresSpawnerScheduleVerification
         foreach (int reseedFrame in new[] { 1, 211, 273 })
         foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
         {
-            var native = new IntroDiscoverySprite(new(0, 0), ScreenColourGroup.CeresExplosions, CinematicSpriteProgram.CeresExplosionSpawner);
+            var native = new IntroDiscoverySprite(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteProgram.CeresExplosionSpawner);
             ushort countdown = 0;
             WrappingCountdown actualCountdown = WrappingCountdown.Start(0);
             bool disabled = false;

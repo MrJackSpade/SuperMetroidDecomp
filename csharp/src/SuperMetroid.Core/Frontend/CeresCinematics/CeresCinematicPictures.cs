@@ -35,9 +35,16 @@ public static class CeresCinematicPictures
         return new PicturedPlane(new Extent16<TilemapCells>(PlaneCells, PlaneCells), placed.ToImmutable());
     }
 
-    /// <summary>The Zebes reveal's plane: the planet once <paramref name="revealed"/>, nothing before.</summary>
-    internal static PicturedPlane Zebes(InstalledSpriteSheets sheets, bool revealed) => new(new Extent16<TilemapCells>(PlaneCells, PlaneCells),
-        revealed ? [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default)] : []);
+    /// <summary>
+    /// The Zebes reveal's plane: the planet once <paramref name="revealed"/>, shown in <paramref name="shading"/> (#1512),
+    /// nothing before.
+    /// </summary>
+    internal static PicturedPlane Zebes(InstalledSpriteSheets sheets, bool revealed, PictureShading shading) => new(
+        new Extent16<TilemapCells>(PlaneCells, PlaneCells),
+        revealed
+            ? [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default,
+                Ensure.NotNull(shading))]
+            : []);
 
     /// <summary>The plane pixel of cell (<paramref name="column"/>, <paramref name="row"/>)'s upper-left corner.</summary>
     private static Position16<TilePlanePixels> Corner(int column, int row) => new(

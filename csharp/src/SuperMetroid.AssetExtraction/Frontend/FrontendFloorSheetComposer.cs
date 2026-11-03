@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -51,7 +52,7 @@ internal static class FrontendFloorSheetComposer
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
             [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
-            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro),
+            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
             [SpriteSheetId.EndingEscapeAFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape),
             [SpriteSheetId.EndingEscapeBFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape),
             [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion),
@@ -102,18 +103,23 @@ internal static class FrontendFloorSheetComposer
 
     /// <summary>
     /// The Ceres cinematics' floor in each shot, under the flight's palette: each shot's views over the start of a floor of
-    /// the blank tile, as the flight and the destruction load them, showing the flight's characters.
+    /// the blank tile, as the flight and the destruction load them, showing the flight's characters, with a shade for each
+    /// record the gunship engine's flicker shows, coloured from <paramref name="paletteFx"/> (#1512).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro) =>
-        Ceres(Ensure.NotNull(intro).CeresFlight, IntroCinematicSourceArtwork.Of(intro).CeresDestructionMaps);
+    internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
+        Ceres(Ensure.NotNull(intro).CeresFlight, IntroCinematicSourceArtwork.Of(intro).CeresDestructionMaps, paletteFx);
 
-    /// <summary>The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps.</summary>
+    /// <summary>
+    /// The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps, with the
+    /// engine flicker's shades coloured from <paramref name="paletteFx"/>.
+    /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionMaps destruction)
+    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionMaps destruction, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(flight);
         Ensure.NotNull(destruction);
+        Ensure.NotNull(paletteFx);
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
         if (characters.Length < CeresFlightArtworkFileFormat.FloorByteCount)
             throw new InvalidDataException("The Ceres flight's Mode 7 characters are shorter than the scenes load.");
@@ -132,7 +138,7 @@ internal static class FrontendFloorSheetComposer
         byte[] explosionWithoutGunship = Exploded(views, station, CeresFloorShotDefinitions.BlankViewStart);
         byte[] zebes = (byte[])explosion.Clone();
         views.AsSpan(CeresFloorShotDefinitions.RearViewStart, CeresFloorShotDefinitions.ViewCells).CopyTo(zebes);
-        return FloorSheetComposer.Compose(
+        ComposedSpriteSheet floor = FloorSheetComposer.Compose(
         [
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.FlightFront), View(views, CeresFloorShotDefinitions.FrontViewStart), pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.FlightRear), View(views, CeresFloorShotDefinitions.RearViewStart), pixels),
@@ -141,6 +147,8 @@ internal static class FrontendFloorSheetComposer
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ExplosionWithoutGunship), explosionWithoutGunship, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ZebesApproach), zebes, pixels),
         ], ScreenPaletteColours.FlightColours(flight));
+        // The floor shows each record the gunship engine's flicker shows over the engine's colour (#1512).
+        return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(CeresSheetInks.EngineShades(paletteFx)) } };
 
         // A floor of the blank tile.
         static byte[] Blank()

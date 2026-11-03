@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -128,7 +129,7 @@ internal static class CeresFlightArtworkExtractor
             !roundTrip.FloorMaps.Span.SequenceEqual(map) ||
             !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
-        RgbColor[] roundTripColours = ScreenColourImage.Encode(roundTrip.Palette.Colours);
+        ImmutableArray<RgbColor> roundTripColours = roundTrip.Palette.Colours;
         for (int index = 0; index < CgramPalettes.ColorCount; index++)
             if (roundTripColours[index] != RgbColor.FromWordIgnoringTopBit(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * RgbColor.ByteCount))))
                 throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");

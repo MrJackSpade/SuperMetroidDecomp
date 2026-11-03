@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -30,8 +31,6 @@ internal static class ScreenPaletteColours
     }
 
     /// <summary>The Ceres flight's palette.</summary>
-    internal static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight)
-    {
-        return ScreenColourImage.Encode(flight.Palette.Colours);
-    }
+    internal static ReadOnlySpan<RgbColor> FlightColours(CeresFlightArtwork flight) =>
+        CeresFlightCharacters.Of(flight).Palette.Colours.AsSpan();
 }

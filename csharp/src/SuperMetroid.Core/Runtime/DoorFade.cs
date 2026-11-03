@@ -7,16 +7,13 @@ namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
 /// The colours a door's fades show (#1512): the room being left fades to black, stays dark while the door loads and
-/// scrolls, and the room being entered fades in from black. The room's pictures, its layer-3 effect, the boss body and
-/// the shaded sprite draws take the fade as an effect of the colours they show; the HUD takes the import's shade of each
-/// step, which keeps its minimap and highlighted item lit, and between two common rooms its item and minimap backgrounds.
+/// scrolls, and the room being entered fades in from black. The fade is one fade of the whole display, which every picture
+/// and every shaded sprite draw, Samus's among them, shows after its own shading; the HUD is spared it and takes the
+/// import's shade of each step instead, which keeps its minimap and highlighted item lit, and between two common rooms
+/// its item and minimap backgrounds.
 /// </summary>
 internal sealed class DoorFade : IGameplayShadingSource
 {
-    /// <summary>The pictures that take the fade as an effect of the colours they show.</summary>
-    private static readonly GameplayPictures[] Faded =
-        [GameplayPictures.Room, GameplayPictures.DoorSourceRoom, GameplayPictures.Layer3, GameplayPictures.BossBody];
-
     /// <summary>The steps of the fade running or last run; null before a door's first fade.</summary>
     private GradualFadeSteps? steps;
 
@@ -65,25 +62,28 @@ internal sealed class DoorFade : IGameplayShadingSource
         if (Stage == DoorFadeStage.None)
             return;
         GradualFadeSteps fade = steps ?? throw new InvalidOperationException("A door fade shows once its steps have started.");
-        int taken = fade.Taken.Length;
-        (ColourEffect effect, PictureShade hud) = Stage switch
+        // The HUD's shade is the import's of the shared counter's value at the last step taken.
+        int? last = fade.Taken.IsEmpty ? null : fade.Taken[^1];
+        (ColourEffect effect, PictureShade? hud) = Stage switch
         {
-            DoorFadeStage.FadingOut => ((ColourEffect)fade.Toward(RgbColor.Black), HudFadingOut(taken)),
-            DoorFadeStage.Dark => (new ColourFlash(RgbColor.Black), HudFadingOut(taken)),
-            DoorFadeStage.FadingIn => (fade.From(RgbColor.Black), HudFadingIn(taken)),
+            DoorFadeStage.FadingOut => ((ColourEffect)fade.Toward(RgbColor.Black), last is { } value ? (PictureShade?)HudFadingOut(value) : null),
+            DoorFadeStage.Dark => (new ColourFlash(RgbColor.Black), (PictureShade?)HudDark()),
+            DoorFadeStage.FadingIn => (fade.From(RgbColor.Black), last is { } value ? (PictureShade?)HudFadingIn(value) : HudDark()),
             _ => throw new InvalidOperationException($"Undefined door fade stage {Stage}."),
         };
-        foreach (GameplayPictures pictures in Faded)
-            frame.Affect(pictures, effect);
-        frame.AffectSprites(effect);
-        frame.Shade(GameplayPictures.Hud, hud);
+        frame.Fade(new GameplayDisplayFade(effect, SparesHud: true, SparesSamus: false));
+        if (hud is { } shade)
+            frame.Shade(GameplayPictures.Hud, shade);
     }
 
-    /// <summary>The HUD's shade after <paramref name="taken"/> steps of a fade out of the room.</summary>
-    private PictureShade HudFadingOut(int taken) => betweenCommonRooms
-        ? DoorFadeShades.HudFadingOutBetweenCommonRooms(taken) : DoorFadeShades.HudFadingOut(taken);
+    /// <summary>The HUD's shade once the room has faded out: the fade out's last step, its faded colours black.</summary>
+    private PictureShade HudDark() => HudFadingOut(DoorTransitionColourDefinitions.HudFadeShades - 1);
 
-    /// <summary>The HUD's shade after <paramref name="taken"/> steps of a fade into the room.</summary>
-    private PictureShade HudFadingIn(int taken) => betweenCommonRooms
-        ? DoorFadeShades.HudFadingInBetweenCommonRooms(taken) : DoorFadeShades.HudFadingIn(taken);
+    /// <summary>The HUD's shade of a fade out of the room whose last step took counter value <paramref name="value"/>.</summary>
+    private PictureShade HudFadingOut(int value) => betweenCommonRooms
+        ? DoorFadeShades.HudFadingOutBetweenCommonRooms(value) : DoorFadeShades.HudFadingOut(value);
+
+    /// <summary>The HUD's shade of a fade into the room whose last step took counter value <paramref name="value"/>.</summary>
+    private PictureShade HudFadingIn(int value) => betweenCommonRooms
+        ? DoorFadeShades.HudFadingInBetweenCommonRooms(value) : DoorFadeShades.HudFadingIn(value);
 }

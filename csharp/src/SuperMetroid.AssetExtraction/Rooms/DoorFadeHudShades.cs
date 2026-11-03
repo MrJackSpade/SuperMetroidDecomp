@@ -30,12 +30,12 @@ internal static class DoorFadeHudShades
         int[] ordinary = Faded(Kept);
         int[] common = Faded([.. Kept, .. KeptBetweenCommonRooms]);
         var shades = new List<SheetShade>();
-        for (int steps = 0; steps < DoorTransitionColourDefinitions.HudFadeShades; steps++)
+        for (int value = 0; value < DoorTransitionColourDefinitions.HudFadeShades; value++)
         {
-            shades.Add(Shade(DoorFadeShades.HudFadingOut(steps), ordinary, standard, steps, GradualFadeDirection.Toward));
-            shades.Add(Shade(DoorFadeShades.HudFadingOutBetweenCommonRooms(steps), common, standard, steps, GradualFadeDirection.Toward));
-            shades.Add(Shade(DoorFadeShades.HudFadingIn(steps), ordinary, standard, steps, GradualFadeDirection.From));
-            shades.Add(Shade(DoorFadeShades.HudFadingInBetweenCommonRooms(steps), common, standard, steps, GradualFadeDirection.From));
+            shades.Add(Shade(DoorFadeShades.HudFadingOut(value), ordinary, standard, value, GradualFadeDirection.Toward));
+            shades.Add(Shade(DoorFadeShades.HudFadingOutBetweenCommonRooms(value), common, standard, value, GradualFadeDirection.Toward));
+            shades.Add(Shade(DoorFadeShades.HudFadingIn(value), ordinary, standard, value, GradualFadeDirection.From));
+            shades.Add(Shade(DoorFadeShades.HudFadingInBetweenCommonRooms(value), common, standard, value, GradualFadeDirection.From));
         }
         return shades;
     }
@@ -44,13 +44,13 @@ internal static class DoorFadeHudShades
     private static int[] Faded(ImmutableArray<int> kept) => [.. Enumerable.Range(0, HudInks).Except(kept)];
 
     /// <summary>
-    /// <paramref name="inks"/> after <paramref name="steps"/> steps of a door's fade to or from black, the steps taking the
-    /// shared counter's values from zero as a door's fade does.
+    /// <paramref name="inks"/> after the steps of a door's fade to or from black from the shared counter's zero through
+    /// <paramref name="value"/>.
     /// </summary>
-    private static SheetShade Shade(PictureShade shade, int[] inks, ReadOnlySpan<RgbColor> standard, int steps, GradualFadeDirection direction)
+    private static SheetShade Shade(PictureShade shade, int[] inks, ReadOnlySpan<RgbColor> standard, int value, GradualFadeDirection direction)
     {
         var fade = new GradualColourFade(RgbColor.Black, direction, DoorTransitionColourDefinitions.FadeDenominator,
-            [.. Enumerable.Range(0, steps)]);
+            [.. Enumerable.Range(0, value + 1)]);
         var colours = new RgbColor[inks.Length];
         for (int index = 0; index < inks.Length; index++)
             colours[index] = fade.Apply(standard[inks[index]]);

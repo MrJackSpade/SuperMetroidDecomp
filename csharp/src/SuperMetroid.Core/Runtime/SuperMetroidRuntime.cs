@@ -348,6 +348,9 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
     internal DoorFade DoorFade { get; } = new();
 
+    /// <summary>The death fade and the time-up whiteout of the whole display, which their game states step (#1512).</summary>
+    internal GameplayFadeOut FadeOut { get; } = new();
+
     /// <summary>The sprite frame the update is building for the next frame boundary: sprites plus whole-frame draws.</summary>
     public SpriteFrameBuffer Sprites { get; } = new();
 
@@ -1075,6 +1078,7 @@ internal sealed class SuperMetroidRuntime
         foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
             yield return boss;
         yield return DoorFade;
+        yield return FadeOut;
     }
 
     /// <summary>

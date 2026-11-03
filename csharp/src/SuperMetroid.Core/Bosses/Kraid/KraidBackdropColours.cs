@@ -14,8 +14,8 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     internal KraidBackdropShows Shows { get; private set; } = KraidBackdropShows.RoomColours;
 
     /// <summary>
-    /// How far the running fade has gone: the steps a fade starting at the shared counter's zero takes to reach the step it
-    /// took last, so step thirteen shows the colours it fades to exactly however the counter reached it.
+    /// The shared counter's value at the step the running fade took last, which names its shade: step thirteen shows the
+    /// colours it fades to exactly however the counter reached it.
     /// </summary>
     internal int Steps { get; private set; }
 
@@ -35,7 +35,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">The backdrop shows colours the fade cannot start from.</exception>
     internal void Step(KraidBackdropFade fade, int step)
     {
-        Ensure.BetweenInclusive(0, KraidShades.BackdropFadeShades - 2, step);
+        Ensure.BetweenInclusive(0, KraidShades.BackdropFadeShades - 1, step);
         KraidBackdropShows fading = (fade, Shows) switch
         {
             (KraidBackdropFade.ToRoomColors, KraidBackdropShows.RoomColours) => KraidBackdropShows.FadingInFromRoomColours,
@@ -45,7 +45,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
             (KraidBackdropFade.ToBlack, KraidBackdropShows.FadingOut) => Shows,
             _ => throw new InvalidOperationException($"Kraid's backdrop cannot fade {fade} while it shows {Shows}."),
         };
-        Steps = step + 1;
+        Steps = step;
         Shows = fading;
     }
 

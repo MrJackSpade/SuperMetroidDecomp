@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Palettes;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rendering;
@@ -29,7 +30,7 @@ public sealed class FramePaint
     /// <summary>
     /// Keeps a gameplay frame's shading and its whole-frame sprite draws (#1512): its background pictures show their
     /// groups' shadings, its backdrop is the shading's, and each sprite draw that names its shading also shows the
-    /// shading's sprite effects.
+    /// display's fade, unless the fade spares Samus and the draw is hers.
     /// </summary>
     /// <param name="gameplay">How the frame's background pictures are coloured, and its backdrop.</param>
     /// <param name="sprites">The sprite sets, for colouring the sprite draws that name no shading.</param>
@@ -42,8 +43,8 @@ public sealed class FramePaint
         Check(spriteDraws);
         Gameplay = gameplay;
         Backgrounds = new BackgroundColours(gameplay.Backdrop, sprites);
-        ImmutableArray<SpriteDraw> draws = gameplay.Sprites.IsEmpty ? spriteDraws
-            : ImmutableArray.CreateRange(spriteDraws, draw => Affected(draw, gameplay.Sprites));
+        ImmutableArray<SpriteDraw> draws = gameplay.Fade is null ? spriteDraws
+            : ImmutableArray.CreateRange(spriteDraws, draw => Faded(draw, gameplay));
         SpriteDraws = DrawColours.ResolveAll(draws, sprites);
     }
 
@@ -68,15 +69,11 @@ public sealed class FramePaint
     public FramePaint WithBackdrop(RgbColor backdrop) =>
         new(this, Backgrounds.WithBackdrop(backdrop), Gameplay?.WithBackdrop(backdrop));
 
-    /// <summary>A shaded sprite draw with <paramref name="effects"/> after its own; a draw that names no shading is left alone.</summary>
-    private static SpriteDraw Affected(SpriteDraw draw, ImmutableArray<ColourEffect> effects)
-    {
-        if (draw is not ImageSpriteDraw { Shading: { } shading } image)
-            return draw;
-        foreach (ColourEffect effect in effects)
-            shading = shading.With(effect);
-        return image with { Shading = shading };
-    }
+    /// <summary>A shaded sprite draw under <paramref name="gameplay"/>'s fade of the display; a draw that names no shading is left alone.</summary>
+    private static SpriteDraw Faded(SpriteDraw draw, GameplayShading gameplay) =>
+        draw is ImageSpriteDraw { Shading: { } shading } image
+            ? image with { Shading = gameplay.OfSprite(shading, SamusColourDefinitions.Sources.Contains(draw.Source.Kind)) }
+            : draw;
 
     /// <summary>Checks that a draw list is present and holds no missing draw.</summary>
     /// <exception cref="ArgumentException">The draw list is missing or holds a missing draw.</exception>

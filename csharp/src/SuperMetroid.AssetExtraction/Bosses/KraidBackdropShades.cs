@@ -31,23 +31,26 @@ internal static class KraidBackdropShades
         }
         var black = new RgbColor[backdrop.Length];
         var shades = new List<SheetShade> { SheetShade.Run(KraidShades.Backdrop, FirstInk, backdrop) };
-        for (int steps = 0; steps < KraidShades.BackdropFadeShades; steps++)
+        for (int value = 0; value < KraidShades.BackdropFadeShades; value++)
         {
-            shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromRoomColours(steps), FirstInk, Faded(room, backdrop, steps)));
-            shades.Add(SheetShade.Run(KraidShades.BackdropFadingOut(steps), FirstInk, Faded(backdrop, black, steps)));
-            shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromBlack(steps), FirstInk, Faded(black, backdrop, steps)));
+            shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromRoomColours(value), FirstInk, Faded(room, backdrop, value)));
+            shades.Add(SheetShade.Run(KraidShades.BackdropFadingOut(value), FirstInk, Faded(backdrop, black, value)));
+            shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromBlack(value), FirstInk, Faded(black, backdrop, value)));
         }
         return shades;
     }
 
-    /// <summary>Each of <paramref name="from"/>'s colours after <paramref name="steps"/> steps of the fade toward <paramref name="to"/>'s.</summary>
-    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int steps)
+    /// <summary>
+    /// Each of <paramref name="from"/>'s colours after the fade's steps toward <paramref name="to"/>'s from the shared
+    /// counter's zero through <paramref name="value"/>.
+    /// </summary>
+    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int value)
     {
         var faded = new RgbColor[from.Length];
         for (int colour = 0; colour < faded.Length; colour++)
         {
             RgbColor current = from[colour];
-            for (int step = 0; step < steps; step++)
+            for (int step = 0; step <= value; step++)
                 current = GradualColourFade.Step(step, current, to[colour], Denominator);
             faded[colour] = current;
         }

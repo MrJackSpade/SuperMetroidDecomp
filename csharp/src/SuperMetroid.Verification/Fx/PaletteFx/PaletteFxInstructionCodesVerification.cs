@@ -637,6 +637,8 @@ internal static class PaletteFxInstructionCodesVerification
              step++)
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+            PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(guarded));
             if (paletteFx.SoundRequests.Count == 0)
                 continue;
             AssertEqual(1, paletteFx.SoundRequests.Count,
@@ -692,6 +694,8 @@ internal static class PaletteFxInstructionCodesVerification
                  step++)
             {
                 paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+                PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(guarded));
             }
 
             AssertTrue(paletteFx.IsDefinitionActive(definition),
@@ -745,6 +749,8 @@ internal static class PaletteFxInstructionCodesVerification
         for (int step = 0; step <= cycleFrames; step++)
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+            PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(guarded));
         }
 
         AssertTrue(paletteFx.IsDefinitionActive(definition),
@@ -811,6 +817,8 @@ internal static class PaletteFxInstructionCodesVerification
             for (int step = 0; step <= steps; step++)
             {
                 paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+                PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(guarded));
             }
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -896,6 +904,8 @@ internal static class PaletteFxInstructionCodesVerification
         for (ushort frame = 0; frame <= 17; frame++)
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus.RoomView, FrameCounter = frame });
+            // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+            PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
             damageSoundCount += paletteFx.SoundRequests.Count;
             foreach (SoundRequest request in paletteFx.SoundRequests)
             {
@@ -1568,6 +1578,8 @@ internal static class PaletteFxInstructionCodesVerification
         for (int frame = 0; frame < 256; frame++)
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+            PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
             if (paletteFx.SoundRequests.Count == 0)
                 continue;
             AssertEqual(1, paletteFx.SoundRequests.Count,
@@ -1588,6 +1600,8 @@ internal static class PaletteFxInstructionCodesVerification
         // The next call must parse the timed palette record immediately after the byte
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
         paletteFx.Step(cgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
+        PaletteFxRoomLook.LayRoomShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
         AssertEqual(0, paletteFx.SoundRequests.Count,
             "$F781 advances beyond its one-byte sound operand");
     }

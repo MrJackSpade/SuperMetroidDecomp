@@ -34,6 +34,8 @@ internal static class NorfairGlowVerification
             for (int tick = 0; tick < holds[phase]; tick++)
             {
                 fx.Step(colors, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                // The glow's groups show their records over the room's pictures as the import's shades of them (#1512).
+                PaletteFxRoomLook.LayRoomShades(fx, colors, new ReferencePaletteFxColorSource(bus));
                 int rampIndex = phase < 8 ? phase : 15 - phase;
                 AssertEqual(ramp[rampIndex], colors.Colors[stream.Destination / 2],
                     $"Norfair glow {stream.Definition:X4} cycle {cycle} phase {phase} tick {tick}");

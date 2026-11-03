@@ -546,6 +546,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         get
         {
+            yield return CeresDoorBehavior;
+            yield return TourianEntranceStatueBehavior;
             if (RidleyEncounter.Ridley is { } ridley)
                 yield return ridley.Colours;
             if (MotherBrainEncounter.MotherBrain is { } motherBrain)

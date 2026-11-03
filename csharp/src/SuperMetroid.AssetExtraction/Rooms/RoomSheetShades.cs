@@ -3,6 +3,8 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
@@ -38,11 +40,54 @@ internal static class RoomSheetShades
             shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
         if (HoldsPhantoon(rooms))
             shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
+        if (Places(rooms, EnemyDefinitionId.CeresDoor))
+            shades.AddRange(ElevatorRoomGlow(inputs));
+        if (Places(rooms, EnemyDefinitionId.TourianStatue))
+            shades.AddRange(TourianStatueLooks(inputs));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.MotherBrainBody)))
             shades.AddRange(MotherBrainSheetShades.Background(inputs.Maps, inputs.Bosses));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley)))
             shades.AddRange(RidleySheetShades.Room(inputs.Maps, inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
         return shades;
+    }
+
+    /// <summary>Whether any of <paramref name="rooms"/> places <paramref name="enemy"/>.</summary>
+    private static bool Places(IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> rooms, EnemyDefinitionId enemy) =>
+        rooms.Any(room => room.State.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == enemy));
+
+    /// <summary>
+    /// The Ceres elevator room's glow, which its rotating-room door cycles through the first tile group's colours nine to
+    /// fourteen, each step from the installed door colours.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The door colours are not installed.</exception>
+    private static IEnumerable<SheetShade> ElevatorRoomGlow(RoomBlockSheetInputs inputs)
+    {
+        CeresDoorVisuals door = inputs.Objects.Areas.CeresDoorVisual
+            ?? throw new InvalidDataException("The Ceres elevator room's glow is shaded from the installed Ceres door colours.");
+        const int firstInk = 2 * 16 + 9;
+        for (int step = 0; step < CeresDoorShades.ElevatorRoomGlowSteps; step++)
+        {
+            int shown = step;
+            yield return SheetShade.Run(CeresDoorShades.ElevatorRoomGlow(shown), firstInk,
+                [.. Enumerable.Range(0, CeresDoorVisualDefinitions.AnimationColorCount).Select(colour => door.AnimationColor(shown, colour))]);
+        }
+    }
+
+    /// <summary>
+    /// The looks of the Tourian statues drawn in the room's tiles: Kraid's in the sixth tile group and Draygon's in the
+    /// fifth, each with its three eye colours blacked out as its release starts, then greyed.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The statue colours are not installed.</exception>
+    private static IEnumerable<SheetShade> TourianStatueLooks(RoomBlockSheetInputs inputs)
+    {
+        TourianStatuePalettes statue = inputs.Objects.Areas.TourianStatueColors
+            ?? throw new InvalidDataException("The Tourian statues' looks are shaded from the installed statue colours.");
+        RgbColor[] grey = [.. Enumerable.Range(0, TourianStatueColorDefinitions.GreyColorCount).Select(statue.GreyColor)];
+        const int kraid = 7 * 16, draygon = 6 * 16;
+        yield return SheetShade.Run(TourianStatueShades.KraidCleared, kraid + 12, new RgbColor[3]);
+        yield return SheetShade.Run(TourianStatueShades.KraidGrey, kraid, grey);
+        yield return SheetShade.Run(TourianStatueShades.DraygonCleared, draygon + 9, new RgbColor[3]);
+        yield return SheetShade.Run(TourianStatueShades.DraygonGrey, draygon, grey);
     }
 
     /// <summary>Whether any of <paramref name="rooms"/> places Phantoon, whose death brings the Wrecked Ship's power on over it.</summary>

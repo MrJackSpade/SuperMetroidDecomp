@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.FileSelect;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>The colours file select's entry fade holds black (#1404).</summary>
 internal static class FileSelectEntryColourDefinitions

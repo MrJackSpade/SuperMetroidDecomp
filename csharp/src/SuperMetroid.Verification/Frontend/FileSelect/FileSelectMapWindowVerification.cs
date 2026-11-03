@@ -133,14 +133,19 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(0, maps.Palettes, maps.WorldArtwork, MenuSheetFixtures.For(maps));
+        var graphics = new FileSelectAreaMapGraphics(0, maps.Backdrops, maps.WorldArtwork, MenuSheetFixtures.For(maps));
         graphics.BindLabels(maps.Labels);
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             graphics.SelectArea(area);
-            AssertEqual(activeColors[area], graphics.screen.Palette.Colors[indices[area]], $"area {area} active map color");
+            // The selected area's pictures show the colours the import pre-coloured its world-map sheet in (#1512).
+            var areaId = SuperMetroid.Core.Progression.AreaIds.At(area);
+            SpriteImage foreground = MenuSheetFixtures.For(maps).Get(SuperMetroid.Core.Frontend.Artwork.ScreenTileSheetDefinitions.AreaMapForegrounds[areaId])
+                .Frame(SuperMetroid.Core.Frontend.Map.AreaMapPictures.WorldForegroundFrame).Sheet;
+            AssertEqual(activeColors[area], foreground.StandardColours[indices[area]], $"area {area} active map color");
             if (area != 0)
-                AssertEqual(0x4a52, graphics.screen.Palette.Colors[86], "switching area restores Crateria inactive color");
+                AssertEqual(0x4a52, foreground.StandardColours[86], "another area's sheet shows Crateria inactive");
+            AssertEqual(InstalledAreaMapPresentation.PalettesOf(maps).World(areaId)[0], graphics.screen.Backdrop, $"area {area} shows its world-map backdrop");
             // The selected area's image is built once and every tilemap byte read from it.
             var shownArea = MenuScreenFixtures.Vram(graphics, maps);
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)

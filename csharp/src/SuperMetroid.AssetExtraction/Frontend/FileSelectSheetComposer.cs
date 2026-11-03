@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -8,13 +9,12 @@ using SuperMetroid.AssetExtraction.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the file-select sheet (#1392): each page border, cursor frame and helmet frame over the menu sprite page in
-/// the menu object palette, and each file-copy arrow in its own palette, coloured as the screen loads the menu palette.
-/// The arrows' cycling colours recolour them through the sheet's palette map.
+/// the menu object palette, and each file-copy arrow in its own palette, coloured as the screen loads the menu palette,
+/// with a shade for each step of the arrows' colour rotation (#1512).
 /// </summary>
 internal static class FileSelectSheetComposer
 {
@@ -56,8 +56,36 @@ internal static class FileSelectSheetComposer
             frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts(shape)
                 .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
-        var cgram = new SnesCgram();
-        new CgramPalettes(cgram).LoadImage(ScreenColourImage.Encode(maps.Palettes.FileSelect));
-        return new SpriteSheetSources(frames, cgram.Colors[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        RgbColor[] sprites = InstalledAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
+        return new SpriteSheetSources(frames, sprites, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
+        {
+            Shades = [.. CopyArrowShades(sprites)],
+        };
+    }
+
+    /// <summary>The sprite colour group whose colours the copy arrows' rotation moves.</summary>
+    private const int CopyArrowGroup = 1;
+    /// <summary>The first colour of <see cref="CopyArrowGroup"/> the rotation moves; it moves the following ones with it.</summary>
+    private const int CopyArrowFirstColour = 1;
+    /// <summary>The colours of one sprite colour group.</summary>
+    private const int GroupColours = 16;
+
+    /// <summary>
+    /// The copy arrows' rotation shades (#1512): after each step, every rotated colour shows the next one's colour and the
+    /// last shows the first's.
+    /// </summary>
+    private static IEnumerable<SheetShade> CopyArrowShades(RgbColor[] sprites)
+    {
+        int first = CopyArrowGroup * GroupColours + CopyArrowFirstColour;
+        ReadOnlySpan<RgbColor> rotated = sprites.AsSpan(first, FileCopyArrowDefinitions.RotationSteps);
+        var shades = new List<SheetShade>(FileCopyArrowDefinitions.RotationSteps);
+        for (int step = 0; step < FileCopyArrowDefinitions.RotationSteps; step++)
+        {
+            var colours = new RgbColor[rotated.Length];
+            for (int colour = 0; colour < colours.Length; colour++)
+                colours[colour] = rotated[(colour + step) % rotated.Length];
+            shades.Add(SheetShade.Run(FileCopyArrowShades.Rotation(step), first, colours));
+        }
+        return shades;
     }
 }

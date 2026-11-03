@@ -7,6 +7,11 @@ public static class FileCopyArrowDefinitions
     public const int InitialPaletteDelay = 8;
     /// <summary>Subsequent arrow palette rotation delay.</summary>
     internal const int PaletteDelay = 4;
+    /// <summary>
+    /// The colours the arrows' rotation cycles through, so the steps it takes before the arrows show their first colouring
+    /// again (#1512).
+    /// </summary>
+    public const int RotationSteps = 7;
     /// <summary>All file-copy arrows use screen X = 20.</summary>
     internal const int OriginX = 20;
 

@@ -23,8 +23,6 @@ public sealed class FileSelectRoomMapGraphics
     private SpriteSheet? roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
     internal ShownAreaMap AreaMap { get; private set; }
-    /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
-    public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal SharedGameState MapSystem => icons.MapSystem;
 
@@ -51,7 +49,7 @@ public sealed class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        screen = new MenuScreen(mapPresentation.Palettes,
+        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect,
             mapPresentation.WorldArtwork, installed);
         AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system,
             mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode);
@@ -73,9 +71,8 @@ public sealed class FileSelectRoomMapGraphics
         icons.BindStations(catalog?.Stations);
         icons.BindLandmarks(catalog?.Landmarks);
 
-        if (catalog is not null)
-            catalog.Palettes.FileSelect.LoadToExcept(screen.Palette, screen.Palette.Colours(ScreenColourGroup.MapHighlight));
         _ = catalog ?? throw new InvalidOperationException("Room-map graphics require installed map presentation assets.");
+        screen.Backdrop = catalog.Backdrops.FileSelect;
         var system = icons.MapSystem;
         var area = icons.MapArea;
         screen.BindWorldArtwork(catalog.WorldArtwork);
@@ -102,7 +99,7 @@ public sealed class FileSelectRoomMapGraphics
         var layers = new List<DisplayLayer>();
         // The frame is the area's installed room-frame picture and the map a grid of its cells' pictures (#1467).
         SpriteSheet pictures = roomPictures ?? throw new InvalidOperationException("The room map's pictures are bound when the game is bound to its installed content.");
-        var frame = new PicturedPlane(MenuScreen.PageSize, [new PlacedPlanePicture(pictures.Frame(AreaMapPictures.RoomFrameName(icons.MapArea)), default)]);
+        var frame = new PicturedPlane(MenuScreen.PageSize, [new PlacedPlanePicture(pictures.Frame(AreaMapPictures.RoomFrameName(icons.MapArea)), default, PictureShading.Standard)]);
         var frameScroll = new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         if (content == RoomMapContent.FrameOnly)
             layers.Add(new PicturedPlaneLayer(frame, frameScroll, null));

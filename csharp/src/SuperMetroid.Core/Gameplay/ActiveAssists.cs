@@ -100,6 +100,6 @@ internal sealed class ActiveAssists
             for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
                 _system.SetCollectedItemBit(location);
         }
-        samus.Presentation.LoadSuitPalette(samus, _player.Colours);
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
     }
 }

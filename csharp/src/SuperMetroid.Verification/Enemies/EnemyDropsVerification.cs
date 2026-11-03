@@ -54,16 +54,6 @@ internal static class EnemyDropsVerification
     internal static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
-        // Pseudo-Screw contact consumes the charge and restores suit colors. This
-        // focused death fixture must provide that presentation dependency explicitly;
-        // the runtime no longer decodes a missing palette from cartridge bytes.
-        PaletteRgb5[] colors = Enumerable.Range(0, SamusSuitColorFormat.ColorsPerSuit)
-            .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray();
-        samus.Presentation.SuitColors = SamusSuitColorFile.Read(new MemoryStream(
-            SamusSuitColorFile.Write(new SamusSuitColorDocument
-            {
-                Version = SamusSuitColorFile.Version, Power = colors, Varia = colors, Gravity = colors,
-            })));
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];

@@ -60,15 +60,4 @@ public sealed class InstalledSamusSuitColors
         return differences is not null && differences.TryGetValue(new ColourCell(0, colorIndex), out RgbColor color)
             ? color : power[colorIndex];
     }
-
-    /// <summary>
-    /// Shows <paramref name="shown"/>'s normal colours in <paramref name="suit"/>, Samus's suit colours or the intro's
-    /// copy of them; no equipment or phase state changes.
-    /// </summary>
-    public void Apply(ColourRun suit, SamusSuit shown)
-    {
-        for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
-            suit.Write(index,
-                Resolve(shown, index));
-    }
 }

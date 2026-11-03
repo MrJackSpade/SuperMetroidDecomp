@@ -230,7 +230,7 @@ internal sealed class DoorTransitionState
                     // that precedes the destination fade-in. Setup lists can alter visible
                     // room state here; deferring them to the first ordinary gameplay frame
                     // exposes their pre-PLM state.
-                    runtime.Player.Colours.ShowVisor(DoorTransitionColourDefinitions.DoorCompletionVisorGreen);
+                    runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
                     runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -20,9 +19,6 @@ public sealed class SamusVisorPaletteState
 {
     /// <summary>Calls left after the reset before the first visor colour is written.</summary>
     private const int ResetTimer = 1;
-
-    /// <summary>Installed visor artwork: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledSamusVisorColors? PresentationColors { get; set; }
 
     /// <summary>
     /// Palette-handler calls left before the next visor colour, one through
@@ -72,8 +68,7 @@ public sealed class SamusVisorPaletteState
         // The visor handler reloads the expired countdown to the frame delay and keeps the shade.
         Timer = SamusPaletteDefinitions.Visor.FrameDelay;
         int shade = NextShade;
-        colours.ShowVisor((PresentationColors ?? throw new InvalidDataException(
-            $"Visor shade {shade} has no installed color.")).Resolve(shade));
+        colours.ShowVisor(SamusShades.Visor(shade));
 
         // Only the cycle's three shades belong to the room-backdrop cycle. The shades before
         // them are X-ray widening colors and are selected by the separate X-ray palette handler.

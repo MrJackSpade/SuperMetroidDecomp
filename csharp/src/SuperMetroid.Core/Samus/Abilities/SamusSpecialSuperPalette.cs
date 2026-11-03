@@ -22,14 +22,12 @@ public static class SamusSpecialSuperPalette
             case SamusMetroidAttachmentPalette.Inactive:
                 return false;
             case SamusMetroidAttachmentPalette.SpeedBoostNext:
-                (samus.Presentation.FullBodyCycleColors ?? throw new InvalidOperationException(
-                    "Metroid-attachment palette requires installed Samus full-body cycle colors."))
-                    .Apply(colours, SamusFullBodyCyclePalettes.SpeedBoostPalette(
-                        samus.EquippedItems.ShownSuit()));
+                colours.ShowSuit(SamusShades.FullBodyCycle(SamusFullBodyCyclePalettes.SpeedBoostPalette(
+                    samus.EquippedItems.ShownSuit())));
                 samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.NormalSuitNext;
                 return true;
             case SamusMetroidAttachmentPalette.NormalSuitNext:
-                SamusNormalSuitPalette.Load(colours.Suit, samus.EquippedItems, samus.Presentation.SuitColors);
+                SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
                 samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
                 return true;
             default:

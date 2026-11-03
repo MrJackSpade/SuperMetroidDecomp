@@ -131,7 +131,7 @@ internal sealed class InstalledSamusIsolationTests
             Samus.CommitPoseHistory();
             if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
             else if (medium == SamusLiquidMedium.LavaOrAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
-            Samus.Presentation.LoadSuitPalette(Samus, Colors.Samus);
+            SamusNormalSuitPalette.Load(Colors.Samus, Samus.EquippedItems);
             var blocks = new RoomTerrainBlock[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
             {

@@ -85,8 +85,12 @@ internal static class SamusVisorColorsVerification
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         InstalledSamusVisorColors catalog)
     {
-        var native = new SamusVisorPaletteState { PresentationColors = ReadOriginalVisorColors(rom) };
-        var installed = new SamusVisorPaletteState { PresentationColors = catalog };
+        // Both cycles name shades (#1512); the import resolves the native one from the cartridge's table and the
+        // installed one from the catalog.
+        var native = new SamusVisorPaletteState();
+        var installed = new SamusVisorPaletteState();
+        var nativeSources = InstalledFixtures.SamusShadeSources with { Visor = ReadOriginalVisorColors(rom) };
+        var installedSources = InstalledFixtures.SamusShadeSources with { Visor = catalog };
         var nativeCgram = new SamusColourRig();
         var installedCgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(rom);
@@ -102,13 +106,15 @@ internal static class SamusVisorColorsVerification
             bool expectedWrite = native.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
             bool actualWrite = installed.Timer == SamusPaletteDefinitions.Visor.FrameDelay;
             if (expectedWrite)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedCgram.Samus.Visor,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedCgram.Samus.ShownVisor(installedSources),
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
             AssertEqual(new VerifySamusVisorPaletteCase(native.Timer, native.NextShade), new VerifySamusVisorPaletteCase(installed.Timer, installed.NextShade),
                 $"room visor frame {frame} timer and index");
-            AssertEqual(nativeCgram.Samus.Visor, installedCgram.Samus.Visor,
-                $"room visor frame {frame} CGRAM");
+            AssertEqual(nativeCgram.Samus.VisorShade, installedCgram.Samus.VisorShade,
+                $"room visor frame {frame} shade");
+            AssertEqual(nativeCgram.Samus.ShownVisor(nativeSources), installedCgram.Samus.ShownVisor(installedSources),
+                $"room visor frame {frame} colour");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed room cycle does not read visor ROM table");
     }
@@ -118,9 +124,9 @@ internal static class SamusVisorColorsVerification
         InstalledSamusVisorColors catalog)
     {
         var native = CreateXraySamus();
-        native.Xray.PresentationColors = ReadOriginalVisorColors(rom);
         var installed = CreateXraySamus();
-        installed.Xray.PresentationColors = catalog;
+        var nativeSources = InstalledFixtures.SamusShadeSources with { Visor = ReadOriginalVisorColors(rom) };
+        var installedSources = InstalledFixtures.SamusShadeSources with { Visor = catalog };
         var nativeCgram = new SamusColourRig();
         var installedCgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(rom);
@@ -134,13 +140,15 @@ internal static class SamusVisorColorsVerification
             bool expected = native.Xray.UpdatePalette(nativeCgram.Samus, native.EquippedItems);
             bool actual = installed.Xray.UpdatePalette(installedCgram.Samus, installed.EquippedItems);
             if (expected)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedCgram.Samus.Visor,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusSourceDefinitions.VisorColors.Value + sourceShade * sizeof(ushort)), installedCgram.Samus.ShownVisor(installedSources),
                     $"X-ray visor call {call} matches native color word");
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
             AssertEqual(native.Xray.VisorShade, installed.Xray.VisorShade,
                 $"X-ray visor call {call} next shade");
-            AssertEqual(nativeCgram.Samus.Visor, installedCgram.Samus.Visor,
-                $"X-ray visor call {call} CGRAM");
+            AssertEqual(nativeCgram.Samus.VisorShade, installedCgram.Samus.VisorShade,
+                $"X-ray visor call {call} shade");
+            AssertEqual(nativeCgram.Samus.ShownVisor(nativeSources), installedCgram.Samus.ShownVisor(installedSources),
+                $"X-ray visor call {call} colour");
         }
 
         for (int call = 0; call < 11; call++) Compare(call); // Widening colors 0, 2, 4.
@@ -171,8 +179,7 @@ internal static class SamusVisorColorsVerification
 
     /// <summary>Checks edited visor colors through newly bound Samus room/X-ray states and stock identity restoration.</summary>
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
-        AreaMapPresentation baseline, ISnesAddressSpace rom,
-        GameplayBasePalette initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
+        AreaMapPresentation baseline, ISnesAddressSpace rom)
     {
         string path = Path.Combine(overrides, SamusVisorColorFile.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
@@ -187,33 +194,22 @@ internal static class SamusVisorColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, initialPaletteArt: initialPalettes);
-        runtime.Artwork.MapPresentation = edited;
-        fixtureAssets.Bind(runtime);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        SamusState runtimeSamus = runtime.Player.Samus ??
-            throw new InvalidOperationException("Ceres initialization did not construct Samus.");
-        AssertTrue(ReferenceEquals(edited.SamusVisorColors, runtimeSamus.VisorPalette.PresentationColors) &&
-            ReferenceEquals(edited.SamusVisorColors, runtimeSamus.Xray.PresentationColors),
-            "new Samus binds installed visor colors for both room and X-ray cycles");
-        var visor = new SamusVisorPaletteState { PresentationColors = edited.SamusVisorColors };
+        // Samus binds no colour table (#1512): the edited table reaches her through the shades the import makes from it.
+        var editedSources = InstalledFixtures.SamusShadeSources with { Visor = edited.SamusVisorColors };
+        var visor = new SamusVisorPaletteState();
         var cgram = new SamusColourRig();
         var guarded = NewForbiddenVisorColorBus(new TestAddressSpace());
         _ = visor.Update(cgram.Samus, 0, LayerBlendingConfiguration.VisorBackdrop28);
-        AssertEqual(edited.SamusVisorColors.Resolve(3), cgram.Colors[196],
-            "edited visor color reaches room-cycle CGRAM");
+        AssertEqual(edited.SamusVisorColors.Resolve(3), cgram.Samus.ShownVisor(editedSources),
+            "edited visor color reaches the room cycle's shade");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "edited visor color avoids native table");
         SamusState xraySamus = CreateXraySamus();
-        xraySamus.Xray.PresentationColors = edited.SamusVisorColors;
         var xrayCgram = new SamusColourRig();
         var guardedXray = NewForbiddenVisorColorBus(rom);
         AssertTrue(xraySamus.Xray.UpdatePalette(xrayCgram.Samus, xraySamus.EquippedItems),
-            "edited X-ray widening cycle writes CGRAM");
-        AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Colors[196],
-            "edited visor color reaches X-ray CGRAM");
+            "edited X-ray widening cycle shows a visor shade");
+        AssertEqual(edited.SamusVisorColors.Resolve(0), xrayCgram.Samus.ShownVisor(editedSources),
+            "edited visor color reaches the X-ray shade");
         AssertEqual(0, guardedXray.ForbiddenReadAttempts, "edited X-ray color avoids native table");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Write(document with
         {

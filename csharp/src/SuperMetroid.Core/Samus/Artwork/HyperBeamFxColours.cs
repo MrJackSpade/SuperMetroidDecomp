@@ -24,16 +24,9 @@ public sealed class HyperBeamFxColours
         this.frames = frames;
     }
 
-    /// <summary>Shows a cycle frame's colours in the beam colours the cycle recolours, without advancing the cycle.</summary>
-    /// <param name="destination">The colours the cycle shows, eight of them.</param>
+    /// <summary>The beam colours a cycle frame shows, in the order the cycle recolours them (#1512).</summary>
     /// <param name="frame">The cycle frame.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is outside the cycle.</exception>
-    public void Apply(ColourRun destination, int frame)
-    {
-        if ((uint)frame >= (uint)frames.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        Ensure.LengthEqual(destination.Colors, SamusColourDefinitions.HyperBeamColours);
-        ImmutableArray<RgbColor> colours = frames[frame];
-        for (int color = 0; color < colours.Length; color++)
-            destination.Write(color, colours[color]);
-    }
+    public ImmutableArray<RgbColor> Frame(int frame) =>
+        (uint)frame < (uint)frames.Length ? frames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
 }

@@ -48,6 +48,6 @@ internal static class SamusOverlaySheetComposer
         }
         frames.Add(new(SamusOverlaySheetDefinitions.ChestCoverFrame,
             SpritePartFrames.SmallObject(ChestCoverAppearance, 0), inputs.StandardObjects));
-        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes);
+        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 }

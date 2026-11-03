@@ -167,9 +167,9 @@ internal sealed class SuperMetroidRuntime
         System = new SharedGameState(session.Random, session.EarthquakeSoundDelay, session.StoredExploredMaps);
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
-        Player = new SamusFrameState(spriteSets);
-        Colours = new GameplayColours(spriteSets, Player.Colours);
-        PaletteFxColours = new GameplayPaletteFxColours(Colours, Player.Colours);
+        Player = new SamusFrameState();
+        Colours = new GameplayColours(spriteSets);
+        PaletteFxColours = new GameplayPaletteFxColours(Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -188,7 +188,7 @@ internal sealed class SuperMetroidRuntime
         Xray = new XrayReveal(BackgroundScroll, Room, System);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Artwork = Artwork, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room);
-        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, SpeedBoosterOverrunColours = SamusOverreads.SpeedBoosterColours });
+        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
         PerLineEffects = new PerLineEffectPhase(Freeze, System, EffectPhaseOrder);
@@ -209,6 +209,7 @@ internal sealed class SuperMetroidRuntime
         // Gameplay starts from the installed initial palette.
         (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Gameplay requires the installed initial palette catalog.")).LoadInitial(Colours);
+        Player.Colours.ShowStarting();
     }
 
     /// <summary>
@@ -639,9 +640,7 @@ internal sealed class SuperMetroidRuntime
         // Hyper Beam's palette object lives in the same pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)
         {
-            Player.Samus?.Drained.HyperBeamPaletteFx.Step(
-                Player.Colours,
-                Artwork.HyperBeamFxColors);
+            Player.Samus?.Drained.HyperBeamPaletteFx.Step(Player.Colours);
         }
     }
 
@@ -1049,7 +1048,7 @@ internal sealed class SuperMetroidRuntime
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             Room.LoadedScope.TourianStatues.Enabled);
         return new(Display.Latched, frameEnd, new FramePaint(PublishShading(), Colours.ShownSprites(),
-            Player.Colours.ColourOwnDraws(DisplayedSprites.Draws)));
+            Player.Colours.ShadeOwnDraws(DisplayedSprites.Draws)));
     }
 
     /// <summary>

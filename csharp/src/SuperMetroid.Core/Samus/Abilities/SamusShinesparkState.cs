@@ -732,9 +732,7 @@ false);
     /// Runs palette handler one or six, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        InstalledSamusSuitColors? suitColors = null,
-        SamusFullBodyCycleColours? cycleColors = null)
+    public bool UpdatePalette(SamusColours colours, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.NotNull(colours);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
@@ -755,7 +753,7 @@ false);
             PaletteStep = 0;
             if (Phase == ShinesparkPhase.Stored)
                 Phase = ShinesparkPhase.Inactive;
-            SamusNormalSuitPalette.Load(colours.Suit, equippedItems, suitColors);
+            SamusNormalSuitPalette.Load(colours, equippedItems);
             return true;
         }
 
@@ -768,8 +766,7 @@ false);
         if (!catalogued)
             throw new InvalidDataException(
                 $"Shinespark palette type {PaletteType} step {PaletteStep} is not compiled.");
-        (cycleColors ?? throw new InvalidOperationException(
-            "Shinespark palette requires installed color assets.")).Apply(colours, palette);
+        colours.ShowSuit(SamusShades.FullBodyCycle(palette));
 
         int steps = PaletteType == SamusSpecialPaletteType.SpeedBoosterShine
             ? SamusPaletteDefinitions.FullBodyCycles.StoredShineSteps

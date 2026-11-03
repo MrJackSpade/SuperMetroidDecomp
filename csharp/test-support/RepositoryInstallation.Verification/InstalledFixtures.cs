@@ -171,15 +171,12 @@ internal static class InstalledFixtures
     internal static SamusBombProjectileSystem CreateBombSystem() =>
         new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombFixedColors } };
 
-    /// <summary>Binds the installation's suit, visor, body and grapple presentation to a standalone Samus.</summary>
+    /// <summary>The installed colour tables Samus's sheets are pre-coloured from (#1512), which checks resolve her shades with.</summary>
+    internal static SuperMetroid.AssetExtraction.Samus.SamusShadeSources SamusShadeSources => SamusBodySheetFixtures.Inputs.ShadeSources;
+
+    /// <summary>Binds the installation's body and grapple presentation to a standalone Samus.</summary>
     internal static SamusState BindSamus(SamusState samus)
     {
-        samus.Presentation.SuitColors = Maps.SamusSuitColors;
-        samus.Presentation.FullBodyCycleColors = Maps.SamusFullBodyCycleColors;
-        samus.Presentation.ChargeColors = Maps.SamusChargeColors;
-        samus.VisorPalette.PresentationColors = Maps.SamusVisorColors;
-        samus.Xray.PresentationColors = Maps.SamusVisorColors;
-        samus.Drained.PresentationColors = Maps.SamusHyperBeamColors;
         samus.Presentation.BodyFrames.BindArtwork(SamusBody);
         samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
         samus.ArmCannon.Artwork = SamusBody.ArmCannon;
@@ -199,17 +196,16 @@ internal static class InstalledFixtures
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
-        InstalledBeamPalettes? beamPalettes = null, InstalledSamusBodyArtwork? samusBodyArtwork = null)
+        InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio, introFont ?? Maps.IntroFont,
-            characterArtwork ?? IntroArtwork, beamPalettes ?? Projectiles.BeamTiles.Palettes, samusBodyArtwork ?? SamusBody)
+            characterArtwork ?? IntroArtwork, samusBodyArtwork ?? SamusBody)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             ProjectileFrameBindings = Projectiles.FrameBindings,
             NarrationPresentation = Maps.IntroNarration,
         };
-        intro.BindSamusHurtColors(Maps.SamusHurtColors);
         intro.BindSpriteSheets(CinematicSheetFixtures.WithIntro(characterArtwork ?? IntroArtwork));
         return intro;
     }

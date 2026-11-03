@@ -415,11 +415,10 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
         Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
-        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus,
-            initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
-        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
         Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -24,20 +23,19 @@ public static class SamusHurtFlashPalette
     private const int HurtFlashCounterPeriod = 65536;
 
     /// <summary>
-    /// Advances one hurt-flash call, optionally replacing all sixteen colors of
-    /// OBJ palette four and publishing the exact recovery sound side effects.
+    /// Advances one hurt-flash call, optionally showing the flash's or the restored suit's shade as the suit's colours
+    /// (#1512) and publishing the exact recovery sound side effects.
     /// </summary>
-    /// <param name="suit">Samus's suit colours, which the flash may replace.</param>
+    /// <param name="colours">Samus's colours, whose suit shade the flash may replace.</param>
     /// <param name="samus">Owner of the hurt counter, equipment palettes, movement/grapple state, sound queue, and deferred charging-audio latch.</param>
     /// <param name="controllerInput">Current held buttons; X permits the deferred charging-beam sound request.</param>
-    /// <param name="presentationColors">Installed hurt/intro colors, required only when the selected flash call loads one of those palettes.</param>
     /// <returns>An empty step marker; counter, palette, and audio outcomes are applied directly to the supplied state.</returns>
     public static SamusHurtFlashPaletteStepResult Update(
-        ColourRun suit,
+        SamusColours colours,
         SamusState samus,
-        ControllerButton controllerInput,
-        InstalledSamusHurtColors? presentationColors = null)
+        ControllerButton controllerInput)
     {
+        Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
         int counterBefore = samus.HurtFlashCounter;
@@ -65,15 +63,15 @@ public static class SamusHurtFlashPalette
         {
             if ((counterBefore & 1) != 0)
             {
-                LoadPresentation(SamusHurtColorVariant.Hurt);
+                colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }
             else if (samus.LiquidPhysics.CinematicFunctionActive)
             {
-                LoadPresentation(SamusHurtColorVariant.Intro);
+                colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Intro));
             }
             else
             {
-                SamusNormalSuitPalette.Load(suit, samus.EquippedItems, samus.Presentation.SuitColors);
+                SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
             }
         }
 
@@ -92,16 +90,6 @@ public static class SamusHurtFlashPalette
         }
 
         return new SamusHurtFlashPaletteStepResult();
-
-        void LoadPresentation(SamusHurtColorVariant variant)
-        {
-            if (presentationColors is null)
-                throw new InvalidOperationException(
-                    "Hurt-flash palette requires installed Samus hurt colors.");
-            for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                suit.Write(index,
-                    presentationColors.Resolve(variant, index));
-        }
     }
 
     /// <summary>

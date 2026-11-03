@@ -1,30 +1,23 @@
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Samus.Artwork;
 
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Applies installed Speed Booster cycle colors, or the colours Gravity reads past its cycle, to Samus's suit palette.</summary>
+/// <summary>Shows a Speed Booster cycle step as Samus's suit colours (#1512).</summary>
 internal static class SamusSpeedBoosterPalette
 {
     /// <summary>
-    /// Copies the selected installed cycle into the suit colours. A step past Gravity's cycle instead copies the colours
-    /// <paramref name="overrunColours"/> decoded for it.
+    /// Shows the cycle palette <paramref name="source"/> names, or for a step past Gravity's cycle, the colours the
+    /// import decoded for that step.
     /// </summary>
-    internal static void Apply(SamusColours colours, SpeedBoosterPaletteSource source,
-        SamusFullBodyCycleColours? colors, SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> overrunColours)
+    internal static void Apply(SamusColours colours, SpeedBoosterPaletteSource source)
     {
+        Ensure.NotNull(colours);
         if (source.Overrun is { } overrun)
         {
-            IReadOnlyList<RgbColor> copied = overrunColours.Colours(overrun);
-            if (copied.Count != SamusPaletteDefinitions.Common.ColoursPerSet)
-                throw new InvalidDataException($"The Speed Booster step {overrun} copies {copied.Count} colours, not one suit colour set.");
-            for (int index = 0; index < copied.Count; index++)
-                colours.Suit.Write(index, copied[index]);
+            colours.ShowSuit(SamusShades.SpeedBoosterOverrun(overrun));
             return;
         }
-        (colors ?? throw new InvalidOperationException(
-            "Speed Booster palette requires installed Samus full-body cycle colors.")).Apply(colours, source.Palette ??
-                throw new InvalidOperationException("A Speed Booster palette source names either a cycle palette or an overrun."));
+        colours.ShowSuit(SamusShades.FullBodyCycle(source.Palette ??
+            throw new InvalidOperationException("A Speed Booster palette source names either a cycle palette or an overrun.")));
     }
 }

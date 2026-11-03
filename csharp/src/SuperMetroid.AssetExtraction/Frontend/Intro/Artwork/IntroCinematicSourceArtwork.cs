@@ -132,7 +132,7 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
         content.Append("egg-sprites", Convert.FromHexString(EggEffectSprites.ContentIdentity));
         content.Append("discovery-sprites", Convert.FromHexString(DiscoveryActorSprites.ContentIdentity));
         content.Append("scientist-sprites", Convert.FromHexString(ScientistSprites.ContentIdentity));
-        content.Append("palette", ScreenColourImage.Words(Palette.Colours));
+        content.Append("palette", ScreenColourImage.Words(Palette.BackgroundColours.AsSpan(), Palette.SpriteColours.AsSpan()));
         content.Append("ceres-flight", Convert.FromHexString(CeresFlight.ContentIdentity));
         content.Append("ceres-destruction", Convert.FromHexString(CeresDestructionIdentity));
         content.Append("ceres-destruction-sprites", Convert.FromHexString(CeresDestructionSprites.ContentIdentity));

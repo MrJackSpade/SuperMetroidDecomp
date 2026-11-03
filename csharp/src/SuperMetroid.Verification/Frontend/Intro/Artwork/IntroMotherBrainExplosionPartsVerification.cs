@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -89,7 +90,7 @@ internal static class IntroMotherBrainExplosionPartsVerification
             else reference.DrawOffScreen(expected, new(120, y), 0x0a00);
             expected.FinalizeFrame();
             var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-            CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, y), ScreenColourGroup.IntroExplosions, y == 72);
+            CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, y), IntroShades.Drawn(IntroSpriteColouring.Explosions), y == 72);
             actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual)
                 && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

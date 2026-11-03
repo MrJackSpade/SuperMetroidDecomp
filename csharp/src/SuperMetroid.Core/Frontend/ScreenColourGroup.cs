@@ -40,39 +40,6 @@ public enum ScreenColourGroup
     /// <summary>The game-over baby Metroid's colours, which its glow animates.</summary>
     GameOverBaby,
 
-    /// <summary>The opening's Mother Brain colours, which her hurt flash replaces.</summary>
-    IntroMotherBrain,
-
-    /// <summary>The gameplay flashback's background colours: its first background colour set and the first colours of the next.</summary>
-    IntroGameplayBackground,
-
-    /// <summary>The gameplay flashback's first background colour set, which the flashback clears as it begins.</summary>
-    IntroGameplayClearedBackground,
-
-    /// <summary>The gameplay flashback's room colours.</summary>
-    IntroGameplayEnvironment,
-
-    /// <summary>Samus's colours in the gameplay flashback.</summary>
-    IntroGameplaySamus,
-
-    /// <summary>The narration text's colours.</summary>
-    IntroNarrationText,
-
-    /// <summary>The narration screens' background colours.</summary>
-    IntroNarrationBackground,
-
-    /// <summary>The narration portrait's colours.</summary>
-    IntroNarrationPortrait,
-
-    /// <summary>The narration screens' object colours.</summary>
-    IntroNarrationObjects,
-
-    /// <summary>The Metroid discovery scene's background colours.</summary>
-    IntroDiscoveryBackground,
-
-    /// <summary>The Metroid discovery scene's scientists' colours.</summary>
-    IntroDiscoveryScientists,
-
     /// <summary>The ending clear-time digits' and colon's colours.</summary>
     EndingClearTimeDigits,
 
@@ -147,26 +114,6 @@ public enum ScreenColourGroup
 
     /// <summary>The post-credits shot graphic's colours, which fade out as it turns.</summary>
     EndingShot,
-
-    /// <summary>
-    /// The colours the opening's discovery actors draw in: the Metroid egg, the hatched baby, the egg's particles and
-    /// slime, the Rinkas, and the flashback's Mother Brain.
-    /// </summary>
-    IntroDiscoveryActors,
-
-    /// <summary>
-    /// The opening's cross-fade colours, which the laboratory scenes' scientists and baby and the narration caret draw in.
-    /// </summary>
-    IntroCrossFadeObjects,
-
-    /// <summary>
-    /// The opening narration's neutral ramp: after its transparent colour, a four-shade neutral cycle stepping down from
-    /// one foreground colour.
-    /// </summary>
-    IntroNarrationNeutralRamp,
-
-    /// <summary>The colours the opening's explosions draw in.</summary>
-    IntroExplosions,
 
     /// <summary>The colours of Ceres station's background-drawn navigation lights, which their blink animates.</summary>
     CeresNavigationLights,

@@ -31,8 +31,8 @@ internal static class IntroEggEffectSpriteArtworkVerification
         IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ScreenColourGroup palette = ScreenColourGroup.IntroDiscoveryActors;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
+        PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);
+        ushort paletteBits = SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroEggEffectSpriteDefinitions.Frames)
         {

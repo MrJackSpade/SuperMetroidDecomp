@@ -112,12 +112,12 @@ internal static class LookupStream3Verification
         Console.WriteLine("Intro palette rows:256 native colors and768 single-channel and256 combined RGB5 edits preserve transfer bytes/CGRAM/instance isolation; reviewed material choices and all shade calculations keep no stock rows.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
-            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(selected.Colours);
+            ReadOnlySpan<byte> bytes = ScreenColourImage.Words(selected.BackgroundColours.AsSpan(), selected.SpriteColours.AsSpan());
             for (int color = 0; color < expected.Length; color++)
                 AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
-            var cgram = new ScreenPalette();
-            selected.LoadTo(cgram);
-            AssertTrue(ToColors(expected).SequenceEqual(cgram.Colors), "intro palette CGRAM load");
+            // The opening's colours are plain lists the import pre-colours its sheets from (#1512): backgrounds, then sprites.
+            AssertTrue(ToColors(expected).SequenceEqual([.. selected.BackgroundColours, .. selected.SpriteColours]),
+                "intro palette colour lists");
         }
         static IntroCinematicPalette Load(ushort[] words)
         {
@@ -1021,7 +1021,8 @@ internal static class LookupStream3Verification
         {
             IntroCinematicDefinitions.Palette.Gameplay, IntroCinematicDefinitions.Palette.GameplayClear,
             IntroCinematicDefinitions.Palette.Narration, IntroCinematicDefinitions.Palette.Discovery,
-        }.Select(scene => scene.Select(group => (ScreenColourPositions.Of(group), new ScreenPalette().Colours(group).Count)).ToArray())];
+        }.Select(scene => scene.Backgrounds.Select(group => IntroRegion(IntroSheetInks.Background(group), 0))
+            .Concat(scene.Sprites.Select(group => IntroRegion(IntroSheetInks.Sprite(group), ImageColourGroup.Count * ImageColourGroup.Colours))).ToArray())];
         (int FirstColor, int ColorCount)[][] expectedIntroRegions =
         [
             [new(0, 20), new(48, 16), new(233, 6)],
@@ -1049,6 +1050,12 @@ internal static class LookupStream3Verification
             }
             foreach (int invalid in new[] { -1, introRegions[group].Length, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
+        }
+        // The cartridge position of the first colour the import's fade shades move for a group, and how many they move (#1512).
+        static (int FirstColor, int ColorCount) IntroRegion(IEnumerable<int> inks, int start)
+        {
+            int[] colours = [.. inks];
+            return (start + colours[0], colours.Length);
         }
         ushort[] motherBrainRoots =
         [

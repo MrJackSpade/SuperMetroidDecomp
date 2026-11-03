@@ -45,12 +45,12 @@ internal static class CinematicPresentationContractChecks
                     TitleGraphicsPresentation.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
-                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroCrossFadeObjects);
-                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(999), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroCrossFadeObjects);
-                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(0), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroMotherBrain);
-                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroMotherBrain);
-                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroExplosions);
-                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, SuperMetroid.Core.Frontend.ScreenColourGroup.IntroExplosions);
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(999), oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(0), oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(998), oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(997), oam, default, IntroShades.Drawn(IntroSpriteColouring.Explosions));
                     door.LoadNormalColors(screen.SpriteSets.Set(2));
                     door.LoadEscapeColors(screen.SpriteSets.Set(7));
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationStepCount - 1);

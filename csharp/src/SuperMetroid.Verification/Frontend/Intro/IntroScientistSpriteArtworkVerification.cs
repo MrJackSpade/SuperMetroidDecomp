@@ -29,8 +29,8 @@ internal static class IntroScientistSpriteArtworkVerification
         IntroCinematicArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
-        ScreenColourGroup palette = IntroBabyActorDefinitions.DeliveredBaby.Colouring;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
+        PictureShade palette = IntroShades.Drawn(IntroBabyActorDefinitions.DeliveredBaby.Colouring);
+        ushort paletteBits = SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroScientistSpriteDefinitions.Frames)
         {

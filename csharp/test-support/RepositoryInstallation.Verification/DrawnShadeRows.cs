@@ -25,6 +25,11 @@ internal static class DrawnShadeRows
             .Select(colouring => (Shade: TitleShades.Drawn(colouring), Row: TitleSheetInks.SpriteSet(colouring))))
         .ToFrozenDictionary(entry => entry.Shade, entry => entry.Row);
 
+    /// <summary>The row the drawn shade <paramref name="drawn"/> stands for.</summary>
+    /// <exception cref="InvalidOperationException">The shade is no opening, Ceres or title colouring's drawn shade.</exception>
+    internal static int Row(PictureShade drawn) => Rows.TryGetValue(drawn, out int row) ? row
+        : throw new InvalidOperationException($"{drawn.Key} is no opening, Ceres or title colouring's drawn shade.");
+
     /// <summary>
     /// The row the first drawn shade of <paramref name="shading"/> stands for, or null when the draw names no shading or
     /// none of its shades is an opening, Ceres or title colouring's drawn shade.

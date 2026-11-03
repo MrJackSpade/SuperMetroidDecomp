@@ -1359,8 +1359,9 @@ level, samus, FrameCounterWord(elapsedUpdates));
     }
 
     /// <summary>
-    /// <paramref name="draws"/> with the flashback Samus's draws in her shading (#1512), her beams and their trails also at
-    /// the level the crossfade shows her beam colours at.
+    /// <paramref name="draws"/> with the flashback Samus's draws in her shading (#1512), and every draw shown in her beams'
+    /// shade also at the level the crossfade shows her beam colours at: the shading, not the kind of draw, says which
+    /// draws show the faded beam colours.
     /// </summary>
     private ImmutableArray<SpriteDraw> FlashbackDraws(ImmutableArray<SpriteDraw> draws)
     {
@@ -1372,10 +1373,9 @@ level, samus, FrameCounterWord(elapsedUpdates));
         var faded = ImmutableArray.CreateBuilder<SpriteDraw>(shaded.Length);
         foreach (SpriteDraw draw in shaded)
         {
-            faded.Add(draw is ImageSpriteDraw { Shading: { } shading } image &&
-                draw.Source.Kind is SpriteSourceKind.SamusProjectile or SpriteSourceKind.SamusProjectileTrail
-                    ? image with { Shading = shading.With(beamLevel) }
-                    : draw);
+            faded.Add(draw is ImageSpriteDraw { Shading: { } shading } image && shading.Shades.Contains(SamusShades.IntroBeams)
+                ? image with { Shading = shading.With(beamLevel) }
+                : draw);
         }
         return faded.MoveToImmutable();
     }

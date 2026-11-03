@@ -642,8 +642,8 @@ internal static class IntroCinematicArtworkVerification
         const ushort originX = 8;
         const ushort originY = 24;
         // The caret draws in the opening's cross-fade colours; the cartridge oracle takes their sprite set as its palette bits.
-        ScreenColourGroup palette = ScreenColourGroup.IntroCrossFadeObjects;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
+        PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects);
+        ushort paletteBits = SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
@@ -773,7 +773,9 @@ internal static class IntroCinematicArtworkVerification
     {
         // The cartridge oracle takes the sprite set Mother Brain's colouring resolves to as its attribute bits; the port's
         // draw takes the colouring itself.
-        ushort motherBrainPaletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits;
+        AssertEqual(IntroShades.Drawn(IntroSpriteColouring.MotherBrain), IntroMotherBrainSpriteState.Colouring,
+            "Mother Brain draws in her own drawn shade");
+        ushort motherBrainPaletteBits = SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainSpriteDefinitions.Frames)
         {
@@ -854,8 +856,8 @@ internal static class IntroCinematicArtworkVerification
     {
         const ushort x = 120;
         const ushort y = 100;
-        ScreenColourGroup palette = ScreenColourGroup.IntroExplosions;
-        ushort paletteBits = SnesObjAttributeWord.Create(0, ScreenColourGroups.SpriteSet(palette), 0).PaletteBits;
+        PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.Explosions);
+        ushort paletteBits = SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(palette), 0).PaletteBits;
         foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {

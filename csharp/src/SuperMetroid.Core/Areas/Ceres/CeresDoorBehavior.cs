@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -14,7 +15,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresDoor];
@@ -55,6 +56,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
     internal int? ElevatorRoomGlowStep { get; private set; }
+
+    /// <summary>Lays the elevator room's glow step, once the door has cycled one, over the room's pictures (#1512).</summary>
+    public void LayShades(GameplayShadingBuilder shading)
+    {
+        Ensure.NotNull(shading);
+        if (ElevatorRoomGlowStep is int step)
+            shading.Lay(GameplayPictureGroup.Room, CeresDoorShades.ElevatorRoomGlow(step));
+    }
 
     /// <summary>Each door slot's typed program cursor in the loaded room.</summary>
     internal readonly Dictionary<int, AnimationProgramCursor<CeresDoorProgram>> DoorPrograms = [];

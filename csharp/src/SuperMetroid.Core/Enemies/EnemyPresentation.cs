@@ -95,7 +95,8 @@ internal sealed class EnemyPresentation
     /// <exception cref="InvalidDataException">A frame showing a corpse's rot is drawn without that rot.</exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
-        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, PictureShading shading, CorpseRotView? rot) = draw;
+        (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, CorpseRotView? rot) = draw;
+        PictureShading shading = draw.Shading ?? PictureShading.Standard;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
         foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
             sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });

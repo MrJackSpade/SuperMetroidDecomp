@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Animals;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// Dachora's installed colours: the speed and shine frames calculated from the normal palette, how each colour resolves
@@ -46,7 +47,7 @@ internal static class DachoraColors
             throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}.");
         if ((uint)color >= DachoraColorDefinitions.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        var key = new ColourCell(frame, color);
+        var key = new ColourStep(frame, color);
         return phase switch
         {
             DachoraPalettePhase.Speed => colors.selection.SpeedEdits.TryGetValue(key, out RgbColor speed) ? speed : SpeedColor(colors.selection.Normal, frame, color),

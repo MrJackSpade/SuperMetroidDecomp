@@ -13,6 +13,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks Crocomire's wall-rumble cursor records and death-sequence timing against retail data.</summary>
 internal static class CrocomireRumbleDefinitionsVerification

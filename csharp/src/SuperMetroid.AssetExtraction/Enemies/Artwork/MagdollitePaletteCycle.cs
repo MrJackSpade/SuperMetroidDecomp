@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// Editable RGB5 colors for Magdollite's four-frame OBJ palette cycle.
@@ -12,7 +13,7 @@ public sealed class MagdollitePaletteCycle
     /// <summary>Four independently authored glow colors underlying the frames' rotations.</summary>
     private readonly RgbColor[] colors;
     /// <summary>Later-frame cells that differ from the rotation of the first frame.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> edits;
+    internal readonly Dictionary<ColourStep, RgbColor> edits;
 
     /// <summary>
     /// Palette_Magdollite_Glow_0..3 rotates left one color per frame of the four-frame cycle; keeps the first frame and the
@@ -20,7 +21,7 @@ public sealed class MagdollitePaletteCycle
     /// </summary>
     /// <param name="colors">The first frame's four glow colors.</param>
     /// <param name="edits">The later-frame cells the import found differing from the rotation.</param>
-    internal MagdollitePaletteCycle(RgbColor[] colors, Dictionary<ColourCell, RgbColor> edits)
+    internal MagdollitePaletteCycle(RgbColor[] colors, Dictionary<ColourStep, RgbColor> edits)
     {
         this.colors = colors;
         this.edits = edits;
@@ -37,19 +38,13 @@ public sealed class MagdollitePaletteCycle
             throw new ArgumentOutOfRangeException(nameof(frame));
         if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return edits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
+        return edits.TryGetValue(new ColourStep(frame, color), out RgbColor edited)
             ? edited : colors[(color + frame) % colors.Length];
     }
 
-    /// <summary>Writes the selected frame's four colors without advancing cycle timing or altering the other colors in Magdollite's OBJ palette.</summary>
-    /// <param name="animated">The four animated colours of Magdollite's colour set.</param>
-    /// <param name="frame">Palette-cycle frame 0..3 chosen by the enemy's graphics-drawn hook.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The frame index is invalid.</exception>
-    /// <exception cref="ArgumentException">The run is not four colours.</exception>
-    public void ApplyFrame(ColourRun animated, int frame)
-    {
-        Ensure.LengthEqual(animated.Colors, MagdollitePaletteDefinitions.AnimatedColorCount);
-        for (int color = 0; color < MagdollitePaletteDefinitions.AnimatedColorCount; color++)
-            animated.Write(color, Resolve(frame, color));
-    }
+    /// <summary>Each frame replaces the colours from the tenth (index nine) of Magdollite's colours, which its glow shades recolour (#1512).</summary>
+    internal const int FirstAnimatedColor = 9;
+
+    /// <summary>The four colours each frame replaces, nine through twelve; the other twelve stay unchanged.</summary>
+    internal const int AnimatedColorCount = 4;
 }

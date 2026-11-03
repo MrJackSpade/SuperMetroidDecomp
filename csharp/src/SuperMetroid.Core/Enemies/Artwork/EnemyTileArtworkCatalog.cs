@@ -1,29 +1,19 @@
-using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The installed enemy artwork gameplay reads (#1463): the palette each enemy is coloured with, the extended frame placements its
-/// draw selects, and the enemies' colour cycles. The pictures enemies draw are pre-coloured sheets; the characters and
-/// compositions they are composed from belong to the import pipeline's subclass.
+/// The installed enemy artwork gameplay reads (#1463): the extended frame placements its draw selects and the auxiliary
+/// colours the Golden Torizo still reads. The pictures enemies draw are pre-coloured sheets with their shades (#1512);
+/// the palettes, colour cycles, characters and compositions they are composed from belong to the import pipeline's
+/// subclass.
 /// </summary>
 public abstract class EnemyTileArtworkCatalog
 {
-    /// <summary>The installed palettes, extended frames and colour catalogs.</summary>
+    /// <summary>The installed extended frames and colour catalogs.</summary>
     private EnemyGameplayArtworkParts installed;
 
-    /// <summary>Copies the installed palettes and catalogs.</summary>
+    /// <summary>Copies the installed catalogs.</summary>
     /// <param name="parts">The installed artwork gameplay reads.</param>
-    protected EnemyTileArtworkCatalog(EnemyGameplayArtworkParts parts) =>
-        installed = Ensure.NotNull(parts) with
-        {
-            Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(Ensure.NotNull(parts.Palettes)),
-        };
-
-    /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
-    internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>
-        installed.Palettes.TryGetValue(enemy, out palette);
+    protected EnemyTileArtworkCatalog(EnemyGameplayArtworkParts parts) => installed = Ensure.NotNull(parts);
 
     /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors => installed.AuxiliaryColors;
@@ -34,20 +24,4 @@ public abstract class EnemyTileArtworkCatalog
         get => installed.ExtendedFramePlacements;
         internal set => installed = installed with { ExtendedFramePlacements = value };
     }
-
-    /// <summary>Four editable color frames; the Magdollite draw hook retains timing.</summary>
-    public MagdollitePaletteCycle? MagdollitePaletteCycle => installed.MagdollitePaletteCycle;
-
-    /// <summary>Six editable Work Robot color records; timer/terminator stay compiled.</summary>
-    public WorkRobotPaletteCycle? WorkRobotPaletteCycle => installed.WorkRobotPaletteCycle;
-
-    /// <summary>Editable Chozo statue and n00b-tube crack sprite-palette pairs.</summary>
-    public ChozoAndTubeColorCatalog? ChozoAndTubeColors => installed.ChozoAndTubeColors;
-
-    /// <summary>Editable Dachora default, speed and shine sprite colors.</summary>
-    public DachoraColorCatalog? DachoraColors => installed.DachoraColors;
-
-    /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
-    public void LoadPaletteTo(EnemyDefinitionId definitionId, ColourRun destination) =>
-        EnemyTileArtwork.LoadPaletteTo(this, definitionId, destination);
 }

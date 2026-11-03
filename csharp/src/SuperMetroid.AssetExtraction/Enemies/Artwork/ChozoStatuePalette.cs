@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Which Chozo statue palette: Wrecked Ship or Lower Norfair.</summary>
 internal enum ChozoStatuePalette

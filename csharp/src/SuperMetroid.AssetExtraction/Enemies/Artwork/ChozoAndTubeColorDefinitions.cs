@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Chozo;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>The shape of the colour sets the n00b tube's cracks and the Wrecked Ship and Lower Norfair Chozo statues install.</summary>
 public static class ChozoAndTubeColorDefinitions

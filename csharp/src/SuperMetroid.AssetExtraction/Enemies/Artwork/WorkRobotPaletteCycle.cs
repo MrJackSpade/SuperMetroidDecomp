@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.WorkRobots;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
 /// Editable Work Robot RGB5 frames. Record order, 64/16-tick durations,
@@ -41,14 +41,4 @@ public sealed class WorkRobotPaletteCycle
         return frames is null ? StockColor(frame, color) : frames[frame][color];
     }
 
-    /// <summary>Copies one four-color frame over <paramref name="animated"/> without advancing the timer.</summary>
-    /// <param name="animated">The four animated colours of the Work Robot's colour set.</param>
-    /// <param name="frame">Zero-based cycle record from 0 through 5.</param>
-    /// <exception cref="ArgumentException">The run is not four colours.</exception>
-    public void ApplyFrame(ColourRun animated, int frame)
-    {
-        Ensure.LengthEqual(animated.Colors, WorkRobotPaletteDefinitions.ColorCount);
-        for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
-            animated.Write(color, Resolve(frame, color));
-    }
 }

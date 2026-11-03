@@ -13,6 +13,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification

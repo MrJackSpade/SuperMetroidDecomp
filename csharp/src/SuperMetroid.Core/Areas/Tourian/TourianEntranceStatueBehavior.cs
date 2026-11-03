@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
@@ -25,8 +25,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The eye glow the statues' eyes show, the last a released boss lit; none before any.</summary>
     private PictureShade? _eyeGlow;
 
-    /// <summary>The released statues' blacked-out eyes and greys, in the order they were shown.</summary>
+    /// <summary>The released sprite statues' blacked-out eyes and greys, in the order they were shown.</summary>
     private readonly List<PictureShade> _statueLooks = [];
+
+    /// <summary>The released statues drawn in the room's tiles: their blacked-out eyes and greys, in the order shown.</summary>
+    private readonly List<PictureShade> _roomLooks = [];
 
     /// <summary>Binds projectile allocation and the room's slots to the statue species.</summary>
     internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable)
@@ -52,11 +55,27 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         ShowScene();
     }
 
-    /// <summary>Shows a released statue's look, its blacked-out eyes or its grey, over the scene's.</summary>
+    /// <summary>
+    /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue drawn in the
+    /// room's tiles, otherwise over the scene's sprites.
+    /// </summary>
     internal void ShowStatueLook(PictureShade look)
     {
+        if (TourianStatueShades.RoomTileLooks.Contains(look))
+        {
+            _roomLooks.Add(look);
+            return;
+        }
         _statueLooks.Add(look);
         ShowScene();
+    }
+
+    /// <summary>Lays the looks of the released statues drawn in the room's tiles over the room's pictures (#1512).</summary>
+    public void LayShades(GameplayShadingBuilder shading)
+    {
+        Ensure.NotNull(shading);
+        foreach (PictureShade look in _roomLooks)
+            shading.Lay(GameplayPictureGroup.Room, look);
     }
 
     /// <summary>Recomposes the scene's look and shows it on every statue record and statue scene projectile.</summary>

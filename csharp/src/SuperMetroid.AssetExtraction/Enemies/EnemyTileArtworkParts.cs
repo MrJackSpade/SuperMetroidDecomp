@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -42,15 +43,10 @@ public sealed record EnemyTileArtworkParts
     /// <summary>Auxiliary colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; init; } = null;
 
-    /// <summary>The palettes, extended frame placements and colour catalogs gameplay reads.</summary>
+    /// <summary>The extended frame placements and colour catalogs gameplay reads.</summary>
     internal EnemyGameplayArtworkParts Gameplay => new()
     {
-        Palettes = Palettes,
         ExtendedFramePlacements = ExtendedFrames?.Placements,
-        MagdollitePaletteCycle = MagdollitePaletteCycle,
-        WorkRobotPaletteCycle = WorkRobotPaletteCycle,
-        ChozoAndTubeColors = ChozoAndTubeColors,
-        DachoraColors = DachoraColors,
         AuxiliaryColors = AuxiliaryColors,
     };
 }

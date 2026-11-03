@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
@@ -20,22 +21,22 @@ internal static class ChozoAndTubeColorEdits
     }
 
     /// <summary>The supplied crack colours after the seeds that differ from the calculated ramp and repeated half.</summary>
-    private static Dictionary<ColourCell, RgbColor> TubeEdits(RgbColor[] seeds, RgbColor[] tubeCracks)
+    private static Dictionary<ColourStep, RgbColor> TubeEdits(RgbColor[] seeds, RgbColor[] tubeCracks)
     {
-        Dictionary<ColourCell, RgbColor> edits = [];
+        Dictionary<ColourStep, RgbColor> edits = [];
         for (int color = ChozoAndTubeColors.TubeSeedCount; color < tubeCracks.Length; color++)
             if (tubeCracks[color] != ChozoAndTubeColors.TubeColor(seeds, color))
-                edits.Add(new ColourCell(0, color), tubeCracks[color]);
+                edits.Add(new ColourStep(0, color), tubeCracks[color]);
         return edits;
     }
 
     /// <summary>The supplied statue colours that differ from the variant's calculated paint.</summary>
-    private static Dictionary<ColourCell, RgbColor> StatueEdits(ChozoStatuePalette palette, RgbColor[] statue)
+    private static Dictionary<ColourStep, RgbColor> StatueEdits(ChozoStatuePalette palette, RgbColor[] statue)
     {
-        Dictionary<ColourCell, RgbColor> edits = [];
+        Dictionary<ColourStep, RgbColor> edits = [];
         for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
             if (statue[color] != ChozoStatuePaint.Color(palette, color))
-                edits.Add(new ColourCell(0, color), statue[color]);
+                edits.Add(new ColourStep(0, color), statue[color]);
         return edits;
     }
 }

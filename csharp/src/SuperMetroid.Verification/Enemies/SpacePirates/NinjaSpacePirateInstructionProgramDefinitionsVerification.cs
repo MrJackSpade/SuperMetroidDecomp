@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification

@@ -23,6 +23,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Checks Ridley's death breakup fragments, instruction programs, installed OAM, and expiry.</summary>
 internal static class RidleyBreakupProgramsVerification

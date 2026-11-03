@@ -136,12 +136,15 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
                 // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
                 break;
             case EnemyDefinitionId.BabyMetroid:
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
                 break;
             case EnemyDefinitionId.Zebetite:
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Zebetites(inputs.Bosses));
                 break;
             case EnemyDefinitionId.CorpseSidehopper:

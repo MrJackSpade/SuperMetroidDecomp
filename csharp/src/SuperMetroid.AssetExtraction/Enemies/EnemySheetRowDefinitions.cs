@@ -18,6 +18,18 @@ internal static class EnemySheetRowDefinitions
     /// <summary>The row Samus's beam colours fill, which a frozen enemy shows.</summary>
     internal const int Beams = 6;
 
+    /// <summary>The row Mother Brain's brain's initialization selects, which her colour loads write as her brain's.</summary>
+    internal const int MotherBrainBrain = 1;
+
+    /// <summary>
+    /// The row the Shitroid's and the Zebetites' initializations select, which Mother Brain's phase-two load writes as her
+    /// attack's.
+    /// </summary>
+    internal const int MotherBrainAttack = 2;
+
+    /// <summary>The row the Baby's cutscene initialization selects, which Mother Brain's encounter writes as the Baby's.</summary>
+    internal const int MotherBrainBaby = 7;
+
     /// <summary>The row the Ninja Space Pirates' initialization loads the gold wall Pirate's colours into.</summary>
     internal const int NinjaGoldWall = 7;
 
@@ -63,8 +75,9 @@ internal static class EnemySheetRowDefinitions
 
     /// <summary>
     /// The shared row each enemy whose initialization selects one draws in for its whole life: the Tourian statues', the
-    /// Chozo statues', the Torizos' and the escape Etecoons' common colours (each initialization clears the enemy's palette
-    /// bits, so its parts show the rows their own bits name), Ceres's steam in the enemy projectiles' colours.
+    /// Chozo statues', the Torizos', Mother Brain's body's and the escape Etecoons' common colours (each initialization
+    /// clears the enemy's palette bits, so its parts show the rows their own bits name), Mother Brain's brain's row, the
+    /// Shitroid's and the Zebetites' row, the Baby's cutscene row, and Ceres's steam in the enemy projectiles' colours.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> FixedRows { get; } = new Dictionary<EnemyDefinitionId, int>
     {
@@ -72,6 +85,11 @@ internal static class EnemySheetRowDefinitions
         [EnemyDefinitionId.Chozo] = Common,
         [EnemyDefinitionId.BombTorizo] = Common,
         [EnemyDefinitionId.GoldenTorizo] = Common,
+        [EnemyDefinitionId.MotherBrainBody] = Common,
+        [EnemyDefinitionId.MotherBrainHead] = MotherBrainBrain,
+        [EnemyDefinitionId.BabyMetroid] = MotherBrainAttack,
+        [EnemyDefinitionId.Zebetite] = MotherBrainAttack,
+        [EnemyDefinitionId.BabyMetroidCutscene] = MotherBrainBaby,
         [EnemyDefinitionId.EtecoonEscape] = Common,
         [EnemyDefinitionId.Steam] = EnemyProjectiles,
     };

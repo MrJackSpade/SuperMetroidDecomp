@@ -665,11 +665,11 @@ internal static class RidleyFullMovieVerification
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
-        RgbColor[] expected = runtime.Colours.Colors.Slice(192, 16).ToArray();
-        for (int color = 192; color < 208; color++) runtime.Colours.AsPaletteColors().SetColor(color, RgbColor.FromWord(0x1234));
+        // Samus's suit colours are her shades (#1512): the selection leaves the suit showing the shade its load named.
+        RgbColor[] expected = runtime.Player.Colours.ShownSuit(InstalledFixtures.SamusShadeSources);
         runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
-        AssertTrue(runtime.Colours.Colors.Slice(192, 16).SequenceEqual(expected),
+        AssertTrue(runtime.Player.Colours.ShownSuit(InstalledFixtures.SamusShadeSources).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
@@ -794,9 +794,11 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual(0, runtime.Clock.ShortCounter, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToEquipmentWord());
+        // The colours the frame shows, composed from the published shading and the import's colours (#1512).
+        RgbColor[] scrolling = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
         for (int color = 0; color < 16; color++)
-            AssertEqual(beamPalette[color], runtime.Colours.Colors[224 + color], "beam palette is live during door scrolling");
-        AssertEqual(0, runtime.Colours.Colors[196], "visor remains faded before scroll completes");
+            AssertEqual(beamPalette[color], scrolling[GameplayShownColours.SamusBeamsFirst + color].ToWord(), "beam palette is live during door scrolling");
+        AssertEqual(0, scrolling[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(), "visor remains faded before scroll completes");
         int scrollCalls = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
@@ -806,7 +808,8 @@ internal static class RidleyFullMovieVerification
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
         AssertEqual(DoorTransitionPhase.FinishDoorLoading, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
-        AssertEqual(0x3be0, runtime.Colours.Colors[196], "final scrolling update publishes native visor green before PLMs");
+        AssertEqual(0x3be0, GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
+            "final scrolling update publishes native visor green before PLMs");
         AssertEqual(0x00de2000u, samus.Kinematics.Position.X.RawValue, "native source frame 276 scrolling endpoint");
         game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");

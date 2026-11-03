@@ -113,10 +113,6 @@ internal static class HudAtlasVerification
 
         void Initialize(SuperMetroidRuntime runtime)
         {
-            // No room palette has been installed in this focused runtime fixture.
-            // Give every BG3 color a distinct grayscale value so a changed index is
-            // observable, rather than accepting parity between two black HUDs.
-            for (int i = 0; i < 32; i++) runtime.Colours.AsPaletteColors().SetColor(i, RgbColor.FromWord((ushort)(i * 0x421)));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
         }
@@ -125,11 +121,17 @@ internal static class HudAtlasVerification
         // the plane's own rows on the plane's layer.
         static RgbaPixel[] Render(SuperMetroidRuntime runtime)
         {
+            // No room colours are installed in this focused runtime fixture, and gameplay holds no colour image (#1512):
+            // the plane is drawn in colours that give every BG3 colour a distinct grayscale value, so a changed index is
+            // observable rather than accepting parity between two black HUDs.
+            RgbColor[] colours = new RgbColor[256];
+            for (int i = 0; i < 32; i++)
+                colours[i] = RgbColor.FromWord((ushort)(i * 0x421));
             Layer3Cells plane = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps)), runtime.ComposedVram(),
-                runtime.Colours.Colors);
+                colours);
             var layer = new OverlayBlendLayer(plane, 0, Layer3Plane.Rows, 0, BlendOperation.Add,
                 ScrollBands.Uniform(0), ScrollBands.Uniform(0));
-            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(runtime.Colours.Colors, []),
+            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(colours, []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
         }

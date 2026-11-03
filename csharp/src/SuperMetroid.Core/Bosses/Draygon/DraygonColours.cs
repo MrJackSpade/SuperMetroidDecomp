@@ -31,10 +31,10 @@ internal sealed class DraygonColours : IGameplayShadingSource
         ? PictureShading.Shaded(DraygonShades.Intro)
         : PictureShading.Shaded(DraygonShades.Intro).With(white ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
 
-    /// <summary>The shading the Evirs his death releases draw in: his opening's colours and his sprites' material colours.</summary>
-    internal static PictureShading MaterialSprites { get; } = PictureShading.Shaded(DraygonShades.Intro).With(DraygonShades.Sprite);
-
-    /// <summary>The shading his goop draws in: his opening's colours.</summary>
+    /// <summary>
+    /// The shading his goop draws in: his opening's colours. Its initialization selects the second sprite row, which only
+    /// his opening's colour load writes, unlike his own row, which his hurt updates rewrite.
+    /// </summary>
     internal static PictureShading Goop { get; } = PictureShading.Shaded(DraygonShades.Intro);
 
     /// <summary>Shows a hurt update: his material colours with his band, or their white flash when <paramref name="whiteFrame"/>.</summary>

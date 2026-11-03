@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
@@ -24,10 +25,15 @@ internal sealed class DraygonCombat
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
+    /// <summary>The room's sprite objects, among them the Evirs that show his sprite shading.</summary>
+    private readonly RoomSpriteObjectPool _spriteObjects;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyCollision collision, DraygonParts parts, DraygonGrab grab, BossArtworkBinding bossArtwork)
+    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyCollision collision, DraygonParts parts, DraygonGrab grab, BossArtworkBinding bossArtwork,
+        RoomSpriteObjectPool spriteObjects)
     {
+        _spriteObjects = spriteObjects;
         _bossArtwork = bossArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
@@ -110,6 +116,7 @@ internal sealed class DraygonCombat
         if (!whiteFrame)
             state.Colours.ShowBand(RequireHealthPaletteBand(state));
         state.ShadeSprites();
+        state.ShadeEvirs(_spriteObjects);
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every

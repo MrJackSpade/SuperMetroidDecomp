@@ -147,22 +147,26 @@ internal sealed class DraygonDeath
         // so the Evirs occupy the first six slots in movement-table order: three left-facing objects followed by three
         // right-facing objects.
         for (int entry = 5; entry >= 3; entry--)
-            SpawnDraygonDeathEvir(entry, RoomSpriteObjectKind.DraygonIntroEvir);
+            SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonIntroEvir);
         for (int entry = 2; entry >= 0; entry--)
-            SpawnDraygonDeathEvir(entry, RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
+            SpawnDraygonDeathEvir(state, entry, RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
 
         state.DeathEvirsSpawned = true;
     }
 
-    /// <summary>Allocates one burial Evir from its definition-table position and kind.</summary>
-    internal void SpawnDraygonDeathEvir(int entry, RoomSpriteObjectKind kind)
+    /// <summary>
+    /// Allocates one burial Evir from its definition-table position and kind. It draws in Draygon's own palette row, so it
+    /// shows the shading his sprites show (#1512).
+    /// </summary>
+    internal void SpawnDraygonDeathEvir(DraygonEnemyState state, int entry, RoomSpriteObjectKind kind)
     {
+        Ensure.NotNull(state);
         DraygonBurialEvirDefinition definition =
             DraygonBurialEvirs.ForEntry(entry);
         RoomSpriteObjectSlot? sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
             kind,
-            graphics: SpriteGraphics.CharacterZeroIn(DraygonColours.MaterialSprites));
+            graphics: SpriteGraphics.CharacterZeroIn(state.Colours.Sprites));
         if (sprite is null)
         {
             throw new InvalidOperationException(

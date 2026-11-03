@@ -34,6 +34,8 @@ internal static class RoomSheetShades
         }
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.DraygonBody)))
             shades.AddRange(BossSheetShades.DraygonBackground(inputs.Bosses));
+        if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.SporeSpawn)))
+            shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
         if (HoldsPhantoon(rooms))
             shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
         return shades;

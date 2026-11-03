@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
-    /// <summary>Fade-target colours Spore Spawn has staged and the door's fade has not yet taken (#1405).</summary>
-    internal readonly List<SporeSpawnStagedColour> stagedTargetColours = [];
-
     /// <summary>Binds boss-specific state to its live common enemy slot.</summary>
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
+
+    /// <summary>Spore Spawn's body's and his room's colours (#1512).</summary>
+    internal SporeSpawnColours Colours { get; } = new();
 
     /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, instruction, and stalk-projectile owners.</summary>
     public RoomEnemySlot Body { get; }
@@ -70,14 +70,4 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }
 
-    /// <summary>Stages <paramref name="value"/> as the fade target of <paramref name="run"/>'s colour <paramref name="colour"/>.</summary>
-    internal void WriteTargetColor(IColourSetRun run, int colour, RgbColor value) => stagedTargetColours.Add(new(run, colour, value));
-
-    /// <summary>Hands every staged colour to <paramref name="write"/> in staging order, then forgets them.</summary>
-    internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write)
-    {
-        foreach (SporeSpawnStagedColour staged in stagedTargetColours)
-            write(staged);
-        stagedTargetColours.Clear();
-    }
 }

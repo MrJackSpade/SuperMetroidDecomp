@@ -94,10 +94,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     SporeSpawnColorDefinitions.DeathSceneFrameCount *
                     SporeSpawnSourceDefinitions.ImageBytes),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
-        var cgram = new SamusColourRig();
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
-        Type type = typeof(RoomEnemySystem);
-        enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
@@ -107,32 +104,36 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
         SporeSpawnEnemyState state = enemies.SporeSpawn ??
             throw new InvalidDataException("Live Spore Spawn initializer did not install state.");
-        for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-        {
-            int slot = SporeSpawnColorDestinations.SporeDestination + color;
-            AssertEqual(colors.ResolveSpore(color), cgram.Colors[slot],
-                $"live spore CGRAM color {color}");
-            AssertEqual(colors.ResolveSpore(color), StagedAt(state, slot),
-                $"live spore target color {color}");
-        }
+        // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
+        // edited colours.
+        IReadOnlyList<SheetShade> sprites = SporeSpawnSheetShades.Sprites(edited.Bosses);
+        IReadOnlyList<SheetShade> room = SporeSpawnSheetShades.Room(edited.Bosses);
+        AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores), body.Shading, "live Spore Spawn starts in his spores' colours");
+        AssertShade(sprites, SporeSpawnShades.Spores, colors.ResolveSpore, "live spore colours");
         AssertEqual(AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive),
             state.BodyProgram, "Spore Spawn starts its living program");
 
         for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
         {
+            int shown = frame;
             enemies.SporeSpawnBehavior.LoadSporeSpawnHealthPalette(frame);
-            for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-                AssertEqual(colors.ResolveHealth(frame, color),
-                    cgram.Colors[SporeSpawnColorDestinations.SpriteDestination + color],
-                    $"live Spore Spawn health frame {frame} color {color}");
+            AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(frame)), body.Shading,
+                $"live Spore Spawn health frame {frame}");
+            AssertShade(sprites, SporeSpawnShades.Health(frame), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health frame {frame}");
         }
 
         for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSceneFrameCount; frame++)
         {
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame, SporeSpawnPaletteCopy.TargetOnly);
-            CheckDeath(frame, targetOnly: true);
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame, SporeSpawnPaletteCopy.CurrentAndTarget);
-            CheckDeath(frame, targetOnly: false);
+            int shown = frame;
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(frame);
+            AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(frame)), body.Shading,
+                $"live Spore Spawn death frame {frame}");
+            AssertShade(sprites, SporeSpawnShades.DeathSprite(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, shown, colour),
+                $"live Spore Spawn Sprite death frame {frame}");
+            AssertShade(room, SporeSpawnShades.DeathLevel(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Level, shown, colour),
+                $"live Spore Spawn Level death frame {frame}");
+            AssertShade(room, SporeSpawnShades.DeathBackground(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Background, shown, colour),
+                $"live Spore Spawn Background death frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "live Spore Spawn palette consumers avoid all migrated ROM colors");
@@ -171,27 +172,6 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     color => resolve(frame, color), $"{name} frame {frame}");
         }
 
-        void CheckDeath(int frame, bool targetOnly)
-        {
-            CheckLayer(SporeSpawnDeathPaletteLayer.Sprite);
-            CheckLayer(SporeSpawnDeathPaletteLayer.Level);
-            CheckLayer(SporeSpawnDeathPaletteLayer.Background);
-
-            void CheckLayer(SporeSpawnDeathPaletteLayer layer)
-            {
-                int destination = SporeSpawnColorDestinations.DeathDestination(layer);
-                for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
-                {
-                    RgbColor actual = targetOnly
-                        ? StagedAt(state, destination + color)
-                        : cgram.Colors[destination + color];
-                    AssertEqual(colors.ResolveDeath(layer, frame, color), actual,
-                        $"live Spore Spawn {(targetOnly ? "target" : "current")} " +
-                        $"{layer} frame {frame} color {color}");
-                }
-            }
-        }
-
         static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
         {
             Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
@@ -207,7 +187,11 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         }
     }
 
-    /// <summary>The fade-target colour Spore Spawn last staged at the cartridge's colour <paramref name="position"/>.</summary>
-    private static RgbColor StagedAt(SporeSpawnEnemyState state, int position) =>
-        state.StagedTargetColours.Last(staged => ColourSetRunPositions.First(staged.Run) + staged.Colour == position).Value;
+    /// <summary>Asserts that the import's <paramref name="shade"/> among <paramref name="made"/> shows <paramref name="expected"/>'s colours.</summary>
+    private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)
+    {
+        SheetShade found = made.Single(candidate => candidate.Shade == shade);
+        for (int color = 0; color < found.Colours.Length; color++)
+            AssertEqual(expected(color), found.Colours[color], $"{label} colour {color}");
+    }
 }

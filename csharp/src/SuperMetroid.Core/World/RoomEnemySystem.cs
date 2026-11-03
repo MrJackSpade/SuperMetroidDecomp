@@ -546,6 +546,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         get
         {
+            if (SporeSpawnBehavior.SporeSpawn is { } sporeSpawn)
+                yield return sporeSpawn.Colours;
             if (PhantoonBehavior.Combat.Phantoon is { } phantoon)
                 yield return phantoon.Colours;
             if (DraygonBehavior.Parts.Draygon is { } draygon)
@@ -1474,17 +1476,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             context => Collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
 }
 
-
-    /// <summary>
-    /// Publishes enemy-authored target colors to the current room-fade owner. Only written
-    /// entries are transferred: untouched HUD, suit, and room rows retain their own targets.
-    /// The current colours must not be changed by instructions which target the fade buffer.
-    /// </summary>
-    internal void ConsumeTargetPaletteWrites(Action<SporeSpawnStagedColour> write)
-    {
-        Ensure.NotNull(write);
-        SporeSpawnBehavior.ConsumeTargetColors(write);
-    }
 
     /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
     /// <remarks>Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt

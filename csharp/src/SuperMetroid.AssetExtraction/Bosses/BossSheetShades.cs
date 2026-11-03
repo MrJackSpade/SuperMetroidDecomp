@@ -121,6 +121,8 @@ internal static class BossSheetShades
             return Botwoon(bosses, firstInk);
         if (DraygonParts.Contains(enemy))
             return DraygonSprites(bosses);
+        if (enemy == EnemyDefinitionId.SporeSpawn)
+            return SporeSpawnSheetShades.Sprites(bosses);
         if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)
         {
             CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire is shaded from the installed Crocomire colours.");
@@ -144,6 +146,7 @@ internal static class BossSheetShades
             [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))]),
             .. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours),
             .. DraygonSprites(bosses),
+            .. SporeSpawnSheetShades.Sprites(bosses),
             SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
                 Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
     }

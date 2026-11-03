@@ -40,7 +40,7 @@ internal static class EndingCreditsPresentation
         {
             layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), ending.Credits.ScrollPosition, null));
             // Credits intentionally do not run the sprite draw routine.
-            memory = new FramePaint(ending.screen.Palette.Shown(), []);
+            memory = new FramePaint(ending.screen.Colours.Backdrop, []);
         }
         else
         {
@@ -157,24 +157,25 @@ internal static class EndingCreditsPresentation
             : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextTilemap, size), ending.Stage.PostCreditsScroll, null);
     }
 
-    /// <summary>The scene's colours with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
+    /// <summary>The scene's backdrop with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>
     internal static FramePaint CaptureMemory(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
-        new(ending.screen.Palette.Shown(), PrepareSprites(ending, objectSheet).Draws);
+        new(ending.screen.Colours.Backdrop, PrepareSprites(ending, objectSheet).Draws);
 
     /// <summary>
     /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each drawn
-    /// from the sheet of the characters <paramref name="objectSheet"/>'s page holds now (#1392).
+    /// from the sheet of the characters <paramref name="objectSheet"/>'s page holds now (#1392), in the ending's colours
+    /// under its colouring (#1512).
     /// </summary>
     internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingObjectSheet objectSheet)
     {
         var objects = new ScreenSprites();
         objects.BeginFrame();
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
-            ending.InstalledArtwork.CurrentEndingLogo.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingLogo));
+            ending.InstalledArtwork.CurrentEndingLogo.Draw(objects, Family(CinematicSpriteFamily.EndingLogo));
         else if (ending.CurrentRewardGesture is not null)
-            ending.CurrentRewardGesture.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingReward));
+            ending.CurrentRewardGesture.Draw(objects, Family(CinematicSpriteFamily.EndingReward));
         else if (ending.CreditsRoll.CurrentRewardJump is not null)
-            ending.CreditsRoll.CurrentRewardJump.Draw(objects, new CinematicSpriteSheet(Sheet(), CinematicSpriteFamily.EndingReward));
+            ending.CreditsRoll.CurrentRewardJump.Draw(objects, Family(CinematicSpriteFamily.EndingReward));
         else
         {
             foreach (EndingSprite wrapper in ending.sprites.OrderByDescending(actor => actor.TraversalSlot))
@@ -188,12 +189,16 @@ internal static class EndingCreditsPresentation
                     EndingSpriteFamily.AnimalEscape => CinematicSpriteFamily.EndingAnimalEscape,
                     var undefined => throw new InvalidOperationException($"Undefined ending sprite family {undefined}."),
                 };
-                wrapper.Sprite.Draw(objects, installedArt: new CinematicSpriteSheet(Sheet(), family));
+                wrapper.Sprite.Draw(objects, installedArt: Family(family));
             }
         }
-        if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase)) ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet());
+        if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase))
+            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(), ending.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
         objects.FinishFrame();
         return objects;
+
+        // A family's frames, drawn in the ending's colours under the colouring each actor names.
+        CinematicSpriteSheet Family(CinematicSpriteFamily family) => new(Sheet(), family, ending.screen.Colours.Drawn);
 
         // A frame that draws nothing needs no sheet.
         SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward,

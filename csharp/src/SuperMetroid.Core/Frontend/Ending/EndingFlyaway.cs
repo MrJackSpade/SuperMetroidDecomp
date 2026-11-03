@@ -13,7 +13,7 @@ internal sealed class EndingFlyaway
 {
     /// <summary>Controls the animals' escape detail in the planet cinematic.</summary>
     private readonly bool crittersEscaped;
-    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its colours and the graphics transfers its scenes have made (#1358).</summary>
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
@@ -46,9 +46,7 @@ internal sealed class EndingFlyaway
     internal void SetupPlanetEscape()
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
-        screen.Palette.Backdrop = RgbColor.Black;
-        screen.Palette.Colours(ScreenColourGroup.EndingFlashBackgroundTransparent).Fill(RgbColor.Black);
-        screen.Palette.Colours(ScreenColourGroup.EndingFlashSpriteTransparent).Fill(RgbColor.Black);
+        screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(WordWrap.Unsigned(-72)), new(WordWrap.Unsigned(-104), 0));
@@ -94,7 +92,7 @@ internal sealed class EndingFlyaway
             if (crittersEscaped)
             {
                 _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
-                    ScreenColourGroup.EndingAnimalEscape, CinematicSpriteProgram.EndingAnimalEscape,
+                    EndingSpriteColouring.AnimalEscape, CinematicSpriteProgram.EndingAnimalEscape,
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
@@ -120,8 +118,7 @@ internal sealed class EndingFlyaway
         }
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitScale)
         {
-            _stage.LoadStaticPalette(EndingPaletteId.FinalGunship,
-                screen.Palette.Colours(ScreenColourGroup.EndingFinalGunship), 0);
+            _stage.LoadColours(EndingColourLoad.FinalGunship);
             _stage.SpawnSprite(
                 EndingActorDefinitions.OperationWasText,
                 EndingSpriteRole.OperationWasText);
@@ -179,7 +176,7 @@ internal sealed class EndingFlyaway
     {
         // Func117 restores the BG half before disabling BG1. Sprite artwork and palettes
         // remain live while the two floor lanes are replaced over sixteen updates.
-        _stage.StaticScreen(EndingPaletteId.Explosion).LoadBackgroundsTo(screen.Palette);
+        _stage.LoadColours(EndingColourLoad.ExplosionBackgrounds);
     }
 
     /// <summary>Transfers one scheduled flyaway chunk to its Mode-7 character or map lane.</summary>

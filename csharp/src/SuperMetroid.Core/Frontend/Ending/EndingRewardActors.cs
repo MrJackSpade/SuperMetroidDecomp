@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -26,13 +27,13 @@ internal static class EndingRewardActors
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardActor)} {definition}."),
     };
 
-    /// <summary>The starting position and screen colours each reward initialization gives its actor.</summary>
+    /// <summary>The starting position and colouring each reward initialization gives its actor.</summary>
     public static EndingRewardActorInitializationDefinition GetInitialization(EndingRewardInitialization initialization) => initialization switch
     {
-        EndingRewardInitialization.Suitless => new(new(120, 136), ScreenColourGroup.EndingSuitlessSamus),
-        EndingRewardInitialization.SuitedBody => new(new(120, 152), ScreenColourGroup.EndingSuitedSamus),
-        EndingRewardInitialization.HelmetedHead => new(new(124, 108), ScreenColourGroup.EndingSuitedSamus),
-        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), ScreenColourGroup.EndingSuitlessSamus),
+        EndingRewardInitialization.Suitless => new(new(120, 136), EndingSpriteColouring.SuitlessSamus),
+        EndingRewardInitialization.SuitedBody => new(new(120, 152), EndingSpriteColouring.SuitedSamus),
+        EndingRewardInitialization.HelmetedHead => new(new(124, 108), EndingSpriteColouring.SuitedSamus),
+        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), EndingSpriteColouring.SuitlessSamus),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {initialization}."),
     };
 }

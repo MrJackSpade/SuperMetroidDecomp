@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -107,7 +108,7 @@ internal sealed class EndingRewardGesture
             EndingRewardActors.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
-            initialization.Colouring,
+            EndingShades.Drawn(initialization.Colouring),
             record.Program);
         actor.InstallFrameBehavior(record.FrameBehavior);
         actors.Add(actor);

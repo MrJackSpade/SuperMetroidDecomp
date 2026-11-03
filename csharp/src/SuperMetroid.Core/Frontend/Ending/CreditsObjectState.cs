@@ -67,11 +67,13 @@ internal sealed class CreditsObjectState
 
     /// <summary>
     /// The roll's plane: each held row's line picture from <paramref name="rows"/>, one screen below the place the roll's
-    /// row has on the plane, so a row taken as the scroll reaches it sits just below the view.
+    /// row has on the plane, so a row taken as the scroll reaches it sits just below the view; each in
+    /// <paramref name="shading"/>, the ending's colours (#1512).
     /// </summary>
-    internal PicturedPlane Plane(SpriteSheet rows)
+    internal PicturedPlane Plane(SpriteSheet rows, PictureShading shading)
     {
         Ensure.NotNull(rows);
+        Ensure.NotNull(shading);
         ImmutableArray<string?> pictures = CreditsRollRows.Pictures;
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         for (int row = Math.Max(0, NextSourceRow - RowsHeld); row < NextSourceRow; row++)
@@ -79,7 +81,7 @@ internal sealed class CreditsObjectState
             if (pictures[row] is not { } picture)
                 continue;
             int top = (row + RowsHeld) * ScreenGeometry.BackgroundTileSizePixels;
-            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<TilePlanePixels>(0, top)));
+            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<TilePlanePixels>(0, top), shading));
         }
         return new PicturedPlane(PlaneCells, placed.ToImmutable());
     }

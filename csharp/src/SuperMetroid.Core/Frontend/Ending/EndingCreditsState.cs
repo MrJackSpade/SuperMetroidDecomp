@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -359,7 +360,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 RewardJump.Step();
                 if (RewardJump.ShotRequested)
                 {
-                    CreditsRoll.CurrentPostShot = new EndingPostShot(screen.Palette);
+                    CreditsRoll.CurrentPostShot = new EndingPostShot();
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundLimit);
                     Stage.Phase = EndingCreditsPhase.PostCreditsShot;
                 }
@@ -426,9 +427,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
         }
 
-        // The cinematic invokes the shared palette-FX interpreter after actors.
-        Stage.PaletteFxSystem.Step(new ScreenPaletteFxColours(screen.Palette), InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
-                "Ending palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        // The cinematic invokes the shared palette-FX interpreter after actors; each record shown shows over the colours
+        // the scenes loaded before it, as its write does (#1512).
+        IPaletteFxColorSource paletteFxColours = InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
+            "Ending palette FX requires installed palette colors.");
+        Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+            (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, paletteFxColours)));
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         // The ending follows cinematic actors even while a text-only main screen hides sprites.
@@ -436,6 +440,21 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
         Flyaway.CinematicFrame++;
+    }
+
+    /// <summary>
+    /// The backdrop a palette-effect <paramref name="record"/> in <paramref name="colours"/> shows (#1512): the space behind
+    /// the exploding planet is the backdrop, so a record of its colours that writes its first colour shows that colour
+    /// behind every layer; any other record leaves the backdrop as it was.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The record's first colour is not installed.</exception>
+    private static RgbColor? PaletteFxBackdrop(PaletteFxColours colours, PaletteFxFrame record, IPaletteFxColorSource installed)
+    {
+        if (colours != EndingPaletteFxDefinitions.SpaceColours || PaletteFxRecordDefinitions.Layout(record)[0].Skip)
+            return null;
+        return installed.TryReadColor(new PaletteFxColorKey(record, 0), out RgbColor backdrop)
+            ? backdrop
+            : throw new InvalidDataException($"Palette-FX record {record.Record}'s first colour has no installed definition.");
     }
 
     /// <summary>Rotates Mode 7 every other cinematic call while applying the current zoom delta.</summary>
@@ -461,11 +480,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
     /// <summary>
-    /// The turning floor the scenes have loaded: its shot's installed picture (#1467), or none before a floor has loaded
-    /// and once the post-credits art has replaced it, when the floor layer shows nothing.
+    /// The turning floor the scenes have loaded: its shot's installed picture (#1467) in the ending's colours (#1512), or
+    /// none before a floor has loaded and once the post-credits art has replaced it, when the floor layer shows nothing.
     /// </summary>
-    internal AffineFloor? Floor() =>
-        screen.FloorShot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot);
+    internal AffineFloor? Floor() => screen.FloorShot == EndingFloorShot.None
+        ? null
+        : EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot).Shaded(screen.Colours.Shading);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredScene CaptureExplosionFinale()
@@ -495,32 +515,38 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>The ending's installed picture <paramref name="picture"/> of sheet <paramref name="sheet"/>.</summary>
     private SpriteSheetFrame Picture(SpriteSheetId sheet, string picture) => InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 
-    /// <summary>A one-screen plane showing the whole-screen picture <paramref name="picture"/> once <paramref name="loaded"/>, otherwise nothing (#1467).</summary>
+    /// <summary>
+    /// A one-screen plane showing the whole-screen picture <paramref name="picture"/> in the ending's colours once
+    /// <paramref name="loaded"/>, otherwise nothing (#1467, #1512).
+    /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, bool loaded) => loaded
-        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<TilePlanePixels>.Zero)])
+        ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<TilePlanePixels>.Zero, screen.Colours.Shading)])
         : PicturedPlane.Empty(ScreenCells);
 
     /// <summary>The explosion's one-screen <paramref name="map"/>, once the explosion has loaded its maps (#1467).</summary>
     private PicturedPlane ExplosionPlane(EndingObjectFragmentId map) =>
         ScreenPicture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(map), screen.ExplosionMapsLoaded);
 
-    /// <summary>The credits roll's plane: its held rows' line pictures (#1467).</summary>
-    internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows));
+    /// <summary>The credits roll's plane: its held rows' line pictures (#1467) in the ending's colours (#1512).</summary>
+    internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows), screen.Colours.Shading);
 
-    /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane, once the post-credits art is loaded (#1467).</summary>
+    /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane, once the post-credits art is loaded (#1467), in the ending's colours (#1512).</summary>
     internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size, screen.PostCreditsArtLoaded
-        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<TilePlanePixels>.Zero)]
+        ? [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<TilePlanePixels>.Zero,
+            screen.Colours.Shading)]
         : []);
 
     /// <summary>
     /// The <paramref name="size"/> plane of the text page <paramref name="page"/> (#1467): the text it shows, each piece's
-    /// picture at its cell. A two-screen final page shows its lower screen's text below its upper screen's.
+    /// picture at its cell, in the ending's colours (#1512). A two-screen final page shows its lower screen's text below
+    /// its upper screen's.
     /// </summary>
     /// <exception cref="ArgumentException">The result page is asked for two screens.</exception>
     internal PicturedPlane TextPagePlane(EndingTextScreen page, Extent16<TilemapCells> size)
     {
         SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
+        PictureShading shading = screen.Colours.Shading;
         bool twoScreens = size.Y > EndingScreenDefinitions.TilemapHeight;
         if (page == EndingTextScreen.ResultPanel)
         {
@@ -542,7 +568,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             foreach (ShownEndingText shown in text)
                 placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<TilePlanePixels>(
                     shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
-                    (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels)));
+                    (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));
         }
     }
 

@@ -39,7 +39,7 @@ internal sealed class EndingEscapeScenes
     /// <summary>Loads the first cloud scene, resets its Mode-7 transform and queues escape music.</summary>
     internal void SetupEscapeSceneA()
     {
-        _stage.StaticScreen(EndingPaletteId.Escape).LoadTo(screen.Palette);
+        _stage.LoadColours(EndingColourLoad.Escape);
         _stage.LoadFloor(EndingFloorSceneId.EscapeA);
         _artwork.LoadEscapeCloudCharacters();
         sprites.Clear();
@@ -113,14 +113,14 @@ internal sealed class EndingEscapeScenes
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
                 _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.FadePlanet, 0);
-                screen.Palette.Colours(ScreenColourGroup.EndingExplodingPlanetGlow).Fill(new RgbColor(1, 0, 0));
+                screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
 
             case CinematicSpriteCueKind.SpawnExplosionSilhouette:
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
-                screen.Palette.Backdrop = EndingScreenDefinitions.WhiteColor;
+                screen.Colours.Flash(EndingFlash.SilhouetteBackdrop, EndingScreenDefinitions.WhiteColor);
                 return;
 
             case CinematicSpriteCueKind.StartZebesExplosion:
@@ -147,9 +147,7 @@ internal sealed class EndingEscapeScenes
             case CinematicSpriteCueKind.EndZebesExplosion:
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
-                screen.Palette.Backdrop = EndingScreenDefinitions.WhiteColor;
-                screen.Palette.Colours(ScreenColourGroup.EndingFlashSpriteTransparent).Fill(EndingScreenDefinitions.WhiteColor);
-                screen.Palette.Colours(ScreenColourGroup.EndingFlashBackground).Fill(EndingScreenDefinitions.WhiteColor);
+                screen.Colours.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
                 _stage.PhaseTimer = 120;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
@@ -226,7 +224,7 @@ internal sealed class EndingEscapeScenes
         int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
             new(x, EndingActorDefinitions.ClearTimeDigitY),
-            ScreenColourGroup.EndingClearTimeDigits,
+            EndingSpriteColouring.ClearTimeDigits,
             ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);
     }

@@ -166,6 +166,23 @@ public sealed class RoomPaletteFxSystem
         RunHandler(conditions, ShowScreenRecord);
     }
 
+    /// <summary>
+    /// Runs one <c>PaletteFXObject_Handler</c> pass for a frontend screen that orders each record shown among its own colour
+    /// loads (#1512): each record is recorded as its colour group's last and handed to <paramref name="shown"/> as it is shown,
+    /// so a record shown again after a load overwrote its colours shows over that load, as the handler's write does.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
+    internal void StepScreen(PaletteFxConditions conditions, Action<PaletteFxColours, PaletteFxFrame> shown)
+    {
+        Ensure.NotNull(shown);
+        audioPowerBomb = null;
+        RunHandler(conditions, (slot, frame) =>
+        {
+            ShowScreenRecord(slot, frame);
+            shown(slot.Target ?? throw new InvalidOperationException($"Palette-FX object {slot.Object} named no colours."), frame);
+        });
+    }
+
     /// <summary>The record <paramref name="colours"/> last showed, or null while it has shown none (#1512).</summary>
     internal PaletteFxFrame? RecordOf(PaletteFxColours colours) => shown.RecordOf(colours);
 

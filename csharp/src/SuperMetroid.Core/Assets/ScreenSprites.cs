@@ -89,8 +89,14 @@ public sealed class ScreenSprites
     /// sprite-list store, the object index wraps after the last object instead of stopping, and the frame then ends at the
     /// wrapped index.
     /// </summary>
+    /// <param name="frame">The one-object frame.</param>
+    /// <param name="position">Where the object lands.</param>
+    /// <param name="shading">
+    /// The shades and colour effects the screen shows the object in (#1512), or null while the screen still colours it
+    /// through its colour sets.
+    /// </param>
     /// <exception cref="ArgumentException">The frame is not one object at its origin.</exception>
-    public void AddObjectImage(SpriteSheetFrame frame, Position16<SpritePixels> position)
+    public void AddObjectImage(SpriteSheetFrame frame, Position16<SpritePixels> position, PictureShading? shading = null)
     {
         Ensure.NotNull(frame);
         if (frame.Parts is not [{ Offset: var offset }] || offset != default)
@@ -99,7 +105,7 @@ public sealed class ScreenSprites
         int index = next % Capacity;
         // An object's Y wraps above the screen exactly where the off-screen loader reads an origin.
         placed[index] = new ScreenObject(position, frame, 1, null,
-            WordWrap.LowByte(position.Y) >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen, null);
+            WordWrap.LowByte(position.Y) >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen, shading);
         next = index + 1;
     }
 

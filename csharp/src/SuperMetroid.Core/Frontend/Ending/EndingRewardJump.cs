@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -57,7 +58,7 @@ internal sealed class EndingRewardJump
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
             {
                 FallingSheetSelected = true;
-                body.SetColouring(ScreenColourGroup.EndingFallingSamus);
+                body.SetColouring(EndingShades.Drawn(EndingSpriteColouring.FallingSamus));
                 body.Start(CinematicSpriteProgram.Falling);
                 body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
             }
@@ -107,7 +108,7 @@ internal sealed class EndingRewardJump
                 RequireHead().WholePosition = new(WordWrap.Unsigned(helmeted ? 120 : 121), WordWrap.Unsigned(helmeted ? 114 : 116));
                 return;
             case CinematicSpriteCueKind.Shoot:
-                body.SetColouring(ScreenColourGroup.EndingShootingSamus);
+                body.SetColouring(EndingShades.Drawn(EndingSpriteColouring.ShootingSamus));
                 ShotRequested = true;
                 return;
             case CinematicSpriteCueKind.SetFrameBehavior:
@@ -157,7 +158,7 @@ internal sealed class EndingRewardJump
             EndingRewardActors.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
             initialization.Position,
-            initialization.Colouring,
+            EndingShades.Drawn(initialization.Colouring),
             record.Program);
         actor.InstallFrameBehavior(record.FrameBehavior);
         return actor;

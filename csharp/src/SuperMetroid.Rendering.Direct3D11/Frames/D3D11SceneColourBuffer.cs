@@ -53,6 +53,17 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
         for (int slot = 0; slot < slots.Count; slot++)
         {
             SpriteImage sheet = slots[slot].Sheet;
+            upload[1 + slot] = (uint)table;
+            if (slots[slot].Shading is { } shading)
+            {
+                // A shaded picture's groups all take the table, which holds every ink's colour under its shading.
+                RgbColor[] shaded = shading.InkColours(sheet);
+                upload[table] = 0;
+                for (int ink = 0; ink < shaded.Length; ink++)
+                    upload[table + 1 + ink] = Shown(shaded[ink]);
+                table += 1 + shaded.Length;
+                continue;
+            }
             BackgroundColours colours = slots[slot].Colouring switch
             {
                 D3D11PictureColouring.Frame => frame,

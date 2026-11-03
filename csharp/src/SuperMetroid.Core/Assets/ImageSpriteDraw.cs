@@ -30,6 +30,12 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// </summary>
     public DrawnColouring? Colouring { get; }
 
+    /// <summary>
+    /// The shades and colour effects the draw's owner shows its picture in (#1512), or null for a draw still coloured
+    /// through <see cref="Colouring"/> and the frame's colour sets.
+    /// </summary>
+    public PictureShading? Shading { get; init; }
+
     /// <summary>What the draw's pixels show, resolved when its frame is published; null until then.</summary>
     public DrawColours? Colours { get; init; }
 

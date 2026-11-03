@@ -96,6 +96,12 @@ internal static class InstalledArtworkContentIdentity
             ReadOnlySpan<SpriteImageInk> inks = sheet.Image.Inks;
             content.AppendBytes("palette indices", inks.SelectToArray(ink => ink.PaletteIndex));
             content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(sheet.Image.StandardColours));
+            foreach ((PictureShade shade, ShadeInks shown) in sheet.Image.Shades.OrderBy(pair => pair.Key.Key, StringComparer.Ordinal))
+            {
+                content.AppendName("shade", shade.Key);
+                content.Append("shade inks", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Inks.AsSpan()));
+                content.Append("shade colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(shown.Colours.AsSpan()));
+            }
             content.AppendBytes("priorities", inks.SelectToArray(ink => ink.Priority));
             content.AppendBytes("part groups", inks.SelectToArray(ink => ink.PartGroup.Code));
             foreach (string name in sheet.FrameNames.Order(StringComparer.Ordinal))

@@ -141,7 +141,11 @@ internal sealed class SpriteSheetLayout
         ushort[] colours = new ushort[spriteColours.Length];
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = spriteColours[colour].ToWord();
-        return new SpriteSheetDocument { Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest };
+        return new SpriteSheetDocument
+        {
+            Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest,
+            Shades = SheetShade.Documents(sources.Shades),
+        };
     }
 
     /// <summary>Paints the <paramref name="index"/>th laid frame at its corner and returns the colour groups it was coloured from.</summary>

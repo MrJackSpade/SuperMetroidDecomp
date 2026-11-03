@@ -58,7 +58,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     {
         foreach (SpriteDraw draw in draws)
         {
-            if (draw is not ImageSpriteDraw { Colours: not null } image)
+            if (draw is not (ImageSpriteDraw { Colours: not null } or ImageSpriteDraw { Shading: not null }) || draw is not ImageSpriteDraw image)
                 throw Unsupported(draw);
             needed.Add(image.Image);
         }
@@ -72,7 +72,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         int words = HeaderWords + draws.Length * RecordWords;
         foreach (SpriteDraw draw in draws)
         {
-            if (!((ImageSpriteDraw)draw).Colours!.IsOwn)
+            if (IsRecoloured((ImageSpriteDraw)draw))
                 words += ColourWords;
         }
         if (words > Upload.Length)
@@ -89,10 +89,13 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         {
             var image = (ImageSpriteDraw)draw;
             int colours = 0;
-            if (!image.Colours!.IsOwn)
+            if (IsRecoloured(image))
             {
                 colours = colourWords;
-                PackColours(upload.Slice(colourWords, ColourWords), image);
+                if (image.Shading is { } shading)
+                    PackShading(upload.Slice(colourWords, ColourWords), image, shading);
+                else
+                    PackColours(upload.Slice(colourWords, ColourWords), image);
                 colourWords += ColourWords;
             }
             PackImage(upload.Slice(record, RecordWords), image, atlas.Place(image.Image), colours);
@@ -138,6 +141,24 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             }
         }
         words[0] = header;
+    }
+
+    /// <summary>Whether a draw shows colours other than its image's own, and so packs a colour table.</summary>
+    private static bool IsRecoloured(ImageSpriteDraw draw) => draw.Shading is { } shading ? !shading.IsStandard : !draw.Colours!.IsOwn;
+
+    /// <summary>
+    /// Packs a shaded draw's colours (#1512): its image's own groups' blending bits, then each ink's colour under the
+    /// shading, keyed by the ink's colour group.
+    /// </summary>
+    private static void PackShading(Span<uint> words, ImageSpriteDraw draw, PictureShading shading)
+    {
+        RgbColor[] inks = shading.InkColours(draw.Image.Sheet);
+        for (int ink = 0; ink < inks.Length; ink++)
+        {
+            RgbaPixel shown = inks[ink].ToRgbaPixel();
+            words[1 + ink] = D3D11ConstantPacking.Bytes(shown.R, shown.G, shown.B, byte.MaxValue);
+        }
+        words[0] = (uint)DrawColours.OwnBlending;
     }
 
     /// <summary>The error for a kind of draw this buffer cannot pack.</summary>

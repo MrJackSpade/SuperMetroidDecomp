@@ -126,13 +126,13 @@ public sealed class DrawColours
         foreach (SpriteDraw draw in draws)
         {
             var image = draw as ImageSpriteDraw ?? throw new InvalidDataException($"A {draw.GetType().Name} has no image to colour.");
-            resolved.Add(image.Colours is null ? image with { Colours = Resolve(image, spriteSets) } : image);
+            resolved.Add(image.Colours is null && image.Shading is null ? image with { Colours = Resolve(image, spriteSets) } : image);
         }
         return resolved.MoveToImmutable();
     }
 
     /// <summary>The blending bits of an image's own colour groups: those whose stores blend.</summary>
-    private static readonly int OwnBlending = OwnBlendingBits();
+    public static readonly int OwnBlending = OwnBlendingBits();
 
     /// <summary>Computes <see cref="OwnBlending"/>.</summary>
     private static int OwnBlendingBits()

@@ -20,6 +20,9 @@ public sealed record SpriteSheetDocument
     /// </summary>
     public BackgroundColourSet[]? BackgroundSets { get; init; }
 
+    /// <summary>The shades the sheet was pre-coloured in besides its standard colours, by <see cref="PictureShade.Key"/> (#1512); absent for none.</summary>
+    public Dictionary<string, SpriteSheetShadeDocument>? Shades { get; init; }
+
     /// <summary>The frames by name.</summary>
     public required Dictionary<string, SpriteSheetFrameDocument> Frames { get; init; }
 

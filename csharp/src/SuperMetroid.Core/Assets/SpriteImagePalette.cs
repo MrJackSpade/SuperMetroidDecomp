@@ -13,4 +13,7 @@ public sealed record SpriteImagePalette(SpriteImageColours Half, ImmutableArray<
     /// screen's, whose groups show the screen's sets.
     /// </summary>
     public ImmutableArray<BackgroundColourSet> BackgroundSets { get; init; } = [];
+
+    /// <summary>The shades the import pre-coloured the image in besides its standard colours, by name (#1512).</summary>
+    public ImmutableDictionary<PictureShade, ShadeInks> Shades { get; init; } = ImmutableDictionary<PictureShade, ShadeInks>.Empty;
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -82,7 +83,13 @@ public static class SpriteSheetFile
 
     /// <summary>The standard colours a sheet manifest names.</summary>
     private static SpriteImagePalette PaletteOf(SpriteSheetDocument document) =>
-        new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)]) { BackgroundSets = [.. document.BackgroundSets ?? []] };
+        new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)])
+        {
+            BackgroundSets = [.. document.BackgroundSets ?? []],
+            Shades = (document.Shades ?? []).ToImmutableDictionary(
+                shade => PictureShade.FromKey(shade.Key),
+                shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])),
+        };
 
     /// <summary>Cuts a manifest's part images and frames from the sheet image.</summary>
     /// <exception cref="InvalidDataException">The manifest places a frame off the image or names a missing part image.</exception>

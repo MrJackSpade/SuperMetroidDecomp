@@ -86,6 +86,7 @@ public sealed class SpriteImage
         Colours = palette.Half;
         standardColours = colours.ToArray();
         BackgroundSets = palette.BackgroundSets.IsDefault ? [] : palette.BackgroundSets;
+        Shades = Ensure.NotNull(palette.Shades);
         this.content = content;
     }
 
@@ -168,6 +169,14 @@ public sealed class SpriteImage
 
     /// <summary>The 128 colours of the image's half of the colour table the pixels were coloured with.</summary>
     public ReadOnlySpan<RgbColor> StandardColours => standardColours;
+
+    /// <summary>The shades the import pre-coloured the image in besides its standard colours (#1512).</summary>
+    public ImmutableDictionary<PictureShade, ShadeInks> Shades { get; }
+
+    /// <summary>What the image shows under <paramref name="shade"/>.</summary>
+    /// <exception cref="InvalidDataException">The import did not pre-colour the image in that shade.</exception>
+    public ShadeInks Shade(PictureShade shade) => Shades.TryGetValue(shade, out ShadeInks? inks) ? inks
+        : throw new InvalidDataException($"Image {Name} was not pre-coloured in shade {shade.Key}.");
 
     /// <summary>The standard colours of the image's colour group <paramref name="group"/>.</summary>
     internal ReadOnlySpan<RgbColor> StandardColoursOf(ImageColourGroup group) =>

@@ -19,6 +19,7 @@ internal static class Program
         {
             if (OperatingSystem.IsWindows())
                 NativeConsoleErrors.DisableDialogs();
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.BuildPolicyVerification " + string.Join(' ', args));
             string root = args switch
             {
                 [] => FindRepositoryRoot(AppContext.BaseDirectory),

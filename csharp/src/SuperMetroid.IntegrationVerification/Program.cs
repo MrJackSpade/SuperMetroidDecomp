@@ -19,6 +19,8 @@ internal static class Program
             // work. Failures belong in the outer stderr/nonzero boundary, never a dialog.
             if (OperatingSystem.IsWindows())
                 NativeConsoleErrors.DisableDialogs();
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.IntegrationVerification " + string.Join(' ', args));
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
             // Every command reads only the repository: the gitignored ROM, its shared extracted
             // installation and checked-in fixtures. File-taking tools live in SuperMetroid.DebugRunner.
             if (args is ["--extracted-validation-contract"])

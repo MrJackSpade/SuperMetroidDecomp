@@ -28,6 +28,8 @@ internal static class Program
         {
             if (OperatingSystem.IsWindows())
                 _ = NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.EnsureVerification " + string.Join(' ', args));
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
             if (args is ["--palette-fx-contract"])
             {
                 VerifyPaletteFxDependencyContract();

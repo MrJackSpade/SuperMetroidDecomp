@@ -54,6 +54,8 @@ internal static class Program
     private static void Run(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
+        SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.DesktopVerification " + string.Join(' ', args));
+        SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
         // Child fixture for --console-startup-boundary: it must fail at the console boundary.
         if (args is [ConsoleStartupBoundaryTests.FailingChildFlag])
         {

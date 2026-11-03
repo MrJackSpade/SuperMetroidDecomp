@@ -34,6 +34,7 @@ internal static class SuiteTimingVerification
     /// </summary>
     internal static void Suite(string name, Action body)
     {
+        SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = name;
         var watch = Stopwatch.StartNew();
         long allocatedBefore = GC.GetTotalAllocatedBytes();
         bool outermost = suiteDepth == 0;

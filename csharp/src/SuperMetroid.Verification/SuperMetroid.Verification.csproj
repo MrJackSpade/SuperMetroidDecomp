@@ -30,4 +30,5 @@
   <Import Project="../../test-support/Assertions.projitems" />
   <Import Project="../../test-support/MovieReplay.projitems" />
   <Import Project="../../test-support/MovieReplay.Verification.projitems" />
+  <Import Project="../../test-support/RunTimeLimit.projitems" />
 </Project>

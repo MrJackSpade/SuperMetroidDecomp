@@ -33,4 +33,5 @@
     <Using Include="SuperMetroid.Core.Compatibility" />
     <Using Include="SuperMetroid.Core.Spatial" />
   </ItemGroup>
+  <Import Project="../../test-support/RunTimeLimit.projitems" />
 </Project>

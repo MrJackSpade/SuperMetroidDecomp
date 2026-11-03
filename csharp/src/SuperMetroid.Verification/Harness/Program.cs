@@ -21,6 +21,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    // Owner rule: no verification run may exceed thirty minutes; the limit ends it with a failure.
+    SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.Verification " + string.Join(' ', args));
     // A shared fixture loaded inside a suite is timed as its own entry under it; one loaded outside any suite runs untimed.
     SharedFixtureTiming.Timer = (name, load) =>
     {

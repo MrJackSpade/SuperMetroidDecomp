@@ -31,6 +31,8 @@ internal static class Program
         try
         {
             NativeConsoleErrors.DisableDialogs();
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.RenderVerification " + string.Join(' ', args));
+            SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
             if (args is ["--packet-input"])
             {
                 DisplayPacketInputTests.Run();

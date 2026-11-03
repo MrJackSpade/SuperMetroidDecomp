@@ -1,0 +1,6 @@
+<Project>
+  <!-- The thirty-minute run limit every verification executable starts first. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)RunTimeLimit/**/*.cs" LinkBase="TestSupport/RunTimeLimit" />
+  </ItemGroup>
+</Project>

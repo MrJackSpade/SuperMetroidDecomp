@@ -13,4 +13,5 @@
   <ItemGroup>
     <Compile Include="../../test-support/VerificationAccess.Core/MetadataShape.cs" Link="TestSupport/VerificationAccess/MetadataShape.cs" />
   </ItemGroup>
+  <Import Project="../../test-support/RunTimeLimit.projitems" />
 </Project>

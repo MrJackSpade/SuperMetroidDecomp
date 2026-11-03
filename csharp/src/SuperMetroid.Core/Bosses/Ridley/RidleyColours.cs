@@ -18,9 +18,15 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>The shades laid over the room's pictures.</summary>
     internal LaidShades Room { get; } = new();
 
-    /// <summary>The shading the encounter's sprites draw in, or the hurt flash's with Ridley's own rows kept when <paramref name="flashing"/>.</summary>
-    internal PictureShading SpriteShading(bool flashing) =>
-        Sprites.Over(flashing ? EnemyShades.HitFlashed : PictureShading.Standard);
+    /// <summary>
+    /// The shading the encounter's sprites draw in: the shades laid over them, with the hurt flash's row over those when
+    /// <paramref name="flashing"/>, as the flash's draw takes the common row whatever the encounter loaded into its own.
+    /// </summary>
+    internal PictureShading SpriteShading(bool flashing)
+    {
+        PictureShading laid = Sprites.Over(PictureShading.Standard);
+        return flashing ? laid.With(EnemyShades.HitFlash) : laid;
+    }
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)

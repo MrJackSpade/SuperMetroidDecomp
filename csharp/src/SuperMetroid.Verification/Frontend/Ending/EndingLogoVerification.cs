@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

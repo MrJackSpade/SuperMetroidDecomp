@@ -1167,8 +1167,8 @@ internal static class LookupStream1Verification
                 ushort expectedIntro = (ushort)(red | red << 5 | Math.Max(4, red - 2) << 10);
                 int Blend(int shift) => (2 * ((supplied[index + 16] >> shift) & 31) + 155) / 7;
                 ushort expectedHurt = (ushort)(Blend(0) | Blend(5) << 5 | Blend(10) << 10);
-                AssertEqual(supplied[index + 16] != expectedIntro, edited.introOverrides.ContainsKey(new ColourCell(0, index)), "Exact intro edit exception membership");
-                AssertEqual(supplied[index] != expectedHurt, edited.hurtOverrides.ContainsKey(new ColourCell(0, index)), "Exact independent hurt exception membership");
+                AssertEqual(supplied[index + 16] != expectedIntro, edited.introOverrides.ContainsKey(new TableColourPlace(0, index)), "Exact intro edit exception membership");
+                AssertEqual(supplied[index] != expectedHurt, edited.hurtOverrides.ContainsKey(new TableColourPlace(0, index)), "Exact independent hurt exception membership");
             }
         }
         for (int index = 0; index < 32; index++)
@@ -2374,7 +2374,7 @@ internal static class LookupStream1Verification
         InstalledSamusVisorColors Load(SamusVisorColorDocument value) =>
             SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(value)));
         var stock = Load(document);
-        Dictionary<ColourCell, RgbColor> Stored(InstalledSamusVisorColors value) => value.colors;
+        Dictionary<TableColourPlace, RgbColor> Stored(InstalledSamusVisorColors value) => value.colors;
         ushort Native(int index)
         {
             int address = SamusSourceDefinitions.VisorColors.Value + index * 2;
@@ -2394,7 +2394,7 @@ internal static class LookupStream1Verification
             changedColors[edited] = new PaletteRgb5 { Red = changedWord & 31, Green = (changedWord >> 5) & 31, Blue = changedWord >> 10 };
             var changed = Load(document with { Colors = changedColors });
             AssertEqual(1, Stored(changed).Count, "visor independent edit stores exactly one exception");
-            AssertEqual(changedWord, Stored(changed)[new ColourCell(0, edited)], "visor exception preserves supplied RGB5");
+            AssertEqual(changedWord, Stored(changed)[new TableColourPlace(0, edited)], "visor exception preserves supplied RGB5");
             for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
                 AssertEqual(index == edited ? changedWord : Native(index), changed.Resolve(index), "visor supplied edit is independent");
         }

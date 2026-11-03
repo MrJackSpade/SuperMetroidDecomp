@@ -209,7 +209,7 @@ internal static class SamusChargeColorsVerification
                         ushort native = Word(0x9b0000 | (pointer + color * 2));
                         expected[family, suit, phase, color] = native;
                         AssertEqual(native, colours.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
-                        AssertEqual((family == 0 ? phase == 0 : phase == 3) && (suit == 0 || native != expected[family, 0, phase, color]), stored.ContainsKey(new ColourCell((suit * 6 + phase), color)), "Only canonical phase owns stock input");
+                        AssertEqual((family == 0 ? phase == 0 : phase == 3) && (suit == 0 || native != expected[family, 0, phase, color]), stored.ContainsKey(new TableColourPlace((suit * 6 + phase), color)), "Only canonical phase owns stock input");
                     }
                     for (int color = 0; color < 16; color++)
                         AssertEqual(expected[family, suit, phase, color], shownSuit[color], "Charge shade shows its sixteen native colors");

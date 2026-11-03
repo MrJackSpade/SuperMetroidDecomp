@@ -48,8 +48,9 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     public ImmutableArray<SpriteSheetFrame> Pictures { get; }
 
     /// <summary>
-    /// The shading every picture of the floor shows (#1512), or null for the frame's colours: a frontend screen's floor
-    /// names the shades of its palette effects here.
+    /// The shading every picture of the floor shows (#1512), or null for a gameplay room's floor, which shows the room's
+    /// shading: a frontend screen's floor names its shading here, <see cref="PictureShading.Standard"/> where the screen
+    /// shows no effect on it, and a backend refuses a frontend floor that names none.
     /// </summary>
     public PictureShading? Shading { get; init; }
 

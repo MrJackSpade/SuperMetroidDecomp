@@ -22,7 +22,7 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <summary>
     /// The shades and colour effects the draw's owner shows its picture in (#1512); <see cref="PictureShading.Standard"/>
     /// where the owner shows no effect. Null only until the owner names it: Samus's draws are made before
-    /// <see cref="Samus.Palettes.SamusColours.ShadeOwnDraws"/> names her shading at publication, and a frame refuses a draw
+    /// Samus's colours name her shading at publication, and a frame refuses a draw
     /// that still names none.
     /// </summary>
     public PictureShading? Shading { get; init; }

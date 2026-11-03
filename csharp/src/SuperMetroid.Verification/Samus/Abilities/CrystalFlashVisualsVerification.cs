@@ -46,7 +46,7 @@ internal static class CrystalFlashVisualsVerification
         var pixels = DisplayRendering.Render(packet);
         // Samus's draws show her own shading (#1512), not the frame's colours: muting them to black isolates whether
         // her Crystal Flash body shows any pixel.
-        var mutedMemory = new FramePaint(packet.Paint.Backgrounds, MuteSamus(packet.Paint.SpriteDraws));
+        FramePaint mutedMemory = packet.Paint.WithShownDraws(MuteSamus(packet.Paint.SpriteDraws));
         var mutedBody = DisplayRendering.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.X;

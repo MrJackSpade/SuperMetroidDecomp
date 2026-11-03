@@ -8,7 +8,7 @@ public sealed class LayeredScene
 {
     /// <summary>The scene's own copy of the layer order, unchanged by later edits to the caller's.</summary>
     internal readonly DisplayLayer[] layers;
-    /// <summary>The frame's colours and sprite draws, retained by reference, not copied again.</summary>
+    /// <summary>The frame's backdrop, shading and sprite draws, retained by reference, not copied again.</summary>
     public FramePaint Paint { get; }
     /// <summary>The layers, drawn in this order from back to front.</summary>
     public ReadOnlySpan<DisplayLayer> Layers => layers;
@@ -16,7 +16,7 @@ public sealed class LayeredScene
     public int Brightness { get; }
 
     /// <summary>Keeps the frame's paint and copies its layer order.</summary>
-    /// <param name="paint">The frame's colours and sprite draws, independent of later simulation writes.</param>
+    /// <param name="paint">The frame's backdrop, shading and sprite draws, independent of later simulation writes.</param>
     /// <param name="layers">The layers from back to front; with none the backdrop shows alone, and a whole-gameplay layer must come first.</param>
     /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>

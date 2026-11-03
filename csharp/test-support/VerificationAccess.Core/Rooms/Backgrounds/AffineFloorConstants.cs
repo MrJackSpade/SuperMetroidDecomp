@@ -17,15 +17,16 @@ internal static class AffineFloorConstants
 
     /// <summary>
     /// The floor memory image <paramref name="image"/> maps, coloured from <paramref name="palette"/>. The import's room floor
-    /// path composes it, so its colour groups name the gameplay background sets they draw in as installed room floors do;
-    /// a frontend screen's colours ignore those sets, so the same floor serves gameplay and frontend frames.
+    /// path composes it as installed room floors are composed. The floor names <see cref="PictureShading.Standard"/>, so it
+    /// shows the colours it was composed in, in gameplay and frontend frames alike (#1512).
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image.</exception>
     public static AffineFloor Capture(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);
         FloorMemory memory = Split(image);
-        return new AffineFloor(Load(FloorSheetComposer.ComposeRoom([FloorSheetComposer.Whole(FloorFrame, memory.Map, memory.Pixels)], palette), "floor-fixture").Frame(FloorFrame));
+        return new AffineFloor(Load(FloorSheetComposer.ComposeRoom([FloorSheetComposer.Whole(FloorFrame, memory.Map, memory.Pixels)], palette), "floor-fixture").Frame(FloorFrame))
+            .Shaded(PictureShading.Standard);
     }
 
     /// <summary>

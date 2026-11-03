@@ -44,7 +44,7 @@ internal static class MenuScreenPublicationVerification
             var y = SnesSpritemapYByte.Create(part.OffsetY);
             var attributes = SnesObjAttributeWord.Create(index % 0x200, index % 8, index % 4);
             var origin = new Position16<SpritePixels>((ushort)part.X, (ushort)part.Y);
-            sprites.AddImage(ScreenSpritesFixtures.PartFrame(x, y, attributes), origin);
+            sprites.AddImage(ScreenSpritesFixtures.PartFrame(x, y, attributes), origin, PictureShading.Standard);
             oam.AddOnScreenSpritePart(x, y, attributes, origin);
         }
         sprites.FinishFrame();

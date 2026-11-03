@@ -57,6 +57,20 @@ internal static class FramePaintAccess
             ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
             Repainted(memory, nativeColours, OamDraws(vram, oamUpload, spriteCount, objectSelection));
 
+        /// <summary>
+        /// This frame with <paramref name="draws"/> in place of its sprite draws, each already showing the shading it
+        /// shows here: a gameplay frame keeps each group of background pictures' shading, the fade included, and lays no
+        /// fade or escape timer shading over the draws again; a frontend screen's frame keeps its backdrop.
+        /// </summary>
+        /// <exception cref="ArgumentException">The draw list is missing, holds a missing draw, or holds a draw that names no shading.</exception>
+        internal FramePaint WithShownDraws(ImmutableArray<SpriteDraw> draws)
+        {
+            Ensure.NotNull(memory);
+            return memory.Gameplay is { } gameplay
+                ? new FramePaint(NativeGameplay(gameplay, gameplay.Backdrop), draws)
+                : new FramePaint(memory.Backdrop, draws);
+        }
+
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);
     }

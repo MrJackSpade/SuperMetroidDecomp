@@ -289,7 +289,7 @@ public sealed class SamusProjectileSystem
 
         if (!SamusChargePalettes.IsCompiledHyperShot(glowStep))
             throw new InvalidDataException($"Hyper-shot glow step {glowStep} is not compiled.");
-        colours.ShowSuit(SamusShades.HyperBeamSuit(SamusChargePalettes.HyperShotFrame(glowStep)));
+        colours.ShowSuit(SamusShades.HyperShot(SamusChargePalettes.HyperShotFrame(glowStep)));
         Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette);

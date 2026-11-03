@@ -514,8 +514,8 @@ internal static class SamusBodyArtworkVerification
             editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors.Gameplay, editedDeathColors.Samus, replacement.DeathPalettes);
         AssertEqual((ushort)(originalDeathColor + 1),
-            editedDeathColors.Samus.Suit[0],
-            "edited death suit color reaches the production CGRAM write");
+            editedDeathColors.Samus.ShownSuit(InstalledFixtures.SamusShadeSources with { Death = replacement.DeathPalettes })[0],
+            "edited death suit color reaches the death shade the import makes");
         AssertTrue(!stockDeathTiles.Explosion.Characters.SequenceEqual(replacementDeathTiles.Explosion.Characters),
             "edited death explosion PNG reaches the explosion characters its sheet is composed from");
         OamBuffer stockDeathOam = SpriteFrameBuffer.DrawnOam(frame =>

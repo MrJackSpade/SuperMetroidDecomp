@@ -10,10 +10,16 @@ internal static class CrystalFlashPaletteTimingDefinitionsConstants
     /// </summary>
     public const int NativeFirstTimerAddress = 0x91dc02;
 
+    /// <summary>The bytes of one native pointer/timer record; the port counts body steps instead (#1512).</summary>
+    public const int RecordByteCount = 4;
+
     /// <summary>Provides the native first timer address for Crystal Flash palette timing verification.</summary>
     extension(CrystalFlashPaletteTimingDefinitions)
     {
         /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress"/>
         internal static int NativeFirstTimerAddress => CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress;
+
+        /// <inheritdoc cref="CrystalFlashPaletteTimingDefinitionsConstants.RecordByteCount"/>
+        internal static int RecordByteCount => CrystalFlashPaletteTimingDefinitionsConstants.RecordByteCount;
     }
 }

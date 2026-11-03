@@ -1873,12 +1873,12 @@ internal static class LookupStream2Verification
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         {
             ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.CrystalFlashBodyRecords.Value + frame * 4);
-            stock.ApplyBody(cgram.Samus, frame);
+            cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
                 AssertEqual(expected, stock.ResolveBody(frame, color), "Original Crystal Flash body RGB5 word");
-                AssertEqual(expected, cgram.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color], "Calculated body color reaches CGRAM");
+                AssertEqual(expected, cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[color], "Calculated body color reaches the body shade");
                 var rows = document.Body.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
                 rows[frame][color] = rows[frame][color] with { Red = (rows[frame][color].Red + 1) % 32 };
                 var changedDocument = document with { Body = rows };
@@ -1886,17 +1886,18 @@ internal static class LookupStream2Verification
                 AssertTrue(changed.body is not null, "Independent supplied body edit retains its rows");
                 for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
                 {
-                    changed.ApplyBody(cgram.Samus, verifyFrame);
+                    cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBody(verifyFrame));
+                    RgbColor[] changedBeams = cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = changed });
                     for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
                     {
                         var rgb = rows[verifyFrame][verifyColor];
                         ushort word = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
                         AssertEqual(word, changed.ResolveBody(verifyFrame, verifyColor), "All supplied body fields preserved");
-                        AssertEqual(word, cgram.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + verifyColor], "Supplied body color reaches CGRAM");
+                        AssertEqual(word, changedBeams[verifyColor], "Supplied body color reaches the body shade");
                     }
                 }
-                // Restore stock CGRAM for the remaining checks in this original frame.
-                stock.ApplyBody(cgram.Samus, frame);
+                // Show the original frame's shade again for the remaining checks.
+                cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBody(frame));
             }
         }
         var residuals = stock.bubble;
@@ -1908,21 +1909,22 @@ internal static class LookupStream2Verification
             ushort pointer = ReadVerificationWord(rom, SamusSourceDefinitions.BubblePointers.Value + frame * 2);
             ushort original = ReadVerificationWord(rom, 0x9b0000 | pointer + 2 * color);
             AssertEqual(original, stock.ResolveBubble(frame, color), "Original bubble payload preserved");
-            stock.ApplyBubble(cgram.Samus, frame);
-            AssertEqual(original, cgram.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + color], "Original bubble color reaches CGRAM");
+            cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBubble(frame));
+            AssertEqual(original, cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = stock })[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color], "Original bubble color reaches the bubble shade");
             var rows = document.Bubble.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
             rows[frame][color] = rows[frame][color] with { Green = (rows[frame][color].Green + 1) % 32 };
             var changedDocument = document with { Bubble = rows };
             var changed = CrystalFlashColorFile.Read(new MemoryStream(CrystalFlashColorFile.Write(changedDocument)));
             for (int verifyFrame = 0; verifyFrame < rows.Length; verifyFrame++)
             {
-                changed.ApplyBubble(cgram.Samus, verifyFrame);
+                cgram.Samus.LayOverBeams(SamusShades.CrystalFlashBubble(verifyFrame));
+                RgbColor[] changedBubble = cgram.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { CrystalFlash = changed });
                 for (int verifyColor = 0; verifyColor < rows[verifyFrame].Length; verifyColor++)
                 {
                     var rgb = rows[verifyFrame][verifyColor];
                     ushort word = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
                     AssertEqual(word, changed.ResolveBubble(verifyFrame, verifyColor), "All supplied bubble fields preserved");
-                    AssertEqual(word, cgram.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + verifyColor], "Supplied bubble color reaches CGRAM");
+                    AssertEqual(word, changedBubble[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + verifyColor], "Supplied bubble color reaches the bubble shade");
                 }
             }
             AssertTrue(changed.body is null, "Independent bubble edit preserves body calculation");

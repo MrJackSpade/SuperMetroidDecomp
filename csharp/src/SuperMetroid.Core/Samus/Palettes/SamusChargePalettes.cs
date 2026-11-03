@@ -20,8 +20,8 @@ public static class SamusChargePalettes
     public static bool IsCompiledHyperShot(int step) => step is >= 1 and <= HyperShotSteps;
 
     /// <summary>
-    /// The frame of the Hyper Beam's full-body glow a Hyper-shot glow step shows: the glow walks the cycle backward as the
-    /// timer counts down, so its last step shows the cycle's last frame and step one its first.
+    /// The frame of the Hyper-shot glow a glow step shows: the glow walks its cycle backward as the timer counts down, so
+    /// its last step shows the cycle's last frame and step one its first.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The step shows no frame.</exception>
     public static int HyperShotFrame(int step) =>

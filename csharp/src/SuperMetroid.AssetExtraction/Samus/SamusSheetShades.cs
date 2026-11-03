@@ -48,6 +48,12 @@ internal static class SamusSheetShades
             int shown = frame;
             shades.Add(Suit(SamusShades.HyperBeamSuit(shown), Colours(colour => sources.HyperBeamSuit.Resolve(shown, colour))));
         }
+        for (int frame = 0; frame < SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount; frame++)
+        {
+            // The charge colours hold the Hyper shot's own copy of the glow in playback order, the cycle's last frame first.
+            int playback = SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount - 1 - frame;
+            shades.Add(Suit(SamusShades.HyperShot(frame), Colours(colour => sources.Charge.ResolveHyper(playback, colour))));
+        }
         foreach (SamusFullBodyCyclePalette palette in sources.FullBodyCycles.Palettes)
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => sources.FullBodyCycles.Resolve(palette, colour))));
         foreach (SpeedBoosterPaletteOverrun overrun in Enum.GetValues<SpeedBoosterPaletteOverrun>())

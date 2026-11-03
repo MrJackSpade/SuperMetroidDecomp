@@ -146,32 +146,30 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash installs palette handler seven");
 
     var crystalCgram = new SamusColourRig();
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus, beamPalettes, crystalColors),
+    // Crystal Flash names shades (#1512); the import resolves them from the fixture's colours and beam palettes.
+    var crystalSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = crystalColors, BeamPalettes = beamPalettes };
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus),
         "Crystal Flash palette handler owns first visible frame");
-    AssertEqual(0x0100, crystalCgram.Colors[0xe0],
+    AssertEqual(0x0100, crystalCgram.Samus.ShownBeams(crystalSources)[0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
-    AssertEqual(0x0109, crystalCgram.Colors[0xe9],
+    AssertEqual(0x0109, crystalCgram.Samus.ShownBeams(crystalSources)[9],
         "Crystal Flash body palette copies ten colors");
-    AssertEqual(0x0200, crystalCgram.Colors[0xea],
+    AssertEqual(0x0200, crystalCgram.Samus.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette begins at color ten");
-    AssertEqual(0x0205, crystalCgram.Colors[0xef],
+    AssertEqual(0x0205, crystalCgram.Samus.ShownBeams(crystalSources)[15],
         "Crystal Flash bubble palette copies six colors");
     AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "Crystal Flash bubble timer reloads five");
     AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
         "Crystal Flash body timer comes from interleaved ROM record");
-    AssertEqual(4, samus.CrystalFlash.BodyPaletteRecordOffset,
-        "Crystal Flash body record advances four bytes");
-    AssertEqual(1, samus.HorizontalSpeed.CyclePaletteStep,
-        "Crystal Flash publishes its bubble step into the shared cycle step");
-    AssertEqual(4, samus.HorizontalSpeed.SpecialPaletteTimer.RawValue,
-        "Crystal Flash publishes aliased $0AD0 record offset");
+    AssertEqual(1, samus.CrystalFlash.BodyStep,
+        "Crystal Flash body pulse advances one step");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
-        samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus, beamPalettes, crystalColors);
-    AssertEqual(0x0220, crystalCgram.Colors[0xea],
+        samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus);
+    AssertEqual(0x0220, crystalCgram.Samus.ShownBeams(crystalSources)[10],
         "Crystal Flash bubble palette advances independently");
     AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
         "Crystal Flash body palette retains independent countdown");
@@ -307,11 +305,11 @@ internal static void VerifySamusCrystalFlash()
         "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "cleanup requests normal palette restoration");
-    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus, beamPalettes, crystalColors),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram.Samus, samus),
         "Crystal Flash finish restores beam palette");
-    AssertEqual(0x0300, crystalCgram.Colors[0xe0],
+    AssertEqual(0x0300, crystalCgram.Samus.ShownBeams(crystalSources)[0],
         "Crystal Flash finish restores beam palette color zero");
-    AssertEqual(0x030f, crystalCgram.Colors[0xef],
+    AssertEqual(0x030f, crystalCgram.Samus.ShownBeams(crystalSources)[15],
         "Crystal Flash finish restores all sixteen beam palette colors");
     AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash palette handler clears after restoration");
@@ -403,7 +401,8 @@ internal static void VerifySamusXray()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
     };
-    standing.Xray.PresentationColors = xrayColors;
+    // The X-ray visor names shades (#1512); the import resolves them from the fixture's visor and suit colours.
+    var xraySources = InstalledFixtures.SamusShadeSources with { Visor = xrayColors, Suits = xraySuitColors };
     SamusPoseMetadata.RefreshCollisionRadii(standing);
     SamusPresentation.InitializeAnimation(standing);
 
@@ -433,7 +432,7 @@ internal static void VerifySamusXray()
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only the visor colour, advances shade zero to one, and reloads five.
-    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, cgram.Samus.Visor, "first widening visor color");
     AssertEqual(1, standing.Xray.VisorShade, "widening visor shade advances");
@@ -478,7 +477,7 @@ internal static void VerifySamusXray()
             RotationAngle.QuarterTurn.TableIndex - 10, RotationAngle.QuarterTurn.TableIndex + 10), DisplayScreen.HudHeight),
         xrayWindow, "the full X-ray beam is a cone from Samus's eye, ten units either side of her aim");
 
-    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
         "full beam enters visor cycle");
     AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
     AssertEqual(0x43ff, cgram.Samus.Visor, "first full-beam visor color");
@@ -549,9 +548,9 @@ internal static void VerifySamusXray()
         "X-ray teardown sound is consumable exactly once");
     AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
         "consumed X-ray teardown sound cannot replay");
-    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
-    AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
+    AssertEqual(0x0104, cgram.Samus.ShownSuit(xraySources)[4], "normal palette replaces visor color");
     AssertEqual(SamusSpecialPaletteType.None, standing.Xray.SpecialPaletteKind, "X-ray palette handler clears");
 
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
@@ -778,6 +777,7 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
     var cgram = new SamusColourRig();
+    var deathSources = InstalledFixtures.SamusShadeSources with { Death = artwork };
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
         step = samus.DeathSequence.Step(samus, cgram.Gameplay, cgram.Samus, artwork);
@@ -799,8 +799,8 @@ internal static void VerifySamusDeathSequence()
         "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
-    AssertEqual(0x0100, cgram.Colors[192], "finish restores suit palette zero");
-    AssertEqual(0x0400, cgram.Colors[240], "finish restores suitless palette zero");
+    AssertEqual(0x0100, cgram.Samus.ShownSuit(deathSources)[0], "finish restores suit palette zero");
+    AssertEqual(0x0400, cgram.Samus.ShownSuitless(deathSources)[0], "finish restores suitless palette zero");
 
     // The remaining literal timers total 135 calls. The terminal call increments index
     // eight to nine, forces white shade 21, and deliberately emits no tenth spritemap.
@@ -819,10 +819,10 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(0x0015, samus.DeathSequence.AnimationCounter,
         "death terminal whiteout shade index");
     AssertEqual(0x7fff, cgram.Colors[0], "death whiteout reaches full white");
-    AssertEqual(0x7fff, cgram.Colors[239], "death whiteout includes palette six end");
-    AssertEqual(0x0220, cgram.Colors[192],
+    AssertEqual(0x7fff, cgram.Samus.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
+    AssertEqual(0x0220, cgram.Samus.ShownSuit(deathSources)[0],
         "whiteout preserves final Samus suit palette nine");
-    AssertEqual(0x0520, cgram.Colors[240],
+    AssertEqual(0x0520, cgram.Samus.ShownSuitless(deathSources)[0],
         "whiteout preserves final suitless palette nine");
     AssertEqual(0, guardedBus.ForbiddenReadAttempts,
         "production death sequence performs no explosion-timer ROM reads");

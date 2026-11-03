@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementDefinitionsVerification;
@@ -20,12 +21,12 @@ internal static class SamusPaletteDefinitionsVerification
     /// </summary>
     internal static void VerifySamusPaletteRomData()
     {
-        // Samus's visor colour, written through her colour owner, is the one the native X-ray catalog names.
+        // Samus's visor shade, laid over her suit, recolours the ink the native X-ray catalog names (#1512).
         var visorRig = new SamusColourRig();
-        var visorGreen = new RgbColor(0, 31, 0);
-        visorRig.Samus.ShowVisor(visorGreen);
-        AssertEqual(visorGreen, visorRig.Samus.Visor, "the visor shows the colour written to it");
-        AssertEqual(visorGreen, visorRig.Colors[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex],
+        visorRig.Samus.ShowVisor(SamusShades.Visor(0));
+        AssertEqual(SamusShades.Visor(0), visorRig.Samus.VisorShade, "the visor shows the shade laid over it");
+        AssertEqual(InstalledFixtures.SamusShadeSources.Visor.Resolve(0),
+            visorRig.Samus.ShownSuit(InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex - 192],
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
             SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount,

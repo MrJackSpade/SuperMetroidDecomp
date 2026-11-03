@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -32,20 +33,20 @@ internal static class CrystalFlashVisualsVerification
                 remaining -= Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record++ * CrystalFlash.BodyRecordByteCount + 2);
             int body = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.CrystalFlashBodyRecords.Value + record * CrystalFlash.BodyRecordByteCount);
             int bubble = SamusSourceDefinitions.PaletteBank.Value | Word(SamusSourceDefinitions.BubblePointers.Value + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
+            // Samus names the body and bubble shades (#1512); the installation's shades hold the authored colours.
+            RgbColor[] beams = runtime.Player.Colours.ShownBeams(InstalledFixtures.SamusShadeSources);
             for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
-                AssertEqual(Word(body + color * 2), packet.Paint.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
+                AssertEqual(Word(body + color * 2), beams[color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");
             for (int color = 0; color < CrystalFlash.BubbleColorCount; color++)
-                AssertEqual(Word(bubble + color * 2), packet.Paint.Colors[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart + color],
+                AssertEqual(Word(bubble + color * 2), beams[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }
 
         var pixels = DisplayRendering.Render(packet);
-        var colors = packet.Paint.Colors.ToArray();
-        Array.Clear(colors, SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart, Common.ColoursPerSet);
-        // Samus's draws show her own colours, resolved when the frame is published (#1405), not the frame's: the body's
-        // row is muted where she holds it, her beam ink row, as the native check mutes its colour row (#1457).
-        var mutedMemory = FramePaint.FromNative(colors, MuteBeamInkRow(packet.Paint.SpriteDraws, runtime.Player.Colours));
+        // Samus's draws show her own shading (#1512), not the frame's colours: muting them to black isolates whether
+        // her Crystal Flash body shows any pixel.
+        var mutedMemory = new FramePaint(packet.Paint.Backgrounds, MuteSamus(packet.Paint.SpriteDraws));
         var mutedBody = DisplayRendering.Render(new LayeredScene(mutedMemory,
             packet.Layers, packet.Brightness));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.X;
@@ -70,24 +71,9 @@ internal static class CrystalFlashVisualsVerification
         ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
     }
 
-    /// <summary><paramref name="draws"/> with Samus's own draws resolved from <paramref name="samus"/>'s colours but her beam ink row blank.</summary>
-    private static ImmutableArray<SpriteDraw> MuteBeamInkRow(ImmutableArray<SpriteDraw> draws, SamusColours samus)
-    {
-        var muted = new MutedBeamInkRow(samus);
-        return [.. draws.Select(draw => draw is ImageSpriteDraw { Colours: not null } image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
-            ? image with { Colours = DrawColours.Owned(image with { Colours = null }, muted) }
+    /// <summary><paramref name="draws"/> with Samus's own draws, which carry her shading, shown in black.</summary>
+    private static ImmutableArray<SpriteDraw> MuteSamus(ImmutableArray<SpriteDraw> draws) =>
+        [.. draws.Select(draw => draw is ImageSpriteDraw { Shading: { } shading } image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
+            ? image with { Shading = shading.With(new ColourFlash(RgbColor.Black)) }
             : draw)];
-    }
-
-    /// <summary>Samus's colours with her beam ink row, which the Crystal Flash's body and bubble show, blank.</summary>
-    private sealed class MutedBeamInkRow(SamusColours samus) : IImageGroupColours
-    {
-        /// <inheritdoc />
-        public void Overlay(ImageColourGroup group, Span<RgbColor> colours)
-        {
-            samus.Overlay(group, colours);
-            if (group == SamusColourDefinitions.BeamColourGroup)
-                colours.Clear();
-        }
-    }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
@@ -311,11 +312,10 @@ internal static class ProjectileCompositionsVerification
         var hyperEdited = installation.LoadProjectiles();
         AssertTrue(hyperEdited.SelectedSha256 != paletteEdited.SelectedSha256,
             "Hyper Beam FX override changes selected identity");
-        var hyperNative = new SamusColourRig();
-        var hyperSelected = new SamusColourRig();
-        (stock.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires stock.BeamTiles.HyperBeamFxColors.")).Apply(hyperNative.Samus.HyperBeam, 3);
-        (hyperEdited.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires hyperEdited.BeamTiles.HyperBeamFxColors.")).Apply(hyperSelected.Samus.HyperBeam, 3);
-        AssertEqual((ushort)(hyperNative.Colors[227].ToWord() ^ 1), hyperSelected.Colors[227],
+        // The Hyper Beam cycle's frame three; its third colour is the beams' fourth (#1512).
+        ImmutableArray<RgbColor> hyperNative = (stock.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires stock.BeamTiles.HyperBeamFxColors.")).Frame(3);
+        ImmutableArray<RgbColor> hyperSelected = (hyperEdited.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires hyperEdited.BeamTiles.HyperBeamFxColors.")).Frame(3);
+        AssertEqual((ushort)(hyperNative[2].ToWord() ^ 1), hyperSelected[2],
             "Installed Hyper Beam FX override changes its selected color");
         RepairProjectileStock(bus, installation);
         AssertEqual(hyperEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256,

@@ -1721,8 +1721,6 @@ internal static class LookupStream4Verification
         var stored = stock.palettes;
         AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
-        // Every colour outside the beam's starts as a distinct filler, loaded as one image per selection.
-        RgbColor[] filler = [.. Enumerable.Range(0, SnesCgram.ColorCount).Select(index => RgbColor.FromWord((ushort)(index * 31)))];
         for (int edit = -1; edit < 576; edit++)
         {
             var selected = stock;
@@ -1737,26 +1735,24 @@ internal static class LookupStream4Verification
             }
             for (int selection = 0; selection < 12; selection++)
             {
-                var actual = SamusColourRig.Starting(filler);
+                var actual = new SamusColourRig();
+                // The beams name the selection's shade (#1512); the import resolves it from the selected palettes.
                 if (edit is -1 or 0 or 575)
-                    SamusProjectileSystem.LoadBeamPalette(actual.Samus.Beam,
-                        (SamusBeamFlags)((ushort)(selection | 0x1000)), selected, InstalledFixtures.SamusOverreads.ChainsawColours);
-                else selected.LoadTo(actual.Samus.Beam, SamusBeamCombinations.FromTableIndex(selection));
+                    SamusProjectileSystem.LoadBeamPalette(actual.Samus, (SamusBeamFlags)((ushort)(selection | 0x1000)));
+                else actual.Samus.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(selection)));
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
-                // The rig composes every colour on each read, so the selection's colours are composed once and then compared.
-                RgbColor[] shown = actual.Colors.ToArray();
-                for (int index = 0; index < SnesCgram.ColorCount; index++)
+                RgbColor[] shown = actual.Samus.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = selected });
+                for (int color = 0; color < 16; color++)
                 {
-                    int color = index - SamusColourNative.BeamFirstCgram;
-                    ushort expected = color is >= 0 and < 16 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2)) : (ushort)(index * 31);
-                    if (edit >= 0 && selection * 16 + color == edit / 3 && color is >= 0 and < 16)
+                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + color * 2));
+                    if (edit >= 0 && selection * 16 + color == edit / 3)
                         expected ^= (ushort)(1 << (edit % 3 * 5));
-                    AssertEqual(expected, shown[index], "Beam paint preserves native selected rows, independent RGB edits and every CGRAM neighbor");
+                    AssertEqual(expected, shown[color], "Beam paint preserves native selected rows and independent RGB edits");
                 }
             }
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SamusColourRig().Samus.Beam, SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
         Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection producers and read guard pass.");
     }
 

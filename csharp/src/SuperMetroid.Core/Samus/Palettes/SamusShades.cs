@@ -32,6 +32,9 @@ public static class SamusShades
     /// <summary>The suit under one frame of the Hyper Beam's full-body glow, which the drained Samus and the Hyper shot show.</summary>
     public static PictureShade HyperBeamSuit(int frame) => new("HyperBeamSuit", frame);
 
+    /// <summary>The suit under one frame of a Hyper shot's glow, which walks the charge colours' copy of the Hyper Beam glow.</summary>
+    public static PictureShade HyperShot(int frame) => new("HyperShot", frame);
+
     /// <summary>The suit under one shade of a full-body cycle: Speed Booster, Screw Attack or a shinespark's glow.</summary>
     public static PictureShade FullBodyCycle(SamusFullBodyCyclePalette palette) =>
         new($"{palette.Family}{palette.Suit}", palette.Shade);

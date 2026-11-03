@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -11,67 +10,57 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// </summary>
 internal static class IntroCinematicPaletteRecognition
 {
-    /// <summary>
-    /// The colours whose sprite set repeats the neutral ramp; its set may be held as that ramp.
-    /// </summary>
-    private static readonly ScreenColourGroup NeutralRamp = ScreenColourGroup.IntroNarrationNeutralRamp;
+    /// <summary>The sprite set that repeats the neutral ramp; it may be held as that ramp.</summary>
+    private const int NeutralRampSpriteSet = 0;
 
     /// <summary>
-    /// The colours whose sprite set cross-fades: its first eight visible colours may repeat the sepia
-    /// gradient of <see cref="CrossFadeGradientSource"/>.
+    /// The sprite set that cross-fades: its first eight visible colours may repeat the sepia gradient of
+    /// <see cref="CrossFadeGradientBackgroundSet"/>.
     /// </summary>
-    private static readonly ScreenColourGroup CrossFade = ScreenColourGroup.IntroCrossFadeObjects;
+    private const int CrossFadeSpriteSet = 6;
 
-    /// <summary>The discovery scene's background colours, whose sepia gradient the cross-fade repeats.</summary>
-    private static readonly ScreenColourGroup CrossFadeGradientSource = ScreenColourGroup.IntroDiscoveryBackground;
+    /// <summary>The discovery scene's background set, whose sepia gradient the cross-fade repeats.</summary>
+    private const int CrossFadeGradientBackgroundSet = 2;
 
     /// <summary>Keeps the opening's selected colours, recognising stock, neutral-cycle and shared cross-fade sets.</summary>
-    /// <param name="colours">The selected colours by owner, which the import pipeline decoded.</param>
-    internal static IntroCinematicPalette Recognise(ScreenColours colours)
+    /// <param name="image">The selected colours as the palette image holds them: the background sets, then the sprite sets.</param>
+    /// <exception cref="InvalidDataException">The image does not hold every background and sprite colour.</exception>
+    internal static IntroCinematicPalette Recognise(ReadOnlySpan<RgbColor> image)
     {
-        Ensure.NotNull(colours);
-        if (MatchesStockPaint(colours))
+        const int ownerColours = ImageColourGroup.Count * ImageColourGroup.Colours;
+        if (image.Length != 2 * ownerColours)
+            throw new InvalidDataException($"The opening palette holds {image.Length} colours; expected {2 * ownerColours}.");
+        RgbColor[] backgrounds = image[..ownerColours].ToArray();
+        RgbColor[] sprites = image[ownerColours..].ToArray();
+        if (MatchesStockPaint(backgrounds, sprites))
             return new IntroCinematicPalette([], []);
-        var backgroundSets = new IntroColourSet[ColourSets.SetCount];
+        var backgroundSets = new IntroColourSet[ImageColourGroup.Count];
         for (int set = 0; set < backgroundSets.Length; set++)
-            backgroundSets[set] = new IntroColourSet(colours.BackgroundSet(set).ToArray(), IntroColourSetCycle.None, crossFadeSource: null);
-        var spriteSets = new IntroColourSet[ColourSets.SetCount];
+            backgroundSets[set] = new IntroColourSet(Set(backgrounds, set), IntroColourSetCycle.None, crossFadeSource: null);
+        var spriteSets = new IntroColourSet[ImageColourGroup.Count];
         for (int set = 0; set < spriteSets.Length; set++)
         {
-            var cell = new ScreenColourCell(ScreenColourOwner.Sprites, set, 0);
-            IntroColourSetCycle cycle = cell == FirstCell(NeutralRamp)
-                ? IntroColourSetCycle.NeutralRamp : IntroColourSetCycle.None;
-            IntroColourSet? crossFadeSource = cell == FirstCell(CrossFade)
-                ? SetHolding(CrossFadeGradientSource, backgroundSets, spriteSets) : null;
-            spriteSets[set] = new IntroColourSet(colours.SpriteSet(set).ToArray(), cycle, crossFadeSource);
+            IntroColourSetCycle cycle = set == NeutralRampSpriteSet ? IntroColourSetCycle.NeutralRamp : IntroColourSetCycle.None;
+            IntroColourSet? crossFadeSource = set == CrossFadeSpriteSet ? backgroundSets[CrossFadeGradientBackgroundSet] : null;
+            spriteSets[set] = new IntroColourSet(Set(sprites, set), cycle, crossFadeSource);
         }
         return new IntroCinematicPalette(backgroundSets, spriteSets);
     }
 
-    /// <summary>The decoded set that holds <paramref name="group"/>, a whole set.</summary>
-    private static IntroColourSet SetHolding(ScreenColourGroup group, IntroColourSet[] backgroundSets, IntroColourSet[] spriteSets)
-    {
-        ScreenColourCell first = FirstCell(group);
-        return first.Owner == ScreenColourOwner.Backgrounds ? backgroundSets[first.Set] : spriteSets[first.Set];
-    }
+    /// <summary>The colours of set <paramref name="set"/> of <paramref name="colours"/>.</summary>
+    private static RgbColor[] Set(RgbColor[] colours, int set) =>
+        colours.AsSpan(set * ImageColourGroup.Colours, ImageColourGroup.Colours).ToArray();
 
     /// <summary>Checks every colour of both of the intro screen's owners against the calculated set and ink painting.</summary>
-    private static bool MatchesStockPaint(ScreenColours colours)
+    private static bool MatchesStockPaint(RgbColor[] backgrounds, RgbColor[] sprites)
     {
-        for (int set = 0; set < ColourSets.SetCount; set++)
-        for (int ink = 0; ink < ColourSets.SetColours; ink++)
+        for (int set = 0; set < ImageColourGroup.Count; set++)
+        for (int ink = 0; ink < ImageColourGroup.Colours; ink++)
         {
-            if (colours.BackgroundSet(set)[ink] != IntroCinematicPaint.Background(set, ink) ||
-                colours.SpriteSet(set)[ink] != IntroCinematicPaint.Sprite(set, ink))
+            if (backgrounds[set * ImageColourGroup.Colours + ink] != IntroCinematicPaint.Background(set, ink) ||
+                sprites[set * ImageColourGroup.Colours + ink] != IntroCinematicPaint.Sprite(set, ink))
                 return false;
         }
         return true;
-    }
-
-    /// <summary>The screen colour cell that holds the first colour of <paramref name="group"/>.</summary>
-    private static ScreenColourCell FirstCell(ScreenColourGroup group)
-    {
-        ScreenColourPlacement placement = ScreenColourGroups.Placement(group);
-        return new ScreenColourCell(placement.Owner, placement.Set, placement.Colour);
     }
 }

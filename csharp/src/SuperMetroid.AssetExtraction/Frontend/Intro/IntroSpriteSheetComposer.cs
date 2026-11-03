@@ -44,7 +44,10 @@ internal static class IntroSpriteSheetComposer
     internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, IntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
-        return Compose(families, IntroObjectPage.Of(intro), intro.Palette.LoadTo);
+        // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
+        RgbColor[] sprites = [.. intro.Palette.SpriteColours];
+        return Compose(families, IntroObjectPage.Of(intro), sprites,
+            IntroSheetShades.Sprites(sprites, FrontendSheetPalette.FrameColourGroup.Number * IntroSheetInks.SetColours));
     }
 
     /// <summary>What the Ceres flight sheet of <paramref name="flight"/> composes.</summary>
@@ -92,9 +95,18 @@ internal static class IntroSpriteSheetComposer
     {
         var colours = new ScreenPalette();
         loadColours(colours);
+        return Compose(families, page, colours.SpriteSets.All.Colors.ToArray(), []);
+    }
+
+    /// <summary>
+    /// Each family's composition of every pose over <paramref name="page"/>, coloured in <paramref name="sprites"/> with
+    /// <paramref name="shades"/>, at the menus' object sizes the intro and Ceres scenes draw at.
+    /// </summary>
+    private static SpriteSheetSources Compose(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page, RgbColor[] sprites,
+        IReadOnlyList<SheetShade> shades)
+    {
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
-        return new SpriteSheetSources([.. Frames(families, page, sizes)], colours.SpriteSets.All.Colors.ToArray(), sizes,
-            PartsKeepOwnRows: true);
+        return new SpriteSheetSources([.. Frames(families, page, sizes)], sprites, sizes, PartsKeepOwnRows: true) { Shades = shades };
     }
 
     /// <summary>

@@ -55,7 +55,7 @@ internal static class ProjectileSheetComposer
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
             // The intro loads the beam palette, then its whole palette over it.
-            colours = intro.Palette.Colours.Sprites.ToArray();
+            colours = [.. intro.Palette.SpriteColours];
         }
         else
         {

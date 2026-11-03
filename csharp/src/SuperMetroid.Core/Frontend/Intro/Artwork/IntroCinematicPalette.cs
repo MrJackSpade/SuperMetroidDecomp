@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rendering;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -23,25 +23,22 @@ public sealed class IntroCinematicPalette
         this.spriteSets = spriteSets;
     }
 
-    /// <summary>The installed colours by owner.</summary>
-    public ScreenColours Colours
-    {
-        get
-        {
-            var screen = new ScreenPalette();
-            for (int set = 0; set < ColourSets.SetCount; set++)
-            for (int color = 0; color < ColourSets.SetColours; color++)
-            {
-                screen.BackgroundSets.Set(set).Write(color,
-                    backgroundSets.Length == 0 ? IntroCinematicPaint.Background(set, color) : backgroundSets[set].Resolve(color));
-                screen.SpriteSets.Set(set).Write(color,
-                    spriteSets.Length == 0 ? IntroCinematicPaint.Sprite(set, color) : spriteSets[set].Resolve(color));
-            }
-            return ScreenColours.Of(screen);
-        }
-    }
+    /// <summary>The installed background colours, eight sets of sixteen in order (#1512).</summary>
+    public ImmutableArray<RgbColor> BackgroundColours => Colours(backgroundSets, IntroCinematicPaint.Background);
 
-    /// <summary>Replaces every colour of the screen with the installed opening palette; does not advance or reset cinematic fade timers.</summary>
-    /// <param name="colours">The screen's colours, every one of which the palette replaces.</param>
-    public void LoadTo(ScreenPalette colours) => Colours.LoadTo(colours);
+    /// <summary>The installed sprite colours, eight sets of sixteen in order (#1512).</summary>
+    public ImmutableArray<RgbColor> SpriteColours => Colours(spriteSets, IntroCinematicPaint.Sprite);
+
+    /// <summary>The colour the opening shows where nothing is drawn: its first background colour (#1512).</summary>
+    public RgbColor Backdrop => backgroundSets.Length == 0 ? IntroCinematicPaint.Background(0, 0) : backgroundSets[0].Resolve(0);
+
+    /// <summary>Each colour of <paramref name="sets"/>, or of the compiled stock paint <paramref name="stock"/> when none were decoded.</summary>
+    private static ImmutableArray<RgbColor> Colours(IntroColourSet[] sets, Func<int, int, RgbColor> stock)
+    {
+        var colours = ImmutableArray.CreateBuilder<RgbColor>(ImageColourGroup.Count * ImageColourGroup.Colours);
+        for (int set = 0; set < ImageColourGroup.Count; set++)
+        for (int color = 0; color < ImageColourGroup.Colours; color++)
+            colours.Add(sets.Length == 0 ? stock(set, color) : sets[set].Resolve(color));
+        return colours.MoveToImmutable();
+    }
 }

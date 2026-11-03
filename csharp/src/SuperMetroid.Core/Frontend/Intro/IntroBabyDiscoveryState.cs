@@ -474,7 +474,7 @@ internal sealed class IntroBabyDiscoveryState
     {
         var actor = new IntroDiscoverySprite(
             definition.Position,
-            definition.Colouring,
+            IntroShades.Drawn(definition.Colouring),
             definition.Program);
         actor.InstallFrameBehavior(definition.FrameBehavior);
         return actor;

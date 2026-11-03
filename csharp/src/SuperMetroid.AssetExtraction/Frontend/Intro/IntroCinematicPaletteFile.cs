@@ -38,7 +38,7 @@ public static class IntroCinematicPaletteFile
                     $"Opening palette color {index} requires red, green and blue in 0..31.");
             image[index] = color.ToRgbColor();
         }
-        return IntroCinematicPaletteRecognition.Recognise(ScreenColourImage.Decode(image));
+        return IntroCinematicPaletteRecognition.Recognise(image);
     }
 
     /// <summary>Serializes the complete opening palette as UTF-8 JSON and validates it through <see cref="Read"/> before writing any destination bytes.</summary>

@@ -41,8 +41,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName));
         var sources = new SamusShadeSources(
             palettes.starting,
-            intro.Palette.Colours.SpriteSet(SamusSheetInks.Suit / SamusSheetInks.GroupColours).ToArray(),
-            intro.Palette.Colours.SpriteSet(SamusSheetInks.Beams / SamusSheetInks.GroupColours).ToArray(),
+            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
+            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
             Read(map, SamusSuitColorFile.FileName, SamusSuitColorFile.Read),
             Read(map, SamusChargeColorFormat.FileName, json => SamusChargeColorFile.Read(json).ToColours()),
             Read(map, SamusHyperBeamColorFormat.FileName, json => SamusHyperBeamColorFile.Read(json).ToColours()),

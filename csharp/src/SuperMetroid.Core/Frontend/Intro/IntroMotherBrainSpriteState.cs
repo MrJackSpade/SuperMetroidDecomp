@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The definition's initializer fixes the actor at (56,111) with sprite palette seven and
+/// The definition's initializer fixes the actor at (56,111) in her own colouring and
 /// priority three. Its animation cycles four authored spritemaps at
 /// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
 /// flash, and the 128-frame exploding state and BG1 screen shake.
@@ -17,7 +17,7 @@ internal sealed class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic sprite object running the Mother Brain's typed program (#641).</summary>
     private readonly IntroDiscoverySprite actor =
-        new(IntroMotherBrainDefinitions.MotherBrainOrigin, ScreenColourGroup.IntroMotherBrain,
+        new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Program);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
     private WrappingCountdown hurtFlashTimer;
@@ -35,8 +35,18 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Fixed cinematic screen origin from Mother Brain's definition.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
-    /// <summary>The screen colours Mother Brain draws in, which her hurt flash animates.</summary>
-    public static ScreenColourGroup Colouring => ScreenColourGroup.IntroMotherBrain;
+    /// <summary>The drawn shade of the colouring Mother Brain draws in (#1512), which her hurt flash whitens.</summary>
+    public static PictureShade Colouring => IntroShades.Drawn(IntroSpriteColouring.MotherBrain);
+
+    /// <summary>
+    /// Whether the hurt flash's last alternation whitened Mother Brain (#1512): every colour she draws in shows white
+    /// until the next alternation restores her colours. The flash's last alternation always restores them.
+    /// </summary>
+    public bool FlashesWhite { get; private set; }
+
+    /// <summary>Mother Brain's own colour effect: white while her hurt flash whitens her, none otherwise (#1512).</summary>
+    public PictureShading Shading(PictureShading drawn) =>
+        FlashesWhite ? Ensure.NotNull(drawn).With(new ColourFlash(RgbColor.White)) : Ensure.NotNull(drawn);
 
     /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;
@@ -61,8 +71,6 @@ internal sealed class IntroMotherBrainSpriteState
     /// Runs the actor pre-instruction that precedes its instruction-list timer decrement.
     /// </summary>
     public void RunFrameBehavior(
-        ScreenPalette colours,
-        ScreenColours introPalette,
         int cinematicFrameCounter,
         int introCrossfadeTimer)
     {
@@ -76,7 +84,7 @@ internal sealed class IntroMotherBrainSpriteState
             return;
         }
 
-        ApplyHurtFlash(colours, introPalette);
+        ApplyHurtFlash();
         if (!ExplosionStarted || pageTwoInstructionStarted)
             return;
 
@@ -93,21 +101,14 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>
-    /// Eight-frame white/normal alternation loaded into sprite palette seven.
+    /// Eight-frame white/normal alternation of every colour Mother Brain draws in (#1512).
     /// </summary>
-    public void ApplyHurtFlash(ScreenPalette colours, ScreenColours introPalette)
+    public void ApplyHurtFlash()
     {
-        Ensure.NotNull(colours);
-        Ensure.NotNull(introPalette);
         if (hurtFlashTimer.IsZero)
             return;
 
-        bool normalPalette = hurtFlashTimer.IsInAlternatePhase(1);
-        ColourRun motherBrainColours = colours.Colours(ScreenColourGroup.IntroMotherBrain);
-        if (normalPalette)
-            motherBrainColours.CopyFrom(introPalette.Colours(ScreenColourGroup.IntroMotherBrain));
-        else
-            motherBrainColours.Fill(RgbColor.White);
+        FlashesWhite = !hurtFlashTimer.IsInAlternatePhase(1);
         hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
     }
 

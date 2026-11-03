@@ -17,10 +17,10 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
     private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
-    /// <summary>Creates an actor at a whole-pixel origin with the screen colours it starts drawing in and its program.</summary>
+    /// <summary>Creates an actor at a whole-pixel origin with the drawn shade of the colouring it starts drawing in (#1512) and its program.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
-        ScreenColourGroup colouring,
+        PictureShade colouring,
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
@@ -41,11 +41,11 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>The screen colours the current pose's palette-inheriting parts draw in, one whole sprite set.</summary>
-    public ScreenColourGroup Colouring { get; private set; }
+    /// <summary>The drawn shade of the colouring the current pose's palette-inheriting parts draw in (#1512).</summary>
+    public PictureShade Colouring { get; private set; }
 
     /// <summary>Applies a cinematic callback's change of the colours the actor draws in.</summary>
-    public void SetColouring(ScreenColourGroup colouring) => Colouring = colouring;
+    public void SetColouring(PictureShade colouring) => Colouring = colouring;
 
     /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
     internal CinematicSpritePose? Pose { get; private set; }

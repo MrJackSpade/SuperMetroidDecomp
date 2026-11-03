@@ -122,7 +122,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroDiscoveryActorSpriteArtwork), () => VerifyIntroDiscoveryActorSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
-            AssertTrue(ScreenColourImage.Words(stock.Palette.Colours).AsSpan().SequenceEqual(
+            AssertTrue(ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan()).AsSpan().SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
@@ -239,8 +239,8 @@ internal static class IntroCinematicArtworkVerification
                         index == 1 ? color with { Red = 32 } : color).ToArray(),
                 }))), "opening palette rejects out-of-range RGB5 channels");
             File.Delete(paletteOverridePath);
-            AssertTrue(ScreenColourImage.Words(installation.LoadIntroCinematicArt().Palette.Colours).AsSpan().SequenceEqual(
-                    ScreenColourImage.Words(stock.Palette.Colours)),
+            AssertTrue(IntroPaletteWords(installation.LoadIntroCinematicArt().Palette).AsSpan().SequenceEqual(
+                    ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
                 "removing opening palette override restores exact native colors");
             File.WriteAllBytes(paletteOverridePath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -251,8 +251,8 @@ internal static class IntroCinematicArtworkVerification
                 "opening palette stock corruption fails manifest validation");
             _ = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Opening palette stock repair lost the installation.");
-            AssertTrue(ScreenColourImage.Words(installation.LoadIntroCinematicArt().Palette.Colours).AsSpan().SequenceEqual(
-                    ScreenColourImage.Words(stock.Palette.Colours)),
+            AssertTrue(IntroPaletteWords(installation.LoadIntroCinematicArt().Palette).AsSpan().SequenceEqual(
+                    ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
                 "stock repair restores exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
@@ -1114,4 +1114,8 @@ internal static class IntroCinematicArtworkVerification
         Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy());
         return 0;
     }
+
+    /// <summary>The installed opening palette's colours as the colour words the cartridge stores them in (#1512).</summary>
+    private static byte[] IntroPaletteWords(IntroCinematicPalette palette) =>
+        ScreenColourImage.Words(palette.BackgroundColours.AsSpan(), palette.SpriteColours.AsSpan());
 }

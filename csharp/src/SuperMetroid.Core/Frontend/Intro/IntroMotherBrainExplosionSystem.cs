@@ -51,7 +51,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
                 continue;
 
-            installedArt.Draw(pose, objects, actor.Position.ToSpritePosition(), ScreenColourGroup.IntroExplosions);
+            installedArt.Draw(pose, objects, actor.Position.ToSpritePosition(), IntroShades.Drawn(IntroSpriteColouring.Explosions));
         }
     }
 
@@ -67,7 +67,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             CinematicSpriteProgram program,
             int startDelay)
         {
-            sprite = new IntroDiscoverySprite(position, ScreenColourGroup.IntroExplosions, program);
+            sprite = new IntroDiscoverySprite(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), program);
             sprite.DelayFirstInstruction(startDelay);
         }
 

@@ -23,7 +23,7 @@ internal sealed class IntroEggSlimeDrop
         // literal position table. Its low timer byte remains the horizontal trajectory ID.
         sprite = new IntroDiscoverySprite(
             babyPosition,
-            colouring: ScreenColourGroup.IntroDiscoveryActors,
+            colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             program: definition.Program)
         {
             GeneralTimer = index,

@@ -24,7 +24,7 @@ internal sealed class IntroEggParticle
         // twelve original words so this physical spawn does not read the original data.
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(index),
-            colouring: ScreenColourGroup.IntroDiscoveryActors,
+            colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             program: definition.Program)
         {
             GeneralTimer = index,

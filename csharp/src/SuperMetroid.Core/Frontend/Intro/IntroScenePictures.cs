@@ -23,20 +23,21 @@ public static class IntroScenePictures
     /// <summary>The name of eye frame <paramref name="frame"/>'s picture.</summary>
     internal static string Eye(IntroEyeFrame frame) => $"eye-{frame}";
 
-    /// <summary>The plane showing scene page <paramref name="page"/>.</summary>
-    internal static PicturedPlane PagePlane(InstalledSpriteSheets sheets, IntroScenePage page) =>
-        Plane([new PlacedPlanePicture(Sheet(sheets).Frame(Page(page)), default)]);
+    /// <summary>The plane showing scene page <paramref name="page"/> in <paramref name="shading"/> (#1512).</summary>
+    internal static PicturedPlane PagePlane(InstalledSpriteSheets sheets, IntroScenePage page, PictureShading shading) =>
+        Plane([new PlacedPlanePicture(Sheet(sheets).Frame(Page(page)), default, Ensure.NotNull(shading))]);
 
-    /// <summary>The plane showing the portrait, with <paramref name="eye"/>'s picture over its eye once the eye has shown a frame.</summary>
-    internal static PicturedPlane PortraitPlane(InstalledSpriteSheets sheets, IntroEyeFrame? eye)
+    /// <summary>The plane showing the portrait, with <paramref name="eye"/>'s picture over its eye once the eye has shown a frame, both in <paramref name="shading"/> (#1512).</summary>
+    internal static PicturedPlane PortraitPlane(InstalledSpriteSheets sheets, IntroEyeFrame? eye, PictureShading shading)
     {
         SpriteSheet sheet = Sheet(sheets);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
-        placed.Add(new(sheet.Frame(Portrait), default));
+        Ensure.NotNull(shading);
+        placed.Add(new(sheet.Frame(Portrait), default, shading));
         if (eye is { } frame)
             placed.Add(new(sheet.Frame(Eye(frame)), new Position16<TilePlanePixels>(
                 IntroEyeAnimationDefinitions.PortraitCell.X * ScreenGeometry.BackgroundTileSizePixels,
-                IntroEyeAnimationDefinitions.PortraitCell.Y * ScreenGeometry.BackgroundTileSizePixels)));
+                IntroEyeAnimationDefinitions.PortraitCell.Y * ScreenGeometry.BackgroundTileSizePixels), shading));
         return Plane(placed.ToImmutable());
     }
 

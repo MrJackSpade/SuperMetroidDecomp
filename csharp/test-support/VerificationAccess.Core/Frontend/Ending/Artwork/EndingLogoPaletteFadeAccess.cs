@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -37,10 +38,10 @@ internal static class EndingLogoPaletteFadeAccess
     /// <summary>The crossfade's colours that <paramref name="words"/>, the resource as little-endian colour words, holds.</summary>
     internal static EndingLogoCrossfadeColours DecodeWords(ReadOnlySpan<byte> words)
     {
-        Ensure.LengthEqual(words, ColourCount * RgbColor.ByteCount);
+        Ensure.LengthEqual(words, ColourCount * ColourWordCodec.ByteCount);
         var colours = new RgbColor[ColourCount];
         for (int index = 0; index < colours.Length; index++)
-            colours[index] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(words.Slice(index * RgbColor.ByteCount)));
+            colours[index] = RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(words.Slice(index * ColourWordCodec.ByteCount)));
         return EndingLogoCrossfadeImage.Decode(colours);
     }
 

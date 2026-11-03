@@ -57,7 +57,7 @@ public readonly struct CgramPalette
     {
         if ((littleEndianWords.Length & 1) != 0)
             throw new ArgumentException("CGRAM data must contain complete two-byte colours.", nameof(littleEndianWords));
-        CheckSpan(start, littleEndianWords.Length / RgbColor.ByteCount);
+        CheckSpan(start, littleEndianWords.Length / ColourWordCodec.ByteCount);
         cgram.LoadBytes(littleEndianWords, first + start);
     }
 

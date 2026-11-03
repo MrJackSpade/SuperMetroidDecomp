@@ -22,9 +22,9 @@ public static class ScreenColourImage
     /// <summary>The colour words of <paramref name="image"/>, little-endian.</summary>
     private static byte[] Words(RgbColor[] image)
     {
-        var words = new byte[image.Length * RgbColor.ByteCount];
+        var words = new byte[image.Length * ColourWordCodec.ByteCount];
         for (int color = 0; color < image.Length; color++)
-            BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(color * RgbColor.ByteCount), image[color].ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(color * ColourWordCodec.ByteCount), image[color].ToWord());
         return words;
     }
 

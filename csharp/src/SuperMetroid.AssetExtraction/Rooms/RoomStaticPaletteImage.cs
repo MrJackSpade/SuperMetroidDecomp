@@ -21,9 +21,9 @@ internal static class RoomStaticPaletteImage
     internal static byte[] PackedColours(RoomStaticPalette palette)
     {
         RgbColor[] colours = Colours(palette);
-        var packed = new byte[colours.Length * RgbColor.ByteCount];
+        var packed = new byte[colours.Length * ColourWordCodec.ByteCount];
         for (int index = 0; index < colours.Length; index++)
-            BinaryPrimitives.WriteUInt16LittleEndian(packed.AsSpan(index * RgbColor.ByteCount), colours[index].ToWord());
+            BinaryPrimitives.WriteUInt16LittleEndian(packed.AsSpan(index * ColourWordCodec.ByteCount), colours[index].ToWord());
         return packed;
     }
 }

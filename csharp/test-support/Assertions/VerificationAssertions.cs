@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.TestSupport.Assertions;

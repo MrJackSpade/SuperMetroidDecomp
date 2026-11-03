@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
@@ -30,7 +31,7 @@ public static class RoomFxPaletteBlendExtractor
             for (int index = 0; index < colors.Length; index++)
             {
                 RgbColor stored = index == 2 && calculatedThird.HasValue ? calculatedThird.Value
-                    : RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * RgbColor.ByteCount)));
+                    : RgbColor.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * ColourWordCodec.ByteCount)));
                 int red = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairRed(id, index == 0) ?? stored.Red : stored.Red;
                 int green = index < 2 ? RoomFxPaletteBlendRules.CalculatedPairGreen(id, red, index == 0) ?? stored.Green : RoomFxPaletteBlendRules.CalculatedThirdGreen(id) ?? stored.Green;
                 colors[index] = new PaletteRgb5

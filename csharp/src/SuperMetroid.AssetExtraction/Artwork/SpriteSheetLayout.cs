@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;

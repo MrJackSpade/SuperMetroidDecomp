@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;

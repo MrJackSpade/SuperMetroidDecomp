@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Compatibility;
@@ -311,7 +312,7 @@ internal static class SamusOverreadDecoding
             .Select(_ => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(SamusOverreadSourceDefinitions.ExpansionOpenBusWord)))],
         [SpeedBoosterPaletteOverrun.SecondStepPastCycle.ToString()] = [.. Enumerable.Range(0, SamusPaletteDefinitions.Common.ColoursPerSet)
             .Select(index => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(cartridge.ReadCartridgeWord(
-                SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * RgbColor.ByteCount))))],
+                SamusOverreadSourceDefinitions.SpeedBoosterGrappleCode + index * ColourWordCodec.ByteCount))))],
     };
 
     /// <summary>
@@ -363,7 +364,7 @@ internal static class SamusOverreadDecoding
     private static PaletteRgb5[] ChainsawPaletteColours(IImportCartridgeSource cartridge) =>
         [.. Enumerable.Range(0, ChainsawBeamColours<RgbColor>.ColourCount).Select(colour =>
         {
-            int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * RgbColor.ByteCount;
+            int place = SamusOverreadSourceDefinitions.ChainsawPaletteStart + colour * ColourWordCodec.ByteCount;
             int word = colour == 0
                 ? LittleEndianWord.Unsigned(SamusOverreadSourceDefinitions.ChainsawPaletteOpenBusByte, cartridge.ReadCartridgeByte(place + 1))
                 : cartridge.ReadCartridgeWord(place);

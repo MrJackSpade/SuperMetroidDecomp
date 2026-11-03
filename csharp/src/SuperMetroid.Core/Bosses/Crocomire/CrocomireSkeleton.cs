@@ -97,8 +97,10 @@ internal sealed class CrocomireSkeleton
         if (CrocomireRumble.IsComplete(state.RumbleStep))
         {
             state.DeathPhaseDelay = WrappingCountdown.Start(128);
-            (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-                "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Colours);
+            state.Colours.ShowWallSpikes();
+            state.Body.Shading = state.Colours.OverSprites(EnemyShades.HitFlashed);
+            if (state.Tongue is { } spikedTongue)
+                spikedTongue.Shading = state.Body.Shading;
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
         }
@@ -150,9 +152,9 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
-        body.Colouring = EnemyShades.HitFlashed;
-        (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-            "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Colours);
+        // The skeleton draws in the common colours with its arm's laid over them (#1512).
+        state.Colours.ShowSkeletonArm();
+        body.Shading = state.Colours.OverSprites(EnemyShades.HitFlashed);
 
         foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
             projectile.Clear();
@@ -195,7 +197,7 @@ internal sealed class CrocomireSkeleton
 
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         if (state.Tongue is { } tongue)
-            tongue.Colouring = state.Body.Colouring;
+            tongue.Shading = state.Body.Shading;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }

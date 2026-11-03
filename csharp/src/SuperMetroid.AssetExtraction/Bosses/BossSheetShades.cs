@@ -5,6 +5,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using CrocomireBand = SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireColorCatalog.Band;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -25,6 +27,21 @@ internal static class BossSheetShades
 
     /// <summary>The sprite row Kraid's rocks draw in, which his initialization loads.</summary>
     private const int KraidRocksRow = 3;
+
+    /// <summary>The first ink of a body picture's sixth tile colour group, which Crocomire's fight colours recolour.</summary>
+    private const int CrocomireBodyFirstInk = 112;
+
+    /// <summary>The sprite row Crocomire's wall and the bridge's fragments draw in.</summary>
+    private const int CrocomireWallRow = 2;
+
+    /// <summary>The sprite row of the enemy projectiles, which Crocomire's fight loads his projectiles' colours into.</summary>
+    private const int CrocomireProjectileRow = 5;
+
+    /// <summary>The sprite row his skeleton's arm colours fill.</summary>
+    private const int CrocomireSkeletonArmRow = 1;
+
+    /// <summary>The sprite row the wall spikes' colours fill.</summary>
+    private const int CrocomireWallSpikesRow = 3;
 
     /// <summary>The sprite row Botwoon's head and body draw in, which his health bands recolour.</summary>
     private const int BotwoonRow = 7;
@@ -50,6 +67,13 @@ internal static class BossSheetShades
         ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(bosses);
+        if (owner == BossBodyOwner.Crocomire)
+        {
+            CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire's body is shaded from the installed Crocomire colours.");
+            RgbColor[] fight = Crocomire(crocomire, CrocomireBand.FightBody);
+            return [SheetShade.Run(CrocomireShades.FightBody, CrocomireBodyFirstInk, fight),
+                SheetShade.Run(CrocomireShades.BodyHurt, CrocomireBodyFirstInk, [.. fight.Select(_ => RgbColor.White)])];
+        }
         if (owner != BossBodyOwner.Kraid)
             return [];
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's body is shaded from the installed Kraid colours.");
@@ -73,6 +97,12 @@ internal static class BossSheetShades
         Ensure.NotNull(bosses);
         if (enemy == EnemyDefinitionId.Botwoon)
             return Botwoon(bosses, firstInk);
+        if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)
+        {
+            CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire is shaded from the installed Crocomire colours.");
+            return [SheetShade.Run(CrocomireShades.SkeletonArm, CrocomireSkeletonArmRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.SkeletonArm)),
+                SheetShade.Run(CrocomireShades.WallSpikes, CrocomireWallSpikesRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.WallSpikes))];
+        }
         if (!KraidParts.Contains(enemy))
             return [];
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's parts are shaded from the installed Kraid colours.");
@@ -88,8 +118,32 @@ internal static class BossSheetShades
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's rocks are shaded from the installed Kraid colours.");
         return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
             [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))]),
-            .. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours)];
+            .. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours),
+            SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
+                Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
     }
+
+    /// <summary>
+    /// The row shades every character-zero spawned-object sheet takes for the objects bosses spawn in a row their fight
+    /// loads: Crocomire's projectiles, in the projectiles' row with his colours in it over <paramref name="colours"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
+    internal static IReadOnlyList<SheetRowShade> SpawnedRows(BossArtworkCatalog bosses, LoadedSetColours colours)
+    {
+        Ensure.NotNull(bosses);
+        Ensure.NotNull(colours);
+        RgbColor[] projectiles = Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialProjectile);
+        return [new(CrocomireShades.Projectiles, CrocomireProjectileRow,
+            colours.With(CrocomireProjectileRow, 0, projectiles[..LoadedSetColours.RowColours]))];
+    }
+
+    /// <summary>Every colour of Crocomire's <paramref name="band"/>.</summary>
+    private static RgbColor[] Crocomire(CrocomireColorCatalog crocomire, CrocomireBand band) =>
+        [.. Enumerable.Range(0, CrocomireColorCatalog.Counts[band]).Select(colour => crocomire.Get(band, colour))];
+
+    /// <summary><paramref name="colours"/>, or an error naming the <paramref name="boss"/> whose colours are not installed.</summary>
+    private static T Required<T>(T? colours, string boss) where T : class =>
+        colours ?? throw new InvalidDataException($"{boss} is shaded from the installed {boss} colours.");
 
     /// <summary>Botwoon's health bands over the row from <paramref name="firstInk"/>.</summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>

@@ -109,10 +109,8 @@ internal sealed class CrocomireFight
         _room.Services.RoomScroll.Write(0, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
 
-        // The initializer copies seventeen colours, not sixteen, so one crosses into the next
-        // palette. Later fades compare against that exact target.
-        (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
-            "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Colours);
+        // The wall's and the projectiles' colours his initializer loads are the import's shades of them, which his wall,
+        // the bridge's fragments and his projectiles draw in (#1512).
     }
 
     /// <summary>Ports <c>InitAI_CrocomireTongue</c>.</summary>
@@ -135,7 +133,7 @@ internal sealed class CrocomireFight
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
         slot.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
-        slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.Crocomire);
+        slot.Shading = state.Body.Shading;
     }
 
     /// <summary>Runs the artificial left-side wall.</summary>
@@ -603,7 +601,7 @@ internal sealed class CrocomireFight
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CrocomireProjectile,
-            graphics: SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours));
+            graphics: SpriteGraphics.CharacterZeroIn(CrocomireColours.ProjectileShading));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
         projectile.Velocity = new(SignedEightEight.FromSignedRaw(-512), new SignedEightEight(1));
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole - 32), CoordinateAxis.Wrap(body.Position.Y.Whole - 16)));

@@ -117,7 +117,7 @@ internal sealed class EnemySheetShades
                 foreach ((PictureShade shade, RgbColor[] fade) in GhostFadeSteps())
                     shades.Add(SheetShade.Run(shade, first, fade));
                 break;
-            case EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
+            case EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
                 or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad:
                 // The bosses' own effects over the row they draw in (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));
@@ -183,7 +183,8 @@ internal sealed class EnemySheetShades
         ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
         return ([SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
             Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)),
-            .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses)], CeresDoorLooks());
+            .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses)],
+            [.. CeresDoorLooks(), .. SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours)]);
     }
 
     /// <summary>The Ceres doors' normal and escaping looks: their colours one to fifteen in the active doors' row.</summary>

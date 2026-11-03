@@ -546,6 +546,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         get
         {
+            if (CrocomireBehavior.Access.Crocomire is { } crocomire)
+                yield return crocomire.Colours;
             if (KraidBehavior.Access.Kraid is { } kraid)
             {
                 yield return kraid.Backdrop;

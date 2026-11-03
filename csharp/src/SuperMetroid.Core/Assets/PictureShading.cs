@@ -42,6 +42,21 @@ public sealed record PictureShading
     /// <summary>This shading with <paramref name="effect"/> applied after its effects.</summary>
     public PictureShading With(ColourEffect effect) => new(Shades, Effects.Add(Ensure.NotNull(effect)));
 
+    /// <summary>Whether <paramref name="other"/> names the same shades and effects in the same order.</summary>
+    public bool Equals(PictureShading? other) =>
+        other is not null && Shades.AsSpan().SequenceEqual(other.Shades.AsSpan()) && Effects.SequenceEqual(other.Effects);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        foreach (PictureShade shade in Shades)
+            hash.Add(shade);
+        foreach (ColourEffect effect in Effects)
+            hash.Add(effect);
+        return hash.ToHashCode();
+    }
+
     /// <summary>The colour each of <paramref name="picture"/>'s inks shows under this shading.</summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
     public RgbColor[] InkColours(SpriteImage picture)

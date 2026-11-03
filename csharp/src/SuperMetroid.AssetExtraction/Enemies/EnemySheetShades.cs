@@ -120,6 +120,11 @@ internal sealed class EnemySheetShades
                 }
                 break;
             }
+            case EnemyDefinitionId.ShutterDestroyable:
+                // The first escape room's shutters show the escape's red flash over their own row.
+                shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
+                    first, inputs.Maps?.RoomPaletteFx ?? throw Missing("Tourian shutter flash colours")));
+                break;
             case EnemyDefinitionId.Coven:
                 foreach ((PictureShade shade, RgbColor[] fade) in GhostFadeSteps())
                     shades.Add(SheetShade.Run(shade, first, fade));

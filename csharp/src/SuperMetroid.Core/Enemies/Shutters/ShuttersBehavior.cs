@@ -4,6 +4,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
 
@@ -15,6 +17,31 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
     internal ShuttersBehavior(EnemyAudioQueue audio) => _audio = audio;
+
+    /// <summary>
+    /// Lays record <paramref name="record"/> of the escape's red shutter flash over every destroyable shutter among
+    /// <paramref name="slots"/> (#1512): the first escape room's shutters draw in the colours the flash recolours, and
+    /// each record replaces the one before it.
+    /// </summary>
+    internal void ShowEscapeShutterFlash(IReadOnlyList<RoomEnemySlot> slots, PaletteFxFrame record)
+    {
+        Ensure.NotNull(slots);
+        PictureShade flash = PaletteFxShades.Of(PaletteFxColours.TourianShutters, record);
+        foreach (RoomEnemySlot slot in slots)
+        {
+            if (slot.DefinitionId != EnemyDefinitionId.ShutterDestroyable)
+                continue;
+            PictureShading shown = PictureShading.Standard;
+            foreach (PictureShade shade in slot.Shading.Shades)
+            {
+                if (shade.Effect != flash.Effect)
+                    shown = shown.With(shade);
+            }
+            foreach (ColourEffect effect in slot.Shading.Effects)
+                shown = shown.With(effect);
+            slot.Shading = shown.With(flash);
+        }
+    }
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ShuttersPartDefinitions.Parts.Keys];

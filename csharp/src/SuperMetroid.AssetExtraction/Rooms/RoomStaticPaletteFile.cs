@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

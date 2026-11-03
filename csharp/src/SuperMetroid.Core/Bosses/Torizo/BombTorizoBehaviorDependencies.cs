@@ -35,4 +35,7 @@ internal sealed record BombTorizoBehaviorDependencies
 
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
+
+    /// <summary>The room effects the bosses request this update: the fight's start asks for the belly's glow.</summary>
+    public required BossFrameResultBuilder FrameResults { get; init; }
 }

@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -26,6 +28,22 @@ public sealed class DraygonEnemyState
         Body.Shading = sprites;
         Tail.Shading = sprites;
         Arms.Shading = sprites;
+    }
+
+    /// <summary>
+    /// Gives the Evirs his opening and burial spawn among <paramref name="spriteObjects"/> the shading his sprites show
+    /// now (#1512). They draw in the palette row his initialization selects for him, which his hurt updates rewrite, so
+    /// they show his material colours and their white flash as he does, from the update that writes them.
+    /// </summary>
+    internal void ShadeEvirs(RoomSpriteObjectPool spriteObjects)
+    {
+        Ensure.NotNull(spriteObjects);
+        PictureShading sprites = Colours.Sprites;
+        foreach (RoomSpriteObjectSlot evir in spriteObjects.Slots)
+        {
+            if (evir.IsActive && evir.Kind is RoomSpriteObjectKind.DraygonIntroEvir or RoomSpriteObjectKind.DraygonDeathEvirFacingRight)
+                evir.Graphics = evir.Graphics.In(sprites);
+        }
     }
 
     /// <summary>The first enemy slot, which owns encounter movement, health, and the body-function dispatcher.</summary>

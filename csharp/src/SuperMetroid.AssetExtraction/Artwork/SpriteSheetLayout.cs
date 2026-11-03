@@ -47,8 +47,11 @@ internal sealed class SpriteSheetLayout
     /// <summary>Each laid frame's top-left corner on the sheet.</summary>
     private readonly Position16<ImagePixels>[] corners;
 
-    /// <summary>For each row shade, the colour each ink its painted pixels hold shows under it (#1512).</summary>
-    private readonly Dictionary<int, RgbColor>[] rowShadeInks;
+    /// <summary>
+    /// For each row shade, the colour each ink its painted pixels hold shows under it, and whether the shade's draw takes
+    /// that ink's pixels from another row than their own (#1512).
+    /// </summary>
+    private readonly Dictionary<int, (RgbColor Colour, bool Moves)>[] rowShadeInks;
 
     /// <summary>Lays out a sheet's frames in order, then their part images.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
@@ -60,7 +63,7 @@ internal sealed class SpriteSheetLayout
         this.sources = Ensure.NotNull(sources);
         this.palette = palette;
         this.priority = priority;
-        rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, RgbColor>())];
+        rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, (RgbColor Colour, bool Moves)>())];
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
@@ -153,29 +156,36 @@ internal sealed class SpriteSheetLayout
     }
 
     /// <summary>
-    /// Each row shade as the inks the painted pixels hold and the colour each shows under it, leaving out inks that show
-    /// their standard colour (#1512).
+    /// Each row shade as every ink whose pixels its draw takes from another row, with the colour each shows there (#1512).
+    /// An ink that shows its standard colour under the shade is listed all the same: the draw reads the other row, so a
+    /// shade laid before it over the ink's own row does not show through. An ink whose pixels the draw still takes from
+    /// their own row is left out, as the draw shows whatever that row holds, the shades laid before it among them.
     /// </summary>
     private IEnumerable<SheetShade> RowShades()
     {
         IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
         for (int index = 0; index < shades.Count; index++)
         {
-            KeyValuePair<int, RgbColor>[] changed = [.. rowShadeInks[index].Where(ink => ink.Value != sources.SpriteColours[ink.Key]).OrderBy(ink => ink.Key)];
-            yield return new SheetShade(shades[index].Shade, [.. changed.Select(ink => ink.Key)], [.. changed.Select(ink => ink.Value)]);
+            KeyValuePair<int, (RgbColor Colour, bool Moves)>[] moved = [.. rowShadeInks[index].Where(ink => ink.Value.Moves).OrderBy(ink => ink.Key)];
+            yield return new SheetShade(shades[index].Shade, [.. moved.Select(ink => ink.Key)], [.. moved.Select(ink => ink.Value.Colour)]);
         }
     }
 
-    /// <summary>Records that a pixel of colour <paramref name="colour"/>, inked <paramref name="ink"/> in a part taking its draw's row from <paramref name="partRow"/>, shows each row shade's colour.</summary>
-    /// <exception cref="InvalidDataException">The ink already shows another colour under a row shade.</exception>
+    /// <summary>
+    /// Records that a pixel of colour <paramref name="colour"/>, inked <paramref name="ink"/> in a part taking its draw's
+    /// row from <paramref name="partRow"/>, shows each row shade's colour, and whether the shade's draw takes it from
+    /// another row than the ink's own.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The ink already shows another colour, or another row, under a row shade.</exception>
     private void ShadeRows(int ink, int partRow, int colour)
     {
         IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
         for (int index = 0; index < shades.Count; index++)
         {
             SheetRowShade shade = shades[index];
-            RgbColor shown = shade.SpriteColours[(partRow | shade.Row) * RowColours + colour];
-            if (rowShadeInks[index].TryGetValue(ink, out RgbColor known) && known != shown)
+            int shownRow = partRow | shade.Row;
+            (RgbColor Colour, bool Moves) shown = (shade.SpriteColours[shownRow * RowColours + colour], shownRow != ink / RowColours);
+            if (rowShadeInks[index].TryGetValue(ink, out (RgbColor Colour, bool Moves) known) && known != shown)
                 throw new InvalidDataException($"Sheet ink {ink} shows two colours under shade {shade.Shade.Key}: its parts take different rows.");
             rowShadeInks[index][ink] = shown;
         }

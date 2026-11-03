@@ -22,6 +22,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -119,7 +120,9 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb:
                 // The Torizos' colourings over their own rows (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours")));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours"),
+                    inputs.Maps?.RoomPaletteFx ?? throw Missing("Torizo belly glow colours"),
+                    enemy is EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.GoldenTorizoOrb ? PaletteFxObject.GoldenTorizoBelly : PaletteFxObject.BombTorizoBelly));
                 break;
             case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
                 or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
@@ -133,12 +136,15 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
                 // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
                 break;
             case EnemyDefinitionId.BabyMetroid:
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Shitroid(inputs.Bosses));
                 break;
             case EnemyDefinitionId.Zebetite:
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Zebetites(inputs.Bosses));
                 break;
             case EnemyDefinitionId.CorpseSidehopper:

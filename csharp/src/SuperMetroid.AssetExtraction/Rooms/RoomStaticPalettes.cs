@@ -1,6 +1,7 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed base room palettes.</summary>
 public sealed class RoomStaticPalettes

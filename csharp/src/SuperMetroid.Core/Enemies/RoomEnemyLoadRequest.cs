@@ -27,8 +27,6 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public RoomEnemyGraphicsSetDefinition GraphicsSet { get; }
 
     /// <inheritdoc />
-
-    /// <inheritdoc />
     public RoomAppearance Appearance { get; }
 
     /// <inheritdoc />

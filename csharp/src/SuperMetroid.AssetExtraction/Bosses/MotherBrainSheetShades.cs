@@ -10,7 +10,6 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
@@ -23,6 +22,33 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class MotherBrainSheetShades
 {
+    /// <summary>
+    /// The row each enemy whose shades this places draws in, as Mother Brain's encounter writes it: her brain's, her body's
+    /// common row (her body's parts name their own rows), the Baby's, and the attack row the Shitroid and the Zebetites
+    /// draw in.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<EnemyDefinitionId, int> DrawRows = new Dictionary<EnemyDefinitionId, int>
+    {
+        [EnemyDefinitionId.MotherBrainHead] = BrainRow / Group,
+        [EnemyDefinitionId.MotherBrainBody] = 0,
+        [EnemyDefinitionId.BabyMetroidCutscene] = SeventhRow / Group,
+        [EnemyDefinitionId.BabyMetroid] = AttackRow / Group,
+        [EnemyDefinitionId.Zebetite] = AttackRow / Group,
+    };
+
+    /// <summary>
+    /// Rejects a sheet whose enemy the graphics-set data places in another row than the one these shades recolour for it,
+    /// as its shades would then recolour colours it does not draw in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The data places <paramref name="enemy"/> in another row, or it takes no such row.</exception>
+    internal static void RequireDrawRow(EnemyDefinitionId enemy, int row)
+    {
+        int expected = DrawRows.TryGetValue(enemy, out int known) ? known
+            : throw new InvalidDataException($"Mother Brain's encounter shades place no row for {enemy}.");
+        if (row != expected)
+            throw new InvalidDataException($"The graphics-set data draws {enemy} in row {row}, but Mother Brain's encounter writes its colours to row {expected}.");
+    }
+
     /// <summary>The colours of one row or colour group.</summary>
     private const int Group = 16;
 

@@ -47,7 +47,7 @@ internal static class DraygonEvirPicturesVerification
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomSpriteObjectSlot evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
-            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Bosses.Draygon.DraygonColours.MaterialSprites)) ?? throw new InvalidOperationException(
+            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Intro).With(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Sprite))) ?? throw new InvalidOperationException(
             "Draygon's room has a free sprite-object slot for an opening Evir.");
 
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -46,13 +47,16 @@ internal static class DraygonBurialEvirDefinitionsVerification
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // Draygon dies on a white hurt frame here, so his burial Evirs, which draw in his own row, spawn in the flash.
+        var draygon = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
+        draygon.Colours.ShowHurt(true);
 
         for (int entry = 5; entry >= 0; entry--)
         {
             RoomSpriteObjectKind kind = entry >= 3
                 ? RoomSpriteObjectKind.DraygonIntroEvir
                 : RoomSpriteObjectKind.DraygonDeathEvirFacingRight;
-            enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(entry, kind);
+            enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, entry, kind);
             // The n-th Evir spawned takes the n-th slot in the pool's processing order.
             RoomSpriteObjectSlot sprite = enemies.SpriteObjects.InProcessingOrder.ElementAt(5 - entry);
             DraygonBurialEvirDefinition definition =
@@ -63,8 +67,20 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} spawned X");
             AssertEqual(definition.Initial.Y, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
-            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Bosses.Draygon.DraygonColours.MaterialSprites), sprite.Graphics,
-                $"Draygon burial Evir {entry} draws in his opening's and material colours");
+            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(draygon.Colours.Sprites), sprite.Graphics,
+                $"Draygon burial Evir {entry} draws in the shading his sprites show");
+        }
+        AssertTrue(draygon.Colours.Sprites.Shades.Contains(DraygonShades.SpriteWhite), "Draygon's sprites show the white flash");
+
+        // His next hurt update rewrites his row; every Evir follows it that update.
+        draygon.Colours.ShowHurt(false);
+        draygon.ShadeEvirs(enemies.SpriteObjects);
+        foreach (RoomSpriteObjectSlot evir in enemies.SpriteObjects.InProcessingOrder.Take(6))
+        {
+            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(draygon.Colours.Sprites), evir.Graphics,
+                "A burial Evir follows Draygon's material colours after his white flash");
+            AssertTrue(evir.Graphics.Shading.Shades.Contains(DraygonShades.Sprite) && !evir.Graphics.Shading.Shades.Contains(DraygonShades.SpriteWhite),
+                "A burial Evir no longer shows the white flash");
         }
 
         enemies.DraygonBehavior.Death.MoveDraygonDeathEvirs();

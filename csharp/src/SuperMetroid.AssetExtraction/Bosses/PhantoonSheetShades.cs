@@ -9,7 +9,9 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <summary>
 /// The shades of Phantoon's body and of his room as the Wrecked Ship's power comes on (#1512), which the import pre-colours
 /// his body sheet and his room's pictures in: each settled colouring of his body over the sixth tile colour group, each
-/// step of each fade between them, as his fades move each colour by its remaining distance over the steps left, and each
+/// run of steps of each fade from one toward another, as his fades move each colour shown by its remaining distance over
+/// the steps left (a run starts past the zero step, which moves nothing, and at any value through its last, as a hurt
+/// colouring written mid-fade restarts the fade from that colouring at the step value it stands at), and each
 /// step of the power coming on over every other colour group, from the room's own colours.
 /// </summary>
 internal static class PhantoonSheetShades
@@ -41,9 +43,12 @@ internal static class PhantoonSheetShades
                 RgbColor[] goal = Colours(phantoon, to);
                 foreach (int denominator in PhantoonShades.FadeDenominators)
                 {
-                    for (int numerator = 0; numerator <= denominator + 1; numerator++)
-                        shades.Add(SheetShade.Run(PhantoonShades.Fading(from, to, denominator, numerator), BodyFirstInk,
-                            Faded(start, goal, denominator, numerator)));
+                    for (int first = 1; first <= denominator + 1; first++)
+                    {
+                        for (int last = first; last <= denominator + 1; last++)
+                            shades.Add(SheetShade.Run(PhantoonShades.Fading(from, to, denominator, first, last), BodyFirstInk,
+                                Faded(start, goal, denominator, first, last)));
+                    }
                 }
             }
         }
@@ -61,7 +66,7 @@ internal static class PhantoonSheetShades
         RgbColor[] goal = [.. Enumerable.Range(0, inks).Select(ink =>
             phantoon.ResolvePowerOn(PhantoonColorDefinitions.PoweredParts[ink / GroupColours], ink % GroupColours))];
         return [.. Enumerable.Range(0, PhantoonShades.PowerOnDenominator + 2).Select(numerator =>
-            SheetShade.Run(PhantoonShades.PowerOn(numerator), 0, Faded(start, goal, PhantoonShades.PowerOnDenominator, numerator)))];
+            SheetShade.Run(PhantoonShades.PowerOn(numerator), 0, Faded(start, goal, PhantoonShades.PowerOnDenominator, 0, numerator)))];
     }
 
     /// <summary>The sixteen colours of his body showing <paramref name="look"/>.</summary>
@@ -74,14 +79,14 @@ internal static class PhantoonSheetShades
         _ => throw new InvalidDataException($"Undefined Phantoon body colouring {look.Kind}."),
     };
 
-    /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s from zero through <paramref name="numerator"/>.</summary>
-    private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int denominator, int numerator)
+    /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s of values <paramref name="first"/> through <paramref name="last"/>.</summary>
+    private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int denominator, int first, int last)
     {
         var faded = new RgbColor[start.Length];
         for (int ink = 0; ink < faded.Length; ink++)
         {
             RgbColor current = start[ink];
-            for (int step = 0; step <= numerator; step++)
+            for (int step = first; step <= last; step++)
                 current = GradualColourFade.Step(step, current, goal[ink], denominator);
             faded[ink] = current;
         }

@@ -62,6 +62,14 @@ internal sealed class EnemyRoomEffects
         ApplyPendingMotherBrainPlms(requests, plms, roomLayer3Fx, roomPaletteFx);
         ApplyPendingShitroidWallPlms(requests, plms);
         ApplyPendingChozoStatuePlms(plms, roomLayer3Fx, enemies);
+        ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
+    }
+
+    /// <summary>Spawns the belly glow a Torizo's fight start asked for in the palette-FX handler's pool.</summary>
+    internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, RoomPaletteFxSystem roomPaletteFx)
+    {
+        if (requests.TorizoBellyGlow is { } glow)
+            roomPaletteFx.SpawnDefinition(glow, _player.IntroducedSamus.EquippedItems);
     }
 
     /// <summary>

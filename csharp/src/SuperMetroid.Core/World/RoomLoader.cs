@@ -1022,8 +1022,7 @@ internal sealed class RoomLoader
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             room.State.EnemyGraphicsSet,
-            scope.Appearance,
-            _colours)
+            scope.Appearance)
         {
             Level = assets.LevelData,
             Samus = _player.Samus,

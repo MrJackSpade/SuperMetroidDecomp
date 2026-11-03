@@ -1,5 +1,6 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-namespace SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The base background colours one room graphics-set palette source gives each background set (#1464). The import

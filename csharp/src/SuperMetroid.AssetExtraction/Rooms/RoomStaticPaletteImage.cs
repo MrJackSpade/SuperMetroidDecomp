@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

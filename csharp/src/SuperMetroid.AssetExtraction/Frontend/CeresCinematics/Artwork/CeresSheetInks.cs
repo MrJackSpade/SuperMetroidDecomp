@@ -49,7 +49,7 @@ internal static class CeresSheetInks
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the engine's set.</exception>
     internal static IReadOnlyList<SheetShade> EngineShades(IPaletteFxColorSource colours) =>
         PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.GunshipEngineFlicker], PaletteFxColours.CutsceneGunshipEngine,
-            EngineFirst, EngineEnd, Ensure.NotNull(colours));
+            new InkRange(EngineFirst, EngineEnd), Ensure.NotNull(colours));
 
     /// <summary>
     /// The drawn shade of every Ceres actor colouring: its sprite set's colours from <paramref name="sprites"/> over the

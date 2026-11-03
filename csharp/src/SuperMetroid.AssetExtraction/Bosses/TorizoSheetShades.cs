@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
@@ -98,14 +97,11 @@ internal static class TorizoSheetShades
     /// </summary>
     private static IEnumerable<SheetShade> BellyGlow(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, PaletteFxObject glow)
     {
-        var shown = new SortedSet<(PaletteFxColours Colours, int Record)>();
-        PaletteFxRoomShades.Collect(RoomPaletteFxSelection.Get(glow).InitialProgram, shown);
-        foreach ((PaletteFxColours colours, int number) in shown)
+        foreach ((PaletteFxColours colours, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy([glow]))
         {
             if (colours != PaletteFxColours.TorizoBelly)
                 throw new InvalidDataException($"The Torizo belly glow {glow} shows {colours}.");
-            var record = new PaletteFxFrame(number);
-            SheetShade written = PaletteFxRoomShades.Shade(colours, record, BellyGlowFirstInk, BellyGlowEndInk, paletteFx);
+            SheetShade written = PaletteFxRecordShades.Shade(colours, record, new InkRange(BellyGlowFirstInk, BellyGlowEndInk), paletteFx);
             yield return written;
             foreach (TorizoLook to in FadeTargets)
             {

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -20,6 +21,9 @@ internal static class EndingScreenInks
     /// <summary>The screen's colours.</summary>
     internal const int ScreenColourCount = 2 * SpriteFirst;
 
+    /// <summary>The first screen colours, which the credits' end does not restore: they keep the credits' colours.</summary>
+    private const int CreditsKeptColours = 4;
+
     /// <summary>The screen colours each load writes.</summary>
     private static readonly Dictionary<EndingColourLoad, int[]> Loads = new()
     {
@@ -28,8 +32,7 @@ internal static class EndingScreenInks
         [EndingColourLoad.ExplosionBackgrounds] = Range(0, SpriteFirst),
         [EndingColourLoad.FinalGunship] = Background(5),
         [EndingColourLoad.CreditsBackgrounds] = Range(0, SpriteFirst),
-        // The credits' end restores every colour but the first four, which keep the credits' colours.
-        [EndingColourLoad.PostCredits] = Range(4, ScreenColourCount - 4),
+        [EndingColourLoad.PostCredits] = Range(CreditsKeptColours, ScreenColourCount - CreditsKeptColours),
         [EndingColourLoad.RestoredShot] = Sprite(4),
         [EndingColourLoad.LogoInitial] = Sprite(7),
     };
@@ -83,20 +86,20 @@ internal static class EndingScreenInks
     /// The screen colour each palette-effect group the ending shows writes its first colour to, and the colour after the
     /// last it may write: the end of its colour group.
     /// </summary>
-    private static readonly Dictionary<PaletteFxColours, (int First, int End)> PaletteFxGroups = new()
+    private static readonly Dictionary<PaletteFxColours, InkRange> PaletteFxGroups = new()
     {
-        [PaletteFxColours.WideZebesExplosionForeground] = (1, GroupColours),
-        [PaletteFxColours.WideZebesExplosionBackground] = (GroupColours + 1, 2 * GroupColours),
-        [PaletteFxColours.ZebesExplosionFinale] = (1, GroupColours),
-        [PaletteFxColours.SpaceDuringZebesExplosion] = (0, GroupColours),
-        [PaletteFxColours.ExplodingZebesLava] = (4 * GroupColours, 5 * GroupColours),
-        [PaletteFxColours.ExplodingZebesCrust] = (4 * GroupColours + 1, 5 * GroupColours),
-        [PaletteFxColours.ExplodingZebesGreyClouds] = (5 * GroupColours + 1, 6 * GroupColours),
-        [PaletteFxColours.GunshipEmergingFromExplosion] = (5 * GroupColours, 6 * GroupColours),
-        [PaletteFxColours.ZebesPlanetAfterglow] = (SpriteFirst + 6 * GroupColours + 1, SpriteFirst + 7 * GroupColours),
-        [PaletteFxColours.ZoomedOutExplodingZebes] = (SpriteFirst + 7 * GroupColours, ScreenColourCount),
-        [PaletteFxColours.GunshipGlow] = (ScreenColourCount - 1, ScreenColourCount),
-        [PaletteFxColours.PostCreditsSuperMetroidIcon] = (SpriteFirst + 7 * GroupColours, ScreenColourCount),
+        [PaletteFxColours.WideZebesExplosionForeground] = new(1, GroupColours),
+        [PaletteFxColours.WideZebesExplosionBackground] = new(GroupColours + 1, 2 * GroupColours),
+        [PaletteFxColours.ZebesExplosionFinale] = new(1, GroupColours),
+        [PaletteFxColours.SpaceDuringZebesExplosion] = new(0, GroupColours),
+        [PaletteFxColours.ExplodingZebesLava] = new(4 * GroupColours, 5 * GroupColours),
+        [PaletteFxColours.ExplodingZebesCrust] = new(4 * GroupColours + 1, 5 * GroupColours),
+        [PaletteFxColours.ExplodingZebesGreyClouds] = new(5 * GroupColours + 1, 6 * GroupColours),
+        [PaletteFxColours.GunshipEmergingFromExplosion] = new(5 * GroupColours, 6 * GroupColours),
+        [PaletteFxColours.ZebesPlanetAfterglow] = new(SpriteFirst + 6 * GroupColours + 1, SpriteFirst + 7 * GroupColours),
+        [PaletteFxColours.ZoomedOutExplodingZebes] = new(SpriteFirst + 7 * GroupColours, ScreenColourCount),
+        [PaletteFxColours.GunshipGlow] = new(ScreenColourCount - 1, ScreenColourCount),
+        [PaletteFxColours.PostCreditsSuperMetroidIcon] = new(SpriteFirst + 7 * GroupColours, ScreenColourCount),
     };
 
     /// <summary>The screen colours <paramref name="load"/> writes.</summary>
@@ -125,7 +128,7 @@ internal static class EndingScreenInks
 
     /// <summary>Where <paramref name="colours"/> writes its first colour, and the colour after the last it may write.</summary>
     /// <exception cref="InvalidDataException">The ending shows a record of a group no ending colour holds.</exception>
-    internal static (int First, int End) PaletteFx(PaletteFxColours colours) => PaletteFxGroups.TryGetValue(colours, out var group)
+    internal static InkRange PaletteFx(PaletteFxColours colours) => PaletteFxGroups.TryGetValue(colours, out var group)
         ? group
         : throw new InvalidDataException($"The ending shows {colours}, which no ending colour holds.");
 

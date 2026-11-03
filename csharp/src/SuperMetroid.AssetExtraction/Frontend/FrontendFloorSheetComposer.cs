@@ -94,10 +94,9 @@ internal static class FrontendFloorSheetComposer
         var shades = new List<SheetShade>();
         foreach (PaletteFxColours light in TitleSheetInks.FloorLights)
         {
-            (int first, int end) = TitleSheetInks.FloorLight(light);
             shades.AddRange(PaletteFxScreenShades.Of(
                 [TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, TitleSequenceDefinitions.ConsolePaletteFx.FastLights],
-                light, first, end, palette));
+                light, TitleSheetInks.FloorLight(light), palette));
         }
         return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(shades) } };
     }

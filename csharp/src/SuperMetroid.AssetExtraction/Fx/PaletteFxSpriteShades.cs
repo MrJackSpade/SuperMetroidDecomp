@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -38,15 +37,12 @@ internal static class PaletteFxSpriteShades
         Ensure.NotNull(colours);
         if (!FirstColours.TryGetValue(group, out int firstColour))
             throw new InvalidDataException($"Palette-FX colours {group} recolour no sprite row.");
-        var shown = new SortedSet<(PaletteFxColours Colours, int Record)>();
-        PaletteFxRoomShades.Collect(RoomPaletteFxSelection.Get(effect).InitialProgram, shown);
         var shades = new List<SheetShade>();
-        foreach ((PaletteFxColours shownGroup, int record) in shown)
+        foreach ((PaletteFxColours shownGroup, PaletteFxFrame record) in PaletteFxRecordShades.ShownBy([effect]))
         {
             if (shownGroup != group)
                 throw new InvalidDataException($"Palette-FX object {effect} shows {shownGroup}, not {group}.");
-            shades.Add(PaletteFxRoomShades.Shade(group, new PaletteFxFrame(record), rowFirstInk + firstColour,
-                rowFirstInk + RowColours, colours));
+            shades.Add(PaletteFxRecordShades.Shade(group, record, new InkRange(rowFirstInk + firstColour, rowFirstInk + RowColours), colours));
         }
         return shades;
     }

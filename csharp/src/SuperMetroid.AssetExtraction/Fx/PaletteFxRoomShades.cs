@@ -1,13 +1,10 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -63,19 +60,18 @@ internal static class PaletteFxRoomShades
     /// The shades of every record of the room's colour groups that <paramref name="rooms"/>' palette effects show, coloured
     /// from <paramref name="colours"/>.
     /// </summary>
-    /// <param name="rooms">The rooms whose pictures are shaded, with the state each loads.</param>
+    /// <param name="rooms">The rooms whose pictures are shaded, each with the state it loads.</param>
     /// <param name="colours">The records' installed colours.</param>
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past its group's colours.</exception>
-    internal static IReadOnlyList<SheetShade> Of(IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> rooms,
-        IPaletteFxColorSource colours)
+    internal static IReadOnlyList<SheetShade> Of(IEnumerable<SelectedRoom> rooms, IPaletteFxColorSource colours)
     {
         Ensure.NotNull(rooms);
         Ensure.NotNull(colours);
         var objects = new HashSet<PaletteFxObject>();
-        foreach ((RoomHeaderDefinition room, RoomStateSettings state) in rooms)
+        foreach (SelectedRoom room in rooms)
         {
             int area = AreaIds.ToIndex(room.AreaIndex);
-            foreach (RoomFxRecordDefinition record in state.Fx?.Records ?? [])
+            foreach (RoomFxRecordDefinition record in room.State.Fx?.Records ?? [])
             {
                 for (int bit = 0; bit < RoomFxEffectSlotSet.Count; bit++)
                 {
@@ -86,11 +82,8 @@ internal static class PaletteFxRoomShades
             if (room.AreaIndex == AreaId.Tourian)
                 objects.UnionWith(StatueGreyOuts);
         }
-        var shown = new SortedSet<(PaletteFxColours Colours, int Record)>();
-        foreach (PaletteFxObject shownObject in objects)
-            Collect(RoomPaletteFxSelection.Get(shownObject).InitialProgram, shown);
-        return [.. shown.Where(entry => FirstInks.ContainsKey(entry.Colours))
-            .Select(entry => Shade(entry.Colours, new PaletteFxFrame(entry.Record), colours))];
+        return [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => FirstInks.ContainsKey(entry.Colours))
+            .Select(entry => Shade(entry.Colours, entry.Record, colours))];
     }
 
     /// <summary>The first ink of a room picture the room's colour group <paramref name="group"/> recolours.</summary>
@@ -103,90 +96,6 @@ internal static class PaletteFxRoomShades
     internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
     {
         int first = FirstInk(group);
-        return Shade(group, record, first, (first / GroupInks + 1) * GroupInks, colours);
+        return PaletteFxRecordShades.Shade(group, record, new InkRange(first, (first / GroupInks + 1) * GroupInks), colours);
     }
-
-    /// <summary>
-    /// The shade of <paramref name="group"/> showing <paramref name="record"/> over the inks from <paramref name="first"/>
-    /// to before <paramref name="end"/>, coloured from <paramref name="colours"/>, skipping the colours its layout skips.
-    /// </summary>
-    /// <exception cref="InvalidDataException">A colour is not installed, or the record writes at or past <paramref name="end"/>.</exception>
-    internal static SheetShade Shade(PaletteFxColours group, PaletteFxFrame record, int first, int end, IPaletteFxColorSource colours)
-    {
-        Ensure.NotNull(colours);
-        int ink = first;
-        var inks = new List<int>();
-        var shades = new List<RgbColor>();
-        int written = 0;
-        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(record))
-        {
-            if (part.Skip)
-            {
-                ink += part.Count;
-                continue;
-            }
-            for (int index = 0; index < part.Count; index++, ink++, written++)
-            {
-                if (ink >= end)
-                    throw new InvalidDataException($"Palette-FX record {record.Record} writes {group} past its colour group.");
-                if (!colours.TryReadColor(new PaletteFxColorKey(record, written), out RgbColor colour))
-                    throw new InvalidDataException($"Palette-FX colour {written} of record {record.Record} has no installed definition.");
-                inks.Add(ink);
-                shades.Add(colour);
-            }
-        }
-        return new SheetShade(PaletteFxShades.Of(group, record), [.. inks], [.. shades]);
-    }
-
-    /// <summary>
-    /// Adds every colour group and record <paramref name="start"/> can show to <paramref name="shown"/>: its steps and those
-    /// of each program it jumps, falls or repeats into, or switches to above the Crateria lightning's height, each under
-    /// the colours its last cue named.
-    /// </summary>
-    internal static void Collect(PaletteFxProgram start, ISet<(PaletteFxColours Colours, int Record)> shown)
-    {
-        var visited = new HashSet<(PaletteFxProgram Program, PaletteFxColours? Colours)>();
-        var pending = new Stack<(PaletteFxProgram Program, PaletteFxColours? Colours)>();
-        pending.Push((start, null));
-        while (pending.Count > 0)
-        {
-            (PaletteFxProgram program, PaletteFxColours? colours) = pending.Pop();
-            if (!visited.Add((program, colours)))
-                continue;
-            foreach (AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue> step in PaletteFxAnimations.Programs.Steps(program))
-            {
-                switch (step)
-                {
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetColours setColours }:
-                        colours = setColours.Target;
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetFrameBehavior behavior }:
-                        if (SwitchedTo(behavior.FrameBehavior) is { } switched)
-                            pending.Push((switched, colours));
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show:
-                        if (colours is { } group)
-                            shown.Add((group, show.Frame.Record));
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.GoToStep goTo:
-                        pending.Push((goTo.Target, colours));
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep fallInto:
-                        pending.Push((fallInto.Target, colours));
-                        break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.RepeatWhileCountingStep repeat:
-                        pending.Push((repeat.Target, colours));
-                        break;
-                }
-            }
-        }
-    }
-
-    /// <summary>The program a frame behaviour switches its object to, or null for one that switches to none.</summary>
-    private static PaletteFxProgram? SwitchedTo(PaletteFxFrameBehavior behavior) => behavior switch
-    {
-        PaletteFxFrameBehavior.SwitchAboveY380 => PaletteFxProgram.Crateria11,
-        PaletteFxFrameBehavior.SwitchAboveY380Second => PaletteFxProgram.CrateriaAboveY380Second,
-        _ => null,
-    };
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -28,10 +29,10 @@ internal static class TitleSheetInks
     internal const int CopyrightRedColour = 10;
 
     /// <summary>The first floor ink each console light recolours, and the ink after the last it may recolour.</summary>
-    private static readonly Dictionary<PaletteFxColours, (int First, int End)> FloorInks = new()
+    private static readonly Dictionary<PaletteFxColours, InkRange> FloorInks = new()
     {
-        [PaletteFxColours.BabyMetroidTubeLight] = (2 * GroupColours + 10, 3 * GroupColours),
-        [PaletteFxColours.TitleScreenDisplays] = (2 * GroupColours + 14, 3 * GroupColours),
+        [PaletteFxColours.BabyMetroidTubeLight] = new(2 * GroupColours + 10, 3 * GroupColours),
+        [PaletteFxColours.TitleScreenDisplays] = new(2 * GroupColours + 14, 3 * GroupColours),
     };
 
     /// <summary>The title's warm paint, whose colour the displays show when dim: the first background set's fourth colour.</summary>
@@ -51,7 +52,7 @@ internal static class TitleSheetInks
 
     /// <summary>The floor inks <paramref name="light"/> recolours: its first, and the one after the last it may.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The floor shows no such light.</exception>
-    internal static (int First, int End) FloorLight(PaletteFxColours light) => FloorInks.TryGetValue(light, out var inks)
+    internal static InkRange FloorLight(PaletteFxColours light) => FloorInks.TryGetValue(light, out var inks)
         ? inks
         : throw new ArgumentOutOfRangeException(nameof(light), light, "The title floor shows no such light.");
 }

@@ -34,13 +34,10 @@ internal static class PaletteFxSamusShades
     internal static IReadOnlyList<SheetShade> Of(IPaletteFxColorSource colours)
     {
         Ensure.NotNull(colours);
-        var shown = new SortedSet<(PaletteFxColours Colours, int Record)>();
-        foreach (PaletteFxProgram program in PaletteFxHeatPrograms.Every)
-            PaletteFxRoomShades.Collect(program, shown);
-        foreach (PaletteFxObject suitObject in SuitObjects)
-            PaletteFxRoomShades.Collect(RoomPaletteFxSelection.Get(suitObject).InitialProgram, shown);
+        PaletteFxShownRecord[] shown = PaletteFxRecordShades.Shown(
+            [.. PaletteFxHeatPrograms.Every, .. SuitObjects.Select(suitObject => RoomPaletteFxSelection.Get(suitObject).InitialProgram)]);
         return [.. shown.Where(entry => FirstSuitColours.ContainsKey(entry.Colours))
-            .Select(entry => PaletteFxRoomShades.Shade(entry.Colours, new PaletteFxFrame(entry.Record),
-                SamusSheetInks.Suit + FirstSuitColours[entry.Colours], SamusSheetInks.Suit + SamusSheetInks.GroupColours, colours))];
+            .Select(entry => PaletteFxRecordShades.Shade(entry.Colours, entry.Record,
+                new InkRange(SamusSheetInks.Suit + FirstSuitColours[entry.Colours], SamusSheetInks.Suit + SamusSheetInks.GroupColours), colours))];
     }
 }

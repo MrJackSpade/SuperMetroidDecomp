@@ -1045,8 +1045,8 @@ internal static class MapPresentationVerification
                 screenFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
                     (colours, record) => { if (colours == animated) shown.Add(record); });
                 AssertTrue(shown.Count == 1, $"{context}: the first screen step shows one record");
-                AssertTrue(!PaletteFxScreenShades.Shade(animated, shown[0], 0, int.MaxValue, original.RoomPaletteFx).Colours
-                    .SequenceEqual(PaletteFxScreenShades.Shade(animated, shown[0], 0, int.MaxValue, edited.RoomPaletteFx).Colours), context);
+                AssertTrue(!PaletteFxRecordShades.Shade(animated, shown[0], new InkRange(0, int.MaxValue), original.RoomPaletteFx).Colours
+                    .SequenceEqual(PaletteFxRecordShades.Shade(animated, shown[0], new InkRange(0, int.MaxValue), edited.RoomPaletteFx).Colours), context);
                 return;
             }
             // A gameplay step shows the record without writing colours (#1512): the import pre-colours its shade from the
@@ -1055,8 +1055,8 @@ internal static class MapPresentationVerification
             paletteFx.SpawnDefinition(definitionPointer, 0);
             paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxFrame record = paletteFx.RecordOf(animated) ?? throw new InvalidOperationException($"{context}: the first step shows no record");
-            AssertTrue(!PaletteFxRoomShades.Shade(animated, record, 0, int.MaxValue, original.RoomPaletteFx).Colours
-                .SequenceEqual(PaletteFxRoomShades.Shade(animated, record, 0, int.MaxValue, edited.RoomPaletteFx).Colours), context);
+            AssertTrue(!PaletteFxRecordShades.Shade(animated, record, new InkRange(0, int.MaxValue), original.RoomPaletteFx).Colours
+                .SequenceEqual(PaletteFxRecordShades.Shade(animated, record, new InkRange(0, int.MaxValue), edited.RoomPaletteFx).Colours), context);
         }
     }
 

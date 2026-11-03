@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -11,13 +12,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 public sealed class MapPaletteCycle
 {
     /// <summary>Frame holds that differ from the stock fifteen/three-tick schedule.</summary>
-    internal readonly Dictionary<int, byte> durationEdits = [];
+    internal readonly Dictionary<int, int> durationEdits = [];
 
     /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
     internal readonly RgbColor[][] colors;
 
     /// <summary>Reverse-traversal colors that differ from their mirrored forward phase, by frame and colour.</summary>
-    internal readonly Dictionary<(int Frame, int Colour), RgbColor> reverseColorEdits = [];
+    internal readonly Dictionary<ColourStep, RgbColor> reverseColorEdits = [];
 
     /// <summary>
     /// The cycle pauses fifteen ticks at the loop origin and advances other
@@ -40,7 +41,7 @@ public sealed class MapPaletteCycle
         for (int frame = phaseCount; frame < FrameCount; frame++)
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
             if (suppliedColors[frame][color] != colors[Phase(frame)][color])
-                reverseColorEdits.Add((frame, color), suppliedColors[frame][color]);
+                reverseColorEdits.Add(new ColourStep(frame, color), suppliedColors[frame][color]);
         Timing = new MapHighlightCycle([.. Enumerable.Range(0, FrameCount).Select(Duration)]);
     }
 
@@ -65,7 +66,7 @@ public sealed class MapPaletteCycle
     public int Duration(int frame)
     {
         CheckFrame(frame);
-        return durationEdits.TryGetValue(frame, out byte edited) ? edited : StockDuration(frame);
+        return durationEdits.TryGetValue(frame, out int edited) ? edited : StockDuration(frame);
     }
 
     /// <summary>
@@ -78,7 +79,7 @@ public sealed class MapPaletteCycle
         CheckFrame(frame);
         var colours = new RgbColor[MapPaletteCycleFormat.ColorCount];
         for (int color = 0; color < colours.Length; color++)
-            colours[color] = reverseColorEdits.TryGetValue((frame, color), out RgbColor edited) ? edited : colors[Phase(frame)][color];
+            colours[color] = reverseColorEdits.TryGetValue(new ColourStep(frame, color), out RgbColor edited) ? edited : colors[Phase(frame)][color];
         return colours;
     }
 }

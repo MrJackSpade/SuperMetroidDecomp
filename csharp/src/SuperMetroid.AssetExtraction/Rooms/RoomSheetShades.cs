@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
@@ -28,7 +27,7 @@ internal static class RoomSheetShades
     internal static IReadOnlyList<SheetShade> Room(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
-        (RoomHeaderDefinition Room, RoomStateSettings State)[] rooms = [.. RoomsOf(tileset)];
+        SelectedRoom[] rooms = [.. RoomsOf(tileset)];
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid)))
         {
@@ -54,8 +53,8 @@ internal static class RoomSheetShades
     }
 
     /// <summary>Whether any of <paramref name="rooms"/> places <paramref name="enemy"/>.</summary>
-    private static bool Places(IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> rooms, EnemyDefinitionId enemy) =>
-        rooms.Any(room => room.State.EnemyPopulation.Records.Span.ToArray().Any(record => record.DefinitionId == enemy));
+    private static bool Places(IEnumerable<SelectedRoom> rooms, EnemyDefinitionId enemy) =>
+        rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy));
 
     /// <summary>
     /// The Ceres elevator room's glow, which its rotating-room door cycles through the first tile group's colours nine to
@@ -93,7 +92,7 @@ internal static class RoomSheetShades
     }
 
     /// <summary>Whether any of <paramref name="rooms"/> places Phantoon, whose death brings the Wrecked Ship's power on over it.</summary>
-    private static bool HoldsPhantoon(IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> rooms) =>
+    private static bool HoldsPhantoon(IEnumerable<SelectedRoom> rooms) =>
         rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.PhantoonBody));
 
     /// <summary>
@@ -117,8 +116,8 @@ internal static class RoomSheetShades
         Ensure.NotNull(background) with { Sheet = ShadedSheets.With(background.Sheet, shades) };
 
     /// <summary>Every retail room state that loads <paramref name="tileset"/>, with its room.</summary>
-    private static IEnumerable<(RoomHeaderDefinition Room, RoomStateSettings State)> RoomsOf(TilesetDefinition tileset) =>
+    private static IEnumerable<SelectedRoom> RoomsOf(TilesetDefinition tileset) =>
         RetailRoomHeaders.All.SelectMany(room => RoomStateLists.GetStates(room)
             .Where(state => RoomTilesets.Get(state.GraphicsSet) == tileset)
-            .Select(state => (room, state)));
+            .Select(state => new SelectedRoom(room, state)));
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -18,23 +19,23 @@ internal static class IntroSheetInks
     internal const int VariantColours = 4;
 
     /// <summary>The first background colour each background group moves, and how many it moves.</summary>
-    private static readonly Dictionary<IntroBackgroundFade, (int First, int Count)> BackgroundGroups = new()
+    private static readonly Dictionary<IntroBackgroundFade, InkRange> BackgroundGroups = new()
     {
-        [IntroBackgroundFade.GameplayBackground] = (0, 20),
-        [IntroBackgroundFade.ClearedBackground] = (0, 16),
-        [IntroBackgroundFade.Environment] = (3 * SetColours, 16),
-        [IntroBackgroundFade.NarrationText] = (SetColours + 4, 3),
-        [IntroBackgroundFade.NarrationBackground] = (7 * SetColours, 16),
-        [IntroBackgroundFade.DiscoveryBackground] = (2 * SetColours, 16),
+        [IntroBackgroundFade.GameplayBackground] = InkRange.Run(0, 20),
+        [IntroBackgroundFade.ClearedBackground] = InkRange.Run(0, 16),
+        [IntroBackgroundFade.Environment] = InkRange.Run(3 * SetColours, 16),
+        [IntroBackgroundFade.NarrationText] = InkRange.Run(SetColours + 4, 3),
+        [IntroBackgroundFade.NarrationBackground] = InkRange.Run(7 * SetColours, 16),
+        [IntroBackgroundFade.DiscoveryBackground] = InkRange.Run(2 * SetColours, 16),
     };
 
     /// <summary>The first sprite colour each sprite group moves, and how many it moves.</summary>
-    private static readonly Dictionary<IntroSpriteFade, (int First, int Count)> SpriteGroups = new()
+    private static readonly Dictionary<IntroSpriteFade, InkRange> SpriteGroups = new()
     {
-        [IntroSpriteFade.Samus] = (6 * SetColours + 9, 6),
-        [IntroSpriteFade.NarrationPortrait] = (4 * SetColours, 32),
-        [IntroSpriteFade.NarrationObjects] = (7 * SetColours, 16),
-        [IntroSpriteFade.DiscoveryScientists] = (6 * SetColours, 9),
+        [IntroSpriteFade.Samus] = InkRange.Run(6 * SetColours + 9, 6),
+        [IntroSpriteFade.NarrationPortrait] = InkRange.Run(4 * SetColours, 32),
+        [IntroSpriteFade.NarrationObjects] = InkRange.Run(7 * SetColours, 16),
+        [IntroSpriteFade.DiscoveryScientists] = InkRange.Run(6 * SetColours, 9),
     };
 
     /// <summary>The sprite set each actor colouring draws in.</summary>
@@ -49,13 +50,13 @@ internal static class IntroSheetInks
     /// <summary>The background colours <paramref name="colours"/> moves.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The group is not one the opening fades.</exception>
     internal static IEnumerable<int> Background(IntroBackgroundFade colours) => BackgroundGroups.TryGetValue(colours, out var group)
-        ? Enumerable.Range(group.First, group.Count)
+        ? group.Inks
         : throw new ArgumentOutOfRangeException(nameof(colours), colours, "Not a faded opening background group.");
 
     /// <summary>The sprite colours <paramref name="colours"/> moves.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The group is not one the opening fades.</exception>
     internal static IEnumerable<int> Sprite(IntroSpriteFade colours) => SpriteGroups.TryGetValue(colours, out var group)
-        ? Enumerable.Range(group.First, group.Count)
+        ? group.Inks
         : throw new ArgumentOutOfRangeException(nameof(colours), colours, "Not a faded opening sprite group.");
 
     /// <summary>The sprite set <paramref name="colouring"/> draws in.</summary>

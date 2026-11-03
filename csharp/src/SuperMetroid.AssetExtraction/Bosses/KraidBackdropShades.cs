@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
@@ -23,7 +24,7 @@ internal static class KraidBackdropShades
     /// <summary>Every backdrop shade of a room whose standard colours are <paramref name="standard"/>, to Kraid's <paramref name="kraid"/>.</summary>
     internal static IReadOnlyList<SheetShade> Of(ReadOnlySpan<RgbColor> standard, KraidColorCatalog kraid)
     {
-        ArgumentNullException.ThrowIfNull(kraid);
+        Ensure.NotNull(kraid);
         var room = new RgbColor[KraidPalettes.BandColors];
         var backdrop = new RgbColor[KraidPalettes.BandColors];
         for (int colour = 0; colour < backdrop.Length; colour++)

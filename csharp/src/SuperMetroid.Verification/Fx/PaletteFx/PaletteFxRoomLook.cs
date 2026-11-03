@@ -52,7 +52,7 @@ internal static class PaletteFxRoomLook
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(group) || fx.RecordOf(group) is not { } record)
                 continue;
             int first = group.CartridgeColour;
-            SheetShade shade = PaletteFxRoomShades.Shade(group, record, first, (first / RowColours + 1) * RowColours, colours);
+            SheetShade shade = PaletteFxRecordShades.Shade(group, record, new InkRange(first, (first / RowColours + 1) * RowColours), colours);
             for (int index = 0; index < shade.Inks.Length; index++)
                 cgram.SetColor(shade.Inks[index], shade.Colours[index]);
         }

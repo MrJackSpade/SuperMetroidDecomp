@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core;
@@ -48,27 +46,22 @@ internal static class ProjectileSheetComposer
     {
         Ensure.NotNull(inputs);
         InstalledProjectilePresentation projectiles = inputs.Projectiles;
-        ScreenPalette cgram;
+        RgbColor[] colours;
         SpriteArtwork basePage;
         SamusBeamCombination beams;
         if (sheet == SpriteSheetId.IntroProjectiles)
         {
             IntroCinematicArtwork intro = inputs.Intro;
-            cgram = new ScreenPalette();
             basePage = IntroObjectPage.Of(intro);
             beams = SamusBeamCombination.Power;
-            // `$8B:A3AC` loads the beam palette, then the intro's whole palette over it.
-            SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), beams, projectiles.BeamTiles.Palettes,
-                inputs.Overreads.ChainsawColours);
-            intro.Palette.LoadTo(cgram);
+            // The intro loads the beam palette, then its whole palette over it.
+            colours = intro.Palette.Colours.Sprites.ToArray();
         }
         else
         {
-            cgram = inputs.RoomLoadColours();
             basePage = inputs.StandardObjects;
             beams = Combination(sheet);
-            SamusProjectileSystem.LoadBeamPalette(SamusColourDefinitions.BeamColourGroup.Store.In(cgram.SpriteSets), beams, projectiles.BeamTiles.Palettes,
-                inputs.Overreads.ChainsawColours);
+            colours = inputs.WithBeams(inputs.RoomLoadSpriteColours(), beams);
         }
         SpriteArtwork page = new ProjectileObjectPages(basePage, projectiles.BeamTiles, projectiles.TrailTiles).For(beams);
 
@@ -83,7 +76,7 @@ internal static class ProjectileSheetComposer
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
         frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, SpritePartFrames.SmallObject(default, 0), page));
-        return new SpriteSheetSources(frames, cgram.SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.GameplaySizes);
+        return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 
     /// <summary>The beam combination whose gameplay sheet <paramref name="sheet"/> is.</summary>

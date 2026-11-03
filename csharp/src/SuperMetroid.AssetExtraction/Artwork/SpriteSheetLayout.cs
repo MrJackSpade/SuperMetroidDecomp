@@ -205,6 +205,18 @@ internal sealed class SpriteSheetLayout
             writer.Write(sources.PartsKeepOwnRows);
             foreach (RgbColor colour in sources.SpriteColours)
                 writer.Write(colour.ToWord());
+            // A sheet's shades are part of what it installs (#1512).
+            IReadOnlyList<SheetShade> shades = sources.Shades ?? [];
+            writer.Write(shades.Count);
+            foreach (SheetShade shade in shades)
+            {
+                writer.Write(shade.Shade.Key);
+                writer.Write(shade.Inks.Length);
+                foreach (int ink in shade.Inks)
+                    writer.Write(ink);
+                foreach (RgbColor colour in shade.Colours)
+                    writer.Write(colour.ToWord());
+            }
             writer.Write(frameCount);
             writer.Write(laid.Length);
             for (int index = 0; index < laid.Length; index++)

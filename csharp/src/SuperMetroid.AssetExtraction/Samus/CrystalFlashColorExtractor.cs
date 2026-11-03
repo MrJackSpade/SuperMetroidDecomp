@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -10,6 +9,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Extracts Crystal Flash display colors; native duration words are not editable.</summary>
 public static class CrystalFlashColorExtractor
 {
+    /// <summary>The bytes of one body record: its colour pointer and its timer word.</summary>
+    private const int BodyRecordBytes = 4;
+
     /// <summary>Exports Crystal Flash's ten body-color selections and six bubble-color selections in native pointer-record order.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for body pointer/timer records at $91:DC00, bubble pointers at $91:DC28, and their bank-$9B color payloads.</param>
     /// <returns>A new UTF-8 JSON buffer with ten ten-color Body rows and six six-color Bubble rows, expressed as RGB5 channels 0..31.</returns>
@@ -24,7 +26,7 @@ public static class CrystalFlashColorExtractor
         {
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
-                frame * SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount);
+                frame * BodyRecordBytes);
             body[frame] = ReadColors(pointer, CrystalFlashColorFormat.BodyColorCount);
         }
         var bubble = new PaletteRgb5[CrystalFlashColorFormat.BubbleFrameCount][];

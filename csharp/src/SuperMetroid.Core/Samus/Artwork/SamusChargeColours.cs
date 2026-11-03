@@ -31,6 +31,9 @@ public sealed class SamusChargeColours
         this.hyperShot = Ensure.NotNull(hyperShot);
     }
 
+    /// <summary>Every palette the installation holds, which the import pre-colours Samus's sheets in (#1512).</summary>
+    public IEnumerable<SamusChargePalette> Palettes => palettes.Keys;
+
     /// <summary>One colour of Samus's suit under a charge palette.</summary>
     /// <param name="palette">The charge palette.</param>
     /// <param name="color">The colour within Samus's suit.</param>

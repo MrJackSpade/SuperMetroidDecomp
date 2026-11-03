@@ -67,6 +67,6 @@ internal static class GrappleSheetComposer
                 }
             }
         }
-        return new SpriteSheetSources(frames, inputs.RoomLoadColours().SpriteSets.All.Colors.ToArray(), ObjectSelectionCodec.GameplaySizes);
+        return new SpriteSheetSources(frames, inputs.RoomLoadSpriteColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 }

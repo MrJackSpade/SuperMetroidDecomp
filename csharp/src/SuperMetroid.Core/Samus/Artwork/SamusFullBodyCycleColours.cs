@@ -25,6 +25,9 @@ public sealed class SamusFullBodyCycleColours
         this.palettes = new(palettes);
     }
 
+    /// <summary>Every palette the installation holds, which the import pre-colours Samus's sheets in (#1512).</summary>
+    public IEnumerable<SamusFullBodyCyclePalette> Palettes => palettes.Keys;
+
     /// <summary>One colour of Samus's suit under a cycle palette.</summary>
     /// <param name="palette">The cycle palette.</param>
     /// <param name="colorIndex">The colour within Samus's suit.</param>

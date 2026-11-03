@@ -902,7 +902,6 @@ internal sealed class RoomLoader
         // effect and animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
-            _colours.BackgroundSets,
             room.State.Fx,
             door,
             _system.RandomNumber,

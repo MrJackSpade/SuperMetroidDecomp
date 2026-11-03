@@ -1,0 +1,59 @@
+using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.World;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
+
+/// <summary>
+/// The HUD's shades for a door's fades (#1512), which the import pre-colours a tileset's layer-3 pictures in: each step of
+/// the fade out to black and of the fade in from it, of every HUD colour the door does not keep lit. A door keeps the
+/// minimap's explored and unexplored colours, the highlighted item's and the minimap's room highlight, and between two
+/// common rooms the HUD's item and minimap backgrounds too, as <c>GameState_A_LoadingNextRoom</c> copies them into its
+/// fade's target.
+/// </summary>
+internal static class DoorFadeHudShades
+{
+    /// <summary>The HUD's inks: its two colour sets of sixteen, as a layer-3 picture inks them.</summary>
+    private const int HudInks = 32;
+
+    /// <summary>The inks every door keeps lit: the minimap's explored and unexplored colours, the highlighted item's and the room highlight.</summary>
+    private static readonly ImmutableArray<int> Kept = [9, 10, 13, 14, 17, 18, 19, 29];
+
+    /// <summary>The inks a door between two common rooms also keeps lit: the HUD's item backgrounds and the minimap's.</summary>
+    private static readonly ImmutableArray<int> KeptBetweenCommonRooms = [20, 21, 22, 23, 28];
+
+    /// <summary>Every door fade shade of the HUD whose standard colours are <paramref name="standard"/>.</summary>
+    /// <param name="standard">The standard colours of a tileset's layer-3 pictures.</param>
+    internal static IReadOnlyList<SheetShade> Of(ReadOnlySpan<RgbColor> standard)
+    {
+        int[] ordinary = Faded(Kept);
+        int[] common = Faded([.. Kept, .. KeptBetweenCommonRooms]);
+        var shades = new List<SheetShade>();
+        for (int steps = 0; steps < DoorTransitionColourDefinitions.HudFadeShades; steps++)
+        {
+            shades.Add(Shade(DoorFadeShades.HudFadingOut(steps), ordinary, standard, steps, GradualFadeDirection.Toward));
+            shades.Add(Shade(DoorFadeShades.HudFadingOutBetweenCommonRooms(steps), common, standard, steps, GradualFadeDirection.Toward));
+            shades.Add(Shade(DoorFadeShades.HudFadingIn(steps), ordinary, standard, steps, GradualFadeDirection.From));
+            shades.Add(Shade(DoorFadeShades.HudFadingInBetweenCommonRooms(steps), common, standard, steps, GradualFadeDirection.From));
+        }
+        return shades;
+    }
+
+    /// <summary>The HUD inks a door fades: all but <paramref name="kept"/>, in rising order.</summary>
+    private static int[] Faded(ImmutableArray<int> kept) => [.. Enumerable.Range(0, HudInks).Except(kept)];
+
+    /// <summary>
+    /// <paramref name="inks"/> after <paramref name="steps"/> steps of a door's fade to or from black, the steps taking the
+    /// shared counter's values from zero as a door's fade does.
+    /// </summary>
+    private static SheetShade Shade(PictureShade shade, int[] inks, ReadOnlySpan<RgbColor> standard, int steps, GradualFadeDirection direction)
+    {
+        var fade = new GradualColourFade(RgbColor.Black, direction, DoorTransitionColourDefinitions.FadeDenominator,
+            [.. Enumerable.Range(0, steps)]);
+        var colours = new RgbColor[inks.Length];
+        for (int index = 0; index < inks.Length; index++)
+            colours[index] = fade.Apply(standard[inks[index]]);
+        return new SheetShade(shade, inks, colours);
+    }
+}

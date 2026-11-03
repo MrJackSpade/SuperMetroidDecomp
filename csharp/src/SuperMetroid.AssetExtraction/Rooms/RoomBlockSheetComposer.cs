@@ -47,7 +47,8 @@ internal static class RoomBlockSheetComposer
                 written.Add(tileset, WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
         }
         return new RoomSheetComposition(sheets, appearances, backgrounds, written,
-            tilesets.ToDictionary(entry => entry.Key, entry => WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value)),
+            tilesets.ToDictionary(entry => entry.Key, entry => RoomSheetShades.With(WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value),
+                RoomSheetShades.Layer3(inputs, entry.Key))),
             tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset)),
             tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
                 entry => RoomFloorSheetComposer.Compose(inputs, entry.Key)));

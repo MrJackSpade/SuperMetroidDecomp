@@ -66,7 +66,6 @@ internal static class RoomFxTextureDriftVerification
     {
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
-            PaletteBlendColors = presentation.RoomFxPaletteBlends,
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
         RoomLayer3FxState state;
@@ -74,7 +73,7 @@ internal static class RoomFxTextureDriftVerification
             YVelocity: default, Timer: 0, Type: type, DefaultLayerBlend: blend, Layer3LayerBlend: blend,
             LiquidOptions: options, PaletteFxSlots: RoomFxEffectSlots.None, AnimatedTileSlots: RoomFxEffectSlots.None,
             PaletteBlend: RoomFxPaletteBlend.None);
-        state = RoomLayer3FxState.ForDefinition(stateSession, new GameplayColours(new SpriteColourSets()), record, checked((ushort)randomNumber));
+        state = RoomLayer3FxState.ForDefinition(stateSession, record, checked((ushort)randomNumber));
         AssertEqual(type, state.Type, $"synthetic {type} record loads");
         return state;
     }

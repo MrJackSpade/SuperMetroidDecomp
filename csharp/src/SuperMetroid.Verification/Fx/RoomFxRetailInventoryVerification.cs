@@ -50,7 +50,6 @@ internal static class RoomFxRetailInventoryVerification
                 SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
         return new()
         {
-            PaletteBlendColors = catalogs.PaletteBlends,
             AnimatedTileArtwork = catalogs.AnimatedTiles,
         };
     }
@@ -271,7 +270,7 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new GameplayColours(new SpriteColourSets());
         SeedVisibleRoomFxPalette(cgram);
         var actualSession = CreateRetailFxSession(bus);
-        var actual = RoomLayer3FxState.ForRoom(actualSession, cgram.BackgroundSets,
+        var actual = RoomLayer3FxState.ForRoom(actualSession,
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
@@ -408,7 +407,7 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new GameplayColours(new SpriteColourSets());
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, room.State.Fx, door: null, randomNumber: 0);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -620,7 +619,7 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new GameplayColours(new SpriteColourSets());
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets,
+        var fx = RoomLayer3FxState.ForRoom(fxSession,
             room.State.Fx,
             door,
             randomNumber: 0,
@@ -811,7 +810,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         var fxSession = CreateRetailFxSession(bus);
         RoomLayer3FxState fx;
-        fx = RoomLayer3FxState.ForRoom(fxSession, new BackgroundColourSets(),
+        fx = RoomLayer3FxState.ForRoom(fxSession,
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
@@ -855,20 +854,20 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new GameplayColours(new SpriteColourSets());
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, visibleRoom.State.Fx, door: null, randomNumber: 0);
+        var fx = RoomLayer3FxState.ForRoom(fxSession, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, fx: null, door: null, randomNumber: 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, fx: null, door: null, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx = RoomLayer3FxState.ForRoom(fxSession, cgram.BackgroundSets, hiddenRoom.State.Fx, door: null, randomNumber: 0);
+        fx = RoomLayer3FxState.ForRoom(fxSession, hiddenRoom.State.Fx, door: null, randomNumber: 0);
         ushort[] hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
         fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });

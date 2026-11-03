@@ -34,7 +34,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceLiquidMotion(system, true);
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx = RoomLayer3FxState.ForRoom(session, cgram.BackgroundSets, null, null, 0);
+        fx = RoomLayer3FxState.ForRoom(session, null, null, 0);
         system.SetRandomNumber(0x1234);
         fx.AdvanceLiquidMotion(system, false);
         fx.AdvanceLiquidMotion(system, false);

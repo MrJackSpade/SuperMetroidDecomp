@@ -69,7 +69,6 @@ internal sealed class RuntimeArtwork
             field = value;
             _hud.BindPresentation(value?.GameplayHud, _player.Samus);
             _roomFx.AnimatedTileArtwork = value?.RoomFxAnimatedTiles;
-            _roomFx.PaletteBlendColors = value?.RoomFxPaletteBlends;
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             _bossArtwork.MotherBrainHealthColors = value?.MotherBrainHealthPalette;

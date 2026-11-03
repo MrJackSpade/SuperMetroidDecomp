@@ -43,17 +43,13 @@ public sealed class RoomFxBlendInks
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
     public RgbColor CeresHazeRed { get; }
 
-    /// <summary>Applies the three-color write, or clears only color 27 for selection zero.</summary>
-    public void Apply(BackgroundColourSets colours, RoomFxPaletteBlend selection)
-    {
-        Ensure.NotNull(colours);
-        if (selection == RoomFxPaletteBlend.None)
-        {
-            RoomFxColourDefinitions.Layer3Empty.In(colours).Fill(RgbColor.Black);
-            return;
-        }
-        SelectColors(selection).Apply(RoomFxColourDefinitions.Layer3Blend.In(colours));
-    }
+    /// <summary>
+    /// The colours <paramref name="selection"/> loads for layer 3's three blend inks, in order (#1512): the import
+    /// pre-colours the layer-3 pictures in each selection's. The empty selection loads only the third, black.
+    /// </summary>
+    internal IReadOnlyList<RgbColor> Inks(RoomFxPaletteBlend selection) => selection == RoomFxPaletteBlend.None
+        ? [RgbColor.Black]
+        : SelectColors(selection).Colours();
 
     /// <summary>Resolves one authored blend selector to its installed three-color record.</summary>
     internal RoomFxBlendColors SelectColors(RoomFxPaletteBlend selection) => selection switch

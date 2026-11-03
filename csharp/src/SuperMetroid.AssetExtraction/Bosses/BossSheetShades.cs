@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -40,7 +41,7 @@ internal static class BossSheetShades
     /// <exception cref="InvalidDataException">
     /// The boss's colours are not installed, or a colour gameplay substitutes is not unique on the body's picture.
     /// </exception>
-    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossSourceArtwork bosses, ReadOnlySpan<byte> paletteIndices,
+    internal static IReadOnlyList<SheetShade> Body(BossBodyOwner owner, BossArtworkCatalog bosses, ReadOnlySpan<byte> paletteIndices,
         ReadOnlySpan<RgbColor> standard)
     {
         Ensure.NotNull(bosses);
@@ -62,7 +63,7 @@ internal static class BossSheetShades
 
     /// <summary>The shades of <paramref name="enemy"/>'s sprite sheet over the row from <paramref name="firstInk"/> it draws in.</summary>
     /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> OwnRow(BossSourceArtwork bosses, EnemyDefinitionId enemy, int firstInk)
+    internal static IReadOnlyList<SheetShade> OwnRow(BossArtworkCatalog bosses, EnemyDefinitionId enemy, int firstInk)
     {
         Ensure.NotNull(bosses);
         if (!KraidParts.Contains(enemy))
@@ -74,7 +75,7 @@ internal static class BossSheetShades
 
     /// <summary>The shades every character-zero spawned-object sheet takes for the objects bosses spawn: Kraid's rocks.</summary>
     /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> SpawnedObjects(BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> SpawnedObjects(BossArtworkCatalog bosses)
     {
         Ensure.NotNull(bosses);
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's rocks are shaded from the installed Kraid colours.");

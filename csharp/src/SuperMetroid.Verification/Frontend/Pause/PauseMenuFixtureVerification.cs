@@ -121,6 +121,6 @@ internal static class PauseMenuFixtureVerification
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
-            InstalledAreaMapPresentation.SamusColoursOf(stock)));
+            InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.HighlightColoursOf(stock)));
     }
 }

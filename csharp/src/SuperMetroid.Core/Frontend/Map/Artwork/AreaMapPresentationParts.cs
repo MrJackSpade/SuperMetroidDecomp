@@ -29,7 +29,7 @@ internal sealed record AreaMapPresentationParts
     public required string ContentIdentity { get; init; }
 
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
-    public required MapPaletteCycle HighlightCycle { get; init; }
+    public required MapHighlightCycle HighlightCycle { get; init; }
 
     /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
     public required MapStaticPalettes Palettes { get; init; }

@@ -17,11 +17,9 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
@@ -45,15 +43,13 @@ internal static class MapPaletteCycleVerification
         var installed = new MapPaletteAnimation();
         installed.Bind(original.HighlightCycle);
         AssertEqual(MapAnimationNativeSources.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
-        var nativeColors = new ScreenPalette();
-        var installedColors = new ScreenPalette();
         int loops = 0;
         for (int tick = 0; tick < 600; tick++)
         {
-            bool looped = native.Step(nativeColors);
+            bool looped = native.Step();
             if (looped) loops++;
-            AssertEqual(looped, installed.Step(installedColors), "imported highlight requests loop sound on native tick");
-            AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)), "all CGRAM colors match throughout imported highlight cycle");
+            AssertEqual(looped, installed.Step(), "imported highlight requests loop sound on native tick");
+            AssertEqual(native.Shading, installed.Shading, "the highlight names the same frame's shade throughout the imported cycle");
         }
         AssertTrue(loops > 5, "highlight parity crosses multiple loop boundaries");
 

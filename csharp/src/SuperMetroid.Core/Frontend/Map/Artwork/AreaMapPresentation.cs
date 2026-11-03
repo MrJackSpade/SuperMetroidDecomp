@@ -74,7 +74,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>The cells the map screens show in place of cells nothing reveals.</summary>
     public AreaMapHiddenCells HiddenCells { get; }
     /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
-    public MapPaletteCycle HighlightCycle { get; }
+    public MapHighlightCycle HighlightCycle { get; }
     /// <summary>Complete static palettes for pause, file-select, and each world-map area, separate from the highlight cycle.</summary>
     public MapStaticPalettes Palettes { get; }
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>

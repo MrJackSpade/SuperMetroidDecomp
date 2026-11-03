@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
@@ -48,13 +47,15 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>ResetPauseMenuAnimations resets palette timing but does not clear the arrow counters.</summary>
     public void ResetPalette() => palette.Reset();
-    /// <summary>Replaces the installed palette colors and durations while retaining the menu-owned cycle state.</summary>
-    internal void BindPalette(SuperMetroid.Core.Frontend.Map.Artwork.MapPaletteCycle? cycle) => palette.Bind(cycle);
+    /// <summary>Replaces the installed highlight timing while retaining the menu-owned cycle state.</summary>
+    internal void BindPalette(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightCycle? cycle) => palette.Bind(cycle);
 
-    /// <summary>Returns the library-three sound request at the palette loop terminator.</summary>
-    /// <param name="colours">The screen's colours, whose map highlight sprite colour set takes the cycle's colours when this menu tick reaches a frame boundary.</param>
+    /// <summary>Advances the highlight cycle; returns the library-three sound request at the palette loop terminator.</summary>
     /// <returns>True when the cycle wraps and the caller should queue MapPaletteLoop; this method does not enqueue audio itself.</returns>
-    public bool StepPalette(ScreenPalette colours) => palette.Step(colours);
+    public bool StepPalette() => palette.Step();
+
+    /// <summary>The shading the file-select map's highlighted sprites show at the highlight cycle's current frame (#1512).</summary>
+    public PictureShading HighlightShading => palette.Shading;
 
     /// <summary>Arrows advance only when their boundary test allows them to be drawn.</summary>
     /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>
@@ -70,19 +71,20 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    /// <summary>Appends currently visible arrow compositions to the sprite list using sprite palette three, without advancing counters or changing scroll availability.</summary>
+    /// <summary>Appends currently visible arrow compositions to the sprite list in the map highlight shade, without advancing counters or changing scroll availability.</summary>
     /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
+    /// <param name="highlight">The shading of the highlight cycle's current frame on the screen that draws the arrows (#1512).</param>
     /// <param name="sheet">Required installed map sprite sheet; no fallback artwork is used when absent.</param>
     /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor with unsigned 16-bit wrapping; pause-map rendering supplies its header offset here.</param>
     /// <exception cref="InvalidOperationException">Installed sprite definitions are absent, including when the optional argument is omitted.</exception>
-    public void DrawArrows(ScreenSprites entries, SpriteSheet? sheet = null, int verticalOffset = 0)
+    public void DrawArrows(ScreenSprites entries, PictureShading highlight, SpriteSheet? sheet = null, int verticalOffset = 0)
     {
         SpriteSheet installed = sheet ?? throw new InvalidOperationException("Map arrows require the installed map sprite sheet.");
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
             MapSpriteSheet.Draw(installed, arrow.Base, entries, arrow.Position + new Offset16<SpritePixels>(0, CoordinateAxis.AsSigned(verticalOffset)),
-                ScreenColourGroup.MapHighlight);
+                highlight);
         }
     }
 

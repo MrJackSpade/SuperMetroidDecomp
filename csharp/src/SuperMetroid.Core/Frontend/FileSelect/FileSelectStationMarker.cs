@@ -71,7 +71,7 @@ public sealed class FileSelectStationMarker
         void Add(MapSpriteId id)
         {
             MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Save marker requires the installed map sprite sheet."),
-                id, entries, origin.ToSpritePosition(), ScreenColourGroup.MapMarkers);
+                id, entries, origin.ToSpritePosition(), MapSpriteScreen.FileSelect, MapSpriteColouring.Markers);
         }
     }
 }

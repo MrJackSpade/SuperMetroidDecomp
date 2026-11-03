@@ -28,7 +28,16 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
         Sprites = Ensure.NotNull(sources.Sprites);
         SamusColours = Ensure.NotNull(sources.SamusColours);
+        HighlightColours = Ensure.NotNull(sources.HighlightColours);
     }
+
+    /// <summary>The map highlight cycle with each frame's colours, which only the import reads (#1512).</summary>
+    public MapPaletteCycle HighlightColours { get; }
+
+    /// <summary>The highlight cycle the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static MapPaletteCycle HighlightColoursOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.HighlightColours
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no highlight colours.");
 
     /// <summary>Samus's selected colour tables, which only the import reads to pre-colour her sheets (#1512).</summary>
     public SamusMapColourTables SamusColours { get; }

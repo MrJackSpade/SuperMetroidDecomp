@@ -118,7 +118,7 @@ public sealed class FileSelectAreaMapGraphics
         entries.BeginFrame();
         if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
-        Draw(MapSpriteId.WorldTitle, new(128, 16), ScreenColourGroup.MapLabels);
+        Draw(MapSpriteId.WorldTitle, new(128, 16), MapSpriteColouring.Labels);
         for (int displayArea = 0; displayArea < FileSelectMapDefinitions.AreaCount; displayArea++)
         {
             AreaId area = FileSelectMapAreaOrder.Get(displayArea);
@@ -133,12 +133,12 @@ public sealed class FileSelectAreaMapGraphics
         void DrawArea(AreaId shown, int shownIndex)
         {
             Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shownIndex),
-                shownIndex == SelectedArea ? ScreenColourGroup.MapLabels : ScreenColourGroup.MapDimLabels);
+                shownIndex == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 
-        void Draw(MapSpriteId id, Position16<SpritePixels> origin, ScreenColourGroup colouring)
+        void Draw(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring)
         {
-            MapSpriteSheet.Draw(mapSheet, id, entries, origin, colouring);
+            MapSpriteSheet.Draw(mapSheet, id, entries, origin, MapSpriteScreen.FileSelect, colouring);
         }
     }
 

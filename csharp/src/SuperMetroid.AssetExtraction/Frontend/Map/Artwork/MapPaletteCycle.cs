@@ -1,16 +1,23 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
-/// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
+/// <summary>
+/// The installed map highlight cycle (#1512): each frame's hold and its sixteen colours. Only the import reads the colours,
+/// pre-colouring the map sprite sheet in one highlight shade per frame; gameplay keeps only the holds and the frame count
+/// through <see cref="Timing"/>.
+/// </summary>
 public sealed class MapPaletteCycle
 {
     /// <summary>Frame holds that differ from the stock fifteen/three-tick schedule.</summary>
-    internal readonly Dictionary<int, byte> durationEdits = [];
+    private readonly Dictionary<int, byte> durationEdits = [];
+
     /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
-    internal readonly RgbColor[][] colors;
-    /// <summary>Reverse-traversal colors that differ from their mirrored forward phase.</summary>
-    internal readonly Dictionary<ColourCell, RgbColor> reverseColorEdits = [];
+    private readonly RgbColor[][] colors;
+
+    /// <summary>Reverse-traversal colors that differ from their mirrored forward phase, by frame and colour.</summary>
+    private readonly Dictionary<(int Frame, int Colour), RgbColor> reverseColorEdits = [];
 
     /// <summary>
     /// The cycle pauses fifteen ticks at the loop origin and advances other
@@ -19,6 +26,8 @@ public sealed class MapPaletteCycle
     private static int StockDuration(int frame) => frame == 0 ? 15 : 3;
 
     /// <summary>Retains independent holds and paint edits while deriving the stock fourteen-frame mirror.</summary>
+    /// <param name="durations">The hold of each frame.</param>
+    /// <param name="suppliedColors">The sixteen colours of each frame.</param>
     internal MapPaletteCycle(byte[] durations, RgbColor[][] suppliedColors)
     {
         FrameCount = durations.Length;
@@ -31,11 +40,15 @@ public sealed class MapPaletteCycle
         for (int frame = phaseCount; frame < FrameCount; frame++)
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
             if (suppliedColors[frame][color] != colors[Phase(frame)][color])
-                reverseColorEdits.Add(new ColourCell(frame, color), suppliedColors[frame][color]);
+                reverseColorEdits.Add((frame, color), suppliedColors[frame][color]);
+        Timing = new MapHighlightCycle([.. Enumerable.Range(0, FrameCount).Select(Duration)]);
     }
 
-    /// <summary>Number of selected ordered color frames, one through 255; the animation owner, not this resource, advances and wraps the frame cursor.</summary>
+    /// <summary>Number of selected ordered color frames, one through 255.</summary>
     public int FrameCount { get; }
+
+    /// <summary>The frame count and holds gameplay steps the highlight through (#1512).</summary>
+    public MapHighlightCycle Timing { get; }
 
     /// <summary>Maps a stock reverse frame to its matching forward paint phase.</summary>
     private int Phase(int frame) => FrameCount == 14 ? Math.Min(frame, 14 - frame) : frame;
@@ -47,29 +60,25 @@ public sealed class MapPaletteCycle
     }
 
     /// <summary>Returns the authored hold for one color frame in map-palette animation updates.</summary>
-    /// <param name="frame">Zero-based selected frame index, strictly below <see cref="FrameCount"/>; not automatically wrapped.</param>
     /// <returns>A hold of one through 254 ticks; stock frame zero holds fifteen ticks and other stock frames hold three.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
     public int Duration(int frame)
     {
         CheckFrame(frame);
-        return durationEdits.ContainsKey(frame) ? durationEdits[frame] : StockDuration(frame);
+        return durationEdits.TryGetValue(frame, out byte edited) ? edited : StockDuration(frame);
     }
 
-    /// <summary>Copies the selected frame's sixteen colours over <paramref name="highlightColours"/> without advancing time or requesting audio.</summary>
-    /// <param name="highlightColours">The screen colour set the highlights are coloured by, changed in place.</param>
-    /// <param name="frame">Zero-based frame index, strictly below <see cref="FrameCount"/>.</param>
-    /// <remarks>Writes all sixteen colours including the set's first colour.</remarks>
+    /// <summary>
+    /// The sixteen colours frame <paramref name="frame"/> shows on the map's highlighted sprites, including the first,
+    /// which the import pre-colours the frame's highlight shade from.
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
-    /// <exception cref="ArgumentException"><paramref name="highlightColours"/> does not hold sixteen colours.</exception>
-    public void Apply(ColourRun highlightColours, int frame)
+    public RgbColor[] Colours(int frame)
     {
         CheckFrame(frame);
-        if (highlightColours.Count != MapPaletteCycleFormat.ColorCount)
-            throw new ArgumentException($"A highlight cycle colours {MapPaletteCycleFormat.ColorCount} colours.", nameof(highlightColours));
-        for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
-            highlightColours.Write(color,
-                reverseColorEdits.TryGetValue(new ColourCell(frame, color), out RgbColor edited)
-                    ? edited : colors[Phase(frame)][color]);
+        var colours = new RgbColor[MapPaletteCycleFormat.ColorCount];
+        for (int color = 0; color < colours.Length; color++)
+            colours[color] = reverseColorEdits.TryGetValue((frame, color), out RgbColor edited) ? edited : colors[Phase(frame)][color];
+        return colours;
     }
 }

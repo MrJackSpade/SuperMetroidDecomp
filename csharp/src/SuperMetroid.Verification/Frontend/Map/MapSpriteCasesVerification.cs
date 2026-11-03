@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Map;
@@ -57,7 +56,7 @@ internal static class MapSpriteCasesVerification
                         "horizontal label edits remain positions; other authored edits retain their composition");
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
-                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal"), actual, new(100, 100), ScreenColourGroup.MapHighlight);
+                    MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(role.NativeId, "map spritemap ordinal"), actual, new(100, 100), PictureShading.Shaded(MapSpriteShades.Highlight(0)));
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
                         "every marker part field preserves independently authored edits");
@@ -76,7 +75,7 @@ internal static class MapSpriteCasesVerification
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.NativeId * 2);
                     DrawImportedSpritemap(rom, expected, pointer, new(100, 100), 0x600);
                 }
-                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), actual, new(100, 100), ScreenColourGroup.MapHighlight);
+                MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(edited), MapSpriteOrdinals.Spritemaps.Decode(frame.NativeId, "map spritemap ordinal"), actual, new(100, 100), PictureShading.Shaded(MapSpriteShades.Highlight(0)));
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independently edited map sprite role and all unchanged roles");
@@ -86,9 +85,9 @@ internal static class MapSpriteCasesVerification
         }
         foreach (ushort invalid in new ushort[] { 0, MapSpriteFormat.FrameCount + 1, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
-                ScreenSpritesFixtures.Blank(), new(0, 0), ScreenColourGroup.MapLabels), "undefined map sprite identity fails");
+                ScreenSpritesFixtures.Blank(), new(0, 0), MapSpriteScreen.FileSelect, MapSpriteColouring.Labels), "undefined map sprite identity fails");
         AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), 0, ScreenSpritesFixtures.Blank(),
-            new(0, 0), (ScreenColourGroup)ushort.MaxValue), "undefined identity precedes an undefined colouring");
+            new(0, 0), MapSpriteScreen.FileSelect, (MapSpriteColouring)ushort.MaxValue), "undefined identity precedes an undefined colouring");
         MapSpriteCompositions Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
@@ -108,10 +107,10 @@ internal static class MapSpriteCasesVerification
                 MapSourceDefinitions.Menu.SpritemapPointers + frame.NativeId * 2);
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255, 65535 })
-            foreach (ScreenColourGroup colouring in new[] { ScreenColourGroup.MapLabels, ScreenColourGroup.MapDimLabels, ScreenColourGroup.MapHighlight, ScreenColourGroup.MapDefeatedBossMarker, ScreenColourGroup.MapMarkers })
+            foreach (PictureShading colouring in MapSpriteShadings)
             foreach (int occupied in new[] { 0, 127, 128 })
             {
-                int palette = ScreenColourGroups.SpriteSet(colouring);
+                int palette = MapSpriteSets[colouring];
                 native = new OamBuffer(); native.BeginFrame(); installed.BeginFrame();
                 for (int index = 0; index < occupied; index++)
                 {

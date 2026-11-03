@@ -43,19 +43,19 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                 flag++;
                 if (dead)
                 {
-                    Draw(MapSpriteId.MarkerDefeatedBoss, point, ScreenColourGroup.MapMarkers);
-                    Draw(MapSpriteId.MarkerBoss, point, ScreenColourGroup.MapDefeatedBossMarker);
+                    Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
+                    Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);
                     continue;
                 }
                 if (system.HasAreaMap(area))
                 {
-                    Draw(MapSpriteId.MarkerBoss, point, ScreenColourGroup.MapMarkers);
+                    Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.Markers);
                     continue;
                 }
             }
             flag++;
         }
-        void Draw(MapSpriteId id, Position16<MapPixels> position, ScreenColourGroup colouring) =>
+        void Draw(MapSpriteId id, Position16<MapPixels> position, MapSpriteColouring colouring) =>
             Add(entries, id, position, scroll, colouring);
     }
 
@@ -73,9 +73,9 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                 "Map station icons require installed station layout.");
             foreach (var rule in MapStationDiscoveryRules.Get(area, kind))
                 if (system.IsMapTileExplored(area, rule.Cell))
-                    Draw(id, layout.Get(rule.Id), ScreenColourGroup.MapMarkers);
+                    Draw(id, layout.Get(rule.Id), MapSpriteColouring.Markers);
         }
-        void Draw(MapSpriteId id, Position16<MapPixels> position, ScreenColourGroup colouring) =>
+        void Draw(MapSpriteId id, Position16<MapPixels> position, MapSpriteColouring colouring) =>
             Add(entries, id, position, scroll, colouring);
     }
 
@@ -86,7 +86,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         {
             var point = (landmarks ?? throw new InvalidOperationException(
                 "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
-            Add(entries, MapSpriteId.MarkerGunship, point, scroll, ScreenColourGroup.MapMarkers);
+            Add(entries, MapSpriteId.MarkerGunship, point, scroll, MapSpriteColouring.Markers);
         }
         drawArrows?.Invoke();
         DrawElevatorLabels(entries, scroll);
@@ -101,14 +101,14 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
         foreach (var label in MapLandmarks.Elevators(area))
         {
             Add(entries, MapLandmarks.ElevatorSpritemap(label.Destination),
-                elevatorLayout.Get(label.Id), scroll, ScreenColourGroup.MapLabels);
+                elevatorLayout.Get(label.Id), scroll, MapSpriteColouring.Labels);
         }
     }
     /// <summary>Converts a map-space landmark to screen space and draws it with installed sprite art.</summary>
     private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll,
-        ScreenColourGroup colouring)
+        MapSpriteColouring colouring)
     {
         MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),
-            id, entries, position.ToScreen(scroll).ToSpritePosition(), colouring);
+            id, entries, position.ToScreen(scroll).ToSpritePosition(), MapSpriteScreen.FileSelect, colouring);
     }
 }

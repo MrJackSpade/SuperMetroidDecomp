@@ -142,7 +142,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
-            if (animations.StepPalette(roomGraphics.Palette)) Queue(Library3Sound.PauseBeep);
+            if (animations.StepPalette()) Queue(Library3Sound.PauseBeep);
             marker.Step();
             markerDrawn = true;
         }

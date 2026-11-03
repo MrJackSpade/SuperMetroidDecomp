@@ -91,7 +91,7 @@ public sealed class FileSelectRoomMapGraphics
         icons.DrawBeforeMarker(entries, scroll);
         marker.Draw(entries, scroll, mapSheet);
         icons.DrawAfterMarker(entries, scroll,
-            animations is null ? null : () => animations.DrawArrows(entries, mapSheet));
+            animations is null ? null : () => animations.DrawArrows(entries, animations.HighlightShading, mapSheet));
         entries.FinishFrame();
     }
 

@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
@@ -179,7 +179,7 @@ internal static class FileSelectRoomMapVerification
         using var paletteJson = new MemoryStream();
         MapPaletteCycleFile.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
         paletteJson.Position = 0;
-        animations.BindPalette(MapPaletteCycleFile.Read(paletteJson));
+        animations.BindPalette(MapPaletteCycleFile.Read(paletteJson).Timing);
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
@@ -196,17 +196,14 @@ internal static class FileSelectRoomMapVerification
         {
             return animations.arrows[index].Frame;
         }
-        var cgram = new ScreenPalette();
-        cgram.SetColor(175, new RgbColor(13, 2, 0)); cgram.SetColor(192, new RgbColor(24, 2, 0));
-        AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(116 + color, cgram.Colors[176 + color], "map palette copies frame one including transparent entry");
-        AssertTrue(!animations.StepPalette(cgram), "palette delay does not queue a sound");
-        AssertTrue(animations.StepPalette(cgram), "palette sentinel queues exactly one loop sound");
-        for (int color = 0; color < 16; color++)
-            AssertEqual(100 + color, cgram.Colors[176 + color], "palette sentinel restores frame zero");
-        AssertEqual(77, cgram.Colors[175], "palette update preserves preceding color");
-        AssertEqual(88, cgram.Colors[192], "palette update preserves following color");
+        // The highlighted sprites name the cycle frame's shade, which the import pre-colours from its colours (#1512).
+        AssertTrue(!animations.StepPalette(), "initial map palette tick advances to frame one without loop sound");
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
+            "map highlight shows frame one's shade");
+        AssertTrue(!animations.StepPalette(), "palette delay does not queue a sound");
+        AssertTrue(animations.StepPalette(), "palette sentinel queues exactly one loop sound");
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
+            "palette sentinel returns the highlight to frame zero's shade");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
         {

@@ -1,9 +1,12 @@
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map;
 
-/// <summary>Shared palette animation used by pause and file-select maps.</summary>
+/// <summary>
+/// The map highlight cycle shared by the pause and file-select maps (#1512): its frame and hold, and the shade the
+/// highlighted sprites show at that frame, which the import pre-colours the map sprite sheet in.
+/// </summary>
 public sealed class MapPaletteAnimation
 {
     /// <summary>
@@ -13,22 +16,26 @@ public sealed class MapPaletteAnimation
     internal int Timer { get; set; } = 1;
     /// <summary>Index of the most recently applied map palette frame, below the installed cycle's frame count once stepped.</summary>
     internal int Frame { get; set; }
-    /// <summary>The installed color cycle.</summary>
-    private MapPaletteCycle? content;
+    /// <summary>The installed cycle's timing.</summary>
+    private MapHighlightCycle? content;
 
-    /// <summary>Binds the installed color cycle when the game is bound to its installed content, without resetting the cycle's timer.</summary>
-    public void Bind(MapPaletteCycle? cycle) => content = cycle;
+    /// <summary>Binds the installed cycle's timing when the game is bound to its installed content, without resetting the cycle's timer.</summary>
+    public void Bind(MapHighlightCycle? cycle) => content = cycle;
 
     /// <summary>Restores ResetPauseMenuAnimations' initial frame and one-tick delay.</summary>
     public void Reset() { Timer = 1; Frame = 0; }
 
-    /// <summary>Copies the palette frame; true requests library-three MapPaletteLoop.</summary>
-    public bool Step(ScreenPalette colours)
+    /// <summary>The shading the map's highlighted sprites show at the current frame (#1512).</summary>
+    public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));
+
+    /// <summary>Advances to the next highlight frame when its hold ends; true requests library-three MapPaletteLoop.</summary>
+    /// <exception cref="InvalidOperationException">The installed cycle is not bound.</exception>
+    public bool Step()
     {
         if (Timer == 0) return false;
         Timer--;
         if (Timer != 0) return false;
-        MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
+        MapHighlightCycle cycle = content ?? throw new InvalidOperationException(
             "Map palette animation requires installed palette-cycle assets.");
         // Preserve the game's increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
@@ -36,7 +43,6 @@ public sealed class MapPaletteAnimation
         bool wrapped = next >= cycle.FrameCount;
         Frame = wrapped ? 0 : next;
         Timer = cycle.Duration(Frame);
-        cycle.Apply(Ensure.NotNull(colours).Colours(ScreenColourGroup.MapHighlight), Frame);
         return wrapped;
     }
 }

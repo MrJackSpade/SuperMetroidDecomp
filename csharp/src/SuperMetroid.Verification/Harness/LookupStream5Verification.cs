@@ -678,10 +678,10 @@ internal static class LookupStream5Verification
                     if (x == 0xfffe) continue;
                     if ((bits & 1) != 0)
                     {
-                        Draw(MapSpriteId.MarkerDefeatedBoss, x, y, ScreenColourGroup.MapMarkers);
-                        Draw(MapSpriteId.MarkerBoss, x, y, ScreenColourGroup.MapDefeatedBossMarker);
+                        Draw(MapSpriteId.MarkerDefeatedBoss, x, y, MapSpriteColouring.Markers);
+                        Draw(MapSpriteId.MarkerBoss, x, y, MapSpriteColouring.DefeatedBossMarker);
                     }
-                    else if (downloaded) Draw(MapSpriteId.MarkerBoss, x, y, ScreenColourGroup.MapMarkers);
+                    else if (downloaded) Draw(MapSpriteId.MarkerBoss, x, y, MapSpriteColouring.Markers);
                 }
             if (area != AreaId.Ceres)
             {
@@ -689,20 +689,20 @@ internal static class LookupStream5Verification
                 if (area == AreaId.Crateria)
                 {
                     int ship = Root((int)FrontendSourceDefinitions.SavePointMapPointers, area);
-                    Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), ScreenColourGroup.MapMarkers);
+                    Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), MapSpriteColouring.Markers);
                 }
                 if (downloaded)
                 {
                     pointer = Root(MapSourceDefinitions.Landmarks.ElevatorLists, area);
                     for (int i = 0; Read(pointer + i * 6) != ushort.MaxValue; i++)
-                        Draw(MapSpriteOrdinals.Spritemaps.Decode((ushort)Read(pointer + i * 6 + 4), "map spritemap ordinal"), Read(pointer + i * 6), Read(pointer + i * 6 + 2), ScreenColourGroup.MapLabels);
+                        Draw(MapSpriteOrdinals.Spritemaps.Decode((ushort)Read(pointer + i * 6 + 4), "map spritemap ordinal"), Read(pointer + i * 6), Read(pointer + i * 6 + 2), MapSpriteColouring.Labels);
                 }
             }
             actual.FinishFrame(); expected.FinishFrame();
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? BossBits.AreaBoss : BossBits.None, system.GetBossBits(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
-            void Draw(MapSpriteId id, int x, int y, ScreenColourGroup colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), colouring);
+            void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), MapSpriteScreen.FileSelect, colouring);
         }
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Bosses((AreaId)7), "Invalid boss area");
         AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
@@ -1325,24 +1325,25 @@ internal static class LookupStream5Verification
         foreach (int count in new[] { 1, 15, 255 })
             Check(original with { Frames = Enumerable.Range(0, count).Select(i => frames[i % 14]).ToArray() });
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new ScreenPalette().Colours(ScreenColourGroup.MapHighlight), 14), "Highlight upper frame bound");
-        Console.WriteLine("Map highlight: 224 native colors,14 timing/phase records, all independent color/hold edits and custom frame counts pass actual CGRAM application; eight color seed rows remain pending.");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(14), "Highlight upper frame bound");
+        Console.WriteLine("Map highlight: 224 native colors,14 timing/phase records, all independent color/hold edits and custom frame counts resolve to each frame's highlight shade colours; eight color seed rows remain pending.");
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
             byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
             var cycle = MapPaletteCycleFile.Read(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Custom highlight frame count");
-            var cgram = new ScreenPalette();
+            AssertEqual(document.Frames.Length, cycle.Timing.FrameCount, "Custom highlight timing frame count");
             for (int frame = 0; frame < cycle.FrameCount; frame++)
             {
                 AssertEqual((byte)document.Frames[frame].DurationTicks, cycle.Duration(frame), "Independent highlight hold");
-                cycle.Apply(cgram.Colours(ScreenColourGroup.MapHighlight), frame);
+                AssertEqual(cycle.Duration(frame), cycle.Timing.Duration(frame), "Gameplay steps the highlight by the installed hold");
+                // Each frame's colours are the ones the import pre-colours the frame's highlight shade from (#1512).
+                RgbColor[] shown = cycle.Colours(frame);
                 for (int color = 0; color < 16; color++)
                 {
                     var rgb = document.Frames[frame].Colors[color];
-                    AssertEqual((ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10),
-                        cgram.Colours(ScreenColourGroup.MapHighlight)[color], "Independent highlight CGRAM color");
+                    AssertEqual(new RgbColor(rgb.Red, rgb.Green, rgb.Blue), shown[color], "Independent highlight shade colour");
                 }
             }
             return cycle;

@@ -265,7 +265,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         pauseFrameCounterByte = frameCounterByte;
         // Stable pause dispatch calls the palette handler afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
-        if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
+        if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step())
             audio?.QueueSound(Library3Sound.PauseBeep, priority: SoundRequestPriority.Normal);
         if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
@@ -319,7 +319,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(MapSheet);
             if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
-            CurrentMapArrows?.DrawArrows(screen.Objects, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
+            CurrentMapArrows?.DrawArrows(screen.Objects, paletteAnimation.Shading, MapSheet, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase drawing order.
@@ -576,7 +576,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         DrawMenuSpritemap(
             indicator,
             origin,
-            ScreenColourGroup.MapMarkers);
+            MapSpriteColouring.Markers);
     }
 
     /// <summary>Advances the map marker's timer-before-draw frame cadence.</summary>
@@ -645,10 +645,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, ScreenColourGroup colouring) =>
+    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
-        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, colouring);
+        MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);
 
     /// <summary>Uploads the equipment page as its writes have left it: the equipment page shows it from the next capture.</summary>
     private void UploadEquipmentTilemap() => ShownEquipment = Equipment;

@@ -62,7 +62,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             "Botwoon color override survives catalog reload");
 
         var guard = NewBotwoonColorReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
         // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades =
             SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(edited.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);

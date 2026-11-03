@@ -43,7 +43,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var cgram = new SamusColourRig();
         assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState();
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses, AreaArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram)) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];

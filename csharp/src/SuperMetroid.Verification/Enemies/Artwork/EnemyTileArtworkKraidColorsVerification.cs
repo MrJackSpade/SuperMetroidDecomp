@@ -205,7 +205,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         var colours = new RgbColor[SnesCgram.ColorCount];
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;

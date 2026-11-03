@@ -217,7 +217,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         static CreateEnemyResult CreateEnemy(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             SamusColourRig cgram = SeedColors();
             return new CreateEnemyResult(enemy, cgram);
         }
@@ -236,7 +236,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.EnemySession.TileArtwork = artwork.Enemies;
             runtime.BossArtwork.Artwork = artwork.Bosses;
-            runtime.AreaArtwork.Artwork = artwork.Areas;
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

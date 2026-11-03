@@ -220,7 +220,6 @@ internal static class SporeSpawnAnimationsVerification
         InstalledEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
         enemies.TileArtwork = bound.Enemies;
         enemies.BossArtwork = bound.Bosses;
-        enemies.AreaArtwork = bound.Areas;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));

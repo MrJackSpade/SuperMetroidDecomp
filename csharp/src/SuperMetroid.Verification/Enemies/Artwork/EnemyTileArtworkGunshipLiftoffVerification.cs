@@ -53,7 +53,6 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.EnemySession.TileArtwork = stock.Enemies;
         runtime.BossArtwork.Artwork = stock.Bosses;
-        runtime.AreaArtwork.Artwork = stock.Areas;
         SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock);
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
@@ -91,7 +90,6 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         runtime.EnemySession.TileArtwork = edited.Enemies;
         runtime.BossArtwork.Artwork = edited.Bosses;
-        runtime.AreaArtwork.Artwork = edited.Areas;
         byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock), RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
         AssertEqual((byte)(installedPage[pagesByte] ^ 0x80), editedPage[pagesByte],
             "rebound PNG changes the takeoff page shown");
@@ -115,7 +113,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Diagnostics.Recording;
 using SuperMetroid.Desktop.Audio;
@@ -275,9 +276,10 @@ public sealed class PlayableGameControl : UserControl
         if (hostOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
         projectilePresentation = installation.LoadProjectiles();
+        InstalledEnemyArtwork enemyArtwork = installation.LoadEnemyTiles();
         GameArtwork artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
-            projectilePresentation);
+            projectilePresentation, enemyArtwork);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
         content = new InstalledSessionContent(artwork, selectedAudioAssets);
@@ -286,7 +288,7 @@ public sealed class PlayableGameControl : UserControl
             selectedAudioAssets,
             mapPresentation,
             projectilePresentation,
-            InstalledArtworkIdentity.Create(artwork, installation.LoadStandardObjects(), installation.LoadRoomPalettes()));
+            InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects(), installation.LoadRoomPalettes()));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

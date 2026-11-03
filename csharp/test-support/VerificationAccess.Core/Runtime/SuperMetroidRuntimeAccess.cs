@@ -57,7 +57,7 @@ internal static class SuperMetroidRuntimeAccess
             RoomScope scope = self.Room.LoadedScope;
             RoomEnemySystem loaded = scope.Enemies;
             var enemies = new RoomEnemySystem(self.EnemySession, loaded.Room.Definitions, layer(loaded.Room.Services),
-                loaded.BossArtworkBinding, loaded.AreaArtworkBinding);
+                loaded.BossArtworkBinding);
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies });
             enemies.Load(new RoomEnemyLoadRequest(scope.Room.State.EnemyPopulation, scope.Room.State.EnemyGraphicsSet,

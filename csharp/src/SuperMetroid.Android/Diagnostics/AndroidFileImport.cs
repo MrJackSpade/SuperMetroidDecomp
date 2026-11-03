@@ -17,12 +17,13 @@ internal static class AndroidFileImport
         var maps = installation.LoadMaps();
         var projectiles = installation.LoadProjectiles();
         var clips = installation.LoadAudioClips();
-        var artwork = installation.LoadGameArtwork(maps, projectiles);
+        var enemyArtwork = installation.LoadEnemyTiles();
+        var artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
         var contentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
             clips,
             maps,
             projectiles,
-            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork,
+            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork,
                 installation.LoadStandardObjects(), installation.LoadRoomPalettes()));
         var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(artwork, clips);
         return ImportStateCore(

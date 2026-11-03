@@ -57,7 +57,7 @@ internal static class RepositoryInstallation
     /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
     private static readonly Lazy<GameArtwork> artwork =
         new(() => SharedFixtureTiming.Load("Fixture: repository artwork",
-            () => Installation.LoadGameArtwork(Installation.LoadMaps(), Installation.LoadProjectiles())));
+            () => Installation.LoadGameArtwork(Installation.LoadMaps(), Installation.LoadProjectiles(), Installation.LoadEnemyTiles())));
 
     /// <summary>Shares immutable extracted catalogs while each fixture owns its bus and mutable state.</summary>
     internal static GameInstallation Installation => installation.Value;

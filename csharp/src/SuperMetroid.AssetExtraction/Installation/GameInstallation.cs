@@ -408,14 +408,14 @@ public sealed record GameInstallation(string Root)
     public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
 
     /// <summary>
-    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps and projectile
-    /// presentation they already hold for content identity and save persistence.
+    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and
+    /// enemy directory they already hold for content identity and save persistence.
     /// </summary>
-    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles)
+    public GameArtwork LoadGameArtwork(AreaMapPresentation maps, InstalledProjectilePresentation projectiles, InstalledEnemyArtwork enemies)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(projectiles);
-        InstalledEnemyArtwork enemies = LoadEnemyTiles();
+        Ensure.NotNull(enemies);
         return new GameArtwork
         {
             MapPresentation = maps,
@@ -459,7 +459,6 @@ public sealed record GameInstallation(string Root)
 
             EnemyTileArtwork = enemies.Enemies,
             BossArtwork = enemies.Bosses,
-            AreaArtwork = enemies.Areas,
             ChargeFlarePlacement = projectiles.FlarePlacement,
             GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
             GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,

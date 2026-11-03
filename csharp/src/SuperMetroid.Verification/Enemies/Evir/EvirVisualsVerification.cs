@@ -47,7 +47,6 @@ internal static class EvirVisualsVerification
             RoomEnemySystem enemies = NewEvirInstructionSystem();
             enemies.TileArtwork = stock.Enemies;
             enemies.BossArtwork = stock.Bosses;
-            enemies.AreaArtwork = stock.Areas;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameToolingDefinitions.Spritemap),

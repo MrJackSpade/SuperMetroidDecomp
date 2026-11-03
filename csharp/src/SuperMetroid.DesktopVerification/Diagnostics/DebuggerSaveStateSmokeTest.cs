@@ -31,7 +31,7 @@ public static class DebuggerSaveStateSmokeTest
         {
             GameInstallation installation = RepositoryInstallation.Installation;
             var maps = installation.LoadMaps();
-            var content = new InstalledSessionContent(installation.LoadGameArtwork(maps, installation.LoadProjectiles()), installation.LoadAudioClips());
+            var content = new InstalledSessionContent(installation.LoadGameArtwork(maps, installation.LoadProjectiles(), installation.LoadEnemyTiles()), installation.LoadAudioClips());
             var game = GameSessionComposer.Create(new SuperMetroid.Core.Saves.SaveSlotStore(), SuperMetroid.Core.Gameplay.GameplayAssists.None, content, storage: null);
             for (int frame = 0; frame < 90; frame++)
                 game.Step(0);

@@ -672,19 +672,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "vulnerabilities, freeze, damage, and death agree.");
 }
 
-/// <summary>Extracts fixture Ceres-door tiles and colors into an installed Ceres-door visual catalog.</summary>
-[PrivateInstallation("Extracts the Ceres-door tiles and colours with CeresDoorVisualFiles from the seeded TestAddressSpace of the Ceres door fixtures, whose palette words are fixture values distinct from the cartridge's; the installed Ceres-door artwork holds the retail colours, so neither the shared installation nor a copy of it serves these fixtures.")]
-private static SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtwork CreateCeresDoorFixtureVisuals(TestAddressSpace bus)
-{
-    using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");
-    string directory = directoryScratch.Root;
-    SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles.Extract(bus, directory);
-    var visuals = SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles.Load(
-        File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
-        File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
-    return visuals;
-}
-
 /// <summary>
 /// Proves that the stationary Ceres elevator platform is animated by the room's variant-two
 /// door actor, not by either arrival projectile that is deleted when the platform lands.
@@ -714,7 +701,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus) } };
+    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorLight), map.Drawn.Single(),
@@ -766,7 +753,7 @@ internal static void VerifyCeresDoorBossBranch()
         {
             areaBossReads++;
             return areaBossDefeated;
-        } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus) } };
+        } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.FrameHold = WrappingCountdown.Start(1);
@@ -877,7 +864,7 @@ internal static void VerifyCeresRidleyRoomEntry()
                 [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
-            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), AreaArtwork = new AreaSourceArtwork { CeresDoor = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
+            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), 
         BossArtworkBinding =
         {
             // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).

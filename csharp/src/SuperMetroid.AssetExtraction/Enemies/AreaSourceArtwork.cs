@@ -1,17 +1,16 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The areas' installed artwork as the import pipeline holds it (#1463, #1512): the Ceres door's and the Tourian statues'
-/// colours and the Ceres escape's warning-text and door character pages, which the pre-coloured sheets are composed from,
-/// and the identity of the whole selected area presentation.
+/// The areas' installed artwork, which only the import pipeline holds (#1463, #1512): the Ceres door's and the Tourian
+/// statues' colours and the Ceres escape's warning-text and door character pages, which the pre-coloured sheets are
+/// composed from, and the identity of the whole selected area presentation. Gameplay reads none of it.
 /// </summary>
-public sealed record AreaSourceArtwork : AreaArtworkBundle
+public sealed record AreaSourceArtwork
 {
     /// <summary>The Ceres door's characters and colours.</summary>
     public CeresDoorSourceArtwork? CeresDoor { get; init; }

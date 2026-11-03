@@ -9,6 +9,6 @@ internal static class InstalledEnemyArtworkAccess
         /// The selected presentation of the whole enemy directory: an edit to any of its enemy, boss or area artwork
         /// changes it.
         /// </summary>
-        internal string ContentIdentity => InstalledEnemyArtwork.DirectoryIdentity(self.Enemies, self.Bosses, self.Areas);
+        internal string ContentIdentity => self.DirectoryIdentity;
     }
 }

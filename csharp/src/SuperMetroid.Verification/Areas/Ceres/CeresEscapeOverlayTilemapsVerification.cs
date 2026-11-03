@@ -46,7 +46,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installedOverlay = new RecordedBg1Overlay();
         var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
+            services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
 
@@ -105,7 +105,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "edited Ceres title leaves other tilemap bytes unchanged");
         var editedOverlay = new RecordedBg1Overlay();
         var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: editedOverlay.Services()) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+            services: editedOverlay.Services()) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
         editedEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         int titleWord = CeresEscapeOverlayTilemapDefinitions.Emergency.Cell;
         AssertEqual(native[titleWord] ^ 1, editedOverlay.Overlay.WordsIn(edited.Areas.CeresEscapeOverlayTilemaps)[titleWord],

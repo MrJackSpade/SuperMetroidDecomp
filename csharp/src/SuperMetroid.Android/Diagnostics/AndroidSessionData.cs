@@ -59,13 +59,14 @@ internal sealed class AndroidSessionData : IDisposable
         // A caller-provided cartridge has already passed through the importer;
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
-        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles);
+        var enemyArtwork = installation.LoadEnemyTiles();
+        GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         InstalledClipAudioLibrary assets = audioDirectory is null
             ? installation.LoadAudioClips()
             : InstalledAudioClips.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, installation.LoadStandardObjects(), installation.LoadRoomPalettes()));
+            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects(), installation.LoadRoomPalettes()));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

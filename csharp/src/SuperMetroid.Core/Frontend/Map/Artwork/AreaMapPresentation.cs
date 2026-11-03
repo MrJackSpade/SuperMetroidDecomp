@@ -63,9 +63,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
         RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
-        CrystalFlashColors = parts.CrystalFlashColors;
-        CeresRidleyColors = parts.CeresRidleyColors;
-        CeresRidleyFloorColors = parts.CeresRidleyFloorColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
     }
 
@@ -140,13 +137,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
 
-    /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
-    public InstalledCrystalFlashColors CrystalFlashColors { get; }
-
-    /// <summary>Ceres Ridley colors, shared Norfair Ridley health colors, and private Baby drawing colors; Mode 7 zoom shades are supplied separately.</summary>
-    public CeresRidleyColorCatalog CeresRidleyColors { get; }
-    /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
-    public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
 

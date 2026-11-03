@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -32,7 +33,28 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
         Palettes = Ensure.NotNull(sources.Palettes);
         TitlePalette = Ensure.NotNull(sources.TitlePalette);
+        CeresRidleyColors = Ensure.NotNull(sources.CeresRidleyColors);
+        CeresRidleyFloorColors = Ensure.NotNull(sources.CeresRidleyFloorColors);
     }
+
+    /// <summary>
+    /// Ceres Ridley's colours, the shared Norfair Ridley health colours and the Ceres Baby's colours, which only the import
+    /// reads to pre-colour their sheets and Ceres Ridley's room (#1512).
+    /// </summary>
+    public CeresRidleyColorCatalog CeresRidleyColors { get; }
+
+    /// <summary>The Ceres Ridley colours the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static CeresRidleyColorCatalog CeresRidleyColorsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.CeresRidleyColors
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Ceres Ridley colours.");
+
+    /// <summary>Ceres Ridley's Mode 7 floor colours for each getaway zoom step, which only the import reads to pre-colour the floor's shades (#1512).</summary>
+    public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
+
+    /// <summary>The Ceres Ridley floor colours the installed map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static CeresRidleyFloorColorCatalog CeresRidleyFloorColorsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.CeresRidleyFloorColors
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Ceres Ridley floor colours.");
 
     /// <summary>The colours each map and menu screen loads, which only the import reads to pre-colour the screens' sheets (#1512).</summary>
     public MapStaticPalettes Palettes { get; }

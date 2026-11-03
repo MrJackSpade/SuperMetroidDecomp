@@ -46,10 +46,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Samus;
@@ -64,6 +62,9 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>

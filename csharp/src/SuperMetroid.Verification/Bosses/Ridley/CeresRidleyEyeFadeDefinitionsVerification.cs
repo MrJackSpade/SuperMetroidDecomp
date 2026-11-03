@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -8,6 +7,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Checks Ceres Ridley's compiled eye-fade row schedule and body-fade handoff.</summary>
 internal static class CeresRidleyEyeFadeDefinitionsVerification
@@ -42,7 +43,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
-        CeresRidleyColorCatalog colours = RetailPresentationFixture().CeresRidleyColors;
+        CeresRidleyColorCatalog colours = InstalledAreaMapPresentation.CeresRidleyColorsOf(RetailPresentationFixture());
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
         Action<RidleyEnemyState> tick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyEyeFade;

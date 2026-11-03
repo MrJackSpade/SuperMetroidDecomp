@@ -4,8 +4,9 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 

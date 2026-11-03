@@ -54,8 +54,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
@@ -86,6 +84,8 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Verification.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>

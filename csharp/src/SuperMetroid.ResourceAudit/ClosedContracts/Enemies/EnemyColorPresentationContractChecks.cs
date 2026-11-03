@@ -2,10 +2,10 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -20,6 +20,8 @@ internal static class EnemyColorPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
+            using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
             using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Bosses.Botwoon;
             using SuperMetroid.Core.Bosses.Botwoon.Artwork;
@@ -62,7 +64,7 @@ internal static class EnemyColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("EnemyColorProviderFixture", trees,
-            platforms.Append(typeof(BotwoonColorCatalog).Assembly.Location).Distinct()
+            platforms.Append(typeof(SuperMetroid.Core.Assets.RgbColor).Assembly.Location).Append(typeof(BotwoonColorCatalog).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "EnemyColorPresentationContractChecks");

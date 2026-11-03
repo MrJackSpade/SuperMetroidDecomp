@@ -6,13 +6,13 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
@@ -58,11 +58,11 @@ internal static class CrystalFlashColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Crystal Flash color edit changes installed-content identity");
-        AssertTrue(edited.CrystalFlashColors.ResolveBody(0, 1) !=
-            original.CrystalFlashColors.ResolveBody(0, 1),
+        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBody(0, 1) !=
+            InstalledAreaMapPresentation.SamusColoursOf(original).CrystalFlash.ResolveBody(0, 1),
             "body color edit differs from stock");
-        AssertTrue(edited.CrystalFlashColors.ResolveBubble(0, 1) !=
-            original.CrystalFlashColors.ResolveBubble(0, 1),
+        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBubble(0, 1) !=
+            InstalledAreaMapPresentation.SamusColoursOf(original).CrystalFlash.ResolveBubble(0, 1),
             "bubble color edit differs from stock");
 
         SamusState samus = StartCrystalFlash();
@@ -72,7 +72,7 @@ internal static class CrystalFlashColorsVerification
         var cgram = new SamusColourRig();
         var nativeCgram = new SamusColourRig();
         // Crystal Flash names body and bubble shades (#1512); the import resolves them from the edited colours.
-        var editedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = edited.CrystalFlashColors };
+        var editedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash };
         int duration = CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         int calls = CrystalFlashColorFormat.BodyFrameCount * duration;
         for (int call = 0; call < calls; call++)
@@ -96,11 +96,11 @@ internal static class CrystalFlashColorsVerification
             int bodyFrame = call / duration;
             int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                AssertEqual(edited.CrystalFlashColors.ResolveBody(bodyFrame, color),
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBody(bodyFrame, color),
                     cgram.Samus.ShownBeams(editedSources)[color],
                     $"Crystal Flash body call {call}, color {color} reaches CGRAM");
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                AssertEqual(edited.CrystalFlashColors.ResolveBubble(bubbleFrame, color),
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBubble(bubbleFrame, color),
                     cgram.Samus.ShownBeams(editedSources)[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
                     $"Crystal Flash bubble call {call}, color {color} reaches CGRAM");
         }

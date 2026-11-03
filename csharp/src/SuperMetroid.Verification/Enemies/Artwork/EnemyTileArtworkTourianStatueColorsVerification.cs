@@ -10,7 +10,6 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;

@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 

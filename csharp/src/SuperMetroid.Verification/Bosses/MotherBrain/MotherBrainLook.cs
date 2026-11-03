@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -30,7 +30,7 @@ internal static class MotherBrainLook
     /// background colours, then those over her sprites, as the import pre-colours them from <paramref name="maps"/> and
     /// <paramref name="bosses"/>.
     /// </summary>
-    internal static ushort[] Over(MotherBrainEnemyState state, AreaMapPresentation maps, BossArtworkCatalog bosses, ushort[] colours)
+    internal static ushort[] Over(MotherBrainEnemyState state, AreaMapPresentation maps, BossSourceArtwork bosses, ushort[] colours)
     {
         ArgumentNullException.ThrowIfNull(state);
         IReadOnlyList<SheetShade> background = MotherBrainSheetShades.Background(maps, bosses);

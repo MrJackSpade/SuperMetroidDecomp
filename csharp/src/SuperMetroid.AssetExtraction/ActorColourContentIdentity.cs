@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;

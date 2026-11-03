@@ -21,6 +21,7 @@ internal static class CinematicPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
             using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+            using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
             using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Areas.Ceres.Artwork;
             using SuperMetroid.Core.Areas.Escape;

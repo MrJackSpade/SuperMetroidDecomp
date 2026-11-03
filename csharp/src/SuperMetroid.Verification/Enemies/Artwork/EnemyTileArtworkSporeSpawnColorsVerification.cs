@@ -3,9 +3,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Programs;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -19,6 +17,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.AssetExtraction.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
 {

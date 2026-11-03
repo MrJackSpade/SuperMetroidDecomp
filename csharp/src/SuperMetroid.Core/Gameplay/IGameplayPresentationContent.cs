@@ -41,8 +41,4 @@ public interface IGameplayPresentationContent : IAreaMapSource
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     InstalledPowerBombFixedColors PowerBombFixedColors { get; }
 
-
-    /// <summary>Crystal Flash body and bubble colors; timing, frame selection, and completion remain engine-owned.</summary>
-    InstalledCrystalFlashColors CrystalFlashColors { get; }
-
 }

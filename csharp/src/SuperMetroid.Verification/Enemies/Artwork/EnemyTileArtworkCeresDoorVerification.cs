@@ -7,7 +7,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
@@ -16,6 +15,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicPaintDefinitions;
 
@@ -13,8 +14,8 @@ internal static class IntroCinematicPaint
     /// <summary>Selects a font, portrait, sepia scene or fill colour for one colour of an intro background set.</summary>
     internal static RgbColor Background(int set, int ink)
     {
-        Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, set);
-        Ensure.BetweenInclusive(0, ColourSets.SetColours - 1, ink);
+        Ensure.BetweenInclusive(0, ImageColourGroup.Count - 1, set);
+        Ensure.BetweenInclusive(0, ImageColourGroup.Colours - 1, ink);
         if (set == 0) return Font(ink);
         if (ink == 0) return RgbColor.Black;
         return set switch
@@ -31,8 +32,8 @@ internal static class IntroCinematicPaint
     /// <summary>Selects a neutral-cycle, object, crossfade or Mother Brain colour for one colour of an intro sprite set.</summary>
     internal static RgbColor Sprite(int set, int ink)
     {
-        Ensure.BetweenInclusive(0, ColourSets.SetCount - 1, set);
-        Ensure.BetweenInclusive(0, ColourSets.SetColours - 1, ink);
+        Ensure.BetweenInclusive(0, ImageColourGroup.Count - 1, set);
+        Ensure.BetweenInclusive(0, ImageColourGroup.Colours - 1, ink);
         if (ink == 0) return ObjectZero;
         return set switch
         {

@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -83,7 +84,6 @@ internal static class CrocomireRumbleDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { CrocomireColors = colors },
         };
-        var cgram = new SamusColourRig();
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
@@ -145,9 +145,12 @@ internal static class CrocomireRumbleDefinitionsVerification
         AssertEqual((ushort)0x0080, state.DeathPhaseDelay.RawValue,
             "Crocomire rumble production terminator handoff");
 
+        // The termination loads the wall spikes' colours, which the import pre-colours his sprites in (#1512).
+        AssertTrue(state.Colours.ShowsWallSpikes, "Crocomire rumble termination shows the wall spikes' colours");
+        SheetShade spikes = BossSheetShades.OwnRow(new BossSourceArtwork { CrocomireColors = colors }, EnemyDefinitionId.Crocomire, 0)
+            .Single(shade => shade.Shade == CrocomireShades.WallSpikes);
         for (int color = 0; color < CrocomireColorDefinitions.WallSpikesCount; color++)
-            AssertEqual(colors.ResolveWallSpikes(color),
-                cgram.Colors[CrocomireColorDestinations.WallSpikesDestination + color],
+            AssertEqual(colors.ResolveWallSpikes(color), spikes.Colours[color],
                 $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(

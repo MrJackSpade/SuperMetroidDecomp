@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -37,7 +38,8 @@ internal static class FirefleaEyeVerification
         runtime.Enemies.Drawing.DrawLayers(sprites, new(cameraX, cameraY), 0, 7);
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
-        var memory = FramePaintConstants.Capture(runtime.Colours.AsPaletteColors(), sprites);
+        // The colours the frame's pictures show, composed from their published shading and the import's colours (#1512).
+        var memory = FramePaint.FromNative(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), sprites.Draws);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, actualDarkness.Blend.Layers,

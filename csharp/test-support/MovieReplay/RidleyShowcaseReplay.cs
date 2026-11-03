@@ -111,9 +111,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             var words = new List<ushort> { checked((ushort)runtime.System.RandomNumber) };
             // The final scrolling IRQ publishes the visor before the deferred
             // loading owners reach their shared completion boundary. Check it there.
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            RgbColor[] shown = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
+            foreach (int color in GameplayShownColours.Compared)
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
-                    words.Add(runtime.Colours.Colors[color].ToWord());
+                    words.Add(shown[color].ToWord());
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
@@ -449,16 +450,19 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
-            ReadOnlySpan<RgbColor> comparedPalette = runtime.Colours.AsPaletteColors().Colors;
+            // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
+            ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
+            IEnumerable<int> comparedColours = GameplayShownColours.Compared;
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
                 // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
                 PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
                 comparedPalette = PauseShownColours.Of(menu);
+                comparedColours = Enumerable.Range(0, SnesCgram.ColorCount);
             }
             if (!deferLoadingOwners)
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            foreach (int color in comparedColours)
             {
                 ushort nativeColor = (ushort)(W(NativeSnapshotMemory.PaletteBuffer + color * 2) & 0x7fff);
                 if (comparedPalette[color].ToWord() != nativeColor)
@@ -467,7 +471,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (deferLoadingOwners)
             {
                 if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FinishDoorLoading)
-                    Check("Completed-scroll visor", runtime.Colours.Colors[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
+                    Check("Completed-scroll visor", GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)[XrayScopeDefinitionsPaletteConstants.VisorCgramIndex].ToWord(),
                         NativeSnapshotMemory.PaletteBuffer + XrayScopeDefinitionsPaletteConstants.VisorCgramIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
                 if (pendingLoadedOwners is not null && !owners.SequenceEqual(pendingLoadedOwners))

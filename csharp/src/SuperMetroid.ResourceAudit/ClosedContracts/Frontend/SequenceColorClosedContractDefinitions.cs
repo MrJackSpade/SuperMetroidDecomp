@@ -41,7 +41,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/ChozoAndTubeColors.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/ChozoStatueShade.cs")]),
         new("SuperMetroid.Core.Assets.GameplayBasePalette", "gameplay-base-v1-complete-cgram-image",
-            ["LoadInitial", "LoadCommonSprites", "LoadEnemyProjectileSprites"],
+            ["LoadCommonSprites", "LoadEnemyProjectileSprites"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePalette.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusDeathPalettes", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],

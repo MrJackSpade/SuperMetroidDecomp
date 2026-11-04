@@ -393,8 +393,8 @@ internal static class EnemyTileArtworkVerification
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                 "duplicate enemy palette keys fail loudly");
             editedColors[0] = editedColors[0] with { Red = 32 };
-            AssertThrows<InvalidDataException>(() => EnemyPaletteSheetFile.Write(
-                    new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }),
+            AssertThrows<InvalidDataException>(() => EnemyPaletteSheetFile.Read(new MemoryStream(EnemyPaletteSheetFile.Write(
+                    new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }))),
                 "RGB5 palette channel outside native five-bit precision is rejected");
         }
             Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");

@@ -56,7 +56,6 @@ public static class ProjectilePresentationFiles
         File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
             new Manifest(Version, SupportedCartridge.Sha256, Hash(bytes),
                 beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)), Hash(palettes), Hash(hyperBeamFxColors), Hash(trails), Hash(trailTiles), Hash(flarePlacement), Hash(flareCompositions), Hash(grappleTiles), Hash(grappleSprites), Hash(grappleFlare), Hash(grappleSwing), Hash(frameBindings)), Options));
-        _ = Load(directory, null);
     }
 
     /// <summary>Validates stock even when overridden. Invalid overrides never fall back to stock.</summary>

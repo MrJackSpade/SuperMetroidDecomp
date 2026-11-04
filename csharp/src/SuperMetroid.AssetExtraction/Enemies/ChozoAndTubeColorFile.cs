@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -26,9 +27,9 @@ public static class ChozoAndTubeColorFile
             Compile(document.LowerNorfair, "Lower Norfair")));
     }
 
-    /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON, validating version, 32-color dimensions, and RGB5 channel bounds before returning the bytes.</summary>
+    /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(ChozoAndTubeColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

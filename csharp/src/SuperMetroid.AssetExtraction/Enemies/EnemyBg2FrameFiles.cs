@@ -107,8 +107,6 @@ internal static class EnemyBg2FrameFiles
             Version = version,
             Frames = frames,
         }, CamelCaseIndentedJson);
-        _ = EnemyBg2Frames.Load(new MemoryStream(json, writable: false),
-            definitions, version, family);
         return json;
     }
 }

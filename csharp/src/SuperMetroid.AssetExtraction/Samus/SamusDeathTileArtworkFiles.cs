@@ -24,15 +24,14 @@ public static class SamusDeathTileArtworkFiles
         WriteIndented = true,
     };
 
-    /// <summary>Exports the five 32-character death-explosion pages as a 64-by-160 indexed PNG and validates the written stock installation.</summary>
+    /// <summary>Exports the five 32-character death-explosion pages as a 64-by-160 indexed PNG.</summary>
     /// <param name="bus">Cartridge source for the bank-$9B explosion characters, written in the atlas's page order.</param>
     /// <param name="directory">Artwork directory, created if absent; existing PNG and companion manifest are overwritten.</param>
-    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; post-write loading requires the supported cartridge hash.</param>
-    /// <remarks>Pixel indices represent four-bit OBJ pens, not runtime colors. Writes are separate, with no rollback if later file/stock validation fails; animation timing and OAM placement are not exported.</remarks>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim.</param>
+    /// <remarks>Pixel indices represent four-bit OBJ pens, not runtime colors. Writes are separate, with no rollback if a later write fails; animation timing and OAM placement are not exported.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance or generated indexed artwork is incompatible.</exception>
-    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
+    /// <exception cref="IOException">Filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -53,7 +52,6 @@ public static class SamusDeathTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, SamusDeathTileAtlasFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
                 sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(png))), JsonOptions));
-        _ = Load(directory, null);
     }
 
     /// <summary>Checks stock death-explosion provenance, hash, and PNG admission before selecting an optional replacement atlas.</summary>

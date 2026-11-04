@@ -34,12 +34,11 @@ public static class SamusDeathPaletteArtworkFiles
     /// <summary>Exports three ten-row suited families, ten suitless rows, twenty-two whiteout shades, and nine explosion palette selectors from bank $9B.</summary>
     /// <param name="bus">Cartridge source for native death palette pointer tables, sixteen-color payloads, ShadesOfWhite, and odd-byte explosion selectors.</param>
     /// <param name="directory">Artwork directory, created if absent; existing JSON and companion manifest are overwritten.</param>
-    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; the post-write load requires the supported cartridge hash.</param>
-    /// <remarks>Colors remain packed RGB5 words 0..$7FFF including row color zero; suited order is Power, Varia, Gravity. Selectors are editable palette choices, not adjacent timing bytes. Separate writes are not rolled back if post-write validation fails.</remarks>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim.</param>
+    /// <remarks>Colors remain packed RGB5 words 0..$7FFF including row color zero; suited order is Power, Varia, Gravity. Selectors are editable palette choices, not adjacent timing bytes. Separate writes are not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, palette dimensions, RGB5 words, or explosion selector values are invalid.</exception>
-    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
+    /// <exception cref="IOException">Filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -76,7 +75,6 @@ public static class SamusDeathPaletteArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
                 sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))), JsonOptions));
-        _ = Load(directory, null);
     }
 
     /// <summary>Validates stock fatal-damage color/selector artwork before selecting an optional complete JSON replacement.</summary>

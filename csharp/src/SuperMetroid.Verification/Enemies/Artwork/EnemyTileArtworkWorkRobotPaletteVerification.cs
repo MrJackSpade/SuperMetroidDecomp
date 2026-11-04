@@ -72,7 +72,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Work Robot color property fails loudly");
         visual.Frames[2][1] = prior with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => WorkRobotPaletteCycleFile.Write(visual),
+        AssertThrows<InvalidDataException>(() => WorkRobotPaletteCycleFile.Read(new MemoryStream(WorkRobotPaletteCycleFile.Write(visual))),
             "Work Robot RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
 

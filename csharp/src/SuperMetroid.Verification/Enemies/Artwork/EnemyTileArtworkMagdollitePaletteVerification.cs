@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Magdollite color property fails loudly");
         document.Frames[1][0] = original with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Write(document),
+        AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(document))),
             "Magdollite RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
 

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -48,9 +49,9 @@ public static class WorkRobotPaletteCycleFile
         return new WorkRobotPaletteCycle(frames: null);
     }
 
-    /// <summary>Validates and serializes a Work Robot palette-cycle document as UTF-8 JSON.</summary>
+    /// <summary>Serializes a Work Robot palette-cycle document as UTF-8 JSON.</summary>
     /// <param name="document">Document containing all six ordered frames.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(WorkRobotPaletteCycleDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 }

@@ -90,15 +90,11 @@ public static class EnemyAuxiliaryColorFiles
         return new EnemyAuxiliaryColorCatalog(EnemyAuxiliaryColorFrameRecognition.Recognize(result));
     }
 
-    /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities and validates it through <see cref="Read"/> before returning the bytes.</summary>
+    /// <summary>Serializes the auxiliary-color document as indented camel-case UTF-8 JSON with named palette identities.</summary>
     /// <param name="document">Document containing the supported version and every palette family's complete RGB5 rows.</param>
-    /// <returns>Validated auxiliary-color JSON bytes.</returns>
-    public static byte[] Write(EnemyAuxiliaryColorDocument document)
-    {
-        byte[] data = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Read(new MemoryStream(data, writable: false));
-        return data;
-    }
+    /// <returns>Auxiliary-color JSON bytes.</returns>
+    public static byte[] Write(EnemyAuxiliaryColorDocument document) =>
+        JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
 
     /// <summary>Rejects case-insensitive duplicate JSON keys before deserialization can discard an earlier color edit.</summary>
     private static void RejectDuplicates(JsonElement value) =>

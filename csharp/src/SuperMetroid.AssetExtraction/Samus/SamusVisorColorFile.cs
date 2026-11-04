@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -41,10 +42,9 @@ public static class SamusVisorColorFile
         return new(compiled);
     }
 
-    /// <summary>Serializes the editable visor colors to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
+    /// <summary>Serializes the editable visor colors to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">All six RGB5 visor colors to serialize; the array is not retained.</param>
-    /// <returns>Validated JSON bytes for <see cref="FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, color-count, or RGB5-channel validation.</exception>
+    /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
     public static byte[] Write(SamusVisorColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 }

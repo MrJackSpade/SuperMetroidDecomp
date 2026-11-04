@@ -136,10 +136,10 @@ internal static class PowerBombFixedColorsVerification
             "Power Bomb color override reaches the live explosion frame");
         AssertEqual(0, forbidden.ForbiddenReadAttempts,
             "edited Power Bomb color does not read the native table");
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Write(document with
+        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document with
         {
             PreExplosion = [original with { Red = 32 }, .. document.PreExplosion.Skip(1)],
-        }), "out-of-range Power Bomb color fails loudly");
+        }))), "out-of-range Power Bomb color fails loudly");
         File.Delete(path);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,

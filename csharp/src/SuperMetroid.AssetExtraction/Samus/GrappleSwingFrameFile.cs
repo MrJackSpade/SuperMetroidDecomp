@@ -44,13 +44,9 @@ public static class GrappleSwingFrameFile
         return new(document.Frames.ToArray());
     }
 
-    /// <summary>Serializes a swing-frame document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
+    /// <summary>Serializes a swing-frame document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Document containing the supported version and all 256 valid orientation-frame selections.</param>
-    /// <returns>Validated JSON bytes suitable for the swing-frame asset file.</returns>
-    public static byte[] Write(GrappleSwingFrameDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes));
-        return bytes;
-    }
+    /// <returns>JSON bytes suitable for the swing-frame asset file.</returns>
+    public static byte[] Write(GrappleSwingFrameDocument document) =>
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 }

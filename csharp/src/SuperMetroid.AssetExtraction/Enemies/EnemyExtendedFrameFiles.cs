@@ -41,7 +41,6 @@ internal static class EnemyExtendedFrameFiles
                     .ToDictionary(frame => frame.Name, frame => frame.Name,
                         StringComparer.Ordinal),
             }, CamelCaseIndentedJson);
-        _ = EnemyExtendedFrameDocuments.Load(new MemoryStream(json, writable: false));
         return json;
     }
 

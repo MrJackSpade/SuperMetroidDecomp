@@ -138,13 +138,9 @@ public static class EnemyProjectileSpritemapDocuments
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
     }
 
-    /// <summary>Writes camel-case JSON only after round-trip loading validates the current schema and part bounds.</summary>
-    internal static byte[] Write(EnemyProjectileSpritemapDocument document)
-    {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(json, writable: false));
-        return json;
-    }
+    /// <summary>Writes the document as camel-case JSON.</summary>
+    internal static byte[] Write(EnemyProjectileSpritemapDocument document) =>
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Identifies the Alcoon fireball frames the pre-Alcoon legacy schema omitted.</summary>
     private static bool IsAlcoonFireballFrame(EnemyProjectileFrameId frame) =>

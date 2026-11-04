@@ -45,8 +45,8 @@ public static class SamusBodyArtworkFiles
     /// <param name="bus">Non-null cartridge address space supplying native body DMA definitions, pose/frame tables, spritemaps, offsets, and linked artwork.</param>
     /// <param name="directory">Stock output directory, created if needed; body PNGs and body JSON are overwritten, while linked extractors retain their own file-creation policies.</param>
     /// <param name="sourceCartridgeSha256">Source cartridge SHA-256 recorded in body and linked manifests; installed loading requires the supported revision.</param>
-    /// <remarks>Each DMA definition uses a zero-padded 64x16 four-bit character slot. Builds the complete catalog before publishing body JSON to reject invalid visual references; gameplay and animation-delay bytes are not exported.</remarks>
-    /// <exception cref="InvalidDataException">Native DMA bounds, sizes, spritemaps, visual references, or linked artwork fail validation.</exception>
+    /// <remarks>Each DMA definition uses a zero-padded 64x16 four-bit character slot. Gameplay and animation-delay bytes are not exported.</remarks>
+    /// <exception cref="InvalidDataException">Native DMA bounds, sizes, spritemaps, or linked cartridge sources are invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -113,8 +113,6 @@ public static class SamusBodyArtworkFiles
         SamusDeathPaletteArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusDeathTileArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
         SamusArmCannonArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
-        // Constructing the catalog catches missing/invalid references before publication.
-        _ = BuildCatalog(directory, manifest, null);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }

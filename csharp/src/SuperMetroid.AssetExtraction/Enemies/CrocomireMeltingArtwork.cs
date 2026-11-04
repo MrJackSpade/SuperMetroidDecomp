@@ -81,13 +81,11 @@ public sealed class CrocomireMeltingArtwork
             $"Crocomire melt tilemap {illustration} is not installed."),
     };
 
-    /// <summary>Writes a validated, human-editable tile-layout document.</summary>
+    /// <summary>Writes a human-editable tile-layout document.</summary>
     public static void WriteTilemap(Stream json, CrocomireMeltingTilemapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, TilemapJsonOptions);
-        _ = ReadTilemap(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, TilemapJsonOptions));
     }
 
     /// <summary>Validates a 16-by-16 tile-layout document and places each cell's tile.</summary>

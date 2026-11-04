@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -22,9 +23,9 @@ public static class SamusChargeColorFile
             CompileHyper(document.HyperShot));
     }
 
-    /// <summary>Serializes the charge/pseudo-Screw/Hyper-shot colors as indented camel-case UTF-8 JSON, validating schema, array dimensions, and RGB5 channel bounds before returning the bytes.</summary>
+    /// <summary>Serializes the charge/pseudo-Screw/Hyper-shot colors as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(SamusChargeColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Requires three suits and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
     private static RgbColor[][][] CompileCharge(PaletteRgb5[][][]? source, string name)

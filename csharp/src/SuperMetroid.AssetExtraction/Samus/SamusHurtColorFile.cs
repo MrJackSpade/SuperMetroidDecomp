@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -29,12 +30,11 @@ public static class SamusHurtColorFile
         return SamusPaletteRecognition.Hurt(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
     }
 
-    /// <summary>Serializes a palette document as indented, camel-case UTF-8 JSON and validates it through the same loader used for installed content.</summary>
+    /// <summary>Serializes a palette document as indented, camel-case UTF-8 JSON.</summary>
     /// <param name="document">Hurt and cinematic RGB5 artwork to serialize; its arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array suitable for <see cref="FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document is null or fails the supported version, palette length, or RGB5 channel requirements.</exception>
     public static byte[] Write(SamusHurtColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks one complete sixteen-color RGB5 document array and converts it to packed colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

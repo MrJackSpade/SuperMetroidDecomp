@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Chozo/tube color property fails loudly");
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Write(visual),
+        AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(visual))),
             "Chozo/tube RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

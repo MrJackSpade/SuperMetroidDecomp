@@ -32,11 +32,11 @@ public static class EnemyPaletteSheetFile
         return new EnemyPaletteSheet(compiled);
     }
 
-    /// <summary>Serializes a palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Read"/> before returning the bytes.</summary>
+    /// <summary>Serializes a palette document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Version-one document containing sixteen valid RGB5 colors.</param>
-    /// <returns>Validated enemy-palette JSON bytes.</returns>
+    /// <returns>Enemy-palette JSON bytes.</returns>
     public static byte[] Write(EnemyPaletteSheetDocument document) =>
-        JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Requires case-insensitive known property names and writes indented camel-case JSON.</summary>
     private static readonly JsonSerializerOptions Options = new()

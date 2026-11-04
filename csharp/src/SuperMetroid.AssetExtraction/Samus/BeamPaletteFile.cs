@@ -79,11 +79,11 @@ public static class BeamPaletteFile
         return SamusPaletteRecognition.Beams(compiled);
     }
 
-    /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Read"/> before returning the bytes.</summary>
+    /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Document containing the supported version and all twelve sixteen-color RGB5 palettes.</param>
-    /// <returns>Validated JSON bytes suitable for the beam-palette asset file.</returns>
+    /// <returns>JSON bytes suitable for the beam-palette asset file.</returns>
     public static byte[] Write(BeamPaletteDocument document) =>
-        JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Rejects repeated property names before JSON deserialization can overwrite a color selection.</summary>
     private static void RejectDuplicates(JsonElement value) =>

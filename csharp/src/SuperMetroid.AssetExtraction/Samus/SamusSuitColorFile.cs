@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -38,11 +39,11 @@ public static class SamusSuitColorFile
         return differences;
     }
 
-    /// <summary>Validates and serializes a suit-color document as UTF-8 JSON.</summary>
+    /// <summary>Serializes a suit-color document as UTF-8 JSON.</summary>
     /// <param name="document">Document containing all three 16-color palettes.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(SamusSuitColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

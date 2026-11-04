@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -43,12 +44,11 @@ public static class PowerBombFixedColorFile
         return colors;
     }
 
-    /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
+    /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">The two complete RGB5 color sequences to serialize; the writer does not retain their collections.</param>
-    /// <returns>Validated JSON bytes for <see cref="FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, sequence-length, or RGB5-channel validation.</exception>
+    /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
     public static byte[] Write(PowerBombFixedColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks a sequence's length and RGB5 channels before packing its colours.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name)

@@ -49,7 +49,7 @@ internal static class PauseSelectorCompositionsVerification
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);
                     MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new(anchor.X, anchor.Y), SnesObjAttributeWord.Create(0, edited.SpriteSet, 0).PaletteBits);
-                    edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, 0);
+                    edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, 0, PictureShading.Standard);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
                         "all selector part fields remain independently editable");
@@ -85,14 +85,14 @@ internal static class PauseSelectorCompositionsVerification
                 var anchor = edited.Anchor(category, 0);
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 composition.DrawOnScreen(expected, new(anchor.X, anchor.Y), SnesObjAttributeWord.Create(0, edited.SpriteSet, 0).PaletteBits);
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, phase);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, phase, PictureShading.Standard);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independent authored group/phase and cyclic OAM");
                 AssertEqual(source.DurationTicks, edited.Duration(phase), "composition edit leaves phase timing unchanged");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1, PictureShading.Standard), "negative composition phase");
     }
 
     /// <summary>

@@ -126,8 +126,8 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             "duplicate cutscene Baby color property fails loudly");
         visual.Fade[0][5] = visual.Fade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidCutsceneColorFile.Write(visual),
-            "cutscene Baby RGB5 channel outside five-bit precision is rejected");
+            () => BabyMetroidCutsceneColorFile.Read(new MemoryStream(BabyMetroidCutsceneColorFile.Write(visual), writable: false)),
+            "reading cutscene Baby colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

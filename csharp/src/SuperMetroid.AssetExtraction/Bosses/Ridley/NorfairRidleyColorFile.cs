@@ -46,11 +46,11 @@ public static class NorfairRidleyColorFile
             CeresRidleyPaintRecognition.NorfairReveal(reveal)));
     }
 
-    /// <summary>Serializes a color document as indented camel-case UTF-8 JSON and validates the result through <see cref="Read"/> before returning it.</summary>
+    /// <summary>Serializes a color document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Palette document to serialize; it must satisfy the loader's version, dimensions, and RGB5 constraints.</param>
-    /// <returns>Validated JSON bytes suitable for the catalog asset file.</returns>
+    /// <returns>JSON bytes suitable for the catalog asset file.</returns>
     public static byte[] Write(NorfairRidleyColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Validates each RGB5 channel and packs one authored row into SNES color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[] colors, string label)

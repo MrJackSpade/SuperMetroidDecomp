@@ -45,17 +45,15 @@ public static class CeresDestructionActorLayoutFile
         return new CeresDestructionActorPlacements(document.Actors);
     }
 
-    /// <summary>Serializes the selected destruction placements as UTF-8 JSON and validates them through <see cref="Read"/> before writing the destination.</summary>
+    /// <summary>Serializes the selected destruction placements as UTF-8 JSON and writes them to the destination.</summary>
     /// <param name="json">Destination stream, written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Supported-version document containing the three ordered persistent-actor placements.</param>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">The serialized document fails layout validation.</exception>
     public static void Write(Stream json, CeresDestructionActorLayoutDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

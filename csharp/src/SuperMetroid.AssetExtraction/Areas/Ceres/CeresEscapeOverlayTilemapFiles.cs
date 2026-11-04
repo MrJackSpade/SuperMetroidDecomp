@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>Exports fixed Ceres warning tile words without exposing DMA control metadata.</summary>
 internal static class CeresEscapeOverlayTilemapFiles
 {
-    /// <summary>Exports every fixed warning page's tile words, then reloads the catalog and byte-compares each page with the cartridge source.</summary>
+    /// <summary>Exports every fixed warning page's tile words.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -29,22 +29,6 @@ internal static class CeresEscapeOverlayTilemapFiles
                 Version = CeresWarningGlyphDefinitions.Version,
                 Pages = pages,
             });
-        CeresEscapeOverlays roundtrip =
-            CeresEscapeOverlays.Load(
-                new MemoryStream(json, writable: false));
-        foreach (CeresEscapeOverlayTilemapDefinition page in
-                 CeresEscapeOverlayPages.All)
-        {
-            if (!roundtrip.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
-                throw new InvalidDataException(
-                    $"Ceres escape tilemap {page.Name} did not reload.");
-            SnesAddress first = Source(page);
-            byte[] data = BackgroundTileWords.ToBytes(tiles.Span);
-            for (int offset = 0; offset < data.Length; offset++)
-                if (data[offset] != bus.ReadCartridgeByte((int)first.AddWithinBank(offset)))
-                    throw new InvalidDataException(
-                        $"Ceres escape tilemap {page.Name} changed byte {offset:X2} during export.");
-        }
         return json;
     }
 

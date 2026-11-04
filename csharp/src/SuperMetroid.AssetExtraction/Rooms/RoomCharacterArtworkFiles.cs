@@ -22,7 +22,7 @@ public static class RoomCharacterArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost span.</param>
     /// <param name="directory">Output directory, created if needed; every PNG and manifest filename must be new.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with each PNG's hash and native byte count.</param>
-    /// <remarks>Deduplicates shared sources and verifies exact four-bit planar roundtrips. PNG palettes are diagnostic, not runtime colors; player overrides are not accessed.</remarks>
+    /// <remarks>Deduplicates shared sources. PNG palettes are diagnostic, not runtime colors; player overrides are not accessed.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -114,9 +114,6 @@ public static class RoomCharacterArtworkFiles
         return new RoomCharacterAtlases(
             cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
-
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>
     private static Dictionary<string, RoomCharacterSource> ExpectedSources()

@@ -127,9 +127,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
             "malformed Kraid color override fails at load");
         PaletteRgb5[] invalidHealth = (PaletteRgb5[])editedDocument.Health.Clone();
         invalidHealth[0] = invalidHealth[0] with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => KraidColorFile.Write(
-                editedDocument with { Health = invalidHealth }),
-            "Kraid RGB5 channels outside native precision are rejected");
+        AssertThrows<InvalidDataException>(() => KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(
+                editedDocument with { Health = invalidHealth }), writable: false)),
+            "reading Kraid colors rejects RGB5 channels outside native precision");
     }
 
     /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>
@@ -245,6 +245,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
                     KraidShades.Health(band), 0);
                 Lay(colours, BossSheetShades.OwnRow(artwork.Bosses, EnemyDefinitionId.Kraid, KraidPartsRow * 16), KraidShades.Health(band),
                     SpriteImage.SpriteColourCount);
+                // Every body shade draws his eyes in one set of colours, which his eye glow replaces with the band's or the flash's.
+                ReadOnlySpan<RgbColor> glow = state.Colours.EyeGlow.Shown;
+                for (int eye = 0; eye < glow.Length; eye++)
+                    colours[113 + eye] = glow[eye];
                 break;
             }
             case KraidPaletteConsumer.EyeUnglow:

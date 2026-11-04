@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -9,11 +10,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public static class ShitroidShades
 {
     /// <summary>The victim Sidehopper's and the Shitroid's colours the encounter's entry loads.</summary>
-    public static PictureShade Targets { get; } = new("shitroid-targets", 0);
+    public static PictureShade Targets => TourianCorpseShades.ShitroidTargets;
 
     /// <summary>The Shitroid's membrane at pulse phase <paramref name="phase"/>, zero through seven.</summary>
     public static PictureShade Membrane(int phase) => new("shitroid-membrane", phase);
 
     /// <summary>A draw in the colours the encounter's entry loads.</summary>
-    public static PictureShading InTargetColours { get; } = PictureShading.Shaded(Targets);
+    public static PictureShading InTargetColours => TourianCorpseShades.InShitroidTargetColours;
 }

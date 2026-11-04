@@ -39,11 +39,6 @@ public static class RoomPlmMotherBrainGlassVisualFiles
             new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Runs stock glass manifest, integrity, schema, and compiled-appearance checks without overrides, cartridge reads, or file writes.</summary>
-    /// <param name="stockDirectory">Glass family directory containing both required stock files.</param>
-    /// <exception cref="InvalidDataException">The stock installation fails the checks performed by <see cref="Load"/>.</exception>
-    public static void ValidateStock(string stockDirectory) => Load(stockDirectory);
-
     /// <summary>Validates all eleven glass layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing damage thresholds, shards, event timing, terrain blocks, or signed draw offsets.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled glass identity, with the full flattened count of its run cells.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

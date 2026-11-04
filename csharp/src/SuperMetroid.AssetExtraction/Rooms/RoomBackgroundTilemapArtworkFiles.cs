@@ -24,7 +24,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
     /// <param name="directory">Output directory, created if needed; resource and manifest filenames must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 stored with the tilemaps, their one- or two-page lengths, and file hashes.</param>
-    /// <remarks>Preserves ordered 32x32 BG pages with exact native-word roundtrips; does not read or write player overrides.</remarks>
+    /// <remarks>Preserves ordered 32x32 BG pages; does not read or write player overrides.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -108,11 +108,6 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <summary>Each background tilemap's file name before #1414, which carried its cartridge source, and its current name.</summary>
     internal static IReadOnlyDictionary<string, string> LegacyNames() => RoomBackgroundSourceDefinitions.Tilemaps.ToDictionary(
         pair => $"room-background-{pair.Value:X6}.json", pair => FileName(pair.Key));
-
-    /// <summary>Checks the background manifest, hashes, and all stock tilemap documents with overrides disabled.</summary>
-    /// <param name="stockDirectory">Installed background-art directory to validate without cartridge reads or file writes.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, coverage, transfer sizes, hashes, or tilemap content are invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Strict, required-property JSON settings shared by background manifest load and extraction.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

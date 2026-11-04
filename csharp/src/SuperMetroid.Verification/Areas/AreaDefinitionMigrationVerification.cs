@@ -48,8 +48,9 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0xa6f4ee, CeresSourceDefinitions.Door.NormalColors, "door normal colour source");
         AssertEqual(0x10, CeresSourceDefinitions.Door.AnimationRowBytes, "door glow row stride");
         AssertEqual(0xa6f918, CeresSourceDefinitionsDoorConstants.PlatformFrames, "platform strip source");
-        AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Assets.PictureShading.Standard), CeresElevatorArrivalDefinitions.StartingGraphics,
-            "arrival graphics: tile base zero, in the common sprite colours");
+        AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(
+                SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Areas.Ceres.Artwork.CeresElevatorShades.ConcealerCleared)),
+            CeresElevatorArrivalDefinitions.StartingGraphics, "arrival graphics: tile base zero, with the concealer's colour cleared");
 
         // CeresEscapeTileRomData, EscapeTimerTileRomData and the escape text's source.
         AssertEqual(0x0900, CeresEscapeTileArtworkDefinitions.WarningText.ByteCount, "warning text bytes");

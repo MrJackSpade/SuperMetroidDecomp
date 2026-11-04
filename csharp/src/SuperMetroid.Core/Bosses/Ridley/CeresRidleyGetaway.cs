@@ -141,7 +141,7 @@ internal sealed class CeresRidleyGetaway
             WordWrap.Signed(state.FloorOffset.X - frame.Velocity.X),
             WordWrap.Signed(state.FloorOffset.Y + frame.Velocity.Y));
 
-        UpdateCeresRidleyFloorPalette(zoom);
+        UpdateCeresRidleyFloorPalette(state, zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);
         UpdateCeresRidleyFloorMatrix(state);
 
@@ -199,16 +199,16 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
+    /// <param name="state">The getaway's Ridley, whose room colours show the floor.</param>
     /// <param name="zoom">The floor's zoom, 0 through 65535.</param>
-    internal void UpdateCeresRidleyFloorPalette(int zoom)
+    internal static void UpdateCeresRidleyFloorPalette(RidleyEnemyState state, int zoom)
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomStep = UnsignedEightEight.Whole(zoom);
         if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
         {
-            (_ridleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley's getaway floor shows once Ridley is loaded."))
-                .Colours.Room.Lay(RidleyShades.FloorZoom(zoomStep));
+            Ensure.NotNull(state).Colours.Room.Lay(RidleyShades.FloorZoom(zoomStep));
             return;
         }
         throw new InvalidOperationException(

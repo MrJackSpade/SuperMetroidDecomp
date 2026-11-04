@@ -194,7 +194,7 @@ internal static class MotherBrainBodyPresentationVerification
         using var temporary = new TestScratchDirectory("map-catalog");
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         string stockPath = copy.Installation.EnemyTileDirectory, overridePath = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFiles.ValidateStock(stockPath);
+        EnemyTileArtworkFilesConstants.ValidateStock(stockPath);
         InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(stockPath, null);
         AssertEqual(bg2.ContentIdentity, (installed.Bosses.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,
             "manifest loads the exact imported Mother Brain body catalog");
@@ -219,7 +219,7 @@ internal static class MotherBrainBodyPresentationVerification
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockPath, overridePath),
             "malformed Mother Brain override fails at installation loading");
         using (var json = author.Json(document)) File.WriteAllBytes(file, json.ToArray());
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.ValidateStock(stockPath),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFilesConstants.ValidateStock(stockPath),
             "modified Mother Brain stock fails its manifest hash");
         Console.WriteLine("PASS Mother Brain installation: stock hashes, selected overrides/identity and malformed/tampered-data rejection.");
     }

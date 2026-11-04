@@ -30,7 +30,7 @@ internal static class SamusColoursAccess
         internal RgbColor[] ShownInks(SamusShadeSources sources)
         {
             Dictionary<string, SheetShade> shades = shadesBySources.GetValue(sources,
-                key => SamusSheetShades.Of(key).ToDictionary(shade => shade.Shade.Key, StringComparer.Ordinal));
+                key => key.Shades().ToDictionary(shade => shade.Shade.Key, StringComparer.Ordinal));
             var inks = new RgbColor[SheetInks];
             foreach (PictureShade shade in self.Shading.Shades)
             {

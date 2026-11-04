@@ -8,6 +8,9 @@ StructuredBuffer<uint> SpriteDraws : register(t1);
 Texture2D<uint2> Images : register(t4);
 static const uint SpriteRecordWords = 5;
 static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteRecolour = 512;
+// A record flag marking a draw whose colouring's set takes part in colour math, which the cartridge ORs into every
+// part's palette, so each of its pixels blends whatever its ink's own group (#1512).
+static const uint SpriteColourMath = 1024;
 // The inks of one sprite colour group.
 static const uint SpriteGroupInks = 16;
 // The first of a sprite sheet's colour groups whose pixels take part in colour math, as every later group's do (#1514
@@ -52,7 +55,7 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + source, 0));
     uint ink = texel.y & 255;
     uint priority = (texel.y >> 8) & 3;
-    uint blends = (ink / SpriteGroupInks) >= FirstColourMathGroup ? SpriteBlends : 0;
+    uint blends = (ink / SpriteGroupInks) >= FirstColourMathGroup || (flags & SpriteColourMath) != 0 ? SpriteBlends : 0;
     if ((flags & SpriteRecolour) != 0)
     {
         if (ink == 0) discard;

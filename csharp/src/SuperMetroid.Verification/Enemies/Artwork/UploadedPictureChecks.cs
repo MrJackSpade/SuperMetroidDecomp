@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -73,6 +74,11 @@ internal static class UploadedPictureChecks
                     int row = selectedRows.TryGetValue((screenX, screenY), out int placed) ? placed
                         : throw new InvalidOperationException($"{message}: {image} inks screen pixel ({screenX},{screenY}), which its composition leaves blank.");
                     entry = row * 16 + entry % 16;
+                }
+                else if (entry != 0)
+                {
+                    // A sheet's ink is its part's own row and colour; the draw ORs the sheet's palette bits into that row (#1512).
+                    entry = InstalledPictureColoursConstants.CartridgeColourOf(image.Image.Sheet, entry) - GameplayColourPositionDefinitions.SpriteSetsFirst;
                 }
                 if (entry != 0)
                     Ink(actual, screenX, screenY, entry, image.PriorityAt(cell));

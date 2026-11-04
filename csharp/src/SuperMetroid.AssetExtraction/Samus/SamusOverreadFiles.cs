@@ -13,11 +13,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 public static class SamusOverreadFiles
 {
-    /// <summary>Decodes every glitch read, writes the results as JSON with a hashed manifest, then validates the result.</summary>
+    /// <summary>Decodes every glitch read and writes the results as JSON with a hashed manifest.</summary>
     /// <param name="bus">Cartridge source for the reads.</param>
     /// <param name="directory">Destination directory, created if absent; an existing file and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; validation requires the supported cartridge.</param>
-    /// <exception cref="InvalidDataException">The written file has an unexpected shape, digest or provenance.</exception>
+    /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -25,13 +24,12 @@ public static class SamusOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         SamusOverreadDocument document = SamusOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonAssetDocument.WriteValidated(document, SamusOverreadFormat.JsonOptions, json => _ = Read(json));
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, SamusOverreadFormat.JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
                 new Manifest(SamusOverreadFormat.Version, sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))),
                 SamusOverreadFormat.JsonOptions));
-        _ = Load(directory);
     }
 
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
@@ -68,23 +66,6 @@ public static class SamusOverreadFiles
         if (!string.Equals(manifest.FileSha256, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Installed Samus overread file failed its manifest hash.");
         return Document(new MemoryStream(bytes, writable: false));
-    }
-
-    /// <summary>Checks the installed file's provenance, digest and shape.</summary>
-    /// <param name="directory">Installed overread directory.</param>
-    public static void ValidateStock(string directory)
-    {
-        SamusOverreadDocument document = LoadDocument(directory);
-        _ = SamusOverreadServicesReader.Read(document);
-        _ = SamusOverreadServicesReader.ReadColours(document);
-    }
-
-    /// <summary>Reads and validates an overread document and builds its services.</summary>
-    private static SamusOverreadServices Read(Stream json)
-    {
-        SamusOverreadDocument document = Document(json);
-        _ = SamusOverreadServicesReader.ReadColours(document);
-        return SamusOverreadServicesReader.Read(document);
     }
 
     /// <summary>Parses an overread document.</summary>

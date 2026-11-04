@@ -1247,8 +1247,10 @@ internal static class RoomPlmPopulationVerification
                 frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            // The save room's sprite objects compose with the installed enemy compositions.
-            Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ProjectileSpritemaps = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
+            // The save room's sprite objects compose with the installed enemy compositions, and their sheet takes the
+            // n00b tube's crack shade every spawned-object sheet carries (#1512).
+            Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors,
+            ProjectileSpritemaps = EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
                 EnemyProjectileSpritemapDocuments.Write(artworkDocument))) });
 
         RoomEnemyProjectileSlot electricity = enemies.Projectiles.EnemyProjectiles.Single(

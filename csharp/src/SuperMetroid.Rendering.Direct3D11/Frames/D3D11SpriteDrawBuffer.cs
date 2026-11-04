@@ -27,6 +27,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const uint FlipYFlag = 2;
     /// <summary>Flags bit marking a draw whose pixels show its shading's ink colours rather than its image's own.</summary>
     private const uint RecolourFlag = 1 << 9;
+    /// <summary>Flags bit marking a draw whose shading takes part in colour math over every part (#1512).</summary>
+    private const uint ColourMathFlag = 1 << 10;
 
     /// <summary>Device that owns the buffer.</summary>
     private readonly ID3D11Device device;
@@ -114,9 +116,22 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | (colourWords != 0 ? RecolourFlag : 0);
+            | (colourWords != 0 ? RecolourFlag : 0) | (TakesColourMath(draw) ? ColourMathFlag : 0);
         record[3] = place;
         record[4] = (uint)colourWords;
+    }
+
+    /// <summary>Whether a shade of <paramref name="draw"/>'s shading takes part in colour math over the draw's every part.</summary>
+    private static bool TakesColourMath(ImageSpriteDraw draw)
+    {
+        if (draw.Shading is not { } shading)
+            return false;
+        foreach (PictureShade shade in shading.Shades)
+        {
+            if (draw.Image.Sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.TakesColourMath)
+                return true;
+        }
+        return false;
     }
 
     /// <summary><paramref name="draw"/> as an image draw and the shading it names.</summary>

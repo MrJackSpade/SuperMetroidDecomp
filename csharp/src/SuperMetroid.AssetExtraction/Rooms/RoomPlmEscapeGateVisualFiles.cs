@@ -34,10 +34,6 @@ public static class RoomPlmEscapeGateVisualFiles
             new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Checks stock escape-gate provenance, digest, schema, three-frame coverage, and equality with compiled appearances; ignores overrides.</summary>
-    /// <param name="directory">Installed stock escape-gate directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all three escape-gate frames and builds the visuals from the appearances that differ from the compiled frames, without replacing terrain blocks, animation timing, or door handoff.</summary>
     /// <remarks>Even the visually open frame retains compiled solid collision; an artwork override cannot change that behavior.</remarks>
     /// <param name="entries">Exactly one four-block, visual-only entry for each compiled gate frame.</param>

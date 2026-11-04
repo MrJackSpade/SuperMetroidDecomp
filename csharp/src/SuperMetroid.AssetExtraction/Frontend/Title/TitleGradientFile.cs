@@ -116,14 +116,12 @@ public static class TitleGradientFile
         };
     }
 
-    /// <summary>Serializes and validates every gradient variant before writing any UTF-8 JSON bytes.</summary>
+    /// <summary>Serializes every gradient variant as UTF-8 JSON bytes.</summary>
     /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>
     /// <param name="document">Authored gradient whose mutable arrays are read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Read"/>'s schema or stop validation.</exception>
     public static void Write(Stream json, TitleGradientDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

@@ -4,12 +4,10 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -70,10 +68,8 @@ internal static class CeresRidleyMode7ColorsVerification
         runtime.Artwork.MapPresentation = original;
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         var ridley = new RidleyEnemyState();
-        enemies.RidleyEncounter.Ridley = ridley;
-        Action<ushort> select = selectedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(selectedZoom);
+        Action<ushort> select = selectedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorPalette(ridley, selectedZoom);
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {
@@ -99,8 +95,8 @@ internal static class CeresRidleyMode7ColorsVerification
         }
 
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Write(document),
-            "Ceres Mode-7 colors reject invalid RGB5 values");
+        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(document), writable: false)),
+            "reading Ceres Mode-7 colors rejects invalid RGB5 values");
         string replacementStock = Path.Combine(
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "ceres-mode7-reextract");

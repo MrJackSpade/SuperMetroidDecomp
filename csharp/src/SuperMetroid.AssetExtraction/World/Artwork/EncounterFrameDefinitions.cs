@@ -20,6 +20,22 @@ internal static class EncounterFrameDefinitions
         .. RidleySupplementalVisualDefinitions.WingFrames.Select(entry => entry.Value),
     ];
 
+    /// <summary>
+    /// The encounter frames whose draws OR their encounter's palette index into every part: Ridley's tail and wings, drawn
+    /// with the spritemap palette index his initialization stores ($A6:A138, read at $A6:DAEE). The Ceres Baby's draw
+    /// passes none ($A6:BF2C), so its parts show their own rows.
+    /// </summary>
+    internal static IReadOnlySet<EnemyFrameId> DrawnInEncounterRow { get; } = new HashSet<EnemyFrameId>(RidleySupplements);
+
+    /// <summary>
+    /// The encounter frames whose draws OR another enemy's row into every part: the door overlay Ceres Ridley's scene draws
+    /// in the row his room's set loads the Ceres door's colours into ($A6:A314).
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyFrameId, EnemyDefinitionId> DrawnInRowOf { get; } = new Dictionary<EnemyFrameId, EnemyDefinitionId>
+    {
+        [CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame] = EnemyDefinitionId.CeresDoor,
+    };
+
     /// <summary>The frames each enemy's encounter draws itself.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>> ByEnemy { get; } =
         new Dictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>>

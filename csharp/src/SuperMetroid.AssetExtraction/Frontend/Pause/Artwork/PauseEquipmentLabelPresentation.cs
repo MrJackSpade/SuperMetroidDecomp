@@ -163,14 +163,12 @@ public sealed class PauseEquipmentLabelPresentation
         return new(compiled, blankEdits, document.DisabledPalette);
     }
 
-    /// <summary>Serializes the editable label schema to UTF-8 JSON, validates it through <see cref="Load"/>, then writes the validated bytes.</summary>
+    /// <summary>Serializes the editable label schema to UTF-8 JSON and writes the bytes.</summary>
     /// <param name="output">Destination written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Label artwork and placement to serialize; the writer does not retain the document.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails the loader's schema, cell, or placement validation.</exception>
     public static void Write(Stream output, PauseEquipmentLabelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

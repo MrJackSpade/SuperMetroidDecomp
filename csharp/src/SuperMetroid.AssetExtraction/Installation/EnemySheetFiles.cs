@@ -28,7 +28,7 @@ public static class EnemySheetFiles
     /// <summary>The provenance manifest's file name.</summary>
     public const string ProvenanceFileName = "enemy-sheets-provenance.json";
 
-    /// <summary>Composes and writes every enemy sheet and the set manifest; the installer validates them with <see cref="ValidateStock"/>.</summary>
+    /// <summary>Composes and writes every enemy sheet and the set manifest.</summary>
     /// <param name="content">Installed stock content holding the tiles, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
@@ -184,9 +184,6 @@ public static class EnemySheetFiles
         }
         return new Dictionary<string, CharacterRange[][]>(frames, StringComparer.Ordinal);
     }
-
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

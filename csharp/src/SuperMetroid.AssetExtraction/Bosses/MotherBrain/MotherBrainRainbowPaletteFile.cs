@@ -101,13 +101,11 @@ public static class MotherBrainRainbowPaletteFile
         return color.ToRgbColor();
     }
 
-    /// <summary>Serializes UTF-8 palette JSON and validates it without a legacy fallback before writing any bytes; consequently the document must satisfy the complete version-3 schema.</summary>
+    /// <summary>Serializes UTF-8 palette JSON and writes it to the destination.</summary>
     /// <param name="json">Destination written at its current position and left open.</param>
     /// <param name="document">Bounded RGB5 palette and beam-color sequences to serialize.</param>
     public static void Write(Stream json, MotherBrainRainbowPaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
     }
 }

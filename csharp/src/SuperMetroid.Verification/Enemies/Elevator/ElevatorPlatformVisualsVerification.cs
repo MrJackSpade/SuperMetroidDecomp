@@ -88,7 +88,7 @@ internal static class ElevatorPlatformVisualsVerification
             GameInstallation installation = copy.Installation;
             SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
-            RoomPlmElevatorPlatformVisualFiles.ValidateStock(
+            RoomPlmElevatorPlatformVisualFilesConstants.ValidateStock(
                 installation.RoomPlmElevatorPlatformVisualDirectory);
             VerifyElevatorPlatformStockMapping(rom, installation.LoadRoomPlmElevatorPlatformVisuals());
 

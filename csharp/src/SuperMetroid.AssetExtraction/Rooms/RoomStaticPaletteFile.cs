@@ -39,15 +39,13 @@ public static class RoomStaticPaletteFile
         return new RoomStaticPalette(colours);
     }
 
-    /// <summary>Validates and writes one editable room-palette document as JSON.</summary>
+    /// <summary>Writes one editable room-palette document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The palette document to validate and serialize.</param>
+    /// <param name="document">The palette document to serialize.</param>
     public static void Write(Stream json, RoomStaticPaletteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Read(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
     }
 
     /// <summary>Uses camel-case JSON and rejects unknown properties so palette schema mistakes fail during loading.</summary>

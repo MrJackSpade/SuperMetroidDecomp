@@ -71,10 +71,11 @@ internal static class SheetFrameSources
         FrameSource source = Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         TileFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
-        // A frontend draw's drawn shade places the parts that take their draw's palette in the row its colours are the
-        // cartridge's of, and leaves the others (#1512).
+        // A frontend draw's drawn shade stands for the row its colours are the cartridge's of, which the cartridge ORs into
+        // every part's own palette, as it ORs a draw's palette bits (#1512).
         if (source.PartsKeepOwnRows && DrawnShadeRows.RowOf(draw.Shading) is { } shaded)
-            return new CharacterSpriteDraw(draw.Source, source.Frame, characters ?? source.Page, draw.Origin, flip, shaded, 0);
+            return new CharacterSpriteDraw(draw.Source, new SpriteFrame(source.Frame.Name,
+                [.. source.Frame.Parts.Select(part => part with { Palette = (part.Palette ?? 0) | shaded })]), characters ?? source.Page, draw.Origin, flip, shaded, 0);
         // A family's palette bits OR into each part's own row, as the cartridge ORs an enemy's.
         // A shaded draw selects the row of its last selection shade, as a hit or freeze flash does (#1512).
         int bits = draw.Shading is { } shading ? SuperMetroid.Core.Enemies.Drawing.SpriteColouringAccess.RowSelectedBy(shading, source.PaletteBits)

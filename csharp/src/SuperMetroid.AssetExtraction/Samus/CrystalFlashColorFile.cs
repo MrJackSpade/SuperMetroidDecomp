@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -32,12 +33,11 @@ public static class CrystalFlashColorFile
                 CrystalFlashColorFormat.BubbleColorCount, "bubble"));
     }
 
-    /// <summary>Serializes an editable document as indented camel-case UTF-8 JSON and validates the result through <see cref="Read"/> before returning it.</summary>
+    /// <summary>Serializes an editable document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Body and bubble RGB5 frame arrays with the supported schema version.</param>
-    /// <returns>Validated JSON bytes ready to store as the catalog resource.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails catalog validation.</exception>
+    /// <returns>JSON bytes ready to store as the catalog resource.</returns>
     public static byte[] Write(CrystalFlashColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates an authored palette grid's dimensions and RGB5 channels before packing its colors.</summary>
     private static RgbColor[][] Compile(PaletteRgb5[][]? source, int frameCount,

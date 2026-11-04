@@ -22,7 +22,7 @@ public static class RoomMetatileArtworkFiles
     /// <param name="bus">Non-null cartridge import address space containing the compressed visual block-definition tables.</param>
     /// <param name="directory">Output directory, created if needed; resource and manifest filenames must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 stored with each file's hash and native block-table byte count.</param>
-    /// <remarks>Checks exact native-byte roundtrips for four-quadrant visual compositions. Collision and block behavior remain outside these resources.</remarks>
+    /// <remarks>Exports four-quadrant visual compositions. Collision and block behavior remain outside these resources.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -94,12 +94,6 @@ public static class RoomMetatileArtworkFiles
         return new RoomMetatileCatalog(
             cre ?? throw new InvalidDataException("Room metatile manifest has no CRE resource."), selected);
     }
-
-    /// <summary>Validates the complete stock CRE and room metatile resources.</summary>
-    /// <param name="stockDirectory">Directory containing the visual-block manifest and stock JSON resources.</param>
-    /// <remarks>Checks supported cartridge provenance, expected source coverage, file hashes, block counts, and BG-cell fields without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, hashes, or visual composition data are invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory);
 
     /// <summary>Collects the CRE source and each distinct room tileset block-definition source by asset filename.</summary>
     private static Dictionary<string, RoomBlockSource> ExpectedSources()

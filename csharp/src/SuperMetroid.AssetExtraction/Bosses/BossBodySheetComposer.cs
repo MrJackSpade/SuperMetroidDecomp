@@ -43,7 +43,11 @@ internal static class BossBodySheetComposer
     internal static IReadOnlyList<ComposedBossBodySheet> Compose(RoomBlockSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        return [.. Enum.GetValues<BossBodyOwner>().Select(owner => Compose(inputs, owner))];
+        // Each boss's sheet composes on its own (#1530), into its owner's place, so the order stays the owners'.
+        BossBodyOwner[] owners = Enum.GetValues<BossBodyOwner>();
+        var sheets = new ComposedBossBodySheet[owners.Length];
+        Parallel.For(0, owners.Length, index => sheets[index] = Compose(inputs, owners[index]));
+        return sheets;
     }
 
     /// <summary>

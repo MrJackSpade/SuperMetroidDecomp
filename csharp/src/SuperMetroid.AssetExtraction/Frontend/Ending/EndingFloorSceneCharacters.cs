@@ -54,17 +54,15 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
     internal static int[] ReadMapCells(Stream mapJson) =>
         ReadMap(Ensure.NotNull(mapJson)).Tiles.Select(tile => Ensure.BetweenInclusive(0, byte.MaxValue, tile)).ToArray();
 
-    /// <summary>Serializes an ending backdrop map, validating the complete encoded document before writing any bytes to the destination.</summary>
+    /// <summary>Serializes an ending backdrop map to the destination.</summary>
     /// <param name="json">Destination stream for the map JSON.</param>
     /// <param name="document">Version-1, 128x64 map with exactly 8192 eight-bit tile indices.</param>
     /// <exception cref="ArgumentNullException">The destination stream is null.</exception>
-    /// <exception cref="InvalidDataException">The serialized document does not satisfy the ending backdrop map schema.</exception>
     public static void WriteMap(Stream json, EndingFloorMapDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = ReadMap(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 

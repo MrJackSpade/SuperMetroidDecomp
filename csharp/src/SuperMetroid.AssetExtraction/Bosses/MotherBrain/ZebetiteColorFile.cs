@@ -76,11 +76,11 @@ public static class ZebetiteColorFile
         return edits;
     }
 
-    /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON, then validates the result through <see cref="Read"/> before returning it.</summary>
+    /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Document containing the supported version and all eight two-color RGB5 rows.</param>
-    /// <returns>Validated JSON bytes suitable for the barrier-color asset file.</returns>
+    /// <returns>JSON bytes suitable for the barrier-color asset file.</returns>
     public static byte[] Write(ZebetiteColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Rejects repeated property names before deserialization can overwrite an earlier value.</summary>
     private static void RejectDuplicates(JsonElement value) =>

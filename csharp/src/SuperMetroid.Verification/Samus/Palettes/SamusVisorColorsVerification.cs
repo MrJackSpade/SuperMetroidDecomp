@@ -208,10 +208,10 @@ internal static class SamusVisorColorsVerification
         AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).Visor.Resolve(0), xrayColours.ShownVisor(editedSources),
             "edited visor color reaches the X-ray shade");
         AssertEqual(0, guardedXray.ForbiddenReadAttempts, "edited X-ray color avoids native table");
-        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Write(document with
+        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
         {
             Colors = [.. document.Colors.Take(3), original with { Red = 32 }, .. document.Colors.Skip(4)],
-        }), "out-of-range visor color fails loudly");
+        }))), "out-of-range visor color fails loudly");
         File.Delete(path);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,

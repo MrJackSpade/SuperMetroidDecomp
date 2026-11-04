@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades =
             SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(edited.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);
-        Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
+        Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
@@ -103,8 +103,8 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Botwoon color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => BotwoonColorFile.Write(visual),
-            "Botwoon RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(visual), writable: false)),
+            "reading Botwoon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

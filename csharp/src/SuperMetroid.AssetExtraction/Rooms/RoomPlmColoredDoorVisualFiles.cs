@@ -31,10 +31,6 @@ public static class RoomPlmColoredDoorVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmColoredDoorVisuals>(VisualFileName, "Colored-door", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Checks stock colored-door provenance, digest, schema, forty-eight-frame coverage, and equality with compiled appearance; ignores overrides.</summary>
-    /// <param name="directory">Installed stock colored-door directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates complete coverage of the forty-eight colored-door frames and builds the visuals from the appearances that differ from the compiled caps.</summary>
     /// <param name="entries">Exactly one four-block, visual-only entry for each compiled color, orientation, and frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

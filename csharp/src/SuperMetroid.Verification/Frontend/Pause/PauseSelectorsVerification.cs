@@ -139,7 +139,12 @@ internal static class PauseSelectorsVerification
         for (int tick = 0; tick < 40; tick++) empty.Step(0, 0);
         AssertEqual(emptyTiming, empty.ItemSelectorAnimationState, "empty inventory retains native animation gating");
         AssertEqual(0, empty.CaptureRenderSnapshot().Paint.SpriteParts().Length, "custom selector cannot appear without any available equipment");
-        void Reject(PauseSelectorDocument invalid) => AssertThrows<InvalidDataException>(() => PauseSelectorSourcePresentation.Write(new MemoryStream(), invalid), "invalid selector document rejected");
+        void Reject(PauseSelectorDocument invalid) => AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            PauseSelectorSourcePresentation.Write(written, invalid);
+            _ = PauseSelectorSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "invalid selector document rejected on read");
         Reject(document with { Version = 2 }); Reject(document with { InitialDurationTicks = 0 }); Reject(document with { Palette = 8 });
         Reject(document with { Anchors = [] }); Reject(document with { Frames = [] }); Reject(document with { Animation = [] });
         Reject(document with { Anchors = new(document.Anchors) { ["Beam.Charge"] = new(256, 90) } });

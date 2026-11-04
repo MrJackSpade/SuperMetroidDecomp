@@ -67,8 +67,7 @@ internal static class EnemyTileArtworkKraidVerification
         pages[0] = pages[0] with { Cells = cells };
         string overridePath = Path.Combine(overrides, KraidBackgroundArtworkFormat.UpperFileName);
         using (var output = File.Create(overridePath))
-            RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages },
-                KraidWorkingMapDefinitions.SourceTilemapBytes);
+            RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages });
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort[] changed = BuildKraidWorkingMap(edited);
         AssertEqual((ushort)(native[0] ^ 1), changed[0],

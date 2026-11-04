@@ -13,6 +13,19 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Colours)
 {
     /// <summary>
+    /// Whether a draw showing the shade takes part in colour math over every part: a frontend colouring's drawn shade,
+    /// whose sprite set the cartridge ORs into each part's palette, does when that set is one colour math covers.
+    /// </summary>
+    internal bool TakesColourMath { get; init; }
+
+    /// <summary>
+    /// The drawn shade of a colouring held in sprite set <paramref name="set"/>: a run of <paramref name="colours"/> from
+    /// <paramref name="firstInk"/>, taking part in colour math when the set is one colour math covers.
+    /// </summary>
+    internal static SheetShade DrawnRun(PictureShade shade, int firstInk, ReadOnlySpan<RgbColor> colours, int set) =>
+        Run(shade, firstInk, colours) with { TakesColourMath = set >= SpriteColourMathDefinitions.FirstSetTakingColourMath };
+
+    /// <summary>
     /// The shade that recolours <paramref name="colours"/>.Length inks from <paramref name="firstInk"/> on, as a run of a
     /// colour group's colours.
     /// </summary>
@@ -34,6 +47,7 @@ internal sealed record SheetShade(PictureShade Shade, int[] Inks, RgbColor[] Col
                 {
                     Inks = shade.Inks,
                     Colours = [.. shade.Colours.Select(colour => colour.ToWord())],
+                    ColourMath = shade.TakesColourMath,
                 }))
             {
                 throw new InvalidDataException($"A sheet names shade {shade.Shade.Key} twice.");

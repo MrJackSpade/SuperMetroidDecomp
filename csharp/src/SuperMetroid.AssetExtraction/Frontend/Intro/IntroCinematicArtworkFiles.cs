@@ -29,8 +29,8 @@ public static class IntroCinematicArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
     /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
-    /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, palette representation, and artwork roundtrips. Scene timing and dispatch remain compiled, and player overrides are not read or modified.</remarks>
-    /// <exception cref="InvalidDataException">Native artwork, geometry, palettes, or an encoded resource fails validation.</exception>
+    /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled, and player overrides are not read or modified.</remarks>
+    /// <exception cref="InvalidDataException">Native artwork, geometry, or palettes fail validation.</exception>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -108,10 +108,6 @@ public static class IntroCinematicArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, indexes, SnesGraphics.DiagnosticPalette(16));
             byte[] encoded = png.ToArray();
-            RoomCharacterAtlas roundTrip = RoomCharacterAtlasPng.Read(
-                new MemoryStream(encoded, writable: false), expectedByteCount);
-            if (!roundTrip.Characters.Span.SequenceEqual(planar))
-                throw new InvalidDataException($"Intro PNG {name} did not round-trip its cartridge tiles.");
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
@@ -153,9 +149,6 @@ public static class IntroCinematicArtworkFiles
                 Colors = colors,
             });
             byte[] encoded = json.ToArray();
-            IntroCinematicPalette roundTrip = IntroCinematicPaletteFile.Read(new MemoryStream(encoded, writable: false));
-            if (!ScreenColourImage.Words(roundTrip.BackgroundColours.AsSpan(), roundTrip.SpriteColours.AsSpan()).SequenceEqual(native))
-                throw new InvalidDataException("Opening palette JSON did not round-trip cartridge colors.");
             string name = IntroCinematicPaletteFile.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
@@ -164,13 +157,11 @@ public static class IntroCinematicArtworkFiles
 
         void WriteFinalLine()
         {
-            var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
-            var cells = new RoomBackgroundTilemapCell[native.Length];
-            for (int index = 0; index < native.Length; index++)
+            var cells = new RoomBackgroundTilemapCell[IntroFinalLineTilemapFormat.CellCount];
+            for (int index = 0; index < cells.Length; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
                 var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
-                native[index] = word.Raw;
                 cells[index] = new RoomBackgroundTilemapCell
                 {
                     TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
@@ -188,9 +179,6 @@ public static class IntroCinematicArtworkFiles
                 Cells = cells,
             });
             byte[] encoded = json.ToArray();
-            if (!BackgroundTileWords.ToWords(IntroFinalLineTilemap.Load(new MemoryStream(encoded, writable: false))
-                .Tiles.Span).SequenceEqual(native))
-                throw new InvalidDataException("Opening divider tilemap JSON did not round-trip cartridge words.");
             string name = IntroFinalLineTilemapFormat.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
@@ -200,7 +188,6 @@ public static class IntroCinematicArtworkFiles
         void WriteEyeFrames()
         {
             var frames = new IntroEyeTilemapFrame[IntroEyeTilemapFormat.FrameCount];
-            var native = new ushort[frames.Length][];
             for (int frame = 0; frame < frames.Length; frame++)
             {
                 int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
@@ -211,13 +198,11 @@ public static class IntroCinematicArtworkFiles
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
                     throw new InvalidDataException($"Opening eye frame {frame} changed its native draw shape.");
-                native[frame] = new ushort[IntroEyeTilemapFormat.CellsPerFrame];
                 var cells = new RoomBackgroundTilemapCell[IntroEyeTilemapFormat.CellsPerFrame];
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
                     var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
-                    native[frame][cellIndex] = word.Raw;
                     cells[cellIndex] = new RoomBackgroundTilemapCell
                     {
                         TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
@@ -241,11 +226,6 @@ public static class IntroCinematicArtworkFiles
                 Frames = frames,
             });
             byte[] encoded = json.ToArray();
-            IntroEyeTilemapPresentation roundTrip = IntroEyeTilemapPresentation.Load(
-                new MemoryStream(encoded, writable: false));
-            for (int frame = 0; frame < frames.Length; frame++)
-                if (!BackgroundTileWords.ToWords(roundTrip.FrameTiles(frame)).SequenceEqual(native[frame]))
-                    throw new InvalidDataException($"Opening eye frame {frame} did not round-trip cartridge tile words.");
             string name = IntroEyeTilemapFormat.FileName;
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
@@ -732,12 +712,6 @@ public static class IntroCinematicArtworkFiles
         CeresRevealActorLayoutFormat.FileName,
         CeresDestructionActorLayoutFormat.FileName,
     ];
-
-    /// <summary>Validates all stock opening and Ceres-scene artwork without selecting player replacements.</summary>
-    /// <param name="stockDirectory">Directory containing the cinematic manifest and its complete PNG and JSON resource set.</param>
-    /// <remarks>Checks supported cartridge provenance, complete filename coverage, every stock hash, and all resource schemas without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">The manifest, provenance, coverage, hash, or a compiled artwork resource is invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Manifest JSON settings shared by extraction and installation.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

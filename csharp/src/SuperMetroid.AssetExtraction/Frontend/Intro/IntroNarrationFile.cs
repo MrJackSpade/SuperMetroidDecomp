@@ -87,15 +87,14 @@ public static class IntroNarrationFile
         return new(pages);
     }
 
-    /// <summary>Validates and writes an opening-narration document as JSON.</summary>
+    /// <summary>Writes an opening-narration document as JSON.</summary>
     /// <param name="output">Caller-owned destination stream.</param>
-    /// <param name="document">The narration document to validate and serialize.</param>
+    /// <param name="document">The narration document to serialize.</param>
     public static void Write(Stream output, IntroNarrationDocument document)
     {
         Ensure.NotNull(output);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 }

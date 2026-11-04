@@ -29,7 +29,7 @@ internal static class ChozoStatueVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmChozoStatueVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmChozoStatueVisualFiles.ValidateStock(
+            RoomPlmChozoStatueVisualFilesConstants.ValidateStock(
                 installation.RoomPlmChozoStatueVisualDirectory);
             VerifyChozoStatueStockMapping(rom, installation.LoadRoomPlmChozoStatueVisuals());
 
@@ -124,7 +124,7 @@ internal static class ChozoStatueVisualsVerification
 
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmChozoStatueVisualFiles.ValidateStock(
+                () => RoomPlmChozoStatueVisualFilesConstants.ValidateStock(
                     installation.RoomPlmChozoStatueVisualDirectory),
                 "tampered Chozo stock fails manifest validation");
         }

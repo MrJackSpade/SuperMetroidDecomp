@@ -139,10 +139,10 @@ internal static class ProjectileFrameBindingsVerification
         AssertThrows<InvalidDataException>(() => ProjectilePresentationFiles.Load(stockDirectory, overrides),
             "invalid frame-binding override fails loudly");
         document.Frames.Remove(frameName);
-        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Write(document),
+        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");
         document.Frames[frameName] = "sprite_0000";
-        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Write(document),
+        AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");
         Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, observable OAM edit, identity, and malformed resources pass.");
     }

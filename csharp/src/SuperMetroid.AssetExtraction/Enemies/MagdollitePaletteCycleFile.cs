@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -52,10 +53,9 @@ public static class MagdollitePaletteCycleFile
         return new MagdollitePaletteCycle(colors, edits);
     }
 
-    /// <summary>Serializes the editable glow cycle to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
+    /// <summary>Serializes the editable glow cycle to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Four complete RGB5 glow rows to serialize; their arrays are not retained.</param>
-    /// <returns>Validated JSON bytes for <see cref="MagdollitePaletteCycleFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, row-dimension, or RGB5-channel validation.</exception>
+    /// <returns>JSON bytes for <see cref="MagdollitePaletteCycleFormat.FileName"/>.</returns>
     public static byte[] Write(MagdollitePaletteCycleDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 }

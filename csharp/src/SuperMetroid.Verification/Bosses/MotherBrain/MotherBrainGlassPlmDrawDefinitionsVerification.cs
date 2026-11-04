@@ -138,7 +138,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMotherBrainGlassVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmMotherBrainGlassVisualFiles.ValidateStock(
+            RoomPlmMotherBrainGlassVisualFilesConstants.ValidateStock(
                 installation.RoomPlmMotherBrainGlassVisualDirectory);
             VerifyMotherBrainGlassStockMapping(rom, installation.LoadRoomPlmMotherBrainGlassVisuals());
             string stockPath = Path.Combine(

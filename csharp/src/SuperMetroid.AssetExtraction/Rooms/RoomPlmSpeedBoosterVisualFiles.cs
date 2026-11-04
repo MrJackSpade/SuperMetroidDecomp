@@ -29,10 +29,6 @@ public static class RoomPlmSpeedBoosterVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmSpeedBoosterVisuals>(VisualFileName, "Speed Booster", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with the compiled Speed Booster visual.</summary>
-    /// <param name="directory">Stock Speed Booster directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>The artwork identity of the bomb reveal of one Speed Booster block.</summary>
     internal const string BombRevealVisualId = "bomb-reveal";
 

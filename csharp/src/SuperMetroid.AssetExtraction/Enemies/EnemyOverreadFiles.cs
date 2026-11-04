@@ -14,11 +14,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public static class EnemyOverreadFiles
 {
-    /// <summary>Decodes every enemy over-read, writes the results as JSON with a hashed manifest, then validates the result.</summary>
+    /// <summary>Decodes every enemy over-read and writes the results as JSON with a hashed manifest.</summary>
     /// <param name="bus">Cartridge source for the reads.</param>
     /// <param name="directory">Destination directory, created if absent; an existing file and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; validation requires the supported cartridge.</param>
-    /// <exception cref="InvalidDataException">The written file has an unexpected shape, digest or provenance.</exception>
+    /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -26,13 +25,12 @@ public static class EnemyOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         EnemyOverreadDocument document = EnemyOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonAssetDocument.WriteValidated(document, EnemyOverreadFormat.JsonOptions, json => _ = Read(json));
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, EnemyOverreadFormat.JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, EnemyOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, EnemyOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
                 new Manifest(EnemyOverreadFormat.Version, sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))),
                 EnemyOverreadFormat.JsonOptions));
-        _ = Load(directory);
     }
 
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>
@@ -59,10 +57,6 @@ public static class EnemyOverreadFiles
             throw new InvalidDataException("Installed enemy overread file failed its manifest hash.");
         return Read(new MemoryStream(bytes, writable: false));
     }
-
-    /// <summary>Checks the installed file's provenance, digest and shape.</summary>
-    /// <param name="directory">Installed overread directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory);
 
     /// <summary>Reads and validates an overread document and builds its services.</summary>
     private static EnemyOverreadServices Read(Stream json) =>

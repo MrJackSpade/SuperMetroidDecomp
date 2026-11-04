@@ -1310,7 +1310,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop, FlashbackDraws(sprites.Draws)),
-                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, paletteFader.NarrationShading(PictureShading.Standard)), default, null) { ShowsColourZero = true } },
+                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, paletteFader.SceneShading), default, null) { ShowsColourZero = true } },
                 Brightness.Level);
         }
         else
@@ -1319,7 +1319,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
-        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.NarrationShading), new(0, GameplayFlashbackBg1VerticalScroll));
+        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackBg1VerticalScroll));
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
         return new(new FramePaint(Backdrop, FlashbackDraws(sprites.Draws)), new DisplayLayer[]

@@ -193,7 +193,8 @@ internal static class EndingObjectArtworkVerification
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
-                    $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM");
+                    $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM ({nativeOam.FirstDifference(installedOam)}; " +
+                    $"{nativeOam.LastFinalizedSpriteCount} vs {installedOam.LastFinalizedSpriteCount} sprites)");
             }
         }
         Suite(nameof(VerifyEndingExplosionActorArtwork), () => VerifyEndingExplosionActorArtwork(bus, stock));
@@ -306,7 +307,8 @@ internal static class EndingObjectArtworkVerification
         {
             using var invalid = new MemoryStream();
             EndingCloudSpritePresentation.Write(invalid, cloudDocument);
-        }, "ending cloud sprites reject missing named art");
+            _ = EndingCloudSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending cloud sprites reject missing named art on read");
         File.Delete(cloudSpriteOverride);
 
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);

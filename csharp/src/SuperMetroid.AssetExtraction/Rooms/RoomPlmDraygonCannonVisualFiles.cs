@@ -33,10 +33,6 @@ public static class RoomPlmDraygonCannonVisualFiles
             new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled appearances; ignores overrides.</summary>
-    /// <param name="directory">Installed stock Draygon cannon directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates complete reachable cannon-frame coverage and builds the visuals from the appearances that differ from the compiled frames, without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>
     /// <param name="entries">One visual-only entry per compiled frame with the exact flattened count of all its run cells.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

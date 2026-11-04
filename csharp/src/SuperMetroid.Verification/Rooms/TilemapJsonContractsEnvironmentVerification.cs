@@ -40,7 +40,7 @@ internal static class TilemapJsonContractsEnvironmentVerification
                 { TopLeft = Cell(block * 4), TopRight = Cell(block * 4 + 1),
                     BottomLeft = Cell(block * 4 + 2), BottomRight = Cell(block * 4 + 3) }).ToArray() };
             using var encoded = new MemoryStream();
-            RoomMetatileAtlas.Write(encoded, document, native.Length);
+            RoomMetatileAtlas.Write(encoded, document);
             string json = Encoding.UTF8.GetString(encoded.ToArray());
             void Load(string text) => AssertTrue(BackgroundTileWordBytes.Of(RoomMetatileAtlas.Load(TilemapContractStream(text), native.Length)
                 .BlockTiles.Span).AsSpan().SequenceEqual(native), "metatile compilation retains every quadrant/tile/priority/flip bit");

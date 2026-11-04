@@ -101,7 +101,7 @@ internal static class LookupFxBlendSelectorsVerification
             var colors = document.Blends[key];
             document.Blends.Remove(key);
             document.Blends.Add("unknown", colors);
-            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Write(document), "Each required name is independently validated");
+            AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(document), writable: false)), "Reading rejects each missing required name independently");
             document.Blends.Remove("unknown");
             document.Blends.Add(key, colors);
         }

@@ -54,15 +54,14 @@ public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpri
         return new IntroMotherBrainExplosionSpritePresentation(frames);
     }
 
-    /// <summary>Validates and writes an editable Mother Brain explosion sprite document as JSON.</summary>
+    /// <summary>Writes an editable Mother Brain explosion sprite document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The twelve-frame sprite document to validate and serialize.</param>
+    /// <param name="document">The twelve-frame sprite document to serialize.</param>
     public static void Write(Stream json, IntroMotherBrainExplosionSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

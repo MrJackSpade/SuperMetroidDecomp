@@ -69,16 +69,11 @@ public sealed class InstalledGrappleSprites
             (style.FlipX ? TileFlip.Horizontal : 0) | (style.FlipY ? TileFlip.Vertical : 0));
     }
 
-    /// <summary>Serializes and validates all five appearances using the same strict schema as <see cref="Load"/>.</summary>
+    /// <summary>Serializes all five appearances in the schema <see cref="Load"/> reads.</summary>
     /// <param name="document">Authored endpoint and segment styles read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails version, segment-count or appearance validation.</exception>
-    public static byte[] Write(GrappleSpriteDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes));
-        return bytes;
-    }
+    public static byte[] Write(GrappleSpriteDocument document) =>
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Rejects duplicate style keys before JSON deserialization can overwrite them.</summary>
     private static void RejectDuplicates(JsonElement value) =>

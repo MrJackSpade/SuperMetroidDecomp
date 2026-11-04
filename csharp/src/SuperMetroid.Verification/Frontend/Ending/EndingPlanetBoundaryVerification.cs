@@ -43,7 +43,9 @@ internal static class EndingPlanetBoundaryVerification
             var actual = DisplayRendering.Render(capture.Snapshots[frame]);
             int differences = actual.Zip(native, (first, second) => first != second).Count(differs => differs);
             Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
-            AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup");
+            int first = differences == 0 ? -1 : Enumerable.Range(0, actual.Length).First(index => actual[index] != native[index]);
+            AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup" + (first < 0 ? ""
+                : $" (first at ({first % 256},{first / 256}): live {actual[first]}, native {native[first]}; sprites {SpriteInkTrace(capture.Snapshots[frame], first % 256, first / 256)})"));
         }
     }
 
@@ -132,6 +134,7 @@ internal static class EndingPlanetBoundaryVerification
         int memoryDifferences = nativeVram.Zip(ending.ShownVram().ToArray(), (first, second) => first != second).Count(differs => differs);
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
         int differences = 0, checkedFrames = 0;
+        string firstDifference = "none";
         while (ending.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
@@ -146,12 +149,31 @@ internal static class EndingPlanetBoundaryVerification
             var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
+            if (changed > 0 && differences == 0)
+            {
+                int pixel = Enumerable.Range(0, actual.Length).First(index => actual[index] != expected[index]);
+                // Each layer alone on both sides says whether the floor's colours or the sprites' combination differ.
+                string inkTrace = SpriteInkTrace(snapshot, pixel % DisplayScreen.Width, pixel / DisplayScreen.Width);
+                string screenShades = string.Join(" ", ending.screen.Colours.Shading.Shades.Select(shade => shade.Key));
+                string spriteShades = string.Join(" | ", snapshot.Paint.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()
+                    .Select(draw => draw.Shading is { } shading ? string.Join(" ", shading.Shades.Select(shade => shade.Key)) : "none").Distinct());
+                int FloorOnly() => DisplayRendering.Render(new LayeredScene(snapshot.Paint, [projection], snapshot.Brightness))
+                    .Zip(DisplayRendering.Render(new LayeredScene(nativeMemory, [nativeLayers[0]], snapshot.Brightness)), (first, second) => first != second)
+                    .Count(differs => differs);
+                int SpritesOnly() => DisplayRendering.Render(new LayeredScene(snapshot.Paint, [new SpritesLayer(AddToScreen: true)], snapshot.Brightness))
+                    .Zip(DisplayRendering.Render(new LayeredScene(nativeMemory, [new SpritesLayer(AddToScreen: true)], snapshot.Brightness)), (first, second) => first != second)
+                    .Count(differs => differs);
+                firstDifference = $"frame {checkedFrames} ({ending.Stage.Phase}) pixel ({pixel % DisplayScreen.Width},{pixel / DisplayScreen.Width}): " +
+                    $"live {actual[pixel]}, native {expected[pixel]}, {changed} pixels that frame; floor alone differs at {FloorOnly()} pixels, " +
+                    $"sprites alone at {SpritesOnly()}; live floor subtracts sprites {projection.SubtractsSprites}, adds foreground {projection.AddsForeground}; " +
+                    $"live layers {string.Join(", ", snapshot.Layers.ToArray().Select(layer => layer.GetType().Name))}; screen shades {screenShades}; sprite shadings {spriteShades}; ink trace {inkTrace}; native colour 10 of each sprite row {string.Join(" ", Enumerable.Range(0, 8).Select(row => snapshotColours[128 + row * 16 + 10]))}";
+            }
             differences += changed;
             checkedFrames++;
             ending.Step();
         }
         Console.WriteLine($"Planet crossfade: {checkedFrames} frames, {differences} pixels differ from native wrapping/composition.");
-        AssertEqual(0, differences, "planet crossfade preserves native map wrap and main/subscreen composition");
+        AssertEqual(0, differences, $"planet crossfade preserves native map wrap and main/subscreen composition (first: {firstDifference})");
         for (int frame = 0; frame < 2048 && ending.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             var live = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
@@ -212,5 +234,38 @@ internal static class EndingPlanetBoundaryVerification
     {
         VerifyEndingNativePpu(Enumerable.Range(0, 5).Select(step => 400 + step * 16), burst: true);
         return 0;
+    }
+
+    /// <summary>
+    /// The topmost sprite drawn at screen pixel (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="scene"/>: its
+    /// sheet ink there, the ink's standard colour, and each shade of the draw that recolours the ink with the colour it gives,
+    /// so a failed colour check names the shade that decides the pixel.
+    /// </summary>
+    internal static string SpriteInkTrace(LayeredScene scene, int x, int y)
+    {
+        var covering = new List<string>();
+        ImageSpriteDraw[] draws = [.. scene.Paint.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()];
+        for (int index = 0; index < draws.Length; index++)
+        {
+            ImageSpriteDraw draw = draws[index];
+            int localX = x - draw.Corner.X, localY = y - draw.Corner.Y;
+            if (localX < 0 || localY < 0 || localX >= draw.Image.Size.X || localY >= draw.Image.Size.Y)
+                continue;
+            if ((draw.Mirror & SpriteMirror.Horizontal) != 0)
+                localX = draw.Image.Size.X - 1 - localX;
+            if ((draw.Mirror & SpriteMirror.Vertical) != 0)
+                localY = draw.Image.Size.Y - 1 - localY;
+            SpriteImage sheet = draw.Image.Sheet;
+            SpriteImageInk pixelInk = sheet.Inks[(draw.Image.Corner.Y + localY) * sheet.Size.X + draw.Image.Corner.X + localX];
+            int ink = pixelInk.PaletteIndex;
+            RgbColor shown = sheet.StandardColours[ink];
+            foreach (PictureShade shade in draw.Shading?.Shades ?? [])
+            {
+                if (sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.Inks.IndexOf(ink) is var at and >= 0)
+                    shown = inks.Colours[at];
+            }
+            covering.Add($"#{index} {sheet.Name} ink {ink} {(sheet.IsColourZero(pixelInk) ? "clear" : shown.ToString())}");
+        }
+        return covering.Count == 0 ? "no sprite" : string.Join("; ", covering);
     }
 }

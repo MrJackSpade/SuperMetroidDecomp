@@ -93,8 +93,12 @@ internal static class PauseEquipmentLabelsVerification
                 "edited-content rebind retains the native Plasma-to-Varia overrun");
 
         void Reject(PauseEquipmentLabelDocument invalid, string message) =>
-            AssertThrows<InvalidDataException>(() => PauseEquipmentLabelPresentation.Write(
-                new MemoryStream(), invalid), message);
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                PauseEquipmentLabelPresentation.Write(written, invalid);
+                _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+            }, message);
         Reject(document with { Version = 2 }, "unsupported equipment-label schema rejected");
         Reject(document with { DisabledPalette = 8 }, "invalid equipment-label palette rejected");
         Reject(document with { Blank = [] }, "incomplete equipment blank patch rejected");

@@ -121,14 +121,12 @@ public static class TitlePaletteFile
         return color.ToRgbColor();
     }
 
-    /// <summary>Serializes and validates the complete title palette document before writing any UTF-8 JSON bytes.</summary>
+    /// <summary>Serializes the complete title palette document as UTF-8 JSON bytes.</summary>
     /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>
     /// <param name="document">Editable RGB5 collections read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Read"/>'s schema, frame-size or RGB5 validation.</exception>
     public static void Write(Stream json, TitlePaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

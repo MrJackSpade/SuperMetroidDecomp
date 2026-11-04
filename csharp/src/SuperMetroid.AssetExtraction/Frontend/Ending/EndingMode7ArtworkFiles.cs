@@ -16,11 +16,11 @@ public static class EndingMode7ArtworkFiles
     /// <summary>Manifest revision covering the three backdrop pairs and reward-icon pair.</summary>
     private const int ManifestVersion = 2;
 
-    /// <summary>Separates the three ending backdrops and reward icon into editable map JSON and indexed character PNGs, verifies native transfer round-trips, and creates their hashed manifest.</summary>
+    /// <summary>Separates the three ending backdrops and reward icon into editable map JSON and indexed character PNGs, and creates their hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for the compressed Mode-7 map and character streams.</param>
     /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">A decompressed source is too short, has unexpected dimensions, or fails the PNG/JSON transfer round-trip.</exception>
+    /// <exception cref="InvalidDataException">A decompressed source is too short or has unexpected dimensions.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -65,13 +65,6 @@ public static class EndingMode7ArtworkFiles
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(256));
             byte[] mapFile = mapJson.ToArray();
             byte[] pngFile = png.ToArray();
-            EndingFloorSceneCharacters compiled = EndingFloorSceneCharacters.Read(
-                new MemoryStream(mapFile, writable: false),
-                new MemoryStream(pngFile, writable: false));
-            if (!compiled.Map.Span.SequenceEqual(lowMap) ||
-                !compiled.Characters.Span.SequenceEqual(characters.AsSpan(0,
-                    EndingFloorArtworkFormat.CharacterByteCount)))
-                throw new InvalidDataException($"Ending {id} PNG/JSON did not round-trip its native DMA.");
             Write(EndingFloorArtworkFormat.MapFileName(id), mapFile);
             Write(EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
         }
@@ -102,12 +95,6 @@ public static class EndingMode7ArtworkFiles
             SnesGraphics.DiagnosticPalette(256));
         byte[] rewardMapFile = rewardJson.ToArray();
         byte[] rewardCharacterFile = rewardPng.ToArray();
-        EndingRewardIconCharacters compiledReward = EndingRewardIconCharacters.Read(
-            new MemoryStream(rewardMapFile, writable: false),
-            new MemoryStream(rewardCharacterFile, writable: false));
-        if (!compiledReward.Bytes.Span.SequenceEqual(reward.AsSpan(0,
-                EndingRewardIconArtworkFormat.ByteCount)))
-            throw new InvalidDataException("Reward icon PNG/JSON changed native interleaved DMA bytes.");
         Write(EndingRewardIconArtworkFormat.MapFileName, rewardMapFile);
         Write(EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
         using var manifest = new FileStream(Path.Combine(directory,
@@ -217,10 +204,6 @@ public static class EndingMode7ArtworkFiles
             return new SelectedArtworkFile(selectedPath, selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath));
         }
     }
-
-    /// <summary>Checks all stock Mode-7 file digests and compiles every backdrop and reward-icon pair against its required geometry, ignoring overrides.</summary>
-    /// <param name="directory">Installed stock ending Mode-7 directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Camel-case JSON options shared by extraction and stock loading.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

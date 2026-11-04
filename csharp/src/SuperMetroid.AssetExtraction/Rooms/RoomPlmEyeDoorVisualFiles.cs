@@ -32,10 +32,6 @@ public static class RoomPlmEyeDoorVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmEyeDoorVisuals>(VisualFileName, "eye-door", Editable, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Checks stock eye-door provenance, digest, schema, twenty-three-frame coverage, and equality with compiled appearance; ignores overrides.</summary>
-    /// <param name="stockDirectory">Installed stock eye-door directory.</param>
-    public static void ValidateStock(string stockDirectory) => Load(stockDirectory);
-
     /// <summary>Validates all twenty-three editable eye-door frames and builds the visuals from the appearances that differ from the compiled components.</summary>
     /// <remarks>The mirrored opening clear shares the clearing frame's artwork rather than requiring a separate authored entry.</remarks>
     /// <param name="entries">One visual-only entry per compiled editable identity, retaining each eye or component frame's draw shape.</param>

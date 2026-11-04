@@ -56,8 +56,12 @@ internal static class PauseReserveFramesVerification
                     "each authored reserve frame independently selected");
             }
             frames.Remove(changed.Name);
-            AssertThrows<InvalidDataException>(() => PauseReserveTankSourcePresentation.Write(new MemoryStream(), document with { Frames = frames }),
-                "each reserve role remains required");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                PauseReserveTankSourcePresentation.Write(written, document with { Frames = frames });
+                _ = PauseReserveTankSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+            }, "each reserve role remains required on read");
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
             AssertEqual(false, PauseReserveTankVisualWords.Ordinals.TryDecode(invalid, out _), "unsupported native reserve identity");

@@ -24,7 +24,7 @@ public static class BossBodySheetFiles
     /// <summary>The manifest's schema revision.</summary>
     private const int ManifestVersion = 1;
 
-    /// <summary>Composes and writes every boss's body sheet; the installer validates them with <see cref="ValidateStock"/>.</summary>
+    /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
@@ -68,9 +68,6 @@ public static class BossBodySheetFiles
                     .Select(frame => new BossBodyFrame(frame.Key, [.. (frame.Value ?? []).Select(part => Part(sheet, part, manifestPath))])));
         }));
     }
-
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>The manifest entry of <paramref name="part"/>.</summary>
     private static PartDocument Document(ComposedBossBodyPart part) => new(part.Picture, part.Top, part.Footprint.Top, [.. part.Footprint.Rows],

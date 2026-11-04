@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -7,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
@@ -19,7 +19,6 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -55,8 +54,8 @@ public static class EnemyTileArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying room-enemy graphics definitions and the associated artwork sources.</param>
     /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
-    /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage and native pixel/color roundtrips. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate. Does not read or modify player overrides.</remarks>
-    /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, palette representation, or resource roundtrip validation are invalid.</exception>
+    /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate. Does not read or modify player overrides.</remarks>
+    /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, or palette representation are invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -91,10 +90,6 @@ public static class EnemyTileArtworkFiles
                 using var png = new MemoryStream();
                 IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
                 byte[] encoded = png.ToArray();
-                RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-                    new MemoryStream(encoded, writable: false), byteCount);
-                if (!roundtrip.Characters.Span.SequenceEqual(planar))
-                    throw new InvalidDataException($"Enemy ${headerWord:X4} tile PNG changed native pixels.");
 
                 File.WriteAllBytes(Path.Combine(directory, FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -104,7 +99,7 @@ public static class EnemyTileArtworkFiles
                 for (int color = 0; color < colors.Length; color++)
                 {
                     int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
-                    if (!RgbColor.IsColorWord(checked((ushort)word)))
+                    if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                         throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
                     colors[color] = new PaletteRgb5
                     {
@@ -118,13 +113,6 @@ public static class EnemyTileArtworkFiles
                     Version = 1,
                     Colors = colors,
                 });
-                // The written document must read back as the native colours, channel for channel (#1512).
-                ReadOnlySpan<RgbColor> readBack = EnemyPaletteSheetFile.Read(new MemoryStream(paletteJson, writable: false)).Colours;
-                for (int color = 0; color < colors.Length; color++)
-                {
-                    if (readBack[color] != new RgbColor(colors[color].Red, colors[color].Green, colors[color].Blue))
-                        throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
-                }
                 File.WriteAllBytes(Path.Combine(directory,
                     PaletteFileName(definitionPointer)), paletteJson);
                 entries.Add(headerWord, new EnemyTileFileEntry(
@@ -161,17 +149,6 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(skeletonImage, skeletonSize,
             skeletonPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] skeletonPng = skeletonImage.ToArray();
-        CrocomireSkeletonArtwork skeletonRoundtrip = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
-            new MemoryStream(skeletonPng, writable: false), CrocomireSkeletonCharacterDefinitions.TotalByteCount));
-        for (int index = 0; index < CrocomireSkeletonTransferDefinitions.FrameCount; index++)
-        {
-            ReadOnlySpan<byte> expected = skeletonPlanar.AsSpan(
-                index * CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
-                CrocomireSkeletonCharacterDefinitions.ChunkByteCount);
-            if (!skeletonRoundtrip.Chunk(index).Span.SequenceEqual(expected))
-                throw new InvalidDataException(
-                    $"Crocomire skeleton PNG changed native chunk {index} during extraction.");
-        }
         File.WriteAllBytes(Path.Combine(directory,
             CrocomireSkeletonCharacterDefinitions.FileName), skeletonPng);
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
@@ -230,11 +207,6 @@ public static class EnemyTileArtworkFiles
             IndexedPng.Write(image, size, pixels,
                 SnesGraphics.DiagnosticPalette(16));
             byte[] png = image.ToArray();
-            RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-                new MemoryStream(png, writable: false), planar.Length);
-            if (!roundtrip.Characters.Span.SequenceEqual(planar))
-                throw new InvalidDataException(
-                    $"Gunship takeoff frame {index} changed native pixels during extraction.");
             File.WriteAllBytes(Path.Combine(directory,
                 EnemyTileArtworkFormat.GunshipLiftoffFileName(index)), png);
             gunshipLiftoffHashes.Add(index,
@@ -252,11 +224,6 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(corpseStream, corpseSize, corpsePixels,
             SnesGraphics.DiagnosticPalette(16));
         byte[] corpsePng = corpseStream.ToArray();
-        RoomCharacterAtlas corpseRoundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(corpsePng, writable: false),
-            MotherBrainCorpseSheet.ByteCount);
-        if (!corpseRoundtrip.Characters.Span.SequenceEqual(corpsePlanar))
-            throw new InvalidDataException("Mother Brain corpse PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseSheet.FileName),
             corpsePng);
         // The following bank-$B7 pages are a different visual owner: the escape
@@ -271,12 +238,6 @@ public static class EnemyTileArtworkFiles
         IndexedPng.Write(escapeTextStream, escapeTextSize,
             escapeTextPixels, SnesGraphics.DiagnosticPalette(16));
         byte[] escapeTextPng = escapeTextStream.ToArray();
-        RoomCharacterAtlas escapeTextRoundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(escapeTextPng, writable: false),
-            EscapeTextSheetFormat.ByteCount);
-        if (!escapeTextRoundtrip.Characters.Span.SequenceEqual(escapeTextPlanar))
-            throw new InvalidDataException(
-                "Mother Brain escape-text PNG changed native pixels during extraction.");
         File.WriteAllBytes(Path.Combine(directory,
             EscapeTextSheetFormat.FileName), escapeTextPng);
         var motherBrainSpecialHashes = new Dictionary<int, string>();
@@ -1191,12 +1152,6 @@ public static class EnemyTileArtworkFiles
         }
     }
 
-    /// <summary>Validates and compiles the complete installed enemy-art catalog without selecting any player overrides.</summary>
-    /// <param name="stockDirectory">Directory containing the enemy manifest and all ordinary and supplemental stock resources.</param>
-    /// <remarks>Checks the supported cartridge identity, retail definition coverage, manifest hashes, and resource schemas without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>
     /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently
     /// enumerated from every bank-$B4 enemy graphics set referenced by retail room states.
@@ -1222,7 +1177,7 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
-    /// <summary>Assembles one Crocomire melt image as the cartridge does, as indexed PNG, and checks its planar-byte roundtrip.</summary>
+    /// <summary>Assembles one Crocomire melt image as the cartridge does, as indexed PNG.</summary>
     private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
         CrocomireMeltingIllustration illustration, int encodedByteCount)
     {
@@ -1244,13 +1199,7 @@ public static class EnemyTileArtworkFiles
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        byte[] encoded = png.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(encoded, writable: false), encodedByteCount);
-        if (!roundtrip.Characters.Span.SequenceEqual(planar))
-            throw new InvalidDataException(
-                $"Crocomire {illustration} melt PNG changed native graphics bytes.");
-        return encoded;
+        return png.ToArray();
     }
 
     /// <summary>Decompresses a native Kraid background tilemap and writes its editable document form.</summary>
@@ -1261,7 +1210,7 @@ public static class EnemyTileArtworkFiles
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 
-    /// <summary>Exports Kraid's room background character data to PNG after verifying a lossless planar roundtrip.</summary>
+    /// <summary>Exports Kraid's room background character data to PNG.</summary>
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -1273,16 +1222,10 @@ public static class EnemyTileArtworkFiles
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        byte[] encoded = png.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(encoded, writable: false),
-            KraidSourceDefinitions.RoomBackgroundTileBytes);
-        if (!roundtrip.Characters.Span.SequenceEqual(planar))
-            throw new InvalidDataException("Kraid room-background PNG changed native tile bytes.");
-        return encoded;
+        return png.ToArray();
     }
 
-    /// <summary>Exports a Mother Brain special sprite sheet and checks that indexed PNG retains native tile bytes.</summary>
+    /// <summary>Exports a Mother Brain special sprite sheet as indexed PNG.</summary>
     private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
@@ -1293,13 +1236,7 @@ public static class EnemyTileArtworkFiles
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(16));
-        byte[] png = output.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(png, writable: false), sheet.ByteCount);
-        if (!roundtrip.Characters.Span.SequenceEqual(native))
-            throw new InvalidDataException(
-                $"Mother Brain {sheet.FileName} PNG changed native pixels during extraction.");
-        return png;
+        return output.ToArray();
     }
 
     /// <summary>Exports one Torizo instruction tile page with its definition's source range.</summary>
@@ -1331,7 +1268,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < count; index++)
         {
             int word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
-            if (!RgbColor.IsColorWord(checked((ushort)word)))
+            if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5

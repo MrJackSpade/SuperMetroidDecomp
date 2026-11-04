@@ -41,7 +41,7 @@ public static class RoomBlockSheetFiles
     /// <summary>The floor manifest's schema revision: revision 1 names the tilesets whose floors are pictures (#1467).</summary>
     private const int FloorManifestVersion = 1;
 
-    /// <summary>Composes and writes every tileset's block sheet and background image; the installer validates them with <see cref="ValidateStock"/>.</summary>
+    /// <summary>Composes and writes every tileset's block sheet and background image.</summary>
     /// <param name="content">Installed stock content holding the characters, definitions, palettes, tilemaps and uploads the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>
@@ -140,9 +140,6 @@ public static class RoomBlockSheetFiles
     private static ImmutableArray<AppearanceInput> Inputs(string[]? tokens) =>
         [.. (tokens ?? throw new InvalidDataException("A manifest entry records no appearance inputs."))
             .Select(token => AppearanceInputSpellings.Parse(token, EncounterCharacterPlacements.Catalog.LookNamed))];
-
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>The background manifest: each image's name, the tilemap words it pictures and its changing cells.</summary>
     /// <param name="Version">The schema revision.</param>

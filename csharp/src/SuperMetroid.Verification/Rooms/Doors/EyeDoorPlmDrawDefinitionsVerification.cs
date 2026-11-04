@@ -218,7 +218,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmEyeDoorVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmEyeDoorVisualFiles.ValidateStock(
+        RoomPlmEyeDoorVisualFilesConstants.ValidateStock(
             installation.RoomPlmEyeDoorVisualDirectory);
         VerifyEyeDoorStockMapping(rom, installation.LoadRoomPlmEyeDoorVisuals());
         string stockPath = Path.Combine(installation.RoomPlmEyeDoorVisualDirectory,

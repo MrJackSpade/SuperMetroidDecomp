@@ -58,15 +58,13 @@ public sealed class RoomFxLayer3Pages
         }
     }
 
-    /// <summary>Validates a document by loading it, then writes it as indented camel-case JSON.</summary>
+    /// <summary>Writes a document as indented camel-case JSON.</summary>
     /// <param name="json">The destination stream.</param>
     /// <param name="document">The six named pages.</param>
-    /// <exception cref="InvalidDataException">The document fails validation.</exception>
     public static void Write(Stream json, RoomFxLayer3TilemapDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 

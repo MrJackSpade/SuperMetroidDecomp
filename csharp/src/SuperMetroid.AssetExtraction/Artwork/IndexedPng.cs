@@ -195,7 +195,7 @@ public static class IndexedPng
         PngWriter.WriteChunk(output, "PLTE", colors);
         if (alpha.Any(a => a != 255)) PngWriter.WriteChunk(output, "tRNS", alpha);
         using var compressed = new MemoryStream();
-        using (var zlib = new ZLibStream(compressed, CompressionLevel.SmallestSize, leaveOpen: true))
+        using (var zlib = new ZLibStream(compressed, CompressionLevel.Fastest, leaveOpen: true))
         {
             for (int y = 0; y < size.Y; y++) { zlib.WriteByte(0); zlib.Write(pixels.Slice(y * size.X, size.X)); }
         }

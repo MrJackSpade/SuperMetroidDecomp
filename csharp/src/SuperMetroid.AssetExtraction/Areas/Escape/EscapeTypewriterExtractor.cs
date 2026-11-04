@@ -100,14 +100,9 @@ public static class EscapeTypewriterExtractor
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
     };
 
-    /// <summary>Serializes and validates both warning programs before writing their UTF-8 document bytes to the destination.</summary>
+    /// <summary>Serializes both warning programs and writes their UTF-8 document bytes to the destination.</summary>
     /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
-    /// <param name="document">Selected programs satisfying the same schema, alphabet, and placement limits as <see cref="EscapeTypewriterPresentationFile.Load"/>.</param>
-    /// <exception cref="InvalidDataException">The document is null or fails warning-program validation.</exception>
-    public static void Write(Stream output, EscapeTypewriterDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = EscapeTypewriterPresentationFile.Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
-    }
+    /// <param name="document">Selected programs to serialize.</param>
+    public static void Write(Stream output, EscapeTypewriterDocument document) =>
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
 }

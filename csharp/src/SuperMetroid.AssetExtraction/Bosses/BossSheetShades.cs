@@ -105,9 +105,12 @@ internal static class BossSheetShades
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's body is shaded from the installed Kraid colours.");
         var shades = new List<SheetShade>();
         HashSet<int> used = [.. paletteIndices.ToArray().Select(index => (int)index)];
+        // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
+        ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
         for (int band = KraidHurtBand; band < KraidHealthThresholdDefinitions.EighthCount; band++)
         {
             RgbColor[] colours = Band(kraid, KraidPaletteSource.Health, band);
+            shadedEyes.CopyTo(colours.AsSpan(KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes));
             shades.Add(SheetShade.Run(KraidShades.Health(band), KraidBodyFirstInk, colours));
             RequireUniqueEyes(standard, used, colours, band);
         }
@@ -232,8 +235,8 @@ internal static class BossSheetShades
         [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, KraidPalettes.BandColors * (band + 1) + colour))];
 
     /// <summary>
-    /// Requires Kraid's eye colours under <paramref name="band"/>'s <paramref name="colours"/> to differ from each other and
-    /// from every other colour his body's picture shows, so gameplay's substitution of his glowing eyes recolours only them.
+    /// Requires the eye colours <paramref name="band"/>'s shade <paramref name="colours"/> show to differ from each other and
+    /// from every other colour his body's picture shows under it, so gameplay's substitution of his eyes recolours only them.
     /// </summary>
     /// <exception cref="InvalidDataException">An eye colour repeats on the picture.</exception>
     private static void RequireUniqueEyes(ReadOnlySpan<RgbColor> standard, HashSet<int> used, RgbColor[] colours, int band)

@@ -148,8 +148,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Spore Spawn color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Write(visual),
-            "Spore Spawn RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
+            "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

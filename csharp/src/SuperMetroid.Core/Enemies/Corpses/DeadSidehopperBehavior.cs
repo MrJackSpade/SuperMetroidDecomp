@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -94,7 +93,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void InitializeShitroidVictimSidehopper(RoomEnemySlot slot)
     {
         // The Shitroid's entry loads the victim's colours, the target the room's colours fade to (#1512).
-        slot.Shading = ShitroidShades.InTargetColours;
+        slot.Shading = TourianCorpseShades.InShitroidTargetColours;
         // The mask clears the solid bit and any inherited process-offscreen bit,
         // then explicitly reinstalls only process-offscreen. Do not replace this with an
         // enum union: preserving the unrelated population-property bits is observable.

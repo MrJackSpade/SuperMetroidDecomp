@@ -38,13 +38,24 @@ internal static class EnemySheetComposer
         var layouts = new List<SpriteSheetLayout>();
         var layoutOf = new Dictionary<string, int>(StringComparer.Ordinal);
         var laidSets = new List<LaidGraphicsSet>();
-        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder)
+        // Each set's sheets are sourced and laid out in parallel (#1530); the distinct layouts are then kept in set order,
+        // so which set first lays a shared sheet, and so the sheets' order, stays the same on every install.
+        RoomEnemyGraphicsSetDefinition[] drawnSets = [.. RoomEnemyGraphicsSetLists.DrawnUnder];
+        var setLayouts = new SetLayouts[drawnSets.Length];
+        Parallel.For(0, drawnSets.Length, index =>
         {
-            GraphicsSetSheetSources setSources = Sources(inputs, set);
-            laidSets.Add(new LaidGraphicsSet(set.Name,
-                [.. setSources.Enemies.Select(source => new LaidEnemySheet(source.Enemy, Laid(source.Sources, layouts, layoutOf),
+            GraphicsSetSheetSources setSources = Sources(inputs, drawnSets[index]);
+            setLayouts[index] = new SetLayouts(setSources,
+                [.. setSources.Enemies.Select(source => new SpriteSheetLayout(source.Sources, 0, 0))],
+                [.. setSources.Spawned.Select(source => new SpriteSheetLayout(source.Sources, 0, 0))]);
+        });
+        for (int index = 0; index < drawnSets.Length; index++)
+        {
+            SetLayouts laid = setLayouts[index];
+            laidSets.Add(new LaidGraphicsSet(drawnSets[index].Name,
+                [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
                     source.Pictures, source.RotPictures))],
-                [.. setSources.Spawned.Select(source => new LaidSpawnedSheet(source.Plan, Laid(source.Sources, layouts, layoutOf),
+                [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], layouts, layoutOf),
                     source.Pictures, source.RotPictures))]));
         }
         var encoded = new EncodedSpriteSheet[layouts.Count];
@@ -118,12 +129,11 @@ internal static class EnemySheetComposer
     }
 
     /// <summary>
-    /// Lays out one sheet and gives the index in <paramref name="layouts"/> of the first layout with its identity, adding
-    /// it when it is the first.
+    /// The index in <paramref name="layouts"/> of the first layout with <paramref name="layout"/>'s identity, adding it when
+    /// it is the first.
     /// </summary>
-    private static int Laid(SpriteSheetSources sources, List<SpriteSheetLayout> layouts, Dictionary<string, int> layoutOf)
+    private static int Laid(SpriteSheetLayout layout, List<SpriteSheetLayout> layouts, Dictionary<string, int> layoutOf)
     {
-        var layout = new SpriteSheetLayout(sources, 0, 0);
         if (!layoutOf.TryGetValue(layout.Identity, out int index))
         {
             index = layouts.Count;
@@ -132,6 +142,12 @@ internal static class EnemySheetComposer
         }
         return index;
     }
+
+    /// <summary>A graphics set's sheet sources and each sheet's layout, in the order the sources list them.</summary>
+    /// <param name="Sources">The set's sheet sources.</param>
+    /// <param name="Enemies">Each enemy sheet's layout.</param>
+    /// <param name="Spawned">Each spawned-object sheet's layout.</param>
+    private sealed record SetLayouts(GraphicsSetSheetSources Sources, SpriteSheetLayout[] Enemies, SpriteSheetLayout[] Spawned);
 
     /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
     /// <param name="Name">The set's name.</param>
@@ -221,7 +237,8 @@ internal static class EnemySheetComposer
         LoadedGraphicsSet loaded = Load(inputs, set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours.SpriteColours, loaded.Shades))]);
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours.SpriteColours, loaded.Shades,
+                    loaded.Colours.RowOf))]);
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>

@@ -76,15 +76,14 @@ public sealed class IntroFinalLineTilemap
         return new IntroFinalLineTilemap(tiles);
     }
 
-    /// <summary>Serializes the tile-reference document as UTF-8 JSON and validates it through <see cref="Load"/> before writing any destination bytes.</summary>
+    /// <summary>Serializes the tile-reference document as UTF-8 JSON.</summary>
     /// <param name="json">Caller-owned destination stream.</param>
-    /// <param name="document">Complete four-row map to validate and serialize.</param>
+    /// <param name="document">Complete four-row map to serialize.</param>
     public static void Write(Stream json, IntroFinalLineTilemapDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

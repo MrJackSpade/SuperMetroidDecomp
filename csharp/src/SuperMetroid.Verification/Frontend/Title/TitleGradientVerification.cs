@@ -349,9 +349,9 @@ internal static class TitleGradientVerification
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {

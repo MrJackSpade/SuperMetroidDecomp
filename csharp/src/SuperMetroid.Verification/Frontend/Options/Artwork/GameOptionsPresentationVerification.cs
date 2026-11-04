@@ -131,19 +131,27 @@ internal static class GameOptionsPresentationVerification
             "corrupt options override fails loudly");
         using (var output = File.Create(replacement))
             GameOptionsSourcePresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null,
-            document with { CursorPalette = 8 }),
-            "options reject invalid cursor palette");
-        AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null,
-            document with
-            {
-                ControllerLabelAnchors = document.ControllerLabelAnchors[..^1],
-            }), "options reject incomplete controller-label anchors");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOptionsSourcePresentation.Write(written, document with { CursorPalette = 8 });
+            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "options reject invalid cursor palette on read");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOptionsSourcePresentation.Write(written, document with { ControllerLabelAnchors = document.ControllerLabelAnchors[..^1] });
+            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "options reject incomplete controller-label anchors on read");
         var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
         missingPage.Pages.Remove(GameOptionsNames.TilemapName(GameOptionsScreen.SpecialJapanese));
-        AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null, missingPage),
-            "options reject a missing named page");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOptionsSourcePresentation.Write(written, missingPage);
+            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "options reject a missing named page on read");
         var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
         GameOptionsToggleVisualDocument toggle = overlappingToggle.SpecialToggles[
@@ -151,8 +159,11 @@ internal static class GameOptionsPresentationVerification
         overlappingToggle.SpecialToggles[GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)] =
             toggle with { DisabledCells = [toggle.EnabledCells[0], .. toggle.DisabledCells] };
         AssertThrows<InvalidDataException>(() =>
-                GameOptionsSourcePresentation.Write(Stream.Null, overlappingToggle),
-            "options reject overlapping toggle highlight cells");
+        {
+            using var written = new MemoryStream();
+            GameOptionsSourcePresentation.Write(written, overlappingToggle);
+            _ = GameOptionsSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "options reject overlapping toggle highlight cells on read");
 
         Console.WriteLine(
             $"Options presentation: {comparedFrames} exact ROM-free frames, dynamic labels, " +

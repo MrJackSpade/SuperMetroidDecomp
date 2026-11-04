@@ -33,7 +33,7 @@ internal static class SamusEaterVisualsVerification
         Suite(nameof(VerifySamusEaterDrawWords), () => VerifySamusEaterDrawWords(rom));
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSamusEaterVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmSamusEaterVisualFiles.ValidateStock(
+        RoomPlmSamusEaterVisualFilesConstants.ValidateStock(
             installation.RoomPlmSamusEaterVisualDirectory);
         VerifySamusEaterStockVisualMapping(rom, installation.LoadRoomPlmSamusEaterVisuals());
 
@@ -75,7 +75,7 @@ internal static class SamusEaterVisualsVerification
             "Samus Eater override cannot change collision nibble");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmSamusEaterVisualFiles.ValidateStock(
+            () => RoomPlmSamusEaterVisualFilesConstants.ValidateStock(
                 installation.RoomPlmSamusEaterVisualDirectory),
             "tampered Samus Eater stock fails manifest validation");
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");

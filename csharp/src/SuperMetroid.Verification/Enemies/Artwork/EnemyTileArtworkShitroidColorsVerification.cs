@@ -124,8 +124,8 @@ internal static class EnemyTileArtworkShitroidColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Shitroid color property fails loudly");
         visual.Normal[0][2] = visual.Normal[0][2] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => ShitroidColorFile.Write(visual),
-            "Shitroid RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => ShitroidColorFile.Read(new MemoryStream(ShitroidColorFile.Write(visual), writable: false)),
+            "reading Shitroid colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

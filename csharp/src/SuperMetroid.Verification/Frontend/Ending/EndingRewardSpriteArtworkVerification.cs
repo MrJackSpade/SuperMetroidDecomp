@@ -94,7 +94,8 @@ internal static class EndingRewardSpriteArtworkVerification
             {
                 using var invalid = new MemoryStream();
                 EndingRewardSpritePresentation.Write(invalid, document);
-            }, "ending reward sprites reject missing named art");
+                _ = EndingRewardSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+            }, "ending reward sprites reject missing named art on read");
 
             bool FindVisibleEdit(EndingCreditsPhase target, int arrivalLimit, int visibleLimit)
             {

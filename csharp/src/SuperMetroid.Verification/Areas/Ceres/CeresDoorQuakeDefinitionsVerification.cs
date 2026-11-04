@@ -12,7 +12,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
@@ -88,8 +87,13 @@ internal static class CeresDoorQuakeDefinitionsVerification
         installedOverlay.BeginFrame();
         installedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
         installedOverlay.FinalizeFrame();
-        AssertTrue(nativeOverlay.ImageEquals(installedOverlay),
-            "Ceres private overlay matches native OAM with ROM frame reads forbidden");
+        // The door shows its colours as its shade (#1512), which keeps no palette row, so the overlay's records match the
+        // cartridge's in every field but the row its colours were loaded into.
+        AssertEqual(nativeOverlay.LastFinalizedSpriteCount, installedOverlay.LastFinalizedSpriteCount,
+            "Ceres private overlay draws the cartridge's record count with ROM frame reads forbidden");
+        for (int index = 0; index < nativeOverlay.LastFinalizedSpriteCount; index++)
+            AssertEqual(nativeOverlay.GetEntry(index) with { Palette = 0 }, installedOverlay.GetEntry(index) with { Palette = 0 },
+                $"Ceres private overlay record {index} matches native OAM with ROM frame reads forbidden");
 
         EnemySpritemapDocument visual = RequiredJson.Deserialize<EnemySpritemapDocument>(
             stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

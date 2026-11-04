@@ -93,7 +93,12 @@ internal static class MapStationLayoutVerification
         File.WriteAllBytes(rebuiltStations, rebuiltBytes);
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = 512 }) } })
-            AssertThrows<InvalidDataException>(() => MapStationLayoutFile.Write(new MemoryStream(), invalid), "invalid station version/identity/position rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                MapStationLayoutFile.Write(written, invalid);
+                _ = MapStationLayoutFile.Read(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid station version/identity/position rejected on read");
         File.WriteAllText(replacement, "{bad stations");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "malformed station override cannot fall back");
         AssertEqual("{bad stations", File.ReadAllText(replacement), "malformed station override not overwritten");

@@ -27,21 +27,26 @@ public static class IntroNarrationPictures
     /// <summary>The name of <paramref name="letter"/>'s picture, which shows each colour variant as a shade (#1512).</summary>
     internal static string Letter(char letter) => $"letter-{(int)letter:x2}";
 
-    /// <summary>The plane showing the first card in <paramref name="shading"/> (#1512).</summary>
+    /// <summary>
+    /// The plane showing the first card in <paramref name="shading"/> (#1512): the scene's group shades, as the card's colours
+    /// lie in several groups and in colours no group moves.
+    /// </summary>
     internal static PicturedPlane FirstCardPlane(InstalledSpriteSheets sheets, PictureShading shading) =>
         Plane([new PlacedPlanePicture(Sheet(sheets).Frame(FirstCard), default, Ensure.NotNull(shading))]);
 
     /// <summary>
-    /// The plane showing the narration pages: the final line, and each letter <paramref name="text"/> shows at its cell in
-    /// the shade of its colour variant, each as <paramref name="shown"/> shows its own colours (#1512).
+    /// The plane showing the narration pages (#1512): the final line in <paramref name="finalLine"/>, as its colours lie in
+    /// several groups and in colours no group moves, and each letter <paramref name="text"/> shows at its cell in the shade
+    /// of its colour variant, as <paramref name="shown"/> shows its own colours.
     /// </summary>
-    internal static PicturedPlane PagesPlane(InstalledSpriteSheets sheets, IntroNarrationText text, Func<PictureShading, PictureShading> shown)
+    internal static PicturedPlane PagesPlane(InstalledSpriteSheets sheets, IntroNarrationText text, PictureShading finalLine,
+        Func<PictureShading, PictureShading> shown)
     {
         Ensure.NotNull(text);
         SpriteSheet sheet = Sheet(sheets);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         Ensure.NotNull(shown);
-        placed.Add(new(sheet.Frame(FinalLine), At(0, FinalLineRow), shown(PictureShading.Standard)));
+        placed.Add(new(sheet.Frame(FinalLine), At(0, FinalLineRow), Ensure.NotNull(finalLine)));
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
         {
             for (int column = 0; column < IntroNarrationText.RowCells; column++)

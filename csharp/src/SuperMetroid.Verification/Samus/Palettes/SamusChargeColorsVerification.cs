@@ -128,7 +128,7 @@ internal static class SamusChargeColorsVerification
             "installed charge and Hyper-shot avoid extracted source reads");
         PaletteRgb5 previous = document.HyperShot[0][1];
         document.HyperShot[0][1] = previous with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => SamusChargeColorFile.Write(document),
+        AssertThrows<InvalidDataException>(() => SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document))),
             "charge colors reject invalid RGB5 channels");
 
         string replacementStock = Path.Combine(

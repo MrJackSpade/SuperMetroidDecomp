@@ -119,7 +119,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
-                return new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
+                return RetailSetOf(records) ?? new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
             EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
@@ -128,6 +128,24 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             cursor += 4;
         }
         throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");
+    }
+
+    /// <summary>
+    /// The retail graphics set holding exactly <paramref name="records"/>, whose catalogued palette rows the import colours
+    /// its members' sheets in (#1512), or null when no retail set holds them: a fixture seeding a retail set's records loads
+    /// as that set, as the game's room loader would.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Retail sets holding these records catalogue different palette rows.</exception>
+    private static RoomEnemyGraphicsSetDefinition? RetailSetOf(List<RoomEnemyGraphicsSetHeader> records)
+    {
+        RoomEnemyGraphicsSetDefinition[] matches = [.. SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists.DrawnUnder
+            .Where(set => set.Records.Span.SequenceEqual(records.ToArray()))];
+        if (matches.Length == 0)
+            return null;
+        IReadOnlyDictionary<string, int[]> rows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows;
+        if (matches.Select(set => string.Join(',', rows[set.Name])).Distinct().Count() != 1)
+            throw new InvalidDataException($"Retail graphics sets {string.Join(", ", matches.Select(set => set.Name))} hold these records in different palette rows.");
+        return matches[0];
     }
 
     /// <summary>Combines two seeded bus bytes in native little-endian order.</summary>

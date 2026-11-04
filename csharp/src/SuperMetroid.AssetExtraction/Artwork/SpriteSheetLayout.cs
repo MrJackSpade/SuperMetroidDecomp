@@ -54,6 +54,9 @@ internal sealed class SpriteSheetLayout
     /// </summary>
     private readonly Dictionary<int, RowShadedInk>[] rowShadeInks;
 
+    /// <summary>Whether each ink's row shading is recorded: it follows from the ink alone, so it is recorded once.</summary>
+    private readonly bool[] rowShadedInks = new bool[8 * RowColours];
+
     /// <summary>Lays out a sheet's frames in order, then their part images.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
@@ -147,13 +150,40 @@ internal sealed class SpriteSheetLayout
         }
         RgbColor[] spriteColours = sources.SpriteColours;
         ushort[] colours = new ushort[spriteColours.Length];
-        for (int colour = 0; colour < colours.Length; colour++)
-            colours[colour] = spriteColours[colour].ToWord();
+        for (int ink = 0; ink < colours.Length; ink++)
+            colours[ink] = spriteColours[DrawnColourOf(ink)].ToWord();
         return new SpriteSheetDocument
         {
-            Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, Frames = manifest, PartImages = partManifest,
-            Shades = SheetShade.Documents([.. sources.Shades ?? [], .. RowShades()]),
+            Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,
+            Frames = manifest, PartImages = partManifest,
+            Shades = SheetShade.Documents([.. (sources.Shades ?? []).Select(InkShade), .. RowShades()]),
         };
+    }
+
+    /// <summary>
+    /// The sprite colour ink <paramref name="ink"/> shows as the family draws it: the colour of the ink's own row with the
+    /// family's palette bits ORed in. A sheet's ink is its part's own row and colour (#1512), so parts whose rows the bits
+    /// fold together keep separate inks, which a draw selecting another row shows apart.
+    /// </summary>
+    private int DrawnColourOf(int ink) => ((ink / RowColours) | sources.PaletteBits) * RowColours + ink % RowColours;
+
+    /// <summary>
+    /// <paramref name="shade"/>, which names the sprite colours it recolours, over the sheet's inks in rising order: each
+    /// ink drawn in one of those colours shows that colour's shade.
+    /// </summary>
+    private SheetShade InkShade(SheetShade shade)
+    {
+        var inks = new List<int>();
+        var shown = new List<RgbColor>();
+        for (int ink = 0; ink < sources.SpriteColours.Length; ink++)
+        {
+            int index = Array.IndexOf(shade.Inks, DrawnColourOf(ink));
+            if (index < 0)
+                continue;
+            inks.Add(ink);
+            shown.Add(shade.Colours[index]);
+        }
+        return shade with { Inks = [.. inks], Colours = [.. shown] };
     }
 
     /// <summary>
@@ -173,22 +203,23 @@ internal sealed class SpriteSheetLayout
     }
 
     /// <summary>
-    /// Records that a pixel of colour <paramref name="colour"/>, inked <paramref name="ink"/> in a part taking its draw's
-    /// row from <paramref name="partRow"/>, shows each row shade's colour, and whether the shade's draw takes it from
-    /// another row than the ink's own.
+    /// Records that ink <paramref name="ink"/>, a part's own row and colour, shows each row shade's colour, and whether the
+    /// shade's draw takes it from another row than the family's draw does. Both follow from the ink alone.
     /// </summary>
-    /// <exception cref="InvalidDataException">The ink already shows another colour, or another row, under a row shade.</exception>
-    private void ShadeRows(int ink, int partRow, int colour)
+    private void ShadeRows(int ink)
     {
+        if (rowShadedInks[ink])
+            return;
+        rowShadedInks[ink] = true;
         IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
+        int ownRow = ink / RowColours;
+        int colour = ink % RowColours;
         for (int index = 0; index < shades.Count; index++)
         {
             SheetRowShade shade = shades[index];
-            int shownRow = partRow | shade.Row;
-            var shown = new RowShadedInk(shade.SpriteColours[shownRow * RowColours + colour], shownRow != ink / RowColours);
-            if (rowShadeInks[index].TryGetValue(ink, out RowShadedInk known) && known != shown)
-                throw new InvalidDataException($"Sheet ink {ink} shows two colours under shade {shade.Shade.Key}: its parts take different rows.");
-            rowShadeInks[index][ink] = shown;
+            int shownRow = ownRow | shade.Row;
+            rowShadeInks[index][ink] = new RowShadedInk(shade.SpriteColours[shownRow * RowColours + colour],
+                shownRow * RowColours + colour != DrawnColourOf(ink));
         }
     }
 
@@ -206,8 +237,10 @@ internal sealed class SpriteSheetLayout
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
             SpriteFramePart part = source.Frame.Parts[partIndex];
-            // A part taking its draw's palette is coloured in the frame's, with the family's palette bits ORed in.
-            int paletteRow = (part.Palette ?? framePalette) | sources.PaletteBits;
+            // A part taking its draw's palette is coloured in the frame's, with the family's palette bits ORed in; its
+            // pixels are inked in its own row (#1512).
+            int ownRow = part.Palette ?? framePalette;
+            int paletteRow = ownRow | sources.PaletteBits;
             groups = groups.With(ImageColourGroup.Numbered(paletteRow));
             for (int row = 0; row < part.Size.Y; row++)
             {
@@ -219,12 +252,12 @@ internal sealed class SpriteSheetLayout
                         continue;
                     int at = (corner.Y + part.Offset.Y - bound.TopLeft.Y + row) * width + corner.X + part.Offset.X - bound.TopLeft.X + column;
                     planes.Pixels[at] = spriteColours[paletteRow * RowColours + colour].ToRgbaPixel();
-                    planes.PaletteIndices[at] = (byte)(paletteRow * RowColours + colour);
+                    planes.PaletteIndices[at] = (byte)(ownRow * RowColours + colour);
                     // Parts are laid back to front, so each pixel ends with the priority of the part in front.
                     planes.Priorities[at] = (byte)(part.Priority ?? priority);
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
-                        ShadeRows(paletteRow * RowColours + colour, part.Palette ?? framePalette, colour);
+                        ShadeRows(ownRow * RowColours + colour);
                 }
             }
         }

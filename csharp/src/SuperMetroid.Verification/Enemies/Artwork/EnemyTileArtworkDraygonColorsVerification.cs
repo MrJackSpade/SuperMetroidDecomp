@@ -106,6 +106,14 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         enemies.DraygonBehavior.Parts.InitializeDraygonBody(body);
+        // His hurt update shades every part he draws (#1512), so his eye, tail and arms attach after the body as in his room.
+        EnemyDefinitionId[] parts = [EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms];
+        for (int index = 0; index < parts.Length; index++)
+        {
+            RoomEnemySlot part = enemies.SlotTable.Slots[index + 1];
+            part.Bind(parts[index], part.Definition);
+            enemies.DraygonBehavior.Parts.InitializeDraygonPart(part);
+        }
         DraygonEnemyState state = enemies.DraygonBehavior.Parts.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
@@ -138,7 +146,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
             state.HealthPaletteBand = band;
-            enemies.DraygonBehavior.Combat.CopyDraygonHealthColors(state);
+            DraygonCombat.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
                     Shown()[DraygonColorDestinations.HealthDestination + color],
@@ -161,8 +169,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Draygon color property fails loudly");
         visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => DraygonColorFile.Write(visual),
-            "Draygon RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
+            "reading Draygon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

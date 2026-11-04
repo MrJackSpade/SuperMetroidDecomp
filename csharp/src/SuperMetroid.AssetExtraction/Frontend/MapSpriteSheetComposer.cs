@@ -58,5 +58,5 @@ internal static class MapSpriteSheetComposer
 
     /// <summary>The shade that shows a frame's palette-inheriting parts in sprite set <paramref name="set"/> of <paramref name="sprites"/>.</summary>
     private static SheetShade Drawn(PictureShade shade, RgbColor[] sprites, int set) =>
-        SheetShade.Run(shade, FrameInk, sprites.AsSpan(set * GroupColours, GroupColours));
+        SheetShade.DrawnRun(shade, FrameInk, sprites.AsSpan(set * GroupColours, GroupColours), set);
 }

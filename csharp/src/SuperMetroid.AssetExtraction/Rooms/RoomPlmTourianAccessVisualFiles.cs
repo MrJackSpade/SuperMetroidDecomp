@@ -33,10 +33,6 @@ public static class RoomPlmTourianAccessVisualFiles
             new RoomPlmVisualFamily<RoomPlmTourianAccessVisuals>(VisualFileName, "Tourian access", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Tourian access visuals.</summary>
-    /// <param name="directory">Stock Tourian access directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all five Tourian access-floor layouts and builds the visuals from the appearances that differ from the compiled layouts.</summary>
     /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and appearances.</param>
     /// <remarks>Edited arrays are copied; stock-identical layouts use compiled appearance, so caller-array edits after construction cannot alter the catalog.</remarks>

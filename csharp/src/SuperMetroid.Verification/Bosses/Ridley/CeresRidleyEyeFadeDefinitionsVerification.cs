@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Bosses.Ridley;

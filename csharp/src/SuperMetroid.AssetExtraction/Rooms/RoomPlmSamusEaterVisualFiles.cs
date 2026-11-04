@@ -30,10 +30,6 @@ public static class RoomPlmSamusEaterVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmSamusEaterVisuals>(VisualFileName, "Samus Eater plant", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Samus Eater visuals.</summary>
-    /// <param name="directory">Stock Samus Eater directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all eight three-run plant poses and builds the visuals from the authored appearances that differ from the compiled poses, without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
     /// <param name="entries">Exactly one eight-block visual-only entry for each compiled floor and ceiling pose.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

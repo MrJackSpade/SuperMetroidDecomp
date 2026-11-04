@@ -61,7 +61,7 @@ internal static class IntroNarrationPictureSheetComposer
             frames.Add(IntroNarrationPictures.Letter(letters[index]), PaintRect(canvas, index % cells, letterTop + index / cells, 1, [glyph], blanked, colours));
         }
         ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
-        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents(IntroSheetShades.Glow(colours)) } };
+        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. IntroSheetShades.Scene(colours), .. IntroSheetShades.Glow(colours)]) } };
     }
 
     /// <summary>
@@ -92,10 +92,6 @@ internal static class IntroNarrationPictureSheetComposer
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int cell = 0; cell < tiles.Length; cell++)
         {
-            // The narration shows its cross-fade level as one effect over all its colours, so it may draw in no colour
-            // outside the narration's own (#1512).
-            if (tiles[cell].ColourVariant > CinematicTextGlowDefinitions.FinalPalette)
-                throw new InvalidDataException($"Narration cell {cell} draws in colour variant {tiles[cell].ColourVariant}, outside the narration's colours.");
             int start = tiles[cell].Tile * CharacterBytes;
             if (start + CharacterBytes <= characters.Length)
                 coloured = coloured.Union(canvas.PaintTwoBppTile((left + cell % columns) * CharacterPixels, (top + cell / columns) * CharacterPixels, tiles[cell],

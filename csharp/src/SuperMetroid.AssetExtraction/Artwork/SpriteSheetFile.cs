@@ -11,14 +11,18 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 6;
+    public const int Version = 8;
 
-    /// <summary>Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings.</summary>
+    /// <summary>
+    /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
+    /// sheet manifests run to hundreds of megabytes across an installation, and indenting them more than doubles what the
+    /// install writes and every load parses (#1530).
+    /// </summary>
     internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
+        WriteIndented = false,
     };
 
     /// <summary>Reads a sheet manifest and cuts its frames from the sheet image.</summary>
@@ -42,7 +46,7 @@ public static class SpriteSheetFile
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []]);
+        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []], document.PaletteBits);
         return CutFrames(document, name, image);
     }
 
@@ -67,7 +71,7 @@ public static class SpriteSheetFile
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []]);
+        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []], document.PaletteBits);
         return CutFrames(document, name, image);
     }
 
@@ -89,7 +93,10 @@ public static class SpriteSheetFile
         {
             Shades = (document.Shades ?? []).ToImmutableDictionary(
                 shade => PictureShade.FromKey(shade.Key),
-                shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])),
+                shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])
+                {
+                    TakesColourMath = shade.Value.ColourMath,
+                }),
         };
 
     /// <summary>Cuts a manifest's part images and frames from the sheet image.</summary>

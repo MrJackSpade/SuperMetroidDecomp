@@ -148,15 +148,13 @@ public sealed class GameplayMessagePanelPresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    /// <summary>Serializes and validates the complete panel document before writing any UTF-8 JSON bytes.</summary>
+    /// <summary>Serializes the complete panel document as UTF-8 JSON bytes.</summary>
     /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Authored titles and tile arrays read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema, title or layout validation.</exception>
     public static void Write(Stream output, GameplayMessagePanelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

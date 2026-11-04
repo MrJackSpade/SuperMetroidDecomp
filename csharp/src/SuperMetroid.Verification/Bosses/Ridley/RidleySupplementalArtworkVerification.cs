@@ -16,6 +16,12 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 /// <summary>Checks installed Ridley wing and tail sprites against native OAM without runtime ROM reads.</summary>
 internal static class RidleySupplementalArtworkVerification
 {
+    /// <summary>
+    /// The palette bits Ridley's initialization stores as his spritemap palette index, which his wings' and tail's draws
+    /// take: his own row, for Ceres and Norfair alike.
+    /// </summary>
+    private const ushort RidleySpritemapPaletteBits = 0x0E00;
+
     /// <summary>Compares all wing phases and tail directions with native selectors and rendered OAM.</summary>
     internal static void VerifyInstalledRidleySupplementalArtwork(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
@@ -36,7 +42,7 @@ internal static class RidleySupplementalArtworkVerification
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, facing, wingFrame, tailDirection: null);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = RidleySpritemapPaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley wing selection {index} uses installed OAM without table or frame reads");
         }
@@ -51,9 +57,9 @@ internal static class RidleySupplementalArtworkVerification
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, facing: RidleyFacing.Turning, wingFrame: 0, tailDirection: direction);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = RidleySpritemapPaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             for (int segment = 5; segment >= 0; segment--)
-                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = RidleySupplementalVisualDefinitionsConstants.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = RidleySupplementalVisualDefinitionsConstants.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = RidleySpritemapPaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley tail direction {direction} retains tip-first reverse-segment OAM");
         }
@@ -101,6 +107,7 @@ internal static class RidleySupplementalArtworkVerification
     private static void AssertRidleySupplementOam(
         OamBuffer expected, OamBuffer actual, string description) =>
         AssertTrue(expected.ImageEquals(actual) &&
-                   expected.NextByteOffset == actual.NextByteOffset, description);
+                   expected.NextByteOffset == actual.NextByteOffset,
+            $"{description} ({expected.FirstDifference(actual)}; {expected.NextByteOffset} vs {actual.NextByteOffset} OAM bytes)");
 
 }

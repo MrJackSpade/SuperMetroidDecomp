@@ -98,11 +98,6 @@ public static class RoomPlmShotBlockVisualFiles
         return CreateCatalog(selected, overridePath);
     }
 
-    /// <summary>Runs stock provenance, hash, schema, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge access, or writes.</summary>
-    /// <param name="directory">Shot-block family directory containing both required stock files.</param>
-    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists and builds the visuals from the run appearances that differ from the calculated draws; compiled collision and run placement are never replaced.</summary>
     /// <param name="entries">Complete, duplicate-free draw identity set with unchanged run counts and lengths.</param>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>

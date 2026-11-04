@@ -38,11 +38,6 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", AllDraws, DrawVisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Runs the elevatube stock checks from <see cref="Load"/> with no override, cartridge reads, or writes.</summary>
-    /// <param name="directory">Family directory containing elevatube stock JSON and manifest.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>
     internal const string VisualId = "elevatube-block";
 

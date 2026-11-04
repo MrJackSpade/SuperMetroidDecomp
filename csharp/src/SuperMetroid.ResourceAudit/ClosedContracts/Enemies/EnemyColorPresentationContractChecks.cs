@@ -24,6 +24,7 @@ internal static class EnemyColorPresentationContractChecks
             using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
             using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
             using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+            using SuperMetroid.AssetExtraction.Enemies.Artwork;
             using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Bosses.Botwoon;
             using SuperMetroid.Core.Bosses.Botwoon.Artwork;

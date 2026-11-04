@@ -102,7 +102,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             state.BodyCursor,
             "installed Crocomire colors leave the initial program unchanged");
         // The import pre-colours his pictures in each load of his colours, which his colour state names (#1512).
-        var bosses = new BossSourceArtwork { CrocomireColors = colors };
+        BossSourceArtwork bosses = edited.Bosses;
         AssertBand(BossSheetShades.SpawnedObjects(bosses), CrocomireShades.Wall, 16, colors.ResolveInitialWall, "initial wall");
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
@@ -133,8 +133,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Crocomire color property fails loudly");
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CrocomireColorFile.Write(visual),
-            "Crocomire RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(visual), writable: false)),
+            "reading Crocomire colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

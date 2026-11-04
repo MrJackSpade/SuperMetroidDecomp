@@ -72,6 +72,9 @@ internal static class ObjCharacterImageConstants
             }
             var image = new SpriteImage($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
                 pixels, indices, standard, priorities);
+            // Each ink is the record's own palette row and colour, with no palette bits ORed in, as an installed sheet's
+            // manifest would record it (#1512).
+            SuperMetroid.AssetExtraction.Artwork.InstalledPictureColours.Record(image, [], paletteBits: 0);
             var frame = new SpriteSheetFrame(image, default, new(size.X, size.Y), default,
                 ImageColourGroups.Of(ImageColourGroup.Numbered(corner.Palette)), []);
             // The picture stands for the record's cells, as a composed sheet frame stands for its composition.

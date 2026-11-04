@@ -337,7 +337,7 @@ internal static class EndingPaletteArtworkVerification
                 Red = (document.Colors[changedColor].Red + 17) & 31,
             };
             using (var output = File.Create(overridePath))
-                EndingPaletteFile.Write(output, id, document);
+                EndingPaletteFile.Write(output, document);
             EndingPaletteSet edited = installation.LoadEndingPalettes();
             ReadOnlySpan<byte> original = EndingPaletteWords.Of(stock[id]).Span;
             ReadOnlySpan<byte> changed = EndingPaletteWords.Of(edited[id]).Span;
@@ -352,6 +352,8 @@ internal static class EndingPaletteArtworkVerification
                 var editedAudio = new AudioQueues();
                 var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
                 editedState.InstalledArtwork.BindPaletteArtwork(edited);
+                // The ending's pictures are pre-coloured from its palettes (#1512), so the edited ones draw from their own sheets.
+                editedState.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingPalettes(edited));
                 editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
                 var stockAudio = new AudioQueues();
                 var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
@@ -403,7 +405,7 @@ internal static class EndingPaletteArtworkVerification
             Green = (persistent.Colors[0].Green + 1) & 31,
         };
         using (var output = File.Create(invalidPath))
-            EndingPaletteFile.Write(output, EndingPaletteId.Escape, persistent);
+            EndingPaletteFile.Write(output, persistent);
         byte[] selected = EndingPaletteWords.Of(installation.LoadEndingPalettes()[EndingPaletteId.Escape]).ToArray();
         string stockCreditsPath = Path.Combine(installation.EndingPaletteDirectory,
             EndingPaletteFiles.FileName(EndingPaletteId.Credits));
@@ -437,8 +439,13 @@ internal static class EndingPaletteArtworkVerification
                 frame[color] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         byte[] editedFile = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        RoomPaletteFxPresentation editedColors = RoomPaletteFxPresentationFile.Read(
-            new MemoryStream(editedFile, writable: false));
+        // The ending's sprites, pictures and floors are pre-coloured from the maps' palette-FX colours (#1512), so the edit
+        // goes in as a player's map override, and the edited maps compose the sheets the edited scene draws.
+        Directory.CreateDirectory(installation.MapOverrideDirectory);
+        string overridePath = Path.Combine(installation.MapOverrideDirectory, RoomPaletteFxPresentationFormat.FileName);
+        File.WriteAllBytes(overridePath, editedFile);
+        AreaMapPresentation editedMaps = installation.LoadMaps();
+        RoomPaletteFxPresentation editedColors = editedMaps.RoomPaletteFx;
 
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();
@@ -459,6 +466,7 @@ internal static class EndingPaletteArtworkVerification
                 PictureShading before = editedScene.screen.Colours.Shading;
                 RgbColor beforeBackdrop = editedScene.screen.Colours.Backdrop;
                 editedScene.InstalledArtwork.BindPaletteFxColors(editedColors);
+                editedScene.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingMaps(editedMaps));
                 AssertTrue(before == editedScene.screen.Colours.Shading && beforeBackdrop == editedScene.screen.Colours.Backdrop,
                     "rebinding ending palette-FX preserves the already-shown shading and backdrop");
                 reboundDuringScene = true;
@@ -488,6 +496,7 @@ internal static class EndingPaletteArtworkVerification
         }
         AssertTrue(reboundDuringScene && visibleDifference,
             "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
+        File.Delete(overridePath);
     }
 
     /// <summary>Compares installed logo fade CGRAM with native playback while prohibiting source color reads.</summary>
@@ -533,13 +542,15 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
-            EndingPaletteFile.Write(output, EndingPaletteId.Credits, document);
+            EndingPaletteFile.Write(output, document);
         EndingPaletteSet edited = installation.LoadEndingPalettes();
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
+        // The ending's pictures are pre-coloured from its palettes (#1512), so the edited ones draw from their own sheets.
+        editedState.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingPalettes(edited));
         AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         bool visibleDifference = false;
@@ -582,13 +593,15 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
-            EndingPaletteFile.Write(output, EndingPaletteId.LogoCrossfade, document);
+            EndingPaletteFile.Write(output, document);
         EndingPaletteSet edited = installation.LoadEndingPalettes();
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();
         var editedState = CreateRetailEndingFixture(editedAudio, 2, 59);
         var stockState = CreateRetailEndingFixture(stockAudio, 2, 59);
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
+        // The ending's pictures are pre-coloured from its palettes (#1512), so the edited ones draw from their own sheets.
+        editedState.InstalledArtwork.BindSpriteSheets(EndingSheetFixtures.WithEndingPalettes(edited));
         AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         bool visibleDifference = false;

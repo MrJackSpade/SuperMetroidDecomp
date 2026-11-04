@@ -30,7 +30,7 @@ internal static class KraidRoomVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmKraidVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmKraidVisualFiles.ValidateStock(
+            RoomPlmKraidVisualFilesConstants.ValidateStock(
                 installation.RoomPlmKraidVisualDirectory);
             InstalledRoomPlmKraidVisuals stock =
                 installation.LoadRoomPlmKraidVisuals();
@@ -91,7 +91,7 @@ internal static class KraidRoomVisualsVerification
                 "Kraid override cannot change physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmKraidVisualFiles.ValidateStock(
+                () => RoomPlmKraidVisualFilesConstants.ValidateStock(
                     installation.RoomPlmKraidVisualDirectory),
                 "tampered Kraid stock fails manifest validation");
 

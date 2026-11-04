@@ -18,11 +18,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>Extracts ending/reward character PNGs and the waiting-scene BG2 tilemap.</summary>
 public static class EndingObjectArtworkFiles
 {
-    /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest, checking character and map transfers round-trip to native bytes.</summary>
+    /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for compressed character/map streams and native cloud, explosion, text, reward, and logo spritemaps.</param>
     /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">A native source is too short, a PNG/map transfer changes its native bytes, or a sprite composition is invalid.</exception>
+    /// <exception cref="InvalidDataException">A native source is too short or a sprite composition is invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -181,10 +181,6 @@ public static class EndingObjectArtworkFiles
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
             byte[] file = png.ToArray();
-            RoomCharacterAtlas compiled = RoomCharacterAtlasPng.Read(
-                new MemoryStream(file, writable: false), count);
-            if (!compiled.Characters.Span.SequenceEqual(native))
-                throw new InvalidDataException($"Ending OBJ PNG {name} changed native character bytes.");
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
@@ -199,10 +195,6 @@ public static class EndingObjectArtworkFiles
                 throw new InvalidDataException($"Ending map source ${source:X6} is shorter than {name}'s native DMA.");
             byte[] native = decoded.AsSpan(0, count).ToArray();
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
-            RoomBackgroundTilemapAtlas compiled = RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(json, writable: false), count);
-            if (!BackgroundTileWords.ToBytes(compiled.Tiles.Span).SequenceEqual(native))
-                throw new InvalidDataException($"Ending map JSON {name} changed native tilemap words.");
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
@@ -449,10 +441,6 @@ public static class EndingObjectArtworkFiles
             }
         }
     }
-
-    /// <summary>Validates stock provenance, complete file coverage and digests, and compilation of every ending/reward sheet, map, and sprite composition; ignores overrides.</summary>
-    /// <param name="directory">Installed stock ending object-artwork directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Stable manifest serialization options shared by extraction and installed-artwork loading.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

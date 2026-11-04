@@ -161,11 +161,6 @@ public static class RoomVisualLayoutFiles
         return new RoomLevelArtworks(selected, RoomVisualLayoutSourceDefinitions.All);
     }
 
-    /// <summary>Loads and validates every stock level through <see cref="Load"/> with no overrides, cartridge reads, or file writes.</summary>
-    /// <param name="directory">Room-layout family directory containing the manifest and all referenced stock JSON files.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, hashes, schema, coverage, or layouts are invalid.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>
     /// Moves each layout override still under its name from before #1414, which carried its level's cartridge source, to
     /// its level's name, and rewrites every override that still holds level words (versions one and two, before #1469)

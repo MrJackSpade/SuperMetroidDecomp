@@ -115,7 +115,8 @@ internal static class IntroScientistSpriteArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroScientistSpritePresentation.Write(malformed, document);
-        }, "scientist sprite artwork rejects a missing named frame");
+            _ = IntroScientistSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "scientist sprite artwork rejects a missing named frame on read");
         File.Delete(overridePath);
     }
 }

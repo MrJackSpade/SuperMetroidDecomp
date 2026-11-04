@@ -15,13 +15,22 @@ internal static class InstalledPictureColoursConstants
     /// <param name="ink">One of the picture's inks: its colour group's place times sixteen plus its colour.</param>
     /// <exception cref="ArgumentOutOfRangeException">The picture has no such ink.</exception>
     /// <exception cref="InvalidOperationException">A background picture was not loaded from an installed sheet manifest.</exception>
-    public static int CartridgeColourOf(SpriteImage picture, int ink)
+    public static int CartridgeColourOf(SpriteImage picture, int ink) => CartridgeColourOf(picture, ink, drawRow: 0);
+
+    /// <summary>
+    /// The native colour <paramref name="ink"/> of <paramref name="picture"/> shows when a draw ORs sprite row
+    /// <paramref name="drawRow"/> into its parts, as a frontend draw's colouring does (#1512).
+    /// </summary>
+    public static int CartridgeColourOf(SpriteImage picture, int ink, int drawRow)
     {
         Ensure.NotNull(picture);
         Ensure.BetweenInclusive(0, picture.StandardColours.Length - 1, ink);
         return picture.Colours switch
         {
-            SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst + ink,
+            // A sprite ink is its part's own row and colour, drawn from that row with the sheet's palette bits ORed in.
+            SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
+                + ((ink / GameplayColourPositionDefinitions.SetColours) | InstalledPictureColours.PaletteBitsOf(picture) | drawRow) * GameplayColourPositionDefinitions.SetColours
+                + ink % GameplayColourPositionDefinitions.SetColours,
             SpriteImageColours.FullPalette => GameplayColourPositionDefinitions.BackgroundSetsFirst + ink,
             SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => BackgroundColourOf(picture, ink),
             _ => throw new InvalidDataException($"Image {picture.Name} names an unknown colouring {picture.Colours}."),

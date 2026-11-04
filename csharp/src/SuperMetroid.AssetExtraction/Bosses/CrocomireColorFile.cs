@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -47,9 +48,9 @@ public static class CrocomireColorFile
         return edits;
     }
 
-    /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON, validating version, transfer lengths, and RGB5 channels before returning the bytes.</summary>
+    /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CrocomireColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

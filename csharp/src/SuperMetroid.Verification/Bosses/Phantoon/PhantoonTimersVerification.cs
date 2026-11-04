@@ -24,6 +24,8 @@ internal static class PhantoonTimersVerification
         var eye = enemies.SlotTable.Slots[1];
         var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3] };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
+        // His initialization shows his body black before any pattern fades it (#1512).
+        state.Colours.Show(PhantoonBodyLook.Black);
         var open = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.BeginPhantoonEyeTracking);
         var second = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.PickPhantoonSecondRoundPattern);
         var first = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern);

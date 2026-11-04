@@ -58,15 +58,14 @@ public sealed class EndingExplosionSpritePresentation : ICinematicSpriteFrames
         return new EndingExplosionSpritePresentation(frames);
     }
 
-    /// <summary>Validates and writes an ending-explosion sprite document as JSON.</summary>
+    /// <summary>Writes an ending-explosion sprite document as JSON.</summary>
     /// <param name="json">Destination stream.</param>
-    /// <param name="document">Document to validate and serialize.</param>
+    /// <param name="document">Document to serialize.</param>
     public static void Write(Stream json, EndingExplosionSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

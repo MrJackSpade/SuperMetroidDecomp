@@ -93,10 +93,6 @@ public static class RoomPlmCollectibleVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled collectible visuals.</summary>
-    /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all twenty-four compiled one-cell frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
     /// <param name="entries">Exactly one appearance for each compiled collectible frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

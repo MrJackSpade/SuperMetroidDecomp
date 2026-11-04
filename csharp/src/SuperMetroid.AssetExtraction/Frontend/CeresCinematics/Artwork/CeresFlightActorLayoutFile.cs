@@ -45,17 +45,15 @@ public static class CeresFlightActorLayoutFile
         return new CeresFlightActorPlacements(document.Actors);
     }
 
-    /// <summary>Serializes the editable layout as UTF-8 JSON and validates it through <see cref="Read"/> before writing any bytes to the destination.</summary>
+    /// <summary>Serializes the editable layout as UTF-8 JSON and writes it to the destination.</summary>
     /// <param name="json">Destination stream, written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Supported-version document containing the five ordered actor placements.</param>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">The serialized document fails layout validation.</exception>
     public static void Write(Stream json, CeresFlightActorLayoutDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

@@ -286,6 +286,7 @@ internal static class SamusBodyArtworkVerification
                 nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.DeathSteps);
                 installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.DeathSteps);
             }
+            int pairFrames = 0;
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
@@ -297,12 +298,20 @@ internal static class SamusBodyArtworkVerification
                 // whiteout one of the cartridge's whiteout shades.
                 RgbColor[] shownSuit = installedColors.ShownSuit(InstalledFixtures.SamusShadeSources);
                 RgbColor[] shownSuitless = installedColors.ShownSuitless(InstalledFixtures.SamusShadeSources);
-                AssertTrue(Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount).Any(palette =>
-                        CartridgeDeathColours(bus, SamusSourceDefinitions.SuitPointers.Value +
-                            (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * sizeof(ushort)).SequenceEqual(shownSuit.Select(colour => colour.ToWord())) &&
-                        CartridgeDeathColours(bus, SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort))
-                            .SequenceEqual(shownSuitless.Select(colour => colour.ToWord()))),
-                    $"death suit {suit} frame {frame} shows one of the cartridge's death palette pairs");
+                ushort[] suitWords = [.. shownSuit.Select(colour => colour.ToWord())];
+                ushort[] suitlessWords = [.. shownSuitless.Select(colour => colour.ToWord())];
+                int[] suitMatches = [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount).Where(palette => CartridgeDeathColours(bus,
+                    SamusSourceDefinitions.SuitPointers.Value + (suit * SamusPaletteDefinitions.Death.PaletteCount + palette) * sizeof(ushort)).SequenceEqual(suitWords))];
+                int[] suitlessMatches = [.. Enumerable.Range(0, SamusPaletteDefinitions.Death.PaletteCount).Where(palette => CartridgeDeathColours(bus,
+                    SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)).SequenceEqual(suitlessWords))];
+                // Until the sequence writes its first pair, her colours are the ones she had, as the cartridge's CGRAM is.
+                bool pairWritten = installedColors.Shading.Shades.Any(shade => shade.Effect == SamusShades.DeathSuitless(0).Effect);
+                if (pairWritten)
+                    pairFrames++;
+                bool pair = !pairWritten || suitMatches.Intersect(suitlessMatches).Any();
+                AssertTrue(pair, pair ? "death colours are a cartridge pair"
+                    : $"death suit {suit} frame {frame} shows one of the cartridge's death palette pairs (suit {Hex(suitWords)}; suitless "
+                      + $"{Hex(suitlessWords)}; suit matches {string.Join(',', suitMatches)}; suitless matches {string.Join(',', suitlessMatches)})");
                 AssertTrue(installedSamus.DeathSequence.Whiteout is not { } whiteout ||
                     Enumerable.Range(0, SamusPaletteDefinitions.Death.WhiteoutShadeCount).Any(shade =>
                         CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort))
@@ -319,6 +328,7 @@ internal static class SamusBodyArtworkVerification
                     break;
                 AssertTrue(frame < 239, $"death suit {suit} terminates within 240 frames");
             }
+            AssertTrue(pairFrames > 0, $"death suit {suit} shows the cartridge's death palette pairs");
         }
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
@@ -747,4 +757,7 @@ internal static class SamusBodyArtworkVerification
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }
+
+    /// <summary>Colour words as four-digit hexadecimal, for a failure message.</summary>
+    private static string Hex(ushort[] words) => string.Join(' ', words.Select(word => word.ToString("X4", System.Globalization.CultureInfo.InvariantCulture)));
 }

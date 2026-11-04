@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -45,11 +46,11 @@ public static class PhantoonColorFile
         return parts;
     }
 
-    /// <summary>Validates and serializes a Phantoon color document as UTF-8 JSON.</summary>
+    /// <summary>Serializes a Phantoon color document as UTF-8 JSON.</summary>
     /// <param name="document">Document containing every required color source.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(PhantoonColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

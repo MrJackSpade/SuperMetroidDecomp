@@ -37,11 +37,6 @@ public static class RoomPlmGreyDoorVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmGreyDoorVisuals>(VisualFileName, "Grey-door", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Runs stock manifest, hash, schema, and compiled-appearance checks without selecting overrides, reading a cartridge, or writing files.</summary>
-    /// <param name="directory">Grey-door family directory containing both required stock files.</param>
-    /// <exception cref="InvalidDataException">The stock installation fails the checks performed by <see cref="Load"/>.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all twenty clear/grey-door frames and builds the visuals from the appearances that differ from the compiled caps.</summary>
     /// <param name="entries">Exactly one four-block visual-only entry for each compiled orientation and frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

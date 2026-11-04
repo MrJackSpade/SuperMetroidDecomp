@@ -33,6 +33,12 @@ public sealed class KraidEyeColours
     /// <summary>The eyes' colours under the hurt flash.</summary>
     internal ReadOnlySpan<RgbColor> Hurt => hurt;
 
+    /// <summary>
+    /// The colours every shade of his body shows his eyes in, his first health band's: his eye glow shows the eyes' colours
+    /// now in their place, so the eyes show what the glow holds whichever band or flash his body shows.
+    /// </summary>
+    internal ReadOnlySpan<RgbColor> Shaded => bands[0];
+
     /// <summary>The eyes' colours under health band <paramref name="band"/>, zero through seven.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The band is not one of the eight.</exception>
     internal ReadOnlySpan<RgbColor> HealthBand(int band) =>

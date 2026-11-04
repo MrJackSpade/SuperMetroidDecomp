@@ -216,7 +216,9 @@ internal sealed class CeresRidleyBabyScene
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
                 new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),
-                CeresDoorShades.InNormalColours);
+                // The hook draws the overlay in the row the room's set loads the door's colours into, which its parts name
+                // themselves; the door actor's own row and its looks never reach it (#1512).
+                PictureShading.Standard);
         }
     }
 

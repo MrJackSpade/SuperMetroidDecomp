@@ -29,10 +29,6 @@ public static class RoomPlmNoobTubeVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmNoobTubeVisuals>(VisualFileName, "n00b-tube", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled n00b-tube visuals.</summary>
-    /// <param name="stockDirectory">Stock n00b-tube directory; overrides are ignored.</param>
-    public static void ValidateStock(string stockDirectory) => Load(stockDirectory);
-
     /// <summary>Validates all seven n00b-tube layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block runs.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

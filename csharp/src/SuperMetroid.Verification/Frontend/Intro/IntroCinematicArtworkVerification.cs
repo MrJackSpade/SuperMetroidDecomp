@@ -429,8 +429,7 @@ internal static class IntroCinematicArtworkVerification
                         document.Pages[0].Cells[cell] = document.Pages[0].Cells[cell] with
                         { TileColumn = 0, TileRow = 0, Palette = 7, Priority = true };
                 using (var output = File.Create(overridePath))
-                    RoomBackgroundTilemapAtlas.Write(output, document,
-                        IntroCinematicArtworkFormat.BackgroundPageByteCount);
+                    RoomBackgroundTilemapAtlas.Write(output, document);
 
                 IntroCinematicSourceArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
@@ -500,8 +499,7 @@ internal static class IntroCinematicArtworkVerification
                     TileColumn = (original.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
                 };
                 using (var output = File.Create(overridePath))
-                    RoomBackgroundTilemapAtlas.Write(output, document,
-                        IntroCinematicArtworkFormat.BackgroundPageByteCount);
+                    RoomBackgroundTilemapAtlas.Write(output, document);
 
                 IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
@@ -808,8 +806,10 @@ internal static class IntroCinematicArtworkVerification
         IntroMotherBrainSpriteDocument document = RequiredJson.Deserialize<IntroMotherBrainSpriteDocument>(
             File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        // Her parts inherit the draw's row, which every part row ORs into as the cartridge's does (#1512), so a palette
+        // edit cannot show; mirroring each part in place changes her drawn art and leaves every part where it was.
         document.Frames["mother-brain-frame-0"] = document.Frames["mother-brain-frame-0"]
-            .Select(part => part with { Palette = 0 }).ToArray();
+            .Select(part => part with { FlipX = !part.FlipX }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroMotherBrainSpritePresentation.Write(output, document);
@@ -827,11 +827,11 @@ internal static class IntroCinematicArtworkVerification
             IntroMotherBrainSpriteState.Colouring);
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
-            "intro Mother Brain palette edit changes OAM art but not sprite size or X high bits");
+            "intro Mother Brain sprite edit changes OAM art but not sprite size or X high bits");
         for (int part = 0; part < IntroMotherBrainSpriteDefinitions.StockPartCount; part++)
             AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
                     .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
-                $"intro Mother Brain palette edit preserves part {part} screen position");
+                $"intro Mother Brain sprite edit preserves part {part} screen position");
 
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
@@ -840,12 +840,22 @@ internal static class IntroCinematicArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            (state.CurrentFlashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
+        // Her flashback fades her in from black, and her shading follows the fade (#1512), so her art shows only once the
+        // fade lets it: the scenes step together through the flashback until the edited art shows.
         RgbaPixel[] stockPixels = stockState.RenderArtwork();
         RgbaPixel[] editedPixels = editedState.RenderArtwork();
+        int steps = 0;
+        while (editedPixels.SequenceEqual(stockPixels) && stockState.CurrentFlashbackMotherBrain is not null)
+        {
+            stockState.Step(default);
+            editedState.Step(default);
+            steps++;
+            stockPixels = stockState.RenderArtwork();
+            editedPixels = editedState.RenderArtwork();
+        }
         AssertTrue(!editedPixels.SequenceEqual(stockPixels),
-            "intro Mother Brain palette override changes visible production scene pixels");
+            $"intro Mother Brain sprite override changes visible production scene pixels ({steps} flashback steps)");
         stockState.BindFixtureIntroArtwork(edited);
         AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro Mother Brain scene rebinds the selected visual composition");
@@ -888,8 +898,9 @@ internal static class IntroCinematicArtworkVerification
             RequiredJson.Deserialize<IntroMotherBrainExplosionSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        // The part inherits the draw's row, so a palette edit cannot show (#1512); the next frame's character can.
         document.Frames["small-explosion-0"] = document.Frames["small-explosion-0"]
-            .Select(part => part with { Palette = 0 }).ToArray();
+            .Select(part => part with { TileColumn = 1 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroMotherBrainExplosionSpritePresentation.Write(output, document);
@@ -908,11 +919,11 @@ internal static class IntroCinematicArtworkVerification
         explosions.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).MotherBrainExplosionSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!editedOam.ImageEquals(stockOam),
-            "intro explosion palette edit changes production OAM attributes, not actor placement");
+            "intro explosion art edit changes production OAM, not actor placement");
         for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
             AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
                     .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
-                $"intro explosion palette edit preserves native part {part} X/Y");
+                $"intro explosion art edit preserves native part {part} X/Y");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");
 
@@ -922,12 +933,25 @@ internal static class IntroCinematicArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            state.FlashbackMotherBrainExplosions = explosions;
         }
-        RgbaPixel[] stockPixels = stockState.RenderArtwork();
-        RgbaPixel[] editedPixels = editedState.RenderArtwork();
+        // The flashback fades in from black, and the explosions' shading follows the fade (#1512): the scenes step together
+        // through the flashback, showing the explosions in each, until the edited art shows. The explosions are shown only
+        // for each look, so the scenes step as they would without them.
+        RgbaPixel[] stockPixels, editedPixels;
+        int steps = 0;
+        while (true)
+        {
+            stockPixels = WithExplosions(stockState);
+            editedPixels = WithExplosions(editedState);
+            if (!stockPixels.SequenceEqual(editedPixels) || stockState.CurrentFlashbackMotherBrain is null)
+                break;
+            stockState.Step(default);
+            editedState.Step(default);
+            steps++;
+        }
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            "intro explosion art override changes visible production flashback pixels");
+            $"intro explosion art override changes visible production flashback pixels ({steps} flashback steps)");
+        stockState.FlashbackMotherBrainExplosions = explosions;
         stockState.BindFixtureIntroArtwork(edited);
         AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro explosion scene rebinds the selected visual composition");
@@ -939,8 +963,18 @@ internal static class IntroCinematicArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroMotherBrainExplosionSpritePresentation.Write(malformed, document);
-        }, "intro explosion artwork rejects a missing named frame");
+            _ = IntroMotherBrainExplosionSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "intro explosion artwork rejects a missing named frame on read");
         File.Delete(overridePath);
+
+        RgbaPixel[] WithExplosions(IntroCinematicState state)
+        {
+            var shown = state.FlashbackMotherBrainExplosions;
+            state.FlashbackMotherBrainExplosions = explosions;
+            RgbaPixel[] pixels = state.RenderArtwork();
+            state.FlashbackMotherBrainExplosions = shown;
+            return pixels;
+        }
     }
 
     /// <summary>Builds a guard that reports any cinematic read from selected migrated artwork ranges.</summary>

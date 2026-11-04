@@ -61,15 +61,14 @@ public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
         return new IntroCaretSpritePresentation(frames);
     }
 
-    /// <summary>Serializes a caret document using the presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination stream.</summary>
-    /// <param name="json">Destination stream for the validated UTF-8 JSON.</param>
+    /// <summary>Serializes a caret document using the presentation JSON options and writes it to the destination stream.</summary>
+    /// <param name="json">Destination stream for the UTF-8 JSON.</param>
     /// <param name="document">Current or supported legacy document to serialize.</param>
     public static void Write(Stream json, IntroCaretSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

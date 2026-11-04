@@ -72,23 +72,15 @@ public static class ChargeFlarePlacementFile
         return new(offsets, source);
     }
 
-    /// <summary>Serializes a beam placement document as indented camel-case UTF-8 JSON and validates its version, complete key set, and signed offsets through the beam loader before returning it.</summary>
+    /// <summary>Serializes a beam placement document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Document containing every standing, turning and running direction placement.</param>
-    /// <returns>Validated placement JSON bytes.</returns>
-    public static byte[] Write(ChargeFlarePlacementDocument document) => Write(document, ChargeFlareSource.Beam);
+    /// <returns>Placement JSON bytes.</returns>
+    public static byte[] Write(ChargeFlarePlacementDocument document) => JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
-    /// <summary>Serializes a Grapple placement document and validates it through the Grapple loader before returning it.</summary>
+    /// <summary>Serializes a Grapple placement document as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Document containing every standing and running direction placement.</param>
-    /// <returns>Validated placement JSON bytes.</returns>
-    public static byte[] WriteGrapple(ChargeFlarePlacementDocument document) => Write(document, ChargeFlareSource.Grapple);
-
-    /// <summary>Serializes a placement document and validates it through the loader of <paramref name="source"/>.</summary>
-    private static byte[] Write(ChargeFlarePlacementDocument document, ChargeFlareSource source)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes), source);
-        return bytes;
-    }
+    /// <returns>Placement JSON bytes.</returns>
+    public static byte[] WriteGrapple(ChargeFlarePlacementDocument document) => JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Rejects duplicate top-level or nested object keys before deserialization can overwrite them.</summary>
     private static void ValidateUnique(JsonElement element) =>

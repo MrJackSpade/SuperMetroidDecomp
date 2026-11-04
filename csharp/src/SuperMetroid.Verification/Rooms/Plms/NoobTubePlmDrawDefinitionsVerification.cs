@@ -127,7 +127,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmNoobTubeVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmNoobTubeVisualFiles.ValidateStock(
+        RoomPlmNoobTubeVisualFilesConstants.ValidateStock(
             installation.RoomPlmNoobTubeVisualDirectory);
         VerifyNoobTubeStockMapping(rom, installation.LoadRoomPlmNoobTubeVisuals());
         string stockPath = Path.Combine(

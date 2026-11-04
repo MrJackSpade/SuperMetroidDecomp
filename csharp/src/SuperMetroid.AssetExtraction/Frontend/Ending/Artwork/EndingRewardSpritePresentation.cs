@@ -61,13 +61,12 @@ public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
         return new EndingRewardSpritePresentation(frames);
     }
 
-    /// <summary>Validates and writes an ending-reward sprite document as JSON.</summary>
+    /// <summary>Writes an ending-reward sprite document as JSON.</summary>
     public static void Write(Stream json, EndingRewardSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

@@ -265,7 +265,8 @@ internal static class EndingExplosionSpriteArtworkVerification
             {
                 using var invalid = new MemoryStream();
                 EndingExplosionSpritePresentation.Write(invalid, document);
-            }, "ending explosion sprites reject missing named art");
+                _ = EndingExplosionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+            }, "ending explosion sprites reject missing named art on read");
         }
         finally
         {

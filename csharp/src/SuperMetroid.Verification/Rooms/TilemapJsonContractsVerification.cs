@@ -34,7 +34,7 @@ internal static class TilemapJsonContractsVerification
                     .Take(RoomBackgroundTilemapFormat.CellsPerPage).ToArray() }).ToArray(),
             };
             using var output = new MemoryStream();
-            RoomBackgroundTilemapAtlas.Write(output, document, native.Length);
+            RoomBackgroundTilemapAtlas.Write(output, document);
             string json = Encoding.UTF8.GetString(output.ToArray());
             void Load(string text) => AssertTrue(RoomBackgroundTilemapAtlas.Load(
                 TilemapContractStream(text), native.Length).Bytes.Span.SequenceEqual(native),

@@ -968,7 +968,7 @@ internal static void VerifyBg2ScreenLayout()
 
     // The frame the display renderer draws of the gameplay layer alone, with no sprites.
     static RgbaPixel[] RenderOrdinaryGameplay(SnesCgram cgram, GameplaySceneLayer layer) =>
-        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram.Colors, []), new DisplayLayer[] { layer }, DisplayBrightness.Full));
+        DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram.Colors, []), new DisplayLayer[] { layer }, DisplayBrightness.Full));
 }
 
 /// <summary>

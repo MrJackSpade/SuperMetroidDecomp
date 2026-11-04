@@ -39,11 +39,6 @@ public static class RoomPlmKraidVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the stock Kraid installation through <see cref="Load"/> with no override, cartridge reads, or file writes.</summary>
-    /// <param name="directory">Family directory containing the Kraid visual JSON and manifest.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates and copies all ten Kraid ceiling and spike layouts, building the visuals without changing collision appearances, crumble timing, or movement callbacks.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled role, with one block for individual stages or fifteen/twenty-two for the clearing layouts.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

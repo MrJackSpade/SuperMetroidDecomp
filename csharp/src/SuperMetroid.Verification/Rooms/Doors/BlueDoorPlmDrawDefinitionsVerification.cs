@@ -128,7 +128,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBlueDoorVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmBlueDoorVisualFiles.ValidateStock(
+        RoomPlmBlueDoorVisualFilesConstants.ValidateStock(
             installation.RoomPlmBlueDoorVisualDirectory);
         var installed = installation.LoadRoomPlmBlueDoorVisuals();
         VerifyBlueDoorStockMapping(rom, installed);

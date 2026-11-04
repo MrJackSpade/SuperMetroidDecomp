@@ -31,12 +31,11 @@ public static class KraidColorFile
             Compile(document.DeathArm, KraidPaletteSource.DeathArm)));
     }
 
-    /// <summary>Serializes the five editable sources to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
+    /// <summary>Serializes the five editable sources to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Complete palette sources to serialize; the writer does not retain their arrays.</param>
-    /// <returns>Validated JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, palette-length, or RGB5-channel validation.</exception>
+    /// <returns>JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
     public static byte[] Write(KraidColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, JsonOptions, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
 
     /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)

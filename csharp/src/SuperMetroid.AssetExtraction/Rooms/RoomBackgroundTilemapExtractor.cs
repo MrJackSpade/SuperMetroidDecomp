@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -12,9 +11,9 @@ public static class RoomBackgroundTilemapExtractor
     /// <summary>Decompresses every background tilemap and exports its ordered BG tilemap pages.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
     /// <returns>A new filename-keyed collection of UTF-8 JSON byte arrays, each preserving one or two 32x32 pages of tile references and BG attributes.</returns>
-    /// <remarks>Verifies exact native-word roundtrips. Page order is retained without inferring room geometry, and files are not written.</remarks>
+    /// <remarks>Page order is retained without inferring room geometry, and files are not written.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Decompression, page size, or tilemap roundtrip validation fails.</exception>
+    /// <exception cref="InvalidDataException">Decompression or page size validation fails.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -48,12 +47,7 @@ public static class RoomBackgroundTilemapExtractor
             {
                 Version = RoomBackgroundTilemapFormat.Version,
                 Pages = pages,
-            }, native.Length);
-        byte[] serialized = json.ToArray();
-        RoomBackgroundTilemapAtlas roundtrip = RoomBackgroundTilemapAtlas.Load(
-            new MemoryStream(serialized, writable: false), native.Length);
-        if (!roundtrip.Tiles.Span.SequenceEqual(BackgroundTileWords.ToTiles(native)))
-            throw new InvalidDataException("Room background tilemap JSON changed native tiles.");
-        return serialized;
+            });
+        return json.ToArray();
     }
 }

@@ -29,10 +29,6 @@ public static class RoomPlmBlueDoorVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmBlueDoorVisuals>(VisualFileName, "Blue-door", Editable, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled blue-door visuals.</summary>
-    /// <param name="directory">Stock blue-door directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates complete canonical blue-door frame coverage and builds the visuals from the appearances that differ from the compiled caps.</summary>
     /// <param name="entries">Exactly one entry for every editable frame, each retaining the four-block run geometry.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

@@ -164,7 +164,12 @@ internal static class MapSaveMarkersVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
         foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() => MapSaveMarkerFile.Write(new MemoryStream(), bad), "invalid save marker layout rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                MapSaveMarkerFile.Write(written, bad);
+                _ = MapSaveMarkerFile.Read(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid save marker layout rejected on read");
         File.WriteAllText(path, "{bad save markers");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad save marker override cannot fall back");
         AssertEqual("{bad save markers", File.ReadAllText(path), "bad save marker override preserved");

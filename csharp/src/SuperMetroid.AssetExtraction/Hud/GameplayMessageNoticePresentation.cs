@@ -188,14 +188,13 @@ public sealed class GameplayMessageNoticePresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    /// <summary>Serializes to memory and passes the result through normal loading validation before writing any bytes to the destination.</summary>
+    /// <summary>Serializes the document to the destination.</summary>
     /// <param name="output">The destination stream.</param>
-    /// <param name="document">The document to validate and serialize.</param>
+    /// <param name="document">The document to serialize.</param>
     public static void Write(Stream output, GameplayMessageNoticeDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

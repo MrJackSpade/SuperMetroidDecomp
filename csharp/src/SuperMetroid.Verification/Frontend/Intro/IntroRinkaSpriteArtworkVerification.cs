@@ -73,8 +73,9 @@ internal static class IntroRinkaSpriteArtworkVerification
         IntroRinkaSpriteDocument document = RequiredJson.Deserialize<IntroRinkaSpriteDocument>(
             File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        // The parts inherit the draw's row, so a palette edit cannot show (#1512); the next frame's character can.
         document.Frames["rinka-0"] = document.Frames["rinka-0"]
-            .Select(part => part with { Palette = 0 }).ToArray();
+            .Select(part => part with { TileColumn = 7 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroRinkaSpritePresentation.Write(output, document);
@@ -103,11 +104,11 @@ internal static class IntroRinkaSpriteArtworkVerification
         rinkas.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).RinkaSprites));
         editedOam.FinalizeFrame();
         AssertTrue(!stockOam.ImageEquals(editedOam),
-            "intro Rinka palette edit changes live OAM attributes without moving actors");
+            "intro Rinka art edit changes live OAM without moving actors");
         for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
             AssertTrue(stockOam.LowTable.Slice(part * 4, 2)
                     .SequenceEqual(editedOam.LowTable.Slice(part * 4, 2)),
-                $"intro Rinka palette edit preserves native part {part} X/Y");
+                $"intro Rinka art edit preserves native part {part} X/Y");
 
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(characterArtwork: edited);
@@ -115,12 +116,25 @@ internal static class IntroRinkaSpriteArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            state.FlashbackRinkas = rinkas;
         }
-        RgbaPixel[] stockPixels = stockState.RenderArtwork();
-        RgbaPixel[] editedPixels = editedState.RenderArtwork();
+        // The flashback fades in from black, and the Rinkas' shading follows the fade (#1512): the scenes step together
+        // through the flashback, showing the Rinkas in each, until the edited art shows. The Rinkas are shown only for
+        // each look, so the scenes step as they would without them.
+        RgbaPixel[] stockPixels, editedPixels;
+        int steps = 0;
+        while (true)
+        {
+            stockPixels = WithRinkas(stockState);
+            editedPixels = WithRinkas(editedState);
+            if (!stockPixels.SequenceEqual(editedPixels) || stockState.CurrentFlashbackMotherBrain is null)
+                break;
+            stockState.Step(default);
+            editedState.Step(default);
+            steps++;
+        }
         AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            "intro Rinka override changes visible production flashback pixels");
+            $"intro Rinka override changes visible production flashback pixels ({steps} flashback steps)");
+        stockState.FlashbackRinkas = rinkas;
         stockState.BindFixtureIntroArtwork(edited);
         AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
             "restored intro Rinka scene rebinds the selected visual composition");
@@ -132,7 +146,17 @@ internal static class IntroRinkaSpriteArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroRinkaSpritePresentation.Write(malformed, document);
-        }, "intro Rinka artwork rejects a missing named frame");
+            _ = IntroRinkaSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "intro Rinka artwork rejects a missing named frame on read");
         File.Delete(overridePath);
+
+        RgbaPixel[] WithRinkas(IntroCinematicState state)
+        {
+            var shown = state.FlashbackRinkas;
+            state.FlashbackRinkas = rinkas;
+            RgbaPixel[] pixels = state.RenderArtwork();
+            state.FlashbackRinkas = shown;
+            return pixels;
+        }
     }
 }

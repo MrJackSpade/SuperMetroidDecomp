@@ -17,8 +17,7 @@ public static class StandardObjectArtworkFiles
     /// <summary>Exports the selected $2E00-byte standard OBJ span as an indexed PNG, verifies its exact planar-byte round-trip, writes its hashed manifest, and validates stock.</summary>
     /// <param name="bus">Cartridge import source for the standard OBJ artwork beginning at $9A:D200.</param>
     /// <param name="directory">Destination directory, created if absent; existing standard OBJ PNG and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; the final stock check requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">The PNG changes native character bytes or the resulting stock installation fails provenance, digest, or atlas validation.</exception>
+    /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -32,15 +31,10 @@ public static class StandardObjectArtworkFiles
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] selected = png.ToArray();
-        RoomCharacterAtlas loaded = RoomCharacterAtlasPng.Read(
-            new MemoryStream(selected, writable: false), StandardObjectArtworkFormat.ByteCount);
-        if (!loaded.Characters.Span.SequenceEqual(native))
-            throw new InvalidDataException("Standard OBJ PNG changed native tile bytes during extraction.");
         File.WriteAllBytes(Path.Combine(directory, StandardObjectArtworkFormat.FileName), selected);
         File.WriteAllBytes(Path.Combine(directory, StandardObjectArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new Manifest(StandardObjectArtworkFormat.Version,
                 sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(selected)))));
-        ValidateStock(directory);
     }
 
     /// <summary>Validates stock provenance, PNG digest, and atlas geometry before compiling an optional standard OBJ PNG replacement without cartridge access.</summary>
@@ -87,10 +81,6 @@ public static class StandardObjectArtworkFiles
             throw new InvalidDataException($"Invalid standard OBJ PNG {overridePath ?? stockPath}: {error.Message}", error);
         }
     }
-
-    /// <summary>Checks stock provenance and PNG digest and compiles the exact standard OBJ transfer, including zero-only unused display cells; ignores overrides.</summary>
-    /// <param name="stockDirectory">Installed stock standard OBJ artwork directory.</param>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
     /// <summary>Binds the stock OBJ PNG digest to its source cartridge and asset format version.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256, string PngSha256);

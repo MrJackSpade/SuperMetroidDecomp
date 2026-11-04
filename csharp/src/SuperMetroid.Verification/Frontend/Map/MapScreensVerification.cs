@@ -145,13 +145,28 @@ internal static class MapScreensVerification
         }
         var invalidPages = new Dictionary<string, MapPresentationCell[]>(document.Pages);
         invalidPages.Remove(MapScreenDefinitions.WorldForeground.Name);
-        AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "missing named screen page rejected");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            MapScreenPresentation.Write(written, document with { Pages = invalidPages });
+            _ = MapScreenPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "missing named screen page rejected on read");
         invalidPages = new(document.Pages);
         invalidPages[MapScreenDefinitions.WorldForeground.Name] = [];
-        AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "wrong page dimensions rejected");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            MapScreenPresentation.Write(written, document with { Pages = invalidPages });
+            _ = MapScreenPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "wrong page dimensions rejected on read");
         invalidPages[MapScreenDefinitions.WorldForeground.Name] = document.Pages[MapScreenDefinitions.WorldForeground.Name].ToArray();
         invalidPages[MapScreenDefinitions.WorldForeground.Name][0] = invalidPages[MapScreenDefinitions.WorldForeground.Name][0] with { TileRow = 999 };
-        AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "out of atlas reference rejected");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            MapScreenPresentation.Write(written, document with { Pages = invalidPages });
+            _ = MapScreenPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "out of atlas reference rejected on read");
         File.WriteAllText(jsonPath, "broken JSON");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt screen override fails loudly");
         AssertEqual("broken JSON", File.ReadAllText(jsonPath), "invalid screen override never overwritten");

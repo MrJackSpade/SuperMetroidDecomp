@@ -237,9 +237,6 @@ public static class MapPresentationFiles
         new(bytes.Array ?? throw new ArgumentException("A stock resource view must wrap an array.", nameof(bytes)),
             bytes.Offset, bytes.Count, writable: false, publiclyVisible: true);
 
-    /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
     private sealed class VerifiedStockReader : IDisposable
     {

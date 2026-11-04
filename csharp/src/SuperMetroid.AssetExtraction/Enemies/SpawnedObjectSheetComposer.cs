@@ -78,19 +78,21 @@ internal static class SpawnedObjectSheetComposer
     /// <summary>
     /// What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>, pre-coloured in
     /// the shared shades, its spawners' shades and, at character zero, the shades of the objects any room spawns (#1512). A
-    /// spawner's effects on its own row hold only on its own tile bases' sheets, which are coloured in its row.
+    /// spawned object draws in its spawner's shading, so a spawner's effects on its own row, which <paramref name="rowOf"/>
+    /// gives, hold on every sheet coloured in that row, the character-zero sheet among them.
     /// </summary>
     internal static SpawnedObjectSheetSource Sources(EnemyTileSourceArtwork enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
-        RgbColor[] colours, EnemySheetShades shades)
+        RgbColor[] colours, EnemySheetShades shades, Func<EnemyDefinitionId, int> rowOf)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(plan);
         Ensure.NotNull(shades);
+        Ensure.NotNull(rowOf);
         var inkShades = new List<SheetShade>();
         var rowShades = new List<SheetRowShade>(shades.Shared());
         foreach (EnemyDefinitionId spawner in plan.Spawners)
         {
-            if (!plan.Anywhere)
+            if (rowOf(spawner) == plan.Palette)
                 inkShades.AddRange(shades.OwnRow(spawner, plan.Palette));
             (IReadOnlyList<SheetShade> fixedInks, IReadOnlyList<SheetRowShade> fixedRows) = shades.Fixed(spawner);
             inkShades.AddRange(fixedInks);
@@ -118,7 +120,9 @@ internal static class SpawnedObjectSheetComposer
             .Concat(EncounterFrames(plan.Spawners, plan.Anywhere).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase, 0),
+                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase,
+                    EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
+                        : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
                 RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
@@ -146,6 +150,19 @@ internal static class SpawnedObjectSheetComposer
     private static IEnumerable<EnemyFrameId> EncounterFrames(IEnumerable<EnemyDefinitionId> spawners, bool anywhere) =>
         anywhere ? spawners.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).SelectMany(enemy => EncounterFrameDefinitions.ByEnemy[enemy])
             .Distinct().Order() : [];
+
+    /// <summary>
+    /// The row the encounter drawing <paramref name="frame"/> draws it in, for a frame its encounter draws in its own row: its
+    /// enemy's, as the cartridge ORs the palette index the encounter's initialization stores into every part.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two of the sheet's encounters draw the frame in different rows.</exception>
+    private static int EncounterRow(EnemyFrameId frame, IEnumerable<EnemyDefinitionId> spawners, Func<EnemyDefinitionId, int> rowOf)
+    {
+        int[] rows = [.. spawners.Where(enemy => EncounterFrameDefinitions.ByEnemy.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? frames) && frames.Contains(frame))
+            .Select(rowOf).Distinct()];
+        return rows.Length == 1 ? rows[0]
+            : throw new InvalidDataException($"Encounter frame {frame} is drawn in {rows.Length} rows by the sheet's encounters, not one.");
+    }
 
     /// <summary>Every object a plan's spawners, and any room when it says so, can spawn, each once in a stable order.</summary>
     private static SpawnedObjects Spawned(SpawnedObjectSheetPlan plan)

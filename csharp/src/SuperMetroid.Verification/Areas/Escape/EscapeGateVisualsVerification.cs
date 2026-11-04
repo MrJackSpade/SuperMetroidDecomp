@@ -141,7 +141,7 @@ internal static class EscapeGateVisualsVerification
         // A private installation copy, whose override is written and whose stock file is tampered below.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmEscapeGateVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmEscapeGateVisualFiles.ValidateStock(
+        RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
             installation.RoomPlmEscapeGateVisualDirectory);
         VerifyEscapeGateStockMapping(rom, installation.LoadRoomPlmEscapeGateVisuals());
         string stockPath = Path.Combine(
@@ -171,7 +171,7 @@ internal static class EscapeGateVisualsVerification
             "escape-gate override survives stock replacement");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmEscapeGateVisualFiles.ValidateStock(
+            () => RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
                 installation.RoomPlmEscapeGateVisualDirectory),
             "tampered escape-gate stock fails manifest validation");
     }

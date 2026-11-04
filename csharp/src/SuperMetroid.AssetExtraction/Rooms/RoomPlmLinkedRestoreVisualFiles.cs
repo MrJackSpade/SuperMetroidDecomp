@@ -37,11 +37,6 @@ public static class RoomPlmLinkedRestoreVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Checks only installed stock restoration visuals through <see cref="Load"/>, without overrides, cartridge access, or writes.</summary>
-    /// <param name="directory">Linked-restoration family directory with stock JSON and manifest.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all six linked restoration layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing linked parent/child collision or restoration programs.</summary>
     /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

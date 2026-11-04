@@ -46,6 +46,15 @@ public sealed class MapPaletteAnimation
         ? MapSpriteShades.Highlight(frame)
         : MapSpriteShades.Drawn(screen, MapSpriteColouring.Highlighted));
 
+    /// <summary>
+    /// The shading the pause sprites drawn in the row the cycle recolours show (#1512), the item selector and the reserve
+    /// strip among them: the screen's own colours, which that row holds until the cycle's first applied frame, then the
+    /// highlight shade of the frame last applied.
+    /// </summary>
+    public PictureShading CycleShading => ShownFrame is int frame
+        ? PictureShading.Shaded(MapSpriteShades.Highlight(frame))
+        : PictureShading.Standard;
+
     /// <summary>Advances to the next highlight frame when its hold ends; true requests library-three MapPaletteLoop.</summary>
     /// <exception cref="InvalidOperationException">The installed cycle is not bound.</exception>
     public bool Step()

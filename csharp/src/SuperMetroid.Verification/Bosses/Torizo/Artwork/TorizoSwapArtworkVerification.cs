@@ -106,8 +106,7 @@ internal static class TorizoSwapArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
         }
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { TorizoSwaps = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).TorizoSwaps() } };
         AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> stockBytes),
@@ -139,14 +138,13 @@ internal static class TorizoSwapArtworkVerification
             "Golden Torizo's awakening sheet lands where the cartridge copies it");
         AssertEqual(editedBytes.Span[0], awakening.Characters.Span[0],
             "edited Golden Torizo PNG changes the pictured awakening sheet");
-        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoSwaps.")).TryResolve(golden.SourceAddress,
+        AssertTrue(EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).TorizoSwaps().TryResolve(golden.SourceAddress,
                     golden.ByteCount, out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedBytes.Span),
             "Golden Torizo tile override survives catalog reload");
         File.WriteAllBytes(Path.Combine(overrideDirectory, golden.FileName), [1, 2, 3]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).TorizoSwaps(),
             "invalid Golden Torizo PNG fails loudly");
 
         Console.WriteLine(

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -81,7 +82,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         byte[] original = File.ReadAllBytes(stockPath);
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, null),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, null).PhantoonBg2Frames(),
             "stock Phantoon BG2 frames are manifest-hash checked");
         File.WriteAllBytes(stockPath, original);
 
@@ -101,8 +102,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         File.WriteAllBytes(overridePath,
             JsonSerializer.SerializeToUtf8Bytes(document,
                 CamelCaseJson));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { PhantoonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).PhantoonBg2Frames() } };
         AssertTrue((edited.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
             PhantoonBg2FrameDefinitions.Frames[0].Frame,
             out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
@@ -131,8 +131,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue(DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: false).All(value => value == 0),
             "Phantoon BG2 override retains the native new-frame producer gate");
         Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock, edited));
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { PhantoonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).PhantoonBg2Frames() } };
         AssertTrue((reloaded.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
@@ -238,8 +237,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the body layer his body frames draw on.
-        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets."), BossBodyOwner.Phantoon);
+        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Phantoon);
         enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);

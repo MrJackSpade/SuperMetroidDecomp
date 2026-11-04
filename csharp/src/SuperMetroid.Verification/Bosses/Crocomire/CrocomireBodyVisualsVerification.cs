@@ -201,8 +201,7 @@ internal static class CrocomireBodyVisualsVerification
             CrocomireBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(authored,
             CamelCaseJson));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { CrocomireBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CrocomireBg2Frames() } };
         var editedGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> editedGuardBlockFrame);
         editedGuardBlockFrame(CrocomireBodyVisualToolingDefinitions.Bank, editedFrame.Pointer);
         (OamBuffer stockOam, byte[] stockVram) = Draw(stock, editedGuard,
@@ -232,8 +231,7 @@ internal static class CrocomireBodyVisualsVerification
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
             // His fight binds the installed body sheets and attaches the body layer his body frames draw on.
-            BossBodySheets bodySheets = RepositoryInstallation.Artwork.BossBodySheets
-                ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+            BossBodySheets bodySheets = InstalledFixtures.BossBodySheets;
             enemies.BossArtworkBinding.BodySheets = bodySheets;
             BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, bodySheets, BossBodyOwner.Crocomire);
             enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);

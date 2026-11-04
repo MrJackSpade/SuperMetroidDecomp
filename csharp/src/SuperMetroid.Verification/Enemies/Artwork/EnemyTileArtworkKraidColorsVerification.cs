@@ -93,7 +93,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Directory.CreateDirectory(overrides);
         string overridePath = Path.Combine(overrides, KraidColorFormat.FileName);
         File.WriteAllBytes(overridePath, KraidColorFile.Write(editedDocument));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidColors = EnemyTileArtworkFiles.Open(directory, overrides).KraidColors() } };
         foreach ((KraidPaletteConsumer consumer, int cgramIndex) in new[]
         {
             new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.BackdropLoad, 96),
@@ -112,18 +112,18 @@ internal static class EnemyTileArtworkKraidColorsVerification
             AssertEqual((ushort)(baseline[cgramIndex] ^ 1), changed[cgramIndex],
                 $"edited Kraid {consumer} changes CGRAM {cgramIndex}");
         }
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { KraidColors = EnemyTileArtworkFiles.Open(directory, overrides).KraidColors() } };
         AssertTrue(CaptureKraidPaletteConsumer(reloaded,
                 KraidPaletteConsumer.HealthNormal)
             .SequenceEqual(CaptureKraidPaletteConsumer(edited, KraidPaletteConsumer.HealthNormal)),
             "Kraid RGB5 override survives catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidColors(),
             "tampered stock Kraid color file fails manifest hash");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidColors(),
             "malformed Kraid color override fails at load");
         PaletteRgb5[] invalidHealth = (PaletteRgb5[])editedDocument.Health.Clone();
         invalidHealth[0] = invalidHealth[0] with { Red = 32 };

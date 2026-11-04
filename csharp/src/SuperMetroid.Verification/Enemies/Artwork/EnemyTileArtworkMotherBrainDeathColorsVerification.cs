@@ -89,7 +89,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         string overrideFile = Path.Combine(overrides,
             MotherBrainDeathColorFormat.FileName);
         File.WriteAllBytes(overrideFile, MotherBrainDeathColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainDeathColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).MotherBrainDeathColors() } };
         MotherBrainDeathColorCatalog colors = edited.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Edited enemy art has no Mother Brain death colors.");
         for (int frame = 0; frame < MotherBrainDeathColorFile.BodyFadeFrameCount; frame++)
@@ -107,8 +107,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         AssertTrue(native.ExplodedDoorColor(5) != colors.ExplodedDoorColor(5),
             "Mother Brain exploded-door edit takes effect");
         AssertEqual(colors.CorpseColor(7, 5),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.MotherBrainDeathColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MotherBrainDeathColors.")).CorpseColor(7, 5),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).MotherBrainDeathColors().CorpseColor(7, 5),
             "Mother Brain death color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -172,12 +171,12 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).MotherBrainDeathColors(),
             "invalid Mother Brain death override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).MotherBrainDeathColors(),
             "duplicate Mother Brain death property fails loudly");
         visual.BodyFade[0][5] = visual.BodyFade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
@@ -185,7 +184,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             "reading Mother Brain death colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).MotherBrainDeathColors(),
             "corrupt stock Mother Brain death colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Mother Brain death colors: 582 native RGB5 words, 24 selectors, live body/leg/corpse/door CGRAM, persistent override, ROM guard and strict failures pass.");

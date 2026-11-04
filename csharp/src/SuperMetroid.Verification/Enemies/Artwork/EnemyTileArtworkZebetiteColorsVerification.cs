@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         editedDocument.Required("frames").Required(3).Required(1)["red"] = red.GetValue<int>() ^ 1;
         byte[] selectedBytes = System.Text.Encoding.UTF8.GetBytes(editedDocument.ToJsonString());
         File.WriteAllBytes(overridePath, selectedBytes);
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { ZebetiteColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors() } };
         RoomEnemySystem selected = Create(guard, edited);
         SnesCgram controlCgram = SeedColors();
         ushort controlCounter = 0;
@@ -102,15 +102,15 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves the Zebetite color override");
-        var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { ZebetiteColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors() } };
         AssertEqual(Pulse(edited, 3).Colours[1], Pulse(reloaded, 3).Colours[1],
             "Reload retains edited Zebetite pulse color");
 
         File.WriteAllText(overridePath, "broken");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors(),
             "Corrupt Zebetite color override fails loudly");
         File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors(),
             "Duplicate Zebetite color property fails loudly");
         var invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("frames").Required(0).Required(0)["green"] = 32;
@@ -119,7 +119,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "Out-of-range Zebetite RGB5 component rejected");
         File.Delete(overridePath);
         File.WriteAllText(stockPath, "broken stock");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ZebetiteColors(),
             "Corrupt stock Zebetite colors fail manifest validation");
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");

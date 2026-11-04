@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkKraidVerification
         string overridePath = Path.Combine(overrides, KraidBackgroundArtworkFormat.UpperFileName);
         using (var output = File.Create(overridePath))
             RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages });
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } };
         ushort[] changed = BuildKraidWorkingMap(edited);
         AssertEqual((ushort)(native[0] ^ 1), changed[0],
             "edited Kraid BG2 reference changes the visible working-map cell");
@@ -76,15 +76,15 @@ internal static class EnemyTileArtworkKraidVerification
             "edited Kraid BG2 cell leaves the remaining live map unchanged");
         AssertEqual((ushort)(nativeShown[0] ^ 1), ShowKraidVisiblePages(edited)[0],
             "edited Kraid BG2 reference changes the shown tile word");
-        AssertTrue(BuildKraidWorkingMap(EnemyTileArtworkFiles.Load(directory, overrides)).SequenceEqual(changed),
+        AssertTrue(BuildKraidWorkingMap(stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } }).SequenceEqual(changed),
             "Kraid BG2 override survives catalog reload");
 
         File.WriteAllBytes(upperPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
             "tampered stock Kraid BG2 map fails its manifest hash");
         File.WriteAllBytes(upperPath, original);
         File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
             "malformed Kraid BG2 override fails at load");
         Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
@@ -127,7 +127,7 @@ internal static class EnemyTileArtworkKraidVerification
         string overridePath = Path.Combine(overrides, fileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document with { Cells = cells }, CamelCaseIndentedJson));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } };
         (_, ushort[] changedShown) = RunKraidHeadFrame(edited, editedPointer);
         (_, ushort[] stockShown) = ReadImportedKraidHeadFrame(rom, editedPointer);
         AssertEqual((ushort)(stockShown[0] ^ 1), changedShown[0],
@@ -135,16 +135,16 @@ internal static class EnemyTileArtworkKraidVerification
         AssertTrue(stockShown.AsSpan(1).SequenceEqual(changedShown.AsSpan(1)),
             "Kraid head edit leaves every later shown word unchanged");
         (_, ushort[] reloadedShown) = RunKraidHeadFrame(
-            EnemyTileArtworkFiles.Load(directory, overrides), editedPointer);
+            stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } }, editedPointer);
         AssertTrue(reloadedShown.SequenceEqual(changedShown),
             "Kraid head tilemap edit survives a catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
             "tampered Kraid head stock map fails manifest hash");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
             "malformed Kraid head override fails at load");
         Suite(nameof(VerifyInstalledKraidRoomBackground), () => VerifyInstalledKraidRoomBackground(rom, directory, stock));
     }
@@ -176,7 +176,7 @@ internal static class EnemyTileArtworkKraidVerification
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } };
         SnesVram changed = UploadKraidRoomBackground(edited);
         int destination = KraidBackgroundDefinitions.RoomBackgroundTileVramWord * sizeof(ushort);
         AssertEqual((byte)(baseline.ReadByte(destination) ^ 0x80),
@@ -185,16 +185,16 @@ internal static class EnemyTileArtworkKraidVerification
         AssertTrue(baseline.Bytes[(destination + 1)..]
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "Kraid backdrop PNG edit leaves later VRAM bytes unchanged");
-        SnesVram reloaded = UploadKraidRoomBackground(EnemyTileArtworkFiles.Load(directory, overrides));
+        SnesVram reloaded = UploadKraidRoomBackground(stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } });
         AssertTrue(reloaded.ImageEquals(changed),
             "Kraid room-background PNG override survives catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
             "tampered Kraid room-background stock PNG fails manifest hash");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
             "malformed Kraid room-background PNG override fails at load");
     }
 

@@ -98,7 +98,7 @@ internal static class MotherBrainCorpseArtworkVerification
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainCorpse = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainCorpse() } };
         byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
         int editedVramOffset = MotherBrainCorpseSheet.PageFirstCharacter(0) * RoomCharacterAtlasFormat.BytesPerTile +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
@@ -115,14 +115,13 @@ internal static class MotherBrainCorpseArtworkVerification
             AssertEqual(installedTiles[offset],
                 editedTiles[offset],
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
-        RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-            .Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
+        RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainCorpse();
         AssertEqual(editedTiles[0], StagedCorpseRows(CorpseStaging.MotherBrain(reloaded.Characters.Span))[0],
             "Mother Brain corpse override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+            () => EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainCorpse(),
             "malformed Mother Brain corpse override is rejected explicitly");
 
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging, edit/reload and invalid override pass.");

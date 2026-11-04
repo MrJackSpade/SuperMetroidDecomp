@@ -24,9 +24,9 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
     /// </summary>
     internal static void VerifyInstalledMagdollitePaletteCycle(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileSourceArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        MagdollitePaletteCycle native = stock.MagdollitePaletteCycle ??
+        MagdollitePaletteCycle native = stock.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Installed enemy art has no Magdollite palette cycle.");
         for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
         for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
@@ -54,14 +54,13 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, MagdollitePaletteCycleFormat.FileName);
         File.WriteAllBytes(overrideFile, MagdollitePaletteCycleFile.Write(document));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { MagdollitePaletteCycle = EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle() });
         MagdollitePaletteCycle cycle = edited.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Edited enemy art has no Magdollite palette cycle.");
         AssertTrue(cycle.Resolve(1, 0) != native.Resolve(1, 0),
             "Magdollite color override changes the selected RGB5 word");
         AssertEqual(cycle.Resolve(1, 0),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Enemies.MagdollitePaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MagdollitePaletteCycle.")).Resolve(1, 0),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle().Resolve(1, 0),
             "Magdollite color override persists across catalog reload");
         for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
         for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
@@ -106,12 +105,12 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle(),
             "invalid Magdollite color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1,\"frames\":[]}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle(),
             "duplicate Magdollite color property fails loudly");
         document.Frames[1][0] = original with { Red = 32 };
         AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(document))),
@@ -120,7 +119,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
 
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, null),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, null).MagdollitePaletteCycle(),
             "corrupt stock Magdollite colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, edited CGRAM, persistent override, strict failures and no runtime ROM reads pass.");

@@ -105,8 +105,7 @@ internal static class CeresEscapeTileArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
         }
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Areas = stock.Areas with { CeresEscapeTiles = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeTiles() } };
         CeresEscapeTileArtwork stockArt = stock.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
         CeresEscapeTileArtwork editedArt = edited.Areas.CeresEscapeTiles
@@ -145,8 +144,7 @@ internal static class CeresEscapeTileArtworkVerification
             "the warning text's first page lands where the cartridge copies it");
         AssertEqual(editedChunk.Span[0], editedWarning.Characters.Span[0],
             "edited Ceres warning PNG changes the page production pictures");
-        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(0, 0, 0x0200,
+        AssertTrue(EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeTiles().TryResolve(0, 0, 0x0200,
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedChunk.Span),
             "Ceres warning tile override survives catalog reload");
@@ -154,7 +152,7 @@ internal static class CeresEscapeTileArtworkVerification
         File.WriteAllBytes(Path.Combine(overrideDirectory, warning.FileName),
             [1, 2, 3]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeTiles(),
             "invalid Ceres warning PNG fails loudly");
 
         // The pictures of the warning pages are composed from the installed characters; composing them without those

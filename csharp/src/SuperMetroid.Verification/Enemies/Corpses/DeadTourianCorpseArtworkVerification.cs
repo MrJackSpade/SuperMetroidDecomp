@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -77,7 +78,7 @@ internal static class DeadTourianCorpseArtworkVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new NativeEnemyStaging(),
             EnemyDefinitionId.CorpseSidehopper, 0);
         CorpseStaging stockStaging = InitializeDeadSidehopperArtwork(stock, 0);
-        CorpseStaging editedStaging = InitializeDeadSidehopperArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
+        CorpseStaging editedStaging = InitializeDeadSidehopperArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory)), 0);
         AssertEqual((byte)(Staged(stockStaging, 0x40, 1)[0] ^ 0x80), Staged(editedStaging, 0x40, 1)[0],
             "dead-sidehopper PNG pixel edit reaches the staged corpse");
         foreach (DeadTorizoArtworkCopy copy in nativeCopies)
@@ -89,7 +90,7 @@ internal static class DeadTourianCorpseArtworkVerification
                     AssertEqual(stockBytes[offset], editedBytes[offset], "dead-sidehopper PNG edit leaves other corpse bytes unchanged");
             }
         }
-        CorpseStaging reloadedStaging = InitializeDeadSidehopperArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
+        CorpseStaging reloadedStaging = InitializeDeadSidehopperArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory)), 0);
         AssertEqual(Staged(editedStaging, 0x40, 1)[0], Staged(reloadedStaging, 0x40, 1)[0],
             "dead-sidehopper PNG edit survives catalog reload");
 

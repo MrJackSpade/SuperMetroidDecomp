@@ -59,7 +59,11 @@ public sealed record GameplayShading
         if (Fade is not { } fade || fade.SparesSamus && isSamus)
             return shading;
         PictureShading faded = shading.With(fade.Effect);
-        return isSamus && fade.OverSamus is { } written ? faded.OverEffect(written) : faded;
+        if (!isSamus)
+            return faded;
+        foreach (PictureShade written in fade.OverSamus)
+            faded = faded.OverEffect(written);
+        return faded;
     }
 
     /// <summary>

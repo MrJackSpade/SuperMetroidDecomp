@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
@@ -7,10 +9,29 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Effect">The fade's colour effect.</param>
 /// <param name="Spares">What the fade leaves in its own colours.</param>
 /// <param name="OverSamus">
-/// A shade of Samus's whose colours were written over the faded display and which the fade leaves as they are, or null.
+/// Samus's shades whose colours were written over the faded display, in the order written, which the fade leaves as
+/// they are; empty when none were.
 /// </param>
-public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, PictureShade? OverSamus = null)
+public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, ImmutableArray<PictureShade> OverSamus = default)
 {
+    /// <summary>Samus's shades written over the faded display, in the order written.</summary>
+    public ImmutableArray<PictureShade> OverSamus { get; } = OverSamus.IsDefault ? [] : OverSamus;
+
+    /// <summary>Whether both fades show the same effect, spare the same pictures and leave the same shades of Samus's.</summary>
+    public bool Equals(GameplayDisplayFade? other) =>
+        other is not null && Effect == other.Effect && Spares == other.Spares && OverSamus.SequenceEqual(other.OverSamus);
+
+    /// <summary>Hashes what <see cref="Equals(GameplayDisplayFade)"/> compares.</summary>
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Effect);
+        hash.Add(Spares);
+        foreach (PictureShade shade in OverSamus)
+            hash.Add(shade);
+        return hash.ToHashCode();
+    }
+
     /// <summary>The fade's colour effect.</summary>
     public ColourEffect Effect { get; } = Ensure.NotNull(Effect);
 

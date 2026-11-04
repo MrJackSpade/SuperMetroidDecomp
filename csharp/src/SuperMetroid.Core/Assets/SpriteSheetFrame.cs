@@ -9,10 +9,9 @@ public sealed record SpriteSheetFrame
     /// <param name="size">The rectangle's width and height; both are positive, or both zero for an empty frame.</param>
     /// <param name="origin">The point of the rectangle, from its top-left pixel, that lands on the draw's origin; it may lie outside the rectangle.</param>
     /// <param name="colourGroups">The image's colour groups the frame's pixels were coloured from.</param>
-    /// <param name="parts">The parts the frame was composed from, in draw order; none for a part image itself.</param>
     /// <exception cref="ArgumentException">The rectangle has one dimension but not the other, or leaves the sheet.</exception>
     public SpriteSheetFrame(SpriteImage sheet, Position16<ImagePixels> corner, Extent16<ImagePixels> size, Offset16<ImagePixels> origin,
-        ImageColourGroups colourGroups, IReadOnlyList<SpriteSheetFramePart> parts)
+        ImageColourGroups colourGroups)
     {
         Ensure.NotNull(sheet);
         if ((size.X == 0) != (size.Y == 0) || corner.X + size.X > sheet.Size.X || corner.Y + size.Y > sheet.Size.Y)
@@ -22,7 +21,6 @@ public sealed record SpriteSheetFrame
         Size = size;
         Origin = origin;
         ColourGroups = colourGroups;
-        Parts = Ensure.NotNull(parts);
     }
 
     /// <summary>The image the frame is cut from.</summary>
@@ -40,9 +38,6 @@ public sealed record SpriteSheetFrame
     /// <summary>The image's colour groups the frame's pixels were coloured from.</summary>
     public ImageColourGroups ColourGroups { get; }
 
-    /// <summary>The parts the frame was composed from, in draw order, each an object of the screen's object limit.</summary>
-    public IReadOnlyList<SpriteSheetFramePart> Parts { get; }
-
-    /// <summary>The objects the frame stands for: one per part.</summary>
-    public int Objects => Parts.Count;
+    /// <summary>Whether the frame is empty: a frame of no parts, which draws nothing.</summary>
+    public bool IsEmpty => Size.X == 0;
 }

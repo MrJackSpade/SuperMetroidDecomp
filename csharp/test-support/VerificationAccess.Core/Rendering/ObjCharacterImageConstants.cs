@@ -76,7 +76,7 @@ internal static class ObjCharacterImageConstants
             // manifest would record it (#1512).
             SuperMetroid.AssetExtraction.Artwork.InstalledPictureColours.Record(image, [], paletteBits: 0);
             var frame = new SpriteSheetFrame(image, default, new(size.X, size.Y), default,
-                ImageColourGroups.Of(ImageColourGroup.Numbered(corner.Palette)), []);
+                ImageColourGroups.Of(ImageColourGroup.Numbered(corner.Palette)));
             // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,
                 new SpriteFrame(image.Name, cellParts.MoveToImmutable()), composition.Artwork, sizes);

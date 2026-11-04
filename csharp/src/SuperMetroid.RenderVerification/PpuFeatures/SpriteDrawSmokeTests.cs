@@ -56,7 +56,7 @@ internal static class SpriteDrawSmokeTests
             var sheet = new SpriteImage("Ordering", size, sheetPixels, indices,
                 new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities);
             SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default,
-                ImageColourGroups.Of(ImageColourGroup.Numbered(frame)), []);
+                ImageColourGroups.Of(ImageColourGroup.Numbered(frame)));
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
             ImmutableArray<SpriteDraw> draws =
             [
@@ -118,7 +118,7 @@ internal static class SpriteDrawSmokeTests
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));
                 var corner = new Position16<ImagePixels>((ushort)random.Next(0, 64 - size.X + 1), (ushort)random.Next(0, 48 - size.Y + 1));
                 var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)),
-                    ImageColourGroup.Every.Where(_ => random.Next(2) == 0).Aggregate(ImageColourGroups.None, (groups, group) => groups.With(group)), []);
+                    ImageColourGroup.Every.Where(_ => random.Next(2) == 0).Aggregate(ImageColourGroups.None, (groups, group) => groups.With(group)));
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
                     (SpriteMirror)random.Next(4)));

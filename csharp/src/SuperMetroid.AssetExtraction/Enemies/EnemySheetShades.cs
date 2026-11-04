@@ -41,11 +41,20 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal sealed class EnemySheetShades
 {
+    /// <summary>Each catalogued frame colouring by the sheet frame name its frame takes.</summary>
+    private static readonly Lazy<Dictionary<string, FrameColouring>> FrameColourings = new(() => new Dictionary<string, FrameColouring>(
+        FrameColouringDefinitions.Projectiles.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry.Value))
+            .Concat(FrameColouringDefinitions.Frames.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.FrameName(entry.Key), entry.Value))),
+        StringComparer.Ordinal));
+
     /// <summary>The installed artwork the effects' colours come from.</summary>
     private readonly EnemySheetInputs inputs;
 
     /// <summary>The colours the set's load leaves.</summary>
     private readonly LoadedSetColours colours;
+
+    /// <summary>The ink shades of the objects any room spawns, which a colouring may name, built when first needed.</summary>
+    private IReadOnlyList<SheetShade>? anywhereInks;
 
     /// <summary>Builds the shades of a set whose load leaves <paramref name="colours"/>.</summary>
     internal EnemySheetShades(EnemySheetInputs inputs, LoadedSetColours colours)
@@ -55,13 +64,13 @@ internal sealed class EnemySheetShades
     }
 
     /// <summary>
-    /// The sprite colours a sheet drawing <paramref name="enemies"/> is coloured in (#1513): the set's colours with the row
-    /// of each enemy whose encounter sets its colours holding what the shades
-    /// <see cref="EnemyFirstShownColourDefinitions.Shades"/> names for it leave there, the colours its frames first show
-    /// in. Only that row is recoloured; the shades are laid over it in order, so a later one wins.
+    /// The sprite colours a sheet drawing <paramref name="enemies"/> is coloured in (#1513): the set's colours with what
+    /// the shades <see cref="EnemyFirstShownColourDefinitions.Shades"/> names for each enemy whose encounter sets colours
+    /// in code leave in the rows they write, the colours the room holds there when its frames, and the objects drawn in
+    /// those rows, first show. The shades are an enemy's own effects or its fixed ones, laid in order, so a later one wins.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// An enemy's own effects lack a shade the catalogue names, or two enemies would leave one colour two colourings.
+    /// An enemy's effects lack a shade the catalogue names, or two enemies would leave one colour two colourings.
     /// </exception>
     internal RgbColor[] FirstShownColours(IEnumerable<EnemyDefinitionId> enemies)
     {
@@ -72,19 +81,12 @@ internal sealed class EnemySheetShades
         {
             if (!EnemyFirstShownColourDefinitions.Shades.TryGetValue(enemy, out PictureShade[]? laid))
                 continue;
-            int row = colours.RowOf(enemy);
-            int first = row * LoadedSetColours.RowColours;
-            IReadOnlyList<SheetShade> own = OwnRow(enemy, row);
             var left = new Dictionary<int, RgbColor>();
             foreach (PictureShade name in laid)
             {
-                SheetShade shade = own.FirstOrDefault(candidate => candidate.Shade == name)
-                    ?? throw new InvalidDataException($"{enemy}'s effects have no shade {name.Key} to first show its frames in.");
+                SheetShade shade = EffectOf(enemy, name);
                 for (int index = 0; index < shade.Inks.Length; index++)
-                {
-                    if (shade.Inks[index] >= first && shade.Inks[index] < first + LoadedSetColours.RowColours)
-                        left[shade.Inks[index]] = shade.Colours[index];
-                }
+                    left[shade.Inks[index]] = shade.Colours[index];
             }
             foreach ((int ink, RgbColor colour) in left)
             {
@@ -95,6 +97,60 @@ internal sealed class EnemySheetShades
             }
         }
         return shown;
+    }
+
+    /// <summary>
+    /// <paramref name="sheetColours"/> with each of <paramref name="frames"/> whose family
+    /// <see cref="FrameColouringDefinitions"/> names a colouring for coloured in it (#1513): the colouring's shades laid
+    /// over the rows the frame's parts ink, its parts' own rows with <paramref name="paletteBits"/> ORed in, so the
+    /// frame's picture shows the colours the game always draws it in. A frame named by none keeps the sheet's colours.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// A colouring names a shade its owner's effects lack, or two frames of the sheet need one colour two colourings.
+    /// </exception>
+    internal RgbColor[] WithFrameColourings(RgbColor[] sheetColours, IEnumerable<FramePictures> frames, int paletteBits)
+    {
+        Ensure.NotNull(sheetColours);
+        Ensure.NotNull(frames);
+        RgbColor[] shown = [.. sheetColours];
+        var recoloured = new Dictionary<int, RgbColor>();
+        foreach (FramePictures pictures in frames)
+        {
+            if (!FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
+                continue;
+            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? 0) | paletteBits))];
+            var left = new Dictionary<int, RgbColor>();
+            foreach (PictureShade name in colouring.Shades)
+            {
+                SheetShade shade = EffectOf(colouring.Owner, name);
+                for (int index = 0; index < shade.Inks.Length; index++)
+                {
+                    if (rows.Contains(shade.Inks[index] / LoadedSetColours.RowColours))
+                        left[shade.Inks[index]] = shade.Colours[index];
+                }
+            }
+            foreach ((int ink, RgbColor colour) in left)
+            {
+                if (recoloured.TryGetValue(ink, out RgbColor other) && other != colour)
+                    throw new InvalidDataException($"A sheet's frames are drawn with sprite colour {ink} in two colourings, frame {pictures.Name}'s among them.");
+                recoloured[ink] = colour;
+                shown[ink] = colour;
+            }
+        }
+        return shown;
+    }
+
+    /// <summary>
+    /// The shade <paramref name="name"/> among <paramref name="enemy"/>'s effects: its own row's, its fixed ones and those
+    /// of the objects any room spawns.
+    /// </summary>
+    /// <exception cref="InvalidDataException">None of them is named so.</exception>
+    private SheetShade EffectOf(EnemyDefinitionId enemy, PictureShade name)
+    {
+        anywhereInks ??= Anywhere().Inks;
+        return OwnRow(enemy, colours.RowOf(enemy)).Concat(Fixed(enemy).Inks).Concat(anywhereInks)
+            .FirstOrDefault(candidate => candidate.Shade == name)
+            ?? throw new InvalidDataException($"{enemy}'s effects have no shade {name.Key} to colour its frames in.");
     }
 
     /// <summary>The selection shades every enemy and spawned-object sheet takes: the hit flash, the frozen look and the enemy projectiles' colours.</summary>

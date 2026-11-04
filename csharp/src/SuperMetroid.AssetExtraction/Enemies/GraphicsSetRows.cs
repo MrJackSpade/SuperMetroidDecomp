@@ -13,11 +13,28 @@ internal sealed class GraphicsSetRows
     /// <summary>The set whose rows these are.</summary>
     private readonly RoomEnemyGraphicsSetDefinition set;
 
+    /// <summary>Each set's record rows by set name, among them the set's.</summary>
+    private readonly IReadOnlyDictionary<string, int[]> catalogue;
+
     /// <summary>The set's catalogued rows, resolved when a lookup first needs them.</summary>
     private Rows? resolved;
 
-    /// <summary>Keeps set <paramref name="set"/>, whose catalogued record rows are resolved when a lookup needs them.</summary>
-    internal GraphicsSetRows(RoomEnemyGraphicsSetDefinition set) => this.set = Ensure.NotNull(set);
+    /// <summary>Keeps retail set <paramref name="set"/>, whose catalogued record rows are resolved when a lookup needs them.</summary>
+    internal GraphicsSetRows(RoomEnemyGraphicsSetDefinition set)
+        : this(set, EnemyGraphicsSetPaletteRowDefinitions.Rows)
+    {
+    }
+
+    /// <summary>
+    /// Keeps set <paramref name="set"/>, whose record rows <paramref name="catalogue"/> names by set name: the retail
+    /// catalogue for an installation's sets, or a fixture's own for the set it seeds, as its records' placement words
+    /// name them. They are resolved when a lookup needs them.
+    /// </summary>
+    internal GraphicsSetRows(RoomEnemyGraphicsSetDefinition set, IReadOnlyDictionary<string, int[]> catalogue)
+    {
+        this.set = Ensure.NotNull(set);
+        this.catalogue = Ensure.NotNull(catalogue);
+    }
 
     /// <summary>The set's catalogued record rows and the row each member's first record loads its colours into.</summary>
     /// <exception cref="InvalidDataException">The set's rows are not catalogued for each of its records.</exception>
@@ -27,7 +44,7 @@ internal sealed class GraphicsSetRows
             return resolved;
         ReadOnlySpan<RoomEnemyGraphicsSetMember> records = set.Records.Span;
         int[] recordRows = records.Length == 0 ? []
-            : EnemyGraphicsSetPaletteRowDefinitions.Rows.TryGetValue(set.Name, out int[]? catalogued) ? catalogued
+            : catalogue.TryGetValue(set.Name, out int[]? catalogued) ? catalogued
             : throw new InvalidDataException($"Enemy graphics set {set.Name} has no catalogued palette rows.");
         if (recordRows.Length != records.Length)
             throw new InvalidDataException($"Enemy graphics set {set.Name} catalogues {recordRows.Length} palette rows for {records.Length} records.");

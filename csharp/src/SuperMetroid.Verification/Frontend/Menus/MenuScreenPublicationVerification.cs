@@ -20,7 +20,8 @@ internal static class MenuScreenPublicationVerification
 {
     /// <summary>
     /// Sprite entries place spritemap parts exactly as the cartridge's OAM loader does: nine-bit X, the vertical-wrap
-    /// hiding that parks a part, a negative offset reaching above the screen, large parts and the 128-object limit.
+    /// hiding that parks a part, a negative offset reaching above the screen and large parts. The object limit is not
+    /// replicated: every frame placed is drawn whole (#1513).
     /// </summary>
     internal static void VerifyScreenSpritePlacement()
     {
@@ -37,7 +38,8 @@ internal static class MenuScreenPublicationVerification
         var oam = new OamBuffer();
         sprites.BeginFrame();
         oam.BeginFrame();
-        for (int index = 0; index < ScreenSprites.Capacity + 2; index++)
+        int placedFrames = parts.Length * 4;
+        for (int index = 0; index < placedFrames; index++)
         {
             var part = parts[index % parts.Length];
             var x = SnesSpritemapXWord.Create(part.OffsetX, part.Large);
@@ -49,7 +51,7 @@ internal static class MenuScreenPublicationVerification
         }
         sprites.FinishFrame();
         oam.FinalizeFrame();
-        AssertEqual(ScreenSprites.Capacity, sprites.Draws.Length, "sprite entries stop at the 128-object limit");
+        AssertEqual(placedFrames, sprites.Draws.Length, "every placed frame is a sprite entry");
         AssertTrue(oam.ImageEquals(sprites), "sprite entries stand for exactly the OAM records the native loader writes");
         Console.WriteLine("  Screen sprites: spritemap frames keep the native OAM loader's placement as sprite entries.");
     }

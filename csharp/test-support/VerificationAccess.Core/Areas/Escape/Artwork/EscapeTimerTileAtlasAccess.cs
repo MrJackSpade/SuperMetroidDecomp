@@ -2,15 +2,14 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Areas.Escape.Artwork;
 
-/// <summary>Verification access to <see cref="EscapeTimerTileAtlas"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="EscapeTimerCharacters"/> members production does not use.</summary>
 internal static class EscapeTimerTileAtlasAccess
 {
     /// <summary>Checks and queues the two native escape-timer DMA transfers.</summary>
-    extension(EscapeTimerTileAtlas self)
+    extension(EscapeTimerCharacters self)
     {
         /// <summary>Queues both native records in their original order and at their original destinations.</summary>
         internal void QueueTo(VramWriteQueue queue)

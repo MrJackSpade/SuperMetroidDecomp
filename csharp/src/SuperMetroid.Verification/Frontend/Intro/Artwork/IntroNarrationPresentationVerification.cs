@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
@@ -35,7 +36,7 @@ internal static class IntroNarrationPresentationVerification
         byte[] nativeFont = RomDataReader.Decompress(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             IntroCinematicSourceDefinitions.FontOne,
-            maximumOutputBytes: IntroCinematicDefinitions.Artwork.FontOneBytes);
+            maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         AssertTrue(font.Characters.Span.SequenceEqual(
             nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
             "installed opening-font PNG compiles to exact native planar bytes");

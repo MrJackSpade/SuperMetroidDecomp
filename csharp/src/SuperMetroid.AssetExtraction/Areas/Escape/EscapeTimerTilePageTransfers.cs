@@ -31,7 +31,7 @@ public static class EscapeTimerTilePageTransfers
     /// <param name="atlas">The installed timer characters.</param>
     /// <param name="asset">One of the two escape-timer page identities.</param>
     /// <exception cref="InvalidDataException"><paramref name="asset"/> names no escape-timer page.</exception>
-    public static ReadOnlyMemory<byte> Resolve(EscapeTimerTileAtlas atlas, InstalledArtworkId asset)
+    public static ReadOnlyMemory<byte> Resolve(EscapeTimerCharacters atlas, InstalledArtworkId asset)
     {
         ReadOnlySpan<byte> characters = Ensure.NotNull(atlas).characters;
         return asset switch

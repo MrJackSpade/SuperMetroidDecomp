@@ -60,11 +60,8 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public required PauseReserveTankPresentation PauseReserveTanks { get; init; }
 
-    /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
+    /// <summary>Escape countdown visual layout and digit presentation.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }
-
-    /// <summary>Selected character bytes for the two escape-timer artwork loads.</summary>
-    public required EscapeTimerTileAtlas EscapeTimerTiles { get; init; }
 
     /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
     public required GameplayHudPresentation GameplayHud { get; init; }

@@ -30,7 +30,7 @@ internal static void VerifyCeresDestructionCinematic()
         "Ceres destruction typed approach angle");
     AssertTrue(
         (CeresVramLayout.ObjectCharacters.Offset * 2) +
-            CeresFlightArtworkFormat.ObjectByteCount <= SnesVram.ByteCount,
+            CeresFlightArtworkFileFormat.ObjectByteCount <= SnesVram.ByteCount,
         "Ceres destruction OBJ transfer fits VRAM");
 
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.

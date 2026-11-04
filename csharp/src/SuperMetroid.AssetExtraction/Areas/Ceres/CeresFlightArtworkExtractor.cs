@@ -24,7 +24,7 @@ internal static class CeresFlightArtworkExtractor
         byte[] characters = Read(CeresCinematicSourceDefinitions.FlightFloorCharacters,
             CeresFlightArtworkFileFormat.FloorByteCount, "Mode-7 characters");
         byte[] objectCharacters = Read(CeresCinematicSourceDefinitions.FlightObjectCharacters,
-            CeresFlightArtworkFormat.ObjectByteCount, "OBJ characters");
+            CeresFlightArtworkFileFormat.ObjectByteCount, "OBJ characters");
         byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 4096);
         if (decompressedMap.Length < CeresFlightArtworkFileFormat.MapCellCount)

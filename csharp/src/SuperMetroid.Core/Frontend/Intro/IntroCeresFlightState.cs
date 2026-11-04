@@ -74,8 +74,6 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtwork content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        RequireMinimum(content.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightArtworkFormat.ObjectByteCount,
-            "space/Ceres OBJ characters");
         Artwork = content;
 
         // Setup loads the floor's front view and the sprite characters; the scene shows the front view's installed floor (#1467).
@@ -414,10 +412,4 @@ internal sealed class IntroCeresFlightState
             IntroCinematicMotion.AddEightEight(background.Y, velocity));
     }
 
-    /// <summary>Rejects installed art streams shorter than the size the scene loads.</summary>
-    private static void RequireMinimum(int length, int minimum, string name)
-    {
-        if (length < minimum)
-            throw new InvalidDataException($"The {name} stream expanded to ${length:X}, expected ${minimum:X}.");
-    }
 }

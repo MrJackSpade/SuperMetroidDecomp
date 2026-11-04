@@ -24,7 +24,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
     private CeresFlightCharacters(byte[] floorCharacters, byte[] floorMaps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorPlacements actors)
-        : base(palette.Backdrop, actors, objectCharacters.Length / CeresFlightArtworkFormat.ObjectCharacterBytes)
+        : base(palette.Backdrop, actors)
     {
         FloorCharacters = floorCharacters;
         FloorMaps = floorMaps;
@@ -53,7 +53,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
 
     /// <summary>The flight OBJ page the space, gunship and station compositions draw from: the OBJ sheet as $BCCD uploads it (#1358).</summary>
     public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.CeresFlightObjects),
-        ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);
+        ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount]);
 
     /// <summary>Identity of all selected approach maps, characters, colors, compositions and placements.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog", content =>
@@ -98,7 +98,7 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         byte[] objectCharacters = SnesPlanarTileEncoder.Encode(objects.Pixels,
             objects.Size, 4);
         if (characters.Length != CeresFlightArtworkFileFormat.FloorByteCount ||
-            objectCharacters.Length != CeresFlightArtworkFormat.ObjectByteCount)
+            objectCharacters.Length != CeresFlightArtworkFileFormat.ObjectByteCount)
             throw new InvalidDataException("Ceres flight PNGs compile to unexpected DMA lengths.");
         return new CeresFlightCharacters(characters, map, objectCharacters,
             palette,

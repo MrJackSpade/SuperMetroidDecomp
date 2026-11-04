@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
@@ -24,7 +25,7 @@ public static class IntroFontAtlasExtractor
         byte[] decoded = RomDataReader.Decompress(
             CartridgeImportSource.Require(bus),
             IntroCinematicSourceDefinitions.FontOne,
-            maximumOutputBytes: IntroCinematicDefinitions.Artwork.FontOneBytes);
+            maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         if (decoded.Length < IntroFontAtlasFormat.ByteCount)
         {
             throw new InvalidDataException(

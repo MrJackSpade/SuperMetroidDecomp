@@ -86,7 +86,6 @@ internal static class PauseMenuFixtureVerification
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
             PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
             EscapeTimer = stock.EscapeTimer,
-            EscapeTimerTiles = stock.EscapeTimerTiles,
             GameplayHud = stock.GameplayHud,
             GameOver = stock.GameOver,
             GameOptions = stock.GameOptions,
@@ -119,6 +118,6 @@ internal static class PauseMenuFixtureVerification
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
             InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.TitlePaletteOf(stock),
             InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes, InstalledAreaMapPresentation.CeresRidleyColorsOf(stock),
-            InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(stock)));
+            InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock)));
     }
 }

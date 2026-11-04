@@ -6,11 +6,11 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Escape.Artwork;
 
-/// <summary>Verification access to <see cref="EscapeTimerTileAtlas"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="EscapeTimerCharacters"/> members production does not use.</summary>
 internal static class EscapeTimerTileAtlasAccess
 {
-    /// <summary>Exposes <see cref="EscapeTimerTileAtlas"/> state that only verification reads.</summary>
-    extension(EscapeTimerTileAtlas self)
+    /// <summary>Exposes <see cref="EscapeTimerCharacters"/> state that only verification reads.</summary>
+    extension(EscapeTimerCharacters self)
     {
         /// <summary>Shows one native page in the OBJ character table for the Mother Brain sequence's synchronous transfer owner.</summary>
         public bool TryRecordNativeTransfer(SpriteArtworkPlacements uploads, int sourceAddress, ushort byteCount,

@@ -415,8 +415,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        RequireMinimum(content.CeresFlight.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightArtworkFormat.ObjectByteCount,
-            "Ceres cinematic OBJ characters");
 
         // C11B loads the station's two views; the floor shows the station's installed picture (#1467).
         FloorShot = CeresFloorShot.Station;
@@ -551,15 +549,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return CreateActor(definition);
     }
 
-    /// <summary>Rejects an extracted artwork stream too short for the slice the scene loads.</summary>
-    private static void RequireMinimum(int length, int minimum, string name)
-    {
-        if (length < minimum)
-        {
-            throw new InvalidDataException(
-                $"The {name} stream expanded to ${length:X}, expected at least ${minimum:X}.");
-        }
-    }
 
     /// <summary>Spawns authored blast waves and advances live Ceres actors in descending slot order.</summary>
     private void StepCeresActors()

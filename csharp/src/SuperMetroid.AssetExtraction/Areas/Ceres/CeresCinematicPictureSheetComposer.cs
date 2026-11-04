@@ -55,7 +55,7 @@ internal static class CeresCinematicPictureSheetComposer
         Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);
         Ensure.NotNull(paletteFx);
-        byte[] flight = CeresFlightCharacters.Of(ceresFlight).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount].ToArray();
+        byte[] flight = CeresFlightCharacters.Of(ceresFlight).ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount].ToArray();
         // The destruction loads the shared cinematic sheet over the start of the flight's objects; the reveal its own over them.
         byte[] zebes = (byte[])flight.Clone();
         IntroCinematicSourceArtwork.Of(intro).IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(zebes);

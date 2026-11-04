@@ -32,4 +32,20 @@ internal static class FramePaintConstants
         Ensure.NotNull(cgram);
         return FramePaint.FromNative(cgram.Colors, ObjCharacterImageConstants.Draws(oam, vram, objectSelection));
     }
+
+    /// <summary>
+    /// Captures a gameplay frame's memories as <see cref="CaptureFrontend"/> does, under a gameplay shading whose picture
+    /// groups show their standard colours, so the gameplay layers a check composes over it (a message box, layer 3) are
+    /// coloured as gameplay's.
+    /// </summary>
+    /// <param name="vram">The frame's VRAM.</param>
+    /// <param name="cgram">The frame's CGRAM, a native 256-colour image.</param>
+    /// <param name="oam">The frame's finalized OAM storage.</param>
+    /// <param name="objectSelection">The frame's OBSEL value.</param>
+    public static FramePaint CaptureGameplay(SnesVram vram, IPaletteColors cgram, OamBuffer oam, int objectSelection)
+    {
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        return FramePaint.FromNativeGameplay(cgram.Colors, ObjCharacterImageConstants.Draws(oam, vram, objectSelection));
+    }
 }

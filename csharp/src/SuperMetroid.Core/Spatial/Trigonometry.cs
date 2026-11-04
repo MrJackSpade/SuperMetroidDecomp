@@ -7,18 +7,6 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 public static class Trigonometry
 {
-    /// <summary>The number of samples in a half wave: byte angles 0 through 127.</summary>
-    private const int HalfWaveSampleCount = 128;
-
-    /// <summary>
-    /// <see cref="EightBitHalfWave"/>'s sample at each index, evaluated once: each is a pure function of its index, and
-    /// evaluating the decimal series on every call made every sampled enemy, boss and screen effect pay for it.
-    /// </summary>
-    private static readonly int[] EightBitHalfWaveSamples = HalfWaveSamples(unit => Math.Min(255, (int)(256 * unit)));
-
-    /// <summary><see cref="UnsignedHalfWave"/>'s sample at each index, evaluated once, as <see cref="EightBitHalfWaveSamples"/>.</summary>
-    private static readonly int[] UnsignedHalfWaveSamples = HalfWaveSamples(unit => (int)(65535 * unit));
-
     /// <summary>The game's 16-bit sine table and its three
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
     /// the sign-extended 8.8 table. The positive half equals the stored unsigned
@@ -89,8 +77,8 @@ public static class Trigonometry
     /// </remarks>
     public static int EightBitHalfWave(int index)
     {
-        if ((uint)index >= HalfWaveSampleCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return EightBitHalfWaveSamples[index];
+        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
+        return Math.Min(255, (int)(256 * UnitHalfWave(index)));
     }
 
     /// <summary>The game's unsigned sine table:
@@ -104,8 +92,8 @@ public static class Trigonometry
     /// </remarks>
     public static int UnsignedHalfWave(int index)
     {
-        if ((uint)index >= HalfWaveSampleCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return UnsignedHalfWaveSamples[index];
+        if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
+        return (int)(65535 * UnitHalfWave(index));
     }
 
     /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>
@@ -125,14 +113,5 @@ public static class Trigonometry
             sum += term;
         }
         return sum;
-    }
-
-    /// <summary>Each half-wave index's sample, scaled from its <see cref="UnitHalfWave"/> by <paramref name="scale"/>.</summary>
-    private static int[] HalfWaveSamples(Func<decimal, int> scale)
-    {
-        var samples = new int[HalfWaveSampleCount];
-        for (int index = 0; index < samples.Length; index++)
-            samples[index] = scale(UnitHalfWave(index));
-        return samples;
     }
 }

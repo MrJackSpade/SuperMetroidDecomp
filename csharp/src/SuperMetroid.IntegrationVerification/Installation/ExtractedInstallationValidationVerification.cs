@@ -57,29 +57,14 @@ internal static class ExtractedInstallationValidationVerification
                 File.WriteAllText(receipt, json.ToJsonString());
             }, () => VerifyRejection<InvalidDataException>(fixture, receipt, "wrong source provenance"));
 
-            // This is the stale fixture defect observed by the Android gate: the
-            // top-level receipt is current but a required nested manifest is not.
-            string enemyManifest = Path.Combine(fixture.EnemyTileDirectory, "enemy-tiles.json");
-            WithEditedFile(enemyManifest, () =>
-            {
-                JsonObject json = ReadObject(enemyManifest);
-                json["version"] = json.Required("version").GetValue<int>() - 1;
-                File.WriteAllText(enemyManifest, json.ToJsonString());
-            }, () => VerifyRejection<InvalidDataException>(fixture, enemyManifest, "outdated nested enemy manifest"));
-
-            string heldDomain = Path.Combine(temporary, "held-required-domain");
-            Directory.Move(fixture.RoomPlmSamusEaterVisualDirectory, heldDomain);
-            try
-            {
-                VerifyRejection<IOException>(fixture, fixture.RoomPlmSamusEaterVisualDirectory, "missing required PLM domain");
-            }
-            finally { Directory.Move(heldDomain, fixture.RoomPlmSamusEaterVisualDirectory); }
+            // The receipt alone decides currency (#1532): extraction does not validate its own output, and published
+            // content never changes, so a damaged or outdated file inside current content fails where it is loaded.
 
             AssertUnchanged(baseline, fixture, "restored fixture after all rejection cases");
             Assert(GameAssetInstallerTooling.ValidateExtractedContent(fixture.Root).Root == fixture.Root,
                 "validation must succeed again after the known fixture defects are restored");
             Console.WriteLine($"PASS extracted validation contract: {baseline.Count} stock files; valid ROM-free startup, " +
-                "missing root, old receipt, wrong provenance, index hash, stale nested manifest and missing PLM domain; " +
+                "missing root, old receipt and wrong provenance; " +
                 "strict path-bearing exceptions, repair-admission nulls and no asset repair/import.");
             return 0;
         }

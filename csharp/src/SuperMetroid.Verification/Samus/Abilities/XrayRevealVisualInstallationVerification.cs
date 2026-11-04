@@ -25,7 +25,7 @@ internal static class XrayRevealVisualInstallationVerification
     /// Checks every installed visual rule against the compiled cartridge dispatcher,
     /// then changes a tall reveal without changing its two-block copy behavior.
     /// </summary>
-    [PrivateInstallation("Checks that installer repair restores the X-ray reveal visual stock files on a private copy while their overrides survive.")]
+    [PrivateInstallation("Edits X-ray reveal visual files on a private copy to check that their overrides are selected.")]
     internal static void VerifyXrayRevealVisualInstallation(GameInstallation installed)
     {
         static RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
@@ -131,13 +131,11 @@ internal static class XrayRevealVisualInstallationVerification
         AssertEqual(Overlaid(editedRoomWord), roomMap[0],
             "edited room overlay renders at its edited position without a ROM read");
 
-        _ = GameAssetInstaller.EnsureInstalled(installed.Root)
-            ?? throw new InvalidOperationException("X-ray repair lost the installation.");
         AssertEqual(originalTop + 1, (installed.LoadXrayRevealVisuals()
                 .Apply(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(2)) ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals() .Apply(RoomCollisionType.ShootableBlock, 2).")).TopLeft,
-            "X-ray override survives stock installation validation");
+            "X-ray override is selected on reload");
         AssertEqual(editedItem, (installed.LoadXrayRevealVisuals().Overlays ?? throw new InvalidOperationException("Verification requires installed.LoadXrayRevealVisuals().Overlays.")).ItemMetatile(0),
-            "item overlay edit survives stock installation validation");
+            "item overlay edit is selected on reload");
 
         tall["shape"] = "wide";
         File.WriteAllText(overridePath, document.ToJsonString());

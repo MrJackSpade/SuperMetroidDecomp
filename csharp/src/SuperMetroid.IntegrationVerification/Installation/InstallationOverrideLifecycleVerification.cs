@@ -47,9 +47,9 @@ internal static class InstallationOverrideLifecycleVerification
 {
     /// <summary>
     /// Copies the repository installation into scratch storage and checks override survival across ROM-free startup,
-    /// stock repair, and format upgrade.
+    /// and format upgrade.
     /// </summary>
-    [PrivateInstallation("Checks the installer's stock repair and extraction-format upgrade on an installation that holds every override domain, and that OpenOrRepair opens it without its ROM.")]
+    [PrivateInstallation("Checks the installer's extraction-format upgrade on an installation that holds every override domain, and that OpenOrRepair opens it without its ROM.")]
     internal static int Run()
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
@@ -84,18 +84,9 @@ internal static class InstallationOverrideLifecycleVerification
             }
             File.Move(heldRom, installation.RomPath);
 
-            // Exercise the real publication transaction, not manual replacement of
-            // one asset directory. Repair must preserve every override file/domain.
-            File.WriteAllText(Path.Combine(installation.StandardObjectDirectory,
-                StandardObjectArtworkFormat.FileName), "broken stock PNG");
-            Assert(GameAssetInstaller.TryOpenExtractedContent(installation.Root) is null,
-                "damaged stock is detected even with a complete valid override");
-            Assert(GameAssetInstaller.EnsureInstalled(installation.Root) is not null, "stock repair succeeds");
-            AssertSnapshot(stockFiles, FileSnapshot(installation.ContentDirectory), "repair regenerates exact stock");
-            VerifySelected(installation, edits, selected, overrideFiles, "stock repair");
-
-            // A previous installation format uses the same import/update path as a
-            // shipped extraction upgrade. Preserve both authored edits and extras.
+            // A previous installation format uses the same import/update path as a shipped extraction upgrade, and the
+            // receipt alone decides it (#1532). Exercise the real publication transaction, not manual replacement of one
+            // asset directory: it must preserve every override file and domain.
             string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
             JsonObject receipt = JsonNode.Parse(File.ReadAllText(receiptPath))?.AsObject()
                 ?? throw new InvalidDataException("Installation receipt is null.");
@@ -108,7 +99,7 @@ internal static class InstallationOverrideLifecycleVerification
             VerifyInvalidOverrideIsRetained(installation, overrideFiles);
             Console.WriteLine($"PASS override lifecycle: {domains.Length} installed directories, {selected.Count} catalog loaders, " +
                 $"{overrideFiles.Count} override files; PNG/font/palette/replacement-clip edits survive " +
-                "ROM-unavailable startup, fresh host binding, stock repair and extraction upgrade. No gameplay probes.");
+                "ROM-unavailable startup, fresh host binding and extraction upgrade. No gameplay probes.");
             return 0;
         }
         finally

@@ -227,7 +227,7 @@ internal static class EndingPaletteArtworkVerification
     }
 
     /// <summary>Checks installed ending colors and visible scene overrides with cartridge reads guarded.</summary>
-    [PrivateInstallation("Checks that installer repair restores corrupted ending palette stock files on a private copy.")]
+    [PrivateInstallation("Corrupts ending palette stock files on a private copy to check that overrides cannot hide the damage.")]
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
@@ -409,16 +409,17 @@ internal static class EndingPaletteArtworkVerification
         byte[] selected = EndingPaletteWords.Of(installation.LoadEndingPalettes()[EndingPaletteId.Escape]).ToArray();
         string stockCreditsPath = Path.Combine(installation.EndingPaletteDirectory,
             EndingPaletteFiles.FileName(EndingPaletteId.Credits));
+        byte[] stockCredits = File.ReadAllBytes(stockCreditsPath);
         File.WriteAllBytes(stockCreditsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingPalettes(),
             "valid override cannot conceal a corrupt stock ending palette");
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
-            ?? throw new InvalidOperationException("Ending palettes vanished during stock repair.");
-        AssertTrue(EndingPaletteWords.Of(repaired.LoadEndingPalettes()[EndingPaletteId.Escape]).Span
+        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+        File.WriteAllBytes(stockCreditsPath, stockCredits);
+        AssertTrue(EndingPaletteWords.Of(installation.LoadEndingPalettes()[EndingPaletteId.Escape]).Span
                 .SequenceEqual(selected) &&
-            EndingPaletteWords.Of(repaired.LoadEndingPalettes()[EndingPaletteId.Credits]).Span
+            EndingPaletteWords.Of(installation.LoadEndingPalettes()[EndingPaletteId.Credits]).Span
                 .SequenceEqual(EndingPaletteWords.Of(stock[EndingPaletteId.Credits]).Span),
-            "stock palette repair preserves the external override and restores native credits colors");
+            "the external override still applies and the restored stock shows native credits colors");
         File.Delete(invalidPath);
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "stock and edited ending scenes never reread installed palette colors");

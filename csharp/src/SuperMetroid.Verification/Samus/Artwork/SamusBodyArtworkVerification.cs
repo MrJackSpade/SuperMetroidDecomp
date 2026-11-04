@@ -27,7 +27,7 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
-    [PrivateInstallation("Checks that installer repair restores the hash-checked stock arm-cannon artwork on a private copy.")]
+    [PrivateInstallation("Edits and corrupts Samus body artwork files on a private copy to check overrides and that damaged stock fails loudly.")]
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
@@ -608,23 +608,22 @@ internal static class SamusBodyArtworkVerification
             "Samus body override cannot change native set-pointer identity");
         document.Required("topSetStarts")[0] = stock.TopSetStarts[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
-        // Installation repair must replace only the damaged stock copy. Player artwork
-        // lives outside the atomically replaced content directory and must remain selected.
+        // Installed content is never repaired in place (#1532): a damaged stock arm-cannon PNG fails where it loads, and
+        // the check puts the stock bytes back. Player artwork lives outside the content directory and stays selected.
         string stockArmPath = Path.Combine(installation.SamusBodyDirectory,
             SamusArmCannonArtworkFormat.TileFileName);
         byte[] originalArmStock = File.ReadAllBytes(stockArmPath);
         File.WriteAllBytes(stockArmPath, [0]);
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
-            ?? throw new InvalidOperationException("Samus test installation disappeared during repair.");
-        AssertTrue(File.ReadAllBytes(stockArmPath).SequenceEqual(originalArmStock),
-            "repair restores the hash-checked stock arm-cannon PNG");
-        InstalledSamusArmCannonArtwork reboundArm = repaired.LoadSamusBodyArt().ArmCannon;
+        AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
+            "a damaged stock arm-cannon PNG fails where it loads, whatever overrides select");
+        File.WriteAllBytes(stockArmPath, originalArmStock);
+        InstalledSamusArmCannonArtwork reboundArm = installation.LoadSamusBodyArt().ArmCannon;
         AssertTrue(reboundArm.ReadDrawingByteAt(armXAddress) != stock.ArmCannon.ReadDrawingByteAt(armXAddress),
-            "repair preserves edited arm-cannon placement JSON");
+            "edited arm-cannon placement JSON stays selected over the restored stock");
         AssertTrue(reboundArm.Source.TryResolveTile(SamusSourceDefinitions.CharacterDataBank.Value |
                 selectedArmTileSource, 32, out var reboundArmTile) &&
             reboundArmTile.Span.SequenceEqual(editedArmTile.Span),
-            "repair preserves edited arm-cannon PNG pixels");
+            "edited arm-cannon PNG pixels stay selected over the restored stock");
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 

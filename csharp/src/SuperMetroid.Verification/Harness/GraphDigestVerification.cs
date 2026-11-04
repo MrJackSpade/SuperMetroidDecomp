@@ -12,8 +12,8 @@ internal static class GraphDigestVerification
     /// SHA-256 of an object's complete debugger-state graph, for whole-state equality checks.
     /// Streams into the hash so comparing large graphs allocates no serialized copy. The graph names what it reaches of
     /// <paramref name="content"/> by path, as a host's store names its bound content, so graphs bound to different
-    /// content of the same shape digest alike. The index is used as it stands, without a refresh: an equality check
-    /// compares graphs that reach the same content, so content loaded since is written alike in both.
+    /// content of the same shape digest alike. Content loaded since the list was first indexed is indexed before each
+    /// capture, so what a graph names by path does not depend on which suites ran before it in the process.
     /// </summary>
     internal static byte[] GraphDigest(object value, params object[] content)
     {
@@ -24,8 +24,8 @@ internal static class GraphDigestVerification
     }
 
     /// <summary>
-    /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path. The index stands
-    /// as it was built, without a refresh: content first loaded later is written by value, which a restore copies.
+    /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path, content loaded
+    /// since the list was first indexed included.
     /// </summary>
     internal static byte[] SerializeGraph(object value, params object[] content)
     {
@@ -58,7 +58,13 @@ internal static class GraphDigestVerification
         {
             foreach ((object[] roots, BoundObjectGraph graph) in boundGraphs)
                 if (roots.Length == content.Length && roots.Zip(content).All(pair => ReferenceEquals(pair.First, pair.Second)))
+                {
+                    // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
+                    // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
+                    // keeps the path it was first indexed under.
+                    graph.Refresh();
                     return graph;
+                }
             var indexed = new BoundObjectGraph(content);
             boundGraphs.Add(([.. content], indexed));
             return indexed;

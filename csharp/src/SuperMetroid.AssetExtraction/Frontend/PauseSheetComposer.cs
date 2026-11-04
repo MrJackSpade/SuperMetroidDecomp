@@ -4,12 +4,15 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Composes the pause sheet (#1392): each equipment-selector frame the selector presentation names, in its palette, and
-/// each reserve-tank strip visual, in the strip's, over the menu sprite page and coloured as pause loads its palette.
+/// each reserve-tank strip visual, in the strip's, over the menu sprite page and coloured as pause loads its palette,
+/// with a shade for each frame of the highlight cycle over the row it recolours, which the selector and the strip are
+/// drawn in (#1512).
 /// </summary>
 internal static class PauseSheetComposer
 {
@@ -44,9 +47,22 @@ internal static class PauseSheetComposer
             string name = PauseReserveTankParts.SheetFrameName(frame.Name);
             return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tankSource.SpriteSet);
         }));
+        // The pause screen's palette animation rewrites the highlighted sprites' row every frame of its cycle, on the map
+        // and equipment pages alike, so every ink of that row shows each frame's colours.
+        MapPaletteCycle highlight = InstalledAreaMapPresentation.HighlightColoursOf(maps);
+        int highlightInk = MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted) * GroupColours;
+        var shades = new List<SheetShade>();
+        for (int frame = 0; frame < highlight.FrameCount; frame++)
+            shades.Add(SheetShade.Run(MapSpriteShades.Highlight(frame), highlightInk, highlight.Colours(frame)));
         return new SpriteSheetSources(frames, InstalledAreaMapPresentation.PalettesOf(maps).Pause[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
-            PartsKeepOwnRows: true);
+            PartsKeepOwnRows: true)
+        {
+            Shades = shades,
+        };
     }
+
+    /// <summary>The colours of one sprite colour group.</summary>
+    private const int GroupColours = 16;
 
     /// <summary>The frames the pause sheet of <paramref name="maps"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) =>

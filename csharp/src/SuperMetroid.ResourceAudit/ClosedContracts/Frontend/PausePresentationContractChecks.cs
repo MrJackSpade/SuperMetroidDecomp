@@ -48,10 +48,10 @@ internal static class PausePresentationContractChecks
                     selector.NormalizePhase(int.MaxValue);
                     selector.NormalizePhase(-1);
                     selector.Duration(1000);
-                    selector.Draw(oam, sheet, 0, 1, int.MaxValue);
-                    selector.Draw(oam, sheet, 0, 2, 0);
-                    tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount - 1);
-                    tanks.Draw(oam, sheet, (PauseReserveTankVisual)99, 0);
+                    selector.Draw(oam, sheet, 0, 1, int.MaxValue, SuperMetroid.Core.Assets.PictureShading.Standard);
+                    selector.Draw(oam, sheet, 0, 2, 0, SuperMetroid.Core.Assets.PictureShading.Standard);
+                    tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount - 1, SuperMetroid.Core.Assets.PictureShading.Standard);
+                    tanks.Draw(oam, sheet, (PauseReserveTankVisual)99, 0, SuperMetroid.Core.Assets.PictureShading.Standard);
                     tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
                     tanks.Anchor(0);
                 }

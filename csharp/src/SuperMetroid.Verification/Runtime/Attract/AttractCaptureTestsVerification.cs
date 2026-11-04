@@ -8,6 +8,8 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 
@@ -35,7 +37,7 @@ internal static class AttractCaptureTestsVerification
             });
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false, bounded = false;
-            RgbaPixel[]? held = null;
+            DisplayPacket? held = null;
             for (int tick = 0; tick < 8000; tick++)
             {
                 if (!bounded && legacy.GameState == SuperMetroidGameState.TransitionToDemoB)
@@ -57,19 +59,19 @@ internal static class AttractCaptureTestsVerification
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    AssertTrue(legacy.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)),
+                    AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot),
                         $"demo frame {tick} pixel parity");
                     samples++;
                 }
                 if (legacy.AttractDemoHoldFramesRemaining > 0 && expected.GameState == SuperMetroidGameState.PlayingDemo)
                 {
                     sawHold = true;
-                    held ??= legacy.PublishedPixels();
-                    AssertTrue(held.SequenceEqual(legacy.PublishedPixels()), "demo final-image hold stays pixel-identical");
+                    held ??= legacy.GetRetainedDisplay();
+                    AssertTrue(ScenePixels.Same(held, legacy.GetRetainedDisplay()), "demo final-image hold stays pixel-identical");
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    AssertTrue(legacy.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)), "demo return title frame");
+                    AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot), "demo return title frame");
                     returned = true; break;
                 }
             }

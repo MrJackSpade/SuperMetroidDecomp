@@ -38,10 +38,12 @@ public static class GameAssetInstaller
         CancellationToken cancellationToken = default, IProgress<string>? progress = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
-        if (Inspect(installation, cancellationToken) is { Complete: true }) return installation;
+        // Without the lock only completeness is decided, so the check stops at the first damaged component (#1532); the
+        // components a repair keeps are decided again under the lock.
+        if (Inspect(installation, cancellationToken, InspectionDepth.UntilIncomplete) is { Complete: true }) return installation;
         using FileStream gate = Lock(installation.Root);
         RecoverInterruptedPublish(installation);
-        if (Inspect(installation, cancellationToken) is not { } state) return null;
+        if (Inspect(installation, cancellationToken, InspectionDepth.EveryComponent) is not { } state) return null;
         return state.Complete ? installation : ExtractAndPublish(installation, state.Rom, state.Reusable, cancellationToken, progress);
     }
 
@@ -49,12 +51,12 @@ public static class GameAssetInstaller
     /// Reads the installation's own ROM and validates its content in one pass, which decides
     /// completeness and which components a repair may keep. Null when no ROM is installed.
     /// </summary>
-    private static InstalledState? Inspect(GameInstallation installation, CancellationToken cancellationToken)
+    private static InstalledState? Inspect(GameInstallation installation, CancellationToken cancellationToken, InspectionDepth depth)
     {
         if (!File.Exists(installation.RomPath)) return null;
         byte[] rom;
         using (Stream source = File.OpenRead(installation.RomPath)) rom = SupportedCartridge.Read(source, cancellationToken);
-        HashSet<InstallerComponent> reusable = InspectInstalledComponents(installation, out bool complete);
+        ReusableContent reusable = InspectInstalledComponents(installation, depth, out bool complete);
         return new InstalledState(rom, reusable, complete);
     }
 
@@ -107,7 +109,7 @@ public static class GameAssetInstaller
             catch (InvalidDataException) { /* Replace an invalid installed image with the verified input. */ }
         }
         // A newly supplied cartridge rebuilds every component.
-        return ExtractAndPublish(installation, rom, new HashSet<InstallerComponent>(), cancellationToken, progress);
+        return ExtractAndPublish(installation, rom, ReusableContent.None, cancellationToken, progress);
     }
 
     /// <summary>Requires both an installed cartridge copy and a valid extracted-content receipt and inventory.</summary>
@@ -127,36 +129,63 @@ public static class GameAssetInstaller
 
     /// <summary>
     /// Stages a complete content directory and publishes it atomically. Components in
-    /// <paramref name="reusable"/> are intact in the current content and are copied;
-    /// every other component is extracted from <paramref name="rom"/>.
+    /// <paramref name="reusable"/> are intact in the current content and are kept; every other component is extracted
+    /// from <paramref name="rom"/>. Published content never changes, so a kept component's directory moves into the
+    /// staged content just before it is published, with the digests the inspection verified, rather than being copied
+    /// and digested again (#1532). Only when a composition component is extracted again are the kept components copied
+    /// into the staged content first, as composition reads the stock artwork installed beside it.
     /// </summary>
     private static GameInstallation ExtractAndPublish(GameInstallation installation, byte[] rom,
-        IReadOnlySet<InstallerComponent> reusable, CancellationToken cancellationToken, IProgress<string>? progress)
+        ReusableContent reusable, CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string staging = Path.Combine(installation.Root, GameInstallationLayout.StagingPrefix + Guid.NewGuid().ToString("N"));
         string previous = Path.Combine(installation.Root, GameInstallationLayout.PreviousDirectoryName);
+        bool composesInStaging = Components.Any(component => component.Kind == InstallerComponentKind.Composition && !reusable.Components.Contains(component));
+        InstallerComponent[] moved = composesInStaging ? [] : [.. Components.Where(reusable.Components.Contains)];
+        IReadOnlySet<InstallerComponent> copied = composesInStaging ? reusable.Components : new HashSet<InstallerComponent>();
         Directory.CreateDirectory(staging);
         try
         {
             File.WriteAllBytes(Path.Combine(staging, GameInstallationLayout.RomFileName), rom);
-            InstallComponents(installation, rom, reusable, staging, cancellationToken, progress);
+            InstallComponents(installation, rom, reusable.Components, copied, staging, cancellationToken, progress);
             // The receipt records the bytes every component published so opening the
             // installation later checks them by digest instead of decoding every resource again (#1430).
+            SortedDictionary<string, string> digests = DigestPublishedFiles(staging);
+            foreach (InstallerComponent component in moved)
+                foreach ((string relative, string digest) in reusable.DigestsOf(component))
+                    digests.Add(relative, digest);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion,
-                    SupportedCartridge.Sha256, DigestPublishedFiles(staging))));
+                    SupportedCartridge.Sha256, digests)));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // Before publishing: a refused rename leaves the old content in place, so the next start retries it.
             RoomArtworkOverrideNames.Migrate(installation);
             // These are fixed app-owned content directories. Player saves, recordings,
             // configuration and the original chosen ROM are outside this transaction.
-            if (Directory.Exists(previous)) Directory.Delete(previous, recursive: true);
-            if (Directory.Exists(installation.ContentDirectory)) Directory.Move(installation.ContentDirectory, previous);
-            try { Directory.Move(staging, installation.ContentDirectory); }
+            var kept = new List<InstallerComponent>(moved.Length);
+            try
+            {
+                foreach (InstallerComponent component in moved)
+                {
+                    Directory.Move(Path.Combine(installation.ContentDirectory, component.DirectoryName), Path.Combine(staging, component.DirectoryName));
+                    kept.Add(component);
+                }
+                if (Directory.Exists(previous)) Directory.Delete(previous, recursive: true);
+                if (Directory.Exists(installation.ContentDirectory)) Directory.Move(installation.ContentDirectory, previous);
+                try { Directory.Move(staging, installation.ContentDirectory); }
+                catch
+                {
+                    RecoverInterruptedPublish(installation);
+                    throw;
+                }
+            }
             catch
             {
-                RecoverInterruptedPublish(installation);
+                // The publish did not happen: the current content takes back each kept component before the staging
+                // directory is deleted, then the failure surfaces.
+                foreach (InstallerComponent component in kept)
+                    Directory.Move(Path.Combine(staging, component.DirectoryName), Path.Combine(installation.ContentDirectory, component.DirectoryName));
                 throw;
             }
             return installation;
@@ -175,7 +204,7 @@ public static class GameAssetInstaller
     /// the cancellation is rethrown, the first as it was thrown when it is the only one.
     /// </summary>
     private static void InstallComponents(GameInstallation installation, byte[] rom, IReadOnlySet<InstallerComponent> reusable,
-        string staging, CancellationToken cancellationToken, IProgress<string>? progress)
+        IReadOnlySet<InstallerComponent> copied, string staging, CancellationToken cancellationToken, IProgress<string>? progress)
     {
         using var failed = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         IProgress<string>? reports = progress is null ? null : new SerializedProgress(progress);
@@ -183,7 +212,7 @@ public static class GameAssetInstaller
         // inside the components already running.
         Task Start(InstallerComponent component) => Task.Factory.StartNew(() =>
         {
-            try { InstallComponent(installation, rom, reusable, staging, component, failed.Token, reports); }
+            try { InstallComponent(installation, rom, reusable, copied, staging, component, failed.Token, reports); }
             catch { failed.Cancel(); throw; }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         InstallerComponent[] first = [.. Components.Where(component => component.Kind != InstallerComponentKind.Composition)];
@@ -207,17 +236,20 @@ public static class GameAssetInstaller
     }
 
     /// <summary>
-    /// Copies <paramref name="component"/> from the current content when it is in <paramref name="reusable"/>, otherwise
-    /// extracts each of its steps into its directory under <paramref name="staging"/>.
+    /// Keeps <paramref name="component"/> when it is in <paramref name="reusable"/>, copying it from the current content when
+    /// it is also in <paramref name="copied"/> and otherwise leaving it to move in at publication; extracts each step of
+    /// any other component into its directory under <paramref name="staging"/>.
     /// </summary>
     private static void InstallComponent(GameInstallation installation, byte[] rom, IReadOnlySet<InstallerComponent> reusable,
-        string staging, InstallerComponent component, CancellationToken cancellationToken, IProgress<string>? progress)
+        IReadOnlySet<InstallerComponent> copied, string staging, InstallerComponent component, CancellationToken cancellationToken,
+        IProgress<string>? progress)
     {
         string directory = Path.Combine(staging, component.DirectoryName);
         if (reusable.Contains(component))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            CopyDirectory(Path.Combine(installation.ContentDirectory, component.DirectoryName), directory);
+            if (copied.Contains(component))
+                CopyDirectory(Path.Combine(installation.ContentDirectory, component.DirectoryName), directory);
             return;
         }
         foreach (InstallerStep step in component.Steps)
@@ -251,7 +283,32 @@ public static class GameAssetInstaller
     private sealed record InstallationReceipt(int FormatVersion, string RomSha256, IReadOnlyDictionary<string, string> Files);
 
     /// <summary>Verified installed ROM plus component reuse decisions from one inspection pass.</summary>
-    private sealed record InstalledState(byte[] Rom, HashSet<InstallerComponent> Reusable, bool Complete);
+    private sealed record InstalledState(byte[] Rom, ReusableContent Reusable, bool Complete);
+
+    /// <summary>How far an inspection checks the published files.</summary>
+    private enum InspectionDepth
+    {
+        /// <summary>Until the first damaged component, which decides only whether the installation is complete.</summary>
+        UntilIncomplete,
+        /// <summary>Every component, which also decides each component a repair keeps.</summary>
+        EveryComponent,
+    }
+
+    /// <summary>
+    /// The components whose published files an inspection found intact, with the digest of each of their files by
+    /// content-relative path, as the receipt recorded and the inspection confirmed.
+    /// </summary>
+    /// <param name="Components">The intact components.</param>
+    /// <param name="Digests">Every intact component's files' digests by content-relative path.</param>
+    private sealed record ReusableContent(IReadOnlySet<InstallerComponent> Components, IReadOnlyDictionary<string, string> Digests)
+    {
+        /// <summary>No component kept: a newly supplied cartridge rebuilds every one.</summary>
+        internal static ReusableContent None { get; } = new(new HashSet<InstallerComponent>(), new Dictionary<string, string>());
+
+        /// <summary>The digests of <paramref name="component"/>'s files by content-relative path.</summary>
+        internal IEnumerable<KeyValuePair<string, string>> DigestsOf(InstallerComponent component) =>
+            Digests.Where(file => file.Key.StartsWith(component.DirectoryName + "/", StringComparison.Ordinal));
+    }
 
     /// <summary>One extraction stage: its progress text and extractor.</summary>
     private sealed record InstallerStep(
@@ -414,26 +471,43 @@ public static class GameAssetInstaller
 
     /// <summary>
     /// Inspects installed content once. Returns the components whose published files are intact, which a repair keeps,
-    /// and whether every component is. A receipt from another format or ROM keeps nothing.
+    /// with their verified digests, and whether every component is. A receipt from another format or ROM keeps nothing.
+    /// At <see cref="InspectionDepth.UntilIncomplete"/> the inspection ends at the first damaged component, and what it
+    /// returns decides completeness alone.
     /// </summary>
-    private static HashSet<InstallerComponent> InspectInstalledComponents(GameInstallation installation, out bool complete)
+    private static ReusableContent InspectInstalledComponents(GameInstallation installation, InspectionDepth depth, out bool complete)
     {
         var valid = new HashSet<InstallerComponent>();
+        var digests = new Dictionary<string, string>(StringComparer.Ordinal);
         complete = false;
         InstallationReceipt receipt;
         try { receipt = ReadReceipt(installation); }
-        catch (Exception error) when (IsRepairableContentFailure(error)) { return valid; }
-        foreach (InstallerComponent component in Components)
+        catch (Exception error) when (IsRepairableContentFailure(error)) { return ReusableContent.None; }
+        // A check that ends at the first damaged component reads the smallest components first, so a damaged one is found
+        // before the largest, the audio, is read whole.
+        IEnumerable<InstallerComponent> order = depth == InspectionDepth.UntilIncomplete
+            ? Components.OrderBy(component => PublishedBytes(installation, receipt, component))
+            : Components;
+        foreach (InstallerComponent component in order)
         {
             try
             {
                 VerifyPublishedFiles(installation, receipt, component);
                 valid.Add(component);
             }
-            catch (Exception error) when (IsRepairableContentFailure(error)) { }
+            catch (Exception error) when (IsRepairableContentFailure(error))
+            {
+                if (depth == InspectionDepth.UntilIncomplete)
+                    break;
+            }
+        }
+        foreach ((string relative, string digest) in receipt.Files)
+        {
+            if (valid.Any(component => relative.StartsWith(component.DirectoryName + "/", StringComparison.Ordinal)))
+                digests.Add(relative, digest);
         }
         complete = valid.Count == Components.Length;
-        return valid;
+        return new ReusableContent(valid, digests);
     }
 
     /// <summary>
@@ -480,6 +554,25 @@ public static class GameAssetInstaller
         }
         if (!published)
             throw new InvalidDataException($"Installation receipt publishes no files for {component.DirectoryName}. Reimport the supported cartridge.");
+    }
+
+    /// <summary>
+    /// The bytes the files the receipt records for <paramref name="component"/> hold now, read from their directory entries;
+    /// a missing file holds none. It orders an inspection; the digests decide what is intact.
+    /// </summary>
+    private static long PublishedBytes(GameInstallation installation, InstallationReceipt receipt, InstallerComponent component)
+    {
+        string prefix = component.DirectoryName + "/";
+        long bytes = 0;
+        foreach (string relative in receipt.Files.Keys)
+        {
+            if (!relative.StartsWith(prefix, StringComparison.Ordinal))
+                continue;
+            var file = new FileInfo(Path.Combine(installation.ContentDirectory, relative));
+            if (file.Exists)
+                bytes += file.Length;
+        }
+        return bytes;
     }
 
     /// <summary>Copies a previously published component tree into the new staging directory.</summary>

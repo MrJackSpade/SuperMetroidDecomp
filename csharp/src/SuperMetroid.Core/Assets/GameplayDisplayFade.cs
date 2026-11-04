@@ -6,7 +6,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Effect">The fade's colour effect.</param>
 /// <param name="Spares">What the fade leaves in its own colours.</param>
-public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares)
+/// <param name="OverSamus">
+/// A shade of Samus's whose colours were written over the faded display and which the fade leaves as they are, or null.
+/// </param>
+public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, PictureShade? OverSamus = null)
 {
     /// <summary>The fade's colour effect.</summary>
     public ColourEffect Effect { get; } = Ensure.NotNull(Effect);

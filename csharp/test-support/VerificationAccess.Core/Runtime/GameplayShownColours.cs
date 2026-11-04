@@ -55,23 +55,13 @@ internal static class GameplayShownColours
         RgbColor[] hudInks = shading.Of(GameplayPictures.Hud).InkColours(hud);
         for (int ink = 0; ink < HudColours; ink++)
             image[SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(hud, ink)] = hudInks[ink];
-        PictureShading samus = shading.OfSprite(PictureShading.Standard, isSamus: true);
-        Shown(runtime.Player.Colours.ShownSuit(sources), samus).CopyTo(image, SamusSuitFirst);
-        Shown(runtime.Player.Colours.ShownBeams(sources), samus).CopyTo(image, SamusBeamsFirst);
+        // Samus's draws show her shading, then the display's fade, then any of her colours written over the faded display.
+        RgbColor[] samus = SamusColoursAccess.InksUnder(shading.OfSprite(runtime.Player.Colours.Shading, isSamus: true), sources);
+        Array.Copy(samus, SamusSheetInks.Suit, image, SamusSuitFirst, RowColours);
+        Array.Copy(samus, SamusSheetInks.Beams, image, SamusBeamsFirst, RowColours);
         return image;
     }
 
     /// <summary>The colours of a whole native image.</summary>
     private const int SnesColourCount = 256;
-
-    /// <summary><paramref name="colours"/> under <paramref name="shading"/>'s effects.</summary>
-    private static RgbColor[] Shown(RgbColor[] colours, PictureShading shading)
-    {
-        foreach (ColourEffect effect in shading.Effects)
-        {
-            for (int colour = 0; colour < colours.Length; colour++)
-                colours[colour] = effect.Apply(colours[colour]);
-        }
-        return colours;
-    }
 }

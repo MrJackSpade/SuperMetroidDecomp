@@ -19,6 +19,36 @@ internal static class SamusColoursAccess
     /// <summary>The import's shades by key, computed once per set of colour tables.</summary>
     private static readonly ConditionalWeakTable<SamusShadeSources, Dictionary<string, SheetShade>> shadesBySources = new();
 
+    /// <summary>
+    /// The colour each of her sheets' inks shows under <paramref name="shading"/>, the shades resolved from
+    /// <paramref name="sources"/>: its shades, then its effects, then the shades laid over them; inks no shade covers
+    /// show black before the effects.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">The shading names a shade the import does not make.</exception>
+    internal static RgbColor[] InksUnder(PictureShading shading, SamusShadeSources sources)
+    {
+        Dictionary<string, SheetShade> shades = shadesBySources.GetValue(sources,
+            key => key.Shades().ToDictionary(shade => shade.Shade.Key, StringComparer.Ordinal));
+        var inks = new RgbColor[SheetInks];
+        foreach (PictureShade shade in shading.Shades)
+            Lay(shades[shade.Key], inks);
+        foreach (ColourEffect effect in shading.Effects)
+        {
+            for (int ink = 0; ink < inks.Length; ink++)
+                inks[ink] = effect.Apply(inks[ink]);
+        }
+        foreach (PictureShade shade in shading.OverEffects)
+            Lay(shades[shade.Key], inks);
+        return inks;
+    }
+
+    /// <summary>Lays <paramref name="shade"/>'s colours over its inks of <paramref name="inks"/>.</summary>
+    private static void Lay(SheetShade shade, RgbColor[] inks)
+    {
+        for (int index = 0; index < shade.Inks.Length; index++)
+            inks[shade.Inks[index]] = shade.Colours[index];
+    }
+
     /// <summary>Reads Samus's colours as a check compares them.</summary>
     extension(SamusColours self)
     {
@@ -27,19 +57,7 @@ internal static class SamusColoursAccess
         /// <paramref name="sources"/>; inks no shade covers show black.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Her shading names a shade the import does not make.</exception>
-        internal RgbColor[] ShownInks(SamusShadeSources sources)
-        {
-            Dictionary<string, SheetShade> shades = shadesBySources.GetValue(sources,
-                key => key.Shades().ToDictionary(shade => shade.Shade.Key, StringComparer.Ordinal));
-            var inks = new RgbColor[SheetInks];
-            foreach (PictureShade shade in self.Shading.Shades)
-            {
-                SheetShade shown = shades[shade.Key];
-                for (int index = 0; index < shown.Inks.Length; index++)
-                    inks[shown.Inks[index]] = shown.Colours[index];
-            }
-            return inks;
-        }
+        internal RgbColor[] ShownInks(SamusShadeSources sources) => InksUnder(self.Shading, sources);
 
         /// <summary>The sixteen colours her suit shows.</summary>
         internal RgbColor[] ShownSuit(SamusShadeSources sources) =>

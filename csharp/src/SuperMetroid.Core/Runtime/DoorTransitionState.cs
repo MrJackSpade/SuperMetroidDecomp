@@ -231,6 +231,7 @@ internal sealed class DoorTransitionState
                     // room state here; deferring them to the first ordinary gameplay frame
                     // exposes their pre-PLM state.
                     runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
+                    runtime.DoorFade.WriteSamusVisor();
                     runtime.PlmPhase.RunDoorTransitionPlmHandler(runtime.Room.LoadedScope.Plms, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }

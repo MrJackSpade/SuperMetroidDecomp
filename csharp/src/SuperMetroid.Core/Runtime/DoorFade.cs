@@ -19,6 +19,12 @@ internal sealed class DoorFade : IGameplayShadingSource
     /// <summary>Whether the door leads from one common room into another, which keeps more of the HUD lit.</summary>
     private bool betweenCommonRooms;
 
+    /// <summary>
+    /// Whether the door's scroll has completed, which writes Samus's visor green into the dark display's colours: the fade
+    /// in then moves it toward the suit's visor colour, which every suit shows in the same green, so it stays lit.
+    /// </summary>
+    private bool samusVisorWritten;
+
     /// <summary>Where the fade is.</summary>
     internal DoorFadeStage Stage { get; private set; } = DoorFadeStage.None;
 
@@ -29,7 +35,17 @@ internal sealed class DoorFade : IGameplayShadingSource
     {
         steps = Ensure.NotNull(fade);
         betweenCommonRooms = commonRooms;
+        samusVisorWritten = false;
         Stage = DoorFadeStage.FadingOut;
+    }
+
+    /// <summary>Writes Samus's visor green into the dark display's colours, as the door's completed scroll does.</summary>
+    /// <exception cref="InvalidOperationException">The display is neither dark nor fading in.</exception>
+    internal void WriteSamusVisor()
+    {
+        if (Stage is not (DoorFadeStage.Dark or DoorFadeStage.FadingIn))
+            throw new InvalidOperationException($"A door writes Samus's visor into its dark display, not while {Stage}.");
+        samusVisorWritten = true;
     }
 
     /// <summary>Keeps the faded-out room dark while the door loads and scrolls.</summary>
@@ -63,7 +79,8 @@ internal sealed class DoorFade : IGameplayShadingSource
         GradualFadeSteps fade = steps ?? throw new InvalidOperationException("A door fade shows once its steps have started.");
         // The HUD's shade is the import's of the shared counter's value at the last step taken.
         int? last = fade.Taken.IsEmpty ? null : fade.Taken[^1];
-        frame.Fade(new GameplayDisplayFade(DisplayEffect(fade), GameplayFadeSpares.Hud));
+        frame.Fade(new GameplayDisplayFade(DisplayEffect(fade), GameplayFadeSpares.Hud,
+            samusVisorWritten ? SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor : null));
         if (HudShade(last) is { } hud)
             frame.Shade(GameplayPictures.Hud, hud);
         if (EscapeTimerShade(last) is { } timer)

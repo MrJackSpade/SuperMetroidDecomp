@@ -33,6 +33,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Suite(nameof(VerifyKraidDeathFadeFromRoomColours), () => VerifyKraidDeathFadeFromRoomColours(stock));
         Suite(nameof(VerifyKraidFadeBackFromKraidColours), () => VerifyKraidFadeBackFromKraidColours(stock));
         Suite(nameof(VerifyKraidDeathFadeDuringGrowthFade), () => VerifyKraidDeathFadeDuringGrowthFade(stock));
+        Suite(nameof(VerifyKraidFadeBackDuringDoorFade), () => VerifyKraidFadeBackDuringDoorFade(stock));
         KraidColorCatalog catalog = stock.Bosses.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
@@ -223,6 +224,43 @@ internal static class EnemyTileArtworkKraidColorsVerification
             "Kraid's death fade during his growth fade");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), fixture.Enemies.KraidBehavior.Access.Backdrop.Shows,
             "Kraid's death fade during his growth fade ends on black");
+    }
+
+    /// <summary>
+    /// Samus can leave Kraid's room during the fade back toward his colours (#1512; the 13% and 100% movies do): the
+    /// door's fade advances the shared counter after each of the backdrop's steps, so the fade back takes every other
+    /// value, each step showing what the cartridge's gradual colour change computes at the values taken, and it completes
+    /// when the counter passes the last moving value without a step there, keeping its colours partway.
+    /// </summary>
+    private static void VerifyKraidFadeBackDuringDoorFade(InstalledEnemyArtwork artwork)
+    {
+        const int denominator = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
+        const int lastAlone = 6;
+        KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
+        RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToBlack, expected, fixture.Black, untilCounter: null, "Kraid's death fade");
+        fixture.Enemies.Presentation.GradualColorChange.Reset();
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToRoomColors, expected, fixture.Kraid, untilCounter: lastAlone,
+            "Kraid's fade back before the door");
+        var advance = new Func<KraidBackdropFade, bool>(fixture.Enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        while (true)
+        {
+            // The door's fade takes its step on the shared counter between the backdrop's.
+            fixture.Enemies.Presentation.GradualColorChange.Advance();
+            int value = fixture.Enemies.Presentation.GradualColorChange.Numerator;
+            if (advance(KraidBackdropFade.ToRoomColors))
+            {
+                AssertTrue(value > KraidBackgroundDefinitions.BackdropFadeLastStep, "the fade back completes once the counter passes its last moving value");
+                AssertTrue(fixture.Enemies.KraidBehavior.Access.Backdrop.Shows is KraidBackdropShown.Fading,
+                    "a fade back whose steps skipped the last moving value keeps its colours partway");
+                AssertKraidBackdropShows(fixture, expected, "Kraid's fade back completed during the door's fade");
+                return;
+            }
+            AssertTrue(value % 2 == 0, $"the fade back takes every other counter value during the door's fade, not {value}");
+            for (int colour = 0; colour < expected.Length; colour++)
+                expected[colour] = GradualColourFade.Step(value, expected[colour], fixture.Kraid[colour], denominator);
+            AssertKraidBackdropShows(fixture, expected, $"Kraid's fade back during the door's fade at counter {value}");
+        }
     }
 
     /// <summary>A fresh Kraid room's enemies, the import's backdrop shades for a room of distinct colours, and those colours.</summary>

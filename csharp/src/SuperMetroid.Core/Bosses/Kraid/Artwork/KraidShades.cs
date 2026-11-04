@@ -54,12 +54,12 @@ public static class KraidShades
         _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
     };
 
-    /// <summary>The first and latest counter values of each fade of a chain, as the digits of one step.</summary>
+    /// <summary>The counter values each fade of a chain stepped at, one bit per value, as the bit fields of one step.</summary>
     /// <exception cref="OverflowException">The chain holds more fades than one step can name.</exception>
     private static int ChainStep(KraidBackdropShown shown) => shown switch
     {
         KraidBackdropShown.Settled => 0,
-        KraidBackdropShown.Fading fading => checked(((ChainStep(fading.From) * BackdropFadeShades) + fading.First) * BackdropFadeShades + fading.Reached),
+        KraidBackdropShown.Fading fading => checked((ChainStep(fading.From) * (1 << BackdropFadeShades)) + fading.Steps.Taken),
         _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
     };
 

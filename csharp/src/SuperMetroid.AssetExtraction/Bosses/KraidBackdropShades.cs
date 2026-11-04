@@ -28,8 +28,11 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// that changes nothing), or the room's colours after a death fade that took none before his growth (the growth fade's
 /// own shades).</item>
 /// </list>
-/// The death fade and the fade back each run until they complete, which follows the step at the last moving value and
-/// lands on the goal, so no fade starts from either's colours partway; only the growth fade is interrupted.
+/// The death fade runs until it completes, which follows the step at the last moving value and lands on black, so no fade
+/// starts from its colours partway; only the growth fade is interrupted. The room's doors open once Kraid is dead, so
+/// Samus can leave during the fade back: the door's fade then advances the shared counter in the same updates, and the
+/// fade back's later steps take every other counter value. It completes when the counter passes the last moving value,
+/// on his colours or, when its steps skipped that value, on its colours partway.
 /// </remarks>
 internal static class KraidBackdropShades
 {
@@ -63,7 +66,7 @@ internal static class KraidBackdropShades
             palettes.Kraid[colour] = kraid.Resolve(KraidPaletteSource.RoomBackdrop, colour);
         }
         var shades = new List<SheetShade>();
-        foreach (KraidBackdropShown shown in Reachable())
+        foreach (KraidBackdropShown shown in Reachable().Distinct())
             shades.Add(SheetShade.Run(KraidShades.BackdropShowing(shown), FirstInk, Colours(shown, palettes)));
         return shades;
     }
@@ -73,39 +76,62 @@ internal static class KraidBackdropShades
     {
         yield return ShowsKraidColours;
         yield return ShowsBlack;
-        // His growth, the fade back from black, and the death fade from his colours, each from a zeroed counter.
-        foreach (KraidBackdropShown shown in Partway(ShowsRoomColours, KraidBackdropSettledColours.KraidColours, first: 0))
+        // His growth and the death fade from his colours, each from a zeroed counter.
+        foreach (KraidBackdropShown shown in Partway(ShowsRoomColours, KraidBackdropSettledColours.KraidColours, Consecutive(0)))
             yield return shown;
-        foreach (KraidBackdropShown shown in Partway(ShowsBlack, KraidBackdropSettledColours.KraidColours, first: 0))
+        foreach (KraidBackdropShown shown in Partway(ShowsKraidColours, KraidBackdropSettledColours.Black, Consecutive(0)))
             yield return shown;
-        foreach (KraidBackdropShown shown in Partway(ShowsKraidColours, KraidBackdropSettledColours.Black, first: 0))
-            yield return shown;
+        // The fade back from black or from the room's colours, from a zeroed counter, with or without a door's fade.
+        foreach (KraidBackdropShown from in new[] { ShowsBlack, ShowsRoomColours })
+        {
+            for (int lastAlone = -1; lastAlone <= KraidBackgroundDefinitions.BackdropFadeLastStep; lastAlone++)
+            {
+                foreach (KraidBackdropShown shown in Partway(from, KraidBackdropSettledColours.KraidColours, DoorFadeFrom(lastAlone)))
+                    yield return shown;
+            }
+        }
         // The death fade from the room's colours, at whatever value the shared counter holds.
         for (int first = 0; first <= LastPartway; first++)
         {
-            foreach (KraidBackdropShown shown in Partway(ShowsRoomColours, KraidBackdropSettledColours.Black, first))
+            foreach (KraidBackdropShown shown in Partway(ShowsRoomColours, KraidBackdropSettledColours.Black, Consecutive(first)))
                 yield return shown;
         }
         // The death fade from the growth fade's colours partway, continuing its counter.
-        foreach (KraidBackdropShown.Fading growth in Partway(ShowsRoomColours, KraidBackdropSettledColours.KraidColours, first: 0))
+        foreach (KraidBackdropShown.Fading growth in Partway(ShowsRoomColours, KraidBackdropSettledColours.KraidColours, Consecutive(0)))
         {
-            foreach (KraidBackdropShown shown in Partway(growth, KraidBackdropSettledColours.Black, growth.Reached + 1))
+            foreach (KraidBackdropShown shown in Partway(growth, KraidBackdropSettledColours.Black, Consecutive(growth.Steps.Latest + 1)))
                 yield return shown;
         }
     }
 
+    /// <summary>A fade's steps at each counter value from <paramref name="first"/> through the last moving value.</summary>
+    private static IEnumerable<int> Consecutive(int first) =>
+        Enumerable.Range(first, KraidBackgroundDefinitions.BackdropFadeLastStep - first + 1);
+
     /// <summary>
-    /// A fade from <paramref name="from"/> toward <paramref name="goal"/>'s colours partway, its first step at counter
-    /// value <paramref name="first"/>: each latest step whose colours are neither what it started from nor its goal.
+    /// A fade back's steps from a zeroed counter when a door's fade begins advancing the counter after its step at
+    /// <paramref name="lastAlone"/> (minus one: before its first): each value through that one, then every other value.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A step's colours are not a fade's partway.</exception>
-    private static IEnumerable<KraidBackdropShown.Fading> Partway(KraidBackdropShown from, KraidBackdropSettledColours goal, int first)
+    private static IEnumerable<int> DoorFadeFrom(int lastAlone)
     {
-        for (int reached = Math.Max(first, 1); reached <= LastPartway; reached++)
+        for (int step = 0; step <= lastAlone; step++)
+            yield return step;
+        for (int step = lastAlone + 2; step <= KraidBackgroundDefinitions.BackdropFadeLastStep; step += 2)
+            yield return step;
+    }
+
+    /// <summary>
+    /// A fade from <paramref name="from"/> toward <paramref name="goal"/>'s colours partway, its steps at the counter's
+    /// <paramref name="values"/>: what each of its steps leaves shown that is neither what it started from nor its goal.
+    /// </summary>
+    private static IEnumerable<KraidBackdropShown.Fading> Partway(KraidBackdropShown from, KraidBackdropSettledColours goal, IEnumerable<int> values)
+    {
+        KraidBackdropFadeSteps? steps = null;
+        foreach (int value in values)
         {
-            KraidBackdropShown shown = KraidBackdropShown.Fade(from, goal, first, reached);
-            yield return shown as KraidBackdropShown.Fading
-                ?? throw new InvalidOperationException($"Kraid's backdrop fade from {from} toward {goal} at {first} through {reached} shows {shown}.");
+            steps = steps is { } taken ? taken.Then(value) : KraidBackdropFadeSteps.At(value);
+            if (KraidBackdropShown.Fade(from, goal, steps.Value) is KraidBackdropShown.Fading fading)
+                yield return fading;
         }
     }
 
@@ -113,7 +139,7 @@ internal static class KraidBackdropShades
     private static RgbColor[] Colours(KraidBackdropShown shown, KraidBackdropPalettes palettes) => shown switch
     {
         KraidBackdropShown.Settled settled => Colours(settled.Colours, palettes),
-        KraidBackdropShown.Fading fading => Faded(Colours(fading.From, palettes), Colours(fading.Goal, palettes), fading.First, fading.Reached),
+        KraidBackdropShown.Fading fading => Faded(Colours(fading.From, palettes), Colours(fading.Goal, palettes), fading.Steps),
         _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
     };
 
@@ -128,15 +154,15 @@ internal static class KraidBackdropShades
 
     /// <summary>
     /// Each of <paramref name="from"/>'s colours after the fade's steps toward <paramref name="to"/>'s at the shared
-    /// counter's values <paramref name="first"/> through <paramref name="last"/>.
+    /// counter's values <paramref name="steps"/>.
     /// </summary>
-    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int first, int last)
+    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, KraidBackdropFadeSteps steps)
     {
         var faded = new RgbColor[from.Length];
         for (int colour = 0; colour < faded.Length; colour++)
         {
             RgbColor current = from[colour];
-            for (int step = first; step <= last; step++)
+            foreach (int step in steps.Values)
                 current = GradualColourFade.Step(step, current, to[colour], Denominator);
             faded[colour] = current;
         }

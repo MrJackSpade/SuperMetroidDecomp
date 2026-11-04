@@ -21,7 +21,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// <summary>What the backdrop shows.</summary>
     internal KraidBackdropShown Shows => running is null
         ? StartedFrom
-        : KraidBackdropShown.Fade(StartedFrom, running.Goal, running.First, running.Reached);
+        : KraidBackdropShown.Fade(StartedFrom, running.Goal, running.Steps);
 
     /// <summary>Shows Kraid's backdrop colours at once, as his defeated room loads them.</summary>
     internal void ShowKraidColours()
@@ -33,40 +33,34 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// <summary>
     /// Takes the step at counter value <paramref name="step"/> of a fade toward <paramref name="fade"/>'s colours: the
     /// running fade's next step when it fades that way, otherwise the first step of a fade from what the backdrop shows.
+    /// A door's fade advancing the shared counter in the same updates makes the running fade's steps skip values.
     /// </summary>
     /// <param name="fade">The colours faded toward.</param>
     /// <param name="step">The shared counter's value at this step, zero through the last moving value.</param>
-    /// <exception cref="InvalidOperationException">The running fade's counter skipped a value.</exception>
+    /// <exception cref="InvalidOperationException">The step does not follow the running fade's latest.</exception>
     internal void Step(KraidBackdropFade fade, int step)
     {
         Ensure.BetweenInclusive(0, KraidBackgroundDefinitions.BackdropFadeLastStep, step);
         KraidBackdropSettledColours goal = GoalOf(fade);
         if (running is not null && running.Goal == goal)
         {
-            if (step != running.Reached + 1)
-                throw new InvalidOperationException(
-                    $"Kraid's backdrop fade toward {goal} took its step at counter {running.Reached}, then one at {step}.");
-            running = running with { Reached = step };
+            running = running with { Steps = running.Steps.Then(step) };
             return;
         }
         StartedFrom = Shows;
-        running = new RunningKraidBackdropFade(goal, step, step);
+        running = new RunningKraidBackdropFade(goal, KraidBackdropFadeSteps.At(step));
     }
 
     /// <summary>
-    /// Completes the fade toward <paramref name="fade"/>'s colours: a fade that stepped through the last moving value
-    /// shows its goal, and one that took no step (the shared counter had passed its last value when it started) leaves
-    /// the backdrop showing what it showed.
+    /// Completes the fade toward <paramref name="fade"/>'s colours, which the backdrop then keeps showing: its goal after a
+    /// step at the last moving value, the fade's colours when the shared counter passed that value between its steps (a
+    /// door's fade advanced it too), and what it showed when the fade took no step.
     /// </summary>
     /// <param name="fade">The colours faded toward.</param>
-    /// <exception cref="InvalidOperationException">The fade stepped but stopped short of its goal.</exception>
     internal void Complete(KraidBackdropFade fade)
     {
-        KraidBackdropSettledColours goal = GoalOf(fade);
-        KraidBackdropShown shown = Shows;
-        if (running is not null && running.Goal == goal && shown != new KraidBackdropShown.Settled(goal))
-            throw new InvalidOperationException($"Kraid's backdrop fade toward {goal} completes showing {shown}.");
-        StartedFrom = shown;
+        _ = GoalOf(fade);
+        StartedFrom = Shows;
         running = null;
     }
 
@@ -90,7 +84,6 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
 
     /// <summary>The fade that took the backdrop's latest step.</summary>
     /// <param name="Goal">The colours it ends on.</param>
-    /// <param name="First">The shared counter's value at its first step.</param>
-    /// <param name="Reached">The counter's value at its latest step.</param>
-    private sealed record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, int First, int Reached);
+    /// <param name="Steps">The shared counter's values at its steps.</param>
+    private sealed record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, KraidBackdropFadeSteps Steps);
 }

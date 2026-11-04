@@ -332,6 +332,13 @@ internal sealed class UnitScanner(CoreModel model)
                     (deferred ? scan.Deferred : scan.Runs).Add(added);
                 if (node is BaseObjectCreationExpressionSyntax creation && info.Symbol is IMethodSymbol constructor)
                     RecordSheetDraw(scan, semantic, creation, constructor);
+                // An object constructed with graphics holds them as its own (a room-drawn object's), so the creation hands
+                // them on as a spawn call does, to the constructor parameter that receives them.
+                if (node is BaseObjectCreationExpressionSyntax { ArgumentList: { } constructed } && info.Symbol is IMethodSymbol made
+                    && made.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics)))
+                {
+                    RecordSpawnCall(scan, semantic, constructed, made);
+                }
                 break;
             case CommonForEachStatementSyntax loop:
                 ForEachStatementInfo loopInfo = semantic.GetForEachStatementInfo(loop);
@@ -345,15 +352,21 @@ internal sealed class UnitScanner(CoreModel model)
         if (node is InvocationExpressionSyntax invocation && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol method
             && method.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics)))
             RecordSpawnCall(scan, semantic, invocation.ArgumentList, method);
+        // A graphics switch is code changing another object's graphics (a cue handler clearing a projectile's). An object
+        // setting its own (a slot's construction or Clear, its free-slot value) is its lifecycle, not a spawn's graphics.
         if (node is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
+            && assignment.Left is MemberAccessExpressionSyntax { Expression: not (ThisExpressionSyntax or BaseExpressionSyntax) }
             && semantic.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol or IFieldSymbol
             && semantic.GetTypeInfo(assignment.Left).Type is { } assigned
             && SymbolEqualityComparer.Default.Equals(assigned.OriginalDefinition, model.SpriteGraphics))
         {
             var classifier = new GraphicsClassifier(model);
             // Reshading keeps the owner the object already has.
-            if (!classifier.IsReshading(semantic, assignment.Right))
-                scan.Reassignments.Add((classifier.Classify(semantic, assignment.Right), assignment.ToString()));
+            IReadOnlyList<SpawnTarget> switched = classifier.IsReshading(semantic, assignment.Right) ? [] : classifier.Classify(semantic, assignment.Right);
+            // Graphics a method was handed and installs in the object it spawns (the pool's and the engine's spawn
+            // primitives) are its callers' spawn graphics, which their own calls already name: no switch.
+            if (switched.Any(target => target.Source != GraphicsSource.Parameter))
+                scan.Reassignments.Add((switched, assignment.ToString()));
         }
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)
             && semantic.GetConversion(expression) is { IsUserDefined: true, MethodSymbol: { } conversion })

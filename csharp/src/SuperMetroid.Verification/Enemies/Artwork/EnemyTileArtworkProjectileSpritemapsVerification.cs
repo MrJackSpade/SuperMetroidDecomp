@@ -1073,12 +1073,32 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 .ToList();
             if (tables.Count == 0)
                 throw new InvalidOperationException($"No retail-drawn enemy spawns projectile frame {frame}.");
-            if (tables.FirstOrDefault(table => table.Shared) is { Key: var sharer } && tables.Any(table => table.Shared))
-                yield return (SpawnedGraphics, _ => NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics, SpawnedGraphics.FixedPaletteRow), sharer);
-            if (tables.FirstOrDefault(table => !table.Shared) is { Key: var owner } && tables.Any(table => !table.Shared))
-                yield return (new SpriteGraphics(SpawnedObjectOwner.Of(owner), PictureShading.Standard),
-                    system => NativeSpriteGraphicsWords.GraphicsWord(system.GraphicsSet.TileBaseOf(owner), system.GraphicsSet.DrawRow(owner)), owner);
+            // The reference draws under the graphics word the game writes for those graphics in the loaded set: their
+            // owner's tile base and the row their shading selects there.
+            static ushort Word(SpriteGraphics graphics, RoomEnemySystem system) =>
+                NativeSpriteGraphicsWords.GraphicsWord(graphics, system, graphics.PaletteRowIn(system));
+            if (tables.Any(table => table.Shared))
+            {
+                EnemyDefinitionId sharer = tables.First(table => table.Shared).Key;
+                var shared = SpriteGraphics.SharedIn(SharedSpawnShading(sharer));
+                yield return (shared, system => Word(shared, system), sharer);
+            }
+            if (tables.Any(table => !table.Shared))
+            {
+                EnemyDefinitionId owner = tables.First(table => !table.Shared).Key;
+                // SpawnedBy(spawner): its own sheet, in the shading its slot has on load.
+                var own = new SpriteGraphics(SpawnedObjectOwner.Of(owner), PictureShading.Standard);
+                yield return (own, system => Word(own, system), owner);
+            }
         }
+
+        // The shading a spawner hands its room-graphics spawns as its room loads: Mother Brain's parts spawn theirs in her
+        // sprite colours (SharedIn(Colours.SpriteShading)), which nothing has laid shades over yet; other spawners' room-graphics
+        // spawns show the enemy-projectile colours.
+        static PictureShading SharedSpawnShading(EnemyDefinitionId spawner) =>
+            spawner is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
+                ? new MotherBrainColours().SpriteShading
+                : EnemyShades.InEnemyProjectileColours;
 
         // The spawner's set loaded, its artwork sequences at a step where the frame is drawn.
         static RoomEnemySystem SpawnerSystem(InstalledEnemyArtwork artwork, EnemyDefinitionId spawner, EnemyProjectileFrameId frame)

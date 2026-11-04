@@ -178,12 +178,11 @@ internal sealed class GraphicsClassifier(CoreModel model)
                         break;
                 }
             }
+            // A get-only instance member with no value of its own holds what its type's constructors assign it.
+            if (values.Count == 0 && member is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false } && member.ContainingType is { } owner)
+                values.AddRange(ConstructorAssignments(owner, member));
             if (values.Count == 0)
-            {
-                return member is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false }
-                    ? [new SpawnTarget(GraphicsSource.Inherited)]
-                    : [new SpawnTarget(GraphicsSource.Unknown)];
-            }
+                return [new SpawnTarget(GraphicsSource.Unknown)];
             return [.. values
                 .SelectMany(value => Classify(model.ModelOf(value.SyntaxTree), value))
                 .Select(target => target with { Scope = target.Scope ?? scope })
@@ -192,6 +191,24 @@ internal sealed class GraphicsClassifier(CoreModel model)
         finally
         {
             _visiting.Remove(member);
+        }
+    }
+
+    /// <summary>The values <paramref name="owner"/>'s constructors assign to <paramref name="member"/>.</summary>
+    private IEnumerable<ExpressionSyntax> ConstructorAssignments(INamedTypeSymbol owner, ISymbol member)
+    {
+        foreach (IMethodSymbol constructor in owner.InstanceConstructors)
+        {
+            foreach (SyntaxReference reference in constructor.DeclaringSyntaxReferences)
+            {
+                SyntaxNode declaration = reference.GetSyntax();
+                SemanticModel semantic = model.ModelOf(declaration.SyntaxTree);
+                foreach (AssignmentExpressionSyntax assignment in declaration.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(semantic.GetSymbolInfo(assignment.Left).Symbol?.OriginalDefinition, member))
+                        yield return assignment.Right;
+                }
+            }
         }
     }
 

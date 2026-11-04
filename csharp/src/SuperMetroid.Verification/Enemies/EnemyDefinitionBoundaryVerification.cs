@@ -252,7 +252,7 @@ internal static class EnemyDefinitionBoundaryVerification
             new MemoryStream(EnemyAuxiliaryColorFiles.Write(document), writable: false));
         AssertEqual(31, edited.Resolve(EnemyAuxiliaryPalette.FaceBlock, 0, 0), "auxiliary art override survives compilation");
         document.Palettes[EnemyAuxiliaryPalette.FaceBlock][0][0] = new PaletteRgb5 { Red = 32, Green = 0, Blue = 0 };
-        AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorFiles.Write(document), "out-of-range RGB5 rejected");
+        AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorFiles.Read(new MemoryStream(EnemyAuxiliaryColorFiles.Write(document))), "out-of-range RGB5 rejected");
         string text = Encoding.UTF8.GetString(json);
         AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorFiles.Read(new MemoryStream(
             Encoding.UTF8.GetBytes(text.Replace("\"version\": 1", "\"version\": 1, \"version\": 1", StringComparison.Ordinal)))),

@@ -85,16 +85,11 @@ public sealed class InstalledProjectileTrails
         }
         return new(attributes);
     }
-    /// <summary>Serializes and validates all trail appearances using the same strict schema as <see cref="Load"/>.</summary>
+    /// <summary>Serializes all trail appearances in the schema <see cref="Load"/> reads.</summary>
     /// <param name="document">Authored frame dictionary read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails native-frame completeness or appearance validation.</exception>
-    public static byte[] Write(ProjectileTrailDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes));
-        return bytes;
-    }
+    public static byte[] Write(ProjectileTrailDocument document) =>
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
     /// <summary>Recursively rejects repeated object keys before deserialization could replace a trail frame.</summary>
     private static void ValidateUnique(JsonElement element)
     {

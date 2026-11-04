@@ -26,15 +26,15 @@ public static class SamusArmCannonArtworkFiles
         WriteIndented = true,
     };
 
-    /// <summary>Exports 253 pose selectors, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters, then verifies planar PNG round-trip.</summary>
+    /// <summary>Exports 253 pose selectors, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>
     /// <param name="directory">Artwork directory, created if absent; existing placement JSON, 96-by-8 indexed PNG, and companion manifest are overwritten.</param>
-    /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim; the post-write load requires the supported cartridge identity.</param>
-    /// <remarks>The sixteen-color PNG palette is diagnostic. Writes are separate and not rolled back if provenance, placement, or round-trip validation later fails.</remarks>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim.</param>
+    /// <remarks>The sixteen-color PNG palette is diagnostic. Writes are separate and not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is blank or the address space lacks cartridge import access.</exception>
-    /// <exception cref="InvalidDataException">The generated artwork, provenance, or decoded transfer bytes fail validation.</exception>
-    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
+    /// <exception cref="InvalidDataException">A direction's cartridge tile list uploads a closed-cover tile or names a source that is no installed cover tile.</exception>
+    /// <exception cref="IOException">Filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -94,17 +94,6 @@ public static class SamusArmCannonArtworkFiles
                 SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256,
                 Convert.ToHexString(SHA256.HashData(json)),
                 Convert.ToHexString(SHA256.HashData(png))), JsonOptions));
-        SamusArmCannonSourceArtwork roundTrip = Load(directory, null);
-        for (int tile = 0; tile < SamusArmCannonArtworkFormat.CoverTileCount; tile++)
-        {
-            if (!roundTrip.TryResolveTile(SamusSourceDefinitions.CharacterDataBank.Value |
-                    ArmCannonTileSources.CoverTileDmaSources[tile],
-                    SamusArmCannonArtworkFormat.CoverTileByteCount, out var decoded) ||
-                !decoded.Span.SequenceEqual(planar.AsSpan(
-                    tile * SamusArmCannonArtworkFormat.CoverTileByteCount,
-                    SamusArmCannonArtworkFormat.CoverTileByteCount)))
-                throw new InvalidDataException($"Arm-cannon tile {tile} changed in PNG round-trip.");
-        }
     }
 
     /// <summary>Validates stock cannon-cover placement and pixels, then independently selects optional replacement JSON and PNG files.</summary>

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -26,9 +27,9 @@ public static class SamusFullBodyCycleColorFile
         return new(palettes);
     }
 
-    /// <summary>Validates and serializes a full-body cycle color document as JSON.</summary>
+    /// <summary>Serializes a full-body cycle color document as JSON.</summary>
     public static byte[] Write(SamusFullBodyCycleColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
     private static void AddFamily(RgbColor[][] destination,

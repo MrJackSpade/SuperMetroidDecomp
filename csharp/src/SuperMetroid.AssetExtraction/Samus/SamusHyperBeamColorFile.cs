@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -46,10 +47,9 @@ public static class SamusHyperBeamColorFile
         return new(compiled);
     }
 
-    /// <summary>Serializes the editable full-body palette cycle to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
+    /// <summary>Serializes the editable full-body palette cycle to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Ten complete RGB5 palette rows to serialize; the writer does not retain their arrays.</param>
-    /// <returns>Validated JSON bytes for <see cref="SamusHyperBeamColorFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, palette-dimension, or RGB5-channel validation.</exception>
+    /// <returns>JSON bytes for <see cref="SamusHyperBeamColorFormat.FileName"/>.</returns>
     public static byte[] Write(SamusHyperBeamColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 }

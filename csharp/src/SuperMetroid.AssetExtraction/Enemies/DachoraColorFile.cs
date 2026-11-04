@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -26,12 +27,11 @@ public static class DachoraColorFile
             CompileFrames(document.Shine, "shine")));
     }
 
-    /// <summary>Serializes the editable palettes as indented camel-case UTF-8 JSON and validates the result through <see cref="Read"/> before returning it.</summary>
+    /// <summary>Serializes the editable palettes as indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Supported-version default palette and four-frame speed/shine sequences.</param>
-    /// <returns>Validated JSON bytes ready to store as the Dachora color resource.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails catalog validation.</exception>
+    /// <returns>JSON bytes ready to store as the Dachora color resource.</returns>
     public static byte[] Write(DachoraColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Requires four animated frames and validates each sixteen-color row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, string name)

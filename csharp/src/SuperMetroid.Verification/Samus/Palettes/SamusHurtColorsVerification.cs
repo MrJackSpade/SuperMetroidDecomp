@@ -137,10 +137,10 @@ internal static class SamusHurtColorsVerification
                 $"edited {variant} shade is the suit's");
             AssertEqual(0, guarded.ForbiddenReadAttempts, $"edited {variant} avoids native art");
         }
-        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Write(document with
+        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(document with
         {
             Hurt = [.. document.Hurt.Take(5), hurtOriginal with { Red = 32 }, .. document.Hurt.Skip(6)],
-        }), "out-of-range Samus hurt RGB5 fails loudly");
+        }))), "out-of-range Samus hurt RGB5 fails loudly");
         File.Delete(path);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,

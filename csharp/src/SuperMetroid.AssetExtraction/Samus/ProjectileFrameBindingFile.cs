@@ -33,12 +33,11 @@ public static class ProjectileFrameBindingFile
         return new(compiled);
     }
 
-    /// <summary>Serializes the editable record-to-sprite bindings to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Load"/>.</summary>
+    /// <summary>Serializes the editable record-to-sprite bindings to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Complete timed-record assignments to serialize; the dictionary is not retained.</param>
-    /// <returns>Validated JSON bytes for <see cref="ProjectileFrameBindingFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, required-record, or legal-sprite validation.</exception>
+    /// <returns>JSON bytes for <see cref="ProjectileFrameBindingFormat.FileName"/>.</returns>
     public static byte[] Write(ProjectileFrameBindingDocument document) =>
-        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Strict camel-case schema options used consistently by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()

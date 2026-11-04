@@ -30,12 +30,12 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Checks the native atmospheric pointer bindings and exports the two authored four-word direct small-OBJ attribute lists.</summary>
     /// <param name="bus">Cartridge source for type-one footsteps at $90:8C0F and the shared type-4/6/7 lava/dust list at $90:8C17.</param>
     /// <param name="directory">Artwork directory, created if absent; existing artwork JSON and companion manifest are overwritten.</param>
-    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim; the post-write load requires the supported cartridge hash.</param>
-    /// <remarks>Type two must keep its intentional zero pointer and mutable-memory path; it is not exported. Packed words retain tile, palette, priority, and flips. Separate writes are not rolled back on later validation failure.</remarks>
+    /// <param name="sourceCartridgeSha256">Caller-supplied provenance recorded verbatim.</param>
+    /// <remarks>Type two must keep its intentional zero pointer and mutable-memory path; it is not exported. Packed words retain tile, palette, priority, and flips. Separate writes are not rolled back if a later write fails.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native pointer bindings, provenance, or generated list structure are incompatible.</exception>
-    /// <exception cref="IOException">Filesystem output or post-write input fails.</exception>
+    /// <exception cref="InvalidDataException">Native pointer bindings are incompatible.</exception>
+    /// <exception cref="IOException">Filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -57,7 +57,6 @@ public static class SamusAtmosphericArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
                 sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))), JsonOptions));
-        _ = Load(directory, null);
     }
 
     /// <summary>Validates stock atmospheric attributes before selecting an optional complete two-list JSON replacement.</summary>

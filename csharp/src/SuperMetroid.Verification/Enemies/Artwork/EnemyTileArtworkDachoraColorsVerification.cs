@@ -123,7 +123,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Dachora color property fails loudly");
         visual.Speed[0][5] = visual.Speed[0][5] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => DachoraColorFile.Write(visual),
+        AssertThrows<InvalidDataException>(() => DachoraColorFile.Read(new MemoryStream(DachoraColorFile.Write(visual))),
             "Dachora RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);

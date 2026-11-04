@@ -64,8 +64,8 @@ internal static class GrappleBodyPlacementVerification
         foreach (string invalid in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1,\"frames\":[]}" })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");
         foreach (int invalid in new[] { -1, 32 })
-            AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }), "Invalid swing-frame index rejected");
-        AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Write(new() { Version = 1, Frames = new int[255] }), "Incomplete swing-frame table rejected");
+            AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }))), "Invalid swing-frame index rejected");
+        AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = 1, Frames = new int[255] }))), "Incomplete swing-frame table rejected");
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         foreach (bool faceRight in new[] { false, true })
         for (int angle = 0; angle < 256; angle += 32)

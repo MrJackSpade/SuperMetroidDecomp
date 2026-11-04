@@ -439,12 +439,12 @@ internal static class SamusHyperBeamColorsVerification
             "edited Hyper Beam color reaches the shade of its selected frame");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited Hyper Beam colors avoid pointer and palette ROM tables");
-        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Write(document with
+        AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document with
         {
             Frames = [.. document.Frames.Take(4),
                 [.. document.Frames[4].Take(7), original with { Red = 32 },
                  .. document.Frames[4].Skip(8)], .. document.Frames.Skip(5)],
-        }), "out-of-range Hyper Beam RGB5 fails loudly");
+        }))), "out-of-range Hyper Beam RGB5 fails loudly");
         File.Delete(path);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,

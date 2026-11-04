@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 7;
+    public const int ManifestVersion = 8;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -161,13 +161,13 @@ public static class EnemySheetFiles
     /// </summary>
     /// <exception cref="InvalidDataException">A frame follows no sequence, an unknown one, or shows a picture of a later step.</exception>
     private static Dictionary<string, FrameArtworkVariation[]> FrameVariations(
-        Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>> manifest, string set, string owner)
+        Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>> manifest, string set, string owner)
     {
         var variations = new Dictionary<string, FrameArtworkVariation[]>(StringComparer.Ordinal);
-        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>? owners)
-            || !owners.TryGetValue(owner, out Dictionary<string, Dictionary<string, int?[]>>? frames))
+        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>? owners)
+            || !owners.TryGetValue(owner, out Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>? frames))
             return variations;
-        foreach ((string frame, Dictionary<string, int?[]> sequences) in frames)
+        foreach ((string frame, Dictionary<string, FrameArtworkVariationDocument> sequences) in frames)
         {
             if (sequences.Count == 0)
                 throw new InvalidDataException($"Enemy sheet manifest follows {set} {owner} frame {frame} through no artwork sequence.");
@@ -175,9 +175,10 @@ public static class EnemySheetFiles
             {
                 if (!Enum.TryParse(entry.Key, out EncounterArtworkSequence sequence) || !Enum.IsDefined(sequence))
                     throw new InvalidDataException($"Enemy sheet manifest follows {set} {owner} frame {frame} through unknown artwork sequence {entry.Key}.");
-                if (entry.Value.Select((picture, step) => picture is int shown && (shown < 0 || shown > step)).Any(invalid => invalid))
-                    throw new InvalidDataException($"Enemy sheet manifest shows {set} {owner} frame {frame} at a step of {entry.Key} by a picture of a later step.");
-                return new FrameArtworkVariation(sequence, [.. entry.Value]);
+                FrameArtworkVariation variation = entry.Value.Variation(sequence);
+                if (variation.Pictures.Select((picture, step) => picture is int shown && (shown < 0 || shown > step || !variation.Drawn[shown])).Any(invalid => invalid))
+                    throw new InvalidDataException($"Enemy sheet manifest shows {set} {owner} frame {frame} at a step of {entry.Key} by a picture of a later step, or of one it is not drawn at.");
+                return variation;
             }).OrderBy(variation => variation.Sequence)]);
         }
         return variations;

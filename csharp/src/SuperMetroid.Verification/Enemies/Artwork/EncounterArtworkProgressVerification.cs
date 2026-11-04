@@ -54,10 +54,23 @@ internal static class EncounterArtworkProgressVerification
         AssertEqual<int?>(null, progress.StepOf(EncounterArtworkSequence.MotherBrainPages), "a room load starts every sequence afresh");
 
         // A frame shows its loaded picture until a step changes it, and a step that leaves it alike shares an earlier picture.
-        var variation = new FrameArtworkVariation(EncounterArtworkSequence.CrocomireSkeleton, [null, 1, 1, 3]);
-        AssertEqual<int?>(null, variation.PictureAt(0), "a step that leaves the frame as loaded shows its loaded picture");
-        AssertEqual<int?>(1, variation.PictureAt(2), "a step that leaves the frame alike shares the earlier step's picture");
-        AssertThrows<InvalidDataException>(() => variation.PictureAt(4), "a step past the sequence has no picture");
+        var variation = new FrameArtworkVariation(EncounterArtworkSequence.CrocomireSkeleton, [null, 1, 1, 3], [true, true, true, true],
+            DrawnBeforeFirstStep: true);
+        AssertEqual<int?>(null, variation.PictureAt(0, "frame"), "a step that leaves the frame as loaded shows its loaded picture");
+        AssertEqual<int?>(1, variation.PictureAt(2, "frame"), "a step that leaves the frame alike shares the earlier step's picture");
+        AssertThrows<InvalidDataException>(() => variation.PictureAt(4, "frame"), "a step past the sequence has no picture");
+
+        // A frame drawn at a step it is never drawn at has no picture there, and the draw fails naming the frame and step.
+        var sparse = new FrameArtworkVariation(EncounterArtworkSequence.CrocomireSkeleton, [null, null, 2, 2], [false, false, true, true],
+            DrawnBeforeFirstStep: false);
+        AssertEqual<int?>(2, sparse.PictureAt(3, "frame"), "a step the frame is drawn at shows its picture");
+        InvalidDataException undrawn = AssertThrows<InvalidDataException>(() => sparse.PictureAt(1, "sparse-frame"),
+            "a step the frame is never drawn at has no picture");
+        AssertTrue(undrawn.Message.Contains("sparse-frame", StringComparison.Ordinal) && undrawn.Message.Contains("step 1", StringComparison.Ordinal)
+            && undrawn.Message.Contains(nameof(EncounterArtworkSequence.CrocomireSkeleton), StringComparison.Ordinal),
+            "the failure names the frame, the step and the sequence");
+        AssertThrows<InvalidDataException>(() => new FrameArtworkVariation(EncounterArtworkSequence.CrocomireSkeleton, [null, 1], [true, false], true),
+            "a variation cannot picture a step its frame is not drawn at");
         AssertEqual("frame", FrameArtworkVariation.PictureName("frame", []), "the loaded picture is the frame's own name");
         AssertEqual("frame|CrocomireSkeleton=3", FrameArtworkVariation.PictureName("frame", [new EncounterArtworkStep(EncounterArtworkSequence.CrocomireSkeleton, 3)]),
             "a step's picture names the sequence and the step it shows");

@@ -151,7 +151,7 @@ internal static class UploadedPictureChecks
         {
             foreach ((EncounterArtworkSequence sequence, int step) in reached)
             {
-                if (sequence == variation.Sequence && variation.PictureAt(step) is int picture)
+                if (sequence == variation.Sequence && variation.PictureAt(step, frame) is int picture)
                     shown.Add(new EncounterArtworkStep(sequence, picture));
             }
         }
@@ -166,10 +166,11 @@ internal static class UploadedPictureChecks
     }
 
     /// <summary>
-    /// Asserts that at each of the <paramref name="steps"/> steps of <paramref name="sequence"/>, every frame of the installed
-    /// sheets of graphics set <paramref name="set"/> the sequence changes shows a picture that paints exactly what the frame's
-    /// parts paint over the characters the set leaves at that step (#1513): the step's own copies and every earlier one, the
-    /// picture an earlier step shares included.
+    /// Asserts that at each of the <paramref name="steps"/> steps of <paramref name="sequence"/> at which it is drawn, every
+    /// frame of the installed enemy and spawned-object sheets of graphics set <paramref name="set"/> the sequence changes
+    /// shows a picture that paints exactly what the frame's parts paint over the characters the set leaves at that step
+    /// (#1513): the step's own copies and every earlier one, the picture an earlier step shares included. At a step the frame
+    /// is never drawn at, drawing it fails loudly, naming the frame, for its sheet holds no picture of it there.
     /// </summary>
     /// <param name="set">The graphics set whose sheets are checked.</param>
     /// <param name="sequence">The sequence the set's encounter plays.</param>
@@ -181,25 +182,55 @@ internal static class UploadedPictureChecks
         bool requireFrames = true)
     {
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
-        var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
         int frames = 0;
         foreach ((EnemySheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.variations.Where(entry => entry.Key.Set == set.Name))
+            frames += AssertSheetFollowsSequence(set, sequence, steps, sheets.For(set, key.Enemy), followed, $"{message}: {key.Enemy}");
+        var checkedSheets = new HashSet<SpriteSheet>(ReferenceEqualityComparer.Instance);
+        foreach ((SpawnedObjectSheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.spawnedVariations.Where(entry => entry.Key.Set == set.Name))
         {
-            SpriteSheet sheet = sheets.For(set, key.Enemy);
-            foreach ((string frame, FrameArtworkVariation[] variations) in followed.Where(entry => entry.Value.Any(variation => variation.Sequence == sequence)))
-            {
-                frames++;
-                for (int step = 0; step < steps; step++)
-                {
-                    string picture = ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, step)]);
-                    var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), sheet.Frame(picture), origin, SpriteMirror.None);
-                    AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [new EncounterArtworkStep(sequence, step)]))],
-                        $"{message}: {key.Enemy} frame {frame} at step {step} of {sequence}", requirePixels: false);
-                }
-            }
+            // Owners sharing one spawned-object sheet are checked once.
+            SpriteSheet sheet = sheets.Spawned(set, key.Owner).Sheet;
+            if (checkedSheets.Add(sheet))
+                frames += AssertSheetFollowsSequence(set, sequence, steps, sheet, followed, $"{message}: {key.Owner}'s spawned objects");
         }
         if (requireFrames)
             AssertTrue(frames > 0, $"{message}: {sequence} changes frames of {set.Name}'s sheets");
+        return frames;
+    }
+
+    /// <summary>
+    /// Asserts the frames of <paramref name="sheet"/> <paramref name="followed"/> says <paramref name="sequence"/> changes
+    /// follow it at each of its <paramref name="steps"/> steps, as <see cref="AssertFramesFollowSequence"/> describes.
+    /// </summary>
+    /// <returns>The frames the sequence changes.</returns>
+    private static int AssertSheetFollowsSequence(RoomEnemyGraphicsSetDefinition set, EncounterArtworkSequence sequence, int steps, SpriteSheet sheet,
+        IReadOnlyDictionary<string, FrameArtworkVariation[]> followed, string message)
+    {
+        var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
+        int frames = 0;
+        foreach ((string frame, FrameArtworkVariation[] variations) in followed.Where(entry => entry.Value.Any(variation => variation.Sequence == sequence)))
+        {
+            frames++;
+            FrameArtworkVariation variation = variations.Single(entry => entry.Sequence == sequence);
+            AssertEqual(steps, variation.Pictures.Length, $"{message} frame {frame} follows every step of {sequence}");
+            AssertTrue(Enumerable.Range(0, steps).Any(variation.DrawnAt), $"{message} frame {frame} is drawn at some step of {sequence}");
+            for (int step = 0; step < steps; step++)
+            {
+                if (!variation.DrawnAt(step))
+                {
+                    int undrawn = step;
+                    InvalidDataException failure = AssertThrows<InvalidDataException>(
+                        () => ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, undrawn)]),
+                        $"{message} frame {frame} drawn at step {step} of {sequence}, a step it is never drawn at, fails");
+                    AssertTrue(failure.Message.Contains(frame, StringComparison.Ordinal), $"{message} frame {frame}'s failure at step {step} names the frame");
+                    continue;
+                }
+                string picture = ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, step)]);
+                var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), sheet.Frame(picture), origin, SpriteMirror.None);
+                AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [new EncounterArtworkStep(sequence, step)]))],
+                    $"{message} frame {frame} at step {step} of {sequence}", requirePixels: false);
+            }
+        }
         return frames;
     }
 }

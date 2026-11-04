@@ -66,14 +66,14 @@ internal static class EnemySheetComposer
         var names = new SheetNames(encoded);
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
-        var variations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>>(StringComparer.Ordinal);
-        var spawnedVariations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>>(StringComparer.Ordinal);
+        var variations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>>(StringComparer.Ordinal);
+        var spawnedVariations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>>(StringComparer.Ordinal);
         var rotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         var spawnedRotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         foreach (LaidGraphicsSet set in laidSets)
         {
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            var memberVariations = new Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>(StringComparer.Ordinal);
+            var memberVariations = new Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>(StringComparer.Ordinal);
             var memberRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
@@ -94,7 +94,7 @@ internal static class EnemySheetComposer
             if (memberRotPictures.Count > 0)
                 rotPictures.Add(set.Name, memberRotPictures);
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
-            var baseVariations = new Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>(StringComparer.Ordinal);
+            var baseVariations = new Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>(StringComparer.Ordinal);
             var baseRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
@@ -131,9 +131,9 @@ internal static class EnemySheetComposer
     }
 
     /// <summary>How each frame follows the sequences that change it, as the manifest spells it: by frame, then sequence name.</summary>
-    private static Dictionary<string, Dictionary<string, int?[]>> Document(IReadOnlyDictionary<string, FrameArtworkVariation[]> frames) =>
+    private static Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>> Document(IReadOnlyDictionary<string, FrameArtworkVariation[]> frames) =>
         frames.ToDictionary(frame => frame.Key, frame => frame.Value.ToDictionary(variation => variation.Sequence.ToString(),
-            variation => variation.Pictures.ToArray(), StringComparer.Ordinal), StringComparer.Ordinal);
+            FrameArtworkVariationDocument.Of, StringComparer.Ordinal), StringComparer.Ordinal);
 
     /// <summary>
     /// The index in <paramref name="layouts"/> of the first layout with <paramref name="layout"/>'s identity, adding it when
@@ -357,7 +357,8 @@ internal static class EnemySheetComposer
     private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown,
         int tileBase, SetCharacters characters, bool showsRot) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0), showsRot));
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0),
+            FrameDrawings.Of(frame.Frame), showsRot));
 
     /// <summary>
     /// Each shown frame's composition by sheet frame name: an ordinary frame whole, an extended frame component by
@@ -370,17 +371,18 @@ internal static class EnemySheetComposer
         foreach (EnemyFrameId frame in shown)
         {
             if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))
-                yield return new ComposedFrame(EnemySheetDefinitions.FrameName(frame), parts);
+                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), parts);
             else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components))
             {
                 for (int component = 0; component < components.Length; component++)
-                    yield return new ComposedFrame(EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
+                    yield return new ComposedFrame(frame, EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
             }
         }
     }
 
     /// <summary>A shown frame's composition, by the sheet frame name it takes.</summary>
+    /// <param name="Frame">The enemy frame it shows, whole or a component of.</param>
     /// <param name="Name">The sheet frame's name.</param>
     /// <param name="Parts">Its parts.</param>
-    private readonly record struct ComposedFrame(string Name, EnemySpritemapParts Parts);
+    private readonly record struct ComposedFrame(EnemyFrameId Frame, string Name, EnemySpritemapParts Parts);
 }

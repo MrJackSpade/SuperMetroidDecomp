@@ -130,7 +130,10 @@ internal sealed class EnemyPresentation
     /// <paramref name="rot"/> its draw selected (#1406); for a frame the room's encounters' artwork sequences change, its
     /// picture of the step each of its <paramref name="variations"/> has reached (#1513); else the frame itself.
     /// </summary>
-    /// <exception cref="InvalidDataException">The frame shows a corpse's rot and the draw selects none, or another corpse's.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The frame shows a corpse's rot and the draw selects none, or another corpse's; or it is drawn at a step of a sequence,
+    /// or before a sequence's first step, at which it is never drawn, so its sheet holds no picture of it then.
+    /// </exception>
     private string Picture(string frame, IReadOnlyList<FrameArtworkVariation> variations, string? rotCorpse, CorpseRotView? rot)
     {
         if (rotCorpse is not null)
@@ -144,7 +147,10 @@ internal sealed class EnemyPresentation
         var shown = new List<EncounterArtworkStep>();
         foreach (FrameArtworkVariation variation in variations)
         {
-            if (ArtworkProgress.StepOf(variation.Sequence) is int reached && variation.PictureAt(reached) is int picture)
+            int? reached = ArtworkProgress.StepOf(variation.Sequence);
+            if (reached is null && !variation.DrawnBeforeFirstStep)
+                throw new InvalidDataException($"Sheet frame {frame} is drawn before {variation.Sequence} reaches its first step, when it is never drawn; its sheet holds no picture of it then.");
+            if (reached is int step && variation.PictureAt(step, frame) is int picture)
                 shown.Add(new EncounterArtworkStep(variation.Sequence, picture));
         }
         return FrameArtworkVariation.PictureName(frame, shown);

@@ -14,4 +14,7 @@ internal readonly record struct PaletteFxFamilyShape
 
     /// <summary>Definitions.</summary>
     public required IReadOnlyList<ushort> Definitions { get; init; }
+
+    /// <summary>Whether the family plays on a frontend screen, which steps it as screens do (#1512), not in gameplay.</summary>
+    public bool OnScreen { get; init; }
 }

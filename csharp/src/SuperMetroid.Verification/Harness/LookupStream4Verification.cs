@@ -129,7 +129,7 @@ internal static class LookupStream4Verification
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
         {
-            fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
@@ -148,7 +148,7 @@ internal static class LookupStream4Verification
             var other => throw new InvalidOperationException($"The stars' first step {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
-        fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
@@ -243,7 +243,7 @@ internal static class LookupStream4Verification
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
             {
-                fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                 {
@@ -552,9 +552,9 @@ internal static class LookupStream4Verification
             installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(nativeBus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }
@@ -2413,7 +2413,7 @@ internal static class LookupStream4Verification
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
                 new Action<RoomEnemySlot>(enemies.DraygonBehavior.Parts.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
-                LayDraygonShading(actual, selected, enemies.DraygonBehavior.Parts.Draygon.Colours);
+                LayDraygonShading(actual, selected, (enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Colours);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
                 AssertEqual(DraygonAiFunction.IntroInitialDelay,(enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires enemies.DraygonBehavior.Draygon.")).Function,"Actual initializer phase");
             }
@@ -2892,7 +2892,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewBotwoonColorReadGuard(rom);
-                Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
+                Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
                 var state = new BotwoonEnemyState();
                 // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
@@ -3349,11 +3349,9 @@ internal static class LookupStream4Verification
             var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
             var selected = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(zoomDocument with { ZoomRows = rows })));
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             var ridley = new RidleyEnemyState();
-            enemies.RidleyEncounter.Ridley = ridley;
             IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected, new RgbColor[BossShadeColours.Sprites]);
-            Action<ushort> apply = appliedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(appliedZoom);
+            Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorPalette(ridley, appliedZoom);
             for (int row = 0; row < 9; row++)
             {
                 apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));

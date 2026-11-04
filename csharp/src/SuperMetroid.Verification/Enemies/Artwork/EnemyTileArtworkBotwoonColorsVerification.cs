@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades =
             SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(edited.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);
-        Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
+        Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)

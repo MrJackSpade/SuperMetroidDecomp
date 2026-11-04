@@ -78,19 +78,21 @@ internal static class SpawnedObjectSheetComposer
     /// <summary>
     /// What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>, pre-coloured in
     /// the shared shades, its spawners' shades and, at character zero, the shades of the objects any room spawns (#1512). A
-    /// spawner's effects on its own row hold only on its own tile bases' sheets, which are coloured in its row.
+    /// spawned object draws in its spawner's shading, so a spawner's effects on its own row, which <paramref name="rowOf"/>
+    /// gives, hold on every sheet coloured in that row, the character-zero sheet among them.
     /// </summary>
     internal static SpawnedObjectSheetSource Sources(EnemyTileSourceArtwork enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
-        RgbColor[] colours, EnemySheetShades shades)
+        RgbColor[] colours, EnemySheetShades shades, Func<EnemyDefinitionId, int> rowOf)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(plan);
         Ensure.NotNull(shades);
+        Ensure.NotNull(rowOf);
         var inkShades = new List<SheetShade>();
         var rowShades = new List<SheetRowShade>(shades.Shared());
         foreach (EnemyDefinitionId spawner in plan.Spawners)
         {
-            if (!plan.Anywhere)
+            if (rowOf(spawner) == plan.Palette)
                 inkShades.AddRange(shades.OwnRow(spawner, plan.Palette));
             (IReadOnlyList<SheetShade> fixedInks, IReadOnlyList<SheetRowShade> fixedRows) = shades.Fixed(spawner);
             inkShades.AddRange(fixedInks);

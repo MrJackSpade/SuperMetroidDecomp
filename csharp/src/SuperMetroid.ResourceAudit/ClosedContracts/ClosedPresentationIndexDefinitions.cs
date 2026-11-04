@@ -56,12 +56,8 @@ internal static class ClosedPresentationIndexDefinitions
         ("PhantoonColorCatalog", "ResolvePowerOn", "color") => new(0, SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPowerPaintDefinitions.PartColourCount),
         ("TourianStatuePalettes", "ResolveEye", "glow") => new(0, TourianStatueColorDefinitions.EyeGlowCount),
         ("TourianStatuePalettes", "ResolveEye", "color") => new(0, TourianStatueColorDefinitions.EyeColorCount),
-        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth" or "ResolveDeath", "color") => new(0, SporeSpawnColorDefinitions.ColorsPerFrame),
+        ("SporeSpawnColorCatalog", "ResolveSpore" or "ResolveHealth", "color") => new(0, SporeSpawnColorDefinitions.ColorsPerFrame),
         ("SporeSpawnColorCatalog", "ResolveHealth", "frame") => new(0, SporeSpawnColorDefinitions.HealthFrameCount),
-        ("SporeSpawnColorCatalog", "ResolveDeath", "layer") => new(0, 3),
-        // The union is eight rows; the selected non-sprite layer still enforces
-        // its narrower seven-row domain inside the reviewed provider.
-        ("SporeSpawnColorCatalog", "ResolveDeath", "frame") => new(0, SporeSpawnColorDefinitions.DeathSpriteFrameCount),
         ("MotherBrainRainbowPalettePresentation", "TryReadBeamColor", "index") => new(0,
             MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 1),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathColorFile.BodyFadeFrameCount),

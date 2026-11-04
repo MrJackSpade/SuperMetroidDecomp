@@ -51,11 +51,39 @@ internal static class PaletteFxRoomLook
         {
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(group) || fx.RecordOf(group) is not { } record)
                 continue;
-            int first = group.CartridgeColour;
-            SheetShade shade = PaletteFxRecordShades.Shade(group, record, new InkRange(first, (first / RowColours + 1) * RowColours), colours);
-            for (int index = 0; index < shade.Inks.Length; index++)
-                cgram.SetColor(shade.Inks[index], shade.Colours[index]);
+            LayShade(cgram, group, record, colours);
         }
+    }
+
+    /// <summary>
+    /// Lays <paramref name="record"/>, shown in <paramref name="group"/>, over <paramref name="cgram"/> as the pictures that
+    /// show the group are pre-coloured from <paramref name="colours"/>: a room group's shade over the room's colours, any
+    /// other group's from the native colour its records start at.
+    /// </summary>
+    internal static void LayRecord(IPaletteColors cgram, PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (!PaletteFxRoomColourDefinitions.RoomColours.Contains(group))
+        {
+            LayShade(cgram, group, record, colours);
+            return;
+        }
+        SheetShade shade = PaletteFxRoomShades.Shade(group, record, colours);
+        for (int index = 0; index < shade.Inks.Length; index++)
+            cgram.SetColor(shade.Inks[index], shade.Colours[index]);
+    }
+
+    /// <summary>
+    /// Lays <paramref name="record"/>, shown in <paramref name="group"/>, over <paramref name="cgram"/> from the native colour
+    /// its records start at, coloured from <paramref name="colours"/> as the import colours the pictures that show it.
+    /// </summary>
+    internal static void LayShade(IPaletteColors cgram, PaletteFxColours group, PaletteFxFrame record, IPaletteFxColorSource colours)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        int first = group.CartridgeColour;
+        SheetShade shade = PaletteFxRecordShades.Shade(group, record, new InkRange(first, (first / RowColours + 1) * RowColours), colours);
+        for (int index = 0; index < shade.Inks.Length; index++)
+            cgram.SetColor(shade.Inks[index], shade.Colours[index]);
     }
 
     /// <summary>Colours in one colour row.</summary>

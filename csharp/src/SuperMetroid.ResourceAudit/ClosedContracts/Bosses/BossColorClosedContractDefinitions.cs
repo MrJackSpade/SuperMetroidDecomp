@@ -13,7 +13,7 @@ internal static class BossColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Progression/SamusEquipmentFlags.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/SpazerCompositionGeometryDefinitions.cs")]),
         new("SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork.SporeSpawnColorCatalog", "spore-spawn-v1-complete-scene-palettes",
-            ["ResolveSpore", "ResolveHealth", "ResolveDeath"],
+            ["ResolveSpore", "ResolveHealth"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Bosses/SporeSpawn/Artwork/SporeSpawnColorCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/SporeSpawn/Artwork/SporeSpawnColorSelection.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/SporeSpawn/Artwork/SporeSpawnColors.cs"),

@@ -47,7 +47,7 @@ internal static class MotherBrainRoomColorsVerification
         state.RoomFlashFrame = 0;
         for (int frame = 0; frame < 48; frame++)
         {
-            enemies.MotherBrainBehavior.RunMotherBrainRoomPalette(state);
+            MotherBrainBehavior.RunMotherBrainRoomPalette(state);
             int shown = state.RoomFlashFrame ?? throw new InvalidOperationException("The room flash stopped on its own.");
             AssertEqual(MotherBrainShades.Flash(shown), state.Colours.Background.Laid[^1],
                 $"Mother Brain's room flash shows its frame {shown} on update {frame}");

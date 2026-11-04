@@ -16,6 +16,9 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// <summary>Whether his body shows his death colours.</summary>
     internal bool ShowsDeathArm { get; private set; }
 
+    /// <summary>The colours his band's shade shows his eyes in, which his eyes' glow replaces.</summary>
+    private RgbColor[] shadedEyes = [];
+
     /// <summary>His eyes' glow, which his AI reads back.</summary>
     internal KraidEyeGlow EyeGlow { get; } = new();
 
@@ -25,10 +28,14 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// <summary>The shading his sprite parts show: his band's, or his room's own colours before any.</summary>
     internal PictureShading Parts => Band is { } band ? PictureShading.Shaded(KraidShades.Health(band)) : PictureShading.Standard;
 
-    /// <summary>Shows health band <paramref name="band"/>, or the hurt flash for minus one, with <paramref name="bandEyes"/> as its eyes.</summary>
-    internal void ShowBand(int band, ReadOnlySpan<RgbColor> bandEyes)
+    /// <summary>
+    /// Shows health band <paramref name="band"/>, or the hurt flash for minus one, with <paramref name="bandEyes"/> as its
+    /// eyes; its shade shows the eyes in <paramref name="shaded"/>, which the eyes' colours are shown in place of.
+    /// </summary>
+    internal void ShowBand(int band, ReadOnlySpan<RgbColor> bandEyes, ReadOnlySpan<RgbColor> shaded)
     {
         Band = band;
+        shadedEyes = shaded.ToArray();
         EyeGlow.ShowBand(bandEyes);
     }
 
@@ -44,9 +51,10 @@ internal sealed class KraidColours : IGameplayShadingSource
             frame.Shade(GameplayPictures.BossBody, KraidShades.DeathArm);
             return;
         }
-        if (Band is { } band)
-            frame.Shade(GameplayPictures.BossBody, KraidShades.Health(band));
-        if (EyeGlow.Effect() is { } eyes)
+        if (Band is not { } band)
+            return;
+        frame.Shade(GameplayPictures.BossBody, KraidShades.Health(band));
+        if (EyeGlow.Effect(shadedEyes) is { } eyes)
             frame.Affect(GameplayPictures.BossBody, eyes);
     }
 }

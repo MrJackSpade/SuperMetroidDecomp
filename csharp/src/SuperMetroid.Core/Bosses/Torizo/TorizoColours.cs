@@ -33,7 +33,7 @@ internal sealed class TorizoColours
     /// The counter values of the first and last steps the running fade took from <see cref="settled"/>, or null while
     /// none runs.
     /// </summary>
-    private TorizoFadeSteps? fade;
+    private InclusiveRange? fade;
 
     /// <summary>
     /// The belly glow's record written over the belly's glowing colours after his own colouring, or null while they show
@@ -66,8 +66,8 @@ internal sealed class TorizoColours
     /// The running fade's steps that move colours, or null when none has: the counter's zero step changes nothing, so a
     /// fade's first moving step is its first step past zero.
     /// </summary>
-    private TorizoFadeSteps? Moved =>
-        fade is { } running && running.Last > 0 ? new TorizoFadeSteps(Math.Max(running.First, 1), running.Last) : null;
+    private InclusiveRange? Moved =>
+        fade is { } running && running.Last > 0 ? new InclusiveRange(Math.Max(running.First, 1), running.Last) : null;
 
     /// <summary>
     /// Shows <paramref name="look"/> at once over his body and belly, the glowing colours among them; a running fade
@@ -129,7 +129,7 @@ internal sealed class TorizoColours
         }
         if (fade is { } running && value != running.Last + 1)
             throw new InvalidOperationException($"A Torizo's fade stepped at counter value {running.Last}, then at {value}.");
-        fade = new TorizoFadeSteps(fade?.First ?? value, value);
+        fade = new InclusiveRange(fade?.First ?? value, value);
         if (belly is not null)
             bellyFirst ??= value;
         counter.Advance();

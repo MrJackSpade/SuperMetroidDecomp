@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
-
+﻿
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Verification access to <see cref="EndingPalette"/> members production does not use.</summary>

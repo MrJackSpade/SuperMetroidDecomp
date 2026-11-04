@@ -14,7 +14,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WreckedShipGhostEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WreckedShipGhostEntity(slot, common);
 
     /// <summary>Initialization combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
     private const int WreckedShipGhostInitialDelay = 280;
@@ -77,7 +77,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Shading = PictureShading.Shaded(state.Fade.Shade);
 
     /// <summary>Ports the indirect dispatch in <c>WreckedShipGhost_Main</c>.</summary>
-    private void RunWreckedShipGhostMain(
+    private static void RunWreckedShipGhostMain(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state,
         SamusState? samus)
@@ -370,7 +370,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             static (WreckedShipGhostEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports WreckedShipGhost's main AI.</summary>
-    internal void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
+    internal static void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWreckedShipGhostMain(slot, slot.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame.Samus);
     }

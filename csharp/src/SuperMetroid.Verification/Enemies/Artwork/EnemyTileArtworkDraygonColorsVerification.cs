@@ -138,7 +138,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
             state.HealthPaletteBand = band;
-            enemies.DraygonBehavior.Combat.CopyDraygonHealthColors(state);
+            DraygonCombat.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
                     Shown()[DraygonColorDestinations.HealthDestination + color],

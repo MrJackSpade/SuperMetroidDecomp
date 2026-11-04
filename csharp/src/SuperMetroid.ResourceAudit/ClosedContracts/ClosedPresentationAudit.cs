@@ -60,7 +60,7 @@ internal sealed class ClosedPresentationAudit
                             field.ContainingType.ToDisplayString() == typeof(GameplayHudDefinitions).FullName));
             // Partial fixture factories for credits, room layouts, X-ray overlays and enemy tile artwork live in
             // test-support, which Core and Tooling cannot reference, so no production caller can reach them.
-            if (valid && contract.Type == typeof(EnemyTileArtworkCatalog).FullName)
+            if (valid && contract.Type == typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).FullName)
             {
                 // Additional partial metadata declarations could mutate the private
                 // native arrays used to derive installation keys and DMA lengths.
@@ -232,13 +232,6 @@ internal sealed class ClosedPresentationAudit
             if (owner is ("DraygonColorCatalog", "ApplyHurt", "healthBand") &&
                 operation.Arguments.Single(arg => arg.Parameter?.Name == "whiteFrame").Value.ConstantValue
                     is { HasValue: true, Value: true }) continue;
-            if (owner is ("SporeSpawnColorCatalog", "ResolveDeath", "frame") &&
-                operation.Arguments.Single(arg => arg.Parameter?.Name == "layer").Value.ConstantValue
-                    is { HasValue: true, Value: not null } layer &&
-                (SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
-                    SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level or
-                    SuperMetroid.AssetExtraction.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Background)
-                range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorDefinitions.DeathSceneFrameCount);
             if (!range.Value.Contains(number))
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }

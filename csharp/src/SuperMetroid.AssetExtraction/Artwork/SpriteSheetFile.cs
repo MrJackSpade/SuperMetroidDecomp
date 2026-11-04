@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 6;
+    public const int Version = 7;
 
     /// <summary>Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings.</summary>
     internal static readonly JsonSerializerOptions Options = new()
@@ -42,7 +42,7 @@ public static class SpriteSheetFile
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []]);
+        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []], document.PaletteBits);
         return CutFrames(document, name, image);
     }
 
@@ -67,7 +67,7 @@ public static class SpriteSheetFile
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []]);
+        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []], document.PaletteBits);
         return CutFrames(document, name, image);
     }
 

@@ -58,7 +58,7 @@ internal sealed class KraidHead
     internal void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
     {
         int band = (state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state);
-        state.Colours.ShowBand(band, BandEyes(band));
+        state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
         PictureShading parts = state.Colours.Parts;
         for (int part = 0; part < state.Parts.Length; part++)
             _slotTable.Slots[part].Shading = parts;

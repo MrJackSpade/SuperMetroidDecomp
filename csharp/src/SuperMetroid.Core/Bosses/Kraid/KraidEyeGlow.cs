@@ -23,14 +23,11 @@ internal sealed class KraidEyeGlow
     /// <summary>The eye colours shown now.</summary>
     internal readonly RgbColor[] shown = new RgbColor[Eyes];
 
-    /// <summary>The colours the eyes' inks show under Kraid's health band, which the shown colours replace while they differ.</summary>
-    private readonly RgbColor[] band = new RgbColor[Eyes];
 
     /// <summary>Shows <paramref name="bandEyes"/>, his health band's eye colours, at once, as a health colour update writes them.</summary>
     internal void ShowBand(ReadOnlySpan<RgbColor> bandEyes)
     {
         Ensure.LengthEqual(bandEyes, Eyes);
-        bandEyes.CopyTo(band);
         bandEyes.CopyTo(shown);
     }
 
@@ -79,9 +76,12 @@ internal sealed class KraidEyeGlow
     }
 
     /// <summary>
-    /// The effect showing the eyes' colours over his body's picture: each band eye colour shows the eye's colour now, or
-    /// null while they are the band's.
+    /// The effect showing the eyes' colours over his body's picture, whose shade shows them in <paramref name="shaded"/>:
+    /// each shaded eye colour shows the eye's colour now, or null while they are the shaded colours.
     /// </summary>
-    internal ColourSubstitution? Effect() =>
-        shown.SequenceEqual(band) ? null : new ColourSubstitution([.. band], [.. shown]);
+    internal ColourSubstitution? Effect(ReadOnlySpan<RgbColor> shaded)
+    {
+        Ensure.LengthEqual(shaded, Eyes);
+        return shaded.SequenceEqual(shown) ? null : new ColourSubstitution([.. shaded], [.. shown]);
+    }
 }

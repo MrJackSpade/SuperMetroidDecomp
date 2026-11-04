@@ -21,7 +21,10 @@ internal static class InstalledPictureColoursConstants
         Ensure.BetweenInclusive(0, picture.StandardColours.Length - 1, ink);
         return picture.Colours switch
         {
-            SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst + ink,
+            // A sprite ink is its part's own row and colour, drawn from that row with the sheet's palette bits ORed in.
+            SpriteImageColours.Sprite => GameplayColourPositionDefinitions.SpriteSetsFirst
+                + ((ink / GameplayColourPositionDefinitions.SetColours) | InstalledPictureColours.PaletteBitsOf(picture)) * GameplayColourPositionDefinitions.SetColours
+                + ink % GameplayColourPositionDefinitions.SetColours,
             SpriteImageColours.FullPalette => GameplayColourPositionDefinitions.BackgroundSetsFirst + ink,
             SpriteImageColours.Background or SpriteImageColours.TwoBppBackground => BackgroundColourOf(picture, ink),
             _ => throw new InvalidDataException($"Image {picture.Name} names an unknown colouring {picture.Colours}."),

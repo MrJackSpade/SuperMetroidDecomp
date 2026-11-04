@@ -361,6 +361,10 @@ constraint, not a side concern.
   suite-wide one, split the suite first and run only the split piece.
 - Run several focused commands in one process where the runner allows it, rather than one
   process per command.
+- Run the change's suite set once and record its failures. After each fix, rerun ONLY the
+  tests that failed, dropping each from the list as it passes. Run the whole set again
+  only once, when every failure is believed resolved, as the final confirmation before the
+  push. Never rerun the whole set after each change.
 - Never re-run a command to read its output. Test runners must print the full failure
   message the first time; fix a runner that truncates output instead of re-running.
 - Never guess command names. Look up the command that covers a test once, rather than

@@ -42,7 +42,7 @@ internal static class WreckedShipGhostBobbingVerification
             };
             slot.SetSpeciesState(state, state.ClearWithRecord);
 
-            enemies.WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(slot, frame);
+            WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(slot, frame);
 
             AssertEqual(expectedY, slot.Position.Y.Whole, $"Ghost {context}: position");
             AssertEqual((ushort)0, slot.Position.Y.Fraction, $"Ghost {context}: subposition");

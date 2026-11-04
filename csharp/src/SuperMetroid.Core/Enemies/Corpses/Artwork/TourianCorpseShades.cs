@@ -9,6 +9,15 @@ namespace SuperMetroid.Core.Enemies.Corpses.Artwork;
 /// </summary>
 internal static class TourianCorpseShades
 {
+    /// <summary>
+    /// The colours the Shitroid's room entry loads for its victim Sidehopper, which the Shitroid also draws in: the victim
+    /// owns them, and the Shitroid's encounter names the same shade.
+    /// </summary>
+    internal static PictureShade ShitroidTargets { get; } = new("shitroid-targets", 0);
+
+    /// <summary>A draw in the colours the Shitroid's room entry loads.</summary>
+    internal static PictureShading InShitroidTargetColours { get; } = PictureShading.Shaded(ShitroidTargets);
+
     /// <summary>The drained corpses' colours.</summary>
     internal static PictureShade Drained { get; } = new("tourian-corpse-drained", 0);
 

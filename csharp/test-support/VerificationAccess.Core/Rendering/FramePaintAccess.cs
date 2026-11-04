@@ -35,6 +35,20 @@ internal static class FramePaintAccess
             Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
             return new FramePaint(nativeColours[0], NativeColouredPictures.Draws(spriteDraws, nativeColours));
         }
+
+        /// <summary>
+        /// A gameplay frame painted from <paramref name="nativeColours"/> as <see cref="FromNative"/> paints a frontend one:
+        /// every group of background pictures in its standard colours, which a native-coloured fixture's pictures hold, and
+        /// no display fade.
+        /// </summary>
+        /// <exception cref="ArgumentException">The image does not hold 256 colours, or the draw list is missing or holds a missing draw.</exception>
+        internal static FramePaint FromNativeGameplay(ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> spriteDraws)
+        {
+            Ensure.LengthEqual(nativeColours, NativeColouredPictures.ColorCount);
+            var gameplay = new GameplayShading(nativeColours[0],
+                Enum.GetValues<GameplayPictures>().ToImmutableDictionary(pictures => pictures, _ => PictureShading.Standard), fade: null);
+            return new FramePaint(gameplay, NativeColouredPictures.Draws(spriteDraws, nativeColours));
+        }
     }
 
     /// <summary>Repaints and reads what a captured frame description shows.</summary>

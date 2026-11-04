@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -60,9 +59,10 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual((ushort)1, actor.FrameHold.RawValue, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
-                AssertEqual(PictureShading.Standard, actor.Shading, "Initial colours: the sheet's own, which the common sprite row coloured");
                 var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
+                AssertEqual(state.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");
+                AssertTrue(!actor.Shading.IsStandard, "Initial colours: his starting look is a shade over his sheet");
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }
             defeated = true;

@@ -69,7 +69,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
     }
 
     /// <summary>The shades every one of Samus's sheets is pre-coloured in (#1512), computed once.</summary>
-    internal IReadOnlyList<SheetShade> Shades => field ??= SamusSheetShades.Of(ShadeSources);
+    internal IReadOnlyList<SheetShade> Shades => field ??= ShadeSources.Shades();
 
     /// <summary>
     /// The sprite colours Samus is drawn with in the Power Suit with the power beam; the other suits and her colour

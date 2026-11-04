@@ -15,6 +15,12 @@ public sealed record SpriteSheetDocument
     public required ushort[] Colours { get; init; }
 
     /// <summary>
+    /// The palette bits a sprite sheet's draws OR into each ink's own row (#1512): an ink is its part's own row and colour,
+    /// coloured from that row with these bits ORed in; zero for a sheet whose parts are drawn in their own rows.
+    /// </summary>
+    public int PaletteBits { get; init; }
+
+    /// <summary>
     /// The gameplay background set each of a gameplay background sheet's colour groups draws in, group after group, which
     /// the import pipeline decides as it installs the sheet (#1464); absent for an actor's sheet and a frontend screen's.
     /// </summary>

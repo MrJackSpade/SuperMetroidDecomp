@@ -155,6 +155,27 @@ internal static class MenuSheetFixtures
         SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities);
 
+    /// <summary>File-select map sheets already composed, by presentation.</summary>
+    private static readonly ConditionalWeakTable<AreaMapPresentation, InstalledSpriteSheets> fileSelectMaps = new();
+
+    /// <summary>
+    /// The sheets the file-select map draws from (#1532): the installed sheets for the installation's presentation, otherwise
+    /// only the sheets <paramref name="maps"/> composes for the file-select map's area and room screens: the map sprites, the
+    /// menu and room-map pictures and each area's world-map pages. A screen that asks for any other sheet fails, so a fixture
+    /// presentation's map screens never compose the pause, title and other menus' sheets they never draw.
+    /// </summary>
+    internal static InstalledSpriteSheets ForFileSelectMap(AreaMapPresentation maps)
+    {
+        ArgumentNullException.ThrowIfNull(maps);
+        return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets
+            : fileSelectMaps.GetValue(maps, key =>
+            {
+                var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
+                ComposeFileSelectMapSheets(key, sheets, $"file-select-map-{RuntimeHelpers.GetHashCode(key):X8}");
+                return new InstalledSpriteSheets(sheets);
+            });
+    }
+
     /// <summary>Composes and registers a fixture presentation's menu sheets beside the installed others.</summary>
     private static InstalledSpriteSheets Compose(AreaMapPresentation maps)
     {
@@ -164,24 +185,34 @@ internal static class MenuSheetFixtures
                      (SpriteSheetId.GameOver, GameOverSheetComposer.Sources(maps)),
                      (SpriteSheetId.FileSelect, FileSelectSheetComposer.Sources(maps)),
                      (SpriteSheetId.GameOptions, GameOptionsSheetComposer.Sources(maps)),
-                     (SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(maps)),
                      (SpriteSheetId.PauseSprites, PauseSheetComposer.Sources(maps)),
                      (SpriteSheetId.Title, TitleSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         // Pause's HUD plane draws the HUD's images, pictured from the maps' HUD artwork and characters (#1466).
         sheets[SpriteSheetId.PauseHud] = LoadTiles(SpriteSheetId.PauseHud, HudImageSheet.ComposePause(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        // The menus' pages and the pictures placed over them are pictured from the maps' presentation (#1467).
-        sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
-        sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         // The pause screen's map cells, backdrops, buttons and equipment page are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.PausePictures] = LoadTiles(SpriteSheetId.PausePictures, PausePictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenTileSheetDefinitions.AreaMapForegrounds)
-            sheets[foreground.Value] = LoadTiles(foreground.Value, MapPictureSheets.ComposeWorldForeground(maps, foreground.Key), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        foreach (KeyValuePair<AreaId, SpriteSheetId> background in ScreenTileSheetDefinitions.AreaMapBackgrounds)
-            sheets[background.Value] = LoadTiles(background.Value, MapPictureSheets.ComposeWorldBackground(maps, background.Key), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        ComposeFileSelectMapSheets(maps, sheets, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);
+    }
+
+    /// <summary>
+    /// Composes and registers into <paramref name="sheets"/> the sheets <paramref name="maps"/> pictures the file-select map
+    /// with: its map sprites, the menus' and room maps' pictures and each area's world-map pages, each named for
+    /// <paramref name="fixture"/>.
+    /// </summary>
+    private static void ComposeFileSelectMapSheets(AreaMapPresentation maps, Dictionary<SpriteSheetId, SpriteSheet> sheets, string fixture)
+    {
+        sheets[SpriteSheetId.MapSprites] = Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(maps), fixture);
+        // The menus' pages and the pictures placed over them are pictured from the maps' presentation (#1467).
+        sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), fixture);
+        // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
+        sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), fixture);
+        foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenTileSheetDefinitions.AreaMapForegrounds)
+            sheets[foreground.Value] = LoadTiles(foreground.Value, MapPictureSheets.ComposeWorldForeground(maps, foreground.Key), fixture);
+        foreach (KeyValuePair<AreaId, SpriteSheetId> background in ScreenTileSheetDefinitions.AreaMapBackgrounds)
+            sheets[background.Value] = LoadTiles(background.Value, MapPictureSheets.ComposeWorldBackground(maps, background.Key), fixture);
     }
 
     /// <summary>Composes, loads and registers one fixture sheet under a name of its own.</summary>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -21,7 +22,11 @@ internal static class FileSelectMapGraphicsPixelsAccess
         /// </summary>
         /// <param name="includeBackdropInColorMath">True for steady/return $25 color math; false for forward-window $05 behavior, where transparent BG1 cells retain the backdrop without BG3 addition.</param>
         internal RgbaPixel[] RenderBackgrounds(bool includeBackdropInColorMath = true) =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureBackgrounds(ColorMath(includeBackdropInColorMath)));
+            FrontendScenePixelsAccess.Pixels(graphics.BackgroundsScene(includeBackdropInColorMath));
+
+        /// <summary>The scene <see cref="RenderBackgrounds(bool)"/> draws, for a comparison of the pixels two scenes show.</summary>
+        internal LayeredScene BackgroundsScene(bool includeBackdropInColorMath = true) =>
+            graphics.CaptureBackgrounds(ColorMath(includeBackdropInColorMath));
     }
 
     /// <summary>The room map's published pixels.</summary>
@@ -33,12 +38,19 @@ internal static class FileSelectMapGraphicsPixelsAccess
 
         /// <summary>The room map's fixed BG2 frame alone, as the transition shows it before the map's cells arrive.</summary>
         internal RgbaPixel[] RenderFrameOnly() =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly));
+            FrontendScenePixelsAccess.Pixels(graphics.FrameOnlyScene());
+
+        /// <summary>The scene <see cref="RenderFrameOnly"/> draws, for a comparison of the pixels two scenes show.</summary>
+        internal LayeredScene FrameOnlyScene() => graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
 
         /// <summary>The room map's fixed frame and its map at <paramref name="scroll"/>, without icons.</summary>
         /// <param name="scroll">The map's scroll in pixels.</param>
         internal RgbaPixel[] RenderBackgrounds(Position16<MapPixels> scroll) =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(scroll));
+            FrontendScenePixelsAccess.Pixels(graphics.BackgroundsScene(scroll));
+
+        /// <summary>The scene <see cref="RenderBackgrounds(Position16{MapPixels})"/> draws, for a comparison of the pixels two scenes show.</summary>
+        /// <param name="scroll">The map's scroll in pixels.</param>
+        internal LayeredScene BackgroundsScene(Position16<MapPixels> scroll) => graphics.CaptureRenderSnapshot(scroll);
     }
 
     /// <summary>Progress whose used stations are the stations each area's mask, by area index, names.</summary>

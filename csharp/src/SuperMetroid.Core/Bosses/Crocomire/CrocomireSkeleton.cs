@@ -248,15 +248,15 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Shows, at this update, one more of the skeleton's chunks (#1406), in their fixed order, while the skeleton waits
-    /// behind the wall; once all are shown it shows nothing more. From then on his frames show it.
+    /// Shows, at this update, one more of the skeleton's chunks (#1406, #1513), in their fixed order, while the skeleton
+    /// waits behind the wall; once all are shown it shows nothing more. From then on his frames show their pictures of it.
     /// </summary>
     internal void ShowNextCrocomireSkeletonChunk(CrocomireDeathState death)
     {
         int chunk = death.SkeletonChunksShown;
         if (chunk == CrocomireSkeletonTransferDefinitions.FrameCount)
             return;
-        _presentation.ShowLook(CrocomireSkeletonTransferDefinitions.Sources[chunk]);
+        _presentation.ShowArtwork(EncounterArtworkSequence.CrocomireSkeleton, chunk);
         death.SkeletonChunksShown++;
     }
 

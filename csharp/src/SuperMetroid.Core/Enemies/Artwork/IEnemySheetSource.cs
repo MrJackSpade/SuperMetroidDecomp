@@ -13,21 +13,14 @@ public interface IEnemySheetSource
     /// <exception cref="InvalidDataException">No spawner the set loads draws at that base.</exception>
     SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase);
 
-    /// <summary>The looks each encounter shows, whose pictures the sheets hold.</summary>
-    EncounterLooks Looks { get; }
-
-    /// <summary>What covers each region of graphics set <paramref name="set"/>'s frames (#1406, #1463).</summary>
-    SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set);
-
     /// <summary>
-    /// The layers frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set
-    /// <paramref name="set"/> draws as, front first, each with the regions it reads that the set's encounters show looks over
-    /// after the room loads; none for a frame drawn whole, as the set's own look alone shows it.
+    /// How frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet under graphics set <paramref name="set"/>
+    /// follows the artwork sequences the set's encounters play (#1513); none for a frame no sequence changes.
     /// </summary>
-    IReadOnlyList<LookRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
+    IReadOnlyList<FrameArtworkVariation> Variations(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
 
     /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
-    IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
+    IReadOnlyList<FrameArtworkVariation> SpawnedVariations(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
 
     /// <summary>
     /// The name of the kind of rotting corpse whose rot frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet

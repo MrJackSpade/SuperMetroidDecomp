@@ -178,7 +178,7 @@ internal sealed class SuperMetroidRuntime
         Assists = new ActiveAssists(Player, System, assists);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, Player = Player });
-        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });
+        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player });
         ScreenLayers = new GameplayScreenLayers(Room);
         Xray = new XrayReveal(BackgroundScroll, Room, System);
         FrameBoundary = new AcceptedFrameBoundary(new AcceptedFrameBoundaryDependencies { Input = new AcceptedFrameInput(Controller1, PhysicalController1, Options, Clock), EnemySession = EnemySession, RoomFx = RoomFx, Hud = Hud, BackgroundScroll = BackgroundScroll, Display = Display, DisplayedSprites = DisplayedSprites, ScreenLayers = ScreenLayers, Sprites = Sprites, Player = Player, Room = Room, SuitPickup = SuitPickup, Xray = Xray });

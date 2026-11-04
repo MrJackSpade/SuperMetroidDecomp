@@ -231,20 +231,22 @@ internal static class RoomBlockUploads
         foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
         {
             ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
-            SpriteArtworkPlacement placed = EncounterCharacterPlacements.Placed(new GraphicsSetTileCharacters(entry));
-            yield return new BgCharacterUpload(new BgArtworkIdentity($"{placed.Source}"), BgCharacterSet.Tiles, placed.FirstCharacter, tiles);
+            yield return new BgCharacterUpload(new BgArtworkIdentity($"{entry.DefinitionId} set tiles"), BgCharacterSet.Tiles,
+                EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter + entry.StagingOffset / SpriteCharacterTableLayout.CharacterByteCount, tiles);
         }
     }
 
     /// <summary>
-    /// What <paramref name="state"/>'s encounters show over the OBJ character table after its room loads, in the order they
-    /// show them, each as its look shown (#1466): Ceres Ridley's getaway its escape timer and its warning.
+    /// What <paramref name="state"/>'s encounters copy over the OBJ character table after its room loads, step by step of
+    /// the artwork sequences they play, each shown once its sequence reaches its step (#1466, #1513): Ceres Ridley's getaway
+    /// its escape timer and its warning.
     /// </summary>
     private static IEnumerable<AppearanceOption> EncounterLookOptions(RoomBlockSheetInputs inputs, RoomStateSettings state) =>
-        EncounterCharacterPlacements.Catalog.Of(state.EnemyGraphicsSet).Select(upload => new AppearanceOption(
-            new EncounterLookAppearance(upload.Source), RoomAppearanceValues.Shown,
-            new BgCharacterUpload(new BgArtworkIdentity($"{upload.Source}"), BgCharacterSet.Tiles, upload.FirstCharacter,
-                SpriteArtworkBytes.Of(upload.Source, inputs.Objects))));
+        EncounterArtworkUploads.Of(state.EnemyGraphicsSet).SelectMany(sequence => EncounterArtworkUploads.Steps(sequence, inputs.Objects)
+            .SelectMany((copies, step) => copies.Select(upload => new AppearanceOption(
+                new EncounterLookAppearance(sequence, step), RoomAppearanceValues.Shown,
+                new BgCharacterUpload(new BgArtworkIdentity($"{sequence} step {step}"), BgCharacterSet.Tiles, upload.FirstCharacter,
+                    upload.Characters)))));
 
     /// <summary>The HUD's characters as gameplay setup uploads them, before any room loads.</summary>
     internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>

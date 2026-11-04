@@ -14,26 +14,21 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// A rotting corpse's staged characters, rotted as the cartridge rots them (#1392): the bytes of each row it uploads after
 /// each rot step, from which its sheet pictures every rot its frames can show, and the rots its rows can show together. A
 /// dead monster or the dead Torizo selects the rot its frames show by its kind (#1406); Mother Brain's corpse is pictured
-/// for the step each of its rows was uploaded at (<see cref="CorpseRotSteps"/>). Nothing rots pixels at run time.
+/// for each rot step its encounter's artwork sequence reaches (#1513). Nothing rots pixels at run time.
 /// </summary>
 internal sealed class CorpseRotSimulation
 {
     /// <summary>Every row's bytes after each step, by row then step; a row the corpse never uploads at a step holds none.</summary>
     private readonly Dictionary<CorpseRotRow, byte[]?[]> rowBytes;
 
-    /// <summary>Each state the corpse's uploads can leave its rows in: the step each row shows, or none for the set's characters.</summary>
-    private readonly IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable;
-
-    /// <summary>A corpse's simulated rot: its rows, each row's bytes after each step, and the states its uploads reach.</summary>
+    /// <summary>A corpse's simulated rot: its rows, each row's bytes after each step, and the rots a kind's frames show.</summary>
     private CorpseRotSimulation(string flesh, RottingCorpseKind? kind, IReadOnlyList<CorpseRotRow> rows,
-        Dictionary<CorpseRotRow, byte[]?[]> rowBytes, IReadOnlyList<IReadOnlyDictionary<CorpseRotRow, int?>> reachable,
-        IReadOnlyList<CorpseRotState> states)
+        Dictionary<CorpseRotRow, byte[]?[]> rowBytes, IReadOnlyList<CorpseRotState> states)
     {
         Flesh = flesh;
         Kind = kind;
         Rows = rows;
         this.rowBytes = rowBytes;
-        this.reachable = reachable;
         States = states;
     }
 
@@ -66,26 +61,14 @@ internal sealed class CorpseRotSimulation
     }
 
     /// <summary>
-    /// What <paramref name="rows"/> can show together: for each state the corpse's uploads can leave them in, the step each
-    /// shows, or none while it shows the graphics set's characters; each distinct state once.
+    /// What each rot step uploads, by step from the first: every row's bytes after a step the corpse uploads its rows at,
+    /// nothing after one it does not. Mother Brain's corpse rot sequence (#1513) takes these as its steps.
     /// </summary>
-    internal IEnumerable<int?[]> Shown(IReadOnlyList<CorpseRotRow> rows)
-    {
-        Ensure.NotNull(rows);
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        foreach (IReadOnlyDictionary<CorpseRotRow, int?> state in reachable)
-        {
-            int?[] shown = [.. rows.Select(row => state[row])];
-            if (seen.Add(string.Join(',', shown.Select(step => step?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "set"))))
-                yield return shown;
-        }
-    }
-
-    /// <summary>
-    /// The step each of <paramref name="rows"/> shows once the corpse has finished rotting, when no further rot step uploads
-    /// over them, so an encounter's later upload can replace any of them (#1435).
-    /// </summary>
-    internal int?[] Finished(IReadOnlyList<CorpseRotRow> rows) => [.. Ensure.NotNull(rows).Select(row => reachable[^1][row])];
+    internal IReadOnlyList<IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)>> StepUploads =>
+        [.. Enumerable.Range(0, rowBytes[Rows[0]].Length).Select(step => (IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)>)(
+            Rows.All(row => rowBytes[row][step] is not null)
+                ? [.. Rows.Select(row => (row, rowBytes[row][step] ?? throw new InvalidDataException($"{Flesh} uploads no row at table byte {row.FirstByte} after rot step {step}.")))]
+                : []))];
 
     /// <summary>Whether <paramref name="enemy"/>'s frames show a corpse whose characters rot: a corpse's, or Mother Brain's.</summary>
     internal static bool Rots(EnemyDefinitionId enemy) => ShowsSelectedRot(enemy) || ShowsUploadedRot(enemy);
@@ -188,17 +171,15 @@ internal sealed class CorpseRotSimulation
             snapshots.Add(rotting || uploadsLastStep ? [.. rows.Select(staged.Upload)] : new byte[]?[rows.Length]);
         }
         int steps = uploadsLastStep ? snapshots.Count - 1 : snapshots.Count - 2;
-        var reachable = new List<IReadOnlyDictionary<CorpseRotRow, int?>> { rows.ToDictionary(row => row, _ => (int?)null) };
         var states = new List<CorpseRotState>();
         for (int step = 1; step <= steps; step++)
         {
             int shown = step;
             IReadOnlyDictionary<CorpseRotRow, int?> state = rows.ToDictionary(row => row, _ => (int?)shown);
-            reachable.Add(state);
             if (kind is RottingCorpseKind selected)
                 states.Add(new CorpseRotState(new CorpseRotView(selected, [shown]), state));
         }
-        return new CorpseRotSimulation(flesh, kind, rows, ByRow(rows, snapshots), reachable, states);
+        return new CorpseRotSimulation(flesh, kind, rows, ByRow(rows, snapshots), states);
     }
 
     /// <summary>
@@ -228,21 +209,19 @@ internal sealed class CorpseRotSimulation
             rotting = schedule.Step((y, operation) => staged.MoveRow(geometry, y, operation), _ => { });
             snapshots.Add([.. rows.Select(staged.Upload)]);
         }
-        List<IReadOnlyDictionary<CorpseRotRow, int?>> reachable = TorizoReachable(halves, snapshots.Count - 1, out List<CorpseRotState> states);
+        List<CorpseRotState> states = TorizoRots(halves, snapshots.Count - 1);
         return new CorpseRotSimulation(DeadTorizoCorpseDefinitions.Kind.Name, DeadTorizoCorpseDefinitions.Kind, rows, ByRow(rows, snapshots),
-            reachable, states);
+            states);
     }
 
     /// <summary>
-    /// The states the dead Torizo's halves can show: the odd half uploads first, one half each frame its AI runs, after rot
-    /// step 0 until its rot starts, which a touch or a power bomb can do on any frame, then after one more rot step each frame
-    /// until the last. Each also gives <paramref name="states"/> the rot it selects, once each, every one but the set's.
+    /// The rots the dead Torizo's halves can show, once each, every one but the set's: the odd half uploads first, one half
+    /// each frame its AI runs, after rot step 0 until its rot starts, which a touch or a power bomb can do on any frame, then
+    /// after one more rot step each frame until the last.
     /// </summary>
-    private static List<IReadOnlyDictionary<CorpseRotRow, int?>> TorizoReachable(Dictionary<bool, CorpseRotRow[]> halves, int lastStep,
-        out List<CorpseRotState> states)
+    private static List<CorpseRotState> TorizoRots(Dictionary<bool, CorpseRotRow[]> halves, int lastStep)
     {
-        var reachable = new List<IReadOnlyDictionary<CorpseRotRow, int?>>();
-        states = [];
+        var states = new List<CorpseRotState>();
         var named = new HashSet<string>(StringComparer.Ordinal);
         var seen = new HashSet<TorizoUploadState>();
         var pending = new Queue<TorizoUploadState>();
@@ -254,7 +233,6 @@ internal sealed class CorpseRotSimulation
             IReadOnlyDictionary<CorpseRotRow, int?> shown = halves[false].Select(row => new KeyValuePair<CorpseRotRow, int?>(row, state.Even))
                 .Concat(halves[true].Select(row => new KeyValuePair<CorpseRotRow, int?>(row, state.Odd)))
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
-            reachable.Add(shown);
             var view = new CorpseRotView(DeadTorizoCorpseDefinitions.Kind, [state.Even, state.Odd]);
             if ((state.Even is not null || state.Odd is not null) && named.Add(view.PictureName("frame")))
                 states.Add(new CorpseRotState(view, shown));
@@ -265,7 +243,7 @@ internal sealed class CorpseRotSimulation
             if (state.Step == lastStep)
                 pending.Enqueue(state.Upload(lastStep));
         }
-        return reachable;
+        return states;
     }
 
     /// <summary>Which of the dead Torizo's rows each step shows, and which half uploads next.</summary>

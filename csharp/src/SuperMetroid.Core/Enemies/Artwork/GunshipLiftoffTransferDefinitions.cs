@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>The five gunship takeoff uploads, in takeoff order.</summary>
+/// <summary>The five gunship takeoff pages, in takeoff order: the steps of its artwork sequence (#1513).</summary>
 internal static class GunshipLiftoffTransferDefinitions
 {
-    /// <summary>The takeoff's five uploads, showing five consecutive installed pages.</summary>
+    /// <summary>The takeoff's five pages, five consecutive installed pages.</summary>
     internal static readonly GunshipLiftoffTransferDefinition[] Frames =
     [
         new(InstalledArtworkId.GunshipLiftoffFirstTiles),
@@ -14,7 +14,4 @@ internal static class GunshipLiftoffTransferDefinitions
         new(InstalledArtworkId.GunshipLiftoffFourthTiles),
         new(InstalledArtworkId.GunshipLiftoffFifthTiles),
     ];
-
-    /// <summary>The five takeoff pages, in takeoff order (#1392, #1406).</summary>
-    internal static IReadOnlyList<SpriteArtworkSource> Pages { get; } = [.. Frames.Select(frame => new InstalledArtworkCharacters(frame.Asset))];
 }

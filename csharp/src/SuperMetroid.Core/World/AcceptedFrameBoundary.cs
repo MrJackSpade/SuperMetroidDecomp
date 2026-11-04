@@ -34,7 +34,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayDisplayState _display;
     /// <summary>Sprite frame made visible at each frame boundary.</summary>
     private readonly SpriteFrameBuffer _displayedSprites;
-    /// <summary>The session's shown sprite looks, which the Ceres Ridley arena's blocks show (#1466).</summary>
+    /// <summary>How far the room's encounters have played their artwork, which the Ceres Ridley arena's blocks follow (#1466, #1513).</summary>
     private readonly EnemySession _enemySession;
 
     /// <summary>

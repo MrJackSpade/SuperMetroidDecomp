@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -240,12 +241,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Shows artwork swap <paramref name="swap"/> under Torizo's poses at this update (#1406): from now on the frames drawn
-    /// over its characters picture it, over every swap shown there before.
+    /// Advances the Torizo's artwork sequence to swap <paramref name="swap"/> at this update (#1406, #1513): from now on its
+    /// frames show their pictures of that step.
     /// </summary>
-    private void ShowTorizoArtwork(TorizoArtworkSwap swap)
+    private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkSwap swap)
     {
-        _presentation.ShowLook(TorizoArtworkSwapDefinitions.Sources[swap.Ordinal]);
+        if (state.IsGolden)
+            _presentation.ShowArtwork(EncounterArtworkSequence.GoldenTorizo, TorizoArtworkSwapDefinitions.GoldenSequence, swap);
+        else
+            _presentation.ShowArtwork(EncounterArtworkSequence.BombTorizo, TorizoArtworkSwapDefinitions.BombSequence, swap);
     }
 
     /// <summary>
@@ -586,7 +590,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     walk.Step);
 
             case TorizoCue.ShowArtwork showArtwork:
-                ShowTorizoArtwork(showArtwork.Swap);
+                ShowTorizoArtwork(state, showArtwork.Swap);
                 return null;
 
             default:

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
@@ -532,19 +533,19 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs gunship function 17 (#1406): shows the next of the five liftoff looks, one a step, from this
-    /// update's frame on; after the fifth, the engines fire up.
+    /// Runs gunship function 17 (#1406, #1513): advances the takeoff's artwork sequence to the next of its five pages,
+    /// one a step, from this update's frame on; after the fifth, the engines fire up.
     /// </summary>
     /// <exception cref="InvalidDataException">The page index left its five pages.</exception>
     internal void ShowGunshipTakeoffPage(RoomEnemySlot top)
     {
         int page = Part(top).NextLiftoffPage;
-        if ((uint)page >= GunshipLiftoffTransferDefinitions.Pages.Count)
+        if ((uint)page >= GunshipLiftoffTransferDefinitions.Frames.Length)
             throw new InvalidDataException("Gunship takeoff page escaped its five pages.");
-        _room.Session.ShowLook(GunshipLiftoffTransferDefinitions.Pages[page]);
+        _room.Session.ArtworkProgress.Show(EncounterArtworkSequence.GunshipLiftoff, page);
 
         Part(top).NextLiftoffPage = page + 1;
-        if (Part(top).NextLiftoffPage >= GunshipLiftoffTransferDefinitions.Pages.Count)
+        if (Part(top).NextLiftoffPage >= GunshipLiftoffTransferDefinitions.Frames.Length)
         {
             Part(top).Function = GunshipFunction.FireUpEngines;
             Part(top).NextLiftoffPage = 0;

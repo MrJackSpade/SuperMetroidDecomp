@@ -139,7 +139,7 @@ public static class RoomBlockSheetFiles
     /// <exception cref="InvalidDataException">The tokens are missing or spell an unknown input.</exception>
     private static ImmutableArray<AppearanceInput> Inputs(string[]? tokens) =>
         [.. (tokens ?? throw new InvalidDataException("A manifest entry records no appearance inputs."))
-            .Select(token => AppearanceInputSpellings.Parse(token, EncounterCharacterPlacements.Catalog.LookNamed))];
+            .Select(AppearanceInputSpellings.Parse)];
 
     /// <summary>The background manifest: each image's name, the tilemap words it pictures and its changing cells.</summary>
     /// <param name="Version">The schema revision.</param>

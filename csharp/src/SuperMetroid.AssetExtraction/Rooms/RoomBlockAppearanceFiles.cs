@@ -60,8 +60,7 @@ public static class RoomBlockAppearanceFiles
         static ImmutableArray<AppearanceInput>[] Inputs(string?[]?[]? blocks) =>
             [.. (blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.")).Select((tokens, block) =>
                 ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"Block {block} lists no inputs.")).Select(token =>
-                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input."),
-                        EncounterCharacterPlacements.Catalog.LookNamed))))];
+                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input.")))))];
     }
 
     /// <summary>Each block's inputs over <paramref name="artwork"/>, as the record spells them.</summary>

@@ -54,9 +54,9 @@ internal static class EnemySheetComposer
             SetLayouts laid = setLayouts[index];
             laidSets.Add(new LaidGraphicsSet(drawnSets[index].Name,
                 [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
-                    source.Pictures, source.RotPictures))],
+                    source.Variations, source.RotPictures))],
                 [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], layouts, layoutOf),
-                    source.Pictures, source.RotPictures))]));
+                    source.Variations, source.RotPictures))]));
         }
         var encoded = new EncodedSpriteSheet[layouts.Count];
         Parallel.For(0, layouts.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
@@ -67,14 +67,14 @@ internal static class EnemySheetComposer
         var names = new SheetNames(encoded);
         var sets = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
-        var pictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>>(StringComparer.Ordinal);
-        var spawnedPictures = new Dictionary<string, Dictionary<string, Dictionary<string, CharacterRange[][]>>>(StringComparer.Ordinal);
+        var variations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>>(StringComparer.Ordinal);
+        var spawnedVariations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>>(StringComparer.Ordinal);
         var rotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         var spawnedRotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
         foreach (LaidGraphicsSet set in laidSets)
         {
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
-            var memberPictures = new Dictionary<string, Dictionary<string, CharacterRange[][]>>(StringComparer.Ordinal);
+            var memberVariations = new Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>(StringComparer.Ordinal);
             var memberRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
@@ -84,18 +84,18 @@ internal static class EnemySheetComposer
                 if (members.TryGetValue(enemy.ToString(), out string? listed) && listed != name)
                     throw new InvalidDataException($"Enemy graphics set {set.Name} colours {enemy} two ways.");
                 members[enemy.ToString()] = name;
-                if (sheet.Pictures.Count > 0)
-                    memberPictures[enemy.ToString()] = new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
+                if (sheet.Variations.Count > 0)
+                    memberVariations[enemy.ToString()] = Document(sheet.Variations);
                 if (sheet.RotPictures.Count > 0)
                     memberRotPictures[enemy.ToString()] = new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
             }
             sets.Add(set.Name, members);
-            if (memberPictures.Count > 0)
-                pictures.Add(set.Name, memberPictures);
+            if (memberVariations.Count > 0)
+                variations.Add(set.Name, memberVariations);
             if (memberRotPictures.Count > 0)
                 rotPictures.Add(set.Name, memberRotPictures);
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
-            var basePictures = new Dictionary<string, Dictionary<string, CharacterRange[][]>>(StringComparer.Ordinal);
+            var baseVariations = new Dictionary<string, Dictionary<string, Dictionary<string, int?[]>>>(StringComparer.Ordinal);
             var baseRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
@@ -108,25 +108,29 @@ internal static class EnemySheetComposer
                     Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
                     Anywhere = plan.Anywhere,
                 });
-                if (sheet.Pictures.Count > 0)
-                    basePictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
+                if (sheet.Variations.Count > 0)
+                    baseVariations[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] = Document(sheet.Variations);
                 if (sheet.RotPictures.Count > 0)
                     baseRotPictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
                         new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
             }
             spawned.Add(set.Name, bases);
-            if (basePictures.Count > 0)
-                spawnedPictures.Add(set.Name, basePictures);
+            if (baseVariations.Count > 0)
+                spawnedVariations.Add(set.Name, baseVariations);
             if (baseRotPictures.Count > 0)
                 spawnedRotPictures.Add(set.Name, baseRotPictures);
         }
         return new EnemySheetComposition(names.Sheets, new EnemySheetManifestDocument
         {
-            Version = EnemySheetFiles.ManifestVersion, Sets = sets, Spawned = spawned, Pictures = pictures,
-            SpawnedPictures = spawnedPictures, RotPictures = rotPictures, SpawnedRotPictures = spawnedRotPictures,
+            Version = EnemySheetFiles.ManifestVersion, Sets = sets, Spawned = spawned, Variations = variations,
+            SpawnedVariations = spawnedVariations, RotPictures = rotPictures, SpawnedRotPictures = spawnedRotPictures,
         });
     }
+
+    /// <summary>How each frame follows the sequences that change it, as the manifest spells it: by frame, then sequence name.</summary>
+    private static Dictionary<string, Dictionary<string, int?[]>> Document(IReadOnlyDictionary<string, FrameArtworkVariation[]> frames) =>
+        frames.ToDictionary(frame => frame.Key, frame => frame.Value.ToDictionary(variation => variation.Sequence.ToString(),
+            variation => variation.Pictures.ToArray(), StringComparer.Ordinal), StringComparer.Ordinal);
 
     /// <summary>
     /// The index in <paramref name="layouts"/> of the first layout with <paramref name="layout"/>'s identity, adding it when
@@ -158,17 +162,17 @@ internal static class EnemySheetComposer
     /// <summary>One enemy's sheet under a graphics set.</summary>
     /// <param name="Enemy">The enemy.</param>
     /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
-    /// <param name="Pictures">The layers each frame drawn over uploaded regions draws as.</param>
+    /// <param name="Variations">How each frame encounter artwork sequences change follows them.</param>
     /// <param name="RotPictures">The corpse each frame drawn over a corpse's rows shows the rot of.</param>
-    private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, CharacterRange[][]> Pictures,
+    private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, FrameArtworkVariation[]> Variations,
         IReadOnlyDictionary<string, string> RotPictures);
 
     /// <summary>One spawned-object sheet under a graphics set.</summary>
     /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
     /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
-    /// <param name="Pictures">The layers each frame drawn over uploaded regions draws as.</param>
+    /// <param name="Variations">How each frame encounter artwork sequences change follows them.</param>
     /// <param name="RotPictures">The corpse each frame drawn over a corpse's rows shows the rot of.</param>
-    private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, CharacterRange[][]> Pictures,
+    private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, FrameArtworkVariation[]> Variations,
         IReadOnlyDictionary<string, string> RotPictures);
 
     /// <summary>
@@ -254,22 +258,22 @@ internal static class EnemySheetComposer
             // The sheet is coloured in the row the set loads, or the enemy's initialization selects, its colours in.
             int paletteBits = loaded.Colours.RowOf(enemy);
             (IReadOnlyList<SheetShade> fixedShades, IReadOnlyList<SheetRowShade> rowShades) = loaded.Shades.Fixed(enemy);
-            var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
+            var variations = new Dictionary<string, FrameArtworkVariation[]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
             foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileBase), loaded.Characters,
                 CorpseRotSimulation.Rots(enemy)))
             {
                 frames.AddRange(framePictures.Sources);
-                if (framePictures.Layers.Length > 0)
-                    pictures.Add(framePictures.Name, framePictures.Layers);
+                if (framePictures.Variations.Length > 0)
+                    variations.Add(framePictures.Name, framePictures.Variations);
                 if (framePictures.RotCorpse is { } corpse)
                     rots.Add(framePictures.Name, corpse);
             }
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
                 ObjectSelectionCodec.GameplaySizes, paletteBits,
                 Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],
-                RowShades: [.. loaded.Shades.Shared(), .. rowShades]), pictures, rots);
+                RowShades: [.. loaded.Shades.Shared(), .. rowShades]), variations, rots);
         }
     }
 
@@ -296,10 +300,23 @@ internal static class EnemySheetComposer
             .Except(loaded).Distinct().Order()];
         EnemyDefinitionId[] drawn = [.. loaded, .. spawned];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
-        var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
-        return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
+        return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), Sequences(inputs, set, corpses),
             [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
     }
+
+    /// <summary>
+    /// The artwork sequences played under graphics set <paramref name="set"/> (#1513): each its members' encounters play,
+    /// resolved against <paramref name="inputs"/>, then Mother Brain's corpse rot when her corpse rots among
+    /// <paramref name="corpses"/>, whose steps are its simulation's uploads.
+    /// </summary>
+    internal static IReadOnlyList<EncounterArtworkSteps> Sequences(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set,
+        IEnumerable<CorpseRotSimulation> corpses) =>
+        [
+            .. EncounterArtworkUploads.Of(set).Select(sequence => new EncounterArtworkSteps(sequence, EncounterArtworkUploads.Steps(sequence, inputs))),
+            .. Ensure.NotNull(corpses).Where(corpse => corpse.Kind is null).Select(corpse => new EncounterArtworkSteps(EncounterArtworkSequence.MotherBrainCorpseRot,
+                [.. corpse.StepUploads.Select(step => (IReadOnlyList<EncounterArtworkUpload>)[.. step.Select(upload =>
+                    new EncounterArtworkUpload(upload.Row.FirstByte / SpriteCharacterTableLayout.CharacterByteCount, upload.Bytes))])])),
+        ];
 
     /// <summary>A room graphics set as a room load leaves it.</summary>
     /// <param name="Graphics">Its enemy graphics, which give each enemy's tile base.</param>

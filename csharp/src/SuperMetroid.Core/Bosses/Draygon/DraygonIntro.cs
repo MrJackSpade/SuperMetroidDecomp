@@ -37,7 +37,7 @@ internal sealed class DraygonIntro
         {
             if (state.IntroFrames == 0)
             {
-                _presentation.ShowLook(DraygonIntroPresentationDefinitions.EvirTiles);
+                _presentation.ShowArtwork(EncounterArtworkSequence.DraygonEvirs, 0);
                 state.IntroEvirGraphicsLoaded = true;
 
                 // Each spawn takes the next slot in processing order, so these become the first four slots in

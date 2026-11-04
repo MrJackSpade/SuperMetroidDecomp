@@ -25,7 +25,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingMode7ArtworkVerification
 {
     /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, then verifies map/PNG edits and stock repair.</summary>
-    [PrivateInstallation("Checks that installer repair regenerates the corrupted stock ending Mode 7 artwork on a private copy.")]
+    [PrivateInstallation("Corrupts the stock ending Mode 7 artwork on a private copy to check that an override cannot hide the damage.")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -200,17 +200,18 @@ internal static class EndingMode7ArtworkVerification
             .Map.ToArray();
         string stockPngPath = Path.Combine(installation.EndingMode7Directory,
             EndingFloorArtworkFormat.CharacterFileName(EndingFloorSceneId.EscapeA));
+        byte[] stockPng = File.ReadAllBytes(stockPngPath);
         File.WriteAllBytes(stockPngPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingMode7Art(),
             "corrupt stock ending Mode-7 PNG cannot be hidden by a valid override");
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
-            ?? throw new InvalidOperationException("Ending art vanished during stock repair.");
-        AssertTrue(EndingFloorCharacters.SceneOf(repaired.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
+        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+        File.WriteAllBytes(stockPngPath, stockPng);
+        AssertTrue(EndingFloorCharacters.SceneOf(installation.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
                 .Characters.Span.SequenceEqual(EndingFloorCharacters.SceneOf(stock, EndingFloorSceneId.EscapeA).Characters.Span),
-            "stock ending Mode-7 PNG is regenerated from the installed cartridge");
-        AssertTrue(EndingFloorCharacters.SceneOf(repaired.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
+            "the restored stock ending Mode-7 PNG shows the cartridge's characters");
+        AssertTrue(EndingFloorCharacters.SceneOf(installation.LoadEndingMode7Art(), EndingFloorSceneId.EscapeA)
                 .Map.Span.SequenceEqual(selectedMap),
-            "stock ending art repair preserves the external map override");
+            "the external map override still applies over the restored stock PNG");
         File.Delete(invalidMapPath);
         Suite(nameof(VerifyEndingRewardIconArtwork), () => VerifyEndingRewardIconArtwork(installation));
         Console.WriteLine("Ending Mode-7 art: three native scenes plus the reward icon, guarded runtime and independent edits pass.");

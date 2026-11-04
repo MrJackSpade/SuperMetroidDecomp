@@ -65,6 +65,12 @@ internal static class RepositoryInstallation
     /// <summary>The installation's presentation catalogs, shared by every fixture in the process.</summary>
     internal static GameArtwork Artwork => artwork.Value;
 
+    /// <summary>
+    /// The loader of <see cref="Artwork"/>, which a debugger graph names content through without loading it: a graph of
+    /// a fixture that never binds the artwork does not pay for loading every catalog.
+    /// </summary>
+    internal static Lazy<GameArtwork> ArtworkLoader => artwork;
+
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs, playing under the requested assists.</summary>
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,

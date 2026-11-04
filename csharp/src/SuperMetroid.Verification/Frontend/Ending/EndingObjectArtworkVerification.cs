@@ -122,7 +122,7 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
-    [PrivateInstallation("Checks that installer repair restores corrupted ending object stock files on a private copy.")]
+    [PrivateInstallation("Corrupts ending object stock files on a private copy to check that overrides cannot hide the damage.")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectSourceArtwork stock = installation.LoadEndingObjectArt();
@@ -437,17 +437,21 @@ internal static class EndingObjectArtworkVerification
         byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Characters.ToArray();
         string stockExplosion = Path.Combine(installation.EndingObjectDirectory,
             EndingObjectArtworkFormat.ExplosionFileName);
+        byte[] stockExplosionBytes = File.ReadAllBytes(stockExplosion);
+        byte[] stockCloudSprites = File.ReadAllBytes(cloudSpritePath);
         File.WriteAllBytes(stockExplosion, [0]);
         File.WriteAllBytes(cloudSpriteOverride, editedCloudSpriteBytes);
         File.WriteAllBytes(cloudSpritePath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingObjectArt(),
             "valid ending OBJ overrides cannot hide corrupt stock art or sprite JSON");
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
-            ?? throw new InvalidOperationException("Ending OBJ content vanished during stock repair.");
+        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+        File.WriteAllBytes(stockExplosion, stockExplosionBytes);
+        File.WriteAllBytes(cloudSpritePath, stockCloudSprites);
+        GameInstallation repaired = installation;
         AssertTrue(repaired.LoadEndingObjectArt().Clouds.Characters.Span.SequenceEqual(editedClouds) &&
                 repaired.LoadEndingObjectArt().Explosion.Characters.Span.SequenceEqual(
                     stock.Explosion.Characters.Span),
-            "stock OBJ repair restores native pixels and preserves the player's cloud override");
+            "the restored stock OBJ art shows native pixels and the player's cloud override still applies");
         var preservedCloudOam = ScreenSpritesFixtures.Blank();
         preservedCloudOam.BeginFrame();
         CinematicSheetFixtures.Drawer(repaired.LoadEndingObjectArt().CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, preservedCloudOam,
@@ -459,11 +463,11 @@ internal static class EndingObjectArtworkVerification
             new(120, 72), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
         AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),
-            "ending cloud sprite override survives stock repair with edited OAM");
+            "ending cloud sprite override still applies over the restored stock with edited OAM");
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);
         Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork(repaired));
-        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, editable cloud/explosion/text/reward/logo OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
+        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, editable cloud/explosion/text/reward/logo OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and damaged-stock rejection pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {

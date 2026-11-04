@@ -298,7 +298,7 @@ internal static class InstalledFixtures
 
     /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
     private static readonly Lazy<object[]> boundContent = new(() =>
-        [RepositoryInstallation.Artwork, samusOverreads, enemyOverreads, bossAndIntroOverreads, roomAssets,
+        [RepositoryInstallation.ArtworkLoader, samusOverreads, enemyOverreads, bossAndIntroOverreads, roomAssets,
             roomCharacters, blockCompositions, maps, enemyArtwork, projectiles, samusBody, introArtwork, enemySheets, spriteSheets,
             standardObjects, bossBodySheets]);
 }

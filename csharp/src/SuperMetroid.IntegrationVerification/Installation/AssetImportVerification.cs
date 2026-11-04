@@ -136,13 +136,19 @@ try
     string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
     byte[] waveBefore = File.ReadAllBytes(waveform);
     File.WriteAllBytes(waveform, "broken wave"u8.ToArray());
+    // The receipt alone decides whether content is current (#1532): content extracted for another format is rebuilt, and
+    // every file with it.
+    string currentReceipt = File.ReadAllText(receipt);
+    File.WriteAllText(receipt, currentReceipt.Replace($"\"FormatVersion\":{GameInstallationLayout.FormatVersion}",
+        $"\"FormatVersion\":{GameInstallationLayout.FormatVersion - 1}", StringComparison.Ordinal));
+    Check(File.ReadAllText(receipt) != currentReceipt, "the fixture names an outdated format in the receipt");
     Check(GameAssetInstaller.TryOpenExtractedContent(root) is null,
-        "a damaged extracted asset is not mistaken for valid ROM-free content");
+        "content extracted for another format is not mistaken for current ROM-free content");
     File.Move(installed.RomPath, heldRom);
     try
     {
         Check(GameAssetInstaller.OpenOrRepair(root) is null,
-            "startup rejects damaged extracted content when no ROM can repair it");
+            "startup rejects outdated extracted content when no ROM can extract it again");
         Reject<InvalidDataException>(() => installed.OpenRuntimeAddressSpace());
     }
     finally
@@ -151,7 +157,7 @@ try
     }
     File.Delete(input);
     Check(GameAssetInstaller.EnsureInstalled(root) is not null, "repair works after the original selected document is gone");
-    Check(File.ReadAllBytes(waveform).SequenceEqual(waveBefore), "damaged waveform is regenerated exactly");
+    Check(File.ReadAllBytes(waveform).SequenceEqual(waveBefore), "re-extraction regenerates the damaged waveform exactly");
     Check(File.ReadAllBytes(save).SequenceEqual(saveBefore) && File.ReadAllText(settings) == HostOptionsIni.DefaultFileContents,
         "repair preserves saves and configuration outside content");
 

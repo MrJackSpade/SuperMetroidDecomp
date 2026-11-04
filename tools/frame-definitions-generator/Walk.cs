@@ -264,7 +264,11 @@ internal sealed class Walk
         {
             if (!SymbolEqualityComparer.Default.Equals(family, _family))
             {
-                if (unit.IsConstructor && !viaDispatch && origin is { } spawner)
+                // Code outside a family that refers to it directly (constructs it, or calls a factory or member of it, as
+                // Botwoon's ForSegment and Spit build his segments' and spit's animations) has its objects in play: their
+                // frames are what that code spawns. Dispatch into a family's overrides is the engine running whichever
+                // family it holds, which names none.
+                if (!viaDispatch && origin is { } spawner)
                 {
                     UnitScan scan = ScanOf(spawner);
                     foreach (SpawnTarget target in scan.UnitTargets)

@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;

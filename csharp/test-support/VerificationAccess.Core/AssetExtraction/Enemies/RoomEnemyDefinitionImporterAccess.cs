@@ -3,9 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

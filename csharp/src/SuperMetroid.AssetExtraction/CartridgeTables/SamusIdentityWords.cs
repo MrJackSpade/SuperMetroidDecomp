@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;

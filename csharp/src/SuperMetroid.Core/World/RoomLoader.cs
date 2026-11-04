@@ -1037,7 +1037,6 @@ internal sealed class RoomLoader
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx, enemies);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms, enemies);
-        enemies.GraphicsSet.ShowGraphics();
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 

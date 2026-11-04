@@ -282,7 +282,7 @@ internal static class EnemySheetComposer
     /// and the enemies drawn under it, its members in record order, then each enemy its rooms place without the set
     /// loading it, then the enemies those enemies' encounters spawn.
     /// </summary>
-    private static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+    internal static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
@@ -324,7 +324,7 @@ internal static class EnemySheetComposer
     /// <param name="Colours">Its sprite colours and the row each enemy drawn under it draws in.</param>
     /// <param name="Shades">The shades its sheets are pre-coloured in.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
-    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
+    internal sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
         IReadOnlyList<EnemyDefinitionId> Drawn);
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>

@@ -3,7 +3,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 
 /// <summary>
 /// Which page of installed characters each artwork swap the Bomb and Golden Torizo instruction lists make shows (#1406,
-/// #1463), in the order of <see cref="SuperMetroid.Core.Bosses.Torizo.TorizoArtworkSwapDefinitions.Sources"/>: the import's
+/// #1463), by <see cref="SuperMetroid.Core.Bosses.Torizo.TorizoArtworkSwap"/> ordinal: the import's
 /// knowledge of the bytes each swap's pictures are composed from.
 /// </summary>
 internal static class TorizoArtworkSwapPageDefinitions

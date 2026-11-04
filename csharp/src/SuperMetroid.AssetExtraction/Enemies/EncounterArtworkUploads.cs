@@ -48,50 +48,65 @@ internal static class EncounterArtworkUploads
     /// corpse rot is its corpse's simulation's, not installed artwork's.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed artwork lacks a step's characters, or the sequence is the corpse rot.</exception>
-    internal static IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> Steps(EncounterArtworkSequence sequence, IInstalledArtworkContent installed)
+    internal static IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> Steps(EncounterArtworkSequence sequence, IInstalledArtworkContent installed) =>
+        [.. Enumerable.Range(0, StepCount(sequence)).Select(step => Step(sequence, step, installed))];
+
+    /// <summary>The steps of <paramref name="sequence"/>.</summary>
+    /// <exception cref="InvalidDataException">The sequence is the corpse rot, whose steps are its corpse's simulation's.</exception>
+    internal static int StepCount(EncounterArtworkSequence sequence) => sequence switch
+    {
+        EncounterArtworkSequence.DraygonEvirs or EncounterArtworkSequence.CeresDoor => 1,
+        EncounterArtworkSequence.GunshipLiftoff => GunshipLiftoffTransferDefinitions.Frames.Length,
+        EncounterArtworkSequence.CrocomireSkeleton => CrocomireSkeletonTransferDefinitions.FrameCount,
+        EncounterArtworkSequence.BombTorizo => TorizoArtworkSwapDefinitions.BombSequence.Count,
+        EncounterArtworkSequence.GoldenTorizo => TorizoArtworkSwapDefinitions.GoldenSequence.Count,
+        EncounterArtworkSequence.CeresEscapePages => CeresEscapePageDefinitions.ObjectPageCount,
+        EncounterArtworkSequence.MotherBrainPages => MotherBrainSpritePageDefinitions.Sequence.Count,
+        EncounterArtworkSequence.MotherBrainCorpseRot => throw new InvalidDataException(
+            "Mother Brain's corpse rot is pictured from her corpse's simulation, not from installed artwork."),
+        _ => throw new InvalidDataException($"Undefined {nameof(EncounterArtworkSequence)} {sequence}."),
+    };
+
+    /// <summary>What step <paramref name="step"/> of <paramref name="sequence"/> copies, resolved against <paramref name="installed"/>.</summary>
+    /// <exception cref="InvalidDataException">The installed artwork lacks the step's characters, or the sequence is the corpse rot.</exception>
+    internal static IReadOnlyList<EncounterArtworkUpload> Step(EncounterArtworkSequence sequence, int step, IInstalledArtworkContent installed)
     {
         Ensure.NotNull(installed);
+        Ensure.BetweenInclusive(0, StepCount(sequence) - 1, step);
         return sequence switch
         {
-            EncounterArtworkSequence.DraygonEvirs => [[new(EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
-                Whole(Sprites(installed).EnemyTiles.TilesOf(EnemyDefinitionId.Evir), EncounterCharacterPlacementDefinitions.EvirByteCount, "the Evir tiles"))]],
-            EncounterArtworkSequence.GunshipLiftoff => [.. GunshipLiftoffTransferDefinitions.Frames.Select((page, index) => (IReadOnlyList<EncounterArtworkUpload>)[
-                new EncounterArtworkUpload(EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
-                    + index * (GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount),
-                    Whole(installed.Resolve(page.Asset), GunshipLiftoffCharacterDefinitions.ByteCount, $"{page.Asset}"))])],
-            EncounterArtworkSequence.CrocomireSkeleton => [.. Enumerable.Range(0, CrocomireSkeletonTransferDefinitions.FrameCount)
-                .Select(chunk => (IReadOnlyList<EncounterArtworkUpload>)[new EncounterArtworkUpload(SkeletonFirstCharacter(chunk),
-                    Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
-                        "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
-                        $"Crocomire skeleton chunk {chunk}"))])],
-            EncounterArtworkSequence.BombTorizo => Torizo(TorizoArtworkSwapDefinitions.BombSequence, installed),
-            EncounterArtworkSequence.GoldenTorizo => Torizo(TorizoArtworkSwapDefinitions.GoldenSequence, installed),
-            EncounterArtworkSequence.CeresEscapePages => [
-                .. Enum.GetValues<EscapeTimerTilePage>().Select(page => (IReadOnlyList<EncounterArtworkUpload>)[Timer(page, installed)]),
-                .. Enumerable.Range(0, CeresEscapePageDefinitions.WarningPageCount).Select(page => (IReadOnlyList<EncounterArtworkUpload>)[Warning(page, installed)]),
-            ],
-            EncounterArtworkSequence.CeresDoor => [[new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
+            EncounterArtworkSequence.DraygonEvirs => [new(EncounterCharacterPlacementDefinitions.EvirFirstCharacter,
+                Whole(Sprites(installed).EnemyTiles.TilesOf(EnemyDefinitionId.Evir), EncounterCharacterPlacementDefinitions.EvirByteCount, "the Evir tiles"))],
+            EncounterArtworkSequence.GunshipLiftoff => [new(EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
+                    + step * (GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount),
+                Whole(installed.Resolve(GunshipLiftoffTransferDefinitions.Frames[step].Asset), GunshipLiftoffCharacterDefinitions.ByteCount,
+                    $"{GunshipLiftoffTransferDefinitions.Frames[step].Asset}"))],
+            EncounterArtworkSequence.CrocomireSkeleton => [new(SkeletonFirstCharacter(step),
+                Whole((Bosses(installed).CrocomireSkeleton ?? throw new InvalidDataException(
+                    "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(step), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
+                    $"Crocomire skeleton chunk {step}"))],
+            EncounterArtworkSequence.BombTorizo => [Torizo(TorizoArtworkSwapDefinitions.BombSequence[step], installed)],
+            EncounterArtworkSequence.GoldenTorizo => [Torizo(TorizoArtworkSwapDefinitions.GoldenSequence[step], installed)],
+            EncounterArtworkSequence.CeresEscapePages => [step < EscapeTextArtworkDefinitions.TimerPageCount
+                ? Timer(Enum.GetValues<EscapeTimerTilePage>()[step], installed)
+                : Warning(step - EscapeTextArtworkDefinitions.TimerPageCount, installed)],
+            EncounterArtworkSequence.CeresDoor => [new(EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter,
                 Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
-                    CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))]],
-            EncounterArtworkSequence.MotherBrainPages => [.. MotherBrainSpritePageDefinitions.Sequence
-                .Select(page => (IReadOnlyList<EncounterArtworkUpload>)[MotherBrainPage(page, installed)])],
+                    CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
+            EncounterArtworkSequence.MotherBrainPages => [MotherBrainPage(MotherBrainSpritePageDefinitions.Sequence[step], installed)],
             EncounterArtworkSequence.MotherBrainCorpseRot => throw new InvalidDataException(
                 "Mother Brain's corpse rot is pictured from her corpse's simulation, not from installed artwork."),
             _ => throw new InvalidDataException($"Undefined {nameof(EncounterArtworkSequence)} {sequence}."),
         };
     }
 
-    /// <summary>The steps of a Torizo whose programs show <paramref name="swaps"/> in order.</summary>
-    private static IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> Torizo(IReadOnlyList<TorizoArtworkSwap> swaps, IInstalledArtworkContent installed)
+    /// <summary>Torizo artwork swap <paramref name="swap"/>, where the cartridge copies it.</summary>
+    private static EncounterArtworkUpload Torizo(TorizoArtworkSwap swap, IInstalledArtworkContent installed)
     {
         TorizoSwapArtwork artwork = Bosses(installed).TorizoSwaps ?? throw new InvalidDataException("Torizo artwork swaps require installed artwork.");
-        return [.. swaps.Select(swap =>
-        {
-            TorizoArtworkSwapDefinition definition = TorizoArtworkSwapPageDefinitions.Entries[swap.Ordinal];
-            return (IReadOnlyList<EncounterArtworkUpload>)[new EncounterArtworkUpload(
-                EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Ordinal].FirstCharacter,
-                Whole(artwork.Characters(definition.Page, definition.PageByte, definition.ByteCount), definition.ByteCount, $"Torizo artwork swap {swap.Ordinal}"))];
-        })];
+        TorizoArtworkSwapDefinition definition = TorizoArtworkSwapPageDefinitions.Entries[swap.Ordinal];
+        return new EncounterArtworkUpload(EncounterCharacterPlacementDefinitions.TorizoDestinations[swap.Ordinal].FirstCharacter,
+            Whole(artwork.Characters(definition.Page, definition.PageByte, definition.ByteCount), definition.ByteCount, $"Torizo artwork swap {swap.Ordinal}"));
     }
 
     /// <summary>Escape timer page <paramref name="page"/>, where the cartridge copies it.</summary>

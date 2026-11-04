@@ -27,16 +27,6 @@ internal sealed class EnemyGraphicsSet
     /// </summary>
     internal RoomEnemyGraphicsSetDefinition LoadedSet { get; private set; } = RoomEnemyGraphicsSetDefinitions.SessionStart;
 
-    /// <summary>
-    /// Shows the set's members as the room loaded them (#1406, #1463, #1513): every frame shows the picture its room's load
-    /// gives it until one of the room's encounters plays its artwork sequence, so none of the new room's has started.
-    /// </summary>
-    public void ShowGraphics()
-    {
-        _room.EnsureLoaded();
-        _room.Session.ArtworkProgress.Restart();
-    }
-
     /// <summary>The bytes of the enemy tile area, through the end of the sprites' tile memory.</summary>
     private const int EnemyTileAreaByteCount = EnemyTileDataMasks.EnemyTileAreaByteCount;
 

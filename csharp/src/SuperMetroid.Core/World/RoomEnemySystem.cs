@@ -868,6 +868,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (_populationLoaded)
             throw new InvalidOperationException("A room's enemy system loads its population once; each room builds its own.");
         _populationLoaded = true;
+        // Every frame shows the picture its room's load gives it until one of the new room's encounters plays its
+        // artwork sequence (#1513), its initialization among them.
+        Room.Session.ArtworkProgress.Restart();
         IRoomEnemyDefinitionSource definitions = Room.LoadedDefinitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);

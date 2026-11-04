@@ -22,6 +22,9 @@ namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 /// <summary>Checks installed and edited reward-icon artwork through native partial VRAM uploads and the ending shot.</summary>
 internal static class EndingRewardIconArtworkVerification
 {
+    /// <summary>How far into the reward jump the override checks rebind the icon: inside the landing upload, before it ends.</summary>
+    private const int OverrideRebindJumpFrame = 190;
+
     /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
     [PrivateInstallation("Checks that installer repair restores corrupted ending reward icon stock files on a private copy while their overrides survive.")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
@@ -43,10 +46,29 @@ internal static class EndingRewardIconArtworkVerification
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         installedScene.Stage.BindFloorArtwork(stock);
+        // Each override check rebinds a stock-bound scene partway through the landing upload. The fixture is deterministic,
+        // so those scenes advance alongside the stock scenes and wait there instead of replaying the ending alone.
+        string[] overrideNames = [EndingRewardIconArtworkFormat.MapFileName, EndingRewardIconArtworkFormat.CharacterFileName];
+        var overrideBuses = overrideNames.Select(_ => NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom))).ToArray();
+        var overrideAudio = overrideNames.Select(_ => new AudioQueues()).ToArray();
+        var overrideScenes = overrideAudio.Select(audio => CreateRetailEndingFixture(audio, 3, 0)).ToArray();
+        foreach (var scene in overrideScenes)
+            scene.Stage.BindFloorArtwork(stock);
+        int[] overrideJumpSteps = new int[overrideScenes.Length];
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
             nativeScene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
         {
+            for (int index = 0; index < overrideScenes.Length; index++)
+            {
+                bool jumping = overrideScenes[index].Stage.Phase == EndingCreditsPhase.PostCreditsJump;
+                if (jumping && overrideJumpSteps[index] == OverrideRebindJumpFrame)
+                    continue;
+                if (jumping)
+                    overrideJumpSteps[index]++;
+                overrideScenes[index].Step();
+                overrideAudio[index].AdvanceFrame(default);
+            }
             AssertEqual(nativeScene.Stage.Phase, installedScene.Stage.Phase,
                 $"reward icon installed/native phase at frame {frame}");
             if (nativeScene.Stage.Phase == EndingCreditsPhase.PostCreditsJump)
@@ -83,12 +105,9 @@ internal static class EndingRewardIconArtworkVerification
             "all sixteen native landing chunks reconstruct the installed icon image");
 
         Directory.CreateDirectory(installation.EndingMode7OverrideDirectory);
-        foreach (string name in new[]
+        for (int overrideIndex = 0; overrideIndex < overrideNames.Length; overrideIndex++)
         {
-            EndingRewardIconArtworkFormat.MapFileName,
-            EndingRewardIconArtworkFormat.CharacterFileName,
-        })
-        {
+            string name = overrideNames[overrideIndex];
             string overridePath = Path.Combine(installation.EndingMode7OverrideDirectory, name);
             try
             {
@@ -128,23 +147,11 @@ internal static class EndingRewardIconArtworkVerification
                     $"{name} rebinds eight completed chunks without writing pending ones");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
-                var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var sceneAudio = new AudioQueues();
-                var scene = CreateRetailEndingFixture(sceneAudio, 3, 0);
-                scene.Stage.BindFloorArtwork(stock);
-                for (int frame = 0; frame < 60_000 &&
-                    scene.Stage.Phase != EndingCreditsPhase.PostCreditsJump; frame++)
-                {
-                    scene.Step();
-                    sceneAudio.AdvanceFrame(default);
-                }
-                AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
+                var sceneBus = overrideBuses[overrideIndex];
+                var sceneAudio = overrideAudio[overrideIndex];
+                var scene = overrideScenes[overrideIndex];
+                AssertEqual(OverrideRebindJumpFrame, overrideJumpSteps[overrideIndex],
                     $"{name} override reaches the native reward jump");
-                for (int frame = 0; frame < 190; frame++)
-                {
-                    scene.Step();
-                    sceneAudio.AdvanceFrame(default);
-                }
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
                     $"{name} override fixture remains in the native landing upload");
                 LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);

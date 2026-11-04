@@ -115,6 +115,8 @@ internal static class CeresFlightArtworkVerification
             CeresFlightArtworkFileFormat.MapFileName,
             CeresFlightArtworkFileFormat.ObjectFileName,
         ];
+        // Installed artwork never changes once loaded, so every restore handoff's parent starts from one stock load.
+        var stockIntro = IntroCinematicArtworkFiles.Load(installation.IntroCinematicDirectory, null);
         foreach (string name in names)
         {
             string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
@@ -143,7 +145,8 @@ internal static class CeresFlightArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             }
 
-            CeresFlightArtwork edited = installation.LoadIntroCinematicArt().CeresFlight;
+            var editedIntro = installation.LoadIntroCinematicArt();
+            CeresFlightArtwork edited = editedIntro.CeresFlight;
             bool isRearMap = name == CeresFlightArtworkFileFormat.MapFileName;
             var fresh = new IntroCeresFlightState(new AudioQueues(), edited, sheets: CinematicSheetFixtures.WithFlight(edited));
             var shownFresh = fresh.ShownVram();
@@ -157,10 +160,9 @@ internal static class CeresFlightArtworkVerification
                 "restored Ceres fixture reaches the rear-view map handoff");
             // The desktop/Android restore path rebinds the parent cinematic, not
             // this nested flight directly. Exercise that real handoff here.
-            var parent = CreateRetailIntroFixture(characterArtwork: IntroCinematicArtworkFiles.Load(
-                    installation.IntroCinematicDirectory, null));
+            var parent = CreateRetailIntroFixture(characterArtwork: stockIntro);
             parent.CurrentCeresFlight = restored;
-            parent.BindFixtureIntroArtwork(installation.LoadIntroCinematicArt());
+            parent.BindFixtureIntroArtwork(editedIntro);
             var shownRestored = restored.ShownVram();
             AssertTrue(shownRestored.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: true)),

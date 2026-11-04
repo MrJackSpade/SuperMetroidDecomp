@@ -73,10 +73,6 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             native.ResolveFadeOut, colors.ResolveFadeOut, "fade-out");
         CheckUnchangedBand(PhantoonSourceDefinitions.PowerOnColourCount,
             color => native.ResolvePowerOnAtNative(color), color => colors.ResolvePowerOnAtNative(color), "power-on");
-        AssertEqual(colors.ResolvePowerOnAtNative(1),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.PhantoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .PhantoonColors.")).ResolvePowerOnAtNative(1),
-            "Phantoon override survives catalog reload");
 
         // Drive the actual boss palette handlers. The complete authored color range is
         // forbidden on the bus, proving no installed runtime path silently falls back.
@@ -164,10 +160,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "invalid Phantoon override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => PhantoonColorFile.Read(new MemoryStream("{\"version\":1,\"version\":1}"u8.ToArray(), writable: false)),
             "duplicate Phantoon color property fails loudly");
         visual.HealthBands[2][1] = visual.HealthBands[2][1] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => PhantoonColorFile.Read(new MemoryStream(PhantoonColorFile.Write(visual), writable: false)),

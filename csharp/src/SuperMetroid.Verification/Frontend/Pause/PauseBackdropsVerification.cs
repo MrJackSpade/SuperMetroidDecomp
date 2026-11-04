@@ -50,6 +50,10 @@ internal static class PauseBackdropsVerification
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "backdrop/button-only edits change catalog identity");
         AssertTrue(InstalledAreaMapPresentation.PauseOf(original).Backdrops.CreateButtonTilemap().SequenceEqual(BackgroundTileWordBytes.Tiles(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), 0xb6e400, 0x400))), "all native mutable button tiles survive extraction");
+        // A debugger save state binds the installed content rather than writing it, as the debugger's store does, so
+        // the round trip below carries only the pause session's own state.
+        var bound = new BoundObjectGraph([original, edited, MenuSheetFixtures.For(original), MenuSheetFixtures.For(edited),
+            .. InstalledFixtures.BoundContent]);
         AreaId everyTickArea = Enum.GetValues<AreaId>()[0];
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -108,8 +112,8 @@ internal static class PauseBackdropsVerification
                     var changedPixels = pause.Render();
                     AssertTrue(!pixels.SequenceEqual(changedPixels), "authored frame/button changes are visible on map and equipment pages");
                     AssertTrue(changedPixels.SequenceEqual(RenderForComparison(changed)), "edited backdrop agrees between direct and captured renderers");
-                    using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, pause); capture.Position = 0;
-                    pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(capture);
+                    using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, pause, bound); capture.Position = 0;
+                    pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(capture, bound);
                 }
                 pause.BindFixtureArtwork(original);
                 AssertTrue(pixels.SequenceEqual(pause.Render()), "current-content restore preserves complete pixels and animation phase");

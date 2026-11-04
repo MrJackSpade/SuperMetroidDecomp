@@ -421,7 +421,23 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original));
     }
 
-    /// <summary>Checks installed pause-screen map, sprite, backdrop, wireframe, selector, reserve and equipment assets.</summary>
+    /// <summary>Checks the installed pause backdrops and buttons, in a run of their own.</summary>
+    private static void VerifyPauseBackdropAssets()
+    {
+        using var fixture = new MapCatalogFixture();
+        var (bus, root, stock, _, original, _) = fixture;
+        VerifyPauseBackdrops(bus, stock, Path.Combine(root, "pause-backdrop-overrides"), original);
+    }
+
+    /// <summary>Checks the installed pause wireframes, in a run of their own.</summary>
+    private static void VerifyPauseWireframeAssets()
+    {
+        using var fixture = new MapCatalogFixture();
+        var (bus, root, stock, _, original, _) = fixture;
+        VerifyPauseWireframes(bus, stock, Path.Combine(root, "pause-wireframe-overrides"), original);
+    }
+
+    /// <summary>Checks installed pause-screen map, sprite, selector, reserve and equipment assets.</summary>
     private static void VerifyPausePresentationAssets()
     {
         using var fixture = new MapCatalogFixture();
@@ -430,8 +446,6 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original));
         Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original));
         Suite(nameof(VerifyCompiledPauseEquipmentRules), () => VerifyCompiledPauseEquipmentRules(bus, original));
-        Suite(nameof(VerifyPauseBackdrops), () => VerifyPauseBackdrops(bus, stock, Path.Combine(root, "pause-backdrop-overrides"), original));
-        Suite(nameof(VerifyPauseWireframes), () => VerifyPauseWireframes(bus, stock, Path.Combine(root, "pause-wireframe-overrides"), original));
         Suite(nameof(VerifyPauseSelectors), () => VerifyPauseSelectors(bus, stock, Path.Combine(root, "pause-selector-overrides"), original));
         Suite(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(bus, stock, Path.Combine(root, "pause-reserve-tank-overrides"), original));
         Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, stock, Path.Combine(root, "pause-reserve-ui-overrides"), original));
@@ -1383,6 +1397,8 @@ internal static class MapPresentationVerification
         new(nameof(VerifyMapPresentationCatalog), () => VerifyMapPresentationCatalog()),
         new(nameof(VerifyMapPresentationColorOverrides), () => VerifyMapPresentationColorOverrides()),
         new(nameof(VerifyPausePresentationAssets), () => VerifyPausePresentationAssets()),
+        new(nameof(VerifyPauseBackdropAssets), () => VerifyPauseBackdropAssets()),
+        new(nameof(VerifyPauseWireframeAssets), () => VerifyPauseWireframeAssets()),
         new(nameof(VerifyFrontendPresentationAssets), () => VerifyFrontendPresentationAssets()),
     ];
 

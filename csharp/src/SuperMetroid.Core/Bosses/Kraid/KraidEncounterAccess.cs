@@ -85,7 +85,7 @@ internal sealed class KraidEncounterAccess
     public KraidEnemyState? Kraid { get; internal set; }
 
     /// <summary>
-    /// The colours Kraid's room backdrop shows (#1512). They are the room's colour memory, as on the cartridge: they last
+    /// The colours Kraid's room backdrop shows (#1512). They belong to the room, not to Kraid: they last
     /// the room's lifetime, so a re-initialization of Kraid, which replaces <see cref="Kraid"/>, keeps what his growth
     /// fade showed.
     /// </summary>

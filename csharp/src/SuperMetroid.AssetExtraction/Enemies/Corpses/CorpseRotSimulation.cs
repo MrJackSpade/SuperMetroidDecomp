@@ -65,10 +65,20 @@ internal sealed class CorpseRotSimulation
     /// nothing after one it does not. Mother Brain's corpse rot sequence (#1513) takes these as its steps.
     /// </summary>
     internal IReadOnlyList<IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)>> StepUploads =>
-        [.. Enumerable.Range(0, rowBytes[Rows[0]].Length).Select(step => (IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)>)(
-            Rows.All(row => rowBytes[row][step] is not null)
-                ? [.. Rows.Select(row => (row, rowBytes[row][step] ?? throw new InvalidDataException($"{Flesh} uploads no row at table byte {row.FirstByte} after rot step {step}.")))]
-                : []))];
+        [.. Enumerable.Range(0, rowBytes[Rows[0]].Length).Select(UploadsAfter)];
+
+    /// <summary>Every row's bytes after rot step <paramref name="step"/>, or nothing when the corpse uploads none after it.</summary>
+    private IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)> UploadsAfter(int step)
+    {
+        var uploads = new List<(CorpseRotRow Row, byte[] Bytes)>();
+        foreach (CorpseRotRow row in Rows)
+        {
+            if (rowBytes[row][step] is not { } bytes)
+                return [];
+            uploads.Add((row, bytes));
+        }
+        return uploads;
+    }
 
     /// <summary>Whether <paramref name="enemy"/>'s frames show a corpse whose characters rot: a corpse's, or Mother Brain's.</summary>
     internal static bool Rots(EnemyDefinitionId enemy) => ShowsSelectedRot(enemy) || ShowsUploadedRot(enemy);

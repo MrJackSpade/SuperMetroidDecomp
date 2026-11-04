@@ -25,9 +25,9 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
     /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
     internal static void VerifyInstalledChozoAndTubeColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileSourceArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        ChozoAndTubeColorCatalog native = stock.ChozoAndTubeColors ??
+        ChozoAndTubeColorCatalog native = stock.Enemies.ChozoAndTubeColors ??
             throw new InvalidDataException("Installed enemy art has no Chozo/tube colors.");
         Suite(nameof(VerifyBand), () => VerifyBand(EnemySpeciesSourceDefinitions.ChozoAndTube.TubeCracksColors,
             native.ResolveTubeCracks, "tube cracks"));
@@ -49,7 +49,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, ChozoAndTubeColorFormat.FileName);
         File.WriteAllBytes(overrideFile, ChozoAndTubeColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ChozoAndTubeColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors() });
         ChozoAndTubeColorCatalog colors = edited.Enemies.ChozoAndTubeColors ??
             throw new InvalidDataException("Edited enemy art has no Chozo/tube colors.");
         CheckEditedBand(native.ResolveTubeCracks, colors.ResolveTubeCracks, "tube cracks");
@@ -58,8 +58,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         CheckEditedBand(native.ResolveLowerNorfair, colors.ResolveLowerNorfair,
             "Lower Norfair Chozo");
         AssertEqual(colors.ResolveWreckedShip(5),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Enemies.ChozoAndTubeColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ChozoAndTubeColors.")).ResolveWreckedShip(5),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors().ResolveWreckedShip(5),
             "Chozo/tube override survives catalog reload");
 
         // Every live initializer must use the installed data, while variant selection,
@@ -78,19 +77,19 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors(),
             "invalid Chozo/tube override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors(),
             "duplicate Chozo/tube color property fails loudly");
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(visual))),
             "Chozo/tube RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ChozoAndTubeColors(),
             "corrupt stock Chozo/tube colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Chozo/tube colors: 96 native RGB5 words, all three live initializers, persistent overrides, ROM guard, and strict failures pass.");

@@ -142,16 +142,16 @@ internal static class EnemyTileArtworkVerification
         using var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         Suite(nameof(VerifyInstalledTourianStatueColors), () => VerifyInstalledTourianStatueColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock.Enemies));
+        Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock));
         Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock.Enemies));
         Suite(nameof(VerifyInstalledCrocomireColors), () => VerifyInstalledCrocomireColors(bus, directory, stock));
         Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bus));
         Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, directory, stock));
         Suite(nameof(VerifyInstalledDraygonColors), () => VerifyInstalledDraygonColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledPhantoonColors), () => VerifyInstalledPhantoonColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock.Enemies));
+        Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock.Enemies));
+        Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledShitroidColors), () => VerifyInstalledShitroidColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, directory, stock));
@@ -427,7 +427,7 @@ internal static class EnemyTileArtworkVerification
     {
         using var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
-        VerifyInstalledDachoraColors(bus, directory, stock.Enemies);
+        VerifyInstalledDachoraColors(bus, directory, stock);
         return 0;
     }
 

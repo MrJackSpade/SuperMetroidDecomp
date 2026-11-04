@@ -54,7 +54,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, PhantoonColorFormat.FileName);
         File.WriteAllBytes(overrideFile, PhantoonColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { PhantoonColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).PhantoonColors() } };
         PhantoonColorCatalog colors = edited.Bosses.PhantoonColors ??
             throw new InvalidDataException("Edited enemy art has no Phantoon colors.");
         AssertTrue(colors.ResolveHealth(2, 1) != native.ResolveHealth(2, 1),
@@ -158,7 +158,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).PhantoonColors(),
             "invalid Phantoon override fails loudly");
         AssertThrows<InvalidDataException>(
             () => PhantoonColorFile.Read(new MemoryStream("{\"version\":1,\"version\":1}"u8.ToArray(), writable: false)),
@@ -168,7 +168,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             "reading Phantoon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).PhantoonColors(),
             "corrupt stock Phantoon colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Phantoon colors: 256 native RGB5 targets, all health bands and three live transitions, persistent override, ROM guard, and strict failures pass.");

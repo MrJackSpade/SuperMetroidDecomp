@@ -75,8 +75,8 @@ internal static class ProjectileCompositionsVerification
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
         GameInstallation installation = RepositoryInstallation.Installation;
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
-        Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(editedId, installation.LoadSpriteSheets(),
-            roomAssets, installation.LoadMaps()));
+        Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(editedId, InstalledFixtures.SpriteSheets,
+            roomAssets, InstalledFixtures.Maps));
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
@@ -124,6 +124,8 @@ internal static class ProjectileCompositionsVerification
     private static void VerifyProjectileCompositionOwners()
     {
         int comparisons = 0;
+        // The installed projectile sheets every draw shows, bound once.
+        ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork();
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort coordinate in new ushort[] { 0, 100, 223, 255, 256, 303, 304, 0xffcf, 0xffd0 })
         foreach (ushort type in new ushort[] { 0, 0x10, 0x100, 0x200, 0x300, 0x500, 0x700, 0x800 })
@@ -140,7 +142,6 @@ internal static class ProjectileCompositionsVerification
             bomb.BombTimer = WrappingCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
-                ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork();
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
                 shots.DrawLiveProjectiles(native, Position16<RoomPixels>.Zero, parity, artwork);
@@ -162,7 +163,7 @@ internal static class ProjectileCompositionsVerification
                 bomb.BombTimer = WrappingCountdown.Start(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
-                bombs.Draw(hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
+                bombs.Draw(hidden, Position16<RoomPixels>.Zero, artwork);
                 hidden.FinalizeFrame();
                 AssertEqual(0, hidden.Draws.Length, "Detonated power bomb remains hidden with extracted art");
             }
@@ -195,6 +196,8 @@ internal static class ProjectileCompositionsVerification
         game.AdoptRuntime(runtime);
         game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
         string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
+        // A sheet set loaded apart from the bound one, which each pass must reach once rebound.
+        InstalledSpriteSheets rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
         // Seed only a visible timed composition. The shared production actor draw, not
         // a duplicate test emitter, must bind all three owner passes to host content.
         foreach (ushort family in new ushort[] { 0x10, 0x700, 0x500 })
@@ -215,7 +218,6 @@ internal static class ProjectileCompositionsVerification
             }
             SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);
             AssertEqual(power.Frame(frame), Shown(runtime, kind).Image, $"Family ${family:X} draws its composition's frame from the bound power-beam sheet");
-            InstalledSpriteSheets rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
             game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
             AssertTrue(ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, Shown(runtime, kind).Image.Sheet),
                 $"Family ${family:X} draws from rebound sheets");

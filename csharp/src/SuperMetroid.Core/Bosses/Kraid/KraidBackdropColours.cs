@@ -19,6 +19,15 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// </summary>
     internal int Steps { get; private set; }
 
+    /// <summary>What a fade to black began from, which names the colours each of its steps shows.</summary>
+    private KraidBackdropShows fadingOutFrom = KraidBackdropShows.KraidColours;
+
+    /// <summary>
+    /// The counter value that fade began at, from the room's colours, or the growth fade's last step it began after; the
+    /// fade from Kraid's colours always begins at zero.
+    /// </summary>
+    private int fadingOutOrigin;
+
     /// <summary>Shows Kraid's backdrop colours at once, as his defeated room loads them.</summary>
     internal void ShowKraidColours()
     {
@@ -46,12 +55,15 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
                 KraidBackdropShows.KraidColours or KraidBackdropShows.FadingOut => throw CannotFade(fade),
                 _ => throw CannotFade(fade),
             },
+            // The cartridge fades the backdrop's colour memory toward black from whatever it holds: Kraid's colours after
+            // his growth, the room's when he dies before his growth fades the backdrop in, or the growth fade's colours
+            // when he dies during it.
             KraidBackdropFade.ToBlack => Shows switch
             {
-                KraidBackdropShows.KraidColours => KraidBackdropShows.FadingOut,
+                KraidBackdropShows.KraidColours or KraidBackdropShows.RoomColours or KraidBackdropShows.FadingInFromRoomColours =>
+                    BeginFadingOut(step),
                 KraidBackdropShows.FadingOut => Shows,
-                KraidBackdropShows.RoomColours or KraidBackdropShows.Black or KraidBackdropShows.FadingInFromRoomColours
-                    or KraidBackdropShows.FadingInFromBlack => throw CannotFade(fade),
+                KraidBackdropShows.Black or KraidBackdropShows.FadingInFromBlack => throw CannotFade(fade),
                 _ => throw CannotFade(fade),
             },
             _ => throw new ArgumentOutOfRangeException(nameof(fade), fade, "Kraid's backdrop fades only to black or to the room's colours."),
@@ -59,6 +71,27 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         Steps = step;
         Shows = fading;
     }
+
+    /// <summary>Starts a fade to black at counter value <paramref name="step"/> from what the backdrop shows.</summary>
+    private KraidBackdropShows BeginFadingOut(int step)
+    {
+        fadingOutFrom = Shows;
+        fadingOutOrigin = Shows switch
+        {
+            KraidBackdropShows.RoomColours => step,
+            KraidBackdropShows.FadingInFromRoomColours => Steps,
+            _ => 0,
+        };
+        return KraidBackdropShows.FadingOut;
+    }
+
+    /// <summary>The shade of the fade to black's step at counter value <paramref name="value"/>.</summary>
+    private PictureShade FadingOutShade(int value) => fadingOutFrom switch
+    {
+        KraidBackdropShows.RoomColours => KraidShades.BackdropFadingOutFromRoomColours(fadingOutOrigin, value),
+        KraidBackdropShows.FadingInFromRoomColours => KraidShades.BackdropFadingOutFromFadingIn(fadingOutOrigin, value),
+        _ => KraidShades.BackdropFadingOut(value),
+    };
 
     /// <summary>Completes the running fade: the backdrop shows the colours it faded to.</summary>
     /// <exception cref="InvalidOperationException">No fade is running.</exception>
@@ -94,7 +127,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
                 frame.Shade(GameplayPictures.Room, KraidShades.Backdrop);
                 return;
             case KraidBackdropShows.FadingOut:
-                frame.Shade(GameplayPictures.Room, KraidShades.BackdropFadingOut(Steps));
+                frame.Shade(GameplayPictures.Room, FadingOutShade(Steps));
                 return;
             case KraidBackdropShows.Black:
                 frame.Shade(GameplayPictures.Room, KraidShades.BackdropFadingOut(KraidShades.BackdropFadeShades - 1));

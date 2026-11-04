@@ -40,6 +40,19 @@ internal static class KraidBackdropShades
             shades.Add(SheetShade.Run(KraidShades.BackdropFadingOut(value), FirstInk, Faded(backdrop, black, value)));
             shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromBlack(value), FirstInk, Faded(black, backdrop, value)));
         }
+        // Kraid may die before his growth fades the backdrop in, or during that fade: the fade to black then starts from
+        // the room's colours at whatever value the shared counter holds, or continues the growth fade's counter from the
+        // colours its last step showed.
+        for (int first = 0; first < KraidShades.BackdropFadeShades; first++)
+        {
+            for (int value = first; value < KraidShades.BackdropFadeShades; value++)
+                shades.Add(SheetShade.Run(KraidShades.BackdropFadingOutFromRoomColours(first, value), FirstInk,
+                    Faded(room, black, first, value)));
+            RgbColor[] fadingIn = Faded(room, backdrop, first);
+            for (int value = first + 1; value < KraidShades.BackdropFadeShades; value++)
+                shades.Add(SheetShade.Run(KraidShades.BackdropFadingOutFromFadingIn(first, value), FirstInk,
+                    Faded(fadingIn, black, first + 1, value)));
+        }
         return shades;
     }
 
@@ -47,13 +60,19 @@ internal static class KraidBackdropShades
     /// Each of <paramref name="from"/>'s colours after the fade's steps toward <paramref name="to"/>'s from the shared
     /// counter's zero through <paramref name="value"/>.
     /// </summary>
-    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int value)
+    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int value) => Faded(from, to, 0, value);
+
+    /// <summary>
+    /// Each of <paramref name="from"/>'s colours after the fade's steps toward <paramref name="to"/>'s at the shared
+    /// counter's values <paramref name="first"/> through <paramref name="last"/>.
+    /// </summary>
+    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int first, int last)
     {
         var faded = new RgbColor[from.Length];
         for (int colour = 0; colour < faded.Length; colour++)
         {
             RgbColor current = from[colour];
-            for (int step = 0; step <= value; step++)
+            for (int step = first; step <= last; step++)
                 current = GradualColourFade.Step(step, current, to[colour], Denominator);
             faded[colour] = current;
         }

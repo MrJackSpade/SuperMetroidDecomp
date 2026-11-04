@@ -33,6 +33,24 @@ public static class KraidShades
     /// <summary>The backdrop after the step of counter value <paramref name="value"/> of its fade from Kraid's colours to black.</summary>
     public static PictureShade BackdropFadingOut(int value) => new("kraid-backdrop-fading-out", value);
 
+    /// <summary>
+    /// The backdrop after the step of counter value <paramref name="value"/> of its fade to black from the room's colours,
+    /// which began at counter value <paramref name="first"/>: Kraid died before his growth faded the backdrop in.
+    /// </summary>
+    public static PictureShade BackdropFadingOutFromRoomColours(int first, int value) =>
+        new("kraid-backdrop-fading-out-from-room-colours", Pair(first, value));
+
+    /// <summary>
+    /// The backdrop after the step of counter value <paramref name="value"/> of its fade to black from the colours step
+    /// <paramref name="lastFadeIn"/> of his growth fade showed: Kraid died during that fade, which the fade to black
+    /// continues the shared counter of.
+    /// </summary>
+    public static PictureShade BackdropFadingOutFromFadingIn(int lastFadeIn, int value) =>
+        new("kraid-backdrop-fading-out-from-fading-in", Pair(lastFadeIn, value));
+
+    /// <summary>One shade step naming two counter values of a fade.</summary>
+    private static int Pair(int first, int value) => first * BackdropFadeShades + value;
+
     /// <summary>The backdrop after the step of counter value <paramref name="value"/> of its fade from black into Kraid's colours.</summary>
     public static PictureShade BackdropFadingInFromBlack(int value) => new("kraid-backdrop-fading-in-from-black", value);
 }

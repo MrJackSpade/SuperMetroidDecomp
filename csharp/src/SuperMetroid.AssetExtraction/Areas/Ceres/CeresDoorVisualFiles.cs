@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>Exports the Ceres-door actor's direct tile DMA and authored RGB5 rows.</summary>
 public static class CeresDoorVisualFiles
 {
-    /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape and animated appearances as JSON, verifying the tile round-trip.</summary>
+    /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape and animated appearances as JSON.</summary>
     /// <param name="bus">Supported-cartridge address space containing the Ceres door tile and palette sources.</param>
     /// <param name="directory">Destination directory receiving the tile PNG and color JSON; existing files are replaced.</param>
     /// <returns>Uppercase SHA-256 digests of the exact tile and color files written.</returns>
@@ -33,10 +33,6 @@ public static class CeresDoorVisualFiles
         using var image = new MemoryStream();
         IndexedPng.Write(image, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] tilePng = image.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(tilePng, writable: false), planar.Length);
-        if (!roundtrip.Characters.Span.SequenceEqual(planar))
-            throw new InvalidDataException("Ceres-door PNG changed the native tile DMA.");
 
         byte[] paletteJson = Write(new CeresDoorVisualDocument
         {

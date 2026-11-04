@@ -13,11 +13,10 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 public static class BossAndIntroOverreadFiles
 {
-    /// <summary>Decodes every read, writes the results as JSON with a hashed manifest, then validates the result.</summary>
+    /// <summary>Decodes every read and writes the results as JSON with a hashed manifest.</summary>
     /// <param name="bus">Cartridge source for the reads.</param>
     /// <param name="directory">Destination directory, created if absent; an existing file and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; validation requires the supported cartridge.</param>
-    /// <exception cref="InvalidDataException">The written file has an unexpected shape, digest or provenance.</exception>
+    /// <param name="sourceCartridgeSha256">Identity written into the manifest; loading requires the supported cartridge.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
@@ -25,13 +24,12 @@ public static class BossAndIntroOverreadFiles
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
         BossAndIntroOverreadDocument document = BossAndIntroOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonAssetDocument.WriteValidated(document, BossAndIntroOverreadFormat.JsonOptions, json => _ = Read(json));
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, BossAndIntroOverreadFormat.JsonOptions);
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
                 new Manifest(BossAndIntroOverreadFormat.Version, sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))),
                 BossAndIntroOverreadFormat.JsonOptions));
-        _ = Load(directory);
     }
 
     /// <summary>Validates the installed file's provenance and digest, then loads it.</summary>

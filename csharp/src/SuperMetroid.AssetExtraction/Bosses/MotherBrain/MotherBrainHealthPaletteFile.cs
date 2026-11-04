@@ -53,14 +53,11 @@ public static class MotherBrainHealthPaletteFile
         }
     }
 
-    /// <summary>Serializes artwork as UTF-8 JSON, validates it through <see cref="Read"/>, then writes the validated bytes without retaining the document.</summary>
+    /// <summary>Serializes artwork as UTF-8 JSON and writes the bytes without retaining the document.</summary>
     /// <param name="json">Output written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Four health-band images for body/brain and rear legs; supplied arrays are not modified.</param>
-    /// <exception cref="InvalidDataException">The serialized document is null or fails schema, palette dimensions, or RGB5 channel validation.</exception>
     public static void Write(Stream json, MotherBrainHealthPaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
     }
 }

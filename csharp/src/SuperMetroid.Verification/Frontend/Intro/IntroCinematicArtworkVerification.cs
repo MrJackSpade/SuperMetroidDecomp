@@ -429,8 +429,7 @@ internal static class IntroCinematicArtworkVerification
                         document.Pages[0].Cells[cell] = document.Pages[0].Cells[cell] with
                         { TileColumn = 0, TileRow = 0, Palette = 7, Priority = true };
                 using (var output = File.Create(overridePath))
-                    RoomBackgroundTilemapAtlas.Write(output, document,
-                        IntroCinematicArtworkFormat.BackgroundPageByteCount);
+                    RoomBackgroundTilemapAtlas.Write(output, document);
 
                 IntroCinematicSourceArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
@@ -500,8 +499,7 @@ internal static class IntroCinematicArtworkVerification
                     TileColumn = (original.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
                 };
                 using (var output = File.Create(overridePath))
-                    RoomBackgroundTilemapAtlas.Write(output, document,
-                        IntroCinematicArtworkFormat.BackgroundPageByteCount);
+                    RoomBackgroundTilemapAtlas.Write(output, document);
 
                 IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();

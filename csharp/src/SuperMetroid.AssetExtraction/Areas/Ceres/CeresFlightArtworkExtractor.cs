@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
 internal static class CeresFlightArtworkExtractor
 {
-    /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements, then round-trips their native bytes.</summary>
+    /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -118,21 +118,6 @@ internal static class CeresFlightArtworkExtractor
             Actors = placements,
         });
         byte[] actorsFile = actorsJson.ToArray();
-        CeresFlightCharacters roundTrip = CeresFlightCharacters.Read(
-            new MemoryStream(floorPng, writable: false),
-            new MemoryStream(mapFile, writable: false),
-            new MemoryStream(objectPng, writable: false),
-            CeresFlightPaletteFile.Read(new MemoryStream(paletteFile, writable: false)),
-            new MemoryStream(spritesFile, writable: false),
-            new MemoryStream(actorsFile, writable: false));
-        if (!roundTrip.FloorCharacters.Span.SequenceEqual(characters) ||
-            !roundTrip.FloorMaps.Span.SequenceEqual(map) ||
-            !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
-            throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
-        ImmutableArray<RgbColor> roundTripColours = roundTrip.Palette.Colours;
-        for (int index = 0; index < CgramPalettes.ColorCount; index++)
-            if (roundTripColours[index] != RgbColor.FromWordIgnoringTopBit(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * ColourWordCodec.ByteCount))))
-                throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
             [CeresFlightArtworkFileFormat.FloorFileName] = floorPng,

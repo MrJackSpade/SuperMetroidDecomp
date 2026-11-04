@@ -24,7 +24,7 @@ public static class RoomBackgroundTilemapArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying the compressed background tilemaps.</param>
     /// <param name="directory">Output directory, created if needed; resource and manifest filenames must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 stored with the tilemaps, their one- or two-page lengths, and file hashes.</param>
-    /// <remarks>Preserves ordered 32x32 BG pages with exact native-word roundtrips; does not read or write player overrides.</remarks>
+    /// <remarks>Preserves ordered 32x32 BG pages; does not read or write player overrides.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {

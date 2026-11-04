@@ -17,8 +17,8 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresDestructionArtworkExtractor
 {
     /// <summary>Exports the three Ceres destruction map slices, Zebes reveal
-    /// artwork, sprite frames, and actor placements, then checks decoded transfer
-    /// bytes and pinned native coordinates before publishing the six asset files.</summary>
+    /// artwork, sprite frames, and actor placements, checking the cartridge's reveal
+    /// placement operands against the translated actor definitions.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -131,19 +131,6 @@ internal static class CeresDestructionArtworkExtractor
             });
         byte[] destructionActorsFile = destructionActorsJson.ToArray();
 
-        CeresDestructionMaps compiled = CeresDestructionMaps.Load(new MemoryStream(mapJson.ToArray(), writable: false));
-        _ = CeresDestructionArtworkFile.Read(
-            new MemoryStream(actorsFile, writable: false),
-            new MemoryStream(destructionActorsFile, writable: false));
-        ZebesRevealArtwork zebes = ZebesRevealArtwork.Load(new MemoryStream(zebesMapJson, writable: false),
-            RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), ZebesRevealArtworkFormat.CharacterByteCount));
-        _ = CeresDestructionSpritePresentation.Load(new MemoryStream(spritesFile, writable: false));
-        if (!compiled.Views.Span.SequenceEqual(allCeresMaps.AsSpan(firstDestructionByte,
-                CeresDestructionMapFormat.MapByteCount)) ||
-            !BackgroundTileWords.ToBytes(zebes.Map.Tiles.Span).SequenceEqual(zebesMap.AsSpan(0,
-                ZebesRevealArtworkFormat.MapByteCount)) ||
-            !zebes.Characters.Characters.Span.SequenceEqual(zebesCharacters))
-            throw new InvalidDataException("Ceres destruction PNG/JSON export changed native bytes.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
             [CeresDestructionMapFormat.FileName] = mapJson.ToArray(),

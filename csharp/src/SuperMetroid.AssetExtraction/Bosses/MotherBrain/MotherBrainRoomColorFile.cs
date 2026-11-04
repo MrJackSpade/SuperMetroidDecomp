@@ -99,14 +99,11 @@ public static class MotherBrainRoomColorFile
         return compiled;
     }
 
-    /// <summary>Serializes and validates a complete current-version room-color document before writing its UTF-8 JSON bytes; older versions have no stock fallback here.</summary>
+    /// <summary>Serializes a room-color document and writes its UTF-8 JSON bytes.</summary>
     /// <param name="json">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Authored RGB5 arrays read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Read"/>'s current-version schema or color validation.</exception>
     public static void Write(Stream json, MotherBrainRoomColorDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
     }
 }

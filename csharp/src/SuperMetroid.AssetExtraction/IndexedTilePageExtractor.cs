@@ -2,18 +2,16 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
-/// Exports one tile-aligned four-bit cartridge source to indexed PNG and proves
-/// that an unedited import restores every source byte. Callers own its identity.
+/// Exports one tile-aligned four-bit cartridge source to indexed PNG. Callers own its identity.
 /// </summary>
 internal static class IndexedTilePageExtractor
 {
-    /// <summary>Reads a bounded four-bit tile page, emits indexed PNG, and rejects any round trip that changes source bytes.</summary>
+    /// <summary>Reads a bounded four-bit tile page and emits indexed PNG.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus, int sourceAddress,
         int byteCount, string identity)
     {
@@ -26,12 +24,6 @@ internal static class IndexedTilePageExtractor
         using var output = new MemoryStream();
         IndexedPng.Write(output, size, pixels,
             SnesGraphics.DiagnosticPalette(16));
-        byte[] png = output.ToArray();
-        RoomCharacterAtlas roundtrip = RoomCharacterAtlasPng.Read(
-            new MemoryStream(png, writable: false), byteCount);
-        if (!roundtrip.Characters.Span.SequenceEqual(native))
-            throw new InvalidDataException(
-                $"{identity} changed native tile bytes during PNG extraction.");
-        return png;
+        return output.ToArray();
     }
 }

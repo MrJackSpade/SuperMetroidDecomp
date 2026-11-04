@@ -57,6 +57,9 @@ internal sealed class PendingResolver
     /// <summary>The sheets graphics <paramref name="key"/> stands for can name.</summary>
     public IReadOnlySet<Destination> Resolve(PendingKey key) => Resolve(key, []);
 
+    /// <summary>The sheets the handlers of a behaviour (or, outside every behaviour, a type) switch graphics to.</summary>
+    public IReadOnlySet<Destination> ReassignedFor(INamedTypeSymbol scope) => Reassigned(scope, []);
+
     /// <summary>The sheets each type's handlers switch the graphics of the objects its code spawns to.</summary>
     public IEnumerable<(INamedTypeSymbol Type, IReadOnlySet<Destination> Destinations)> Reassignments()
     {

@@ -103,6 +103,8 @@ internal sealed class Walk
     private readonly HashSet<Unit> _own = [];
     private readonly HashSet<Unit> _foreign = [];
     private readonly HashSet<Unit> _recorded = [];
+    private readonly Dictionary<Unit, HashSet<Unit>> _callers = [];
+    private readonly Dictionary<Unit, Collected> _helperEvidence = [];
     private readonly Queue<(Unit Unit, WalkContext Context)> _pending = new();
 
     /// <summary>
@@ -117,6 +119,9 @@ internal sealed class Walk
         _family = family;
         _definition = definition;
     }
+
+    /// <summary>The behaviour the walk is for, or null for a family's walk or the walk outside every behaviour.</summary>
+    public INamedTypeSymbol? Behaviour => _behaviour;
 
     /// <summary>The enemy frames the walk's own code names, and the families it constructs or starts (whose frames it shows too).</summary>
     public Collected Own { get; } = new();
@@ -134,8 +139,9 @@ internal sealed class Walk
     public List<CallRecord> Calls { get; } = [];
 
     /// <summary>
-    /// The sheets graphics are reassigned to by code of each type that spawns nothing itself (a cue or frame-behaviour
-    /// handler switching an object's graphics): any object that type's code spawns may draw from them.
+    /// The sheets graphics are reassigned to by code that spawns nothing itself (a cue or frame-behaviour handler switching
+    /// an object's graphics), keyed by the behaviour whose walk runs it, or outside every behaviour by the code's type: any
+    /// object that behaviour's (or type's) code spawns may draw from them.
     /// </summary>
     public Dictionary<INamedTypeSymbol, HashSet<Destination>> Reassigned { get; } = new(SymbolEqualityComparer.Default);
 
@@ -183,6 +189,62 @@ internal sealed class Walk
             foreach (Unit target in scan.Targets)
                 Reach(target, context, viaDispatch: false, origin: unit);
         }
+        RouteHelperEvidence();
+    }
+
+    /// <summary>
+    /// Sends what code that spawns nothing itself names (a helper choosing a kind, a frame table) to every sheet its
+    /// callers' spawns name too: the helper's value is what they spawn, as a laser's kind chosen by its definition's
+    /// helper is spawned by the robot's spawn call and drawn under the graphics that call and its reassignments give.
+    /// </summary>
+    private void RouteHelperEvidence()
+    {
+        var sinks = new Dictionary<Unit, HashSet<Collected>>();
+        foreach ((Unit helper, Collected evidence) in _helperEvidence)
+        {
+            foreach (Collected collected in SpawningCallersOf(helper, sinks, []))
+                Merge(collected, evidence);
+        }
+    }
+
+    /// <summary>
+    /// The collections the nearest spawning callers of <paramref name="unit"/> spawn into, climbing through callers that
+    /// spawn nothing themselves; memoized per unit.
+    /// </summary>
+    private HashSet<Collected> SpawningCallersOf(Unit unit, Dictionary<Unit, HashSet<Collected>> sinks, HashSet<Unit> visiting)
+    {
+        if (sinks.TryGetValue(unit, out HashSet<Collected>? known))
+            return known;
+        var collections = new HashSet<Collected>(ReferenceEqualityComparer.Instance);
+        if (!visiting.Add(unit))
+            return collections;
+        foreach (Unit caller in _callers.GetValueOrDefault(unit) ?? [])
+        {
+            UnitScan scan = ScanOf(caller);
+            if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+            {
+                collections.UnionWith(SpawningCallersOf(caller, sinks, visiting));
+                continue;
+            }
+            foreach (SpawnTarget target in scan.UnitTargets)
+            {
+                if (Collect(caller, target) is { } collected)
+                    collections.Add(collected);
+            }
+        }
+        visiting.Remove(unit);
+        // Every unit's answer is kept, so no caller chain is climbed twice; inside a cycle a unit misses only what its
+        // still-open ancestors' own callers spawn into, which those ancestors receive themselves.
+        sinks.TryAdd(unit, collections);
+        return collections;
+    }
+
+    /// <summary>Adds everything <paramref name="source"/> names to <paramref name="target"/>.</summary>
+    private static void Merge(Collected target, Collected source)
+    {
+        target.ProjectileFrames.UnionWith(source.ProjectileFrames);
+        target.SpriteObjects.UnionWith(source.SpriteObjects);
+        target.Families.UnionWith(source.Families);
     }
 
     /// <summary>Reaches <paramref name="unit"/> from code running in <paramref name="context"/>, and every implementation it dispatches to.</summary>
@@ -191,6 +253,12 @@ internal sealed class Walk
         INamedTypeSymbol type = unit.Type;
         if (_model.IsTable(type))
             return;
+        if (origin is { } calling)
+        {
+            if (!_callers.TryGetValue(unit, out HashSet<Unit>? callers))
+                _callers.Add(unit, callers = []);
+            callers.Add(calling);
+        }
         WalkContext entered = context;
         if (_model.FamilyOf(type) is { } family)
         {
@@ -202,6 +270,8 @@ internal sealed class Walk
                     foreach (SpawnTarget target in scan.UnitTargets)
                         Collect(spawner, target)?.Families.Add(family);
                     Evidence(spawner).Families.Add(family);
+                    if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+                        Of(_helperEvidence, spawner).Families.Add(family);
                     if (context == WalkContext.Own)
                         Own.Families.Add(family);
                     Spawners.Add(spawner);
@@ -262,10 +332,11 @@ internal sealed class Walk
                 if (target.Source == GraphicsSource.Inherited)
                     continue;
                 (Destination? destination, PendingKey? pending) = Resolve(unit, target, graphics);
+                INamedTypeSymbol switching = _behaviour ?? unit.Type;
                 if (destination is { } sheet)
-                    Of(Reassigned, unit.Type).Add(sheet);
+                    Of(Reassigned, switching).Add(sheet);
                 if (pending is { } decided)
-                    Of(ReassignedPending, unit.Type).Add(decided);
+                    Of(ReassignedPending, switching).Add(decided);
             }
         }
     }
@@ -302,6 +373,8 @@ internal sealed class Walk
             return;
         Spawners.Add(unit);
         add(Evidence(unit));
+        if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+            add(Of(_helperEvidence, unit));
         foreach (SpawnTarget target in scan.TargetsOf(member))
         {
             if (Collect(unit, target) is { } collected)

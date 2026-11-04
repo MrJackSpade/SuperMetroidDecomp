@@ -83,10 +83,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.FrameHold = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {
-                Enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, graphicsSet);
-                SpriteGraphics indexes = Enemies.GraphicsSet.DrawIndexes(Actor.DefinitionId);
-                Actor.TileIndexBase = indexes.TileBase;
-                Actor.Shading = indexes.Shading;
+                Enemies.GraphicsSet.LoadGraphicsSet(graphicsSet);
+                Actor.Shading = PictureShading.Standard;
             }
             if (golden)
             {

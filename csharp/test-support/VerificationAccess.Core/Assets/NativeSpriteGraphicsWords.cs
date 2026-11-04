@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Assets;
@@ -18,10 +19,25 @@ internal static class NativeSpriteGraphicsWords
     public static int PaletteRow(ushort paletteBits) => SnesObjAttributeWordConstants.FromPaletteBits(paletteBits).PaletteIndex;
 
     /// <summary>
-    /// <paramref name="graphics"/> as the cartridge's graphics word holds it: the tile base in the character field and
-    /// <paramref name="paletteRow"/>, the row holding its colours, in the palette field, the word the native writers add
-    /// to and OR into each part's attributes.
+    /// The cartridge's graphics word for character index <paramref name="tileBase"/> in palette row
+    /// <paramref name="paletteRow"/>: the word the native writers add to and OR into each part's attributes.
     /// </summary>
+    public static ushort GraphicsWord(int tileBase, int paletteRow) =>
+        SnesObjAttributeWord.Create(tileNumber: tileBase, paletteIndex: paletteRow, priority: 0).Raw;
+
+    /// <summary>
+    /// <paramref name="graphics"/> as the cartridge's graphics word holds it, for graphics drawing from the shared sheet,
+    /// which the cartridge draws from character zero, in palette row <paramref name="paletteRow"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException">The graphics draw from a spawner's sheet, whose index the import's layout gives.</exception>
     public static ushort GraphicsWord(SpriteGraphics graphics, int paletteRow) =>
-        SnesObjAttributeWord.Create(tileNumber: graphics.TileBase, paletteIndex: paletteRow, priority: 0).Raw;
+        graphics.Owner == SpawnedObjectOwner.Shared ? GraphicsWord(0, paletteRow)
+            : throw new ArgumentException($"Graphics drawing from {graphics.Owner}'s sheet need the loaded set's layout.", nameof(graphics));
+
+    /// <summary>
+    /// <paramref name="graphics"/> as the cartridge's graphics word holds it under <paramref name="enemies"/>' loaded set:
+    /// the character index the import lays their owner's objects out at, in palette row <paramref name="paletteRow"/>.
+    /// </summary>
+    public static ushort GraphicsWord(SpriteGraphics graphics, SuperMetroid.Core.World.RoomEnemySystem enemies, int paletteRow) =>
+        GraphicsWord(graphics.NativeTileBaseIn(enemies), paletteRow);
 }

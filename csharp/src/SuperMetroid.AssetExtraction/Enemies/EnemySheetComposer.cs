@@ -100,20 +100,24 @@ internal static class EnemySheetComposer
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
                 SpawnedObjectSheetPlan plan = sheet.Plan;
-                string name = names.Of(sheet.Layout, $"Spawned-{plan.TileBase:X3}");
-                bases.Add(plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), new SpawnedObjectSheetDocument
+                string name = names.Of(sheet.Layout, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}");
+                // Every owner the game names the sheet by finds it under its own name.
+                foreach (string owner in plan.AlsoOwnedBy.Prepend(plan.Owner).Select(SpawnedObjectOwnerNames.Name))
                 {
-                    Sheet = name,
-                    Palette = plan.Palette,
-                    Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
-                    Anywhere = plan.Anywhere,
-                });
-                if (sheet.Pictures.Count > 0)
-                    basePictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
-                if (sheet.RotPictures.Count > 0)
-                    baseRotPictures[plan.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture)] =
-                        new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
+                    bases.Add(owner, new SpawnedObjectSheetDocument
+                    {
+                        Sheet = name,
+                        Palette = plan.Palette,
+                        Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
+                        Anywhere = plan.Anywhere,
+                    });
+                    if (sheet.Pictures.Count > 0)
+                        basePictures[owner] =
+                            new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
+                    if (sheet.RotPictures.Count > 0)
+                        baseRotPictures[owner] =
+                            new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
+                }
             }
             spawned.Add(set.Name, bases);
             if (basePictures.Count > 0)
@@ -236,7 +240,7 @@ internal static class EnemySheetComposer
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
-            [.. SpawnedObjectSheetComposer.Plans(loaded.Graphics, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
+            [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
                 SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours.SpriteColours, loaded.Shades,
                     loaded.Colours.RowOf))]);
     }
@@ -244,20 +248,20 @@ internal static class EnemySheetComposer
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
     private static IEnumerable<EnemySheetSource> EnemySources(EnemySheetInputs inputs, LoadedGraphicsSet loaded)
     {
-        EnemyGraphicsSet graphics = loaded.Graphics;
+        GraphicsSetCharacterLayout layout = loaded.Layout;
         RgbColor[] colours = loaded.Colours.SpriteColours;
         foreach (EnemyDefinitionId enemy in loaded.Drawn)
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
-            SpriteGraphics indexes = graphics.DrawIndexes(enemy);
+            int tileBase = layout.TileBaseOf(enemy);
             // The sheet is coloured in the row the set loads, or the enemy's initialization selects, its colours in.
             int paletteBits = loaded.Colours.RowOf(enemy);
             (IReadOnlyList<SheetShade> fixedShades, IReadOnlyList<SheetRowShade> rowShades) = loaded.Shades.Fixed(enemy);
             var pictures = new Dictionary<string, CharacterRange[][]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)indexes.TileBase), loaded.Characters,
+            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters,
                 CorpseRotSimulation.Rots(enemy)))
             {
                 frames.AddRange(framePictures.Sources);
@@ -282,11 +286,9 @@ internal static class EnemySheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
-        var graphics = new EnemyGraphicsSet(new EnemyRoomBinding(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { TileArtwork = inputs.Enemies },
-            CompiledRoomEnemyDefinitions.Instance, services: null));
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set);
+        GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(set);
         LoadedSetColours colours = LoadedSetColours.Of(inputs, set);
-        List<EnemyDefinitionId> members = [.. graphics.Entries.Select(entry => entry.DefinitionId)];
+        List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId)];
         IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
@@ -297,25 +299,25 @@ internal static class EnemySheetComposer
         EnemyDefinitionId[] drawn = [.. loaded, .. spawned];
         IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
         var regions = new SetRegions(SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Of(set), [.. corpses.Where(corpse => corpse.Kind is null)]);
-        return new LoadedGraphicsSet(graphics, new SetCharacters(Table(inputs, graphics), regions, inputs,
+        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), regions, inputs,
             [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
     }
 
     /// <summary>A room graphics set as a room load leaves it.</summary>
-    /// <param name="Graphics">Its enemy graphics, which give each enemy's tile base.</param>
+    /// <param name="Layout">Where its members' tiles land, which gives each enemy's character index.</param>
     /// <param name="Characters">Its OBJ characters, as its room load and its encounters' uploads leave them.</param>
     /// <param name="Colours">Its sprite colours and the row each enemy drawn under it draws in.</param>
     /// <param name="Shades">The shades its sheets are pre-coloured in.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
-    private sealed record LoadedGraphicsSet(EnemyGraphicsSet Graphics, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
+    private sealed record LoadedGraphicsSet(GraphicsSetCharacterLayout Layout, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
         IReadOnlyList<EnemyDefinitionId> Drawn);
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
-    private static byte[] Table(EnemySheetInputs inputs, EnemyGraphicsSet graphics)
+    private static byte[] Table(EnemySheetInputs inputs, GraphicsSetCharacterLayout layout)
     {
         var table = new byte[SpriteCharacterTableLayout.TableByteCount];
         inputs.StandardObjects.Span.CopyTo(table);
-        foreach (RoomEnemyGraphicsSetEntry entry in graphics.Entries)
+        foreach (GraphicsSetMemberCharacters entry in layout.Members)
         {
             ReadOnlyMemory<byte> tiles = inputs.Enemies.TilesOf(entry.DefinitionId);
             if (tiles.Length != entry.TileByteCount)

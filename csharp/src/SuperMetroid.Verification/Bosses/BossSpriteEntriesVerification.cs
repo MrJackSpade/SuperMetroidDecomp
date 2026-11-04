@@ -45,7 +45,7 @@ internal static class BossSpriteEntriesVerification
         enemies.DeadTorizoBehavior.DrawDeadTorizoHook(sprites, DeadTorizoCamera);
         sprites.FinalizeFrame();
         // The hook draws one picture per layer of its frame, each for what the rotting rows it reads show.
-        SpriteImage hookSheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.CorpseTorizo), 0).Sheet.Image;
+        SpriteImage hookSheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.CorpseTorizo), SpawnedObjectOwner.Shared).Sheet.Image;
         AssertTrue(sprites.Draws.Length > 0, "Dead Torizo's hook draws");
         foreach (SpriteDraw corpse in sprites.Draws)
         {
@@ -84,7 +84,7 @@ internal static class BossSpriteEntriesVerification
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var resolver = new EnemyTileTransfers(artwork);
         ReadOnlyMemory<byte> evirTiles = artwork.Enemies.TilesOf(EnemyDefinitionId.Evir);
-        AssertTrue(evirTiles.Length == RoomEnemyHeaders.Get(EnemyDefinitionId.Evir).TileByteCount &&
+        AssertTrue(evirTiles.Length == SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir] &&
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
         var uploads = new SpriteArtworkPlacements();

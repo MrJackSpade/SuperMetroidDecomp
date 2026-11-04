@@ -21,13 +21,12 @@ internal static class FrozenMetroidShellVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         // The shell draws as a Metroid room loads it: at the Metroid's tile base and in its palette.
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
-        SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Metroid);
+        enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid));
+        int tileBase = enemies.GraphicsSet.TileBaseOf(EnemyDefinitionId.Metroid);
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
-        slot.TileIndexBase = indexes.TileBase;
-        slot.Shading = indexes.Shading;
+        slot.Shading = PictureShading.Standard;
         slot.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
@@ -52,7 +51,7 @@ internal static class FrozenMetroidShellVerification
         var expected = new OamBuffer();
         expected.BeginFrame();
         expected.AddEnemySpritemap(parts, new Position16<SpritePixels>(120, 100), 0x0c00,
-            checked((ushort)indexes.TileBase));
+            checked((ushort)tileBase));
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {

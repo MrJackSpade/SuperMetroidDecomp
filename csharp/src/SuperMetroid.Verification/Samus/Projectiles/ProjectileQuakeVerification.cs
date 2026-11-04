@@ -62,7 +62,7 @@ internal static class ProjectileQuakeVerification
                 {
                     Bank = 0x8d, Pointer = nativeSpritemap, Origin = new(x, y),
                     PaletteBits = SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(actor.Graphics.PaletteRowIn(enemies)),
-                    BaseTileIndex = unchecked((byte)actor.Graphics.TileBase), ClipVerticalWrap = false,
+                    BaseTileIndex = unchecked((byte)actor.Graphics.NativeTileBaseIn(enemies)), ClipVerticalWrap = false,
                     OriginYIsOnScreen = (LittleEndianBytes.HighByte(y)) == 0,
                 });
             expected.FinalizeFrame();

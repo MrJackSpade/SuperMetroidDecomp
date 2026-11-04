@@ -202,7 +202,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.DroolNoDelay));
 
         int random;
@@ -334,7 +334,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.BombTorizoChozoOrb,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
 
         InitializeTorizoRandomizedProjectile(
             projectile,
@@ -366,7 +366,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
 
         projectile.Position = projectile.Position.WithWrappedWholeY(
             torizo.Position.Y.Whole + ((_room.Random.Generate() & 1) != 0 ? -12 : 20));
@@ -394,7 +394,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
@@ -412,7 +412,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEgg,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
 
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
         projectile.State = new GoldenTorizoEggState(facingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight));
@@ -433,7 +433,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
         bool facingRight = _access.FacesRight(torizo);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(torizo.Position.X.Whole + (facingRight ? 30 : -30)), CoordinateAxis.Wrap(torizo.Position.Y.Whole - 52)));
         projectile.StartAnimation(new TorizoProjectileAnimation(facingRight ? TorizoProjectileProgram.SuperMissileRightInitial : TorizoProjectileProgram.SuperMissileLeftInitial));
@@ -449,7 +449,7 @@ internal sealed class TorizoAttacks
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-            torizo.Graphics);
+            SpriteGraphics.SpawnedBy(torizo));
         bool facingRight = _access.FacesRight(torizo);
         InitializeTorizoRandomizedProjectile(
             projectile,

@@ -114,7 +114,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
-        var records = new List<RoomEnemyGraphicsSetHeader>();
+        var records = new List<RoomEnemyGraphicsSetMember>();
         for (int slot = 0; slot <= 4; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
@@ -123,8 +123,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
-            records.Add(RoomEnemyGraphicsSetHeader.FromNative(
-                definitionPointer, ReadFixtureWord(cursor + 2)));
+            records.Add(new RoomEnemyGraphicsSetMember(definitionPointer));
             cursor += 4;
         }
         throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");
@@ -136,7 +135,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     /// as that set, as the game's room loader would.
     /// </summary>
     /// <exception cref="InvalidDataException">Retail sets holding these records catalogue different palette rows.</exception>
-    private static RoomEnemyGraphicsSetDefinition? RetailSetOf(List<RoomEnemyGraphicsSetHeader> records)
+    private static RoomEnemyGraphicsSetDefinition? RetailSetOf(List<RoomEnemyGraphicsSetMember> records)
     {
         RoomEnemyGraphicsSetDefinition[] matches = [.. SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists.DrawnUnder
             .Where(set => set.Records.Span.SequenceEqual(records.ToArray()))];

@@ -100,18 +100,16 @@ internal static class EnemyGameplayAcceptanceVerification
                 RoomEnemySlot body = baseline.SlotTable.Slots[index - 1];
                 AssertEqual(body.Position.X.Whole, slot.Position.X.Whole, "wing initializer retains its preceding body's X");
                 AssertEqual(body.Position.Y.Whole, slot.Position.Y.Whole, "wing initializer retains its preceding body's Y");
-                AssertEqual(body.TileIndexBase, slot.TileIndexBase, "wing initializer retains its preceding body's tile binding");
             }
         }
 
         // Each definition shows its own installed sheet (#1412): editing one body variant's sheet changes that
         // variant's uploads alone, though the cartridge's three variants share one tile source.
         EnemyDefinitionId editedPointer = EnemyDefinitionId.KihunterGreen;
-        RoomEnemyDefinition editedDefinition = RoomEnemyHeaders.Get(editedPointer);
         Directory.CreateDirectory(overridePath);
         foreach (EnemyDefinitionId alias in new[] { editedPointer })
         {
-            int tiles = editedDefinition.TileByteCount / RoomCharacterAtlasFormat.BytesPerTile;
+            int tiles = SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[editedPointer] / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
             using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(alias)));
             IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
@@ -123,7 +121,7 @@ internal static class EnemyGameplayAcceptanceVerification
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, byte[] afterCharacters) = Load(edited);
-        RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
+        SuperMetroid.AssetExtraction.Enemies.GraphicsSetMemberCharacters[] entries = [.. baseline.GraphicsSet.Entries];
         SpriteArtworkPlacement[] uploads = [.. baseline.Room.Session.SpriteLooks.Uploads];
         AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
         byte[] expectedCharacters = beforeCharacters.ToArray();

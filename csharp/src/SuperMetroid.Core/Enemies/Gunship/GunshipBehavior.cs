@@ -149,14 +149,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             ? GunshipProgram.BottomEntrancePad
             : GunshipProgram.BottomHull);
 
-        // The bottom hull reads its draw-order entry from the enemy drawing queue by slot.
-        // For the two Landing Site bottom slots that entry is the preceding
-        // slot's tile-index word. Express the alias semantically, but retain the
-        // dependency on physical slot order.
-        if (slot.SlotIndex == 0)
-            throw new InvalidDataException("Gunship bottom cannot occupy enemy slot zero.");
-        slot.TileIndexBase = _slotTable.Slots[slot.SlotIndex - 1].TileIndexBase;
-
         if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {
             // For slot two, the equally strange read lands on slot zero's Y position.

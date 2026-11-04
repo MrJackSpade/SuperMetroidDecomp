@@ -887,6 +887,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEnemyProjectileCodePointerCatalog), () => VerifyEnemyProjectileCodePointerCatalog()),
         new(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting()),
         new(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading()),
+        new(nameof(SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),
+            SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),
         .. EnemyTileArtworkSuites(),
         new(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors()),
         new(nameof(VerifySpacePirateCollisionDefinitions), () => VerifySpacePirateCollisionDefinitions()),

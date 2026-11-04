@@ -60,12 +60,12 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase)
+        public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.Spawned(set, tileBase);
-            return Set(set).Spawned.TryGetValue(tileBase, out SpawnedObjectSheet? sheet) ? sheet
-                : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no spawned-object sheet for tile base ${tileBase:X3}.");
+                return installed.Spawned(set, owner);
+            return Set(set).Spawned.TryGetValue(owner, out SpawnedObjectSheet? sheet) ? sheet
+                : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no spawned-object sheet for {owner}.");
         }
 
         /// <inheritdoc/>
@@ -85,11 +85,11 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        public IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.SpawnedLayers(set, tileBase, frame);
-            return Set(set).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
+                return installed.SpawnedLayers(set, owner, frame);
+            return Set(set).SpawnedPictures.TryGetValue(owner, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
                 && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
         }
 
@@ -103,11 +103,11 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        public string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.SpawnedRotCorpse(set, tileBase, frame);
-            return Set(set).SpawnedRotPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, string>? frames)
+                return installed.SpawnedRotCorpse(set, owner, frame);
+            return Set(set).SpawnedRotPictures.TryGetValue(owner, out IReadOnlyDictionary<string, string>? frames)
                 && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
         }
 
@@ -130,15 +130,20 @@ internal static class EnemySheetFixtures
                 pictures[enemy] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
                 rotPictures[enemy] = frameRots;
             }
-            var spawned = new Dictionary<int, SpawnedObjectSheet>();
-            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, LookRegion[][]>>();
-            var spawnedRotPictures = new Dictionary<int, IReadOnlyDictionary<string, string>>();
+            var spawned = new Dictionary<SpawnedObjectOwner, SpawnedObjectSheet>();
+            var spawnedPictures = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, LookRegion[][]>>();
+            var spawnedRotPictures = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, string>>();
             foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
-                spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"));
-                spawnedPictures[plan.TileBase] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
-                spawnedRotPictures[plan.TileBase] = frameRots;
+                var sheet = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.Owner}-{owner}"));
+                IReadOnlyDictionary<string, LookRegion[][]> named = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
+                foreach (SpawnedObjectOwner spawnedOwner in plan.AlsoOwnedBy.Prepend(plan.Owner))
+                {
+                    spawned[spawnedOwner] = sheet;
+                    spawnedPictures[spawnedOwner] = named;
+                    spawnedRotPictures[spawnedOwner] = frameRots;
+                }
             }
             return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures, regions.Coverage(set));
         }
@@ -163,9 +168,9 @@ internal static class EnemySheetFixtures
     /// <param name="SpawnedRotPictures">The same for each spawned-object sheet, by tile base.</param>
     /// <param name="Coverage">What covers each region of the set's characters.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
-        IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
+        IReadOnlyDictionary<SpawnedObjectOwner, SpawnedObjectSheet> Spawned,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, LookRegion[][]>> Pictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, LookRegion[][]>> SpawnedPictures,
+        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, LookRegion[][]>> SpawnedPictures,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>> RotPictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures, SetLookCoverage Coverage);
+        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, string>> SpawnedRotPictures, SetLookCoverage Coverage);
 }

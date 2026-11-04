@@ -15,32 +15,26 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy slots.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>The room's graphics set, which gives each enemy its tile and palette indexes.</summary>
-    private readonly EnemyGraphicsSet _graphics;
     /// <summary>Selects the slots that interact with Samus this frame.</summary>
     private readonly EnemyProcessingWindow _processingWindow;
 
-    /// <summary>Binds the room, slots, graphics set and processing window the dispatch works in.</summary>
-    internal EnemySlotDispatch(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyGraphicsSet graphics,
-        EnemyProcessingWindow processingWindow)
+    /// <summary>Binds the room, slots and processing window the dispatch works in.</summary>
+    internal EnemySlotDispatch(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyProcessingWindow processingWindow)
     {
         _room = room;
         _slotTable = slotTable;
-        _graphics = graphics;
         _processingWindow = processingWindow;
     }
 
     /// <summary>
-    /// Copies population and definition fields into a slot, resolving room graphics
-    /// indexes and recording a spawn snapshot before initialization AI runs.
+    /// Copies population and definition fields into a slot, showing its sheet's standard colours, and records a spawn
+    /// snapshot before initialization AI runs.
     /// </summary>
     internal void InitializeSlotFromDefinition(
         RoomEnemySlot slot,
         RoomEnemyPopulationRecord population,
         RoomEnemyDefinition definition)
     {
-        SpriteGraphics loaded = _graphics.FindGraphicsIndexes(population.DefinitionId);
-
         slot.Bind(population.DefinitionId, definition);
         slot.Radius = new(definition.Radius.X, definition.Radius.Y);
         slot.Health = definition.Health;
@@ -54,8 +48,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.FrameCounter = 0;
         slot.HurtAiTime = definition.HurtFlashFrames;
-        slot.Shading = loaded.Shading;
-        slot.TileIndexBase = loaded.TileBase;
+        slot.Shading = PictureShading.Standard;
         slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 

@@ -290,7 +290,7 @@ internal sealed class CrocomireCombat
         // carry. It also writes the graphics word of physical projectile slot zero rather
         // than the current slot, as the game does.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-        _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.CharacterZeroIn(CrocomireColours.ProjectileShading);
+        _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading);
         projectile.GeneralTimer = WordWrap.Unsigned(
             projectile.GeneralTimer + projectile.Velocity.X.RawValue);
 

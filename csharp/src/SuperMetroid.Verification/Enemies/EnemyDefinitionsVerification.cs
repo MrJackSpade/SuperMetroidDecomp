@@ -77,6 +77,19 @@ internal static class EnemyDefinitionsVerification
         foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
             AssertEqual(ReadNativeHeaderWords(bus, pointer), RoomEnemyDefinitionNative.Of(pointer),
                 $"verification's native words for {pointer} match the cartridge header");
+        // The tile word's low fifteen bits are the tile set's size and bit 15 its fixed-block placement, which the import
+        // alone keeps (#1513): its catalogue holds each header's size, and a fixed block for exactly the headers that set it.
+        foreach (EnemyDefinitionId pointer in referencedPointers.Concat(auxiliaryPointers))
+        {
+            ushort tileWord = ReadVerificationWord(bus, RoomEnemyRomLayout.DefinitionBank | SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(pointer));
+            AssertEqual(tileWord & 0x7fff, SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[pointer],
+                $"the import's tile set size for {pointer} is its header's");
+            AssertEqual((tileWord & 0x8000) != 0, SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.ContainsKey(pointer),
+                $"the import places {pointer}'s tiles at a fixed block exactly when its header does");
+            AssertEqual(((tileWord & 0x7fff), (tileWord & 0x8000) != 0),
+                SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer),
+                $"the importer decodes {pointer}'s tile word as the oracle does");
+        }
         // Kraid's post-hit mouth bound is a coordinate in Core (#1413); the ROM oracle confirms it is the word the
         // cartridge leaves: the native location of Kraid's vulnerability table.
         AssertEqual(RoomEnemyDefinitionNative.Of(EnemyDefinitionId.Kraid).VulnerabilityPointer,
@@ -172,12 +185,10 @@ internal static class EnemyDefinitionsVerification
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         byte bank = Byte(12);
-        // The oracle decodes the header independently: the tile word's low fifteen bits are the tile set's size and bit 15
-        // its fixed-block placement; a zero hurt byte is the standard four-frame flash; a +$2A word in the bank's ROM
-        // half is a leftover prototype pointer, not a variant.
+        // The oracle decodes the header independently: a zero hurt byte is the standard four-frame flash; a +$2A word in the
+        // bank's ROM half is a leftover prototype pointer, not a variant. The tile word is the import's (#1513).
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
-        return new RoomEnemyDefinition(Word(0) & 0x7fff,
-            (Word(0) & 0x8000) != 0 ? EnemyTilePlacement.AtFixedBlock : EnemyTilePlacement.FollowingPrevious,
+        return new RoomEnemyDefinition(
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
             SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)), AreaBossWords.Decode(Word(16)),
             EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),

@@ -132,15 +132,17 @@ internal static class EnemyExtendedFrameArtworkVerification
             {
                 RoomEnemySlot? drawn = null;
                 int drawnRow = 0;
+                int drawnBase = 0;
                 OamBuffer installed = DrawExtendedForBank(stock, frame.Bank, frame.Pointer, new(x, y), (slot, system) =>
                 {
                     drawn = slot;
                     drawnRow = slot.PaletteRowIn(system);
+                    drawnBase = slot.NativeTileBaseIn(system);
                 });
                 OamBuffer native = DrawReferenceExtendedFrame(rom,
                     frame.Bank, frame.Pointer, new(x, y),
                     NativeSpriteGraphicsWords.PaletteBits(drawn is null ? throw new InvalidOperationException("Verification requires the drawn slot.") : drawnRow),
-                    checked((ushort)drawn.TileIndexBase));
+                    checked((ushort)drawnBase));
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed extended {frame.Name} matches native OAM at {x:X4},{y:X4}");
@@ -1368,10 +1370,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         if (art is not null)
         {
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(slot.DefinitionId));
-            SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(slot.DefinitionId);
-            slot.TileIndexBase = indexes.TileBase;
-            slot.Shading = indexes.Shading;
+            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(slot.DefinitionId));
+            slot.Shading = PictureShading.Standard;
         }
         // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
         // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.

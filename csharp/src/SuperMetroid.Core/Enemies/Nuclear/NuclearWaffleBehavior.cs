@@ -70,7 +70,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);
         state.InitialHead = slot.Position.Whole;
-        state.GraphicsAttributes = slot.Graphics;
+        state.GraphicsAttributes = SpriteGraphics.SpawnedBy(slot);
 
         SpawnNuclearWaffleProjectileSegments(slot, state);
         SpawnNuclearWaffleSpriteSegments(slot, state);

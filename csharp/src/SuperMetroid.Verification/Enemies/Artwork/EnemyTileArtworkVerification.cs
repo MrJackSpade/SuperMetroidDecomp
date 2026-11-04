@@ -212,8 +212,7 @@ internal static class EnemyTileArtworkVerification
             {
                 EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(
                     Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
-                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, pointer);
-                int byteCount = definition.TileByteCount;
+                int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer).ByteCount;
                 byte[] native = ReadNativeEnemyTiles(bus, pointer, byteCount);
                 AssertTrue(stock.Enemies.TilesOf(pointer).Span.SequenceEqual(native),
                     $"enemy {pointer}'s installed tiles hold the cartridge tiles its header names");
@@ -235,8 +234,7 @@ internal static class EnemyTileArtworkVerification
             string editedFile = files[0];
             EnemyDefinitionId editedPointer = EnemyDefinitionIds.FromHeaderPointer(
                 Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16));
-            RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
-            int editedByteCount = editedDefinition.TileByteCount;
+            int editedByteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, editedPointer).ByteCount;
             int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);
             int rows = (tileCount + columns - 1) / columns;

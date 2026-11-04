@@ -380,7 +380,7 @@ internal sealed class DraygonParts
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             goop,
             RoomEnemyProjectileKind.DraygonGoop,
-            graphics: SpriteGraphics.CharacterZeroIn(DraygonColours.Goop));
+            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 

@@ -289,7 +289,7 @@ internal sealed class CrocomireSkeleton
     {
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
-        SpriteGraphics graphics = state.Body.Graphics;
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.Body);
 
         // Each piece's height follows its projectile slot. Clearing the pool immediately
         // before this call guarantees slots 17..10 and heights 56, 72, ..., 168.

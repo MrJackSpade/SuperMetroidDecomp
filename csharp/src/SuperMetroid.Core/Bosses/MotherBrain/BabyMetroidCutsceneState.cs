@@ -53,16 +53,6 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public bool HitFlashPaletteShown { get; private set; }
 
-    /// <summary>
-    /// The sheet character every Baby frame's parts count from: character 160, where the four transferred Baby tile
-    /// rows live. The original game also raised the parts' priority one step for the fatal blow by adding to this offset;
-    /// per-part priority is a presentation quirk the port does not keep (#1422).
-    /// </summary>
-    public int TileBase { get; private set; }
-
-    /// <summary>The sheet character the Baby's four transferred tile rows start at.</summary>
-    private static int BabyTileBase => EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.BabyMetroidCutscene];
-
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }
 
@@ -182,7 +172,6 @@ public sealed class BabyMetroidCutsceneState
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.RunsAnimationScript);
         HitFlashPaletteShown = false;
-        TileBase = BabyTileBase;
         SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
         HealthBasedPaletteEnabled = false;
@@ -602,7 +591,6 @@ public sealed class BabyMetroidCutsceneState
                     // The fatal-blow step changes graphics/list state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
-                    TileBase = BabyTileBase;
                     SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;

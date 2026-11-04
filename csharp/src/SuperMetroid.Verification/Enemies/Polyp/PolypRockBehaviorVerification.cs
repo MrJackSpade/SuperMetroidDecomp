@@ -28,7 +28,6 @@ internal static class PolypRockBehaviorVerification
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            TileIndexBase = 256,
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         enemies.PolypBehavior.SpawnPolypRock(source, 16, unchecked((ushort)-256));

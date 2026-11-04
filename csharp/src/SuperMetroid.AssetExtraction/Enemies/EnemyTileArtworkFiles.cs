@@ -79,8 +79,7 @@ public static class EnemyTileArtworkFiles
                 if (entries.ContainsKey(headerWord)) continue;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(headerWord);
 
-                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
-                int byteCount = definition.TileByteCount;
+                int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, definitionPointer).ByteCount;
                 int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
                 byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definitionPointer), byteCount);
@@ -460,8 +459,7 @@ public static class EnemyTileArtworkFiles
         foreach ((int manifestKey, EnemyTileFileEntry entry) in manifest.Entries)
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
-            RoomEnemyDefinition definition = RoomEnemyHeaders.Get(definitionPointer);
-            if (entry.NativeByteCount != definition.TileByteCount)
+            if (entry.NativeByteCount != EnemyTileSetDefinitions.ByteCounts[definitionPointer])
                 throw new InvalidDataException(
                     $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);

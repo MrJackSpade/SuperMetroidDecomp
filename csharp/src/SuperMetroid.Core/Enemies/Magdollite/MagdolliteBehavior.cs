@@ -775,7 +775,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.LavaThrownByMagdollite,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
 
         // The initializer copies both subpixels from the throwing overlay, starts two pixels below it, and throws the
         // lava sideways in the overlay's facing.

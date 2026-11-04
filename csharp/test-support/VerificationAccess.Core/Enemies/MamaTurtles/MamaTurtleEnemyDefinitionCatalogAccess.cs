@@ -6,8 +6,6 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
 {
     /// <summary>Compiled Mama Turtle enemy definition.</summary>
     private static readonly RoomEnemyDefinition Mama = new(
-        TileByteCount: 0x0c00,
-        TilePlacement: EnemyTilePlacement.FollowingPrevious,
         Health: 0x4e20,
         Damage: 0x00c8,
         Radius: new(0x0014, 0x0010),
@@ -31,8 +29,6 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
 
     /// <summary>Compiled baby turtle enemy definition.</summary>
     private static readonly RoomEnemyDefinition Baby = new(
-        TileByteCount: 0x0c00,
-        TilePlacement: EnemyTilePlacement.FollowingPrevious,
         Health: 0x4e20,
         Damage: 0x0000,
         Radius: new(0x0008, 0x0005),

@@ -25,7 +25,7 @@ internal sealed class GraphicsSetRows
     {
         if (resolved is not null)
             return resolved;
-        ReadOnlySpan<RoomEnemyGraphicsSetHeader> records = set.Records.Span;
+        ReadOnlySpan<RoomEnemyGraphicsSetMember> records = set.Records.Span;
         int[] recordRows = records.Length == 0 ? []
             : EnemyGraphicsSetPaletteRowDefinitions.Rows.TryGetValue(set.Name, out int[]? catalogued) ? catalogued
             : throw new InvalidDataException($"Enemy graphics set {set.Name} has no catalogued palette rows.");

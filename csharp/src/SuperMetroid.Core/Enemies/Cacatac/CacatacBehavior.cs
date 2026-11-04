@@ -200,7 +200,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns a spike projectile from the Cacatac and initializes it.
-    /// The source actor supplies both origin subpixels and its combined palette/tile index.
+    /// The source actor supplies both origin subpixels and the sheet and colours its spikes draw in.
     /// </summary>
     internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
@@ -214,7 +214,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new CacatacProjectileAnimation(program));
         projectile.Position = source.Position;
         projectile.Velocity = CacatacSpikes.Velocity(direction);

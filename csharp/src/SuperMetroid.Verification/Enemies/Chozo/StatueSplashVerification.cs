@@ -72,7 +72,7 @@ internal static class StatueSplashVerification
                         var expectedOam = new OamBuffer();
                         expectedOam.BeginFrame();
                         DrawImportedEnemyProjectileSpritemap(bus, expectedOam, NativeEnemyProjectileSpritemap(bus, splash),
-                            new(unchecked((ushort)(splashX - 32)), 164), NativeSpriteGraphicsWords.GraphicsWord(splash.Graphics, splash.Graphics.PaletteRowIn(enemies)), true);
+                            new(unchecked((ushort)(splashX - 32)), 164), NativeSpriteGraphicsWords.GraphicsWord(splash.Graphics, enemies, splash.Graphics.PaletteRowIn(enemies)), true);
                         expectedOam.FinalizeFrame();
                         var actualOam = new OamBuffer();
                         actualOam.BeginFrame();

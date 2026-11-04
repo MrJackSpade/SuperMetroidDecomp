@@ -194,7 +194,6 @@ internal static class KraidAnimationsVerification
     private static RoomEnemySlot NewRockSource() => new(0, EnemySlotFixtures.Registry)
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 224)),
-        TileIndexBase = 256,
         Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
     };
 

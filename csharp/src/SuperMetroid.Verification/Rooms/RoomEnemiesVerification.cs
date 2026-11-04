@@ -116,7 +116,7 @@ internal static void VerifyRoomEnemyLoading()
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
         new(primaryDefinitionPointer),
-        new(specialDefinitionPointer, StagingBlock: 1));
+        new(specialDefinitionPointer));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(primaryDefinitionPointer, 0x0456, 0x0789, 0, 0x2000, 0x0004, 0x1357, 0x2468));
@@ -162,29 +162,15 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
     AssertEqual<AreaBoss?>(AreaBoss.Kraid, enemies.RoomStatus.Boss, "a boss definition publishes the room's boss");
-    AssertEqual(2, enemies.GraphicsSet.Entries.Count, "terminated enemy graphics-set count");
-
-    RoomEnemyGraphicsSetEntry ordinaryGraphics = enemies.GraphicsSet.Entries[0];
-    RoomEnemyGraphicsSetEntry specialGraphics = enemies.GraphicsSet.Entries[1];
-    AssertEqual(0x0800, ordinaryGraphics.StagingOffset, "ordinary enemy staging offset");
-    AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
-    AssertEqual(2, specialGraphics.TileIndexBase,
-        "second enemy tile index includes first definition size");
-    // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
-    enemies.GraphicsSet.ShowGraphics();
-    var seededTiles = new SeededEnemyTileTransfers(enemies.TileArtwork ?? throw new InvalidOperationException("The fixture binds its seeded tiles."));
-    AssertEqual(2, enemies.Room.Session.SpriteLooks.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
-    byte[] shown = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, seededTiles).Characters.ToArray();
-    AssertEqual(0x80, shown[0x2000], "ordinary enemy first tile byte");
-    AssertEqual(0xbf, shown[0x203f], "ordinary enemy final tile byte");
-    AssertEqual(0xc0, shown[0x1a00], "special enemy first tile byte");
-    // The members' colours are their pre-coloured sheets' (#1512): the load writes no palette row.
+    // The room draws under the set it loaded, its members in record order; where their tiles land is the import's
+    // (#1513), which VerifyGraphicsSetCharacterLayout checks. The members' colours are their pre-coloured sheets' (#1512).
+    AssertEqual(2, enemies.GraphicsSet.LoadedSet.Records.Length, "terminated enemy graphics-set count");
+    AssertEqual(specialDefinitionPointer, enemies.GraphicsSet.LoadedSet.Records.Span[1].DefinitionId, "the set's members stay in record order");
 
     RoomEnemySlot slot = enemies.SlotTable.Slots[0];
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(PictureShading.Standard, slot.Shading, "a loaded slot shows its sheet's standard colours");
-    AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
@@ -199,29 +185,23 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
         "definition power-bomb reaction offset $28 names a reacting routine");
-    // The tile word decodes to the tile set's size and placement; where the tiles sit is the import's to read.
-    AssertEqual(0x0040, definition.TileByteCount, "definition tile set size, the tile word's low fifteen bits");
-    AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");
-    AssertEqual(EnemyTilePlacement.AtFixedBlock, bus.ReadEnemyDefinition(enemies.GraphicsSet.Entries[1].DefinitionId).TilePlacement,
-        "special definition tile word's bit 15 places its tiles at the record's fixed block");
+    // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size and bit 15 its placement.
+    AssertEqual((0x0040, false), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, primaryDefinitionPointer),
+        "the import decodes the definition's tile set size, the tile word's low fifteen bits, following the previous member");
+    AssertEqual((0x0020, true), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, specialDefinitionPointer),
+        "the import decodes the special definition's tile word's bit 15 as placing its tiles at a fixed block");
     AssertEqual(EnemyHeaderTables.DropChances(bus, 0xf206), definition.DropChances,
         "definition item-drop table offset $3A");
     AssertEqual(EnemyHeaderTables.Vulnerability(bus, 0xec48), definition.Vulnerability,
         "definition vulnerability table offset $3C");
 
-    // Repeating the installed-art load must preserve the same VRAM geometry while the
-    // cartridge tile sources are forbidden. The second definition exercises the native
-    // high-bit staging branch, so a single hard-coded destination cannot pass.
+    // Repeating the load with installed art while the cartridge tile sources are forbidden leaves every gameplay field.
     var installedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     var installedVram = new SnesVram();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram)));
-    installedEnemies.GraphicsSet.ShowGraphics();
-    byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteLooks, seededTiles).Characters.ToArray();
-    AssertTrue(shown.SequenceEqual(installedShown),
-        "installed enemy PNGs preserve both native ordinary and high-bit OBJ placements");
     AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
     AssertEqual(slot.Definition.Health, installedEnemies.SlotTable.Slots[0].Definition.Health,
@@ -249,7 +229,7 @@ internal static void VerifyRoomEnemyLoading()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram)));
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
-    AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
+    AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart, enemies.GraphicsSet.LoadedSet), "empty population skips graphics set");
     AssertEqual(enemies.SlotTable.Slots[0], enemies.SlotTable.FindFreeSlot(), "an empty population leaves the first slot free");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
@@ -450,7 +430,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x02,
     ]);
 
-    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetMember(definitionPointer));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 80, 64, 0, 0x2800, 0, 16, 1));
@@ -822,7 +802,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     // The set's sheets compose over the characters its upload leaves, so the fixture's tile leads a sheet as long as
     // Ridley's upload.
-    int uploadByteCount = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(definitionPointer).TileByteCount;
+    int uploadByteCount = SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[definitionPointer];
     byte[] uploadPlanar = new byte[Math.Max(uploadByteCount, fixturePlanar.Length)];
     fixturePlanar.CopyTo(uploadPlanar, 0);
     int uploadTiles = uploadPlanar.Length / RoomCharacterAtlasFormat.BytesPerTile;
@@ -1543,12 +1523,13 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
     RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidley0;
     int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet.Name];
-    ReadOnlySpan<RoomEnemyGraphicsSetHeader> ceresRidleyRecords = ceresRidleySet.Records.Span;
+    ReadOnlySpan<RoomEnemyGraphicsSetMember> ceresRidleyRecords = ceresRidleySet.Records.Span;
     for (int record = 0; record < ceresRidleyRecords.Length; record++)
     {
         int recordAddress = (0xb40000 | tilesetPointer) + record * 4;
         WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record].DefinitionId));
-        WriteTestWord(bus, recordAddress + 2, ceresRidleyRecords[record].NativePlacement(ceresRidleyRows[record]));
+        WriteTestWord(bus, recordAddress + 2, RoomEnemyGraphicsSetMember.NativePlacement(ceresRidleyRows[record],
+            SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.GetValueOrDefault(ceresRidleyRecords[record].DefinitionId)));
     }
     WriteTestWord(bus, (0xb40000 | tilesetPointer) + ceresRidleyRecords.Length * 4, 0xffff);
     for (int color = 0; color < 16; color++)
@@ -1773,21 +1754,4 @@ static void SeedCeresRidleyRoomEntryCartridge(
         Suite(nameof(VerifyCeresRidleyRoomEntry), () => VerifyCeresRidleyRoomEntry());
         return 0;
     }
-}
-
-/// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
-/// <param name="tiles">The fixture's seeded enemy artwork.</param>
-internal sealed class SeededEnemyTileTransfers(EnemyTileSourceArtwork tiles)
-    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork
-{
-    /// <inheritdoc/>
-    public EnemyTileSourceArtwork EnemyTiles => tiles;
-
-    /// <summary>Rejects animated tiles, which the loading fixture never binds.</summary>
-    public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>
-        throw new InvalidOperationException("The loading fixture binds no animated tiles.");
-
-    /// <summary>Rejects typed assets, which the fixture never queues.</summary>
-    public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) => throw new InvalidOperationException($"The loading fixture queues no asset {asset}.");
-
 }

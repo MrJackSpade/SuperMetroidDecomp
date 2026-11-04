@@ -103,7 +103,6 @@ internal sealed class MotherBrainBody
         }
 
         body.FrameHold = WrappingCountdown.Start(1);
-        body.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainBody];
         body.Properties = body.Properties.With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
@@ -385,10 +384,10 @@ internal sealed class MotherBrainBody
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            graphics: new SpriteGraphics(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, EnemyShades.HitFlashed));
+            graphics: SpriteGraphics.SharedIn(EnemyShades.HitFlashed));
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
-        beam.Graphics = SpriteGraphics.CharacterZeroIn(state.Colours.SpriteShading);
+        beam.Graphics = SpriteGraphics.SharedIn(state.Colours.SpriteShading);
         beam.Position = beam.Position.WithWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 48)));
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);

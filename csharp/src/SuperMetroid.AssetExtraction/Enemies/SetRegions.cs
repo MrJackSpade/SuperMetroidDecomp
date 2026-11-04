@@ -87,9 +87,11 @@ internal sealed class SetRegions
         }
         foreach (SpriteArtworkPlacement upload in EncounterCharacterPlacements.Catalog.All)
             Add(upload.Source, upload.FirstByte, upload.ByteCount);
-        foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, set))
-            Add(new GraphicsSetTileCharacters(entry),
-                EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteCharacterTableLayout.CharacterByteCount + entry.StagingOffset, entry.TileByteCount);
+        IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(set).Members;
+        for (int member = 0; member < members.Count; member++)
+            Add(new GraphicsSetTileCharacters(set, member),
+                EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteCharacterTableLayout.CharacterByteCount + members[member].StagingOffset,
+                members[member].TileByteCount);
         Add(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles), 0, StandardObjectArtworkFormat.ByteCount);
         LookRegion[][] rotRows = corpseRows.Count == 0 ? [] : [.. MotherBrainCorpseSheet.RotRows.Select(row =>
             Regions.Where(range => range.FirstByte >= MotherBrainCorpseSheet.RotRowFirstCharacter(row) * CharacterBytes

@@ -614,7 +614,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Audio = new EnemyAudioQueue();
         MorphBallEyeBehavior = new MorphBallEyeBehavior(Audio);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, MorphBallEyeBehavior, Room, SlotTable);
-        Dispatch = new EnemySlotDispatch(Room, SlotTable, GraphicsSet, ProcessingWindow);
+        Dispatch = new EnemySlotDispatch(Room, SlotTable, ProcessingWindow);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Dispatch);
         RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
@@ -885,7 +885,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // the room's colours or enemy artwork merely because its state happens to retain a non-empty enemy set.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet);
+            GraphicsSet.LoadGraphicsSet(request.GraphicsSet);
         PopulationLoader.LoadPopulation(
             definitions,
             population,

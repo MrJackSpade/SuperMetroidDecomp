@@ -38,7 +38,6 @@ internal static class FakeKraidProjectileDefinitionsVerification
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-                TileIndexBase = 256,
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
             };
             var state = new FakeKraidEnemyState();
@@ -76,7 +75,6 @@ internal static class FakeKraidProjectileDefinitionsVerification
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-                TileIndexBase = 256,
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
             };
             var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };

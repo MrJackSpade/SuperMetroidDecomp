@@ -28,7 +28,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Statues), [
             new(EnemyDefinitionId.TourianStatue),
-            new(EnemyDefinitionId.TourianStatueGhost, StagingBlock: 1),
+            new(EnemyDefinitionId.TourianStatueGhost),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.HopperETank), [
         ]),

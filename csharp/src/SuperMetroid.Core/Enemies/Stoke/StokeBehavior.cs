@@ -230,7 +230,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
-            stoke.Graphics);
+            SpriteGraphics.SpawnedBy(stoke));
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(CoordinateAxis.Wrap(stoke.Position.Y.Whole + 2), stoke.Position.Y.Fraction));
         projectile.Velocity = new(
             SignedEightEight.FromSignedRaw(direction == StokeDirection.Left ? -StokeProjectileSpeed : StokeProjectileSpeed),

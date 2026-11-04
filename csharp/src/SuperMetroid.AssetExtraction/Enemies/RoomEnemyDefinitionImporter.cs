@@ -31,11 +31,7 @@ public static class RoomEnemyDefinitionImporter
         ushort Word(int offset) => ReadWord(cartridge, headerPointer, offset);
         byte Byte(int offset) => ReadByte(cartridge, headerPointer, offset);
         int bank = Byte(BankOffset);
-        int tileSize = Word(0);
         return new RoomEnemyDefinition(
-            TileByteCount: tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits,
-            TilePlacement: (tileSize & EnemySourceDefinitions.EnemyHeaderFixedBlockBit) != 0
-                ? EnemyTilePlacement.AtFixedBlock : EnemyTilePlacement.FollowingPrevious,
             Health: Word(4),
             Damage: Word(6),
             Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
@@ -69,6 +65,20 @@ public static class RoomEnemyDefinitionImporter
     /// instruction-list pointers there, which all lie in their bank's ROM half; they are not variants and import as zero.
     /// </summary>
     private static int HopperVariant(int word) => word >= SnesBusLayout.RomWindowStart ? 0 : word;
+
+    /// <summary>
+    /// The bytes of the tile set a header names, and whether its graphics set uploads them at a fixed block rather than
+    /// after the previous member's (#1513): the layout knowledge the import lays sheets out by.
+    /// </summary>
+    /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
+    /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
+    internal static (int ByteCount, bool AtFixedBlock) TileSet(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    {
+        Ensure.NotNull(bus);
+        int tileSize = ReadWord(CartridgeImportSource.Require(bus), EnemyDefinitionIds.HeaderPointer(pointer), 0);
+        return (tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits,
+            (tileSize & EnemySourceDefinitions.EnemyHeaderFixedBlockBit) != 0);
+    }
 
     /// <summary>The long address of the planar tile data a header names: where the import reads the enemy's tile set.</summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>

@@ -48,7 +48,7 @@ internal static class SpawnedObjectFixtures
             : RoomEnemyGraphicsSetLists.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
                 SpawnedObjectFrameDefinitions.ByEnemy.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame)))
             ?? throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set);
+        enemies.GraphicsSet.LoadGraphicsSet(set);
     }
 
     /// <summary>
@@ -58,12 +58,10 @@ internal static class SpawnedObjectFixtures
     internal static void LoadSetDrawing(RoomEnemySystem enemies, EnemyDefinitionId enemy, RoomEnemySlot? slot = null)
     {
         ArgumentNullException.ThrowIfNull(enemies);
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SetDrawing(enemy));
+        enemies.GraphicsSet.LoadGraphicsSet(SetDrawing(enemy));
         if (slot is null)
             return;
-        SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(enemy);
-        slot.TileIndexBase = indexes.TileBase;
-        slot.Shading = indexes.Shading;
+        slot.Shading = PictureShading.Standard;
     }
 
     /// <summary>The installed enemy artwork with <paramref name="spritemaps"/> in place of its compositions.</summary>
@@ -81,7 +79,7 @@ internal static class SpawnedObjectFixtures
         var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { TileArtwork = InstalledFixtures.EnemyTiles, Sheets = InstalledFixtures.EnemySheets };
         var room = new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null);
         var graphics = new EnemyGraphicsSet(room);
-        graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet);
+        graphics.LoadGraphicsSet(state.EnemyGraphicsSet);
         return new EnemyPresentation(room, graphics);
     }
 }

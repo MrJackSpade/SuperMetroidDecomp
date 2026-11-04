@@ -449,7 +449,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             definition.ProjectileKind(),
-            robot.Graphics);
+            SpriteGraphics.SpawnedBy(robot));
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(definition switch
         {

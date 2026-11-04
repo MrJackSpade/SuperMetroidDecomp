@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -48,7 +49,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0xa6f4ee, CeresSourceDefinitions.Door.NormalColors, "door normal colour source");
         AssertEqual(0x10, CeresSourceDefinitions.Door.AnimationRowBytes, "door glow row stride");
         AssertEqual(0xa6f918, CeresSourceDefinitionsDoorConstants.PlatformFrames, "platform strip source");
-        AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(
+        AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(
                 SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Areas.Ceres.Artwork.CeresElevatorShades.ConcealerCleared)),
             CeresElevatorArrivalDefinitions.StartingGraphics, "arrival graphics: tile base zero, with the concealer's colour cleared");
 

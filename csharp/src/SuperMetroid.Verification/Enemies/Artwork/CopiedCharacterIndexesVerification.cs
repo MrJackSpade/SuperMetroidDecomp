@@ -14,14 +14,15 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Checks the enemies that copy the character index, or the palette, of the enemy they follow draw where their
-/// pre-coloured sheets are composed (#1392): a sheet composed anywhere else cannot be drawn.
+/// Checks the enemies the import composes at the character index of the enemy they follow draw in their pre-coloured
+/// sheets' standard colours (#1392, #1512). Where a sheet is composed is the import's alone (#1513): a slot carries no
+/// character index, so the copy itself is no longer state to check.
 /// </summary>
 internal static class CopiedCharacterIndexesVerification
 {
     /// <summary>
     /// In the first retail room state placing the enemy each such enemy follows, every slot of it draws, from
-    /// the room's first enemy frame, at the character index and in the palette its graphics set composes its sheet with.
+    /// the room's first enemy frame, in the colours its graphics set composes its sheet in.
     /// </summary>
     internal static void VerifyCopiedCharacterIndexes()
     {
@@ -30,10 +31,10 @@ internal static class CopiedCharacterIndexesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         int slots = 0;
-        foreach (EnemyDefinitionId child in EnemyTileBaseDefinitions.DrawsAtTilesOf.Keys)
+        foreach (EnemyDefinitionId child in SuperMetroid.AssetExtraction.Enemies.EnemyCharacterBaseDefinitions.DrawsAtTilesOf.Keys)
         {
             // A room places the enemy each follows; Phantoon's parts are spawned by her body rather than placed.
-            EnemyDefinitionId owner = EnemyTileBaseDefinitions.DrawsAtTilesOf[child];
+            EnemyDefinitionId owner = SuperMetroid.AssetExtraction.Enemies.EnemyCharacterBaseDefinitions.DrawsAtTilesOf[child];
             (RoomHeaderDefinition room, RoomStateSettings state) = RetailRoomHeaders.All
                 .SelectMany(definition => RoomStateLists.GetStates(definition).Select(state => KeyValuePair.Create(definition, state)))
                 .FirstOrDefault(candidate => candidate.Value.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == owner));
@@ -42,12 +43,10 @@ internal static class CopiedCharacterIndexesVerification
             runtime.LoadCartridgeRoomForDebug(room, state: state);
             // Some copy on their first main-AI frame, which runs before the room's enemies first draw.
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
-            SpriteGraphics composed = runtime.Enemies.GraphicsSet.DrawIndexes(child);
             RoomEnemySlot[] placed = [.. runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == child)];
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
             foreach (RoomEnemySlot slot in placed)
             {
-                AssertEqual(composed.TileBase, slot.TileIndexBase, $"{child} in {room.Name} draws at the character index its sheet is composed at");
                 // The import colours the sheet of an enemy copying another's colours in its owner's row (#1512), so the copy
                 // draws in its sheet's standard colours.
                 if (SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.DrawsInRowOf.ContainsKey(child))
@@ -56,7 +55,7 @@ internal static class CopiedCharacterIndexesVerification
                 slots++;
             }
         }
-        Console.WriteLine($"Copied character indexes: {slots} slots of {EnemyTileBaseDefinitions.DrawsAtTilesOf.Count} enemies draw where their sheets are composed.");
+        Console.WriteLine($"Copied character indexes: {slots} slots of {SuperMetroid.AssetExtraction.Enemies.EnemyCharacterBaseDefinitions.DrawsAtTilesOf.Count} enemies draw in their sheets' colours.");
     }
 
     /// <summary>Runs the copied character index check.</summary>

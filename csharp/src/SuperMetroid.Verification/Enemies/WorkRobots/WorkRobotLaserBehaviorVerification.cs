@@ -21,7 +21,6 @@ internal static class WorkRobotLaserBehaviorVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = new(12, 16),
-            TileIndexBase = 256,
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         var state = new WorkRobotEnemyState();

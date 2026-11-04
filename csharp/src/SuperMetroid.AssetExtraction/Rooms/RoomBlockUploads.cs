@@ -228,10 +228,11 @@ internal static class RoomBlockUploads
     /// <exception cref="InvalidDataException">An enemy's tiles are not installed.</exception>
     private static IEnumerable<BgCharacterUpload> ObjectPageUploads(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
-        foreach (RoomEnemyGraphicsSetEntry entry in EnemyGraphicsSet.LayOut(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet))
+        IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(state.EnemyGraphicsSet).Members;
+        for (int member = 0; member < members.Count; member++)
         {
-            ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(entry.DefinitionId);
-            SpriteArtworkPlacement placed = EncounterCharacterPlacements.Placed(new GraphicsSetTileCharacters(entry));
+            ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(members[member].DefinitionId);
+            SpriteArtworkPlacement placed = EncounterCharacterPlacements.Placed(new GraphicsSetTileCharacters(state.EnemyGraphicsSet, member));
             yield return new BgCharacterUpload(new BgArtworkIdentity($"{placed.Source}"), BgCharacterSet.Tiles, placed.FirstCharacter, tiles);
         }
     }

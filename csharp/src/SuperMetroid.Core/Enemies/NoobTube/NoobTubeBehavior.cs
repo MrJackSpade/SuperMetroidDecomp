@@ -19,9 +19,9 @@ internal sealed class NoobTubeBehavior
         NoobTubeProjectileProgram.Shard9,
     ];
 
-    /// <summary>The characters and shading every tube piece draws with: character zero in the tube's crack colours.</summary>
+    /// <summary>The characters and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
-        SpriteGraphics.CharacterZeroIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
+        SpriteGraphics.SharedIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
 
     /// <summary>Provides room-load state and the RNG for shard and bubble launch angles.</summary>
     private readonly EnemyRoomBinding _room;
@@ -62,7 +62,7 @@ internal sealed class NoobTubeBehavior
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        // The tube's pieces draw at character zero in the crack colours the room's crack initializer installs (#1512).
+        // The tube's pieces draw from the shared sheet in the crack colours the room's crack initializer installs (#1512).
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: TubePieceGraphics);
 
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;

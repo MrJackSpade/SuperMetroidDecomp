@@ -80,9 +80,8 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
     AssertEqual(0x3800, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(baby.Properties), "Baby population/init property OR");
     AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
-    // The Baby's graphics are its tile base alone: its parts carry their own palette rows and priorities, so the
-    // palette and priority fields the cartridge's graphics word also held are not state the Baby keeps (#1422).
-    AssertEqual(160, baby.TileBase, "Baby draws from transferred tile 160");
+    // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
+    // their own palette rows (#1422, #1513).
     AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;

@@ -515,7 +515,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
                 // The port holds the colouring; the row holding it is compared as the native palette word that row is stored as.
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
-                Check(owner + " TileIndexBase", actor.TileIndexBase, address + 32);
+                // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.
+                Check(owner + " TileIndexBase", actor.NativeTileBaseIn(runtime.Enemies), address + 32);
                 Check(owner + " Layer", actor.Layer, address + 34);
                 Check(owner + " FlashTimer", actor.FlashTimer.RawValue, address + 36);
                 Check(owner + " FrozenTimer", actor.FrozenTimer.RawValue, address + 38);
@@ -778,7 +779,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
                 // The port holds a tile base and colouring; they are compared, with the row holding the colouring, as the native
                 // graphics word that stores them.
-                Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
+                Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, runtime.Enemies, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 Check(owner + " Timer", projectile.GeneralTimer, NativeSnapshotMemory.EnemyProjectileTimer + index);
                 EnemyProjectileFrameBehavior nativeFrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));

@@ -1664,7 +1664,7 @@ internal static class LookupStream4Verification
             ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours));
+            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours));
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
@@ -1672,7 +1672,7 @@ internal static class LookupStream4Verification
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
-            AssertEqual(SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours), spawned.Graphics, "room sprite tile base and colouring argument preserved");
+            AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours), spawned.Graphics, "room sprite tile base and colouring argument preserved");
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })

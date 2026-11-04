@@ -85,6 +85,13 @@ internal sealed class KraidEncounterAccess
     public KraidEnemyState? Kraid { get; internal set; }
 
     /// <summary>
+    /// The colours Kraid's room backdrop shows (#1512). They are the room's colour memory, as on the cartridge: they last
+    /// the room's lifetime, so a re-initialization of Kraid, which replaces <see cref="Kraid"/>, keeps what his growth
+    /// fade showed.
+    /// </summary>
+    internal KraidBackdropColours Backdrop { get; } = new();
+
+    /// <summary>
     /// Kraid's room state, created by the body's initializer and kept for the room. Parts
     /// read slot zero's words directly, so they keep running after the dead-room body is
     /// deleted, as the fingernails do.

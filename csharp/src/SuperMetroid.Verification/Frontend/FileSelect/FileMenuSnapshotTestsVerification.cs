@@ -29,7 +29,7 @@ internal static class FileMenuSnapshotTestsVerification
         foreach (bool clear in new[] { false, true })
         {
             var menu = new FileSelectMenuState(saveRam, mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-            void Tick(ControllerButton input = ControllerButton.None) => Check(menu.Render, menu.CaptureRenderSnapshot, () => menu.Step(input));
+            void Tick(ControllerButton input = ControllerButton.None) => Check(menu.CaptureRenderSnapshot, () => menu.Step(input));
             void Press(ControllerButton input) { Tick(); Tick(input); }
             void Until(FileSelectPhase phase)
             {
@@ -51,8 +51,7 @@ internal static class FileMenuSnapshotTestsVerification
         }
 
         var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
-        void OptionTick(ControllerButton input = 0) => Check(options.Render, options.CaptureRenderSnapshot,
-            () => options.Step(input));
+        void OptionTick(ControllerButton input = 0) => Check(options.CaptureRenderSnapshot, () => options.Step(input));
         void OptionPress(ControllerButton input) { OptionTick(); OptionTick(input); }
         void OptionUntil(GameOptionsPhase phase)
         {
@@ -80,14 +79,15 @@ internal static class FileMenuSnapshotTestsVerification
         OptionTick();
         Console.WriteLine($"  File/options snapshots: {comparisons} retail frames match through COPY/CLEAR, controller scrolling, special settings and fades.");
 
-        void Check(Func<RgbaPixel[]> legacy, Func<LayeredScene> capture, Action step)
+        // The held snapshot is drawn once before the menu advances and once after; the live menu's own frame and a repeated
+        // capture are compared with it for the pixels they show, which draws them only when their descriptions differ (#1532).
+        void Check(Func<LayeredScene> capture, Action step)
         {
-            RgbaPixel[] expected = legacy();
             LayeredScene snapshot = capture();
-            Match(expected, DisplayRendering.Render(
-                new DisplayPacket((ushort)comparisons, snapshot)));
-            Match(expected, DisplayRendering.Render(snapshot));
-            Match(expected, DisplayRendering.Render(capture()));
+            RgbaPixel[] expected = DisplayRendering.Render(new DisplayPacket((ushort)comparisons, snapshot));
+            AssertTrue(ScenePixels.Same(new DisplayPacket(0, capture()), new DisplayPacket((ushort)comparisons, snapshot)),
+                $"File/options snapshot sample {comparisons} shows the live menu's pixels");
+            AssertTrue(ScenePixels.Same(capture(), snapshot), $"File/options snapshot sample {comparisons} repeats its capture");
             step();
             Match(expected, DisplayRendering.Render(snapshot));
             comparisons++;

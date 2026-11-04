@@ -8,6 +8,7 @@ namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks file-select map navigation with installed presentation and guarded cartridge reads.</summary>
 internal static class InstalledFileSelectMapVerification
@@ -24,7 +25,8 @@ internal static class InstalledFileSelectMapVerification
         var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
         var installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
 
-        // One raster per side: the two captured renders are compared with each other.
+        // Each side's frame is captured once per update and the two are compared for the pixels they show (#1532): equal
+        // descriptions show equal pixels without a draw, and only differing ones are drawn and compared.
         void StepBoth(ControllerButton input)
         {
             control.Step(input);
@@ -32,14 +34,12 @@ internal static class InstalledFileSelectMapVerification
             AssertEqual(control.Phase, installed.Phase, "installed map navigation phase matches cartridge path");
             AssertEqual(control.LoadRequested, installed.LoadRequested, "installed map load handoff timing");
             AssertEqual(control.OptionsRequested, installed.OptionsRequested, "installed map options handoff timing");
-            AssertTrue(control.Render().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
+            LayeredScene installedScene = installed.CaptureRenderSnapshot();
+            AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), installedScene),
+                verifyCapturedRendering ? "installed map render captures retain native pixels through every transition"
+                    : "installed map navigation renders exact stock frame");
             if (verifyCapturedRendering)
-            {
-                var nativePixels = DisplayRendering.Render(control.CaptureRenderSnapshot());
-                var installedPixels = DisplayRendering.Render(installed.CaptureRenderSnapshot());
-                AssertTrue(nativePixels.SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
-                AssertTrue(installed.Render().SequenceEqual(installedPixels), "captured and direct map rendering agree");
-            }
+                AssertTrue(ScenePixels.Same(installed.CaptureRenderSnapshot(), installedScene), "captured and direct map rendering agree");
         }
         for (int i = 0; i < 48; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "installed menu finishes entry");
@@ -54,7 +54,7 @@ internal static class InstalledFileSelectMapVerification
         // Preserve a live, scrolled menu; the stored state names the catalog it is bound to, and a restore draws from it.
         byte[] state = GraphDigestVerification.SerializeGraph(installed, original, MenuSheetFixtures.For(original));
         installed = GraphDigestVerification.RestoreGraph<FileSelectMapMenuState>(state, original, MenuSheetFixtures.For(original));
-        AssertTrue(control.Render().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
+        AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()), "restored room map retains scrolled frame");
         StepBoth(ControllerButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "restored menu returns to area");

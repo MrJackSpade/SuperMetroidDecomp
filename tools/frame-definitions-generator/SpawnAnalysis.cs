@@ -152,6 +152,18 @@ internal sealed class SpawnAnalysis
             if (!linked)
                 unreadable.Add($"{scope.ToDisplayString()}: graphics its handlers switch to ({string.Join(", ", destinations)}) reach no spawn the generator can link");
         }
+        // The self-check: a family code constructs (by constructor or its own factory) is spawned by some code a walk
+        // reaches, so no family's frames are missing from every sheet because its construction went unseen.
+        var spawnedFamilies = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (Walk walk in spawnWalks)
+        {
+            foreach (Collected spawned in walk.EvidenceByType.Values)
+                spawnedFamilies.UnionWith(spawned.Families);
+        }
+        foreach (INamedTypeSymbol family in spawnedFamilies.ToList())
+            spawnedFamilies.UnionWith(analysis.Closure(family, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)).Families);
+        foreach (INamedTypeSymbol family in model.ConstructedFamilies.Where(f => !spawnedFamilies.Contains(f)))
+            unreadable.Add($"{family.ToDisplayString()} is constructed in code no walk records as spawning it");
         // The self-check: every spawn with copied or handed-on graphics is on every sheet the code deciding them names (a
         // falling spark's trail on the sheet of whoever spawned the spark), and no spawn's graphics are unreadable.
         foreach (Walk walk in spawnWalks)

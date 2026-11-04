@@ -38,17 +38,37 @@ internal static class SheetFrameSources
             throw new InvalidOperationException($"Image {image.Sheet.Name} is registered already.");
     }
 
-    /// <summary>Pairs each of <paramref name="sheet"/>'s frames with what it was composed from; frames already paired keep theirs.</summary>
+    /// <summary>
+    /// Pairs each of <paramref name="sheet"/>'s frames with what it was composed from. Frames whose pictures the sheet lays
+    /// out once share one rectangle; when their compositions differ, which one a draw of that rectangle stands for is
+    /// unknowable, so the rectangle is recorded as ambiguous and a draw of it fails rather than standing for another frame.
+    /// </summary>
     private static void Add(System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> target, SpriteSheet sheet,
         SpriteSheetSources composed)
     {
         foreach (SheetFrameSource frame in composed.Frames)
         {
             SpriteSheetFrame image = sheet.Frame(frame.Name);
-            target.TryAdd(Key(image), new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows,
-                composed.ObjectSizes));
+            var source = new FrameSource(frame.Frame, frame.Characters, composed.PaletteBits, frame.Palette, composed.PartsKeepOwnRows,
+                composed.ObjectSizes);
+            FrameKey key = Key(image);
+            if (target.TryAdd(key, source))
+                continue;
+            FrameSource first = target[key];
+            // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
+            if (image.Size.X == 0 || SameComposition(first, source))
+                continue;
+            ambiguous.AddOrUpdate(key, _ => [first.Frame.Name, source.Frame.Name], (_, names) => [.. names, source.Frame.Name]);
         }
     }
+
+    /// <summary>Whether two sources would build the same OAM: the same parts over the same page, in the same rows.</summary>
+    private static bool SameComposition(FrameSource first, FrameSource second) =>
+        ReferenceEquals(first.Page, second.Page) && first.PaletteBits == second.PaletteBits && first.FramePalette == second.FramePalette
+        && first.PartsKeepOwnRows == second.PartsKeepOwnRows && first.Frame.Parts.SequenceEqual(second.Frame.Parts);
+
+    /// <summary>Each shared rectangle whose frames were composed differently, with those frames' names.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<FrameKey, string[]> ambiguous = new();
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
     /// <exception cref="InvalidOperationException">The frame is not a projectile sheet frame.</exception>
@@ -62,7 +82,11 @@ internal static class SheetFrameSources
     internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw, SpriteArtwork? characters)
     {
         Ensure.NotNull(draw);
-        FrameSource source = Find(Key(draw.Image)) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
+        FrameKey key = Key(draw.Image);
+        FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
+        if (ambiguous.TryGetValue(key, out string[]? names))
+            throw new InvalidOperationException(
+                $"{draw} shows a picture sheet {draw.Image.Sheet.Name} lays out once for differently composed frames ({string.Join(", ", names)}); which composition it stands for is unknowable.");
         TileFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
         // A frontend draw's drawn shade stands for the row its colours are the cartridge's of, which the cartridge ORs into

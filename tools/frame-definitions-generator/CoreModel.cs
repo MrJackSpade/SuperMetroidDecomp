@@ -45,6 +45,7 @@ internal sealed class CoreModel
     private readonly Dictionary<ISymbol, List<ISymbol>> _dispatch = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
     private readonly HashSet<SyntaxNode> _startEntries = [];
+    private readonly HashSet<INamedTypeSymbol> _constructedFamilies = new(SymbolEqualityComparer.Default);
     private readonly INamedTypeSymbol _entity;
     private readonly Dictionary<INamedTypeSymbol, bool> _entityTypes = new(SymbolEqualityComparer.Default);
 
@@ -148,6 +149,9 @@ internal sealed class CoreModel
 
     /// <summary>Every enemy behaviour, ordered by the path of the file declaring its definitions.</summary>
     public IReadOnlyList<Behaviour> Behaviours { get; }
+
+    /// <summary>The families code constructs outside the typed-start entries (by constructor or a factory of their own).</summary>
+    public IReadOnlySet<INamedTypeSymbol> ConstructedFamilies => _constructedFamilies;
 
     /// <summary>Every projectile program family, in source order.</summary>
     public IEnumerable<INamedTypeSymbol> Families => Types.Where(_families.Contains);
@@ -467,6 +471,9 @@ internal sealed class CoreModel
                     if (!_creationContexts.TryGetValue(key2, out List<INamedTypeSymbol>? contexts))
                         _creationContexts.Add(key2, contexts = []);
                     contexts.Add(contextType.OriginalDefinition);
+                    // A family constructed in code, not by a typed-start entry its kind names, must be spawned by some code.
+                    if (_families.Contains(key2) && !node.Ancestors().Any(_startEntries.Contains))
+                        _constructedFamilies.Add(key2);
                     break;
             }
         }

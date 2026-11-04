@@ -70,7 +70,7 @@ internal sealed class KraidRise
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
-            state.Backdrop.ShowKraidColours();
+            _access.Backdrop.ShowKraidColours();
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
             _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);

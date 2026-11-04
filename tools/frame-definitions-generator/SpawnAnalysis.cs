@@ -107,27 +107,49 @@ internal sealed class SpawnAnalysis
         }
         anywhere.Run();
 
-        // Each walk's spawns go where their graphics draw from: its spawner's sheet, the shared sheet of the sets a
-        // behaviour whose graphics it uses is in, or (outside every behaviour, emptied or shared) every set's shared sheet.
-        var owned = new Dictionary<INamedTypeSymbol, Collected>(SymbolEqualityComparer.Default);
-        var shared = new Dictionary<INamedTypeSymbol, Collected>(SymbolEqualityComparer.Default);
-        var everywhere = new Collected();
-        var sheets = new Dictionary<string, Collected>(StringComparer.Ordinal);
-        foreach ((Behaviour behaviour, Walk walk, _) in walks)
+        // Each walk's spawns go to every sheet their graphics can name; then the graphics other code decides are resolved,
+        // and graphics a type's handlers switch its objects to add that type's spawns to those sheets too.
+        var sheets = new SheetCollections();
+        var spawnWalks = walks.Select(w => w.Walk).Append(anywhere).ToList();
+        foreach (Walk walk in spawnWalks)
         {
-            Merge(Of(owned, behaviour.Type), walk.Own);
-            Merge(Of(owned, behaviour.Type), walk.Foreign);
-            Route(walk, behaviour.Type, owned, shared, everywhere, sheets);
+            foreach ((Destination destination, Collected spawns) in walk.Spawns)
+                Merge(sheets.Of(destination), spawns);
         }
-        Merge(everywhere, anywhere.Own);
-        Route(anywhere, scope: null, owned, shared, everywhere, sheets);
-        analysis.BySheet = sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value), StringComparer.Ordinal);
+        var unreadable = new SortedSet<string>(spawnWalks.Concat(analysis._familyWalks.Values).SelectMany(w => w.Unreadable), StringComparer.Ordinal);
+        var resolver = new PendingResolver(spawnWalks);
+        foreach (Walk walk in spawnWalks)
+        {
+            foreach ((PendingKey key, Collected spawns) in walk.Pending)
+            {
+                IReadOnlySet<Destination> destinations = resolver.Resolve(key);
+                if (destinations.Count == 0)
+                    unreadable.Add($"{walk.PendingSites[key]}: graphics {Describe(key)} reach no sheet: no code spawning with a readable sheet decides them");
+                foreach (Destination destination in destinations)
+                    Merge(sheets.Of(destination), spawns);
+            }
+        }
+        foreach ((INamedTypeSymbol type, IReadOnlySet<Destination> destinations) in resolver.Reassignments())
+        {
+            foreach (Walk walk in spawnWalks)
+            {
+                if (!walk.EvidenceByType.TryGetValue(type, out Collected? evidence))
+                    continue;
+                foreach (Destination destination in destinations)
+                    Merge(sheets.Of(destination), evidence);
+            }
+        }
+        // The self-check: a spawn whose graphics name no sheet this generator can read would draw from a sheet that lacks it.
+        if (unreadable.Count > 0)
+            throw new InvalidDataException("Spawn graphics the generator cannot place on a sheet:\n" + string.Join('\n', unreadable));
+        analysis.BySheet = sheets.Sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value), StringComparer.Ordinal);
+        Collected everywhere = sheets.Anywhere;
 
         var behaviours = new List<BehaviourSpawns>();
         foreach ((Behaviour behaviour, Walk walk, DefinitionFrameSplit frames) in walks)
         {
-            Collected own = analysis.WithFamilies(Of(owned, behaviour.Type));
-            Collected sharedSpawns = analysis.WithFamilies(Of(shared, behaviour.Type));
+            Collected own = analysis.WithFamilies(sheets.Of(new Destination(DestinationKind.Own, behaviour.Type)));
+            Collected sharedSpawns = analysis.WithFamilies(sheets.Of(new Destination(DestinationKind.Shared, behaviour.Type)));
             behaviours.Add(new BehaviourSpawns(behaviour, frames.Frames, own.ProjectileFrames, own.SpriteObjects,
                 sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries, frames.Notes));
         }
@@ -193,34 +215,10 @@ internal sealed class SpawnAnalysis
             walk.Root(unit);
     }
 
-    /// <summary>Sends what <paramref name="walk"/> spawns with graphics drawing elsewhere to where they draw.</summary>
-    private static void Route(Walk walk, INamedTypeSymbol? scope, Dictionary<INamedTypeSymbol, Collected> owned,
-        Dictionary<INamedTypeSymbol, Collected> shared, Collected everywhere, Dictionary<string, Collected> sheets)
-    {
-        foreach ((SpawnTarget target, Collected spawns) in walk.Routed)
-        {
-            if (target.Sheet is { } sheet)
-            {
-                if (!sheets.TryGetValue(sheet, out Collected? held))
-                    sheets.Add(sheet, held = new Collected());
-                Merge(held, spawns);
-                continue;
-            }
-            INamedTypeSymbol? to = target.Scope ?? scope;
-            if (to is null)
-                Merge(everywhere, spawns);
-            else
-                Merge(Of(target.Shared ? shared : owned, to), spawns);
-        }
-    }
-
-    /// <summary>The collection for <paramref name="behaviour"/>, created empty when it has none.</summary>
-    private static Collected Of(Dictionary<INamedTypeSymbol, Collected> collections, INamedTypeSymbol behaviour)
-    {
-        if (!collections.TryGetValue(behaviour, out Collected? collected))
-            collections.Add(behaviour, collected = new Collected());
-        return collected;
-    }
+    /// <summary>Names pending graphics for the self-check's report.</summary>
+    private static string Describe(PendingKey key) => key.Source == GraphicsSource.Inherited
+        ? $"copied from objects {key.Key.ToDisplayString()}'s code spawns"
+        : $"handed to {key.Key.ToDisplayString()}";
 
     /// <summary><paramref name="collected"/> with everything the families it constructs or starts name added.</summary>
     private Collected WithFamilies(Collected collected)
@@ -243,8 +241,8 @@ internal sealed class SpawnAnalysis
         Walk walk = _familyWalks[family];
         // A family walk enters no behaviour code, so everything it names is its own, whatever graphics it spawns with.
         Merge(result, walk.Own);
-        foreach (Collected routed in walk.Routed.Values)
-            Merge(result, routed);
+        foreach (Collected spawned in walk.AllSpawns)
+            Merge(result, spawned);
         foreach (INamedTypeSymbol spawned in result.Families.ToList())
             Merge(result, Closure(spawned, visiting));
         visiting.Remove(family);

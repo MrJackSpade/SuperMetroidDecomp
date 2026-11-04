@@ -18,15 +18,14 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 
 /// <summary>
-/// Checks the gunship draws from pictures of its landing site's pre-coloured sheet (#1392): its own characters before its
-/// takeoff, then each liftoff upload's as the takeoff makes them.
+/// Checks the gunship draws from pictures of its landing site's pre-coloured sheet (#1392, #1513): its own characters before its
+/// takeoff, then its picture of each takeoff page as the takeoff reaches it.
 /// </summary>
 internal static class GunshipLiftoffPicturesVerification
 {
     /// <summary>
-    /// At the landing site the ship's top shows, before its takeoff and after each liftoff upload, the picture for what each
-    /// region its frame is drawn over then holds, and each picture paints exactly what the frame painted over the room's
-    /// live OBJ characters.
+    /// At the landing site the ship's top shows, before its takeoff and at each takeoff page, its picture of the page reached,
+    /// and each picture paints exactly what the frame paints over the characters the set leaves at that page.
     /// </summary>
     internal static void VerifyGunshipLiftoffPictures()
     {
@@ -34,9 +33,6 @@ internal static class GunshipLiftoffPicturesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // The fixture starts in Ceres, whose room leaves its door tiles over standard characters; a session reaching the
-        // landing site has started on Zebes, whose game start shows the standard characters again.
-        runtime.HudSetup.ShowStandardObjectCharacters();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -48,18 +44,17 @@ internal static class GunshipLiftoffPicturesVerification
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
 
-        var made = new List<SpriteArtworkPlacement>();
+        int pages = GunshipLiftoffTransferDefinitions.Frames.Length;
         int pictured = 0;
-        for (int step = 0; step <= PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count; step++)
+        for (int step = 0; step <= pages; step++)
         {
+            // Step zero is the ship before its takeoff, then each takeoff page in turn.
+            IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached =
+                step == 0 ? [] : [(EncounterArtworkSequence.GunshipLiftoff, step - 1)];
             if (step > 0)
-            {
-                SpriteArtworkPlacement upload = PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[step - 1];
-                runtime.EnemySession.SpriteLooks.Record(upload);
-                made.Add(upload);
-            }
+                runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.GunshipLiftoff, step - 1);
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
-            SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
+            SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
             runtime.Enemies.Drawing.AdvanceLayers(camera, 0, 7);
@@ -69,14 +64,14 @@ internal static class GunshipLiftoffPicturesVerification
             {
                 EnemyFrameId frame = part.Frame ?? throw new InvalidOperationException($"The ship's {part.DefinitionId} shows a frame.");
                 string name = EnemySheetDefinitions.FrameName(frame);
-                IReadOnlyList<LookRegion[]> layers = sheets.Layers(set, part.DefinitionId, name);
-                if (layers.Count > 0)
+                IReadOnlyList<FrameArtworkVariation> variations = sheets.Variations(set, part.DefinitionId, name);
+                if (variations.Count > 0)
                     pictured++;
                 var source = new SpriteSource(SpriteSourceKind.Enemy, part.SlotIndex);
                 ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
-                UploadedPictureChecks.AssertDrawnPictures(sheets.For(set, part.DefinitionId),
-                    UploadedPictureChecks.ExpectedPictures(sheets, set, name, layers, made), drawn,
-                    $"after {step} liftoff uploads the ship's {part.DefinitionId}");
+                UploadedPictureChecks.AssertDrawnPicture(sheets.For(set, part.DefinitionId),
+                    UploadedPictureChecks.ExpectedPicture(name, variations, reached), drawn,
+                    $"after {step} liftoff pages the ship's {part.DefinitionId}");
 
                 CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(live, source, RuntimeArtworkContent.Of(runtime).EnemyTiles.Spritemaps
                     ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), new EnemySpritemapDraw
@@ -87,7 +82,7 @@ internal static class GunshipLiftoffPicturesVerification
             }
         }
         AssertTrue(pictured > 0, "the ship is drawn over characters its takeoff uploads");
-        Console.WriteLine($"Gunship liftoff pictures: the ship's top shows the picture for each of the {PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count} liftoff uploads, each painting its frame over the live characters.");
+        Console.WriteLine($"Gunship liftoff pictures: the ship's top shows its picture of each of the {pages} takeoff pages, each painting its frame over the characters that page leaves.");
     }
 
     /// <summary>Runs the gunship liftoff picture check.</summary>

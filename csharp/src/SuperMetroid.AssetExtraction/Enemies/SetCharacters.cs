@@ -1,53 +1,63 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// A graphics set's OBJ characters as its room load leaves them, and as each upload its encounters make after the load
-/// leaves them (#1392). A frame drawn over characters an upload covers gets a picture for each upload each region it is
-/// drawn over can show, and one for the set's own characters there. A corpse's frame drawn over the rows its kind uploads
-/// gets a picture of each rot the kind can show (#1406); a frame drawn over Mother Brain's corpse rows gets a picture for
-/// each rot step those rows can show together.
+/// A graphics set's OBJ characters as its room load leaves them, and as each step of the artwork sequences its encounters
+/// play leaves them (#1392, #1513). A frame the sequences change gets a pre-assembled picture of each distinct look they
+/// give it, composed by copying every step up to the one shown, in order, over the loaded characters; the game names the
+/// picture by the steps reached and knows nothing of where the copies land. A corpse's frame drawn over the rows its kind
+/// uploads gets a picture of each rot the kind can show (#1406).
 /// </summary>
 internal sealed class SetCharacters
 {
     /// <summary>The OBJ character table as the room load leaves it.</summary>
     private readonly byte[] table;
 
-    /// <summary>The regions that change after the room loads, and what each can show.</summary>
-    private readonly SetRegions regions;
+    /// <summary>The artwork sequences the set's encounters play, and what each step copies.</summary>
+    private readonly IReadOnlyList<EncounterArtworkSteps> sequences;
 
-    /// <summary>Resolves the artwork the uploads show.</summary>
-    private readonly IInstalledArtworkContent resolver;
+    /// <summary>Each sequence's characters after each of its steps, from the loaded table.</summary>
+    private readonly Dictionary<EncounterArtworkSequence, byte[][]> afterStep = [];
 
     /// <summary>The corpses of a kind that rot in the set's rooms, whose frames select the rot they show.</summary>
     private readonly IReadOnlyList<CorpseRotSimulation> corpses;
 
-    /// <summary>Each picture's characters, by its name suffix.</summary>
+    /// <summary>Each picture's characters, by the steps or rot it shows.</summary>
     private readonly Dictionary<string, SpriteArtwork> pages = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// The table as the room load leaves it, the regions that change after, the artwork the uploads show, and the corpses of a
-    /// kind that rot in the set's rooms.
+    /// The table as the room load leaves it, the artwork sequences the set's encounters play, and the corpses of a kind that
+    /// rot in the set's rooms.
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// A corpse is not of a kind, or uploads a row over characters an encounter or Mother Brain's corpse uploads.
-    /// </exception>
-    internal SetCharacters(byte[] table, SetRegions regions, IInstalledArtworkContent resolver, IReadOnlyList<CorpseRotSimulation> corpses)
+    /// <exception cref="InvalidDataException">A corpse is not of a kind, or uploads a row over characters an encounter's sequence copies.</exception>
+    internal SetCharacters(byte[] table, IReadOnlyList<EncounterArtworkSteps> sequences, IReadOnlyList<CorpseRotSimulation> corpses)
     {
         this.table = Ensure.NotNull(table);
-        this.regions = Ensure.NotNull(regions);
-        this.resolver = Ensure.NotNull(resolver);
+        this.sequences = Ensure.NotNull(sequences);
         this.corpses = Ensure.NotNull(corpses);
+        EncounterArtworkUpload[] uploads = [.. sequences.SelectMany(sequence => sequence.Steps).SelectMany(step => step)];
         foreach (CorpseRotSimulation corpse in corpses)
         {
             if (corpse.Kind is null)
-                throw new InvalidDataException($"{corpse.Flesh} is pictured by its uploaded rows, not by a kind's rot.");
-            if (corpse.Rows.Any(row => regions.Regions.Any(region => Overlaps(row, region))))
-                throw new InvalidDataException($"{corpse.Flesh} uploads a row over characters an encounter or Mother Brain's corpse uploads.");
+                throw new InvalidDataException($"{corpse.Flesh} is pictured by its encounter's artwork sequence, not by a kind's rot.");
+            if (corpse.Rows.Any(row => uploads.Any(upload =>
+                    row.FirstByte < upload.FirstByte + upload.Characters.Length && upload.FirstByte < row.FirstByte + row.ByteCount)))
+                throw new InvalidDataException($"{corpse.Flesh} uploads a row over characters an encounter's artwork sequence copies.");
+        }
+        foreach (EncounterArtworkSteps sequence in sequences)
+        {
+            byte[] shown = [.. table];
+            afterStep.Add(sequence.Sequence, [.. sequence.Steps.Select(step =>
+            {
+                foreach (EncounterArtworkUpload upload in step)
+                    upload.ApplyTo(shown);
+                return (byte[])[.. shown];
+            })]);
         }
         Loaded = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), table);
     }
@@ -55,16 +65,11 @@ internal sealed class SetCharacters
     /// <summary>The characters as the room load leaves them.</summary>
     internal SpriteArtwork Loaded { get; }
 
-    /// <summary>The regions the uploads and the corpses' rows divide the characters into.</summary>
-    internal IReadOnlyList<CharacterRange> Regions => regions.Regions;
-
     /// <summary>
-    /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame whole when it is drawn over no
-    /// uploaded region, else its layers, each run of its parts in draw order reading the same uploaded regions, with a
-    /// picture of each layer for each upload or the set's own characters in each region it reads. A layer reads few
-    /// regions, so its pictures stay few where the whole frame's combinations would not. Only a corpse's own frames show its
-    /// rot: another frame drawn over a corpse's rows has a picture of them as the set or an encounter leaves them only, so a
-    /// draw over rotted rows finds no picture and fails rather than showing what no frame of the room draws.
+    /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame as the room load leaves it when
+    /// no sequence changes the characters it reads, else its picture of each combination of the distinct looks the
+    /// sequences give it, each step of a sequence that leaves the frame as an earlier step did sharing that step's picture.
+    /// Only a corpse's own frames show its rot (#1406).
     /// </summary>
     /// <param name="name">The frame's name, which names its pictures.</param>
     /// <param name="frame">The frame.</param>
@@ -77,32 +82,34 @@ internal sealed class SetCharacters
         if (showsRot)
         {
             CorpseRotSimulation[] rotting = [.. corpses.Where(corpse => frame.Parts.Any(part =>
-                corpse.Rows.Any(row => DrawsOver(part, new CharacterRange(row.FirstByte, row.ByteCount)))))];
+                corpse.Rows.Any(row => Read(part).Any(first => first < row.FirstByte + row.ByteCount && row.FirstByte < first + SpriteArtwork.CharacterByteCount))))];
             if (rotting.Length > 1)
                 throw new InvalidDataException($"Frame {name} reads the rows of {string.Join(" and ", rotting.Select(corpse => corpse.Flesh))}.");
             if (rotting.Length == 1)
                 return RotPictures(name, frame, rotting[0]);
         }
-        CharacterRange[][] read = [.. frame.Parts.Select(part => Regions.Where(region => DrawsOver(part, region)).ToArray())];
-        if (read.All(regions => regions.Length == 0))
-            return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null);
-        var sources = new List<SheetFrameSource>();
-        var layers = new List<CharacterRange[]>();
-        int first = 0;
-        while (first < read.Length)
+        int[] read = [.. frame.Parts.SelectMany(Read).Distinct().Order()];
+        string loaded = Shown(table, read);
+        var variations = new List<FrameArtworkVariation>();
+        foreach (EncounterArtworkSteps sequence in sequences)
         {
-            int end = first + 1;
-            while (end < read.Length && read[end].SequenceEqual(read[first]))
-                end++;
-            int layer = layers.Count;
-            CharacterRange[] layerRegions = read[first];
-            var parts = new SpriteFrame($"{frame.Name}#{layer}", frame.Parts[first..end]);
-            sources.AddRange(regions.Contents(layerRegions, showsRot).Select(contents => new SheetFrameSource(
-                SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Looks.PictureName(name, layer, contents), parts, Page(contents))));
-            layers.Add(layerRegions);
-            first = end;
+            var first = new Dictionary<string, int>(StringComparer.Ordinal);
+            int?[] pictures = [.. afterStep[sequence.Sequence].Select((shown, step) =>
+            {
+                string look = Shown(shown, read);
+                if (look == loaded)
+                    return (int?)null;
+                if (!first.TryGetValue(look, out int earlier))
+                    first.Add(look, earlier = step);
+                return earlier;
+            })];
+            if (pictures.Any(step => step is not null))
+                variations.Add(new FrameArtworkVariation(sequence.Sequence, [.. pictures]));
         }
-        return new FramePictures(name, sources, [.. layers], null);
+        if (variations.Count == 0)
+            return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null);
+        return new FramePictures(name, [.. FrameVariationPictures.Combinations(variations).Select(combination =>
+            new SheetFrameSource(FrameArtworkVariation.PictureName(name, combination), frame, Page(combination)))], [.. variations], null);
     }
 
     /// <summary>
@@ -130,53 +137,38 @@ internal sealed class SetCharacters
         return page;
     }
 
-    /// <summary>Whether <paramref name="row"/> shares a byte with <paramref name="region"/>.</summary>
-    private static bool Overlaps(CorpseRotRow row, CharacterRange region) =>
-        row.FirstByte < region.FirstByte + region.ByteCount && region.FirstByte < row.FirstByte + row.ByteCount;
+    /// <summary>The characters with every step of each sequence <paramref name="combination"/> names, up to the one it names, copied in order.</summary>
+    internal SpriteArtwork Page(IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> combination)
+    {
+        string key = FrameArtworkVariation.PictureName("page", combination);
+        if (pages.TryGetValue(key, out SpriteArtwork? page))
+            return page;
+        byte[] shown = [.. table];
+        foreach ((EncounterArtworkSequence sequence, int step) in combination)
+        {
+            foreach (EncounterArtworkUpload upload in sequences.Single(played => played.Sequence == sequence).Steps.Take(step + 1).SelectMany(copies => copies))
+                upload.ApplyTo(shown);
+        }
+        page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), shown);
+        pages.Add(key, page);
+        return page;
+    }
 
-    /// <summary>Whether <paramref name="part"/> reads a character in <paramref name="region"/>.</summary>
-    private static bool DrawsOver(SpriteFramePart part, CharacterRange region)
+    /// <summary>The bytes of <paramref name="characters"/>'s characters <paramref name="read"/> names, spelled for comparing.</summary>
+    private static string Shown(byte[] characters, int[] read) =>
+        Convert.ToBase64String(read.SelectMany(first => characters.AsSpan(first, SpriteArtwork.CharacterByteCount).ToArray()).ToArray());
+
+    /// <summary>The first table byte of each character <paramref name="part"/> reads that lies in the table; one past it reads the page's blank overhang.</summary>
+    private static IEnumerable<int> Read(SpriteFramePart part)
     {
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
         {
             for (int column = 0; column < part.Size.X / SpriteArtwork.CharacterPixels; column++)
             {
-                // A character past the table reads the page's blank overhang.
                 int firstByte = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
-                if (firstByte < SpriteCharacterTableLayout.TableByteCount && firstByte < region.FirstByte + region.ByteCount
-                    && region.FirstByte < firstByte + SpriteArtwork.CharacterByteCount)
-                    return true;
+                if (firstByte < SpriteCharacterTableLayout.TableByteCount)
+                    yield return firstByte;
             }
         }
-        return false;
-    }
-
-    /// <summary>The characters with each upload <paramref name="contents"/> names shown over its region.</summary>
-    private SpriteArtwork Page(IReadOnlyList<LookRegionContent> contents)
-    {
-        string key = SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Looks.PictureName("page", 0, contents);
-        if (pages.TryGetValue(key, out SpriteArtwork? page))
-            return page;
-        byte[] shown = [.. table];
-        foreach (LookRegionContent content in contents)
-        {
-            CharacterRange range = regions.RangeOf(content.Region);
-            if (content.RotStep is not null)
-            {
-                regions.RotBytes(content).CopyTo(shown.AsSpan(range.FirstByte));
-                continue;
-            }
-            if (content.Look is not { } look)
-                continue;
-            SpriteArtworkPlacement upload = regions.Uploads.First(placed => placed.Source == look);
-            ReadOnlySpan<byte> bytes = SpriteArtworkBytes.Of(upload.Source, resolver).Span;
-            int offset = range.FirstByte - upload.FirstByte;
-            if (bytes.Length < offset + range.ByteCount)
-                throw new InvalidDataException($"{upload.Source} holds {bytes.Length} bytes; its upload shows {upload.ByteCount}.");
-            bytes.Slice(offset, range.ByteCount).CopyTo(shown.AsSpan(range.FirstByte));
-        }
-        page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), shown);
-        pages.Add(key, page);
-        return page;
     }
 }

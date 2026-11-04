@@ -21,8 +21,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 /// <summary>
-/// Checks Draygon's opening Evirs draw from pictures of her room's pre-coloured sheet (#1392): the set's own characters
-/// before her opening uploads the Evirs' tiles over them, the Evirs' after.
+/// Checks Draygon's opening Evirs draw from pictures of her room's pre-coloured sheet (#1392, #1513): the set's own
+/// characters before her opening readies the Evirs, its picture of that step after.
 /// </summary>
 internal static class DraygonEvirPicturesVerification
 {
@@ -30,8 +30,8 @@ internal static class DraygonEvirPicturesVerification
     private static readonly Position16<RoomPixels> EvirPosition = new(0x0080, 0x0080);
 
     /// <summary>
-    /// In Draygon's room an opening Evir shows the picture for whatever is uploaded over its characters, and each picture
-    /// paints exactly what the Evir's frame painted over the room's live OBJ characters.
+    /// In Draygon's room an opening Evir shows its picture of the step Draygon's opening has reached, and each picture paints
+    /// exactly what the Evir's frame paints over the characters the room's load and that step leave.
     /// </summary>
     internal static void VerifyDraygonEvirPictures()
     {
@@ -39,9 +39,6 @@ internal static class DraygonEvirPicturesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // The fixture starts in Ceres, whose room leaves its door tiles over standard characters; a session reaching
-        // Draygon has started on Zebes, whose game start shows the standard characters again.
-        runtime.HudSetup.ShowStandardObjectCharacters();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -54,27 +51,29 @@ internal static class DraygonEvirPicturesVerification
         string frame = EnemySheetDefinitions.SpriteObjectFrameName(RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame));
         // The runtime draws from the sheets it loaded with its installation.
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        IReadOnlyList<LookRegion[]> layers = sheets.SpawnedLayers(set, owner, frame);
-        AssertTrue(layers.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
+        IReadOnlyList<FrameArtworkVariation> variations = sheets.SpawnedVariations(set, owner, frame);
+        AssertTrue(variations.Any(variation => variation.Sequence == EncounterArtworkSequence.DraygonEvirs),
+            $"the Evir's frame {frame} follows Draygon's opening");
         SpriteSheet sheet = sheets.Spawned(set, owner).Sheet;
-        IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, []);
-        IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, [PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles)]);
+        string setPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, []);
+        string evirPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, [(EncounterArtworkSequence.DraygonEvirs, 0)]);
 
-        UploadedPictureChecks.AssertDrawnPictures(sheet, setPictures, AssertDrawnLikeParts(runtime, evir, "before the opening upload"),
-            "an Evir drawn before the opening upload shows the pictures of the set's own characters");
-        runtime.EnemySession.SpriteLooks.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
-        UploadedPictureChecks.AssertDrawnPictures(sheet, evirPictures, AssertDrawnLikeParts(runtime, evir, "after the opening upload"),
-            "an Evir drawn after the opening upload shows the pictures of the Evirs' tiles");
-        Console.WriteLine($"Draygon Evir pictures: {string.Join(", ", setPictures)} before her opening upload and {string.Join(", ", evirPictures)} after, each painting its frame over the live characters.");
+        UploadedPictureChecks.AssertDrawnPicture(sheet, setPicture, AssertDrawnLikeParts(runtime, set, evir, "before the opening"),
+            "an Evir drawn before the opening shows its picture of the set's own characters");
+        runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.DraygonEvirs, 0);
+        UploadedPictureChecks.AssertDrawnPicture(sheet, evirPicture, AssertDrawnLikeParts(runtime, set, evir, "after the opening"),
+            "an Evir drawn after the opening shows its picture of the Evirs' tiles");
+        Console.WriteLine($"Draygon Evir pictures: {setPicture} before her opening and {evirPicture} after, each painting its frame over the characters then.");
     }
 
     /// <summary>
     /// Draws <paramref name="evir"/> from the room's sheet and asserts the picture paints exactly what its frame's parts
-    /// paint over the room's live OBJ characters, the path it drew through before sheets; returns its draws.
+    /// paint over the characters <paramref name="set"/> leaves at the step Draygon's opening has reached; returns its draws.
     /// </summary>
-    private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir, string when)
+    private static ImmutableArray<SpriteDraw> AssertDrawnLikeParts(SuperMetroidRuntime runtime, RoomEnemyGraphicsSetDefinition set,
+        RoomSpriteObjectSlot evir, string when)
     {
-        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
+        SpriteArtwork live = EnemySheetFixtures.LivePage(set, UploadedPictureChecks.Reached(runtime));
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);

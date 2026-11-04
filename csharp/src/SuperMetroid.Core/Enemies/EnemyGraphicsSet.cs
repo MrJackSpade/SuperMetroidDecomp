@@ -20,21 +20,6 @@ internal sealed class EnemyGraphicsSet
     /// </summary>
     internal RoomEnemyGraphicsSetDefinition LoadedSet { get; private set; } = RoomEnemyGraphicsSetDefinitions.SessionStart;
 
-    /// <summary>
-    /// Shows the set's members' looks, after the standard sprites room setup selected (#1406, #1463): each member's look as
-    /// the room loaded it, in set order.
-    /// </summary>
-    /// <remarks>
-    /// The members' looks are shown after the standard sprites, as LoadEnemyTileData's copies follow the standard room
-    /// graphics; the game queues them before any enemy AI's own transfer, which these showings also precede.
-    /// </remarks>
-    public void ShowGraphics()
-    {
-        _room.EnsureLoaded();
-        for (int member = 0; member < LoadedSet.Records.Length; member++)
-            _room.Session.SpriteLooks.Show(new GraphicsSetTileCharacters(LoadedSet, member));
-    }
-
     /// <summary>Selects the set whose members' installed sheets the room draws from.</summary>
     internal void LoadGraphicsSet(RoomEnemyGraphicsSetDefinition graphicsSet) => LoadedSet = Ensure.NotNull(graphicsSet);
 }

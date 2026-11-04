@@ -133,9 +133,15 @@ internal static class MotherBrainCorpseArtworkVerification
         InstalledEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
-            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page));
-        return new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, new EnemyTileTransfers(artwork))
+        MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount)
+            .Select(page => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, page))];
+        foreach (MotherBrainSpritePage page in pages)
+            enemies.MotherBrainEncounter.ShowSpritePage(page);
+        IReadOnlyList<int> steps = EncounterArtworkPlacements.MotherBrainSteps(pages);
+        AssertEqual<int?>(steps[^1], enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages),
+            "the encounter reaches the last corpse page's step");
+        return new ObjCharacterTablePage().Page(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, new EnemyTileTransfers(artwork)),
+                new EnemyTileTransfers(artwork))
             .Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
     }
 

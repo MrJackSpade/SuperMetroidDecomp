@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Video;
@@ -33,9 +34,10 @@ internal static class EnemyTileArtworkCeresDoorVerification
         AssertTrue(door.Characters.Span.SequenceEqual(nativeTiles),
             "installed Ceres-door PNG preserves the complete direct tile DMA");
         // $A6:F739 copies the characters to VRAM byte $E000, word $7000: OBJ character $100.
-        AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(0x7000)), PlacedUploads.Of(CeresDoorCharacters.Shown).FirstByte,
+        EncounterArtworkUpload overlay = EncounterArtworkUploads.Step(EncounterArtworkSequence.CeresDoor, 0, new EnemyTileTransfers(stock)).Single();
+        AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(0x7000)), overlay.FirstByte,
             "the door's characters show where the cartridge's DMA lands them among the OBJ characters");
-        AssertEqual(nativeTiles.Length, PlacedUploads.Of(CeresDoorCharacters.Shown).ByteCount, "the door shows all its characters");
+        AssertTrue(overlay.Characters.Span.SequenceEqual(nativeTiles), "the door's overlay step shows all its characters");
 
         // The installed colours, which the import pre-colours the doors' and elevator room's shades from (#1512), are
         // the cartridge's words colour for colour.

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -11,32 +11,33 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>
-/// Checks the Torizos' rooms draw from pictures of each transfer their instruction lists make (#1392): the picture the
-/// draw selects for each region holds exactly the characters live there.
+/// Checks the Torizos' rooms draw from pictures of each step of their artwork sequences (#1392, #1513): each frame a
+/// Torizo's swaps change shows, at each swap its programs make, a picture painting exactly what the frame paints over the
+/// characters its room's load and every swap up to that one leave.
 /// </summary>
 internal static class TorizoTransferPicturesVerification
 {
     /// <summary>
-    /// In Bomb Torizo's and Golden Torizo's rooms, before the first instruction-time transfer and after each, every region
-    /// the transfers make shows the picture of the transfer made last over it, whose characters are those live there.
+    /// In Bomb Torizo's and Golden Torizo's rooms, every frame of the room's sheets each Torizo's sequence changes shows, at
+    /// each of its steps, its picture of that step.
     /// </summary>
     internal static void VerifyTorizoTransferPictures()
     {
-        foreach (RoomHeaderDefinition room in new[] { RoomHeaderDefinitions.BombTorizo, RoomHeaderDefinitions.GoldenTorizo })
+        int frames = 0;
+        foreach ((RoomHeaderDefinition room, EncounterArtworkSequence sequence, int steps) in new[]
+                 {
+                     (RoomHeaderDefinitions.BombTorizo, EncounterArtworkSequence.BombTorizo, TorizoArtworkSwapDefinitions.BombSequence.Count),
+                     (RoomHeaderDefinitions.GoldenTorizo, EncounterArtworkSequence.GoldenTorizo, TorizoArtworkSwapDefinitions.GoldenSequence.Count),
+                 })
         {
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            // The fixture starts in Ceres, whose room leaves its door tiles over standard characters; a session reaching
-            // a Torizo has started on Zebes, whose game start shows the standard characters again.
-            runtime.HudSetup.ShowStandardObjectCharacters();
             runtime.LoadCartridgeRoomForDebug(room);
-            // The room load's uploads reach the OBJ characters when its first frame drains them.
-            runtime.FrameBoundary.BeginAcceptedFrame(0);
-            UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(TorizoArtworkSwapDefinitions.Sources), $"{room.Name}'s transfers");
+            frames += UploadedPictureChecks.AssertFramesFollowSequence(runtime.Enemies.GraphicsSet.LoadedSet, sequence, steps, $"{room.Name}'s swaps");
         }
-        Console.WriteLine($"Torizo transfer pictures: each region of both Torizos' rooms follows their {PlacedUploads.Of(TorizoArtworkSwapDefinitions.Sources).Count} instruction-time transfers.");
+        Console.WriteLine($"Torizo transfer pictures: {frames} frames of both Torizos' rooms follow every step of their artwork sequences.");
     }
 
     /// <summary>Runs the Torizo transfer picture check.</summary>

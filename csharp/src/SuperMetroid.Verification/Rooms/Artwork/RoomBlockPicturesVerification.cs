@@ -523,7 +523,7 @@ internal static class RoomBlockPicturesVerification
         bool sprites = rooms.BlockArtwork == RoomBlockArtwork.Sprites;
         IReadOnlyList<AppearanceOption> options = sprites ? [] : UploadsOf(runtime).AllOptions;
         byte[] tiles = sprites
-            ? RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters.ToArray()
+            ? EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.Reached(runtime)).Characters.ToArray()
             : runtime.ComposedVram()[(BgCharacterWordsConstants.WordOf(BgCharacterSet.Tiles, 0) * sizeof(ushort))..];
         RoomScope scope = RoomScopeOf(runtime);
         bool ceres = scope.Room.AreaIndex == AreaId.Ceres;

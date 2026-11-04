@@ -27,7 +27,7 @@ internal static class SpriteCharactersAccess
         /// <paramref name="sourceOffset"/> bytes into it, as the verification queue's transfers land.
         /// </summary>
         /// <exception cref="InvalidDataException">The bytes are not whole characters from a character's start.</exception>
-        public void Record(int firstByte, int byteCount, SpriteArtworkSource source, int sourceOffset = 0)
+        public void Record(int firstByte, int byteCount, VerificationArtworkSource source, int sourceOffset = 0)
         {
             if (firstByte % SpriteArtworkPlacements.CharacterByteCount != 0 || byteCount % SpriteArtworkPlacements.CharacterByteCount != 0)
                 throw new InvalidDataException($"{byteCount} bytes of {source} at table byte {firstByte} are not whole sprite characters.");
@@ -42,7 +42,7 @@ internal static class SpriteCharactersAccess
         /// <param name="byteCount">Bytes uploaded.</param>
         /// <param name="source">The owned artwork or memory bytes uploaded.</param>
         /// <exception cref="InvalidDataException">The upload reaches the table with a non-linear word increment.</exception>
-        public void RecordUpload(VramDmaDestination destination, int byteCount, SpriteArtworkSource source)
+        public void RecordUpload(VramDmaDestination destination, int byteCount, VerificationArtworkSource source)
         {
             int uploadStart = TableByte(destination);
             int shownStart = Math.Max(uploadStart, 0);

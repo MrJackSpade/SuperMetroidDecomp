@@ -65,18 +65,18 @@ internal sealed class EnemyPresentation
     internal BossBodyCanvas RequireBossBody() =>
         BossBody ?? throw new InvalidOperationException("No boss has attached its body layer.");
 
-    /// <summary>The session's shown sprite looks, which enemy frames select their pictures from (#1463).</summary>
-    internal ShownSpriteArtwork SpriteLooks => _room.Session.SpriteLooks;
+    /// <summary>How far the room's encounters have played their artwork sequences, which their frames' pictures follow (#1513).</summary>
+    internal EncounterArtworkProgress ArtworkProgress => _room.Session.ArtworkProgress;
 
-    /// <summary>Shows an encounter's <paramref name="look"/> over what showed before it (#1406, #1463).</summary>
-    internal void ShowLook(SpriteArtworkSource look) => _room.Session.ShowLook(look);
+    /// <summary>Advances the encounter playing <paramref name="sequence"/> to step <paramref name="step"/> at this update (#1513).</summary>
+    internal void ShowArtwork(EncounterArtworkSequence sequence, int step) => ArtworkProgress.Show(sequence, step);
 
-    /// <summary>The rot step each region Mother Brain's rotting corpse shows its rows over shows (#1392).</summary>
-    internal CorpseRotSteps RotSteps { get; } = new();
-
-    /// <summary>Records that Mother Brain's corpse shows its row <paramref name="row"/> as rot step <paramref name="step"/> left it (#1406).</summary>
-    internal void ShowRotRow(int row, int step) =>
-        RotSteps.Show(Sheets.Coverage(LoadedSet).RotRow(row), step, SpriteLooks.Recorded);
+    /// <summary>
+    /// Advances the encounter playing <paramref name="sequence"/>, whose steps show <paramref name="order"/>, to the step
+    /// showing <paramref name="look"/> at this update (#1513).
+    /// </summary>
+    internal void ShowArtwork<TLook>(EncounterArtworkSequence sequence, IReadOnlyList<TLook> order, TLook look)
+        where TLook : IEquatable<TLook> => ArtworkProgress.Show(sequence, order, look);
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
@@ -98,8 +98,8 @@ internal sealed class EnemyPresentation
         (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, CorpseRotView? rot) = draw;
         PictureShading shading = draw.Shading ?? PictureShading.Standard;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
-        foreach (string picture in Pictures(frame, Sheets.Layers(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot))
-            sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
+        string picture = Picture(frame, Sheets.Variations(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot);
+        sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
     }
 
     /// <summary>
@@ -120,19 +120,18 @@ internal sealed class EnemyPresentation
     {
         SpawnedObjectOwner owner = graphics.Owner;
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, owner);
-        foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, owner, frame),
-                     Sheets.SpawnedRotCorpse(LoadedSet, owner, frame), rot))
-            sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None) { Shading = graphics.Shading });
+        string picture = Picture(frame, Sheets.SpawnedVariations(LoadedSet, owner, frame),
+            Sheets.SpawnedRotCorpse(LoadedSet, owner, frame), rot);
+        sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None) { Shading = graphics.Shading });
     }
 
     /// <summary>
-    /// The pictures <paramref name="frame"/> draws as, front first: the frame whole; for a frame drawn over a rotting
-    /// corpse's rows, its picture of the <paramref name="rot"/> its draw selected (#1406); or, for a frame drawn over
-    /// regions the room's encounters show looks over, the picture of each of its <paramref name="layers"/> showing what each
-    /// region it reads shows now: the rot step a corpse left there, the look shown last over it or the graphics set's own.
+    /// The picture <paramref name="frame"/> draws as: for a frame drawn over a rotting corpse's rows, its picture of the
+    /// <paramref name="rot"/> its draw selected (#1406); for a frame the room's encounters' artwork sequences change, its
+    /// picture of the step each of its <paramref name="variations"/> has reached (#1513); else the frame itself.
     /// </summary>
     /// <exception cref="InvalidDataException">The frame shows a corpse's rot and the draw selects none, or another corpse's.</exception>
-    private IEnumerable<string> Pictures(string frame, IReadOnlyList<LookRegion[]> layers, string? rotCorpse, CorpseRotView? rot)
+    private string Picture(string frame, IReadOnlyList<FrameArtworkVariation> variations, string? rotCorpse, CorpseRotView? rot)
     {
         if (rotCorpse is not null)
         {
@@ -140,17 +139,15 @@ internal sealed class EnemyPresentation
                 throw new InvalidDataException($"Sheet frame {frame} shows the rot of {rotCorpse}, but its draw selects no rot.");
             if (rot.Corpse.Name != rotCorpse)
                 throw new InvalidDataException($"Sheet frame {frame} shows the rot of {rotCorpse}, but its draw selects the rot of {rot.Corpse.Name}.");
-            return [rot.PictureName(frame)];
+            return rot.PictureName(frame);
         }
-        if (layers.Count == 0)
-            return [frame];
-        EncounterLooks catalog = Sheets.Looks;
-        IReadOnlyList<SpriteArtworkSource> setLooks = catalog.Of(LoadedSet);
-        SetLookCoverage coverage = Sheets.Coverage(LoadedSet);
-        return layers.Select((regions, layer) => catalog.PictureName(frame, layer,
-            [.. regions.Select(region => RotSteps.TryShowing(region, out int step, out long stamp)
-                    && !SpriteLooks.ShownAfter(stamp).Any(shown => coverage.Covers(shown, region))
-                ? new LookRegionContent(region, null, step) : coverage.Showing(SpriteLooks, catalog, setLooks, region))]));
+        var shown = new List<(EncounterArtworkSequence Sequence, int Step)>();
+        foreach (FrameArtworkVariation variation in variations)
+        {
+            if (ArtworkProgress.StepOf(variation.Sequence) is int reached && variation.PictureAt(reached) is int picture)
+                shown.Add((variation.Sequence, picture));
+        }
+        return FrameArtworkVariation.PictureName(frame, shown);
     }
 
     /// <summary>

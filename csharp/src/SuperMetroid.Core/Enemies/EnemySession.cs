@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The enemy-side words that outlive each room, as the game keeps them across enemy loading (#1329): the
 /// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
-/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and the sprite looks
-/// shown; the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind; and the
+/// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and how far the
+/// room's encounters have played their artwork; the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind; and the
 /// host's installed enemy artwork, which every room's enemies draw from.
 /// </summary>
-public sealed class EnemySession : ISpriteObjectPage
+public sealed class EnemySession : IEncounterArtworkView
 {
     /// <summary>Creates the enemy words a fresh power-on holds, bound to the session's unauthored Speed Booster cadence.</summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives every runtime.</param>
@@ -67,11 +67,10 @@ public sealed class EnemySession : ISpriteObjectPage
     internal BossAndIntroOverreadServices? BossOverreads { get; set; }
 
     /// <summary>
-    /// The sprite looks gameplay has shown, which enemy frames select their pictures from (#1463): the standard sprites,
-    /// each room's graphics-set members and its encounters' looks, in the order shown. They outlive each room, as what a
-    /// room showed stays shown until something replaces it.
+    /// How far the room's encounters have played their artwork sequences (#1513), which their frames' pictures and the Ceres
+    /// Ridley arena's backgrounds follow. Each room load starts it afresh.
     /// </summary>
-    internal ShownSpriteArtwork SpriteLooks { get; } = new();
+    internal EncounterArtworkProgress ArtworkProgress { get; } = new();
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
@@ -89,27 +88,6 @@ public sealed class EnemySession : ISpriteObjectPage
     /// </summary>
     internal EnemyOverreadServices? Overreads { get; set; }
 
-    /// <summary>Shows an encounter's <paramref name="look"/> over what showed before it (#1406, #1463).</summary>
-    /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
-    /// <exception cref="InvalidDataException">No catalogued encounter shows the look, so no sheet pictures it.</exception>
-    internal void ShowLook(SpriteArtworkSource look)
-    {
-        EncounterLooks catalog = (Sheets ?? throw new InvalidOperationException("Showing an encounter's look requires installed enemy sheets.")).Looks;
-        if (!catalog.IsEncounterLook(Ensure.NotNull(look)))
-            throw new InvalidDataException($"No catalogued encounter shows {look}.");
-        SpriteLooks.Show(look);
-    }
-
-    /// <summary>
-    /// Whether <paramref name="look"/> shows on the sprites' artwork the Ceres Ridley arena's backgrounds show (#1463,
-    /// #1466): it was shown and no later look has hidden it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">No enemy sheets are installed.</exception>
-    internal bool Shows(SpriteArtworkSource look) =>
-        SpriteLooks.VisibleNewestFirst((Sheets ?? throw new InvalidOperationException("Showing the sprites' artwork as a background requires installed enemy sheets.")).Looks)
-            .Contains(Ensure.NotNull(look));
-
     /// <inheritdoc />
-    bool ISpriteObjectPage.Shows(SpriteArtworkSource look) => Shows(look);
-
+    bool IEncounterArtworkView.Reached(EncounterArtworkSequence sequence, int step) => ArtworkProgress.Reached(sequence, step);
 }

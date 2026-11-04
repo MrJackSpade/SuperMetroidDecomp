@@ -4,6 +4,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -45,10 +46,7 @@ internal static class GunshipEscapeTimerVerification
         samus.Presentation.PrimeGraphics(samus);
         runtime.EscapeTimer.SelectRunningPhase(EscapeTimerPhase.InPlace);
         runtime.EscapeTimer.SetRemaining(EscapeTimerClock.Time(2, 59, 50));
-        runtime.ShowEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
-        var timerTilesBefore = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteLooks, RuntimeArtworkContent.Of(runtime))
-            .Characters.Slice(0x3c00, 0x400).ToArray();
         AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -73,9 +71,9 @@ internal static class GunshipEscapeTimerVerification
             }
         }
         AssertTrue(sawDustUpload, "Confirmation reaches the actual liftoff dust upload");
-        // The final dust page shows on the update that recorded it, over the characters the timer drew from (#1406).
-        byte[] shownObjects = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteLooks, RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
-        AssertTrue(!shownObjects.AsSpan(0x3c00, 0x400).SequenceEqual(timerTilesBefore), "Liftoff actually repurposes the timer tiles");
+        // The final dust page shows on the update that reached it (#1406, #1513).
+        AssertEqual<int?>(GunshipLiftoffTransferDefinitions.Frames.Length - 1, runtime.EnemySession.ArtworkProgress.StepOf(EncounterArtworkSequence.GunshipLiftoff),
+            "Liftoff reaches its last dust page");
         AssertTrue(!TimerSpritesPresent(), "No stale timer draw remains once the dust page shows");
         AssertEqual(timeBeforeBoarding, Time(), "Liftoff keeps the timer suspended");
         Console.WriteLine("Gunship escape timer: normal timer draws, same-frame boarding suppression, preserved active status and no timer sprites through liftoff dust upload passed.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
@@ -330,9 +331,9 @@ internal sealed class CeresRidleyGetaway
         _room.Services.WriteBg1Picture(new WrittenPicture(page.Picture, page.Cell));
 
     /// <summary>
-    /// Ports ProcessSpriteTilesTransfers (#1406): shows the list's next page, one an update. A page of the
-    /// timer-sprite list shows over the OBJ characters from this update's frame, as the game's copy, made at this
-    /// update's displayed frame, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
+    /// Ports ProcessSpriteTilesTransfers (#1406, #1513): shows the list's next page, one an update. A page of the
+    /// timer-sprite list advances the escape's artwork sequence from this update's frame on; the background list's pages
+    /// show nowhere, so each of its updates shows nothing but still takes its update.
     /// </summary>
     /// <returns>True once every page of the list has been shown.</returns>
     /// <exception cref="InvalidDataException">The cursor names no list.</exception>
@@ -345,7 +346,7 @@ internal sealed class CeresRidleyGetaway
             return true;
         if (cursor.List == CeresEscapePageList.Objects)
         {
-            _presentation.ShowLook(CeresEscapeObjectPages.ObjectPages[cursor.Shown]);
+            _presentation.ShowArtwork(EncounterArtworkSequence.CeresEscapePages, cursor.Shown);
         }
         state.CeresEscapePages = cursor.Advance();
         return state.CeresEscapePages.IsFinished;

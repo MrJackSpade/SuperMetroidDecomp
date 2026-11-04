@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>
 /// Checks Ceres Ridley's room draws his scene from pictures of its pre-coloured sheets (#1392): the Baby he carries, the
-/// door overlay, his tail and his wings, over each upload his getaway makes.
+/// door overlay, his tail and his wings, once his getaway has brought up every escape page (#1513).
 /// </summary>
 internal static class CeresRidleyPicturesVerification
 {
@@ -28,9 +28,9 @@ internal static class CeresRidleyPicturesVerification
     private static readonly Position16<RoomPixels> Camera = Position16<RoomPixels>.Zero;
 
     /// <summary>
-    /// In Ceres Ridley's room every region his getaway's uploads make follows them, and, with them all made, the Baby
-    /// holding a pose, the door overlay, and his tail and wings each paint exactly what their frames' parts paint over the
-    /// live characters.
+    /// In Ceres Ridley's room every frame his getaway's escape pages change follows them, and, with them all brought up, the
+    /// Baby holding a pose, the door overlay, and his tail and wings each paint exactly what their frames' parts paint over
+    /// the characters the room's load and the pages leave.
     /// </summary>
     internal static void VerifyCeresRidleyPictures()
     {
@@ -39,9 +39,11 @@ internal static class CeresRidleyPicturesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
-        // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        UploadedPictureChecks.AssertRegionsFollowUploads(runtime, PlacedUploads.Of(CeresEscapeObjectPages.ObjectPages), "Ceres Ridley's getaway");
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
+        UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.CeresEscapePages, CeresEscapePageDefinitions.ObjectPageCount,
+            "Ceres Ridley's getaway", requireFrames: false);
+        runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.CeresEscapePages, CeresEscapePageDefinitions.ObjectPageCount - 1);
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         RoomEnemySlot door = runtime.Enemies.SlotTable.Slots[1];
@@ -52,10 +54,11 @@ internal static class CeresRidleyPicturesVerification
             MovementAnimationEnabled = false, BabyCurrentPose = CeresBabyPose.Round, BabyPoseDuration = 2, BabyFrameHold = 1,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };
-        ImmutableArray<SpriteDraw> scene = Draw(runtime, (sprites, live) =>
+        ImmutableArray<SpriteDraw> scene = Draw(sprites =>
             runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, Camera));
         AssertTrue(scene.Any(draw => draw.Source.Kind == SpriteSourceKind.CeresBaby), "Ceres Ridley's scene draws the Baby");
-        UploadedPictureChecks.AssertPicturesPaintOverLive(runtime, scene, $"Ceres Ridley's scene with {door.DefinitionId} following him");
+        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, UploadedPictureChecks.Reached(runtime), scene,
+            $"Ceres Ridley's scene with {door.DefinitionId} following him");
 
         runtime.Enemies.RidleyEncounter.Ridley = new RidleyEnemyState
         {
@@ -67,11 +70,11 @@ internal static class CeresRidleyPicturesVerification
             })],
         };
         ridley.Position = ridley.Position.WithWhole(new(200, 100));
-        ImmutableArray<SpriteDraw> supplements = Draw(runtime, (sprites, live) =>
+        ImmutableArray<SpriteDraw> supplements = Draw(sprites =>
             runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, ridley, Camera));
         AssertTrue(supplements.Any(draw => draw.Source.Kind == SpriteSourceKind.RidleyWings), "Ceres Ridley draws his wings");
-        UploadedPictureChecks.AssertPicturesPaintOverLive(runtime, supplements, "Ceres Ridley's tail and wings");
-        Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the live characters.");
+        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, UploadedPictureChecks.Reached(runtime), supplements, "Ceres Ridley's tail and wings");
+        Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the escape pages' characters.");
     }
 
     /// <summary>
@@ -101,7 +104,7 @@ internal static class CeresRidleyPicturesVerification
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
         RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.Bg1Overlay
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
-        ReadOnlySpan<byte> page = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters;
+        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, UploadedPictureChecks.Reached(runtime)).Characters;
         int written = 0;
         for (int index = 0; index < RoomWrittenOverlay.CellCount; index++)
         {
@@ -141,12 +144,12 @@ internal static class CeresRidleyPicturesVerification
     /// <summary>Bytes of one four-bit character.</summary>
     private const int CharacterBytes = 32;
 
-    /// <summary>The sprites <paramref name="draw"/> publishes over the runtime's live characters.</summary>
-    private static ImmutableArray<SpriteDraw> Draw(SuperMetroidRuntime runtime, Action<SpriteFrameBuffer, SpriteArtwork> draw)
+    /// <summary>The sprites <paramref name="draw"/> publishes.</summary>
+    private static ImmutableArray<SpriteDraw> Draw(Action<SpriteFrameBuffer> draw)
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        draw(sprites, RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks));
+        draw(sprites);
         sprites.FinalizeFrame();
         return sprites.Draws;
     }

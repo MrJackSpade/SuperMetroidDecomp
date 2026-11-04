@@ -74,7 +74,7 @@ public sealed class VramWriteQueue
     }
 
     /// <summary>Queues named owned background artwork; the drain binds it (#1350).</summary>
-    public void EnqueueBackgroundSource(SpriteArtworkSource source, ushort sizeInBytes, VramDmaDestination destination)
+    public void EnqueueBackgroundSource(VerificationArtworkSource source, ushort sizeInBytes, VramDmaDestination destination)
     {
         Ensure.NotNull(source);
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
@@ -189,7 +189,7 @@ public sealed class VramWriteQueue
                 else
                 {
                     vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
-                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new InstalledArtworkCharacters(entry.AssetId));
+                    objects?.RecordUpload(entry.Destination, entry.SizeInBytes, new InstalledArtworkUploadSource(entry.AssetId));
                 }
             }
         }

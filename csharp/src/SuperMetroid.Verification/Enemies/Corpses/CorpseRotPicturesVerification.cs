@@ -72,7 +72,7 @@ internal static class CorpseRotPicturesVerification
             if (!rot.Rotting())
                 after++;
             rotted = Math.Max(rotted, checked((int)rot.Steps()));
-            SpriteArtwork rottingArt = Rotted(RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks), simulation, expected,
+            SpriteArtwork rottingArt = Rotted(EnemySheetFixtures.LivePage(set, []), simulation, expected,
                 $"{context} after update {updates}");
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();
@@ -109,7 +109,7 @@ internal static class CorpseRotPicturesVerification
         EnemySpritemapDraw frame, SpriteArtwork rotting, string context)
     {
         ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == source)];
-        UploadedPictureChecks.AssertDrawnPictures(sheet, [picture], drawn, context);
+        UploadedPictureChecks.AssertDrawnPicture(sheet, picture, drawn, context);
         CharacterSpriteDraw parted = EnemyPartComposition.Spritemap(rotting, source, RuntimeArtworkContent.Of(runtime).EnemyTiles.Spritemaps
             ?? throw new InvalidOperationException("The runtime loads the enemy compositions."), frame with { Origin = new(drawn[0].Origin.X, drawn[0].Origin.Y) })
             ?? throw new InvalidOperationException($"{context}: the frame has parts.");
@@ -185,8 +185,6 @@ internal static class CorpseRotPicturesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // A session reaching Tourian has started on Zebes, whose game start shows the standard characters again.
-        runtime.HudSetup.ShowStandardObjectCharacters();
         runtime.LoadCartridgeRoomForDebug(room);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         return runtime;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -42,21 +43,17 @@ internal sealed class MotherBrainEncounter
         Colours.Sprites.Lay(PaletteFxShades.Of(PaletteFxColours.TourianShutters, record));
 
     /// <summary>
-    /// Shows <paramref name="page"/> to the sprites on this update (#1406): from now on the frames drawn over its characters
-    /// picture what it holds.
+    /// Advances the encounter's artwork sequence to <paramref name="page"/> on this update (#1406, #1513): from now on her
+    /// and the Baby's frames show their pictures of that step.
     /// </summary>
     internal void ShowSpritePage(MotherBrainSpritePage page) =>
-        _presentation.ShowLook(MotherBrainCharacterSources.Of(page));
+        _presentation.ShowArtwork(EncounterArtworkSequence.MotherBrainPages, MotherBrainSpritePageDefinitions.Sequence, page);
 
     /// <summary>
-    /// Shows every row of the rotting corpse as rot step <paramref name="step"/> left it (#1392, #1406): the corpse's sheet
-    /// pictures each step, so the room records only the step its rows show.
+    /// Shows the rotting corpse as rot step <paramref name="step"/> left it (#1392, #1406, #1513): the corpse's sheet pictures
+    /// each step, so the room records only the step it shows.
     /// </summary>
-    internal void ShowCorpseRotStep(int step)
-    {
-        for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-            _presentation.ShowRotRow(row, step);
-    }
+    internal void ShowCorpseRotStep(int step) => _presentation.ShowArtwork(EncounterArtworkSequence.MotherBrainCorpseRot, step);
 
     /// <summary>
     /// Requests a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the

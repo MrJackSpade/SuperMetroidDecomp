@@ -27,6 +27,8 @@ internal static class CrocomireSkeletonArtworkVerification
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
         int frames = CrocomireSkeletonTransferDefinitions.FrameCount;
         AssertEqual(6, frames, "Crocomire has six native skeleton uploads");
+        IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> steps =
+            EncounterArtworkUploads.Steps(EncounterArtworkSequence.CrocomireSkeleton, new EnemyTileTransfers(stock));
         for (int index = 0; index < frames; index++)
         {
             // The import's source of each chunk is the cartridge's own selection.
@@ -35,7 +37,7 @@ internal static class CrocomireSkeletonArtworkVerification
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
             ushort source = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
-            AssertEqual(destination, PlacedUploads.Of(new CrocomireSkeletonChunkCharacters(index)).FirstByte / 2,
+            AssertEqual(destination, steps[index].Single().FirstByte / 2,
                 $"Crocomire skeleton destination {index} matches the cartridge");
             AssertEqual(0xad0000 | source, chunkSource,
                 $"Crocomire skeleton source {index} matches the cartridge");
@@ -97,7 +99,7 @@ internal static class CrocomireSkeletonArtworkVerification
             stockDirectory, overrides);
         (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
-        int firstDestination = PlacedUploads.Of(new CrocomireSkeletonChunkCharacters(0)).FirstByte;
+        int firstDestination = steps[0].Single().FirstByte;
         AssertEqual((byte)(installedCharacters[firstDestination] ^ 0x80),
             editedCharacters[firstDestination],
             "Crocomire skeleton PNG edit changes the actual uploaded planar pixel");
@@ -134,12 +136,12 @@ internal static class CrocomireSkeletonArtworkVerification
             for (int index = 0;
                  index <= CrocomireSkeletonTransferDefinitions.FrameCount; index++)
                 ShowNextChunk(system, state);
-            // The skeleton's chunks as its sheets picture them: each installed chunk where the cartridge uploads it (#1406).
-            var shown = new SpriteArtworkPlacements();
-            foreach (SpriteArtworkPlacement upload in PlacedUploads.Of(CrocomireSkeletonTransferDefinitions.Sources))
-                shown.Record(upload);
-            return new RunInstalledResult(new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(art)).Characters[..SpriteArtworkPlacements.TableByteCount].ToArray(),
-                state, guard);
+            // The skeleton's chunks as its sheets picture them: every step of its artwork sequence copied in order (#1406, #1513).
+            var characters = new byte[SpriteArtworkPlacements.TableByteCount];
+            foreach (EncounterArtworkUpload upload in EncounterArtworkUploads.Steps(EncounterArtworkSequence.CrocomireSkeleton, new EnemyTileTransfers(art))
+                         .SelectMany(step => step))
+                upload.ApplyTo(characters);
+            return new RunInstalledResult(characters, state, guard);
         }
 
         static void SetRuntimeFields(RoomEnemySystem system,

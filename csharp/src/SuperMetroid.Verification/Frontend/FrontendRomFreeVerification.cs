@@ -606,14 +606,10 @@ internal static class FrontendRomFreeVerification
             }
             if (room.Room == RoomHeaderDefinitions.Draygon && frame == 0)
             {
-                SpriteArtworkPlacement evir = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles);
-                ReadOnlySpan<byte> nativeEvir = ShownObjects(native.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
-                ReadOnlySpan<byte> installedEvir = ShownObjects(installed.GameplayRuntimeForVerification).Slice(evir.FirstByte, evir.ByteCount);
-                AssertTrue(installedEvir.SequenceEqual(nativeEvir),
-                    "installed Draygon Evir intro characters match native with bank-$B1 reads forbidden");
-
-                static ReadOnlySpan<byte> ShownObjects(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime) =>
-                    new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteLooks, RuntimeArtworkContent.Of(runtime)).Characters;
+                // Draygon's opening readies the Evirs from the installed tiles in both runtimes (#1513).
+                AssertEqual(native.GameplayRuntimeForVerification.EnemySession.ArtworkProgress.StepOf(SuperMetroid.Core.Assets.EncounterArtworkSequence.DraygonEvirs),
+                    installed.GameplayRuntimeForVerification.EnemySession.ArtworkProgress.StepOf(SuperMetroid.Core.Assets.EncounterArtworkSequence.DraygonEvirs),
+                    "installed Draygon's opening reaches the native step with bank-$B1 reads forbidden");
             }
         }
         if (awakenedGoldenTorizo is not null)

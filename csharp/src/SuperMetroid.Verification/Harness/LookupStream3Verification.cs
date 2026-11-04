@@ -1473,9 +1473,10 @@ internal static class LookupStream3Verification
                 int address = start + index * 7;
                 int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
-                SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(method()));
+                EncounterArtworkUpload shown = EncounterArtworkUploads.Step(SuperMetroid.Core.Assets.EncounterArtworkSequence.MotherBrainPages,
+                    EncounterArtworkPlacements.MotherBrainSteps([method()])[0], InstalledPageResolver).Single();
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 production escape page shows where the native record places it");
-                AssertEqual(nativeSize, shown.ByteCount, "stream 3 production escape page shows the native record's bytes");
+                AssertEqual(nativeSize, shown.Characters.Length, "stream 3 production escape page shows the native record's bytes");
                 AssertEqual(index + 1, timerList ? sequence.ThirdPhaseDeath.EscapePagesShown : sequence.ThirdPhaseDeath.ExplodedDoorPagesShown,
                     "stream 3 production escape cursor advances once");
             }
@@ -1506,6 +1507,10 @@ internal static class LookupStream3Verification
             SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(stock, null)));
     }
 
+    /// <summary>The installation's enemy, boss and area artwork with its escape timer, which Mother Brain's pages copy (#1513).</summary>
+    private static SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers InstalledPageResolver =>
+        new(InstalledFixtures.EnemyArtwork, timer: InstalledFixtures.Maps.EscapeTimerTiles);
+
     /// <summary>Checks corpse row offsets and rot/page transfer geometry against native source and destination words.</summary>
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
@@ -1528,10 +1533,11 @@ internal static class LookupStream3Verification
             uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            SpriteArtworkPlacement page = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)));
+            EncounterArtworkUpload page = EncounterArtworkUploads.Step(SuperMetroid.Core.Assets.EncounterArtworkSequence.MotherBrainPages,
+                EncounterArtworkPlacements.MotherBrainSteps([MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, row)])[0], InstalledPageResolver).Single();
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.ByteCount, "stream 3 corpse page bytes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)

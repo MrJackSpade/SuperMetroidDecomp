@@ -57,9 +57,11 @@ internal static class CeresEscapeTileArtworkVerification
             {
             }
         }
-        ShownSpriteArtwork shown = installed.Presentation.SpriteLooks;
-        AssertEqual(7, shown.Uploads.Count, "Ceres escape production shows the timer-sprite list's seven pages");
-        ReadOnlySpan<byte> installedPage = new ObjCharacterTablePage().Page(shown, new EnemyTileTransfers(stock, timer: timer)).Characters;
+        AssertEqual<int?>(CeresEscapePageDefinitions.ObjectPageCount - 1, installed.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
+            "Ceres escape production reaches the last of the timer-sprite list's seven pages, and the background list's show nothing");
+        IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> installedSteps =
+            EncounterArtworkUploads.Steps(EncounterArtworkSequence.CeresEscapePages, new EnemyTileTransfers(stock, timer: timer));
+        AssertEqual(CeresEscapePageDefinitions.ObjectPageCount, installedSteps.Count, "the escape's artwork sequence has the timer-sprite list's seven pages");
 
         // The cartridge's timer-sprite records, read from its descriptors and source bytes.
         var nativeQueue = new VramWriteQueue();
@@ -77,10 +79,13 @@ internal static class CeresEscapeTileArtworkVerification
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        foreach (SpriteArtworkPlacement page in shown.Uploads)
-            AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.ByteCount)
-                    .SequenceEqual(installedPage.Slice(page.FirstByte, page.ByteCount)),
-                $"the Ceres page {page.Source} matches the cartridge's OBJ characters without source reads");
+        for (int step = 0; step < installedSteps.Count; step++)
+        {
+            foreach (EncounterArtworkUpload page in installedSteps[step])
+                AssertTrue(nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + page.FirstByte, page.Characters.Length)
+                        .SequenceEqual(page.Characters.Span),
+                    $"the Ceres escape page of step {step} matches the cartridge's OBJ characters without source reads");
+        }
 
         TileSheetDefinition warning =
             CeresEscapeTileArtworkDefinitions.WarningText;
@@ -128,15 +133,18 @@ internal static class CeresEscapeTileArtworkVerification
                 record.Pointer == CeresEscapeVramTransferDefinitions.TimerSprites);
         var editedState = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage } };
         _ = editedEnemies.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(editedState);
-        ReadOnlySpan<byte> editedPage = new ObjCharacterTablePage().Page(editedEnemies.Presentation.SpriteLooks,
-            new EnemyTileTransfers(edited, timer: timer)).Characters;
+        AssertEqual<int?>(firstWarningPage, editedEnemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
+            "the getaway reaches the warning text's first page");
+        EncounterArtworkUpload editedWarning = EncounterArtworkUploads.Steps(EncounterArtworkSequence.CeresEscapePages,
+            new EnemyTileTransfers(edited, timer: timer))[firstWarningPage].Single();
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
                 out TileTransferDefinition warningTransfer),
             "first warning transfer is compiled");
-        AssertEqual(editedChunk.Span[0],
-            editedPage[SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord))],
-            "edited Ceres warning PNG changes the page production shows");
+        AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord)), editedWarning.FirstByte,
+            "the warning text's first page lands where the cartridge copies it");
+        AssertEqual(editedChunk.Span[0], editedWarning.Characters.Span[0],
+            "edited Ceres warning PNG changes the page production pictures");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(0, 0, 0x0200,
                     out ReadOnlyMemory<byte> reloaded) &&
@@ -152,7 +160,7 @@ internal static class CeresEscapeTileArtworkVerification
         // The pictures of the warning pages are composed from the installed characters; composing them without those
         // characters fails rather than falling back to cartridge bytes.
         var missing = new EnemyTileTransfers(new InstalledEnemyArtwork(stock.Enemies, stock.Bosses, new AreaSourceArtwork()), timer: timer);
-        AssertThrows<InvalidDataException>(() => SpriteArtworkBytes.Of(CeresEscapeObjectPages.ObjectPages[firstWarningPage], missing),
+        AssertThrows<InvalidDataException>(() => EncounterArtworkUploads.Steps(EncounterArtworkSequence.CeresEscapePages, missing),
             "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(
             "Ceres escape tiles: both indexed PNGs match native bytes; the seven OBJ " +

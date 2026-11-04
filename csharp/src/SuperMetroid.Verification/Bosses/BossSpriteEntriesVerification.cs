@@ -24,6 +24,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx.Artwork;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>
 /// Checks #1344: boss and scripted-actor sprite parts publish whole-frame entries over the gameplay OBJ page, and their
 /// OBJ artwork reaches that page as named owned sources rather than VRAM writes or bus addresses.
@@ -59,41 +60,36 @@ internal static class BossSpriteEntriesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         var uploads = new SpriteArtworkPlacements();
         var queue = new VramWriteQueue();
-        var statue = new TourianStatuePictureCharacters(AnimatedTileObject.TourianStatuePhantoon, TourianStatueTilePicture.Released);
+        var owned = new InstalledArtworkUploadSource(InstalledArtworkId.StandardObjectTiles);
         var content = RuntimeArtworkContent.Of(runtime);
-        ReadOnlyMemory<byte> picture = SpriteArtworkBytes.Of(statue, content);
-        queue.EnqueueSource(statue, checked((ushort)picture.Length), VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters));
+        ReadOnlyMemory<byte> picture = owned.Resolve(content)[..0x800];
+        queue.EnqueueSource(owned, checked((ushort)picture.Length), VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters));
         var staging = new VramStagingBuffer(64);
         staging.ByteView(0, 64)[3] = 0x5a;
         queue.EnqueueStaging(64, 0x7e9000, staging, 0, VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters, 0x400));
         queue.DrainTo(new SnesVram(), content, uploads, BgArtworkFixtures.For(new SnesVram()));
         staging.ByteView(0, 64)[3] = 0;
         AssertEqual(2, uploads.Uploads.Count, "Both uploads reach the OBJ page");
-        AssertEqual<SpriteArtworkSource>(statue, uploads.Uploads[0].Source, "The statue picture is bound by its identity");
+        AssertEqual<VerificationArtworkSource>(owned, uploads.Uploads[0].Source, "The installed upload is bound by its identity");
         AssertTrue(uploads.Uploads[1].Source is StagedObjCharacters, "A staged corpse upload keeps the bytes it read");
         SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, content);
-        AssertTrue(page.Characters.Slice(0, picture.Length).SequenceEqual(picture.Span), "The page shows the statue picture");
+        AssertTrue(page.Characters.Slice(0, picture.Length).SequenceEqual(picture.Span), "The page shows the installed upload");
         AssertEqual((byte)0x5a, page.Characters[0x800 + 3], "The page shows the staged bytes as uploaded, not as later changed");
 
-        Console.WriteLine("Boss sprite entries stage 1: Dead Torizo's hook frame publishes over the OBJ page, and statue pictures and staged corpse uploads bind as owned sources.");
+        Console.WriteLine("Boss sprite entries stage 1: Dead Torizo's hook frame publishes over the OBJ page, and installed and staged corpse uploads bind as owned sources.");
     }
 
-    /// <summary>Stage 2: Draygon's opening Evir sheet and Torizo's instruction-time copies name their installed tiles.</summary>
+    /// <summary>Stage 2: Draygon's opening's one artwork step copies Evir's installed tiles (#1513).</summary>
     internal static void VerifyBossSpriteEntriesStage2()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var resolver = new EnemyTileTransfers(artwork);
         ReadOnlyMemory<byte> evirTiles = artwork.Enemies.TilesOf(EnemyDefinitionId.Evir);
-        AssertTrue(evirTiles.Length == SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir] &&
-            new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
-            "Evir's tiles resolve to its installed sheet");
-        var uploads = new SpriteArtworkPlacements();
-        uploads.Record(PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles));
-        SpriteArtwork page = new ObjCharacterTablePage().Page(uploads, resolver);
-        int evirByte = PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles).FirstByte;
-        AssertTrue(page.Characters.Slice(evirByte, evirTiles.Length).SequenceEqual(evirTiles.Span),
-            "The page shows Evir's sheet where Draygon's opening upload lands");
-        Console.WriteLine("Boss sprite entries stage 2: Draygon's Evir sheet binds Evir's installed tiles.");
+        AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[EnemyDefinitionId.Evir], evirTiles.Length,
+            "Evir's installed sheet is its whole tile set");
+        EncounterArtworkUpload upload = EncounterArtworkUploads.Steps(EncounterArtworkSequence.DraygonEvirs, resolver).Single().Single();
+        AssertTrue(upload.Characters.Span.SequenceEqual(evirTiles.Span), "Draygon's opening copies Evir's installed sheet");
+        Console.WriteLine("Boss sprite entries stage 2: Draygon's opening step copies Evir's installed tiles.");
     }
 
     /// <summary>
@@ -133,36 +129,26 @@ internal static class BossSpriteEntriesVerification
             + string.Join(", ", published.Select(source => $"{source.Kind} {source.Instance}")));
         AssertEqual(new Position16<ScreenPixels>(140, 138), sprites.Draws[0].Origin, "The tail tip sits at its segment's screen point");
 
-        CeresWarningTextPage characters = CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 512, 512)
+        int characters = CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 512, 512)
             ?? throw new InvalidOperationException("The warning page holds the transfer.");
-        AssertEqual(new CeresWarningTextPage(1), characters, "A warning-text transfer names the warning page it copies");
+        AssertEqual(1, characters, "A warning-text transfer names the warning page it copies");
         AssertTrue(CeresWarningTextPageConstants.ForTransfer(CeresEscapeNativeSources.PageSource(0) + 64, 128) is null,
             "A transfer that copies no warning page whole names no page");
         AssertTrue(CeresWarningTextPageConstants.ForTransfer(0x7e9000, 64) is null, "A transfer outside both pages names no page");
-        AssertTrue((artwork.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("The installation has no Ceres escape pages."))
-                .TryResolve(0, 512, 512, out ReadOnlyMemory<byte> installed) &&
-            characters.Resolve(new EnemyTileTransfers(artwork)).Span.SequenceEqual(installed.Span),
-            "The warning page look resolves to the installed warning characters");
-        Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres warning pages name their looks.");
+        AssertTrue(CeresWarningTextPages.ByteOffset(characters) == 512 && CeresWarningTextPages.ByteCount(characters) == 512,
+            "The warning page shows the installed warning characters the transfer copies");
+        Console.WriteLine("Boss sprite entries stage 3: Ridley's tail and wings publish named entries in order; Ceres warning transfers name their pages.");
     }
 
-    /// <summary>Stage 4: Mother Brain's page selections show installed pages, and a page her sheets do not have is refused (#1406).</summary>
+    /// <summary>Stage 4: Mother Brain's page selections advance her artwork sequence, and a page her sheets do not have is refused (#1406, #1513).</summary>
     internal static void VerifyBossSpriteEntriesStage4()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        ShownSpriteArtwork uploads = enemies.Room.Session.SpriteLooks;
-        int corpseBytes = MotherBrainCorpseSheet.PageByteCount;
-        enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1));
-        AssertEqual<SpriteArtworkSource>(new MotherBrainCorpseCharacters(1), uploads.Uploads.Single().Source,
-            "A corpse page selection shows its installed page");
-        AssertEqual(MotherBrainCorpseSheet.PageFirstCharacter(1) * 32,
-            uploads.Uploads.Single().FirstByte, "The corpse page shows from its sprite character");
-        var resolver = new EnemyTileTransfers(artwork);
-        AssertTrue((artwork.Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("The installation has no Mother Brain corpse tiles."))
-                .Characters.Span.Slice(MotherBrainCorpseSheet.PageOffset(1), corpseBytes)
-                .SequenceEqual(new MotherBrainCorpseCharacters(1).Resolve(resolver).Span),
-            "The corpse page resolves to the installed corpse tiles");
+        MotherBrainSpritePage corpsePage = MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, 1);
+        enemies.MotherBrainEncounter.ShowSpritePage(corpsePage);
+        AssertEqual<int?>(MotherBrainSpritePageDefinitions.Sequence.ToList().IndexOf(corpsePage),
+            enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages), "A corpse page selection reaches its step");
 
         AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.Corpse, MotherBrainCorpseArtworkDefinitions.RowCount),
             "A corpse page past the last is refused");

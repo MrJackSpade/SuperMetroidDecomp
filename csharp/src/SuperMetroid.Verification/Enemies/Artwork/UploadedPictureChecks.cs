@@ -122,76 +122,86 @@ internal static class UploadedPictureChecks
     }
 
     /// <summary>
-    /// Asserts each of <paramref name="pictures"/> paints exactly what its frame's parts paint over the runtime's live
-    /// characters: its own composition drawn over those characters in place of the page it was composed over.
+    /// Asserts each of <paramref name="pictures"/> paints exactly what its frame's parts paint over the characters graphics
+    /// set <paramref name="set"/> leaves once its encounters have played each sequence <paramref name="reached"/> names
+    /// through the step it names (#1513): its own composition drawn over those characters.
     /// </summary>
-    internal static void AssertPicturesPaintOverLive(SuperMetroidRuntime runtime, ImmutableArray<SpriteDraw> pictures, string message)
+    internal static void AssertPicturesPaintOverSteps(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached,
+        ImmutableArray<SpriteDraw> pictures, string message)
     {
-        SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
+        SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
         AssertPaintsLikeParts(pictures,
             [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"{message}: draws from a sheet"), live))],
             message);
     }
 
-    /// <summary>
-    /// The pictures <paramref name="frame"/> draws as, front first, once <paramref name="made"/> are made: the frame whole,
-    /// or each of its <paramref name="layers"/> showing in each region it reads the upload made last over it, or the
-    /// set's own characters before any is.
-    /// </summary>
-    internal static IReadOnlyList<string> ExpectedPictures(IEnemySheetSource sheets, RoomEnemyGraphicsSetDefinition set, string frame,
-        IReadOnlyList<LookRegion[]> layers, IReadOnlyList<SpriteArtworkPlacement> made)
-    {
-        SetLookCoverage coverage = sheets.Coverage(set);
-        return layers.Count == 0 ? [frame] : [.. layers.Select((regions, layer) => sheets.Looks.PictureName(frame, layer,
-            [.. regions.Select(region => new LookRegionContent(region,
-                made.LastOrDefault(upload => coverage.Covers(upload.Source, region))?.Source))]))];
-    }
-
-    /// <summary>Asserts <paramref name="drawn"/> are exactly <paramref name="sheet"/>'s pictures named <paramref name="expected"/>, in order.</summary>
-    internal static void AssertDrawnPictures(SpriteSheet sheet, IReadOnlyList<string> expected, ImmutableArray<SpriteDraw> drawn, string message)
-    {
-        AssertEqual(expected.Count, drawn.Length, $"{message}: draws one image for each layer");
-        for (int layer = 0; layer < expected.Count; layer++)
-            AssertTrue(drawn[layer] is ImageSpriteDraw image && ReferenceEquals(sheet.Frame(expected[layer]), image.Image),
-                $"{message}: layer {layer} shows {expected[layer]}");
-    }
+    /// <summary>The sequences the runtime's room encounters have reached and the step each reached (#1513).</summary>
+    internal static IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> Reached(SuperMetroidRuntime runtime) =>
+        [.. Enum.GetValues<EncounterArtworkSequence>().Select(sequence => (sequence, runtime.EnemySession.ArtworkProgress.StepOf(sequence)))
+            .Where(entry => entry.Item2 is not null).Select(entry => (entry.sequence, entry.Item2 ?? 0))];
 
     /// <summary>
-    /// Makes <paramref name="uploads"/> over the runtime's characters in order and asserts, before the first and after
-    /// each, that the draw selects for every region the loaded set's uploads make the look of the upload made last over
-    /// it, or the room load's look before any is, and that the characters the shown looks leave there are exactly the
-    /// bytes that picture composes from.
+    /// The picture <paramref name="frame"/> draws as once the room's encounters have played each sequence
+    /// <paramref name="reached"/> names through the step it names: the frame itself, or its picture of the step each of its
+    /// <paramref name="variations"/> shows then (#1513).
     /// </summary>
-    internal static void AssertRegionsFollowUploads(SuperMetroidRuntime runtime, IReadOnlyList<SpriteArtworkPlacement> uploads, string message)
+    internal static string ExpectedPicture(string frame, IReadOnlyList<FrameArtworkVariation> variations,
+        IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached)
     {
-        IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        IReadOnlyList<SpriteArtworkSource> setLooks = sheets.Looks.Of(set);
-        SetLookCoverage coverage = sheets.Coverage(set);
-        SetRegions ranges = InstalledSetRegions.Of(set);
-        IReadOnlyList<LookRegion> regions = [.. coverage.Regions.Where(region => setLooks.Any(look => coverage.Covers(look, region)))];
-        AssertTrue(regions.Count > 0, $"{message}: the loaded set's encounter uploads over its characters");
-        byte[] loaded = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters.ToArray();
-        var made = new List<SpriteArtworkPlacement>();
-        for (int step = 0; step <= uploads.Count; step++)
+        var shown = new List<(EncounterArtworkSequence Sequence, int Step)>();
+        foreach (FrameArtworkVariation variation in variations)
         {
-            if (step > 0)
+            foreach ((EncounterArtworkSequence sequence, int step) in reached)
             {
-                runtime.EnemySession.SpriteLooks.Record(uploads[step - 1]);
-                made.Add(uploads[step - 1]);
-            }
-            ReadOnlySpan<byte> live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks).Characters;
-            foreach (LookRegion region in regions)
-            {
-                SpriteArtworkPlacement? expected = made.LastOrDefault(upload => coverage.Covers(upload.Source, region));
-                AssertEqual(expected?.Source, coverage.Showing(runtime.EnemySession.SpriteLooks, sheets.Looks, setLooks, region).Look,
-                    $"{message}: after {step} uploads the draw selects the look of the upload made last over region {region.Name}");
-                CharacterRange range = ranges.RangeOf(region);
-                ReadOnlySpan<byte> composed = expected is null ? loaded.AsSpan(range.FirstByte, range.ByteCount)
-                    : expected.Source.Resolve(RuntimeArtworkContent.Of(runtime)).Span.Slice(range.FirstByte - expected.FirstByte, range.ByteCount);
-                AssertTrue(live.Slice(range.FirstByte, range.ByteCount).SequenceEqual(composed),
-                    $"{message}: after {step} uploads the live characters of region {region.Name} are those its picture composes from");
+                if (sequence == variation.Sequence && variation.PictureAt(step) is int picture)
+                    shown.Add((sequence, picture));
             }
         }
+        return FrameArtworkVariation.PictureName(frame, shown);
+    }
+
+    /// <summary>Asserts <paramref name="drawn"/> is exactly <paramref name="sheet"/>'s picture named <paramref name="expected"/>.</summary>
+    internal static void AssertDrawnPicture(SpriteSheet sheet, string expected, ImmutableArray<SpriteDraw> drawn, string message)
+    {
+        AssertEqual(1, drawn.Length, $"{message}: draws one image");
+        AssertTrue(drawn[0] is ImageSpriteDraw image && ReferenceEquals(sheet.Frame(expected), image.Image), $"{message}: shows {expected}");
+    }
+
+    /// <summary>
+    /// Asserts that at each of the <paramref name="steps"/> steps of <paramref name="sequence"/>, every frame of the installed
+    /// sheets of graphics set <paramref name="set"/> the sequence changes shows a picture that paints exactly what the frame's
+    /// parts paint over the characters the set leaves at that step (#1513): the step's own copies and every earlier one, the
+    /// picture an earlier step shares included.
+    /// </summary>
+    /// <param name="set">The graphics set whose sheets are checked.</param>
+    /// <param name="sequence">The sequence the set's encounter plays.</param>
+    /// <param name="steps">The sequence's steps.</param>
+    /// <param name="message">Names the check in failures.</param>
+    /// <param name="requireFrames">Whether the sequence must change some frame of the set's sheets; the escape pages change backgrounds alone.</param>
+    /// <returns>The frames the sequence changes.</returns>
+    internal static int AssertFramesFollowSequence(RoomEnemyGraphicsSetDefinition set, EncounterArtworkSequence sequence, int steps, string message,
+        bool requireFrames = true)
+    {
+        InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
+        var origin = new Position16<ScreenPixels>((ushort)(ScreenGeometry.ScreenWidthPixels / 2), (ushort)(ScreenGeometry.ScreenHeightPixels / 2));
+        int frames = 0;
+        foreach ((EnemySheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.variations.Where(entry => entry.Key.Set == set.Name))
+        {
+            SpriteSheet sheet = sheets.For(set, key.Enemy);
+            foreach ((string frame, FrameArtworkVariation[] variations) in followed.Where(entry => entry.Value.Any(variation => variation.Sequence == sequence)))
+            {
+                frames++;
+                for (int step = 0; step < steps; step++)
+                {
+                    string picture = ExpectedPicture(frame, variations, [(sequence, step)]);
+                    var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), sheet.Frame(picture), origin, SpriteMirror.None);
+                    AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [(sequence, step)]))],
+                        $"{message}: {key.Enemy} frame {frame} at step {step} of {sequence}", requirePixels: false);
+                }
+            }
+        }
+        if (requireFrames)
+            AssertTrue(frames > 0, $"{message}: {sequence} changes frames of {set.Name}'s sheets");
+        return frames;
     }
 }

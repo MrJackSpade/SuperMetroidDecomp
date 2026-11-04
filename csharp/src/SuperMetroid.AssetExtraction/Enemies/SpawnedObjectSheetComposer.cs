@@ -129,8 +129,8 @@ internal static class SpawnedObjectSheetComposer
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.GameplaySizes, plan.Palette,
                 Shades: [.. inkShades.DistinctBy(shade => shade.Shade)], RowShades: [.. rowShades.DistinctBy(shade => shade.Shade)]),
-            frames.Where(pictures => pictures.Layers.Length > 0)
-                .ToDictionary(pictures => pictures.Name, pictures => pictures.Layers, StringComparer.Ordinal),
+            frames.Where(pictures => pictures.Variations.Length > 0)
+                .ToDictionary(pictures => pictures.Name, pictures => pictures.Variations, StringComparer.Ordinal),
             frames.Where(pictures => pictures.RotCorpse is not null)
                 .ToDictionary(pictures => pictures.Name, pictures => pictures.RotCorpse ?? string.Empty, StringComparer.Ordinal));
     }

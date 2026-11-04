@@ -4,17 +4,17 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Where a sprite look lands among the cartridge's OBJ characters (#1392, #1406, #1422, #1463): the look and the characters
-/// it shows over, from its first. The import pipeline alone knows it; the pictures of frames drawn over those characters are
-/// composed from it.
+/// Where a verification replay of the cartridge's native transfers lands among the OBJ characters (#1392, #1513): the
+/// artwork copied and the characters it shows over, from its first. The game and the import name no such placement; only
+/// checks that replay native transfers keep one.
 /// </summary>
-/// <param name="Source">The look shown.</param>
+/// <param name="Source">The artwork copied.</param>
 /// <param name="FirstCharacter">The sprite character it shows from.</param>
 /// <param name="CharacterCount">The characters it shows.</param>
-public sealed record SpriteArtworkPlacement(SpriteArtworkSource Source, int FirstCharacter, int CharacterCount)
+public sealed record SpriteArtworkPlacement(VerificationArtworkSource Source, int FirstCharacter, int CharacterCount)
 {
-    /// <summary>The look shown.</summary>
-    public SpriteArtworkSource Source { get; } = Ensure.NotNull(Source);
+    /// <summary>The artwork copied.</summary>
+    public VerificationArtworkSource Source { get; } = Ensure.NotNull(Source);
 
     /// <summary>The sprite character it shows from.</summary>
     public int FirstCharacter { get; } = Ensure.BetweenInclusive(0, SpriteCharacterTableLayout.CharacterCount - 1, FirstCharacter);

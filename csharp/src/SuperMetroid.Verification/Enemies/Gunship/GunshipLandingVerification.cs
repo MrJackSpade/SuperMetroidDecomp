@@ -200,8 +200,8 @@ internal static class GunshipLandingVerification
             "event $0E bypasses restoration and publishes takeoff start");
         AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.LastEnemyFrame.Gunship,
             "accelerating gunship publishes frontend state-$26 boundary");
-        AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count, PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages).Count(page =>
-                enemies.Room.Session.SpriteLooks.Uploads.Any(shown => shown.Source == page.Source && shown.FirstByte == page.FirstByte)),
+        AssertEqual<int?>(GunshipLiftoffTransferDefinitions.Frames.Length - 1,
+            enemies.Room.Session.ArtworkProgress.StepOf(SuperMetroid.Core.Assets.EncounterArtworkSequence.GunshipLiftoff),
             "takeoff shows all five cartridge dust-cloud pages");
         AssertEqual(6, maximumLiftoffDustActors,
             "takeoff frame 64 spawns all six room-graphics dust actors");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -100,11 +101,16 @@ internal static class MotherBrainEscapeTextArtworkVerification
         InstalledEnemyArtwork artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed,
-            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork)));
-        for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
-            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, page));
-        return ObjVram();
+        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
+            (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
+        MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, EscapeTextArtworkDefinitions.PageCount)
+            .Select(page => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeText, page))];
+        foreach (MotherBrainSpritePage page in pages)
+            enemies.MotherBrainEncounter.ShowSpritePage(page);
+        IReadOnlyList<int> steps = EncounterArtworkPlacements.MotherBrainSteps(pages);
+        AssertEqual<int?>(steps[^1], enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages),
+            "the encounter reaches the last escape-text page's step");
+        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, resolver), resolver);
     }
 
 }

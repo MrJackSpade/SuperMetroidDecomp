@@ -109,13 +109,24 @@ internal static class EncounterArtworkDrawingDefinitions
         };
 
     /// <summary>
-    /// Mother Brain's brain: drawn in her tank before her legs load, hidden as she rises (steps 0 to 11), drawn through the
-    /// Baby, her second attack pages and the loading of her corpse (12 to 25), and hidden for her escape (26 to 34).
+    /// Mother Brain's living brain: drawn in her tank before her legs load, hidden as she rises (steps 0 to 11), and drawn
+    /// through the Baby, her second attack pages and the loading of her corpse (12 to 25).
     /// </summary>
     private static readonly EncounterArtworkDrawing MotherBrainHead =
         new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(12, 25)])
         {
-            Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value), MotherBrainVisualDefinitions.NeckJointFrame],
+            Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Except(MotherBrainCorpseFrames),
+                MotherBrainVisualDefinitions.NeckJointFrame],
+        };
+
+    /// <summary>
+    /// Mother Brain's dead brain: drawn as her living brain is, and on through her escape (26 to 34), since her brain's
+    /// draw hook keeps drawing it, parked at the room's corner once it has rotted, until Samus leaves the room.
+    /// </summary>
+    private static readonly EncounterArtworkDrawing MotherBrainDeadBrain =
+        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(12, 34)])
+        {
+            Frames = MotherBrainCorpseFrames,
         };
 
     /// <summary>
@@ -172,6 +183,7 @@ internal static class EncounterArtworkDrawingDefinitions
         GoldenTorizo,
         CeresDoors,
         MotherBrainHead,
+        MotherBrainDeadBrain,
         MotherBrainBody,
         BabyMetroid,
         MotherBrainEffects,

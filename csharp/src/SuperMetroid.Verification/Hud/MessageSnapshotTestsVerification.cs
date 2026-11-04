@@ -28,7 +28,7 @@ internal static class MessageSnapshotTestsVerification
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, RgbColor.FromWord((ushort)(i * 101 & 32767)));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = FramePaintConstants.CaptureFrontend(vram, cgram, oam, 3);
+        var memory = FramePaintConstants.CaptureGameplay(vram, cgram, oam, 3);
         int samples = 0;
         foreach (GameplayMessageId id in Enum.GetValues<GameplayMessageId>())
         {

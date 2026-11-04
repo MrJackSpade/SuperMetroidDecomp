@@ -20,7 +20,7 @@ internal static class RoomFxSnapshotTestsVerification
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, RgbColor.FromWord(checked((ushort)random.Next(32768))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = FramePaintConstants.CaptureFrontend(vram, cgram, oam, 3);
+        var memory = FramePaintConstants.CaptureGameplay(vram, cgram, oam, 3);
         RgbaPixel[] baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
         int samples = 0;
         var configurations = new[]

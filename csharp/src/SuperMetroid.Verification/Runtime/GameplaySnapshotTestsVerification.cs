@@ -43,7 +43,6 @@ internal static class GameplaySnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
             new DisplayLayer[] { new SpritesLayer(), layer }, 15), "base cannot erase prior operations");
 
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

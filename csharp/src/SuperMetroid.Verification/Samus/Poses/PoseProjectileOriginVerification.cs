@@ -42,12 +42,12 @@ internal static class PoseProjectileOriginVerification
             AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
-        // Each artwork class is bound once and every pose and direction checked under it: binding composes and
-        // identifies the whole body, so rebinding per pose and direction would repeat that work 2530 times per class.
+        // Each artwork class is bound once and every pose and direction checked under it. Only the body's tables are
+        // bound: nothing here draws, so composing each class's body sheets would be work no assertion reads.
         for (int artIndex = 0; artIndex < artwork.Length; artIndex++)
         {
             int art = SignedByteClasses[artIndex];
-            samus.Presentation.BodyFrames.BindBodyFixture(artwork[artIndex]);
+            samus.Presentation.BodyFrames.BindArtwork(artwork[artIndex]);
             for (int pose = 0; pose <= 0xfc; pose++)
             for (byte direction = 0; direction < 10; direction++)
             {

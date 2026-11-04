@@ -24,7 +24,6 @@ internal static class MotherBrainGlassSuperMissileVerification
     /// </summary>
     internal static void VerifyMotherBrainGlassSuperMissile()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int glassHits = 0;
         enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = () => glassHits++;
@@ -39,7 +38,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = RepositoryInstallation.Installation.LoadProjectiles().FrameBindings } };
+        var shots = InstalledFixtures.CreateProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.

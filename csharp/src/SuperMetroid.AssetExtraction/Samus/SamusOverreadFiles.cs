@@ -68,23 +68,6 @@ public static class SamusOverreadFiles
         return Document(new MemoryStream(bytes, writable: false));
     }
 
-    /// <summary>Checks the installed file's provenance, digest and shape.</summary>
-    /// <param name="directory">Installed overread directory.</param>
-    public static void ValidateStock(string directory)
-    {
-        SamusOverreadDocument document = LoadDocument(directory);
-        _ = SamusOverreadServicesReader.Read(document);
-        _ = SamusOverreadServicesReader.ReadColours(document);
-    }
-
-    /// <summary>Reads and validates an overread document and builds its services.</summary>
-    private static SamusOverreadServices Read(Stream json)
-    {
-        SamusOverreadDocument document = Document(json);
-        _ = SamusOverreadServicesReader.ReadColours(document);
-        return SamusOverreadServicesReader.Read(document);
-    }
-
     /// <summary>Parses an overread document.</summary>
     private static SamusOverreadDocument Document(Stream json) =>
         JsonAssetDocument.Read<SamusOverreadDocument>(json, SamusOverreadFormat.JsonOptions, "Samus overread");

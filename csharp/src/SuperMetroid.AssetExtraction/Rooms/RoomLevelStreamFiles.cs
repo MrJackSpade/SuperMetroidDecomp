@@ -143,11 +143,6 @@ public static class RoomLevelStreamFiles
         return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All);
     }
 
-    /// <summary>Loads and validates every stock level through <see cref="Load"/> with no cartridge reads or file writes.</summary>
-    /// <param name="directory">Room-level family directory containing the manifest and all referenced files.</param>
-    /// <exception cref="InvalidDataException">Provenance, hashes, lengths, schema, contents or coverage are invalid.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory);
-
     /// <summary>Writes one level as the installed file format.</summary>
     private static byte[] Encode(InstalledRoomLevel level)
     {

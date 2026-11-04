@@ -22,7 +22,7 @@ internal static class KraidInstalledPresentationResourcesVerification
             File.Delete(path);
             try
             {
-                AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFiles.ValidateStock(directory),
+                AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFilesConstants.ValidateStock(directory),
                     "missing Kraid file is not a valid stock installation: " + file);
                 AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFiles.Load(directory, null),
                     "missing Kraid file cannot silently load from ROM: " + file);

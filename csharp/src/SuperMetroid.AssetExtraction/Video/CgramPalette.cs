@@ -41,18 +41,6 @@ public readonly struct CgramPalette
     /// <summary>Writes one colour.</summary>
     public void Write(int index, RgbColor color) => cgram.SetColor(first + Index(index), color);
 
-    /// <summary>
-    /// Streams little-endian colour words through the CGDATA port ($2122) starting at
-    /// <paramref name="start"/>; bit 15 of each word is not stored, as on hardware.
-    /// </summary>
-    public void LoadPortBytes(ReadOnlySpan<byte> littleEndianWords, int start = 0)
-    {
-        if ((littleEndianWords.Length & 1) != 0)
-            throw new ArgumentException("CGRAM data must contain complete two-byte colours.", nameof(littleEndianWords));
-        CheckSpan(start, littleEndianWords.Length / ColourWordCodec.ByteCount);
-        cgram.LoadBytes(littleEndianWords, first + start);
-    }
-
     /// <summary>A sub-range of <paramref name="count"/> colours starting at <paramref name="start"/>.</summary>
     public CgramPalette Slice(int start, int count)
     {

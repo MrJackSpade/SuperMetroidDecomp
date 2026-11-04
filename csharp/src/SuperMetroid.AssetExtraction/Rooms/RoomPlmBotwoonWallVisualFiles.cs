@@ -30,10 +30,6 @@ public static class RoomPlmBotwoonWallVisualFiles
             new RoomPlmVisualFamily<InstalledRoomPlmBotwoonWallVisuals>(VisualFileName, "Botwoon wall", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Botwoon wall visuals.</summary>
-    /// <param name="directory">Stock Botwoon wall directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates the single nine-block wall-clear appearance and builds the visuals, keeping an owned copy only when it differs from the compiled blocks.</summary>
     /// <param name="entries">Exactly one known clear-frame entry containing nine visual-only appearances; crumble frames belong to the separate shot-block catalog.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

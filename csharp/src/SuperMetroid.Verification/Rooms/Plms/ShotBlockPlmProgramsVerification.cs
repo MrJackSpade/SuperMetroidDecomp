@@ -415,7 +415,7 @@ internal static class ShotBlockPlmProgramsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmShotBlockVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmShotBlockVisualFiles.ValidateStock(
+        RoomPlmShotBlockVisualFilesConstants.ValidateStock(
             installation.RoomPlmShotBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x053),
             installation.LoadRoomPlmShotBlockVisuals().GetAppearance(

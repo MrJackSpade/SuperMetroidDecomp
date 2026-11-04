@@ -31,7 +31,7 @@ internal static class MaridiaElevatubeVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMaridiaElevatubeVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(
+            RoomPlmMaridiaElevatubeVisualFilesConstants.ValidateStock(
                 installation.RoomPlmMaridiaElevatubeVisualDirectory);
             VerifyElevatubeStockMapping(rom, installation.LoadRoomPlmMaridiaElevatubeVisuals());
 
@@ -97,7 +97,7 @@ internal static class MaridiaElevatubeVisualsVerification
                 "elevatube override cannot edit collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmMaridiaElevatubeVisualFiles.ValidateStock(
+                () => RoomPlmMaridiaElevatubeVisualFilesConstants.ValidateStock(
                     installation.RoomPlmMaridiaElevatubeVisualDirectory),
                 "tampered elevatube stock fails manifest validation");
         }

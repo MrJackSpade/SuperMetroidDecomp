@@ -94,11 +94,6 @@ public static class RoomStaticPaletteArtworkFiles
         return new RoomStaticPalettes(selected);
     }
 
-    /// <summary>Validates stock room-palette provenance and compiles all stock RGB5 palettes without player replacements.</summary>
-    /// <param name="stockDirectory">Installed room-palette directory to validate without cartridge access or file writes.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, source coverage, hashes, or palette content are invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Maps each distinct room palette file to its palette.</summary>
     private static Dictionary<string, RoomPaletteSet> ExpectedSources()
     {

@@ -131,10 +131,6 @@ public static class EndingPaletteArtworkFiles
         }
     }
 
-    /// <summary>Checks stock palette provenance, seven-role coverage and digests, and each role's RGB5 schema and color count; ignores overrides.</summary>
-    /// <param name="directory">Installed stock ending palette directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>
     /// $8B:E58A copies each logo fade palette backwards from its selected $8C pointer.
     /// Flatten the native destination order as [step][BG or OBJ palette][color], keeping the

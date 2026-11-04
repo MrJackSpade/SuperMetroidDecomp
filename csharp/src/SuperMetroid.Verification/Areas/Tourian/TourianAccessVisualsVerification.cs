@@ -34,7 +34,7 @@ internal static class TourianAccessVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmTourianAccessVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmTourianAccessVisualFiles.ValidateStock(
+            RoomPlmTourianAccessVisualFilesConstants.ValidateStock(
                 installation.RoomPlmTourianAccessVisualDirectory);
             VerifyTourianAccessStockMapping(rom, installation.LoadRoomPlmTourianAccessVisuals());
 
@@ -82,7 +82,7 @@ internal static class TourianAccessVisualsVerification
                 "Tourian override rejects physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmTourianAccessVisualFiles.ValidateStock(
+                () => RoomPlmTourianAccessVisualFilesConstants.ValidateStock(
                     installation.RoomPlmTourianAccessVisualDirectory),
                 "tampered Tourian stock fails manifest validation");
         }

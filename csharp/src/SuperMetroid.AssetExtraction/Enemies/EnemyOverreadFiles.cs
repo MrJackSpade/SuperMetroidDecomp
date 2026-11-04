@@ -58,10 +58,6 @@ public static class EnemyOverreadFiles
         return Read(new MemoryStream(bytes, writable: false));
     }
 
-    /// <summary>Checks the installed file's provenance, digest and shape.</summary>
-    /// <param name="directory">Installed overread directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory);
-
     /// <summary>Reads and validates an overread document and builds its services.</summary>
     private static EnemyOverreadServices Read(Stream json) =>
         Build(JsonAssetDocument.Read<EnemyOverreadDocument>(json, EnemyOverreadFormat.JsonOptions, "Enemy overread"));

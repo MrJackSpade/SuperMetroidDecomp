@@ -28,7 +28,7 @@ internal static class BombTorizoHandVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBombTorizoHandVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmBombTorizoHandVisualFiles.ValidateStock(
+            RoomPlmBombTorizoHandVisualFilesConstants.ValidateStock(
                 installation.RoomPlmBombTorizoHandVisualDirectory);
             AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
                 Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand stock oracle revision");
@@ -62,7 +62,7 @@ internal static class BombTorizoHandVisualsVerification
 
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmBombTorizoHandVisualFiles.ValidateStock(
+                () => RoomPlmBombTorizoHandVisualFilesConstants.ValidateStock(
                     installation.RoomPlmBombTorizoHandVisualDirectory),
                 "tampered hand stock fails manifest validation");
         }

@@ -21,7 +21,7 @@ internal static class KraidInstalledPresentationVerification
         // The Kraid suites edit and remove stock enemy-tile files, so they run on a private installation copy.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         string stockPath = copy.Installation.EnemyTileDirectory;
-        EnemyTileArtworkFiles.ValidateStock(stockPath);
+        EnemyTileArtworkFilesConstants.ValidateStock(stockPath);
         InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
         Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stockPath, stock));
         Suite(nameof(VerifyKraidInstalledControlOracle), () => VerifyKraidInstalledControlOracle(source));

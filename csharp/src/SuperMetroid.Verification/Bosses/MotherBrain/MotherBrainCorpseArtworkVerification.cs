@@ -29,7 +29,7 @@ internal static class MotherBrainCorpseArtworkVerification
         // The corpse suite writes overrides beside the stock files, so it runs on a private installation copy.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         string stock = copy.Installation.EnemyTileDirectory;
-        EnemyTileArtworkFiles.ValidateStock(stock);
+        EnemyTileArtworkFilesConstants.ValidateStock(stock);
         Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(stock, EnemyTileArtworkFiles.Load(stock, null)));
     }
 

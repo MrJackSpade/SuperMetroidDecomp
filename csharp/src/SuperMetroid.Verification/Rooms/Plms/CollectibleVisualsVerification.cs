@@ -120,7 +120,7 @@ internal static class CollectibleVisualsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmCollectibleVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmCollectibleVisualFiles.ValidateStock(
+        RoomPlmCollectibleVisualFilesConstants.ValidateStock(
             installation.RoomPlmCollectibleVisualDirectory);
         ushort pointer = PlmDrawSourceDefinitions.CollectibleTankFirst.Offset;
         VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());

@@ -205,10 +205,6 @@ public static class EndingMode7ArtworkFiles
         }
     }
 
-    /// <summary>Checks all stock Mode-7 file digests and compiles every backdrop and reward-icon pair against its required geometry, ignoring overrides.</summary>
-    /// <param name="directory">Installed stock ending Mode-7 directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Camel-case JSON options shared by extraction and stock loading.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

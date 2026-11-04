@@ -75,7 +75,7 @@ internal static class BotwoonWallVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBotwoonWallVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmBotwoonWallVisualFiles.ValidateStock(
+            RoomPlmBotwoonWallVisualFilesConstants.ValidateStock(
                 installation.RoomPlmBotwoonWallVisualDirectory);
             InstalledRoomPlmBotwoonWallVisuals stock =
                 installation.LoadRoomPlmBotwoonWallVisuals();
@@ -123,7 +123,7 @@ internal static class BotwoonWallVisualsVerification
                 "Botwoon wall override cannot change physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmBotwoonWallVisualFiles.ValidateStock(
+                () => RoomPlmBotwoonWallVisualFilesConstants.ValidateStock(
                     installation.RoomPlmBotwoonWallVisualDirectory),
                 "tampered Botwoon wall stock fails manifest validation");
         }

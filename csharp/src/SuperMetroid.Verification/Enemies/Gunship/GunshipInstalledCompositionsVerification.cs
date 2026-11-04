@@ -33,7 +33,7 @@ internal static class GunshipInstalledCompositionsVerification
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
         string directory = new GameInstallation(Path.GetFullPath(installationRoot)).EnemyTileDirectory;
-        EnemyTileArtworkFiles.ValidateStock(directory);
+        EnemyTileArtworkFilesConstants.ValidateStock(directory);
         InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
         EnemySpritemapCatalog compositions = (stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
         NativeEnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();

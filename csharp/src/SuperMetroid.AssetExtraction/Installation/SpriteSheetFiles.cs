@@ -105,9 +105,6 @@ public static class SpriteSheetFiles
         return installed;
     }
 
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     /// <param name="sheet">The sheet.</param>

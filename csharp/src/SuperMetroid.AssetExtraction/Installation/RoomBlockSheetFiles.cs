@@ -141,9 +141,6 @@ public static class RoomBlockSheetFiles
         [.. (tokens ?? throw new InvalidDataException("A manifest entry records no appearance inputs."))
             .Select(token => AppearanceInputSpellings.Parse(token, EncounterCharacterPlacements.Catalog.LookNamed))];
 
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>The background manifest: each image's name, the tilemap words it pictures and its changing cells.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Words">Each image's tilemap words, page by page.</param>

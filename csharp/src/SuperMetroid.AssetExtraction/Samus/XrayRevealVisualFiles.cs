@@ -170,11 +170,6 @@ public static class XrayRevealVisualFiles
         return new InstalledXrayReveals(mappings, overlays);
     }
 
-    /// <summary>Runs stock provenance, hash, strict-schema, and catalog-coverage checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
-    /// <param name="directory">X-ray family directory containing both required version-two stock files.</param>
-    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Checks exact room identities, drawable rule shapes, behaviour groups, and unused operand zeros.</summary>
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {

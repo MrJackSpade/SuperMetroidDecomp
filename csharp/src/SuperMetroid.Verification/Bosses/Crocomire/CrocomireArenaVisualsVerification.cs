@@ -31,7 +31,7 @@ internal static class CrocomireArenaVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmCrocomireVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmCrocomireVisualFiles.ValidateStock(
+            RoomPlmCrocomireVisualFilesConstants.ValidateStock(
                 installation.RoomPlmCrocomireVisualDirectory);
             RoomPlmCrocomireVisualCatalog stock =
                 installation.LoadRoomPlmCrocomireVisuals();
@@ -75,7 +75,7 @@ internal static class CrocomireArenaVisualsVerification
 
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmCrocomireVisualFiles.ValidateStock(
+                () => RoomPlmCrocomireVisualFilesConstants.ValidateStock(
                     installation.RoomPlmCrocomireVisualDirectory),
                 "tampered Crocomire stock fails manifest validation");
 

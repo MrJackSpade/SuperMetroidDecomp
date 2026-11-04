@@ -94,11 +94,6 @@ public static class RoomPlmStationVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
-    /// <summary>Performs the stock checks from <see cref="Load"/> without overrides, cartridge reads, or file writes.</summary>
-    /// <param name="directory">Station family directory containing stock JSON and manifest.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates and captures the complete twenty-frame station artwork selection, building the visuals from the run appearances that differ from the compiled layouts.</summary>
     /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only appearances.</param>
     /// <remarks>Changed frames are deep-copied; stock-identical frames resolve from compiled definitions. Later caller-array edits do not affect either path.</remarks>

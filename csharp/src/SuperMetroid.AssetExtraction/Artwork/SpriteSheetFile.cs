@@ -13,13 +13,15 @@ public static class SpriteSheetFile
     /// <summary>The manifest schema revision this reader reads.</summary>
     public const int Version = 7;
 
-    /// <summary>Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings.</summary>
+    /// <summary>
+    /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
+    /// sheet manifests run to hundreds of megabytes across an installation, and indenting them more than doubles what the
+    /// install writes and every load parses (#1530).
+    /// </summary>
     internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        // Sheet manifests run to hundreds of megabytes across an installation; indenting them more than doubles what the
-        // install writes and every load parses (#1530).
         WriteIndented = false,
     };
 

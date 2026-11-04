@@ -90,7 +90,7 @@ internal static class LinkedRestoreVisualsVerification
         GameInstallation installation = copy.Installation;
         // The installer's extraction checked all six compiled row shapes, full physical
         // words, and signed offsets against the pinned retail cartridge.
-        RoomPlmLinkedRestoreVisualFiles.ValidateStock(
+        RoomPlmLinkedRestoreVisualFilesConstants.ValidateStock(
             installation.RoomPlmLinkedRestoreVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x058),
             installation.LoadRoomPlmLinkedRestoreVisuals().GetAppearance(
@@ -138,7 +138,7 @@ internal static class LinkedRestoreVisualsVerification
             "restore override rejects physical collision bits");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmLinkedRestoreVisualFiles.ValidateStock(
+            () => RoomPlmLinkedRestoreVisualFilesConstants.ValidateStock(
                 installation.RoomPlmLinkedRestoreVisualDirectory),
             "tampered restore stock fails manifest validation");
     }

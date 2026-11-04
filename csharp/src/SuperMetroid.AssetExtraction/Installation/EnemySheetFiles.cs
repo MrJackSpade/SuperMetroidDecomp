@@ -185,9 +185,6 @@ public static class EnemySheetFiles
         return new Dictionary<string, CharacterRange[][]>(frames, StringComparer.Ordinal);
     }
 
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

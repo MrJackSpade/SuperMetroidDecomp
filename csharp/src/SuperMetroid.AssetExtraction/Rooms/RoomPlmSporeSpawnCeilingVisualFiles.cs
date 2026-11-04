@@ -33,10 +33,6 @@ public static class RoomPlmSporeSpawnCeilingVisualFiles
             new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Spore Spawn ceiling visuals.</summary>
-    /// <param name="directory">Stock Spore Spawn ceiling directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates complete coverage of the clear and three crumble frames and builds the visuals from the appearances that differ from the compiled frames, without changing compiled geometry or collision.</summary>
     /// <param name="entries">Each of the four compiled visual identities exactly once, with four appearances per frame.</param>
     /// <remarks>Edited arrays are copied; stock-identical frames use compiled appearances, so later edits to caller arrays cannot change this catalog.</remarks>

@@ -33,10 +33,6 @@ public static class RoomPlmChozoStatueVisualFiles
             new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Checks stock Chozo provenance, digest, schema, complete layout coverage, and equality with compiled appearances; ignores overrides.</summary>
-    /// <param name="directory">Installed stock Chozo directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates complete Chozo-layout coverage and builds the visuals from the authored appearances that differ from the compiled layouts, without replacing terrain blocks or calculated run geometry.</summary>
     /// <param name="entries">One entry per compiled layout with its exact flattened block count and appearance payload.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

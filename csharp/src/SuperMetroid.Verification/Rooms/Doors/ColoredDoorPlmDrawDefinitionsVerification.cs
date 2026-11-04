@@ -464,7 +464,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmColoredDoorVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmColoredDoorVisualFiles.ValidateStock(
+        RoomPlmColoredDoorVisualFilesConstants.ValidateStock(
             installation.RoomPlmColoredDoorVisualDirectory);
         var installed = installation.LoadRoomPlmColoredDoorVisuals();
         VerifyColoredDoorStockMapping(rom, installed);

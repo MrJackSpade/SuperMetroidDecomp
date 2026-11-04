@@ -109,11 +109,6 @@ public static class RoomBackgroundTilemapArtworkFiles
     internal static IReadOnlyDictionary<string, string> LegacyNames() => RoomBackgroundSourceDefinitions.Tilemaps.ToDictionary(
         pair => $"room-background-{pair.Value:X6}.json", pair => FileName(pair.Key));
 
-    /// <summary>Checks the background manifest, hashes, and all stock tilemap documents with overrides disabled.</summary>
-    /// <param name="stockDirectory">Installed background-art directory to validate without cartridge reads or file writes.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, coverage, transfer sizes, hashes, or tilemap content are invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Strict, required-property JSON settings shared by background manifest load and extraction.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

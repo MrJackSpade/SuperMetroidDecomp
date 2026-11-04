@@ -61,7 +61,7 @@ internal static class SpeedBoosterVisualsVerification
         Suite(nameof(VerifySpeedBoosterStockVisualMapping), () => VerifySpeedBoosterStockVisualMapping(rom));
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSpeedBoosterVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmSpeedBoosterVisualFiles.ValidateStock(
+        RoomPlmSpeedBoosterVisualFilesConstants.ValidateStock(
             installation.RoomPlmSpeedBoosterVisualDirectory);
         PlmDraw drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw;
         AssertEqual(RoomBlockAppearance.Of(0x0b6),
@@ -123,7 +123,7 @@ internal static class SpeedBoosterVisualsVerification
             "override cannot change collision bits");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
-            () => RoomPlmSpeedBoosterVisualFiles.ValidateStock(
+            () => RoomPlmSpeedBoosterVisualFilesConstants.ValidateStock(
                 installation.RoomPlmSpeedBoosterVisualDirectory),
             "stock tampering fails validation");
         Console.WriteLine(

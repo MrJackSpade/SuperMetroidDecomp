@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -7,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
@@ -99,7 +99,7 @@ public static class EnemyTileArtworkFiles
                 for (int color = 0; color < colors.Length; color++)
                 {
                     int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
-                    if (!RgbColor.IsColorWord(checked((ushort)word)))
+                    if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                         throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
                     colors[color] = new PaletteRgb5
                     {
@@ -1152,12 +1152,6 @@ public static class EnemyTileArtworkFiles
         }
     }
 
-    /// <summary>Validates and compiles the complete installed enemy-art catalog without selecting any player overrides.</summary>
-    /// <param name="stockDirectory">Directory containing the enemy manifest and all ordinary and supplemental stock resources.</param>
-    /// <remarks>Checks the supported cartridge identity, retail definition coverage, manifest hashes, and resource schemas without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>
     /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently
     /// enumerated from every bank-$B4 enemy graphics set referenced by retail room states.
@@ -1274,7 +1268,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < count; index++)
         {
             int word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
-            if (!RgbColor.IsColorWord(checked((ushort)word)))
+            if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5

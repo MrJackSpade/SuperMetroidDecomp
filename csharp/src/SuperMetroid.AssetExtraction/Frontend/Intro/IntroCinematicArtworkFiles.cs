@@ -713,12 +713,6 @@ public static class IntroCinematicArtworkFiles
         CeresDestructionActorLayoutFormat.FileName,
     ];
 
-    /// <summary>Validates all stock opening and Ceres-scene artwork without selecting player replacements.</summary>
-    /// <param name="stockDirectory">Directory containing the cinematic manifest and its complete PNG and JSON resource set.</param>
-    /// <remarks>Checks supported cartridge provenance, complete filename coverage, every stock hash, and all resource schemas without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">The manifest, provenance, coverage, hash, or a compiled artwork resource is invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Manifest JSON settings shared by extraction and installation.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

@@ -96,11 +96,6 @@ public static class RoomPlmElevatorPlatformVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
-    /// <summary>Performs the stock checks from <see cref="Load"/> without overrides, cartridge reads, or file writes.</summary>
-    /// <param name="directory">Elevator-platform family directory containing stock JSON and manifest.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all three elevator-platform draw layouts and builds the visuals from the run appearances that differ from the compiled frames, retaining run geometry, terrain blocks, and animation cadence.</summary>
     /// <remarks>The four-step instruction loop selects first, second, third, then second layout; the repeated second layout has only one entry.</remarks>
     /// <param name="entries">One visual-only entry per compiled frame, with its exact run and cell counts.</param>

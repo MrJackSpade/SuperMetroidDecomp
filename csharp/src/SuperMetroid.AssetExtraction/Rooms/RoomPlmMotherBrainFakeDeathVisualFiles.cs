@@ -42,11 +42,6 @@ public static class RoomPlmMotherBrainFakeDeathVisualFiles
                     new RoomPlmVisualEntry(
                         entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
-    /// <summary>Checks stock fake-death room assets through <see cref="Load"/> without selecting overrides, reading a cartridge, or writing files.</summary>
-    /// <param name="directory">Family directory containing fake-death room JSON and its manifest.</param>
-    /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled visual checks fail.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates all twenty-two fake-death room layouts and builds the visuals from the appearances that differ from the compiled layouts, retaining collision kinds, signed draw offsets, and PLM timing.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, with the exact flattened count of all its run cells.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

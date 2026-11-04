@@ -46,7 +46,7 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
     /// <summary>Per-direction opening cover tiles that differ from stock lists.</summary>
     internal readonly Dictionary<int, int> openingTiles = new();
     /// <summary>Installed indexed PNG characters for the twelve nonclosed cover tiles.</summary>
-    private readonly RoomCharacterAtlas tiles;
+    internal readonly RoomCharacterAtlas tiles;
     /// <summary>Optional body compositions used to derive cover attachment coordinates.</summary>
     private readonly SamusSpritemapSources? bodyGeometry;
 
@@ -254,12 +254,6 @@ public sealed class SamusArmCannonSourceArtwork : InstalledSamusArmCannonArtwork
 
     /// <summary>Cover characters already built, by installed tile index.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverTiles = new();
-
-    /// <summary>The bytes of installed cover tile <paramref name="index"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">No such cover tile is installed.</exception>
-    internal ReadOnlyMemory<byte> CoverTile(int index) => (uint)index < SamusArmCannonArtworkFormat.CoverTileCount
-        ? tiles.Characters.Slice(index * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)
-        : throw new ArgumentOutOfRangeException(nameof(index), index, "No such arm-cannon cover tile is installed.");
 
     /// <summary>Rejects an authored drawing value outside one unsigned byte.</summary>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue

@@ -247,7 +247,7 @@ internal static class GrappleBlockProgramsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmGrappleBlockVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmGrappleBlockVisualFiles.ValidateStock(
+        RoomPlmGrappleBlockVisualFilesConstants.ValidateStock(
             installation.RoomPlmGrappleBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x0b7),
             installation.LoadRoomPlmGrappleBlockVisuals().GetAppearance(PlmDraw.Of(GrappleBlockDraw.Intact)),

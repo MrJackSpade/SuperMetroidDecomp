@@ -25,7 +25,7 @@ internal static class DraygonCannonVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmDraygonCannonVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmDraygonCannonVisualFiles.ValidateStock(
+            RoomPlmDraygonCannonVisualFilesConstants.ValidateStock(
                 installation.RoomPlmDraygonCannonVisualDirectory);
             VerifyDraygonCannonStockMapping(rom, installation.LoadRoomPlmDraygonCannonVisuals());
 
@@ -57,7 +57,7 @@ internal static class DraygonCannonVisualsVerification
 
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmDraygonCannonVisualFiles.ValidateStock(
+                () => RoomPlmDraygonCannonVisualFilesConstants.ValidateStock(
                     installation.RoomPlmDraygonCannonVisualDirectory),
                 "tampered cannon stock fails manifest validation");
         }

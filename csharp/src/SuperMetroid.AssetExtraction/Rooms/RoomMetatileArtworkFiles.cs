@@ -95,12 +95,6 @@ public static class RoomMetatileArtworkFiles
             cre ?? throw new InvalidDataException("Room metatile manifest has no CRE resource."), selected);
     }
 
-    /// <summary>Validates the complete stock CRE and room metatile resources.</summary>
-    /// <param name="stockDirectory">Directory containing the visual-block manifest and stock JSON resources.</param>
-    /// <remarks>Checks supported cartridge provenance, expected source coverage, file hashes, block counts, and BG-cell fields without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, hashes, or visual composition data are invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory);
-
     /// <summary>Collects the CRE source and each distinct room tileset block-definition source by asset filename.</summary>
     private static Dictionary<string, RoomBlockSource> ExpectedSources()
     {

@@ -101,7 +101,7 @@ internal static class DownwardGateVisualsVerification
         GameInstallation installation = copy.Installation;
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        RoomPlmDownwardGateVisualFiles.ValidateStock(
+        RoomPlmDownwardGateVisualFilesConstants.ValidateStock(
             installation.RoomPlmDownwardGateVisualDirectory);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate stock oracle revision");

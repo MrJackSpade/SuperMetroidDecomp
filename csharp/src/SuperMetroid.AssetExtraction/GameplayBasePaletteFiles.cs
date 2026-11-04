@@ -78,10 +78,6 @@ public static class GameplayBasePaletteFiles
         return Read(new MemoryStream(selected, writable: false));
     }
 
-    /// <summary>Checks stock manifest provenance and digest and validates the 256 initial and 16 common-sprite RGB5 colors, ignoring overrides.</summary>
-    /// <param name="stockDirectory">Installed stock gameplay base-palette directory.</param>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Reads and validates the full initial and common-sprite RGB5 palettes of an installed document.</summary>
     /// <param name="json">The caller-owned stream holding the gameplay base-palette document.</param>
     /// <returns>The selected colours, detached from the document.</returns>

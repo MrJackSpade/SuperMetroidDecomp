@@ -442,10 +442,6 @@ public static class EndingObjectArtworkFiles
         }
     }
 
-    /// <summary>Validates stock provenance, complete file coverage and digests, and compilation of every ending/reward sheet, map, and sprite composition; ignores overrides.</summary>
-    /// <param name="directory">Installed stock ending object-artwork directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Stable manifest serialization options shared by extraction and installed-artwork loading.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

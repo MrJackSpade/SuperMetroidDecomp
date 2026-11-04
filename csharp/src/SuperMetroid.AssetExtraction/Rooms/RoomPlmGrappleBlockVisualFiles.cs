@@ -103,11 +103,6 @@ public static class RoomPlmGrappleBlockVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
-    /// <summary>Runs stock provenance, hash, schema, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge access, or writes.</summary>
-    /// <param name="directory">Grapple-block family directory containing both required stock files.</param>
-    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Each one-block Grapple-block run writes along its row.</summary>
     internal const PlmRunDirection RunDirection = PlmRunDirection.Horizontal;
     /// <summary>Each Grapple-block run writes its one block.</summary>

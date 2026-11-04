@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 

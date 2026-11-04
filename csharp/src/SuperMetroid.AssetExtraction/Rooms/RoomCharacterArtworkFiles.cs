@@ -115,9 +115,6 @@ public static class RoomCharacterArtworkFiles
             cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
 
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>
     private static Dictionary<string, RoomCharacterSource> ExpectedSources()
     {

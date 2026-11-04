@@ -173,12 +173,6 @@ public static class SamusBodyArtworkFiles
         }
     }
 
-    /// <summary>Compiles and validates the complete installed Samus body and linked artwork with player overrides disabled.</summary>
-    /// <param name="stockDirectory">Stock Samus artwork directory containing body metadata, PNG sets, atmospheric, death, and arm-cannon resources.</param>
-    /// <remarks>Checks provenance, metadata, visual references, image hashes and padding, and linked catalogs without cartridge access or file writes.</remarks>
-    /// <exception cref="InvalidDataException">The body installation or any linked artwork resource is invalid.</exception>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Exports each upper or lower DMA set as a padded PNG and records its native source sizes.</summary>
     private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string directory,
         ushort[] pointers, ushort[] sortedPointers, bool upperHalf,

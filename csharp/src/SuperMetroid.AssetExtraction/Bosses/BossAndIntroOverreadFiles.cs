@@ -57,10 +57,6 @@ public static class BossAndIntroOverreadFiles
         return Read(new MemoryStream(bytes, writable: false));
     }
 
-    /// <summary>Checks the installed file's provenance, digest and shape.</summary>
-    /// <param name="directory">Installed overread directory.</param>
-    public static void ValidateStock(string directory) => _ = Load(directory);
-
     /// <summary>Reads and validates an overread document and builds its services.</summary>
     private static BossAndIntroOverreadServices Read(Stream json) =>
         Services(JsonAssetDocument.Read<BossAndIntroOverreadDocument>(json, BossAndIntroOverreadFormat.JsonOptions, "boss and intro overread"));

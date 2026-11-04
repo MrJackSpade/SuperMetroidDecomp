@@ -86,7 +86,7 @@ internal static class StationVisualsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmStationVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmStationVisualFiles.ValidateStock(
+        RoomPlmStationVisualFilesConstants.ValidateStock(
             installation.RoomPlmStationVisualDirectory);
         ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
             StationAnimationList.MapIdle, 0).Draw);

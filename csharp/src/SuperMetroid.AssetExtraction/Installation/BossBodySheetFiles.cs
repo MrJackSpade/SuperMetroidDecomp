@@ -69,9 +69,6 @@ public static class BossBodySheetFiles
         }));
     }
 
-    /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>The manifest entry of <paramref name="part"/>.</summary>
     private static PartDocument Document(ComposedBossBodyPart part) => new(part.Picture, part.Top, part.Footprint.Top, [.. part.Footprint.Rows],
         part.Animation?.Name, part.Animation is null ? null : new Dictionary<string, string>(part.AnimationPictures, StringComparer.Ordinal));

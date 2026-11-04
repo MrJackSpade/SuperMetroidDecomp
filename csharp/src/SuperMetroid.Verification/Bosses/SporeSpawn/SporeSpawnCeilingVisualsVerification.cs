@@ -33,7 +33,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSporeSpawnCeilingVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(
+            RoomPlmSporeSpawnCeilingVisualFilesConstants.ValidateStock(
                 installation.RoomPlmSporeSpawnCeilingVisualDirectory);
             VerifySporeSpawnCeilingStockMapping(rom, installation.LoadRoomPlmSporeSpawnCeilingVisuals());
 
@@ -77,7 +77,7 @@ internal static class SporeSpawnCeilingVisualsVerification
 
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmSporeSpawnCeilingVisualFiles.ValidateStock(
+                () => RoomPlmSporeSpawnCeilingVisualFilesConstants.ValidateStock(
                     installation.RoomPlmSporeSpawnCeilingVisualDirectory),
                 "tampered Spore Spawn ceiling stock fails manifest validation");
         }

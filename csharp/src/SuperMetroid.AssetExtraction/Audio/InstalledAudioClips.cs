@@ -48,17 +48,6 @@ public static class InstalledAudioClips
     /// <exception cref="InvalidDataException">The format, rate, an identity, a sound, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
     public static InstalledClipAudioLibrary Load(string audioDirectory) => ClipAudioOverrides.Load(audioDirectory, overrideDirectory: null);
 
-    /// <summary>Loads the catalog and reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>
-    /// <exception cref="InvalidDataException">The manifest or any clip is invalid.</exception>
-    public static void ValidateStock(string audioDirectory)
-    {
-        InstalledClipAudioLibrary library = Load(audioDirectory);
-        foreach (MusicClipEntry entry in library.Manifest.Music)
-            _ = library.ReadClip(entry.Clip);
-        foreach (InstalledSoundEffectLayer layer in library.Manifest.SoundEffects.SelectMany(entry => entry.Layers))
-            _ = library.ReadClip(layer.Clip);
-    }
-
     /// <summary>
     /// Reads the stock clip manifest beneath <paramref name="audioDirectory"/> and checks its format and every clip
     /// file's containment and size. The manifest names each sound by its library and request number;

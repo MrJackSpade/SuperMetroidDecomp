@@ -293,7 +293,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmGreyDoorVisualDirectory);
         GameInstallation installation = copy.Installation;
-        RoomPlmGreyDoorVisualFiles.ValidateStock(
+        RoomPlmGreyDoorVisualFilesConstants.ValidateStock(
             installation.RoomPlmGreyDoorVisualDirectory);
         var installed = installation.LoadRoomPlmGreyDoorVisuals();
         VerifyGreyDoorStockMapping(rom, installed);

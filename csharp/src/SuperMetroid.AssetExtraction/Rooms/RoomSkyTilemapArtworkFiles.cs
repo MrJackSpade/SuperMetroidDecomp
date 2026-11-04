@@ -90,10 +90,6 @@ public static class RoomSkyTilemapArtworkFiles
     internal static IReadOnlyDictionary<string, string> LegacyNames() => Enumerable.Range(0, RoomSkyTilemapFormat.PageCount).ToDictionary(
         page => $"scrolling-sky-{LibraryBackgroundOperands.SkyPageAddress(page):X6}.json", RoomSkyTilemapFormat.FileName);
 
-    /// <summary>Checks stock provenance, all seven page digests, and compilation of every fixed-size scrolling-sky page; ignores overrides.</summary>
-    /// <param name="stockDirectory">Installed stock scrolling-sky directory.</param>
-    public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
-
     /// <summary>Strict, camel-case JSON settings shared by sky-page manifest export and import.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

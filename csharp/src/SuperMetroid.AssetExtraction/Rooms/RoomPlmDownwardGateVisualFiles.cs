@@ -94,11 +94,6 @@ public static class RoomPlmDownwardGateVisualFiles
             : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
     }
 
-    /// <summary>Runs stock manifest, schema, integrity, and compiled-appearance checks through <see cref="Load"/> without overrides, cartridge reads, or writes.</summary>
-    /// <param name="directory">Downward-gate family directory containing both required stock files.</param>
-    /// <exception cref="InvalidDataException">Stock validation fails.</exception>
-    public static void ValidateStock(string directory) => _ = Load(directory, null);
-
     /// <summary>Validates complete downward-gate and shot-trigger coverage and builds the visuals from the run appearances that differ from the compiled layouts.</summary>
     /// <param name="entries">One entry per compiled layout, retaining its exact run count and block counts with visual-only payloads.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>

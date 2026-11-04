@@ -31,7 +31,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMotherBrainFakeDeathVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
+            RoomPlmMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
                 installation.RoomPlmMotherBrainFakeDeathVisualDirectory);
             RoomPlmMotherBrainFakeDeathVisualCatalog stock =
                 installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
@@ -81,7 +81,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
 
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
-                () => RoomPlmMotherBrainFakeDeathVisualFiles.ValidateStock(
+                () => RoomPlmMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
                     installation.RoomPlmMotherBrainFakeDeathVisualDirectory),
                 "tampered Mother Brain fake-death stock fails manifest validation");
 

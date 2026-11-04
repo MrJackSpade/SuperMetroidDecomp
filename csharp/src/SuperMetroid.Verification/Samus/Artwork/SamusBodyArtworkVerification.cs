@@ -6,7 +6,7 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
@@ -95,7 +95,7 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(bottomAddress),
                 sprites.BottomBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} bottom OAM base");
         }
-        var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
+        var spritemapGuard = NewCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
         ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
             CartridgeImportSource.Require(bus).ReadCartridgeWord(InstalledSamusSpritemaps.PointerTableAddress + index * 2))];
@@ -157,7 +157,7 @@ internal static class SamusBodyArtworkVerification
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's
         // initial frame, including all flashback/normal-gameplay pose identities.
-        var guardedBus = NewFrontendCartridgeReadGuard(bus);
+        var guardedBus = NewCartridgeReadGuard(bus);
         // These two production owners call the same indexed bank-$92 OAM routine as
         // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
         // their binding from the generic catalog's all-index byte-parity test.

@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core;
@@ -26,7 +26,7 @@ internal static class SpringBallEquipmentJumpVerification
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }, SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, new SharedRandom());
-            PrepareRomFreeBindings(installation)(game, false);
+            BindInstalledArtwork(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean);

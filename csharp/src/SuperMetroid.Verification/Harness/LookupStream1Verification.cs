@@ -20,7 +20,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -3009,7 +3009,7 @@ internal static class LookupStream1Verification
             AssertEqual(shorterTop[0][position].SecondSize, shorter.TopSet(0)[position].SecondSize, "Exact edited payload remainder");
         }
         // These exact native selectors include the known physical cross-group windows.
-        var guard = NewFrontendCartridgeReadGuard(rom);
+        var guard = NewCartridgeReadGuard(rom);
         int transfers = 0;
         foreach (var selected in new VerifyLookupStream1BodyTransfersCase[] { new VerifyLookupStream1BodyTransfersCase(SamusPoseId.FacingRightNormalPose, 0), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 6), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose65, 7), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.UnusedPose66, 8), new VerifyLookupStream1BodyTransfersCase(SamusPoseId.DeathSequenceLeftPose, 0) })
         {

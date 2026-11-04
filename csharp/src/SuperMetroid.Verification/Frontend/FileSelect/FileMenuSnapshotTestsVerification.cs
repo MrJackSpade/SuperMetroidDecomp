@@ -13,6 +13,7 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
+using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 
 /// <summary>Checks retained file-select and options render packets through native menu flows.</summary>
 internal static class FileMenuSnapshotTestsVerification
@@ -79,26 +80,19 @@ internal static class FileMenuSnapshotTestsVerification
         OptionTick();
         Console.WriteLine($"  File/options snapshots: {comparisons} retail frames match through COPY/CLEAR, controller scrolling, special settings and fades.");
 
-        // The held snapshot is drawn once before the menu advances and once after; the live menu's own frame and a repeated
-        // capture are compared with it for the pixels they show, which draws them only when their descriptions differ (#1532).
+        // The live menu's own frame and a repeated capture are compared with the held snapshot for the pixels they show,
+        // which draws them only when their descriptions differ; the held snapshot's whole description, every value it
+        // reaches through owned or shared state, is digested before the menu advances and again after (#1532).
         void Check(Func<LayeredScene> capture, Action step)
         {
             LayeredScene snapshot = capture();
-            RgbaPixel[] expected = DisplayRendering.Render(new DisplayPacket((ushort)comparisons, snapshot));
+            byte[] held = GraphDigest(snapshot);
             AssertTrue(ScenePixels.Same(new DisplayPacket(0, capture()), new DisplayPacket((ushort)comparisons, snapshot)),
                 $"File/options snapshot sample {comparisons} shows the live menu's pixels");
             AssertTrue(ScenePixels.Same(capture(), snapshot), $"File/options snapshot sample {comparisons} repeats its capture");
             step();
-            Match(expected, DisplayRendering.Render(snapshot));
+            AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(snapshot)), $"File/options snapshot sample {comparisons} survives the menu update unchanged");
             comparisons++;
-        }
-
-        void Match(RgbaPixel[] expected, RgbaPixel[] actual)
-        {
-            AssertEqual(expected.Length, actual.Length, "menu snapshot geometry");
-            for (int i = 0; i < expected.Length; i++)
-                if (expected[i] != actual[i])
-                    throw new InvalidOperationException($"File/options snapshot sample {comparisons}, pixel ({i % FrontendFrame.Width},{i / FrontendFrame.Width}): expected {expected[i]}, got {actual[i]}.");
         }
     }
 

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend.GameOver;
@@ -50,7 +50,7 @@ internal static class CeresSaveStartupVerification
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, departure);
         var game = new SuperMetroidGame(saves);
-        Action<SuperMetroidGame, bool> bind = PrepareRomFreeBindings(installation, enemyArtwork);
+        Action<SuperMetroidGame, bool> bind = BindInstalledArtwork(installation, enemyArtwork);
         bind(game, true);
         game.BindArtwork(game.Artwork with
         {

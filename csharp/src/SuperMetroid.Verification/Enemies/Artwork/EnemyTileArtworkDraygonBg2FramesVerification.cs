@@ -6,7 +6,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonOamCollisionVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkSporeSpawnCollisionVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedBg2ReferenceVerification;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -39,7 +39,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     {
         AssertTrue(stock.Bosses.DraygonBg2Frames is not null,
             "installed enemy art includes Draygon BG2 frames");
-        var noCartridge = NewFrontendCartridgeReadGuard(rom);
+        var noCartridge = NewCartridgeReadGuard(rom);
         int writeCount = 0;
         foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {

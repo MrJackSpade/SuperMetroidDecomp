@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
+using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 
 /// <summary>Checks that title-scene render snapshots draw the scene, stay repeatable and are retained across its advancement.</summary>
 internal static class TitleSnapshotTestsVerification
@@ -42,6 +43,7 @@ internal static class TitleSnapshotTestsVerification
                     // once and drawn again, and the live scene's and the control's frames are compared with it for the pixels
                     // they show, which draws them only when their descriptions differ (#1532).
                     FloorScene packet = scene.CaptureRenderSnapshot();
+                    byte[] held = GraphDigest(packet);
                     RgbaPixel[] expected = DisplayRendering.Render(new DisplayPacket((ushort)frame, packet));
                     AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
                         $"title snapshot {phase} frame {frame} shows the live scene's pixels");
@@ -56,7 +58,9 @@ internal static class TitleSnapshotTestsVerification
                     ControllerButton input = phase == TitleSequencePhase.TitleScreen ? ControllerButton.Start : 0;
                     scene.Step(input);
                     control.Step(input);
-                    Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
+                    // The held packet's whole description, every value it reaches through owned or shared state, is
+                    // unchanged by the advancement, so it still shows the pixels drawn above (#1532).
+                    AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(packet)), $"title snapshot {phase} frame {frame} survives the scene's advancement");
                 }
                 else
                 {

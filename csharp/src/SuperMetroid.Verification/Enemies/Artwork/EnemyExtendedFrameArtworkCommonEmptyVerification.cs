@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkVerification;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -19,7 +19,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
     internal static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
-        var blockedRom = NewFrontendCartridgeReadGuard(rom);
+        var blockedRom = NewCartridgeReadGuard(rom);
         foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {
             int emptyOam = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap));

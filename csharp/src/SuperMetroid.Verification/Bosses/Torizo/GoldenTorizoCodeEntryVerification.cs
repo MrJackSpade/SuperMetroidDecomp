@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -20,7 +20,7 @@ internal static class GoldenTorizoCodeEntryVerification
         var installation = RepositoryInstallation.Installation;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }, SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, new SharedRandom());
-        PrepareRomFreeBindings(installation)(game, false);
+        BindInstalledArtwork(installation)(game, false);
         game.InitializeDirectRoomVerification();
         var runtime = game.GameplayRuntimeForVerification;
         runtime.Player.IntroducedSamus.EquippedBeams = SamusBeamFlags.Wave;

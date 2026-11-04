@@ -107,7 +107,9 @@ internal static class EnemySheetComposer
                     {
                         Sheet = name,
                         Palette = plan.Palette,
+                        Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                         Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
+                        SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],
                         Anywhere = plan.Anywhere,
                     });
                     if (sheet.Variations.Count > 0)

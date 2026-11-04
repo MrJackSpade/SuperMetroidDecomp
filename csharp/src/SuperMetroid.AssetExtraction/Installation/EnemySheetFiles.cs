@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 8;
+    public const int ManifestVersion = 9;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -106,12 +106,13 @@ public static class EnemySheetFiles
             foreach ((string ownerName, SpawnedObjectSheetDocument entry) in owners)
             {
                 SpawnedObjectOwner owner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(ownerName);
-                EnemyDefinitionId[] spawners = [.. entry.Spawners.Select(name => Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
-                    ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
+                EnemyDefinitionId[] spawners = Spawners(entry.Spawners, set);
+                EnemyDefinitionId[] sharedSpawners = Spawners(entry.SharedSpawners, set);
+                SpawnedObjectOwner sheetOwner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(entry.Owner);
                 SpriteSheet sheet = loaded[entry.Sheet];
                 Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.SpawnedVariations, set, ownerName);
                 Dictionary<string, string> frameRots = RotFrames(manifest.SpawnedRotPictures, set, ownerName, setCorpses[set]);
-                if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere).SelectMany(frame => PictureNames(frame,
+                if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, entry.Anywhere).SelectMany(frame => PictureNames(frame,
                         frameVariations, frameRots, setCorpses[set]))))
                     throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
                 spawned.Add(new SpawnedObjectSheetKey(set, owner), new SpawnedObjectSheet(sheet));
@@ -123,6 +124,12 @@ public static class EnemySheetFiles
         }
         return new InstalledEnemySheets(new(sheets, variations, rotPictures), new(spawned, spawnedVariations, spawnedRotPictures));
     }
+
+    /// <summary>The definitions <paramref name="names"/> names, in the manifest's set <paramref name="set"/>.</summary>
+    /// <exception cref="InvalidDataException">A name is no enemy definition.</exception>
+    private static EnemyDefinitionId[] Spawners(IEnumerable<string> names, string set) =>
+        [.. names.Select(name => Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
+            ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
 
     /// <summary>
     /// The names of the pictures a sheet holds of <paramref name="frame"/>: for a frame showing a corpse's rot, the frame

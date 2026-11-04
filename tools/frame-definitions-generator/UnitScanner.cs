@@ -4,31 +4,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.FrameDefinitionsGenerator;
 
-/// <summary>Where a spawn draws from, as the graphics it is spawned with say.</summary>
-/// <param name="Shared">Whether it draws from the room's shared sheet (emptied or shared graphics) rather than its spawner's.</param>
-/// <param name="Scope">The behaviour whose member supplies the graphics, when one does; otherwise the code's own scope.</param>
-/// <param name="Sheet">The sheet-specific owner (a SpawnedObjectOwner property, as the tank glass) it draws from alone, when it names one.</param>
-internal readonly record struct SpawnTarget(bool Shared, INamedTypeSymbol? Scope, string? Sheet = null)
-{
-    /// <summary>A spawn with its spawner's graphics in the code's own scope: what code spawns unless its graphics say otherwise.</summary>
-    public static SpawnTarget Default => default;
-
-    /// <summary>A spawn drawing from the room's shared sheet.</summary>
-    public static SpawnTarget SharedSheet => new(Shared: true, Scope: null);
-
-    /// <inheritdoc/>
-    public bool Equals(SpawnTarget other) =>
-        Shared == other.Shared && SymbolEqualityComparer.Default.Equals(Scope, other.Scope) && Sheet == other.Sheet;
-
-    /// <inheritdoc/>
-    public override int GetHashCode() =>
-        HashCode.Combine(Shared, Scope is null ? 0 : SymbolEqualityComparer.Default.GetHashCode(Scope), Sheet);
-}
-
 /// <summary>One call that is handed the graphics a spawned object draws with, and the enum members its other arguments name.</summary>
-/// <param name="Target">Where the spawn draws from.</param>
+/// <param name="Targets">Every sheet the spawn's graphics can make it draw from.</param>
 /// <param name="Arguments">The enum members the call's other arguments name.</param>
-internal sealed record SpawnCall(SpawnTarget Target, IReadOnlySet<IFieldSymbol> Arguments);
+/// <param name="Callee">The method called.</param>
+/// <param name="Graphics">The graphics expression, as written, for the self-check's report.</param>
+internal sealed record SpawnCall(IReadOnlyList<SpawnTarget> Targets, IReadOnlySet<IFieldSymbol> Arguments, IMethodSymbol Callee, string Graphics);
 
 /// <summary>What one unit's code references: the units it may run and the enum members it names.</summary>
 internal sealed class UnitScan
@@ -55,35 +36,28 @@ internal sealed class UnitScan
     public List<SpawnCall> SpawnCalls { get; } = [];
 
     /// <summary>
-    /// Where what the code spawns draws from: the one target all its spawn calls name, or <see cref="SpawnTarget.Default"/>
-    /// when it makes none or they differ (then <see cref="TargetOf"/> routes each call's own arguments).
+    /// Where graphics this code assigns to a spawned object (after spawning it, before or between draws) can make it draw
+    /// from: the object may draw with these as well as with the graphics it was spawned with.
     /// </summary>
-    public SpawnTarget UnitTarget =>
-        Reassignments.Count > 0 && Reassignments.All(t => t.Equals(Reassignments[0])) ? Reassignments[0]
-        : SpawnCalls.Count > 0 && SpawnCalls.All(c => c.Target.Equals(SpawnCalls[0].Target)) ? SpawnCalls[0].Target
-        : SpawnTarget.Default;
+    public List<(IReadOnlyList<SpawnTarget> Targets, string Graphics)> Reassignments { get; } = [];
+
+    /// <summary>Every sheet what this code spawns (constructs, starts) can draw from, whichever call spawns it.</summary>
+    public IReadOnlyList<SpawnTarget> UnitTargets =>
+        SpawnCalls.Count == 0 && Reassignments.Count == 0
+            ? [SpawnTarget.Spawner]
+            : [.. SpawnCalls.SelectMany(c => c.Targets).Concat(Reassignments.SelectMany(r => r.Targets)).Distinct()];
 
     /// <summary>
-    /// Where graphics this code assigns to a spawned object (after spawning it, before it draws) make it draw from: the
-    /// graphics in effect when it draws, which decide the code's spawns over the graphics it spawned them with.
+    /// Every sheet <paramref name="member"/>, named by this code, can be spawned to draw from: the sheets of the calls whose
+    /// own arguments name it, or of every spawn the code makes when no call's arguments do; and any graphics the code
+    /// reassigns.
     /// </summary>
-    public List<SpawnTarget> Reassignments { get; } = [];
-
-    /// <summary>Where <paramref name="member"/>, named by this code, is spawned to draw from.</summary>
-    public SpawnTarget TargetOf(IFieldSymbol member)
+    public IReadOnlyList<SpawnTarget> TargetsOf(IFieldSymbol member)
     {
-        if (SpawnCalls.Count == 0 && Reassignments.Count == 0)
-            return SpawnTarget.Default;
-        SpawnTarget unit = UnitTarget;
-        if (!unit.Equals(SpawnTarget.Default))
-            return unit;
-        // Mixed spawns: a member a call's own arguments name goes where that call's graphics say; the rest stay the code's.
-        foreach (SpawnCall call in SpawnCalls)
-        {
-            if (call.Arguments.Contains(member))
-                return call.Target;
-        }
-        return SpawnTarget.Default;
+        var naming = SpawnCalls.Where(c => c.Arguments.Contains(member)).ToList();
+        if (naming.Count == 0)
+            return UnitTargets;
+        return [.. naming.SelectMany(c => c.Targets).Concat(Reassignments.SelectMany(r => r.Targets)).Distinct()];
     }
 }
 
@@ -376,10 +350,9 @@ internal sealed class UnitScanner(CoreModel model)
             && SymbolEqualityComparer.Default.Equals(assigned.OriginalDefinition, model.SpriteGraphics))
         {
             var classifier = new GraphicsClassifier(model);
-            // Reshading keeps the owner, and graphics copied from another object's instance member name no owner of their own.
-            bool copied = semantic.GetSymbolInfo(assignment.Right).Symbol is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false };
-            if (!copied && !classifier.IsReshading(semantic, assignment.Right))
-                scan.Reassignments.Add(classifier.Classify(semantic, assignment.Right));
+            // Reshading keeps the owner the object already has.
+            if (!classifier.IsReshading(semantic, assignment.Right))
+                scan.Reassignments.Add((classifier.Classify(semantic, assignment.Right), assignment.ToString()));
         }
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)
             && semantic.GetConversion(expression) is { IsUserDefined: true, MethodSymbol: { } conversion })
@@ -437,7 +410,7 @@ internal sealed class UnitScanner(CoreModel model)
         }
         if (graphics is null)
             return;
-        scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others));
+        scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others, method.OriginalDefinition, graphics.ToString()));
     }
 
     /// <summary>Records one referenced symbol as an enum member or as the units it reaches.</summary>

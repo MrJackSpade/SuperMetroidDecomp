@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.SpriteObjects;
-
+﻿
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>Cartridge values and helpers of <see cref="RoomSpriteObjectVisualDefinitions"/> that only verification reads.</summary>

@@ -5,7 +5,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -316,8 +315,7 @@ internal static class EnemySheetComposer
         [
             .. EncounterArtworkUploads.Of(set).Select(sequence => new EncounterArtworkSteps(sequence, EncounterArtworkUploads.Steps(sequence, inputs))),
             .. Ensure.NotNull(corpses).Where(corpse => corpse.Kind is null).Select(corpse => new EncounterArtworkSteps(EncounterArtworkSequence.MotherBrainCorpseRot,
-                [.. corpse.StepUploads.Select(step => (IReadOnlyList<EncounterArtworkUpload>)[.. step.Select(upload =>
-                    new EncounterArtworkUpload(upload.Row.FirstByte / SpriteCharacterTableLayout.CharacterByteCount, upload.Bytes))])])),
+                corpse.StepUploads)),
         ];
 
     /// <summary>A room graphics set as a room load leaves it.</summary>

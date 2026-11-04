@@ -138,7 +138,7 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with every step of each sequence <paramref name="combination"/> names, up to the one it names, copied in order.</summary>
-    internal SpriteArtwork Page(IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> combination)
+    internal SpriteArtwork Page(IReadOnlyList<EncounterArtworkStep> combination)
     {
         string key = FrameArtworkVariation.PictureName("page", combination);
         if (pages.TryGetValue(key, out SpriteArtwork? page))

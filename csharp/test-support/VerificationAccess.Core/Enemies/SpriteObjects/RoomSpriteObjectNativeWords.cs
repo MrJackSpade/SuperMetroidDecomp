@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// Verification's native view of <see cref="RoomSpriteObjectKind"/> (#1481): the object number the cartridge passes to

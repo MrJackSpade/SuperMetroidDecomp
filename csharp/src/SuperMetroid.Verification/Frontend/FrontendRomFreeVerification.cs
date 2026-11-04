@@ -14,7 +14,6 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeCensusVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRoomSetupVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

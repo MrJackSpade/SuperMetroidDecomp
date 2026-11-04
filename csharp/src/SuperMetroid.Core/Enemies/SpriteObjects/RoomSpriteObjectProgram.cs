@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>The room sprite-object programs the named object kinds reach, by their instruction lists.</summary>
 internal enum RoomSpriteObjectProgram

@@ -30,7 +30,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     /// Copies population and definition fields into a slot, showing its sheet's standard colours, and records a spawn
     /// snapshot before initialization AI runs.
     /// </summary>
-    internal void InitializeSlotFromDefinition(
+    internal static void InitializeSlotFromDefinition(
         RoomEnemySlot slot,
         RoomEnemyPopulationRecord population,
         RoomEnemyDefinition definition)

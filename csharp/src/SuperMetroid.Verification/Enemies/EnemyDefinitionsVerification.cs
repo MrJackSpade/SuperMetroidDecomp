@@ -86,7 +86,7 @@ internal static class EnemyDefinitionsVerification
                 $"the import's tile set size for {pointer} is its header's");
             AssertEqual((tileWord & 0x8000) != 0, SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.ContainsKey(pointer),
                 $"the import places {pointer}'s tiles at a fixed block exactly when its header does");
-            AssertEqual(((tileWord & 0x7fff), (tileWord & 0x8000) != 0),
+            AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(tileWord & 0x7fff, (tileWord & 0x8000) != 0),
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer),
                 $"the importer decodes {pointer}'s tile word as the oracle does");
         }

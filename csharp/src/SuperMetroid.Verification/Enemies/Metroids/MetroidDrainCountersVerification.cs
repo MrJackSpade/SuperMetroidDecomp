@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Enemies.Metroids;
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
 

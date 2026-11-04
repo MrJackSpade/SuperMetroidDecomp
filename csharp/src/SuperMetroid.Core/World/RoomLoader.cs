@@ -1199,7 +1199,7 @@ internal sealed class RoomLoader
     {
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("A door began with no room loaded.");
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null, RoomScope.BlockArtworkOf(_room.ActiveRoom),
-            new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession), []);
+            new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.ArtworkProgress), []);
     }
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>

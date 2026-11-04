@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 

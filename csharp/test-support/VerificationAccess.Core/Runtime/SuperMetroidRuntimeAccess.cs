@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -11,7 +10,6 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Runtime;
 

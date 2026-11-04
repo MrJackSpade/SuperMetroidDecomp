@@ -1,7 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Verification.Rooms.SpriteObjects;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

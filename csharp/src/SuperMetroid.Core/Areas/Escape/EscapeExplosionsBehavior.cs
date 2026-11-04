@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 

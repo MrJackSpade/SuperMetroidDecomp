@@ -22,7 +22,7 @@ public sealed record FrameArtworkVariation(EncounterArtworkSequence Sequence, Im
     /// The name of the picture of <paramref name="frame"/> that shows each sequence <paramref name="shown"/> pairs with the
     /// step whose picture it shows: the frame's own name when it shows none.
     /// </summary>
-    public static string PictureName(string frame, IEnumerable<(EncounterArtworkSequence Sequence, int Step)> shown)
+    public static string PictureName(string frame, IEnumerable<EncounterArtworkStep> shown)
     {
         ArgumentException.ThrowIfNullOrEmpty(frame);
         return frame + string.Concat(Ensure.NotNull(shown).Select(entry => $"|{entry.Sequence}={entry.Step}"));

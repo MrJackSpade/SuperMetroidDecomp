@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// One of the room's sprite-object slots. The pool is shared by enemy bodies, attack afterimages, explosions and room

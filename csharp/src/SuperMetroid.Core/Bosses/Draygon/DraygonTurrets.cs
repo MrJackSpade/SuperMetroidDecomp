@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

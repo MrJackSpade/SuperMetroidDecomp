@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Metroids;

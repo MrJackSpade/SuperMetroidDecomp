@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>The bank-$B4 address of each room sprite-object program's native instruction list.</summary>
 internal static class RoomSpriteObjectProgramAddresses

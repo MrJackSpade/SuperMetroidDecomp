@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.World;
 
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// Verification's native view of room sprite objects: the bank-$B4 address of the record a slot shows, derived from the

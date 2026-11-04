@@ -59,7 +59,7 @@ internal static class EncounterArtworkProgressVerification
         AssertEqual<int?>(1, variation.PictureAt(2), "a step that leaves the frame alike shares the earlier step's picture");
         AssertThrows<InvalidDataException>(() => variation.PictureAt(4), "a step past the sequence has no picture");
         AssertEqual("frame", FrameArtworkVariation.PictureName("frame", []), "the loaded picture is the frame's own name");
-        AssertEqual("frame|CrocomireSkeleton=3", FrameArtworkVariation.PictureName("frame", [(EncounterArtworkSequence.CrocomireSkeleton, 3)]),
+        AssertEqual("frame|CrocomireSkeleton=3", FrameArtworkVariation.PictureName("frame", [new EncounterArtworkStep(EncounterArtworkSequence.CrocomireSkeleton, 3)]),
             "a step's picture names the sequence and the step it shows");
         Console.WriteLine("Encounter artwork progress: steps advance, come round, restart per room, and name the pictures frames show.");
     }

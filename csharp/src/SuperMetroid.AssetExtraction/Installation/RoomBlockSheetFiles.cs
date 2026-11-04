@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.AssetExtraction.Enemies;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -12,7 +11,8 @@ namespace SuperMetroid.Core.Enemies;
 /// room's encounters have played their artwork; the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind; and the
 /// host's installed enemy artwork, which every room's enemies draw from.
 /// </summary>
-public sealed class EnemySession : IEncounterArtworkView
+[ArchitectureReview("context-bag", "The enemy state that outlives each room and the installed enemy content every room binds: each member is session-lifetime state or installed data a room reads, not a service looked up.")]
+public sealed class EnemySession
 {
     /// <summary>Creates the enemy words a fresh power-on holds, bound to the session's unauthored Speed Booster cadence.</summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives every runtime.</param>
@@ -87,7 +87,4 @@ public sealed class EnemySession : IEncounterArtworkView
     /// does not enable a fallback.
     /// </summary>
     internal EnemyOverreadServices? Overreads { get; set; }
-
-    /// <inheritdoc />
-    bool IEncounterArtworkView.Reached(EncounterArtworkSequence sequence, int step) => ArtworkProgress.Reached(sequence, step);
 }

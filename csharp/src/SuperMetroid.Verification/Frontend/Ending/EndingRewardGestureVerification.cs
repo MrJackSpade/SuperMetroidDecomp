@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Frontend.Intro;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCloudMotionVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingPostShotVerification;

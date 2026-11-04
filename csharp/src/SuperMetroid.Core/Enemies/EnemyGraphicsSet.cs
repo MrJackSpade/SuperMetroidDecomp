@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-namespace SuperMetroid.Core.Enemies;
+﻿namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The room's enemy graphics set: the ordered members whose installed sheets its enemies draw from (#1392, #1513). The
@@ -8,12 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyGraphicsSet
 {
-    /// <summary>Supplies the selected enemy artwork and guards room-bound operations.</summary>
-    private readonly EnemyRoomBinding _room;
-
-    /// <summary>Binds the room whose artwork the graphics set selects.</summary>
-    internal EnemyGraphicsSet(EnemyRoomBinding room) => _room = room;
-
     /// <summary>
     /// The graphics set whose installed sheets the room draws from: the one it loaded, or, when its population is empty
     /// and it loads none, the standard sprites alone (<see cref="RoomEnemyGraphicsSetDefinitions.SessionStart"/>).

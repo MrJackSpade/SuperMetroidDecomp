@@ -607,7 +607,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RoomFx = new EnemyRoomFx();
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
-        GraphicsSet = new EnemyGraphicsSet(Room);
+        GraphicsSet = new EnemyGraphicsSet();
         Presentation = new EnemyPresentation(Room, GraphicsSet);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         SlotTable = new EnemySlotTable();

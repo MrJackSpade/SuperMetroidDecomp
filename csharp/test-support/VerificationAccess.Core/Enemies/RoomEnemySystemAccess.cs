@@ -57,7 +57,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres;

@@ -1,11 +1,9 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -49,8 +47,8 @@ internal static class GunshipLiftoffPicturesVerification
         for (int step = 0; step <= pages; step++)
         {
             // Step zero is the ship before its takeoff, then each takeoff page in turn.
-            IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached =
-                step == 0 ? [] : [(EncounterArtworkSequence.GunshipLiftoff, step - 1)];
+            IReadOnlyList<EncounterArtworkStep> reached =
+                step == 0 ? [] : [new EncounterArtworkStep(EncounterArtworkSequence.GunshipLiftoff, step - 1)];
             if (step > 0)
                 runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.GunshipLiftoff, step - 1);
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });

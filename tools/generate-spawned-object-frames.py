@@ -1,4 +1,4 @@
-"""Generates csharp/src/SuperMetroid.Core/Enemies/Artwork/SpawnedObjectFrameDefinitions.cs (#1392).
+"""Generates csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/SpawnedObjectFrameDefinitions.cs (#1392, #1484).
 
 Enemy projectiles and room sprite objects draw from sheets composed per graphics set and tile base. A spawned object
 shows its spawner's characters (at the spawner's tile base) or the room's (at base 0), so a sheet needs the frames its
@@ -13,7 +13,7 @@ import re
 import sys
 
 CORE = os.path.join('csharp', 'src', 'SuperMetroid.Core')
-OUTPUT = os.path.join(CORE, 'Enemies', 'Artwork', 'SpawnedObjectFrameDefinitions.cs')
+OUTPUT = os.path.join('csharp', 'src', 'SuperMetroid.AssetExtraction', 'Enemies', 'Artwork', 'SpawnedObjectFrameDefinitions.cs')
 FRAME_ENUM = os.path.join(CORE, 'Enemies', 'Projectiles', 'EnemyProjectileFrameId.cs')
 # Tables that name every kind or frame, this generator's own output among them; reading them would make every kind
 # every spawner's.
@@ -21,7 +21,7 @@ TABLES = {os.path.join(CORE, 'Enemies', 'Projectiles', name) for name in
           ('EnemyProjectileTypedStarts.cs', 'EnemyProjectileDefinitionCatalog.cs')} | {
     OUTPUT,
     os.path.join(CORE, 'Enemies', 'SpriteObjects', 'RoomSpriteObjectVisualDefinitions.cs'),
-    os.path.join(CORE, 'Rooms', 'SpriteObjects', 'RoomSpriteObjectDefinitions.cs')}
+    os.path.join(CORE, 'Enemies', 'SpriteObjects', 'RoomSpriteObjectDefinitions.cs')}
 # Types every family names that carry no frames of their own; following them would merge unrelated families.
 SHARED = {'EnemyFrameId', 'EnemyDefinitionId', 'SpriteFrameBuffer', 'SpriteSource', 'RoomEnemySlot', 'SamusState',
           'EnemyPresentation', 'RoomEnemySystem', 'EnemyFrameTable', 'EnemyProjectileFrameId', 'RoomEnemyProjectileKind',
@@ -166,10 +166,12 @@ def main():
             [f'        {element}.{value},' for value in values] + ['    ];', '']
 
     lines = [
+        'using SuperMetroid.Core;',
         'using SuperMetroid.Core.Enemies.Projectiles;',
-        'using SuperMetroid.Core.Rooms.SpriteObjects;',
+        'using SuperMetroid.Core.Enemies.SpriteObjects;',
+        'using SuperMetroid.Core.Enemies;',
         '',
-        'namespace SuperMetroid.Core.Enemies.Artwork;',
+        'namespace SuperMetroid.AssetExtraction.Enemies.Artwork;',
         '',
         '/// <summary>',
         '/// The projectile frames and room sprite-object kinds each enemy definition can spawn, and those any room can show',

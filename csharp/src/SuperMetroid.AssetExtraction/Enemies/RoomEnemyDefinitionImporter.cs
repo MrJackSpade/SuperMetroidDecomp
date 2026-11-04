@@ -72,11 +72,11 @@ public static class RoomEnemyDefinitionImporter
     /// </summary>
     /// <param name="bus">Address space that exposes the import-only cartridge source.</param>
     /// <param name="pointer">The enemy definition, whose header the import's header table locates.</param>
-    internal static (int ByteCount, bool AtFixedBlock) TileSet(ISnesAddressSpace bus, EnemyDefinitionId pointer)
+    internal static EnemyHeaderTileSet TileSet(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         Ensure.NotNull(bus);
         int tileSize = ReadWord(CartridgeImportSource.Require(bus), EnemyDefinitionIds.HeaderPointer(pointer), 0);
-        return (tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits,
+        return new EnemyHeaderTileSet(tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits,
             (tileSize & EnemySourceDefinitions.EnemyHeaderFixedBlockBit) != 0);
     }
 

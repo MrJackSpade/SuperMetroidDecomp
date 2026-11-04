@@ -2,16 +2,13 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
@@ -56,7 +53,7 @@ internal static class DraygonEvirPicturesVerification
             $"the Evir's frame {frame} follows Draygon's opening");
         SpriteSheet sheet = sheets.Spawned(set, owner).Sheet;
         string setPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, []);
-        string evirPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, [(EncounterArtworkSequence.DraygonEvirs, 0)]);
+        string evirPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, [new EncounterArtworkStep(EncounterArtworkSequence.DraygonEvirs, 0)]);
 
         UploadedPictureChecks.AssertDrawnPicture(sheet, setPicture, AssertDrawnLikeParts(runtime, set, evir, "before the opening"),
             "an Evir drawn before the opening shows its picture of the set's own characters");

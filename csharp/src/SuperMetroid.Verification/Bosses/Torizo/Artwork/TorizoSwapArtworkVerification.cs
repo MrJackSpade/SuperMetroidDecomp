@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -156,11 +155,11 @@ internal static class TorizoSwapArtworkVerification
     }
 
     /// <summary>The artwork sequence and step <paramref name="swap"/> takes: Golden Torizo's swaps, else Bomb Torizo's (#1513).</summary>
-    private static (EncounterArtworkSequence Sequence, int Step) StepOf(TorizoArtworkSwap swap)
+    private static EncounterArtworkStep StepOf(TorizoArtworkSwap swap)
     {
         int golden = TorizoArtworkSwapDefinitions.GoldenSequence.ToList().IndexOf(swap);
-        return golden >= 0 ? (EncounterArtworkSequence.GoldenTorizo, golden)
-            : (EncounterArtworkSequence.BombTorizo, TorizoArtworkSwapDefinitions.BombSequence.ToList().IndexOf(swap));
+        return golden >= 0 ? new EncounterArtworkStep(EncounterArtworkSequence.GoldenTorizo, golden)
+            : new EncounterArtworkStep(EncounterArtworkSequence.BombTorizo, TorizoArtworkSwapDefinitions.BombSequence.ToList().IndexOf(swap));
     }
 
     /// <summary>Shows artwork swap <paramref name="swap"/> through the production cue of the Torizo whose programs make it.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Reflection;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;

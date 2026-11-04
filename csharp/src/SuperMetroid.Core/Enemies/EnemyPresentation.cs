@@ -141,11 +141,11 @@ internal sealed class EnemyPresentation
                 throw new InvalidDataException($"Sheet frame {frame} shows the rot of {rotCorpse}, but its draw selects the rot of {rot.Corpse.Name}.");
             return rot.PictureName(frame);
         }
-        var shown = new List<(EncounterArtworkSequence Sequence, int Step)>();
+        var shown = new List<EncounterArtworkStep>();
         foreach (FrameArtworkVariation variation in variations)
         {
             if (ArtworkProgress.StepOf(variation.Sequence) is int reached && variation.PictureAt(reached) is int picture)
-                shown.Add((variation.Sequence, picture));
+                shown.Add(new EncounterArtworkStep(variation.Sequence, picture));
         }
         return FrameArtworkVariation.PictureName(frame, shown);
     }

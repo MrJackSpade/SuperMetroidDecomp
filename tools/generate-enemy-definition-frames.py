@@ -1,4 +1,4 @@
-"""Generates csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyDefinitionFrameDefinitions.cs (#1392).
+"""Generates csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyDefinitionFrameDefinitions.cs (#1392, #1484).
 
 Each enemy behaviour declares the definitions it serves, directly or through a parts table. The frames a definition can
 show are the EnemyFrameId members its behaviour's source reaches: the behaviour file, and transitively every Core type it
@@ -11,7 +11,7 @@ import re
 import sys
 
 CORE = os.path.join('csharp', 'src', 'SuperMetroid.Core')
-OUTPUT = os.path.join(CORE, 'Enemies', 'Artwork', 'EnemyDefinitionFrameDefinitions.cs')
+OUTPUT = os.path.join('csharp', 'src', 'SuperMetroid.AssetExtraction', 'Enemies', 'Artwork', 'EnemyDefinitionFrameDefinitions.cs')
 FRAME_ENUM = os.path.join(CORE, 'Enemies', 'Artwork', 'EnemyFrameId.cs')
 # Types every family names that carry no frames of their own; following them would merge unrelated families.
 SHARED = {'EnemyFrameId', 'EnemyDefinitionId', 'SpriteFrameBuffer', 'SpriteSource', 'RoomEnemySlot', 'SamusState',
@@ -91,7 +91,11 @@ def main():
         families.append((family, os.path.relpath(path, CORE).replace(os.sep, '/'), names, frames))
 
     lines = [
-        'namespace SuperMetroid.Core.Enemies.Artwork;',
+        'using SuperMetroid.Core;',
+        'using SuperMetroid.Core.Enemies;',
+        'using SuperMetroid.Core.Enemies.Artwork;',
+        '',
+        'namespace SuperMetroid.AssetExtraction.Enemies.Artwork;',
         '',
         '/// <summary>',
         '/// The frames each enemy definition can show (#1392): the frames its behaviour\'s code names, which its pre-coloured',

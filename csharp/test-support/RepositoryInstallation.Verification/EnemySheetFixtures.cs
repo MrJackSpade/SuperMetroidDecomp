@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -30,7 +29,7 @@ internal static class EnemySheetFixtures
     /// <paramref name="reached"/> names through the step it names (#1513): the room load's characters with every step up to
     /// it copied in order, from the installation's artwork, which a frame's picture of those steps paints like.
     /// </summary>
-    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached)
+    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached)
     {
         ArgumentNullException.ThrowIfNull(set);
         SetCharacters? composedCharacters;

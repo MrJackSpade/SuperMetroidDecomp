@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>The program each room sprite-object kind starts, as <c>CreateSpriteAtPos</c> selects it.</summary>
 internal static class RoomSpriteObjectDefinitions

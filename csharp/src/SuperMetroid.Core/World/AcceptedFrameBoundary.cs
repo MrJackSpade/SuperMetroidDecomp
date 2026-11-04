@@ -247,7 +247,7 @@ internal sealed class AcceptedFrameBoundary
             throw new InvalidOperationException("X-ray reveals a room whose blocks show the sprites' artwork.");
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
         // the Ceres Ridley arena, the looks shown on the sprites' artwork (#1466).
-        var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession);
+        var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.ArtworkProgress);
         // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
             rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,

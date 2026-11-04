@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
 namespace SuperMetroid.Verification.Enemies.Metroids;

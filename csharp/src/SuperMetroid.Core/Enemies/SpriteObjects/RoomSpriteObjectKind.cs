@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// The room sprite object an owner spawns. Its values are arbitrary; verification's catalog names each kind's

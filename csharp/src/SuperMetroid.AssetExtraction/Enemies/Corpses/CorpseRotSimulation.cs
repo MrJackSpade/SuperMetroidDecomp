@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -64,18 +63,18 @@ internal sealed class CorpseRotSimulation
     /// What each rot step uploads, by step from the first: every row's bytes after a step the corpse uploads its rows at,
     /// nothing after one it does not. Mother Brain's corpse rot sequence (#1513) takes these as its steps.
     /// </summary>
-    internal IReadOnlyList<IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)>> StepUploads =>
+    internal IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> StepUploads =>
         [.. Enumerable.Range(0, rowBytes[Rows[0]].Length).Select(UploadsAfter)];
 
     /// <summary>Every row's bytes after rot step <paramref name="step"/>, or nothing when the corpse uploads none after it.</summary>
-    private IReadOnlyList<(CorpseRotRow Row, byte[] Bytes)> UploadsAfter(int step)
+    private IReadOnlyList<EncounterArtworkUpload> UploadsAfter(int step)
     {
-        var uploads = new List<(CorpseRotRow Row, byte[] Bytes)>();
+        var uploads = new List<EncounterArtworkUpload>();
         foreach (CorpseRotRow row in Rows)
         {
             if (rowBytes[row][step] is not { } bytes)
                 return [];
-            uploads.Add((row, bytes));
+            uploads.Add(new EncounterArtworkUpload(row.FirstByte / SpriteCharacterTableLayout.CharacterByteCount, bytes));
         }
         return uploads;
     }

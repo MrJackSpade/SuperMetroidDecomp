@@ -68,7 +68,6 @@ using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.YappingMaws;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;

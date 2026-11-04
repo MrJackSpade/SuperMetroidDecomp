@@ -75,7 +75,7 @@ internal sealed class GraphicsSetCharacterLayout
     /// The set has more than four members, places a member after one shown at a fixed block, names an enemy whose tile set
     /// the import does not catalogue, or a member's tiles leave the enemy tile area.
     /// </exception>
-    private static IReadOnlyList<GraphicsSetMemberCharacters> LayOut(RoomEnemyGraphicsSetDefinition set)
+    private static List<GraphicsSetMemberCharacters> LayOut(RoomEnemyGraphicsSetDefinition set)
     {
         var members = new List<GraphicsSetMemberCharacters>();
         int nextEnemyTileIndex = 0;

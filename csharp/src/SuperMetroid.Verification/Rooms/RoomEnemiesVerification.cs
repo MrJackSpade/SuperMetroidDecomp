@@ -186,9 +186,9 @@ internal static void VerifyRoomEnemyLoading()
     AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
         "definition power-bomb reaction offset $28 names a reacting routine");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size and bit 15 its placement.
-    AssertEqual((0x0040, false), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, primaryDefinitionPointer),
+    AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0040, false), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, primaryDefinitionPointer),
         "the import decodes the definition's tile set size, the tile word's low fifteen bits, following the previous member");
-    AssertEqual((0x0020, true), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, specialDefinitionPointer),
+    AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0020, true), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, specialDefinitionPointer),
         "the import decodes the special definition's tile word's bit 15 as placing its tiles at a fixed block");
     AssertEqual(EnemyHeaderTables.DropChances(bus, 0xf206), definition.DropChances,
         "definition item-drop table offset $3A");
@@ -1207,7 +1207,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ShowingBackgroundPages, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
     var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
-        timer: InstalledFixtures.Maps.EscapeTimerTiles);
+        timer: SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
         VramWriteEntry expected = spriteTransfers[index];

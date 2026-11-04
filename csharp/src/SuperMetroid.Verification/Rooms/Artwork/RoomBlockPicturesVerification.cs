@@ -478,7 +478,7 @@ internal static class RoomBlockPicturesVerification
 
     /// <summary>What the loaded room of <paramref name="runtime"/> shows over its load, with <paramref name="frames"/> its animations selected.</summary>
     private static RoomAppearanceView AppearanceOf(SuperMetroidRuntime runtime, ArtworkFrameSelections frames) =>
-        new(RoomScopeOf(runtime).Appearance, frames, runtime.EnemySession);
+        new(RoomScopeOf(runtime).Appearance, frames, runtime.EnemySession.ArtworkProgress);
 
     /// <summary>What the loaded room's tileset's rooms show over their characters, as the import pipeline replays it.</summary>
     private static RoomBlockUploads.TilesetUploads UploadsOf(SuperMetroidRuntime runtime) => TilesetUploads.Value[RoomScopeOf(runtime).Assets.Tileset];

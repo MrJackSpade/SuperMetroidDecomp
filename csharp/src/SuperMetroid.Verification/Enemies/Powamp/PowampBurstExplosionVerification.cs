@@ -28,7 +28,7 @@ internal static class PowampBurstExplosionVerification
         var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyProjectileSlot[] pool = [.. enemies.Projectiles.EnemyProjectiles];
         // Occupy every place above the ninth and the first, so the eight spikes take the second through ninth places.
-        foreach (RoomEnemyProjectileSlot occupied in pool.Where(slot => slot.SlotIndex == 0 || slot.SlotIndex > 8))
+        foreach (RoomEnemyProjectileSlot occupied in pool.Where(slot => slot.SlotIndex is 0 or > 8))
             occupied.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {

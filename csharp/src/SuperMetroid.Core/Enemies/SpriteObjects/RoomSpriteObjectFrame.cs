@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// The spritemaps of every room sprite-object list the game's 62 object selectors reach: the frames the

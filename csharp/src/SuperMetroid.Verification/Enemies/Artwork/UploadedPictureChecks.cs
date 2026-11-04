@@ -1,14 +1,12 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -126,7 +124,7 @@ internal static class UploadedPictureChecks
     /// set <paramref name="set"/> leaves once its encounters have played each sequence <paramref name="reached"/> names
     /// through the step it names (#1513): its own composition drawn over those characters.
     /// </summary>
-    internal static void AssertPicturesPaintOverSteps(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached,
+    internal static void AssertPicturesPaintOverSteps(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterArtworkStep> reached,
         ImmutableArray<SpriteDraw> pictures, string message)
     {
         SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
@@ -136,9 +134,9 @@ internal static class UploadedPictureChecks
     }
 
     /// <summary>The sequences the runtime's room encounters have reached and the step each reached (#1513).</summary>
-    internal static IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> Reached(SuperMetroidRuntime runtime) =>
+    internal static IReadOnlyList<EncounterArtworkStep> Reached(SuperMetroidRuntime runtime) =>
         [.. Enum.GetValues<EncounterArtworkSequence>().Select(sequence => (sequence, runtime.EnemySession.ArtworkProgress.StepOf(sequence)))
-            .Where(entry => entry.Item2 is not null).Select(entry => (entry.sequence, entry.Item2 ?? 0))];
+            .Where(entry => entry.Item2 is not null).Select(entry => new EncounterArtworkStep(entry.sequence, entry.Item2 ?? 0))];
 
     /// <summary>
     /// The picture <paramref name="frame"/> draws as once the room's encounters have played each sequence
@@ -146,15 +144,15 @@ internal static class UploadedPictureChecks
     /// <paramref name="variations"/> shows then (#1513).
     /// </summary>
     internal static string ExpectedPicture(string frame, IReadOnlyList<FrameArtworkVariation> variations,
-        IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached)
+        IReadOnlyList<EncounterArtworkStep> reached)
     {
-        var shown = new List<(EncounterArtworkSequence Sequence, int Step)>();
+        var shown = new List<EncounterArtworkStep>();
         foreach (FrameArtworkVariation variation in variations)
         {
             foreach ((EncounterArtworkSequence sequence, int step) in reached)
             {
                 if (sequence == variation.Sequence && variation.PictureAt(step) is int picture)
-                    shown.Add((sequence, picture));
+                    shown.Add(new EncounterArtworkStep(sequence, picture));
             }
         }
         return FrameArtworkVariation.PictureName(frame, shown);
@@ -183,7 +181,7 @@ internal static class UploadedPictureChecks
         bool requireFrames = true)
     {
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
-        var origin = new Position16<ScreenPixels>((ushort)(ScreenGeometry.ScreenWidthPixels / 2), (ushort)(ScreenGeometry.ScreenHeightPixels / 2));
+        var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
         int frames = 0;
         foreach ((EnemySheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.variations.Where(entry => entry.Key.Set == set.Name))
         {
@@ -193,9 +191,9 @@ internal static class UploadedPictureChecks
                 frames++;
                 for (int step = 0; step < steps; step++)
                 {
-                    string picture = ExpectedPicture(frame, variations, [(sequence, step)]);
+                    string picture = ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, step)]);
                     var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), sheet.Frame(picture), origin, SpriteMirror.None);
-                    AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [(sequence, step)]))],
+                    AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [new EncounterArtworkStep(sequence, step)]))],
                         $"{message}: {key.Enemy} frame {frame} at step {step} of {sequence}", requirePixels: false);
                 }
             }

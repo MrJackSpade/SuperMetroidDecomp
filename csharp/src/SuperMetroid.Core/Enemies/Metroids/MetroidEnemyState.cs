@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 

@@ -8,9 +8,11 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// A sprite sheet laid out before any pixel is painted (#1392): its frames in order, then each distinct part composed
-/// alone as a part image, which the frame lists in draw order, so a screen whose object limit cuts the frame short can
-/// show its first parts as the cartridge's loader does. Each is cropped to its parts and packed in rows no wider than
+/// A sprite sheet laid out before any pixel is painted (#1392): its distinct frame images in order, then each distinct
+/// part composed alone as a part image, which the frame lists in draw order, so a screen whose object limit cuts the frame
+/// short can show its first parts as the cartridge's loader does. Parts are told apart by the pixels they paint, and frames
+/// by the part images they place, so each image is laid and painted once however many frames show it (#1513). Each is
+/// cropped to its parts and packed in rows no wider than
 /// <see cref="MaximumWidth"/>, or, for a sheet that would then be taller than an artwork image can be, the narrowest
 /// doubling of it within that bound that keeps the sheet within it too. A frame with no parts is an empty frame. Its
 /// <see cref="Identity"/> covers everything painting reads, so two layouts with one identity paint the same sheet and
@@ -33,14 +35,17 @@ internal sealed class SpriteSheetLayout
     /// <summary>The priority of parts that do not choose their own.</summary>
     private readonly int priority;
 
-    /// <summary>The frames in order, then the part images.</summary>
+    /// <summary>The distinct frame images in order, then the part images.</summary>
     private readonly SheetFrameSource[] laid;
 
-    /// <summary>How many of <see cref="laid"/> are frames rather than part images.</summary>
+    /// <summary>How many of <see cref="laid"/> are frame images rather than part images.</summary>
     private readonly int frameCount;
 
-    /// <summary>Each frame's part images in draw order, at their offsets from its origin.</summary>
+    /// <summary>Each frame image's part images in draw order, at their offsets from its origin.</summary>
     private readonly SpriteSheetPartDocument[][] frameParts;
+
+    /// <summary>Each frame of the sources, in order, with the laid frame image it shows.</summary>
+    private readonly NamedFrameImage[] frameImages;
 
     /// <summary>Each laid frame's cover relative to its origin.</summary>
     private readonly FrameBounds[] bounds;
@@ -71,21 +76,26 @@ internal sealed class SpriteSheetLayout
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
-        // Each distinct part, alone at its frame's origin, coloured as its frame colours it.
-        var partNames = new Dictionary<PartKey, string>();
+        // Each distinct part, alone at its frame's origin, coloured as its frame colours it: parts that paint the same pixels
+        // share one image, whichever characters' copy they read them from.
+        var partNames = new Dictionary<string, string>(StringComparer.Ordinal);
         var parts = new List<SheetFrameSource>();
-        frameParts = new SpriteSheetPartDocument[frames.Count][];
+        // Each distinct frame image: frames placing the same part images at the same offsets paint the same pixels.
+        var frameImageOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var uniqueFrames = new List<SheetFrameSource>();
+        var uniqueParts = new List<SpriteSheetPartDocument[]>();
+        frameImages = new NamedFrameImage[frames.Count];
         for (int index = 0; index < frames.Count; index++)
         {
             SheetFrameSource frame = frames[index];
             int framePalette = frame.Palette ?? palette;
-            frameParts[index] = [.. frame.Frame.Parts.Select(part =>
+            SpriteSheetPartDocument[] images = [.. frame.Frame.Parts.Select(part =>
             {
                 // The PPU draws only its screen's two object sizes, so a part of any other size cannot stand for an object.
                 if (part.Size != sources.ObjectSizes.Small && part.Size != sources.ObjectSizes.Large)
                     throw new InvalidDataException($"Sheet frame {frame.Name} has a {part.Size.X}x{part.Size.Y} part, not an object size of its screen.");
                 SpriteFramePart alone = part with { Offset = default };
-                var key = new PartKey(frame.Characters, alone, framePalette);
+                string key = PartContent(alone, framePalette, frame.Characters);
                 if (!partNames.TryGetValue(key, out string? name))
                 {
                     name = PartImageName(parts.Count);
@@ -98,19 +108,32 @@ internal sealed class SpriteSheetLayout
                     Offset = new(part.Offset.X, part.Offset.Y),
                 };
             })];
+            string placed = string.Join(";", images.Select(image => $"{image.Image}@{image.Offset.X},{image.Offset.Y}"));
+            if (!frameImageOf.TryGetValue(placed, out int laidFrame))
+            {
+                laidFrame = uniqueFrames.Count;
+                frameImageOf.Add(placed, laidFrame);
+                uniqueFrames.Add(frame);
+                uniqueParts.Add(images);
+            }
+            frameImages[index] = new NamedFrameImage(frame.Name, laidFrame);
         }
-        frameCount = frames.Count;
-        laid = [.. frames, .. parts];
+        frameParts = [.. uniqueParts];
+        frameCount = uniqueFrames.Count;
+        laid = [.. uniqueFrames, .. parts];
         bounds = [.. laid.Select(frame => Bounds(frame.Frame))];
         corners = new Position16<ImagePixels>[laid.Length];
         Extent16<ImagePixels> size;
         for (int rowWidth = MaximumWidth; ; rowWidth *= 2)
         {
             if (rowWidth > RgbaPng.MaximumDimension)
-                throw new InvalidDataException($"Sheet {frames[0].Name}'s frames do not fit in a {RgbaPng.MaximumDimension}-pixel square image.");
-            size = Pack(bounds, corners, rowWidth);
-            if (size.Y <= RgbaPng.MaximumDimension)
+                throw new InvalidDataException(
+                    $"Sheet {frames[0].Name}'s {frames.Count} frames and {parts.Count} parts do not fit in a {RgbaPng.MaximumDimension}-pixel square image.");
+            if (Pack(bounds, corners, rowWidth) is { } packed)
+            {
+                size = packed;
                 break;
+            }
         }
         Size = size;
         Identity = IdentityOf();
@@ -120,9 +143,9 @@ internal sealed class SpriteSheetLayout
     internal Extent16<ImagePixels> Size { get; }
 
     /// <summary>
-    /// A hash of everything painting reads: the colours, the palette bits and row rule, the default row and priority, and
-    /// each laid frame's name, row, part images and parts, each part by its place, size, flip, row, priority and the
-    /// characters it reads. Layouts with one identity paint the same sheet.
+    /// A hash of everything painting reads: the colours, the palette bits and row rule, the default row and priority, each
+    /// laid image's name, row, part images and parts, each part by its place, size, flip, row, priority and the characters
+    /// it reads, and the image each frame shows. Layouts with one identity paint the same sheet.
     /// </summary>
     internal string Identity { get; }
 
@@ -132,8 +155,8 @@ internal sealed class SpriteSheetLayout
     /// </summary>
     internal SpriteSheetDocument Paint(SpriteSheetPlanes planes)
     {
-        var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         var partManifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
+        var frameDocuments = new SpriteSheetFrameDocument[frameCount];
         for (int index = 0; index < laid.Length; index++)
         {
             ImageColourGroups groups = PaintFrame(planes, index);
@@ -146,8 +169,15 @@ internal sealed class SpriteSheetLayout
                 ColourGroups = groups.ManifestMembers,
                 Parts = isPart ? [] : frameParts[index],
             };
-            (isPart ? partManifest : manifest).Add(laid[index].Name, document);
+            if (isPart)
+                partManifest.Add(laid[index].Name, document);
+            else
+                frameDocuments[index] = document;
         }
+        // Every frame names the image it shows; frames painting the same pixels name the same one.
+        var manifest = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
+        foreach (NamedFrameImage frame in frameImages)
+            manifest.Add(frame.Name, frameDocuments[frame.Image]);
         RgbColor[] spriteColours = sources.SpriteColours;
         ushort[] colours = new ushort[spriteColours.Length];
         for (int ink = 0; ink < colours.Length; ink++)
@@ -320,6 +350,12 @@ internal sealed class SpriteSheetLayout
                 foreach (SpriteFramePart part in source.Frame.Parts)
                     WritePart(writer, part, source.Characters);
             }
+            writer.Write(frameImages.Length);
+            foreach (NamedFrameImage frame in frameImages)
+            {
+                writer.Write(frame.Name);
+                writer.Write(frame.Image);
+            }
         }
         return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
     }
@@ -330,6 +366,21 @@ internal sealed class SpriteSheetLayout
         writer.Write((byte)colour.Red);
         writer.Write((byte)colour.Green);
         writer.Write((byte)colour.Blue);
+    }
+
+    /// <summary>
+    /// What a part composed alone paints, spelled for telling parts apart: its size, flip, row, priority, its frame's row
+    /// and the characters it reads, wherever they lie in <paramref name="characters"/>.
+    /// </summary>
+    private static string PartContent(SpriteFramePart alone, int framePalette, SpriteArtwork characters)
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
+        {
+            writer.Write(framePalette);
+            WritePart(writer, alone, characters);
+        }
+        return Convert.ToBase64String(stream.GetBuffer().AsSpan(0, checked((int)stream.Length)));
     }
 
     /// <summary>Writes what painting reads of one part: its place, size, flip, row, priority and the characters it reads.</summary>
@@ -352,9 +403,10 @@ internal sealed class SpriteSheetLayout
 
     /// <summary>
     /// Packs the frames' covers in order in rows no wider than <paramref name="rowWidth"/>, a cover that would cross it
-    /// starting a new row, writing each one's corner, and gives the sheet's size.
+    /// starting a new row, writing each one's corner, and gives the sheet's size, or none when the rows would be taller
+    /// than an artwork image can be.
     /// </summary>
-    private static Extent16<ImagePixels> Pack(FrameBounds[] bounds, Position16<ImagePixels>[] corners, int rowWidth)
+    private static Extent16<ImagePixels>? Pack(FrameBounds[] bounds, Position16<ImagePixels>[] corners, int rowWidth)
     {
         int width = 1, x = 0, y = 0, rowHeight = 0;
         for (int index = 0; index < bounds.Length; index++)
@@ -368,12 +420,14 @@ internal sealed class SpriteSheetLayout
                 x = 0;
                 rowHeight = 0;
             }
+            if (y + bound.Size.Y > RgbaPng.MaximumDimension)
+                return null;
             corners[index] = new(checked((ushort)x), checked((ushort)y));
             x += bound.Size.X;
             rowHeight = Math.Max(rowHeight, bound.Size.Y);
             width = Math.Max(width, x);
         }
-        return new(checked((ushort)width), checked((ushort)Math.Max(1, y + rowHeight)));
+        return new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)Math.Max(1, y + rowHeight)));
     }
 
     /// <summary>The name of the part image composed <paramref name="ordinal"/>th.</summary>
@@ -395,11 +449,10 @@ internal sealed class SpriteSheetLayout
         return new FrameBounds(new(checked((short)left), checked((short)top)), new(checked((ushort)(right - left)), checked((ushort)(bottom - top))));
     }
 
-    /// <summary>A part as composed alone: the characters it reads, the part at the origin and its frame's palette row.</summary>
-    /// <param name="Characters">The characters the part reads.</param>
-    /// <param name="Part">The part, placed at the origin.</param>
-    /// <param name="FramePalette">The row its frame colours palette-inheriting parts in.</param>
-    private readonly record struct PartKey(SpriteArtwork Characters, SpriteFramePart Part, int FramePalette);
+    /// <summary>A frame of the sources and the laid frame image it shows.</summary>
+    /// <param name="Name">The frame's installed name.</param>
+    /// <param name="Image">The index of its image among the laid frame images.</param>
+    private readonly record struct NamedFrameImage(string Name, int Image);
 
     /// <summary>A frame's cover relative to its origin.</summary>
     /// <param name="TopLeft">The cover's top-left corner, from the origin.</param>

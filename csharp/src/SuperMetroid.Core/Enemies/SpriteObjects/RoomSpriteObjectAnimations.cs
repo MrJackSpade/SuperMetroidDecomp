@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Programs;
-using F = SuperMetroid.Core.Rooms.SpriteObjects.RoomSpriteObjectFrame;
-using P = SuperMetroid.Core.Rooms.SpriteObjects.RoomSpriteObjectProgram;
+using F = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectFrame;
+using P = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectProgram;
 
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// Every room sprite-object list the named object kinds reach, as a typed program generated from the authored

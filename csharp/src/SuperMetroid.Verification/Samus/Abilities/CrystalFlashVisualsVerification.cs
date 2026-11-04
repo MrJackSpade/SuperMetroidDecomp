@@ -47,9 +47,15 @@ internal static class CrystalFlashVisualsVerification
                     $"runtime Crystal Flash bubble palette at frame {elapsed}");
         }
 
-        // Samus's draws show her own shading (#1512), not the frame's colours: muting them to black isolates whether
-        // her Crystal Flash body shows any pixel.
-        FramePaint mutedMemory = packet.Paint.WithShownDraws(MuteSamus(packet.Paint.SpriteDraws));
+        // Her Crystal Flash body is drawn in her beam inks, the colour row the native check clears (#1457); muting all of
+        // her would count the frames she shows in her suit's inks after the body ends. Samus's draws show her own shading (#1512), so laying two
+        // different single colours over her beam inks isolates whether any pixel of the body shows: only a beam-ink pixel
+        // that shows differs between the two.
+        RgbColor dark = InstalledFixtures.SamusShadeSources.Death.WhiteoutColor(DarkBeamsStep);
+        RgbColor light = InstalledFixtures.SamusShadeSources.Death.WhiteoutColor(LightBeamsStep);
+        AssertTrue(dark != light, "the two whiteout shades that isolate the Crystal Flash body show different colours");
+        FramePaint beamsDark = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(DarkBeamsStep)));
+        FramePaint beamsLight = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(LightBeamsStep)));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.X;
         int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayScrolls.Layer1Position.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
@@ -59,8 +65,8 @@ internal static class CrystalFlashVisualsVerification
         LayeredScene? withoutWindow = runtime.BombProjectiles.PowerBombExplosion.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or PowerBombExplosionPhase.CrystalFlashAfterglow
             ? packet.Without<ColourAddWindowLayer>() : null;
-        return new CrystalFlashFrameScenes(elapsed, packet, new LayeredScene(mutedMemory, packet.Layers, packet.Brightness),
-            withoutWindow, centerX, centerY);
+        return new CrystalFlashFrameScenes(elapsed, packet, new LayeredScene(beamsDark, packet.Layers, packet.Brightness),
+            new LayeredScene(beamsLight, packet.Layers, packet.Brightness), withoutWindow, centerX, centerY);
 
         ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
     }
@@ -70,11 +76,12 @@ internal static class CrystalFlashVisualsVerification
     {
         ArgumentNullException.ThrowIfNull(frame);
         RgbaPixel[] pixels = DisplayRendering.Render(frame.Shown);
-        RgbaPixel[] mutedBody = DisplayRendering.Render(frame.SamusMuted);
+        RgbaPixel[] beamsDark = DisplayRendering.Render(frame.BeamsDark);
+        RgbaPixel[] beamsLight = DisplayRendering.Render(frame.BeamsLight);
         int centerX = frame.CenterX, centerY = frame.CenterY;
         bool bodyVisible = Enumerable.Range(centerY - 32, 64)
             .Any(y => Enumerable.Range(centerX - 32, 64)
-                .Any(x => pixels[y * 256 + x] != mutedBody[y * 256 + x]));
+                .Any(x => beamsDark[y * 256 + x] != beamsLight[y * 256 + x]));
         bool windowVisible = false;
         if (frame.WithoutWindow is { } scene)
         {
@@ -86,9 +93,18 @@ internal static class CrystalFlashVisualsVerification
         return new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible);
     }
 
-    /// <summary><paramref name="draws"/> with Samus's own draws, which carry her shading, shown in black.</summary>
-    private static ImmutableArray<SpriteDraw> MuteSamus(ImmutableArray<SpriteDraw> draws) =>
+    /// <summary>The whiteout ramp's first step, whose single colour the dark scene lays over her beam inks.</summary>
+    private const int DarkBeamsStep = 0;
+
+    /// <summary>The whiteout ramp's last step, whose single colour the light scene lays over her beam inks.</summary>
+    private const int LightBeamsStep = SamusPaletteDefinitions.Death.WhiteoutShadeCount - 1;
+
+    /// <summary>
+    /// <paramref name="draws"/> with <paramref name="beams"/>, a shade colouring all her beam inks in one colour, laid over
+    /// Samus's own draws, which carry her shading.
+    /// </summary>
+    private static ImmutableArray<SpriteDraw> ShadeSamus(ImmutableArray<SpriteDraw> draws, PictureShade beams) =>
         [.. draws.Select(draw => draw is ImageSpriteDraw { Shading: { } shading } image && SamusColourDefinitions.Sources.Contains(draw.Source.Kind)
-            ? image with { Shading = shading.With(new ColourFlash(RgbColor.Black)) }
+            ? image with { Shading = shading.With(beams) }
             : draw)];
 }

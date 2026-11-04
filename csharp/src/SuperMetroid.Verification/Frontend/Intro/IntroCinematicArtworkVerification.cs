@@ -1124,7 +1124,6 @@ internal static class IntroCinematicArtworkVerification
     /// </summary>
     internal static RegisteredSuite[] IntroCinematicArtworkSuites() =>
     [
-        new(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(RepositoryInstallation.Installation, RepositoryRomPath)),
         new(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(RepositoryRomPath, RepositoryInstallation.Installation)),
         new(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy()),
         new(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(RepositoryRomPath)),

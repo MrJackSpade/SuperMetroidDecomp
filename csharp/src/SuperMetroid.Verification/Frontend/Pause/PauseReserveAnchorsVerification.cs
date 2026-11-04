@@ -53,7 +53,7 @@ internal static class PauseReserveAnchorsVerification
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + 0x1b * 2);
                 var native = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); native.BeginFrame(); actual.BeginFrame();
                 DrawImportedSpritemap(rom, native, pointer, new(anchors[index].X, anchors[index].Y), 0x600);
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisual.Full, index);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisual.Full, index, PictureShading.Standard);
                 native.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual),
                     "edited reserve coordinates reach actual sprite output");

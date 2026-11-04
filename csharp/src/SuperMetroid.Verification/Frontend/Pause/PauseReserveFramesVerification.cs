@@ -101,7 +101,7 @@ internal static class PauseReserveFramesVerification
                 AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), 0);
+                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), 0, PictureShading.Standard);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "independent authored part field reaches OAM");

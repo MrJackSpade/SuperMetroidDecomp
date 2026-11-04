@@ -362,6 +362,8 @@ internal static class MapInstallationVerification
         var manifest = RequiredJson.Parse(File.ReadAllText(manifestPath));
         manifest["version"] = AreaMapCatalogFormat.Version - 1;
         File.WriteAllText(manifestPath, manifest.ToJsonString());
+        // The receipt alone decides currency (#1532): content written by an older importer names its older format.
+        MarkReceiptOutdated();
         byte[] outdatedManifest = File.ReadAllBytes(manifestPath);
 
         using (var cancellation = new CancellationTokenSource())
@@ -382,12 +384,13 @@ internal static class MapInstallationVerification
         AssertEqual(projectileEdited.SelectedSha256, repaired.LoadProjectiles().SelectedSha256, "full installer replacement preserves projectile override");
         AssertEqual(AreaMapCatalogFormat.Version, RequiredJson.Parse(File.ReadAllText(manifestPath)).Required("version").GetValue<int>(), "upgrade publishes current catalog version");
         CheckPreserved();
-        // A composition-only installation must upgrade even if its map manifest is current.
+        // An older installation whose map manifest is already current still upgrades the rest of its content.
         string projectileManifestPath = Path.Combine(installation.ProjectileDirectory, ProjectilePresentationFiles.ManifestFileName);
         var oldProjectileManifest = RequiredJson.Parse(File.ReadAllText(projectileManifestPath));
         oldProjectileManifest["version"] = 1;
         oldProjectileManifest.AsObject().Remove("beamHashes");
         File.WriteAllText(projectileManifestPath, oldProjectileManifest.ToJsonString());
+        MarkReceiptOutdated();
         var beamUpgrade = GameAssetInstaller.EnsureInstalled(root)
             ?? throw new InvalidOperationException("Installation vanished during beam upgrade.");
         AssertEqual(projectileEdited.SelectedSha256, beamUpgrade.LoadProjectiles().SelectedSha256, "composition-only upgrade retains beam and composition overrides");
@@ -401,6 +404,14 @@ internal static class MapInstallationVerification
         AssertThrows<InvalidDataException>(() => repaired.LoadMaps(), "startup preserves and reports invalid user override instead of repairing it");
         AssertEqual("broken override", File.ReadAllText(paletteOverride), "installer never replaces broken user override");
         Console.WriteLine("Full installer: fresh import, cancelled upgrade, real version replacement, no-op restart and player/override preservation pass.");
+
+        void MarkReceiptOutdated()
+        {
+            string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
+            var receipt = RequiredJson.Parse(File.ReadAllText(receiptPath));
+            receipt["FormatVersion"] = GameInstallationLayout.FormatVersion - 1;
+            File.WriteAllText(receiptPath, receipt.ToJsonString());
+        }
 
         void CheckPreserved()
         {

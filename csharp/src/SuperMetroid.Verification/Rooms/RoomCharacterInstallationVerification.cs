@@ -29,7 +29,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Stock import, live edit, repair and invalid-override contract for room art, in a writable installation.</summary>
-    [PrivateInstallation("Checks that installer repair restores deleted room character, palette, block and background stock files on a private copy while their overrides survive.")]
+    [PrivateInstallation("Edits room character, palette, block and background files on a private copy to check that their overrides are selected.")]
     internal static void VerifyRoomArtworkInstallation(GameInstallation installed, CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
         AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
@@ -221,46 +221,39 @@ internal static class RoomCharacterInstallationVerification
             changedSky.Span[2..].SequenceEqual(nativeSky.AsSpan(2)),
             "installed sky override changes exactly its selected door tile word");
 
-        // A missing stock resource causes atomic re-extraction from the installed
-        // cartridge; the edit remains outside the replaceable game directory.
-        File.Delete(Path.Combine(installed.RoomCharacterDirectory, name));
-        File.Delete(ghostStockPath);
-        File.Delete(paletteStockPath);
-        File.Delete(blockStockPath);
-        File.Delete(backgroundStockPath);
-        File.Delete(skyStockPath);
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installed.Root)
-            ?? throw new InvalidOperationException("Installed room-art repair lost its ROM.");
+        // Installed content is never repaired in place (#1532); every edit lives outside the replaceable game directory,
+        // so a reload of the stock installation keeps each one selected.
+        GameInstallation repaired = installed;
         AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, name)),
-            "room-character stock sheet is restored by repair");
+            "room-character stock sheet stays installed beside its override");
         AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, ghostName)) &&
             repaired.LoadRoomCharacters().GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
-            "statue-ghost stock sheet is restored by repair");
+            "statue-ghost stock sheet stays installed");
         AssertTrue(File.Exists(paletteOverridePath) &&
             File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),
-            "room-palette stock is restored while its override survives repair");
+            "room-palette stock stays installed beside its override");
         AssertTrue(File.Exists(Path.Combine(repaired.RoomMetatileDirectory, blockName)),
-            "room-block stock is restored by repair");
+            "room-block stock stays installed");
         AssertTrue(File.Exists(backgroundOverridePath) &&
             File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, backgroundName)),
-            "room-background stock is restored while its override survives repair");
+            "room-background stock stays installed beside its override");
         AssertTrue(File.Exists(skyOverridePath) &&
             File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
-            "scrolling-sky stock is restored while its override survives repair");
+            "scrolling-sky stock stays installed beside its override");
         AssertTrue(repaired.LoadRoomCharacters().GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
-            "repaired installation restores the stock room characters");
+            "the reloaded installation shows the stock room characters");
         LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing);
-        AssertEqual(repairedPaletteRoom.Tileset, native.Tileset, "the repaired palette's room loads");
+        AssertEqual(repairedPaletteRoom.Tileset, native.Tileset, "the edited palette's room loads");
         AssertTrue(RoomStaticPaletteImage.Colours(repaired.LoadRoomPalettes().GetAt(paletteSource)).AsSpan().SequenceEqual(editedColours),
-            "repaired installation retains the selected user room palette");
+            "the reloaded installation retains the selected user room palette");
         AssertEqual(installedSheets.ContentIdentity, repaired.LoadRoomBlockSheets().ContentIdentity,
-            "repaired installation composes the same block pictures and character records from the restored stock blocks");
+            "the reloaded installation composes the same block pictures and character records from the stock blocks");
         var repairedBackgroundVram = new SnesVram();
         LibraryBackgroundReplay.Execute(repairedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = repaired.LoadRoomBackgroundTilemaps() });
         AssertTrue(repairedBackgroundVram.ImageEquals(editedBackgroundVram),
-            "repaired installation retains selected user background tilemap");
+            "the reloaded installation retains selected user background tilemap");
         AssertTrue(BackgroundTileWordBytes.Of(repaired.LoadRoomSkyTilemaps().Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(changedSky.Span),
-            "repaired installation retains selected user scrolling sky");
+            "the reloaded installation retains selected user scrolling sky");
 
         File.WriteAllText(paletteOverridePath, "invalid RGB5 JSON");
         AssertThrows<InvalidDataException>(() => repaired.LoadRoomPalettes(),

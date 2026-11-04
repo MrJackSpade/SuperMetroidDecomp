@@ -26,7 +26,7 @@ internal static class RoomVisualLayoutsVerification
     /// appearance, against the cartridge's level words decoded by the import's codec; then proves an installed override
     /// changes both rendered planes without changing terrain or behaviours.
     /// </summary>
-    [PrivateInstallation("Checks that installer repair restores the room visual layout stock files on a private copy while their overrides survive.")]
+    [PrivateInstallation("Edits room visual layout files on a private copy to check that their overrides are selected.")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
@@ -200,14 +200,12 @@ internal static class RoomVisualLayoutsVerification
                 $"installed room ${pointer:X4} retains its terrain, behaviours, background and level height");
         }
 
-        // Existing user content is outside the replaceable stock installation. Reimport
-        // must retain the selected appearance while the terrain remains unchanged.
+        // Existing user content is outside the replaceable stock installation, so a reload retains the selected
+        // appearance while the terrain remains unchanged.
         RoomBlockAppearance editedFirst = editedRoom.LevelData.ForegroundPlane.Blocks[0];
-        _ = GameAssetInstaller.EnsureInstalled(installed.Root)
-            ?? throw new InvalidOperationException("Room-layout repair lost the installation.");
         AssertEqual(editedFirst,
             installed.LoadRoomVisualLayouts().Get(landingLevel).Foreground.Span[0],
-            "room-layout override survives stock installation validation");
+            "room-layout override is selected on reload");
 
         int editedForegroundBlock = foregroundBlocks.Required(0).GetValue<int>();
         foregroundBlocks[0] = RoomBlockAppearance.LastBlock + 1;

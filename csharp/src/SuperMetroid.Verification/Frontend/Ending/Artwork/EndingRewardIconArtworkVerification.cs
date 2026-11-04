@@ -25,7 +25,7 @@ internal static class EndingRewardIconArtworkVerification
     private const int OverrideRebindJumpFrame = 190;
 
     /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the reward jump.</summary>
-    [PrivateInstallation("Checks that installer repair restores corrupted ending reward icon stock files on a private copy while their overrides survive.")]
+    [PrivateInstallation("Corrupts ending reward icon stock files on a private copy to check that their overrides cannot hide the damage.")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingFloorArtwork stock = installation.LoadEndingMode7Art();
@@ -211,13 +211,14 @@ internal static class EndingRewardIconArtworkVerification
         byte[] selected = EndingFloorCharacters.RewardIconOf(installation.LoadEndingMode7Art()).Bytes.ToArray();
         string stockMap = Path.Combine(installation.EndingMode7Directory,
             EndingRewardIconArtworkFormat.MapFileName);
+        byte[] stockMapBytes = File.ReadAllBytes(stockMap);
         File.WriteAllBytes(stockMap, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadEndingMode7Art(),
             "an icon override cannot mask corrupt installed stock map JSON");
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
-            ?? throw new InvalidOperationException("Reward icon content vanished during stock repair.");
-        AssertTrue(EndingFloorCharacters.RewardIconOf(repaired.LoadEndingMode7Art()).Bytes.Span.SequenceEqual(selected),
-            "stock icon repair preserves the player's separately stored PNG override");
+        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+        File.WriteAllBytes(stockMap, stockMapBytes);
+        AssertTrue(EndingFloorCharacters.RewardIconOf(installation.LoadEndingMode7Art()).Bytes.Span.SequenceEqual(selected),
+            "the player's separately stored PNG override still applies over the restored stock map");
         File.Delete(userPng);
         Console.WriteLine("Reward icon: native VRAM/pixel parity through its reveal, mid-jump rebind and independently visible map/PNG edits pass.");
     }

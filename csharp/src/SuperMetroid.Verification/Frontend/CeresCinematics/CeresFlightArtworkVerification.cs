@@ -35,7 +35,7 @@ internal static class CeresFlightArtworkVerification
     internal const int CeresFrontApproachTicks = 30;
 
     /// <summary>Checks native front and rear transfers, visible edits, restored bindings, and stock repair.</summary>
-    [PrivateInstallation("Checks that installer repair restores corrupted Ceres flight stock files on a private copy while their overrides survive, against CeresFlightArtworkExtractor output from the cartridge as the reference.")]
+    [PrivateInstallation("Corrupts Ceres flight stock files on a private copy to check that their overrides cannot hide the damage, against CeresFlightArtworkExtractor output from the cartridge as the reference.")]
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -195,20 +195,21 @@ internal static class CeresFlightArtworkVerification
         CeresFlightArtwork selected = installation.LoadIntroCinematicArt().CeresFlight;
         string stockMode7 = Path.Combine(installation.IntroCinematicDirectory,
             CeresFlightArtworkFileFormat.FloorFileName);
+        byte[] stockMode7Bytes = File.ReadAllBytes(stockMode7);
         File.WriteAllBytes(stockMode7, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "a Ceres map override cannot hide a corrupt stock PNG");
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
-            ?? throw new InvalidOperationException("Ceres artwork vanished during stock repair.");
-        AssertTrue(CeresFlightCharacters.Of(repaired.LoadIntroCinematicArt().CeresFlight).FloorMaps.Span.SequenceEqual(
+        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+        File.WriteAllBytes(stockMode7, stockMode7Bytes);
+        AssertTrue(CeresFlightCharacters.Of(installation.LoadIntroCinematicArt().CeresFlight).FloorMaps.Span.SequenceEqual(
                 CeresFlightCharacters.Of(selected).FloorMaps.Span),
-            "stock Ceres art repair preserves the player's external map override");
+            "the player's external map override still applies over the restored stock PNG");
         File.Delete(invalidMap);
         Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements, independent PNG/JSON/palette edits, rebind and strict failures pass.");
     }
 
     /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
-    [PrivateInstallation("Checks that installer repair restores the Ceres flight actor layout stock file on a private copy while its override survives.")]
+    [PrivateInstallation("Corrupts the Ceres flight actor layout stock file on a private copy to check that its override cannot hide the damage.")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtwork stock)
     {
@@ -267,14 +268,15 @@ internal static class CeresFlightArtworkVerification
                 changed.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited rear-view placement changes production OAM");
 
+        byte[] stockLayout = File.ReadAllBytes(stockPath);
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "a Ceres flight actor override cannot hide a corrupt stock layout");
-        GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root) ??
-            throw new InvalidOperationException("Ceres flight actor repair lost installation.");
+        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+        File.WriteAllBytes(stockPath, stockLayout);
         AssertEqual(stockAsteroidX + 16,
-            repaired.LoadIntroCinematicArt().CeresFlight.Actors[0].X,
-            "rear-view actor override survives stock installation repair");
+            installation.LoadIntroCinematicArt().CeresFlight.Actors[0].X,
+            "rear-view actor override still applies over the restored stock layout");
         document.Actors[0] = document.Actors[0] with { Id = "wrong-actor" };
         AssertThrows<InvalidDataException>(() =>
         {

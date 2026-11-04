@@ -55,7 +55,7 @@ internal static class IntroCinematicArtworkVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
-    [PrivateInstallation("Checks that installer repair restores corrupted and missing opening-scene stock files and BG pages on a private copy while their overrides survive.")]
+    [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that their overrides cannot hide the damage.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
@@ -251,14 +251,15 @@ internal static class IntroCinematicArtworkVerification
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
                 "malformed opening palette override fails instead of silently restoring stock");
             File.Delete(paletteOverridePath);
+            byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
                 "opening palette stock corruption fails manifest validation");
-            _ = GameAssetInstaller.EnsureInstalled(root)
-                ?? throw new InvalidOperationException("Opening palette stock repair lost the installation.");
+            // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+            File.WriteAllBytes(paletteStockPath, stockPalette);
             AssertTrue(IntroPaletteWords(installation.LoadIntroCinematicArt().Palette).AsSpan().SequenceEqual(
                     ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
-                "stock repair restores exact cartridge opening palette colors");
+                "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
             string dividerStockPath = Path.Combine(installation.IntroCinematicDirectory,
@@ -542,36 +543,37 @@ internal static class IntroCinematicArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
             }
             IntroCinematicArtwork selected = installation.LoadIntroCinematicArt();
+            byte[] stockBackground = File.ReadAllBytes(backgroundStockPath);
             File.WriteAllBytes(backgroundStockPath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
                 "an override cannot hide corrupt stock cinematic artwork");
-            GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
-                ?? throw new InvalidOperationException("Installed intro content disappeared during repair.");
+            // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
+            File.WriteAllBytes(backgroundStockPath, stockBackground);
+            GameInstallation repaired = installation;
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
                     IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),
-                "stock repair preserves the external cinematic PNG override");
+                "the external cinematic PNG override still applies over the restored stock");
             File.Delete(backgroundStockPath);
             AssertThrows<FileNotFoundException>(() => repaired.LoadIntroCinematicArt(),
                 "an override cannot hide missing stock cinematic artwork");
-            repaired = GameAssetInstaller.EnsureInstalled(root)
-                ?? throw new InvalidOperationException("Installed intro content disappeared during missing-file repair.");
+            File.WriteAllBytes(backgroundStockPath, stockBackground);
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
                     IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),
-                "missing-stock repair also preserves the external cinematic PNG override");
+                "the external cinematic PNG override still applies once the missing stock is put back");
             File.Delete(backgroundOverridePath);
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
                     IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span),
                 "removing an override restores exact cartridge opening artwork");
             string pageStockPath = Path.Combine(installation.IntroCinematicDirectory,
                 IntroCinematicArtworkFormat.BackgroundPageFileName(0));
+            byte[] stockPage = File.ReadAllBytes(pageStockPath);
             File.WriteAllBytes(pageStockPath, [0]);
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "a corrupt stock BG page is rejected even without an override");
-            repaired = GameAssetInstaller.EnsureInstalled(root)
-                ?? throw new InvalidOperationException("Installed intro BG pages disappeared during repair.");
+            File.WriteAllBytes(pageStockPath, stockPage);
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundPages.Span.SequenceEqual(
                     stock.BackgroundPages.Span),
-                "stock repair restores all four native cinematic BG pages");
+                "the restored stock shows all four native cinematic BG pages");
             File.WriteAllBytes(backgroundOverridePath, [0]);
             AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
                 "malformed selected intro PNG fails instead of silently falling back");
@@ -1135,7 +1137,8 @@ internal static class IntroCinematicArtworkVerification
     /// <summary>Runs the Samus body artwork checks, which edit pose artwork, on a private installation copy.</summary>
     private static void VerifySamusBodyArtworkOnPrivateCopy()
     {
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        // The check reads and edits only the Samus body directory and its overrides.
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.SamusBodyDirectory);
         VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath),
             copy.Installation);
     }

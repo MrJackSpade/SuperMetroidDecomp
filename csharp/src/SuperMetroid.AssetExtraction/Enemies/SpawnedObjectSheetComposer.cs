@@ -58,9 +58,9 @@ internal static class SpawnedObjectSheetComposer
             if (!shared.Spawners.Contains(enemy))
                 shared.Spawners.Add(enemy);
             int tileBase = layout.TileBaseOf(enemy);
-            // The objects' sheet is coloured in the row the set holds their spawner's colours in, or the common row for a
-            // spawner drawing from character zero, as objects drawn there are.
-            int palette = tileBase == 0 ? 0 : rowOf(enemy);
+            // The objects' sheet is coloured in the row the set holds their spawner's colours in, whatever its character
+            // index: spawning with the spawner's graphics ORs its palette bits into the objects' parts (#1513).
+            int palette = rowOf(enemy);
             // A projectile draws at its spawner's index's place in its page, a sprite object at the index itself.
             plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Of(enemy), tileBase % ProjectilePageCharacters, tileBase, palette,
                 [enemy], Anywhere: false, []));
@@ -110,7 +110,6 @@ internal static class SpawnedObjectSheetComposer
         int projectileBase = checked((ushort)plan.ProjectileCharacters);
         int objectBase = checked((ushort)plan.ObjectCharacters);
         SpawnedObjects spawned = Spawned(plan);
-        RgbColor[] colours = shades.FirstShownColours(plan.Spawners);
         // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before any of her artwork
         // sequence's steps; the other objects of her body it holds are drawn from her body's own sheet, so none of its
         // frames is drawn under a sequence and none has a picture of a step (#1513).
@@ -131,6 +130,9 @@ internal static class SpawnedObjectSheetComposer
                     EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
                         : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
                 Drawn(FrameDrawings.Of(frame)), RotEncounterFrames.Contains(frame))))];
+        // Each spawner whose encounter sets colours leaves them in the rows they write, and a frame family always drawn in
+        // one colouring is coloured in it (#1513).
+        RgbColor[] colours = shades.WithFrameColourings(shades.FirstShownColours(plan.Spawners), frames, plan.Palette);
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.GameplaySizes, plan.Palette,

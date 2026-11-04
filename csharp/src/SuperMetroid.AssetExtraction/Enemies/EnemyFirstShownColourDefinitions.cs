@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -26,7 +27,10 @@ internal static class EnemyFirstShownColourDefinitions
     /// either encounter shows him; his row's last colour stays cleared. The Tourian statue scene lays its entrance colours
     /// over the statue and base rows before the scene shows. Each Torizo's initialization loads the orb-and-flame and
     /// statue-shading rows and his first body colouring (Bomb Torizo's statue, Golden Torizo's colours before his first
-    /// hurt), which the statue's fragments, his orbs and his frames first show in.
+    /// hurt), which the statue's fragments, his orbs and his frames first show in. Spore Spawn's initialization loads his
+    /// spores' colours into their row. Mother Brain's body first shows after her room entry's glass-and-tube load and her
+    /// ascent's phase-two load of her attack and rear-leg rows; the objects that show before the ascent take their own
+    /// colourings (<see cref="FrameColouringDefinitions"/>).
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, PictureShade[]> Shades { get; } = new Dictionary<EnemyDefinitionId, PictureShade[]>
     {
@@ -48,5 +52,7 @@ internal static class EnemyFirstShownColourDefinitions
         [EnemyDefinitionId.TourianStatue] = [TourianStatueShades.Entrance],
         [EnemyDefinitionId.BombTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.BombStatue))],
         [EnemyDefinitionId.GoldenTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.GoldenInitial))],
+        [EnemyDefinitionId.SporeSpawn] = [SporeSpawnShades.Spores],
+        [EnemyDefinitionId.MotherBrainBody] = [MotherBrainShades.RoomEntry, MotherBrainShades.PhaseTwo],
     };
 }

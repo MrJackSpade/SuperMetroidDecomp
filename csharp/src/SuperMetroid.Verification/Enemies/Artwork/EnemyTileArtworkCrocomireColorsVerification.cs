@@ -133,8 +133,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Crocomire color property fails loudly");
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CrocomireColorFile.Write(visual),
-            "Crocomire RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(visual), writable: false)),
+            "reading Crocomire colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

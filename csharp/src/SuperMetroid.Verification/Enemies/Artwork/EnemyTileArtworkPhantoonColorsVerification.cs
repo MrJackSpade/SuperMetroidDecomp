@@ -170,8 +170,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Phantoon color property fails loudly");
         visual.HealthBands[2][1] = visual.HealthBands[2][1] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => PhantoonColorFile.Write(visual),
-            "Phantoon RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => PhantoonColorFile.Read(new MemoryStream(PhantoonColorFile.Write(visual), writable: false)),
+            "reading Phantoon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

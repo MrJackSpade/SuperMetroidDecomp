@@ -222,8 +222,8 @@ internal static class CeresRidleyColorsVerification
         File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
 
         document.EyeFade[0][0] = document.EyeFade[0][0] with { Red = 32 };
-        AssertThrows<InvalidDataException>(() => CeresRidleyColorFile.Write(document),
-            "Ceres Ridley colors reject invalid RGB5 channel");
+        AssertThrows<InvalidDataException>(() => CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document), writable: false)),
+            "reading Ceres Ridley colors rejects an invalid RGB5 channel");
         string replacementStock = Path.Combine(
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "ceres-ridley-reextract");

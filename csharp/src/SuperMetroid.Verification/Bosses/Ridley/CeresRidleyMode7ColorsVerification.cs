@@ -95,8 +95,8 @@ internal static class CeresRidleyMode7ColorsVerification
         }
 
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Write(document),
-            "Ceres Mode-7 colors reject invalid RGB5 values");
+        AssertThrows<InvalidDataException>(() => CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorFile.Write(document), writable: false)),
+            "reading Ceres Mode-7 colors rejects invalid RGB5 values");
         string replacementStock = Path.Combine(
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "ceres-mode7-reextract");

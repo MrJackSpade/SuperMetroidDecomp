@@ -47,9 +47,9 @@ public static class TourianStatueColorFile
         return new TourianStatuePalettes.PaletteBand(band, supplied.Length, edits);
     }
 
-    /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON, validating version, palette dimensions, and RGB5 bounds before returning the bytes.</summary>
+    /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(TourianStatueColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, Options);
 
     /// <summary>Checks a band's required length and five-bit channels before converting to hardware color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string label)

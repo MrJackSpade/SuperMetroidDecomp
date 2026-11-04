@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -31,12 +32,11 @@ public static class BabyMetroidCutsceneColorFile
                 $"fade frame {index + 1}")).ToArray()));
     }
 
-    /// <summary>Serializes editable artwork as indented, camel-case UTF-8 JSON, then validates the result using the installed-content loader.</summary>
+    /// <summary>Serializes editable artwork as indented, camel-case UTF-8 JSON.</summary>
     /// <param name="document">Initial and ordered fade images to serialize; the supplied arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array for <see cref="BabyMetroidCutsceneColorFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document is null or fails schema, image-dimension, or RGB5 channel validation.</exception>
     public static byte[] Write(BabyMetroidCutsceneColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Validates an RGB5 row's length and channels before copying it to packed colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>

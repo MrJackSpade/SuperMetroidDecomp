@@ -26,14 +26,11 @@ public static class EscapeTimerPresentationExtractor
         return output.ToArray();
     }
 
-    /// <summary>Serializes and validates a timer document before writing any of its UTF-8 JSON bytes.</summary>
+    /// <summary>Serializes a timer document and writes its UTF-8 JSON bytes.</summary>
     /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Authored layout whose collections are read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails the same schema and anchor checks as <see cref="EscapeTimerPresentationFile.Load"/>.</exception>
     public static void Write(Stream output, EscapeTimerPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = EscapeTimerPresentationFile.Load(new MemoryStream(bytes, writable: false));
-        output.Write(bytes);
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
     }
 }

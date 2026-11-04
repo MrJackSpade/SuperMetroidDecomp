@@ -115,8 +115,13 @@ internal static class EscapeTimerPresentationVerification
         using (var output = File.Create(replacement))
             EscapeTimerPresentationExtractor.Write(output, document);
 
-        AssertThrows<InvalidDataException>(() => EscapeTimerPresentationExtractor.Write(
-            Stream.Null, document with { DigitSpacing = 256 }), "timer resource rejects invalid spacing");
+        using (var written = new MemoryStream())
+        {
+            EscapeTimerPresentationExtractor.Write(written, document with { DigitSpacing = 256 });
+            AssertThrows<InvalidDataException>(
+                () => EscapeTimerPresentationFile.Load(new MemoryStream(written.ToArray(), writable: false)),
+                "reading the timer resource rejects invalid spacing");
+        }
 
         IndexedPngImage image;
         using (var input = File.OpenRead(stockTilePath))

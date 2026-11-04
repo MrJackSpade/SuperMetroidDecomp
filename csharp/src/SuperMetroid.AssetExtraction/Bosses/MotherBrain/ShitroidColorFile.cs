@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -30,9 +31,9 @@ public static class ShitroidColorFile
                 "dead sidehopper")));
     }
 
-    /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON and validates the serialized schema, dimensions, and channel bounds before returning it.</summary>
+    /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(ShitroidColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>

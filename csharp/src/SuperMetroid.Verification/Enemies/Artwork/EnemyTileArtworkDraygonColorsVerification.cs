@@ -161,8 +161,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Draygon color property fails loudly");
         visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
-        AssertThrows<InvalidDataException>(() => DraygonColorFile.Write(visual),
-            "Draygon RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
+            "reading Draygon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

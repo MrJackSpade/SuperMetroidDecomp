@@ -52,7 +52,7 @@ internal sealed class KraidBackground
             _presentation.GradualColorChange.Advance();
             return false;
         }
-        backdrop.Complete();
+        backdrop.Complete(fade);
         _presentation.GradualColorChange.Reset();
         return true;
     }

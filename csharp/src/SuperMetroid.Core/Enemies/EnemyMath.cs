@@ -26,10 +26,11 @@ internal static class EnemyMath
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
     {
-        // A signed word's magnitude is at most 32,768, so the absolute values need no wrap.
+        // A signed word's magnitude reaches 32,768, which a short cannot hold: the offsets widen to int before their
+        // absolute values are taken, so -32,768 gives 32,768 instead of overflowing.
         int quadrant = 0;
-        int absoluteX = Math.Abs(delta.X);
-        int absoluteY = Math.Abs(delta.Y);
+        int absoluteX = Math.Abs((int)delta.X);
+        int absoluteY = Math.Abs((int)delta.Y);
         if (delta.X < 0)
             quadrant += 2;
         if (delta.Y < 0)

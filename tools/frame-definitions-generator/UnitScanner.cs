@@ -9,7 +9,8 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="Arguments">The enum members the call's other arguments name.</param>
 /// <param name="Callee">The method called.</param>
 /// <param name="Graphics">The graphics expression, as written, for the self-check's report.</param>
-internal sealed record SpawnCall(IReadOnlyList<SpawnTarget> Targets, IReadOnlySet<IFieldSymbol> Arguments, IMethodSymbol Callee, string Graphics);
+/// <param name="Copied">Whether the graphics are read from a settable instance member: another object's graphics, copied.</param>
+internal sealed record SpawnCall(IReadOnlyList<SpawnTarget> Targets, IReadOnlySet<IFieldSymbol> Arguments, IMethodSymbol Callee, string Graphics, bool Copied);
 
 /// <summary>What one unit's code references: the units it may run and the enum members it names.</summary>
 internal sealed class UnitScan
@@ -410,7 +411,10 @@ internal sealed class UnitScanner(CoreModel model)
         }
         if (graphics is null)
             return;
-        scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others, method.OriginalDefinition, graphics.ToString()));
+        bool copied = semantic.GetSymbolInfo(graphics).Symbol is IPropertySymbol { IsStatic: false, SetMethod: not null }
+            or IFieldSymbol { IsStatic: false, IsReadOnly: false, IsConst: false };
+        scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others, method.OriginalDefinition,
+            graphics.ToString(), copied));
     }
 
     /// <summary>Records one referenced symbol as an enum member or as the units it reaches.</summary>

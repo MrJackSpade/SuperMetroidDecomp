@@ -243,6 +243,9 @@ internal sealed class Walk
         {
             if (call.Targets.Count == 0)
                 Unreadable.Add($"{_model.Describe(unit)}: graphics {call.Graphics} name no sheet");
+            // Graphics copied from a spawned object draw where that object does, never where its free slot's initializer says.
+            if (call.Copied && call.Targets.Any(t => t.Source != GraphicsSource.Inherited))
+                Unreadable.Add($"{_model.Describe(unit)}: graphics {call.Graphics} are copied from a spawned object but were read as its initializer");
             foreach (SpawnTarget target in call.Targets)
             {
                 (Destination? destination, PendingKey? pending) = Resolve(unit, target, call.Graphics);

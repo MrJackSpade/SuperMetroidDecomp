@@ -139,7 +139,24 @@ internal sealed class SpawnAnalysis
                     Merge(sheets.Of(destination), evidence);
             }
         }
-        // The self-check: a spawn whose graphics name no sheet this generator can read would draw from a sheet that lacks it.
+        // The self-check: every spawn with copied or handed-on graphics is on every sheet the code deciding them names (a
+        // falling spark's trail on the sheet of whoever spawned the spark), and no spawn's graphics are unreadable.
+        foreach (Walk walk in spawnWalks)
+        {
+            foreach ((PendingKey key, Collected spawns) in walk.Pending)
+            {
+                foreach (Destination destination in resolver.Resolve(key))
+                {
+                    Collected held = sheets.Of(destination);
+                    if (!spawns.ProjectileFrames.IsSubsetOf(held.ProjectileFrames) || !spawns.SpriteObjects.IsSubsetOf(held.SpriteObjects)
+                        || !spawns.Families.IsSubsetOf(held.Families))
+                    {
+                        unreadable.Add($"{walk.PendingSites[key]}: spawns with graphics {Describe(key)} are missing from {destination}");
+                    }
+                }
+            }
+        }
+        // A spawn whose graphics name no sheet this generator can read would draw from a sheet that lacks it.
         if (unreadable.Count > 0)
             throw new InvalidDataException("Spawn graphics the generator cannot place on a sheet:\n" + string.Join('\n', unreadable));
         analysis.BySheet = sheets.Sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value), StringComparer.Ordinal);

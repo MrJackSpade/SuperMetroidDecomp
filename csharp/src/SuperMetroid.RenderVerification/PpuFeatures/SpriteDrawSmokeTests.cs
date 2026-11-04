@@ -56,7 +56,7 @@ internal static class SpriteDrawSmokeTests
             var sheet = new SpriteImage("Ordering", size, sheetPixels, indices,
                 new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities);
             SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default,
-                ImageColourGroups.Of(ImageColourGroup.Numbered(frame)), []);
+                ImageColourGroups.Of(ImageColourGroup.Numbered(frame)));
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
             ImmutableArray<SpriteDraw> draws =
             [

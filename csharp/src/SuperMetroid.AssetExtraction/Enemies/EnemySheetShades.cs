@@ -54,6 +54,49 @@ internal sealed class EnemySheetShades
         this.colours = Ensure.NotNull(colours);
     }
 
+    /// <summary>
+    /// The sprite colours a sheet drawing <paramref name="enemies"/> is coloured in (#1513): the set's colours with the row
+    /// of each enemy whose encounter sets its colours holding what the shades
+    /// <see cref="EnemyFirstShownColourDefinitions.Shades"/> names for it leave there, the colours its frames first show
+    /// in. Only that row is recoloured; the shades are laid over it in order, so a later one wins.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// An enemy's own effects lack a shade the catalogue names, or two enemies would leave one colour two colourings.
+    /// </exception>
+    internal RgbColor[] FirstShownColours(IEnumerable<EnemyDefinitionId> enemies)
+    {
+        Ensure.NotNull(enemies);
+        RgbColor[] shown = [.. colours.SpriteColours];
+        var recoloured = new Dictionary<int, RgbColor>();
+        foreach (EnemyDefinitionId enemy in enemies.Distinct())
+        {
+            if (!EnemyFirstShownColourDefinitions.Shades.TryGetValue(enemy, out PictureShade[]? laid))
+                continue;
+            int row = colours.RowOf(enemy);
+            int first = row * LoadedSetColours.RowColours;
+            IReadOnlyList<SheetShade> own = OwnRow(enemy, row);
+            var left = new Dictionary<int, RgbColor>();
+            foreach (PictureShade name in laid)
+            {
+                SheetShade shade = own.FirstOrDefault(candidate => candidate.Shade == name)
+                    ?? throw new InvalidDataException($"{enemy}'s effects have no shade {name.Key} to first show its frames in.");
+                for (int index = 0; index < shade.Inks.Length; index++)
+                {
+                    if (shade.Inks[index] >= first && shade.Inks[index] < first + LoadedSetColours.RowColours)
+                        left[shade.Inks[index]] = shade.Colours[index];
+                }
+            }
+            foreach ((int ink, RgbColor colour) in left)
+            {
+                if (recoloured.TryGetValue(ink, out RgbColor other) && other != colour)
+                    throw new InvalidDataException($"A sheet's enemies first show sprite colour {ink} in two colourings, {enemy}'s among them.");
+                recoloured[ink] = colour;
+                shown[ink] = colour;
+            }
+        }
+        return shown;
+    }
+
     /// <summary>The selection shades every enemy and spawned-object sheet takes: the hit flash, the frozen look and the enemy projectiles' colours.</summary>
     internal IReadOnlyList<SheetRowShade> Shared() =>
     [

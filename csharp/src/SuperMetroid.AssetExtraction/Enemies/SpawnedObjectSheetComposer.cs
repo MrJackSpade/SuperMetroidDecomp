@@ -77,10 +77,11 @@ internal static class SpawnedObjectSheetComposer
     /// What the spawned-object sheet of <paramref name="plan"/> composes over <paramref name="characters"/>, pre-coloured in
     /// the shared shades, its spawners' shades and, at character zero, the shades of the objects any room spawns (#1512). A
     /// spawned object draws in its spawner's shading, so a spawner's effects on its own row, which <paramref name="rowOf"/>
-    /// gives, hold on every sheet coloured in that row, the character-zero sheet among them.
+    /// gives, hold on every sheet coloured in that row, the character-zero sheet among them. The sheet is coloured in the
+    /// set's colours with each spawner's row holding the colours its frames first show in, as its spawner's are (#1513).
     /// </summary>
     internal static SpawnedObjectSheetSource Sources(EnemyTileSourceArtwork enemies, SpawnedObjectSheetPlan plan, SetCharacters characters,
-        RgbColor[] colours, EnemySheetShades shades, Func<EnemyDefinitionId, int> rowOf)
+        EnemySheetShades shades, Func<EnemyDefinitionId, int> rowOf)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(plan);
@@ -109,6 +110,7 @@ internal static class SpawnedObjectSheetComposer
         int projectileBase = checked((ushort)plan.ProjectileCharacters);
         int objectBase = checked((ushort)plan.ObjectCharacters);
         SpawnedObjects spawned = Spawned(plan);
+        RgbColor[] colours = shades.FirstShownColours(plan.Spawners);
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
                 EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase, 0)))

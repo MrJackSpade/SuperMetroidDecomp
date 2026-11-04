@@ -244,19 +244,19 @@ internal static class EnemySheetComposer
         LoadedGraphicsSet loaded = Load(inputs, set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
             [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
-                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Colours.SpriteColours, loaded.Shades,
-                    loaded.Colours.RowOf))]);
+                SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Shades, loaded.Colours.RowOf))]);
     }
 
     /// <summary>What each enemy drawn under <paramref name="loaded"/> composes.</summary>
     private static IEnumerable<EnemySheetSource> EnemySources(EnemySheetInputs inputs, LoadedGraphicsSet loaded)
     {
         GraphicsSetCharacterLayout layout = loaded.Layout;
-        RgbColor[] colours = loaded.Colours.SpriteColours;
         foreach (EnemyDefinitionId enemy in loaded.Drawn)
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
+            // An enemy whose encounter sets its colours is coloured in those its frames first show in (#1513).
+            RgbColor[] colours = loaded.Shades.FirstShownColours([enemy]);
             int tileBase = layout.TileBaseOf(enemy);
             // The sheet is coloured in the row the set loads, or the enemy's initialization selects, its colours in.
             int paletteBits = loaded.Colours.RowOf(enemy);

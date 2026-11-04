@@ -24,7 +24,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>Compares installed ending Mode-7 scenes with retail art and checks live override rebinding.</summary>
 internal static class EndingMode7ArtworkVerification
 {
-    /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, then verifies map/PNG edits, partial DMA preservation, and stock repair.</summary>
+    /// <summary>Checks three installed scenes against decompressed cartridge data and rendered output, then verifies map/PNG edits and stock repair.</summary>
     [PrivateInstallation("Checks that installer repair regenerates the corrupted stock ending Mode 7 artwork on a private copy.")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
@@ -55,7 +55,7 @@ internal static class EndingMode7ArtworkVerification
         installed.Stage.BindFloorArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 10000 &&
-            native.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
+            native.Stage.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
         {
             AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                 $"installed ending Mode-7 art preserves phase at frame {frame}");
@@ -79,10 +79,10 @@ internal static class EndingMode7ArtworkVerification
             nativeAudio.AdvanceFrame(default);
             installedAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, native.Stage.Phase,
-            "ending art fixture reaches the post-explosion flyaway upload");
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, installed.Stage.Phase,
-            "installed art preserves the flyaway handoff");
+        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, native.Stage.Phase,
+            "ending art fixture reaches the explosion's hold");
+        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, installed.Stage.Phase,
+            "installed art preserves the explosion's hold");
         AssertTrue(phases.Contains(EndingCreditsPhase.WaitForEscapeMusic) &&
                 phases.Contains(EndingCreditsPhase.FadeInEscapeSceneB) &&
                 phases.Contains(EndingCreditsPhase.FadeInZebesExplosion),
@@ -152,46 +152,6 @@ internal static class EndingMode7ArtworkVerification
                     .SequenceEqual(editedMapSheets.Get(floorSheet).Image.Pixels.ToArray()) &&
                     !baselinePixels.SequenceEqual(DisplayRendering.Render(mapSnapshot)),
                 $"edited ending {id} map recomposes its floor picture and changes the shown frame");
-            if (id == EndingFloorSceneId.PlanetExplosion)
-            {
-                var partialBus = NewEndingMode7SourceReadGuard(
-                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-                var partialAudio = new AudioQueues();
-                var partial = CreateRetailEndingFixture(partialAudio, 0, 0);
-                partial.Stage.BindFloorArtwork(stock);
-                for (int frame = 0; frame < 2000 &&
-                    partial.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
-                {
-                    partial.Step();
-                    partialAudio.AdvanceFrame(default);
-                }
-                AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, partial.Stage.Phase,
-                    "explosion override fixture reaches partial flyaway DMA");
-                for (int chunk = 0; chunk < 9; chunk++)
-                {
-                    partial.Step();
-                    partialAudio.AdvanceFrame(default);
-                }
-                var shownPartial = partial.ShownVram();
-                byte[] partiallyUploaded = shownPartial.ToArray();
-                partial.Stage.BindFloorArtwork(editedMap);
-                var shownPartial2 = partial.ShownVram();
-                byte[] rebound = shownPartial2.ToArray();
-                for (int word = 0; word < EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes; word++)
-                    AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
-                        $"edited explosion retains already-transferred map word {word}");
-                AssertTrue(!partiallyUploaded.AsSpan(
-                        EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2,
-                        EndingArtworkExtentDefinitions.FloorBytes * 2 -
-                            EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2)
-                    .SequenceEqual(rebound.AsSpan(
-                        EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2,
-                        EndingArtworkExtentDefinitions.FloorBytes * 2 -
-                            EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2)),
-                    "edited explosion updates only the not-yet-transferred Mode-7 map region");
-                AssertEqual(0, partialBus.ForbiddenReadAttempts,
-                    "partial explosion rebind never reads authored cartridge sources");
-            }
             File.Delete(mapOverride);
             state.Stage.BindFloorArtwork(stock);
             state.InstalledArtwork.BindSpriteSheets(InstalledFixtures.SpriteSheets);
@@ -263,7 +223,7 @@ internal static class EndingMode7ArtworkVerification
         guard.Forbid(address =>
                 (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
                  address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
-                 EndingRewardJumpDefinitions.IconChunkCount * sizeof(ushort)) ||
+                 EndingRewardGraphicsUploadDefinitions.ChunkCount * sizeof(ushort)) ||
                 address is EndingSourceDefinitions.Artwork.EscapeACharacters or
                 EndingSourceDefinitions.Artwork.EscapeAPackedMap or
                 EndingSourceDefinitions.Artwork.EscapeBCharacters or

@@ -161,26 +161,22 @@ internal sealed class EndingFlyaway
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.Interval;
     }
 
-    /// <summary>
-    /// The ending's first flyaway reuses the Ceres approach's artwork.
-    /// Rebind only chunks already loaded by the sixteen-update load;
-    /// future chunks must still arrive on their original scheduled frames.
-    /// </summary>
+    /// <summary>The ending's first flyaway reuses the Ceres approach's artwork.</summary>
     internal void BindFlightArtwork(CeresFlightArtwork? value)
     {
         FlightArtwork = value;
     }
 
-    /// <summary>Restores the explosion's BG palette half before the flyaway's floor loads; the floor is an installed picture (#1467).</summary>
-    internal void PrepareFlyawayUploads()
+    /// <summary>Restores the explosion's background colours as the explosion's hold begins (#1467).</summary>
+    internal void PrepareFlyaway()
     {
-        // Func117 restores the BG half before disabling BG1. Sprite artwork and palettes
-        // remain live while the two floor lanes are replaced over sixteen updates.
+        // Func117 restores the background colours before the escape backdrop goes off;
+        // the sprites and their colours stay as they are through the hold.
         _stage.LoadColours(EndingColourLoad.ExplosionBackgrounds);
     }
 
-    /// <summary>Transfers one scheduled flyaway chunk to its Mode-7 character or map lane.</summary>
-    internal void UploadFlyawayChunk(int index) => screen.LoadFlyawayChunk(index);
+    /// <summary>Loads the flyaway's floor, an installed picture, as the explosion's hold ends (#1467, #1513).</summary>
+    internal void LoadFlyawayFloor() => screen.LoadFlyawayFloor();
 
     /// <summary>The gunship flight's installed artwork.</summary>
     internal CeresFlightArtwork? FlightArtwork { get; private set; }

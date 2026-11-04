@@ -544,11 +544,10 @@ cursor from `game-options`, and the file-select and pause maps' markers, labels,
 `map-sprites`, the pause menu's equipment selectors and reserve-tank strip from `pause-sprites`, and the title's
 reveals and copyright from `title`, the intro's cinematic actors and caret from `intro-sprites`, the Ceres approach's stars and rear view from
 `ceres-flight-sprites`, the Ceres destruction scene's actors from `ceres-destruction-sprites` and, once Zebes is
-revealed, `zebes-reveal-sprites`, and the ending's actors from a sheet for each set of characters its scenes show them
-over: `ending-cloud-sprites`, `ending-explosion-sprites`, `ending-suited-reward-sprites` or
-`ending-suitless-reward-sprites`, then `ending-shooting-sprites`, which gives way to `ending-shooting-logo-quarter-sprites`,
-`ending-shooting-logo-half-sprites`, `ending-shooting-logo-three-quarters-sprites` and `ending-logo-sprites` as the
-logo's characters replace the shooting scene's. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
+revealed, `zebes-reveal-sprites`, and the ending's actors from a sheet for each of its scenes:
+`ending-cloud-sprites`, `ending-explosion-sprites`, `ending-suited-reward-sprites` or
+`ending-suitless-reward-sprites`, then `ending-shooting-sprites`, which also holds the logo the shooting scene ends
+on. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
 anchors and digit spacing; a layout written for the earlier version, which also held the frames and
 palette, is rejected until it is rewritten.
 

@@ -9,6 +9,6 @@ internal static class EndingSpriteSheetsConstants
     internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
     [
         SpriteSheetId.EndingCloudSprites, SpriteSheetId.EndingExplosionSprites, SpriteSheetId.EndingSuitedRewardSprites,
-        SpriteSheetId.EndingSuitlessRewardSprites, .. EndingSpriteSheets.ShootingSheets,
+        SpriteSheetId.EndingSuitlessRewardSprites, SpriteSheetId.EndingShootingSprites,
     ];
 }

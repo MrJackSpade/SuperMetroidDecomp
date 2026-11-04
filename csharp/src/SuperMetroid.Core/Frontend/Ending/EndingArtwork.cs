@@ -28,9 +28,6 @@ internal sealed class EndingArtwork
     /// <summary>Whether the credits and reward art have been loaded.</summary>
     private bool creditsAssetsLoaded;
 
-    /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's animation-step boundary.</summary>
-    private bool rewardIconUploading;
-
     /// <summary>Binds the installed sprite sheets when the game is bound to its installed content.</summary>
     internal void BindSpriteSheets(InstalledSpriteSheets? value) => Sheets = value;
 
@@ -59,15 +56,12 @@ internal sealed class EndingArtwork
         _stage.ObjectArtwork = value;
     }
 
-    /// <summary>
-    /// Loads the cloud objects; the installed sheet the clouds draw from holds their characters, which the import
-    /// composes once (#1463, #1467).
-    /// </summary>
-    internal void LoadEscapeCloudCharacters() =>
+    /// <summary>Requires the escape clouds' installed artwork, which the clouds' sheet is composed from (#1463, #1467).</summary>
+    internal void RequireEscapeCloudArtwork() =>
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Escape clouds require installed object artwork.");
 
-    /// <summary>Loads the explosion's objects, its four maps and the ending font, which the explosion's pictures and sheet show.</summary>
-    internal void LoadEndingObjectCharacters()
+    /// <summary>Loads the explosion's pictures, which show its objects, its four maps and the ending font.</summary>
+    internal void LoadExplosionPictures()
     {
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Ending objects require installed artwork.");
         _ = _stage.ResolveEndingFont();
@@ -90,15 +84,8 @@ internal sealed class EndingArtwork
         creditsAssetsLoaded = true;
     }
 
-    /// <summary>Uploads the indexed reward fragment requested by the active landing actor.</summary>
-    internal void UploadRewardGraphic(int index)
-    {
-        if (!rewardIconUploading)
-            throw new InvalidOperationException("Reward landing has no active graphics upload.");
-        if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        screen.LoadRewardChunk(index);
-    }
+    /// <summary>Loads the reward icon's floor, which the reward jump reveals as Samus falls back to her landing.</summary>
+    internal void LoadRewardIcon() => screen.LoadRewardIcon();
 
     /// <summary>
     /// Binds authored ending colors when the game is bound to its installed content. The current colour image
@@ -132,9 +119,6 @@ internal sealed class EndingArtwork
 
     /// <summary>The post-credits text, once it starts.</summary>
     internal EndingBackgroundTextState? ActivePostCreditsText { get; private set; }
-
-    /// <summary>Marks the reward icon as uploading, so the reward graphic streams in.</summary>
-    internal void BeginRewardIconUpload() => rewardIconUploading = true;
 
     /// <summary>Starts the post-credits text the credits roll hands over to.</summary>
     internal void StartPostCreditsText(EndingBackgroundTextState text) => ActivePostCreditsText = text;

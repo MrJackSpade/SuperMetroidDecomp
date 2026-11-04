@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The ending's screen as checks read it (#1358, #1467): the floor's loads the screen's state says were made, executed in
-/// the order the ending makes them (the scene's floor, the flyaway's loads, the post-credits art, the reward icon's loads), then
+/// the order the ending makes them (the scene's floor, the flyaway's floor, the post-credits art, the reward icon), then
 /// the explosion's and the post-shot's loads the screen's scene state says were made. The game draws pictures selected by
 /// that state; this image is what the loads would have left, for checks that compare installed artwork byte for byte.
 /// </summary>
@@ -31,14 +31,16 @@ internal static class EndingScreenMemory
             mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
             mode7.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
         }
-        for (int chunk = 0; chunk < screen.FlyawayChunksLoaded; chunk++)
-            Flyaway(vram, chunk, flight);
+        if (screen.FlyawayFloorLoaded)
+            for (int chunk = 0; chunk < FlyawayChunks; chunk++)
+                Flyaway(vram, chunk, flight);
         if (screen.PostCreditsArtLoaded)
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
-        for (int chunk = 0; chunk < screen.RewardChunksLoaded; chunk++)
-            vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
-                EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(Required(floor))).Bytes.Span.Slice(EndingRewardGraphicsUploads.ChunkOffset(chunk),
-                    EndingRewardGraphicsUploadDefinitions.ChunkBytes));
+        if (screen.RewardIconLoaded)
+            for (int chunk = 0; chunk < EndingRewardGraphicsUploadDefinitions.ChunkCount; chunk++)
+                vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
+                    EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(Required(floor))).Bytes.Span.Slice(
+                        EndingRewardGraphicsUploads.ChunkOffset(chunk), EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (screen.ExplosionMapsLoaded)
         {
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.ExplosionObjects), artwork);
@@ -50,6 +52,9 @@ internal static class EndingScreenMemory
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.PostShotPart, part), artwork);
         return vram.CaptureImage();
     }
+
+    /// <summary>The chunks the cartridge transfers the flyaway's floor in: its characters, then its map, eight each.</summary>
+    private const int FlyawayChunks = 16;
 
     /// <summary>One of the sixteen flyaway chunks: the first half load floor characters, the rest the padded map.</summary>
     private static void Flyaway(SnesVram vram, int index, CeresFlightArtwork? flight)

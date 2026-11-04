@@ -16,16 +16,16 @@ internal static class EndingCreditsPhaseGroups
         EndingCreditsPhase.EscapeSceneB, EndingCreditsPhase.FadeOutEscapeSceneB,
     }.ToFrozenSet();
 
-    /// <summary>The escape and the explosion's fade-in and crossfade, before its tiles upload.</summary>
-    internal static readonly FrozenSet<EndingCreditsPhase> BeforeZebesExplosionTileUpload = BeforeZebesExplosion.Concat(new[]
+    /// <summary>The escape and the explosion's fade-in and crossfade, before the explosion's hold.</summary>
+    internal static readonly FrozenSet<EndingCreditsPhase> BeforeZebesExplosionHold = BeforeZebesExplosion.Concat(new[]
     {
         EndingCreditsPhase.FadeInZebesExplosion, EndingCreditsPhase.ZebesExplosionPaletteCrossfade,
     }).ToFrozenSet();
 
     /// <summary>Everything before the gunship's planet escape: the escape, the explosion and the music waits.</summary>
-    internal static readonly FrozenSet<EndingCreditsPhase> BeforePlanetEscape = BeforeZebesExplosionTileUpload.Concat(new[]
+    internal static readonly FrozenSet<EndingCreditsPhase> BeforePlanetEscape = BeforeZebesExplosionHold.Concat(new[]
     {
-        EndingCreditsPhase.ZebesExplosionTileUpload, EndingCreditsPhase.ZebesExplosionAnimation,
+        EndingCreditsPhase.ZebesExplosionHold, EndingCreditsPhase.ZebesExplosionAnimation,
         EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingCreditsPhase.WaitForPlanetEscapeMusicQueue,
     }).ToFrozenSet();
 

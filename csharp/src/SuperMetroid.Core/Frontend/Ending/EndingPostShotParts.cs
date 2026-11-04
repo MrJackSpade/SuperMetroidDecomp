@@ -1,14 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The parts the post-shot shows one per call once Samus has faded (#1467): the subtitle, the logo's four quarters, then its map.</summary>
+/// <summary>
+/// The post-shot's reveal of the logo (#1467, #1513): once Samus has faded, the post-shot takes one step of it per call,
+/// and the logo plane shows the logo on the last.
+/// </summary>
 internal static class EndingPostShotParts
 {
-    /// <summary>The parts the post-shot shows.</summary>
+    /// <summary>The calls the post-shot's logo reveal takes, the last of which shows the logo.</summary>
     public const int Count = 6;
-
-    /// <summary>The part that shows the logo's first quarter; the subtitle comes before it.</summary>
-    public const int FirstLogoPart = 1;
-
-    /// <summary>The logo's quarters, each shown by its own part.</summary>
-    public const int LogoParts = 4;
 }

@@ -14,10 +14,13 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Checks the ending's Ceres flight art uploads and debugger artwork rebinding.</summary>
+/// <summary>Checks the ending's flyaway floor, drawn from the Ceres flight art, and debugger artwork rebinding.</summary>
 internal static class EndingFlyawayArtworkVerification
 {
-    /// <summary>Compares all 16 scheduled Mode 7 uploads and checks an edited map byte without cartridge art rereads.</summary>
+    /// <summary>
+    /// Compares every update of the explosion's sixteen-update hold, after which the flyaway floor is loaded, and checks
+    /// an edited map byte without cartridge art rereads (#1513: the floor is a picture loaded once, not sixteen transfers).
+    /// </summary>
     internal static void VerifyEndingFlyawayArtwork(GameInstallation installation)
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -28,13 +31,13 @@ internal static class EndingFlyawayArtworkVerification
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         installed.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
-        int uploadedFrames = 0;
+        int holdUpdates = 0;
         for (int frame = 0; frame < 10000 &&
             native.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             AssertEqual(native.Stage.Phase, installed.Stage.Phase,
                 $"installed ending flyaway preserves native phase at frame {frame}");
-            if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
+            if (native.Stage.Phase == EndingCreditsPhase.ZebesExplosionHold)
             {
                 LayeredScene expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
                 RgbColor[] expectedColours = EndingShownColours.Of(native);
@@ -46,8 +49,8 @@ internal static class EndingFlyawayArtworkVerification
                         actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
-                    $"ending Mode-7 DMA and visible pixels match at upload {uploadedFrames}");
-                uploadedFrames++;
+                    $"ending floor and visible pixels match at hold update {holdUpdates}");
+                holdUpdates++;
             }
             native.Step();
             installed.Step();
@@ -58,13 +61,12 @@ internal static class EndingFlyawayArtworkVerification
             "ending fixture reaches flyaway scene");
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, installed.Stage.Phase,
             "installed ending fixture reaches flyaway scene");
-        AssertEqual(16, uploadedFrames,
-            "the cartridge still uploads eight character and eight map chunks");
+        AssertEqual(EndingExplosionFadeDefinitions.HoldUpdates, holdUpdates,
+            "the explosion holds for sixteen updates before its finale");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed ending flyaway never rereads shared Ceres art sources");
 
-        // Rebind the player's current front-view map after the first low-byte DMA.
-        // The pending chunks must retain their native schedule, not upload early.
+        // Rebind the player's current front-view map once the flyaway floor is loaded.
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory,
             CeresFlightArtworkFileFormat.MapFileName);
         CeresFlightMapDocument edited;
@@ -86,28 +88,29 @@ internal static class EndingFlyawayArtworkVerification
         var restored = CreateRetailEndingFixture(rebindAudio, 0, 0);
         restored.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < 10000 &&
-            restored.Stage.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
+            restored.Stage.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)
         {
             restored.Step();
             rebindAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Stage.Phase,
-            "rebind fixture remains inside the native upload phase");
-        for (int chunk = 0; chunk < 9; chunk++)
+        AssertEqual(EndingCreditsPhase.ZebesExplosionHold, restored.Stage.Phase,
+            "rebind fixture reaches the explosion's hold");
+        for (int update = 0; update < EndingExplosionFadeDefinitions.HoldUpdates; update++)
         {
+            AssertTrue(!restored.screen.FlyawayFloorLoaded, $"the flyaway floor is not loaded at hold update {update}");
             restored.Step();
             rebindAudio.AdvanceFrame(default);
         }
-        AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Stage.Phase,
-            "first map chunk leaves seven scheduled uploads pending");
+        AssertTrue(restored.screen.FlyawayFloorLoaded && restored.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation,
+            "the flyaway floor is loaded as the hold ends and the finale begins");
         byte originalMapByte = restored.ShownVram()[0];
         restored.Flyaway.BindFlightArtwork(overrideArt);
         AssertEqual((byte)edited.FrontTiles[0], restored.ShownVram()[0],
             "restored ending reuploads the edited front-view map byte");
         AssertTrue(originalMapByte != edited.FrontTiles[0],
-            "front-view edit changes an already transferred ending map byte");
+            "front-view edit changes an already loaded ending map byte");
         AssertEqual(0, rebindGuard.ForbiddenReadAttempts,
             "ending debugger rebind never reads shared cartridge art sources");
-        Console.WriteLine("Ending flyaway art: sixteen native upload frames, shared Ceres edits and restore pass.");
+        Console.WriteLine("Ending flyaway art: sixteen hold updates, shared Ceres edits and restore pass.");
     }
 }

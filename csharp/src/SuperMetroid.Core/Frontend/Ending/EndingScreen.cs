@@ -12,11 +12,11 @@ internal sealed class EndingScreen
     /// <summary>The escape or explosion scene whose floor is loaded, or null before one is.</summary>
     internal EndingFloorSceneId? FloorScene { get; private set; }
 
-    /// <summary>How many of the flyaway floor's loads are made, in order; it shows once all are (#1467).</summary>
-    internal int FlyawayChunksLoaded { get; private set; }
+    /// <summary>Whether the flyaway's floor is loaded, which it is once the explosion's hold ends (#1467, #1513).</summary>
+    internal bool FlyawayFloorLoaded { get; private set; }
 
-    /// <summary>How many of the reward icon floor's loads are made, in order; it shows once all are (#1467).</summary>
-    internal int RewardChunksLoaded { get; private set; }
+    /// <summary>Whether the reward icon's floor is loaded, which it is once Samus has fallen for its reveal (#1467, #1513).</summary>
+    internal bool RewardIconLoaded { get; private set; }
 
     /// <summary>What the ending's colours show: each load, fade, flash and palette-effect record its scenes have shown (#1512).</summary>
     internal EndingColours Colours { get; } = new();
@@ -43,8 +43,8 @@ internal sealed class EndingScreen
     public void Clear()
     {
         FloorScene = null;
-        FlyawayChunksLoaded = 0;
-        RewardChunksLoaded = 0;
+        FlyawayFloorLoaded = false;
+        RewardIconLoaded = false;
         ExplosionMapsLoaded = false;
         PostCreditsArtLoaded = false;
         PostShotPartsShown = 0;
@@ -71,9 +71,6 @@ internal sealed class EndingScreen
     /// <summary>Whether the post-shot has shown the logo's map, so the logo plane shows the logo.</summary>
     internal bool LogoShown => PostShotPartsShown == EndingPostShotParts.Count;
 
-    /// <summary>How many of the logo's character parts the post-shot has shown.</summary>
-    internal int LogoChunksShown => Math.Clamp(PostShotPartsShown - EndingPostShotParts.FirstLogoPart, 0, EndingPostShotParts.LogoParts);
-
     /// <summary>Shows <paramref name="text"/> on the text page <paramref name="page"/>.</summary>
     internal void ShowText(EndingTextScreen page, ImmutableArray<ShownEndingText> text)
     {
@@ -94,30 +91,26 @@ internal sealed class EndingScreen
     internal void ShowFinalLowerText(ImmutableArray<ShownEndingText> text) => FinalPageLowerText = text;
 
     /// <summary>
-    /// The shot whose turning floor is loaded (#1467): the reward icon once all its loads are made; nothing once the
-    /// post-credits art has replaced the floor's characters; the flyaway once all its loads are made; else the scene's.
-    /// While a floor is still loading, the floor keeps showing the shot loaded before it.
+    /// The shot whose turning floor is loaded (#1467): the reward icon once it is loaded; nothing once the post-credits
+    /// art has replaced the floor; the flyaway once it is loaded; else the scene's.
     /// </summary>
     internal EndingFloorShot FloorShot =>
-        RewardChunksLoaded == EndingRewardJumpDefinitions.IconChunkCount ? EndingFloorShot.RewardIcon
+        RewardIconLoaded ? EndingFloorShot.RewardIcon
         : PostCreditsArtLoaded ? EndingFloorShot.None
-        : FlyawayChunksLoaded == EndingFloorDefinitions.FlyawayChunkCount ? EndingFloorShot.Flyaway
+        : FlyawayFloorLoaded ? EndingFloorShot.Flyaway
         : FloorScene is { } scene ? EndingScreenFloor.SceneShot(scene)
         : EndingFloorShot.None;
 
     /// <summary>Loads the escape or explosion scene <paramref name="scene"/>'s floor.</summary>
     public void LoadFloor(EndingFloorSceneId scene) => FloorScene = scene;
 
-    /// <summary>Makes the flyaway floor's load <paramref name="index"/>, the next in order.</summary>
-    /// <exception cref="InvalidOperationException">The load is not the next.</exception>
-    internal void LoadFlyawayChunk(int index) => FlyawayChunksLoaded = Next(index, FlyawayChunksLoaded, EndingFloorDefinitions.FlyawayChunkCount, "flyaway");
+    /// <summary>Loads the flyaway's floor.</summary>
+    /// <exception cref="InvalidOperationException">The flyaway's floor is already loaded.</exception>
+    internal void LoadFlyawayFloor() => FlyawayFloorLoaded = !FlyawayFloorLoaded
+        ? true : throw new InvalidOperationException("The flyaway's floor is loaded once per clear.");
 
-    /// <summary>Makes the reward icon floor's load <paramref name="index"/>, the next in order.</summary>
-    /// <exception cref="InvalidOperationException">The load is not the next.</exception>
-    internal void LoadRewardChunk(int index) => RewardChunksLoaded = Next(index, RewardChunksLoaded, EndingRewardJumpDefinitions.IconChunkCount, "reward icon");
-
-    /// <summary>The loads made once load <paramref name="index"/> follows <paramref name="loaded"/> of <paramref name="count"/>.</summary>
-    private static int Next(int index, int loaded, int count, string floor) => index == loaded && index < count
-        ? loaded + 1
-        : throw new InvalidOperationException($"The {floor} floor's load {index} does not follow its {loaded} loads.");
+    /// <summary>Loads the reward icon's floor.</summary>
+    /// <exception cref="InvalidOperationException">The reward icon's floor is already loaded.</exception>
+    internal void LoadRewardIcon() => RewardIconLoaded = !RewardIconLoaded
+        ? true : throw new InvalidOperationException("The reward icon's floor is loaded once per clear.");
 }

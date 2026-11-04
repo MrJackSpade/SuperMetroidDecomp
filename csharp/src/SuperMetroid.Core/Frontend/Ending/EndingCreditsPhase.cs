@@ -23,8 +23,8 @@ internal enum EndingCreditsPhase
     FadeInZebesExplosion,
     /// <summary>Completes the explosion palette interpolation after brightness reaches full.</summary>
     ZebesExplosionPaletteCrossfade,
-    /// <summary>Loads the Ceres-derived flyaway floor art over sixteen updates.</summary>
-    ZebesExplosionTileUpload,
+    /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
+    ZebesExplosionHold,
     /// <summary>Lets the explosion actor's private instruction list control the finale.</summary>
     ZebesExplosionAnimation,
     /// <summary>Holds the explosion whiteout before queuing planet-escape music.</summary>

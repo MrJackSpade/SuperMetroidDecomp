@@ -19,13 +19,13 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 
-/// <summary>Checks installed and edited reward-icon artwork through native partial VRAM uploads and the ending shot.</summary>
+/// <summary>Checks installed and edited reward-icon artwork through the reward jump's reveal and the ending shot.</summary>
 internal static class EndingRewardIconArtworkVerification
 {
-    /// <summary>How far into the reward jump the override checks rebind the icon: inside the landing upload, before it ends.</summary>
+    /// <summary>How far into the reward jump the override checks rebind the icon, before the jump ends.</summary>
     private const int OverrideRebindJumpFrame = 190;
 
-    /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the landing upload.</summary>
+    /// <summary>Compares retail pixels and VRAM, then checks map and PNG override rebinds during the reward jump.</summary>
     [PrivateInstallation("Checks that installer repair restores corrupted ending reward icon stock files on a private copy while their overrides survive.")]
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
@@ -46,7 +46,7 @@ internal static class EndingRewardIconArtworkVerification
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         installedScene.Stage.BindFloorArtwork(stock);
-        // Each override check rebinds a stock-bound scene partway through the landing upload. The fixture is deterministic,
+        // Each override check rebinds a stock-bound scene partway through the reward jump. The fixture is deterministic,
         // so those scenes advance alongside the stock scenes and wait there instead of replaying the ending alone.
         string[] overrideNames = [EndingRewardIconArtworkFormat.MapFileName, EndingRewardIconArtworkFormat.CharacterFileName];
         var overrideBuses = overrideNames.Select(_ => NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom))).ToArray();
@@ -84,7 +84,7 @@ internal static class EndingRewardIconArtworkVerification
                         actualColours.SequenceEqual(expectedColours) &&
                         DisplayRendering.Render(actual).SequenceEqual(
                             DisplayRendering.Render(expected)),
-                    $"reward icon preserves native partial-upload VRAM and pixels at jump frame {jumpFrames}");
+                    $"reward icon preserves native VRAM and pixels at jump frame {jumpFrames}");
             }
             nativeScene.Step();
             installedScene.Step();
@@ -96,13 +96,13 @@ internal static class EndingRewardIconArtworkVerification
         AssertEqual(EndingCreditsPhase.PostCreditsShot, installedScene.Stage.Phase,
             "installed reward reaches Mode-7 shot");
         AssertTrue(jumpFrames >= 200,
-            "reward icon integration covers the full native jump and landing upload interval");
+            "reward icon integration covers the full native jump and the icon's reveal");
         AssertEqual(0, installedBus.ForbiddenReadAttempts,
             "installed reward icon never rereads its compressed cartridge stream");
         AssertTrue(installedScene.ShownVram()
                 [..EndingRewardIconArtworkFormat.ByteCount].SequenceEqual(
                     EndingFloorCharacters.RewardIconOf(stock).Bytes.Span),
-            "all sixteen native landing chunks reconstruct the installed icon image");
+            "the revealed icon is the installed icon image");
 
         Directory.CreateDirectory(installation.EndingMode7OverrideDirectory);
         for (int overrideIndex = 0; overrideIndex < overrideNames.Length; overrideIndex++)
@@ -134,26 +134,13 @@ internal static class EndingRewardIconArtworkVerification
                         image.Pixels, image.Colours);
                 }
                 EndingFloorArtwork edited = installation.LoadEndingMode7Art();
-                var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var partial = new EndingScreen();
-                for (int chunk = 0; chunk < 8; chunk++)
-                    partial.LoadRewardChunk(chunk);
-                byte[] partialVram = EndingScreenMemory.Compose(partial, edited, null, null, null, EndingReward.Armored);
-                AssertTrue(partialVram[..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)].AsSpan()
-                        .SequenceEqual(EndingFloorCharacters.RewardIconOf(edited).Bytes.Span
-                            [..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]) &&
-                        partialVram[(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)..]
-                            .All(value => value == 0),
-                    $"{name} rebinds eight completed chunks without writing pending ones");
-                AssertEqual(0, uploadBus.ForbiddenReadAttempts,
-                    $"{name} partial upload never reads compressed ROM icon art");
                 var sceneBus = overrideBuses[overrideIndex];
                 var sceneAudio = overrideAudio[overrideIndex];
                 var scene = overrideScenes[overrideIndex];
                 AssertEqual(OverrideRebindJumpFrame, overrideJumpSteps[overrideIndex],
                     $"{name} override reaches the native reward jump");
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Stage.Phase,
-                    $"{name} override fixture remains in the native landing upload");
+                    $"{name} override fixture remains in the native reward jump");
                 LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 RgbColor[] beforeColours = EndingShownColours.Of(scene);
                 byte[] beforeVram = scene.ShownVram();
@@ -165,8 +152,8 @@ internal static class EndingRewardIconArtworkVerification
                 byte[] reboundVram = scene.ShownVram();
                 AssertTrue(scene.Stage.Phase == EndingCreditsPhase.PostCreditsJump &&
                         beforeColours.SequenceEqual(reboundColours) &&
-                        !beforeVram.SequenceEqual(reboundVram),
-                    $"{name} rebind replaces completed chunks without resetting the jump");
+                        scene.screen.RewardIconLoaded == !beforeVram.SequenceEqual(reboundVram),
+                    $"{name} rebind changes the floor exactly when the icon is revealed, without resetting the jump");
                 for (int frame = 0; frame < 400 &&
                     scene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
                 {
@@ -179,7 +166,7 @@ internal static class EndingRewardIconArtworkVerification
                 AssertTrue(shownScene
                         [..EndingRewardIconArtworkFormat.ByteCount]
                         .SequenceEqual(EndingFloorCharacters.RewardIconOf(edited).Bytes.Span),
-                    $"{name} supplies every final native upload byte");
+                    $"{name} supplies the revealed icon");
                 LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
                 LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 AssertTrue(!DisplayRendering.Render(baseline)
@@ -233,6 +220,6 @@ internal static class EndingRewardIconArtworkVerification
         AssertTrue(EndingFloorCharacters.RewardIconOf(repaired.LoadEndingMode7Art()).Bytes.Span.SequenceEqual(selected),
             "stock icon repair preserves the player's separately stored PNG override");
         File.Delete(userPng);
-        Console.WriteLine("Reward icon: native sixteen-chunk VRAM/pixel parity, mid-upload rebind and independently visible map/PNG edits pass.");
+        Console.WriteLine("Reward icon: native VRAM/pixel parity through its reveal, mid-jump rebind and independently visible map/PNG edits pass.");
     }
 }

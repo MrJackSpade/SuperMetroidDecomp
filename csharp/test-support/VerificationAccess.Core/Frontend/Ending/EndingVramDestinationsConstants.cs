@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Ending;
-
-namespace SuperMetroid.AssetExtraction.Frontend.Ending;
+﻿namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Cartridge values and helpers of <see cref="EndingVramDestinations"/> that only verification reads.</summary>
 internal static class EndingVramDestinationsConstants
@@ -12,7 +10,7 @@ internal static class EndingVramDestinationsConstants
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="chunk"/> is not one of the sixteen chunks.</exception>
     internal static ushort RewardChunkWordOf(int chunk)
     {
-        if ((uint)chunk >= EndingRewardJumpDefinitions.IconChunkCount)
+        if ((uint)chunk >= EndingRewardGraphicsUploadDefinitions.ChunkCount)
             throw new ArgumentOutOfRangeException(nameof(chunk));
         return checked((ushort)(chunk * (EndingRewardGraphicsUploadDefinitions.ChunkBytes / sizeof(ushort))));
     }

@@ -953,9 +953,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                         foreach ((SpriteGraphics graphics, Func<RoomEnemySystem, ushort> word, EnemyDefinitionId spawner) in SpawnerDraws(shown))
                         {
                             RoomEnemySystem system = SpawnerSystem(artwork, spawner, shown);
-                            AssertTrue(DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system))
-                                    .LowTable.SequenceEqual(DrawSpawnerFrame(system, frame.OperandAddress, graphics).LowTable),
-                                $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}");
+                            OamBuffer reference = DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system));
+                            OamBuffer drawn = DrawSpawnerFrame(system, frame.OperandAddress, graphics);
+                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable),
+                                $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}: " +
+                                $"records (x, y, tile, attributes) native {OamRecords(reference)}, installed {OamRecords(drawn)}");
                         }
                     }
                 }
@@ -1053,6 +1055,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         // The native frame under a graphics word: the tile base and the row the game's draw ORs into every part.
+        // The used records of an OAM low table, for a failure message.
+        static string OamRecords(OamBuffer oam) => string.Join(" ",
+            Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>
+                $"({oam.LowTable[record * 4]:X2},{oam.LowTable[(record * 4) + 1]:X2},{oam.LowTable[(record * 4) + 2]:X2},{oam.LowTable[(record * 4) + 3]:X2})"));
+
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)
         {
             ushort pointer = ReadNativeEnemyProjectileProgramWord(source, operand);

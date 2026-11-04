@@ -81,8 +81,9 @@ internal static class PauseReserveTankAssetsVerification
             SnesObjAttributeWord.Create(50, highlighted, 3, TileFlip.Horizontal | TileFlip.Vertical), new Position16<SpritePixels>(132, 136));
         tankParts.FinalizeFrame();
         PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection, MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(edited)).Page.Id);
-        AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),
-            "actual menu draws the custom tank's position, size, tile, palette, priority and flips");
+        PlacedSpritePart[] drawnTank = snapshot.Paint.SpriteParts()[^tank.Length..];
+        AssertTrue(drawnTank.SequenceEqual(tank),
+            $"actual menu draws the custom tank's position, size, tile, palette, priority and flips: expected {string.Join("; ", tank)}, drew {string.Join("; ", drawnTank)}");
         var editedPixels = menu.Render();
         AssertTrue(editedPixels.SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
         using (var state = new MemoryStream())

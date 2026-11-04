@@ -22,7 +22,7 @@ public static class RoomMetatileArtworkFiles
     /// <param name="bus">Non-null cartridge import address space containing the compressed visual block-definition tables.</param>
     /// <param name="directory">Output directory, created if needed; resource and manifest filenames must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 stored with each file's hash and native block-table byte count.</param>
-    /// <remarks>Checks exact native-byte roundtrips for four-quadrant visual compositions. Collision and block behavior remain outside these resources.</remarks>
+    /// <remarks>Exports four-quadrant visual compositions. Collision and block behavior remain outside these resources.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {

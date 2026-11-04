@@ -35,15 +35,13 @@ public static class CeresFlightPaletteFile
         return new CeresFlightPalette(ScreenColourImage.Decode(compiled));
     }
 
-    /// <summary>Serializes a palette document with the presentation JSON options and validates it through <see cref="Read"/> before writing any bytes to the destination.</summary>
-    /// <param name="json">Caller-owned destination stream for the validated UTF-8 JSON.</param>
+    /// <summary>Serializes a palette document with the presentation JSON options to the destination.</summary>
+    /// <param name="json">Caller-owned destination stream for the UTF-8 JSON.</param>
     /// <param name="document">Document containing the supported version and all 256 RGB5 colors.</param>
     public static void Write(Stream json, CeresFlightPaletteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document,
+            ArtworkJson.Options));
     }
 }

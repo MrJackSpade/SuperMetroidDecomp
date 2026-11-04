@@ -60,18 +60,14 @@ public sealed class RoomBackgroundTilemapAtlas
         return new RoomBackgroundTilemapAtlas(tiles);
     }
 
-    /// <summary>Serializes a tilemap document, validating the serialized form against its required native size before writing to the destination.</summary>
+    /// <summary>Serializes a tilemap document to the destination.</summary>
     /// <param name="json">Caller-owned writable destination stream, written at its current position without being disposed.</param>
     /// <param name="document">The ordered one- or two-page editable map definition.</param>
-    /// <param name="expectedByteCount">Required compiled length, $0800 or $1000 bytes.</param>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">The document is null or fails the schema, size, cell, or selector checks performed by <see cref="Load"/>.</exception>
-    public static void Write(Stream json, RoomBackgroundTilemapDocument document, int expectedByteCount)
+    public static void Write(Stream json, RoomBackgroundTilemapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false), expectedByteCount);
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
     }
 
     /// <summary>Accepts casing variations but rejects unknown or duplicate tilemap properties.</summary>

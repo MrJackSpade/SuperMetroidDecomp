@@ -26,7 +26,7 @@ internal static class KraidInstalledPresentationTailVerification
             }).ToArray();
             using var json = new MemoryStream();
             RoomBackgroundTilemapAtlas.Write(json, new RoomBackgroundTilemapDocument
-            { Version = RoomBackgroundTilemapFormat.Version, Pages = pages }, KraidWorkingMapDefinitions.SourceTilemapBytes);
+            { Version = RoomBackgroundTilemapFormat.Version, Pages = pages });
             json.Position = 0;
             return RoomBackgroundTilemapAtlas.Load(json, KraidWorkingMapDefinitions.SourceTilemapBytes);
         }

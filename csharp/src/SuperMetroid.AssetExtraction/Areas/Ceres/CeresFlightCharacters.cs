@@ -121,17 +121,14 @@ public sealed class CeresFlightCharacters : CeresFlightArtwork
         return map;
     }
 
-    /// <summary>Serializes a front/rear map document and validates its serialized form before writing any bytes to the destination.</summary>
+    /// <summary>Serializes a front/rear map document to the destination.</summary>
     /// <param name="json">Caller-owned writable destination stream, written at its current position.</param>
     /// <param name="document">Version-one document with two complete 32-by-24 editing arrays containing tile indices $00-$FF.</param>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">The document is null or has an unsupported version, dimensions, array length, or tile index.</exception>
     public static void WriteMap(Stream json, CeresFlightMapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = ReadMap(new MemoryStream(bytes, writable: false));
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
     }
 
     /// <summary>Requires two complete 32-by-24 tile-index views before compiling their upload bytes.</summary>

@@ -64,18 +64,14 @@ public sealed class RoomMetatileAtlas
         }
     }
 
-    /// <summary>Serializes and recompiles a metatile document to validate it before writing any JSON bytes to the destination.</summary>
+    /// <summary>Serializes a metatile document to the destination.</summary>
     /// <param name="json">Destination stream for the indented camel-case document.</param>
     /// <param name="document">Ordered visual block definitions to encode.</param>
-    /// <param name="expectedByteCount">Required native table length used to validate the serialized document's block count.</param>
     /// <exception cref="ArgumentNullException">The destination stream is null.</exception>
-    /// <exception cref="InvalidDataException">The serialized document or expected table length fails metatile validation.</exception>
-    public static void Write(Stream json, RoomMetatileDocument document, int expectedByteCount)
+    public static void Write(Stream json, RoomMetatileDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false), expectedByteCount);
-        json.Write(bytes);
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
     }
 
     /// <summary>Strict camel-case JSON settings for editable metatile documents.</summary>

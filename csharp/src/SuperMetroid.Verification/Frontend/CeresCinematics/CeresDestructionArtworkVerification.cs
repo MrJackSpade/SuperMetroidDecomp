@@ -332,8 +332,7 @@ internal static class CeresDestructionArtworkVerification
             TileColumn = (originalCell.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
         };
         using (var output = File.Create(zebesMapOverride))
-            RoomBackgroundTilemapAtlas.Write(output, zebesMap,
-                ZebesRevealArtworkFormat.MapByteCount);
+            RoomBackgroundTilemapAtlas.Write(output, zebesMap);
         IntroCinematicArtwork editedZebesMap = installation.LoadIntroCinematicArt();
         AssertTrue(!IntroCinematicSourceArtwork.Of(editedZebesMap).ZebesReveal.Map.Bytes.Span.SequenceEqual(
                 IntroCinematicSourceArtwork.Of(stock).ZebesReveal.Map.Bytes.Span),

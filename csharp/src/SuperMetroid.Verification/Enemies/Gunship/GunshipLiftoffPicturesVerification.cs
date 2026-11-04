@@ -16,14 +16,16 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 
 /// <summary>
-/// Checks the gunship draws from pictures of its landing site's pre-coloured sheet (#1392, #1513): its own characters before its
-/// takeoff, then its picture of each takeoff page as the takeoff reaches it.
+/// Checks the gunship draws from pictures of its landing site's pre-coloured sheet (#1392, #1513): before its takeoff and at
+/// each takeoff page the ship paints its frames over the characters then, and every frame the pages change, the takeoff's
+/// dust among them, shows its picture of each page it is drawn over.
 /// </summary>
 internal static class GunshipLiftoffPicturesVerification
 {
     /// <summary>
-    /// At the landing site the ship's top shows, before its takeoff and at each takeoff page, its picture of the page reached,
-    /// and each picture paints exactly what the frame paints over the characters the set leaves at that page.
+    /// At the landing site the ship's top and bottom show, before its takeoff and at each takeoff page, the picture of the
+    /// page reached, painting exactly what the frame paints over the characters the set leaves at that page; and every frame
+    /// of the set's sheets the takeoff changes follows it at the pages it is drawn over.
     /// </summary>
     internal static void VerifyGunshipLiftoffPictures()
     {
@@ -79,8 +81,9 @@ internal static class GunshipLiftoffPicturesVerification
                 UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the ship's {part.DefinitionId} after {step} liftoff uploads");
             }
         }
-        AssertTrue(pictured > 0, "the ship is drawn over characters its takeoff uploads");
-        Console.WriteLine($"Gunship liftoff pictures: the ship's top shows its picture of each of the {pages} takeoff pages, each painting its frame over the characters that page leaves.");
+        // The takeoff's pages are the dust's characters, which the dust shows once the engines have fired.
+        int followed = UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.GunshipLiftoff, pages, "the gunship's takeoff");
+        Console.WriteLine($"Gunship liftoff pictures: the ship paints its frames over the characters each of the {pages} takeoff pages leaves ({pictured} of its draws follow the pages), and {followed} frames follow the pages they are drawn over.");
     }
 
     /// <summary>Runs the gunship liftoff picture check.</summary>

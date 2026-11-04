@@ -111,22 +111,26 @@ internal static class SpawnedObjectSheetComposer
         int objectBase = checked((ushort)plan.ObjectCharacters);
         SpawnedObjects spawned = Spawned(plan);
         RgbColor[] colours = shades.FirstShownColours(plan.Spawners);
+        // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before any of her artwork
+        // sequence's steps; the other objects of her body it holds are drawn from her body's own sheet, so none of its
+        // frames is drawn under a sequence and none has a picture of a step (#1513).
+        FrameDrawings Drawn(FrameDrawings drawings) => plan.Owner.IsMotherBrainTankGlass ? FrameDrawings.None : drawings;
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
                 EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase, 0),
-                FrameDrawings.Of(frame)))
+                Drawn(FrameDrawings.Of(frame))))
             .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.SpriteObjectFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Room sprite-object frame {frame} has no installed composition."), objectBase, 0),
-                FrameDrawings.Of(frame))))
+                Drawn(FrameDrawings.Of(frame)))))
             .Concat(EncounterFrames(plan.Spawners, plan.Anywhere).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), objectBase,
                     EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
                         : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
-                FrameDrawings.Of(frame), RotEncounterFrames.Contains(frame))))];
+                Drawn(FrameDrawings.Of(frame)), RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.GameplaySizes, plan.Palette,

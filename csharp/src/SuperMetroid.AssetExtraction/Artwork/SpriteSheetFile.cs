@@ -18,7 +18,9 @@ public static class SpriteSheetFile
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
+        // Sheet manifests run to hundreds of megabytes across an installation; indenting them more than doubles what the
+        // install writes and every load parses (#1530).
+        WriteIndented = false,
     };
 
     /// <summary>Reads a sheet manifest and cuts its frames from the sheet image.</summary>

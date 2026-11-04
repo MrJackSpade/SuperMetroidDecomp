@@ -29,34 +29,51 @@ internal static class RoomBlockSheetComposer
         Ensure.NotNull(inputs);
         IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads> tilesets = RoomBlockUploads.ByTileset(inputs);
         IReadOnlyDictionary<RoomBlockSet, RoomBlockComposition> blocks = RoomBlockComposition.Of(inputs, tilesets);
+        // Each tileset's pictures compose on their own (#1530), and are gathered in tileset order, so what is written and
+        // its order stay the same on every install. Every room picture of a tileset is pre-coloured in the shades its rooms'
+        // colour effects show (#1512).
+        KeyValuePair<TilesetDefinition, RoomBlockUploads.TilesetUploads>[] order = [.. tilesets];
+        var composedTilesets = new TilesetPictures[order.Length];
+        Parallel.For(0, order.Length, index =>
+        {
+            (TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) = order[index];
+            IReadOnlyList<SheetShade> shades = RoomSheetShades.Room(inputs, tileset);
+            ComposedBlocks composed = Compose(inputs, tileset, uploads, blocks[tileset.Blocks]);
+            composedTilesets[index] = new TilesetPictures(
+                ShadedSheets.With(composed.Sheet, shades),
+                composed.Appearances,
+                [.. uploads.Backgrounds.Select(background => KeyValuePair.Create(background.Name, RoomSheetShades.With(
+                    ComposeBackground(inputs, tileset, background, composed.Cells[background.Name]), shades)))],
+                uploads.WordContent is { } content
+                    ? RoomSheetShades.With(WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content), shades)
+                    : null,
+                RoomSheetShades.With(WrittenPictureSheetComposer.ComposeBg3(inputs, tileset, uploads), RoomSheetShades.Layer3(inputs, tileset)),
+                MessageBoxSheetComposer.Compose(inputs, tileset),
+                uploads.Ceres ? ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, tileset), shades) : null);
+        });
         var sheets = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
         var appearances = new Dictionary<TilesetDefinition, RoomBlockAppearances>();
         var backgrounds = new Dictionary<string, ComposedRoomBackground>(StringComparer.Ordinal);
-        // Every room picture of a tileset is pre-coloured in the shades its rooms' colour effects show (#1512).
-        Dictionary<TilesetDefinition, IReadOnlyList<SheetShade>> roomShades =
-            tilesets.Keys.ToDictionary(tileset => tileset, tileset => RoomSheetShades.Room(inputs, tileset));
-        foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
-        {
-            ComposedBlocks composed = Compose(inputs, tileset, uploads, blocks[tileset.Blocks]);
-            sheets.Add(tileset, ShadedSheets.With(composed.Sheet, roomShades[tileset]));
-            appearances.Add(tileset, composed.Appearances);
-            foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
-                backgrounds.Add(background.Name, RoomSheetShades.With(
-                    ComposeBackground(inputs, tileset, background, composed.Cells[background.Name]), roomShades[tileset]));
-        }
         var written = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
-        foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
+        var bg3 = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
+        var messageBoxes = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
+        var floors = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
+        for (int index = 0; index < order.Length; index++)
         {
-            if (uploads.WordContent is { } content)
-                written.Add(tileset, RoomSheetShades.With(
-                    WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content), roomShades[tileset]));
+            TilesetDefinition tileset = order[index].Key;
+            TilesetPictures pictures = composedTilesets[index];
+            sheets.Add(tileset, pictures.Blocks);
+            appearances.Add(tileset, pictures.Appearances);
+            foreach ((string name, ComposedRoomBackground background) in pictures.Backgrounds)
+                backgrounds.Add(name, background);
+            if (pictures.Written is { } wordWritten)
+                written.Add(tileset, wordWritten);
+            bg3.Add(tileset, pictures.Bg3);
+            messageBoxes.Add(tileset, pictures.MessageBox);
+            if (pictures.Floor is { } floor)
+                floors.Add(tileset, floor);
         }
-        return new RoomSheetComposition(sheets, appearances, backgrounds, written,
-            tilesets.ToDictionary(entry => entry.Key, entry => RoomSheetShades.With(WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value),
-                RoomSheetShades.Layer3(inputs, entry.Key))),
-            tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset)),
-            tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
-                entry => ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, entry.Key), roomShades[entry.Key])));
+        return new RoomSheetComposition(sheets, appearances, backgrounds, written, bg3, messageBoxes, floors);
     }
 
     /// <summary>
@@ -316,4 +333,16 @@ internal static class RoomBlockSheetComposer
     /// <param name="Appearances">The inputs each block depends on.</param>
     /// <param name="Cells">Each background's changing cells, by its installed name.</param>
     private sealed record ComposedBlocks(ComposedSpriteSheet Sheet, RoomBlockAppearances Appearances, IReadOnlyDictionary<string, IReadOnlyList<RoomBackgroundCell>> Cells);
+
+    /// <summary>One tileset's composed pictures.</summary>
+    /// <param name="Blocks">Its block sheet.</param>
+    /// <param name="Appearances">Its blocks' appearances.</param>
+    /// <param name="Backgrounds">Its rooms' background images, by name.</param>
+    /// <param name="Written">Its pictures written by words, or null when its rooms write none.</param>
+    /// <param name="Bg3">Its layer-3 pictures.</param>
+    /// <param name="MessageBox">Its message box sheet.</param>
+    /// <param name="Floor">Its Ceres floor sheet, or null outside Ceres.</param>
+    private sealed record TilesetPictures(ComposedSpriteSheet Blocks, RoomBlockAppearances Appearances,
+        KeyValuePair<string, ComposedRoomBackground>[] Backgrounds, ComposedWrittenPictureSheet? Written, ComposedWrittenPictureSheet Bg3,
+        ComposedSpriteSheet MessageBox, ComposedSpriteSheet? Floor);
 }

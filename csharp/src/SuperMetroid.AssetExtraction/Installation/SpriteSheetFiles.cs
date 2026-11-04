@@ -39,7 +39,7 @@ public static class SpriteSheetFiles
     /// <summary>The provenance manifest's file name.</summary>
     public const string ManifestFileName = "sprite-sheets.json";
 
-    /// <summary>Composes and writes every sheet; the installer validates them with <see cref="ValidateStock"/>.</summary>
+    /// <summary>Composes and writes every sheet.</summary>
     /// <param name="bus">Cartridge source for frames no installed artwork holds.</param>
     /// <param name="content">Installed stock content holding the characters, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
@@ -50,8 +50,21 @@ public static class SpriteSheetFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
         var sources = new SpriteSheetSourceCatalog(content);
-        // Composition reads the cartridge bus, so it stays in order; the store encodes the sheets in parallel.
-        store.WriteAll([.. SpriteSheetDefinitions.Sheets.Select(sheet => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], Compose(bus, sources, sheet)))]);
+        // Only the escape timer's sheet reads the cartridge bus, so it composes on this thread; every other sheet composes
+        // from the installed sources in parallel (#1530), each into its own place, so the order stays the sheets' own.
+        IReadOnlyList<SpriteSheetId> sheets = SpriteSheetDefinitions.Sheets;
+        var composed = new ComposedSpriteSheet[sheets.Count];
+        Parallel.For(0, sheets.Count, index =>
+        {
+            if (sheets[index] != SpriteSheetId.EscapeTimer)
+                composed[index] = sources.Compose(sheets[index]);
+        });
+        for (int index = 0; index < sheets.Count; index++)
+        {
+            if (sheets[index] == SpriteSheetId.EscapeTimer)
+                composed[index] = EscapeTimerSheetComposer.Compose(bus);
+        }
+        store.WriteAll([.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))]);
         store.Finish(sourceCartridgeSha256);
     }
 
@@ -95,9 +108,6 @@ public static class SpriteSheetFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Composes one sheet.</summary>
-    private static ComposedSpriteSheet Compose(ISnesAddressSpace bus, SpriteSheetSourceCatalog sources, SpriteSheetId sheet) =>
-        sheet == SpriteSheetId.EscapeTimer ? EscapeTimerSheetComposer.Compose(bus) : sources.Compose(sheet);
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     /// <param name="sheet">The sheet.</param>

@@ -22,7 +22,9 @@ try
 {
 if (args.Length is 2 or 3 && args[0].Equals("install", StringComparison.OrdinalIgnoreCase))
 {
-    GameInstallation installed = GameAssetInstaller.Install(args[1], args.Length == 3 ? args[2] : GameAssetInstaller.DesktopRoot);
+    var clock = new InstallStepClock();
+    GameInstallation installed = GameAssetInstaller.Install(args[1], args.Length == 3 ? args[2] : GameAssetInstaller.DesktopRoot, progress: clock);
+    clock.Finish();
     Console.WriteLine($"ROM installed at {installed.RomPath}");
     Console.WriteLine($"Runtime audio extracted at {installed.AudioDirectory}");
     return 0;

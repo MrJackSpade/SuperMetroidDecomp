@@ -24,7 +24,7 @@ public static class BossBodySheetFiles
     /// <summary>The manifest's schema revision.</summary>
     private const int ManifestVersion = 1;
 
-    /// <summary>Composes and writes every boss's body sheet; the installer validates them with <see cref="ValidateStock"/>.</summary>
+    /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the provenance manifest.</param>

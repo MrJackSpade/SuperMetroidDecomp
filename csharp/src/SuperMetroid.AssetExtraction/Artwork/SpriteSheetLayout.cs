@@ -54,6 +54,9 @@ internal sealed class SpriteSheetLayout
     /// </summary>
     private readonly Dictionary<int, RowShadedInk>[] rowShadeInks;
 
+    /// <summary>Whether each ink's row shading is recorded: it follows from the ink alone, so it is recorded once.</summary>
+    private readonly bool[] rowShadedInks = new bool[8 * RowColours];
+
     /// <summary>Lays out a sheet's frames in order, then their part images.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
@@ -205,6 +208,9 @@ internal sealed class SpriteSheetLayout
     /// </summary>
     private void ShadeRows(int ink)
     {
+        if (rowShadedInks[ink])
+            return;
+        rowShadedInks[ink] = true;
         IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
         int ownRow = ink / RowColours;
         int colour = ink % RowColours;

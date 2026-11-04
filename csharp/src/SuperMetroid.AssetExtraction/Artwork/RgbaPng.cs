@@ -57,7 +57,7 @@ public static class RgbaPng
             MemoryMarshal.AsBytes(pixels.Slice(row * size.X, size.X)).CopyTo(line[1..]);
         }
         MemoryStream compressed = buffers.EmptyCompressed();
-        using (var zlib = new ZLibStream(compressed, CompressionLevel.Optimal, leaveOpen: true))
+        using (var zlib = new ZLibStream(compressed, CompressionLevel.Fastest, leaveOpen: true))
             zlib.Write(raw);
         ReadOnlySpan<byte> data = compressed.GetBuffer().AsSpan(0, checked((int)compressed.Length));
         var file = new byte[Signature.Length + ChunkBytes(HeaderLength) + ChunkBytes(data.Length) + ChunkBytes(0)];

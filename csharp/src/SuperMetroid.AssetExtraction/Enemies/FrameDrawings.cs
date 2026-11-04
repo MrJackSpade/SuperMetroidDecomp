@@ -24,6 +24,9 @@ internal sealed class FrameDrawings
     /// <summary>A frame the entries <paramref name="listed"/> list.</summary>
     private FrameDrawings(EncounterArtworkDrawing[] listed) => this.listed = listed;
 
+    /// <summary>A frame drawn under no sequence, which shows only its loaded picture.</summary>
+    internal static FrameDrawings None { get; } = new([]);
+
     /// <summary>When enemy frame <paramref name="frame"/> is drawn, on whichever sheet holds it.</summary>
     internal static FrameDrawings Of(EnemyFrameId frame) =>
         new([.. Entries.Where(entry => entry.Frames.Contains(frame)).Select(entry => entry.Drawing)]);

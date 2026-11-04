@@ -7,41 +7,41 @@ internal static class CeresRoomEnemyGraphicsSetDefinitions
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElev0), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FallingTile0), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MagnetStairs0), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.DeadScientist0), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Room58Escape0), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidley0), [
             new(EnemyDefinitionId.RidleyCeres),
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CeresElev1), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.FallingTile1), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MagnetStairs1), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.DeadScientist1), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Room58Escape1), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CeresRidley1), [
-            new(EnemyDefinitionId.CeresDoor, StagingBlock: 1),
+            new(EnemyDefinitionId.CeresDoor),
         ]),
     ];
 }

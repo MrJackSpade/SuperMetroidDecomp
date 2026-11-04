@@ -115,7 +115,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Shading = PulseShading;
-        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Zebetite];
         if (slot.SlotIndex == 0)
             SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf

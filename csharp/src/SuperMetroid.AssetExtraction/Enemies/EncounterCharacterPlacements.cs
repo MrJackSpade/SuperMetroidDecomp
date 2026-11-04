@@ -27,8 +27,7 @@ internal static class EncounterCharacterPlacements
     /// <summary>Every encounter's uploads, each placed where the cartridge shows it.</summary>
     internal static EncounterCharacterCatalog Catalog { get; } = new(EncounterCharacterDefinitions.Encounters.ToDictionary(
         entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkPlacement>)[.. entry.Value.Select(Placed)]),
-        [Placed(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles))],
-        EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter);
+        [Placed(new InstalledArtworkCharacters(InstalledArtworkId.StandardObjectTiles))]);
 
     /// <summary>
     /// The upload of <paramref name="source"/> where the cartridge shows it: the standard sprites from the first character,
@@ -39,8 +38,7 @@ internal static class EncounterCharacterPlacements
     internal static SpriteArtworkPlacement Placed(SpriteArtworkSource source) => source switch
     {
         InstalledArtworkCharacters { Artwork: InstalledArtworkId.StandardObjectTiles } => new(source, 0, Characters(StandardObjectArtworkFormat.ByteCount)),
-        GraphicsSetTileCharacters member => new(source,
-            EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter + Characters(member.Entry.StagingOffset), Characters(member.Entry.TileByteCount)),
+        GraphicsSetTileCharacters member => Member(source, GraphicsSetCharacterLayout.Of(member.Set).Members[member.Member]),
         InstalledArtworkCharacters { Artwork: >= InstalledArtworkId.GunshipLiftoffFirstTiles and <= InstalledArtworkId.GunshipLiftoffFirstTiles + 4 } liftoff =>
             new(source, EncounterCharacterPlacementDefinitions.GunshipFirstCharacter + (liftoff.Artwork - InstalledArtworkId.GunshipLiftoffFirstTiles) * Characters(GunshipLiftoffCharacterDefinitions.ByteCount),
                 Characters(GunshipLiftoffCharacterDefinitions.ByteCount)),
@@ -64,6 +62,10 @@ internal static class EncounterCharacterPlacements
             EscapeTextPages.PageFirstCharacter(text.Page), Characters(EscapeTextPages.PageByteCount(text.Page))),
         _ => throw new InvalidDataException($"The cartridge shows no {source} among the sprite characters."),
     };
+
+    /// <summary>A graphics-set member's tiles, shown as <paramref name="source"/>: from their staging offset into the enemy tile area.</summary>
+    private static SpriteArtworkPlacement Member(SpriteArtworkSource source, GraphicsSetMemberCharacters member) =>
+        new(source, EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter + Characters(member.StagingOffset), Characters(member.TileByteCount));
 
     /// <summary>Escape timer page <paramref name="page"/>, shown as <paramref name="source"/>.</summary>
     private static SpriteArtworkPlacement Timer(SpriteArtworkSource source, EscapeTimerTilePage page) =>

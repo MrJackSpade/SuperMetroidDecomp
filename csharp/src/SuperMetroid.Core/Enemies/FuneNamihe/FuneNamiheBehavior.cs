@@ -222,7 +222,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
         projectile.FrameBehavior = NamiFuneFireballFrameBehavior;
 

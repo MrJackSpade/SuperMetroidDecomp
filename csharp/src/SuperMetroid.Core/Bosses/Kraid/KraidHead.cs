@@ -272,13 +272,13 @@ internal sealed class KraidHead
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
             RoomEnemyProjectileKind.KraidSpitRock,
-            graphics: SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading));
+            graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + 16), CoordinateAxis.Wrap(body.Position.Y.Whole - 96)));
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
         rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromSignedRaw(-1024));
-        rock.Graphics = SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading);
+        rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         return true;
     }
 

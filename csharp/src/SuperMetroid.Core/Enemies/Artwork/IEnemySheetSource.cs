@@ -9,9 +9,9 @@ public interface IEnemySheetSource
     /// <exception cref="InvalidDataException">The set does not load that enemy.</exception>
     SpriteSheet For(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy);
 
-    /// <summary>The sheet graphics set <paramref name="set"/> draws the objects spawned at <paramref name="tileBase"/> from.</summary>
-    /// <exception cref="InvalidDataException">No spawner the set loads draws at that base.</exception>
-    SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase);
+    /// <summary>The sheet graphics set <paramref name="set"/> draws the objects <paramref name="owner"/> owns from.</summary>
+    /// <exception cref="InvalidDataException">The set installs no sheet for that owner.</exception>
+    SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner);
 
     /// <summary>The looks each encounter shows, whose pictures the sheets hold.</summary>
     EncounterLooks Looks { get; }
@@ -26,8 +26,8 @@ public interface IEnemySheetSource
     /// </summary>
     IReadOnlyList<LookRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
 
-    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
-    IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
+    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
+    IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
 
     /// <summary>
     /// The name of the kind of rotting corpse whose rot frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet
@@ -36,6 +36,6 @@ public interface IEnemySheetSource
     /// </summary>
     string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
 
-    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="tileBase"/>.</summary>
-    string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame);
+    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
+    string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
 }

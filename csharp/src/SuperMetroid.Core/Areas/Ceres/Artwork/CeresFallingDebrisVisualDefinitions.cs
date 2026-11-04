@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 
@@ -7,10 +8,10 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 internal static class CeresFallingDebrisVisualDefinitions
 {
     /// <summary>
-    /// The graphics the falling tiles draw in: character zero in the doors' escaping colours, which the tiles show
+    /// The graphics the falling tiles draw in: the shared sheet in the doors' escaping colours, which the tiles show
     /// because they fall only once Ridley has escaped (#1464, #1512).
     /// </summary>
-    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.CharacterZeroIn(CeresDoorShades.InEscapingColours);
+    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.SharedIn(CeresDoorShades.InEscapingColours);
 
     /// <summary>The projectile frame each frame of the family shows.</summary>
     internal static IReadOnlyDictionary<CeresFallingDebrisProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =

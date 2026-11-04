@@ -103,27 +103,26 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>
-    /// Publishes one spawned object's frame from the loaded graphics set's sheet for the tile base it draws at (#1392),
-    /// under the shading the object carries (#1512).
+    /// Publishes one spawned object's frame from the loaded graphics set's sheet of the owner its graphics name (#1392,
+    /// #1513), under the shading the object carries (#1512).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
     /// <param name="frame">The sheet frame's name.</param>
     /// <param name="origin">The frame origin on screen.</param>
-    /// <param name="tileBase">The tile base the object's parts draw at.</param>
-    /// <param name="shading">The shades and colour effects the object shows its picture in.</param>
+    /// <param name="graphics">Whose spawned-object sheet the object draws from, and the shading it shows its picture in.</param>
     /// <param name="rot">The rot the drawing encounter selected, which a frame drawn over a rotting corpse's rows shows; none for one that shows none.</param>
     /// <exception cref="InvalidDataException">
-    /// The set has no sheet for that tile base, or a frame showing a corpse's rot is drawn without that rot.
+    /// The set has no sheet for that owner, or a frame showing a corpse's rot is drawn without that rot.
     /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
-        int tileBase, PictureShading shading, CorpseRotView? rot = null)
+        SpriteGraphics graphics, CorpseRotView? rot = null)
     {
-        Ensure.NotNull(shading);
-        SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, tileBase);
-        foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, tileBase, frame),
-                     Sheets.SpawnedRotCorpse(LoadedSet, tileBase, frame), rot))
-            sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
+        SpawnedObjectOwner owner = graphics.Owner;
+        SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, owner);
+        foreach (string picture in Pictures(frame, Sheets.SpawnedLayers(LoadedSet, owner, frame),
+                     Sheets.SpawnedRotCorpse(LoadedSet, owner, frame), rot))
+            sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None) { Shading = graphics.Shading });
     }
 
     /// <summary>
@@ -155,8 +154,8 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>
-    /// Publishes a frame an encounter draws itself, outside the enemy list, at character index zero (#1392): from its
-    /// graphics set's character-zero spawned-object sheet.
+    /// Publishes a frame an encounter draws itself, outside the enemy list (#1392): from its graphics set's shared
+    /// spawned-object sheet.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
@@ -166,7 +165,7 @@ internal sealed class EnemyPresentation
     /// <param name="rot">The rot the encounter selected, which a frame drawn over its rotting rows shows; none for one that shows none.</param>
     internal void PublishEncounterFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemyFrameId frame,
         Position16<ScreenPixels> origin, PictureShading shading, CorpseRotView? rot = null) =>
-        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, 0, shading, rot);
+        PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, SpriteGraphics.SharedIn(shading), rot);
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(

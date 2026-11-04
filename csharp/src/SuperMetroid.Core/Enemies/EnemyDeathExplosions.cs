@@ -31,7 +31,7 @@ internal static class EnemyDeathExplosions
     /// <summary>
     /// The explosion a death started with a leftover number selects. A few deaths pass whatever number their routine
     /// ends with as the explosion: a Fireflea its remaining health, Kraid's spit rock the shared health accumulator
-    /// and Powamp its spike count. Zero through four select the explosions in their authored order and any higher
+    /// and a Powamp the one its spike burst selects (<see cref="PowampBurstExplosion"/>). Zero through four select the explosions in their authored order and any higher
     /// number the small explosion.
     /// </summary>
     internal static EnemyDeathExplosion ForLeftoverNumber(int number) =>

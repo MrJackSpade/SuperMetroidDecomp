@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainGlassShardDefinitions
 {
     /// <summary>
-    /// Graphics installed by the shard and sparkle initializers: from Mother Brain's object characters, in
+    /// Graphics installed by the shard and sparkle initializers: from the sheet of her tank glass's pieces, in
     /// <paramref name="shading"/>, the encounter's sprite colours, which hold the glass shards' colours her room's entry loads.
     /// </summary>
-    internal static SpriteGraphics Graphics(PictureShading shading) => new(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, shading);
+    internal static SpriteGraphics Graphics(PictureShading shading) => new(SpawnedObjectOwner.MotherBrainTankGlass, shading);
 
     /// <summary>
     /// The three horizontal emitter positions on the glass: right, half a block right of the PLM origin;

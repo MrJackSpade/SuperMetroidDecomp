@@ -371,20 +371,9 @@ internal sealed class EnemyProjectileEngine
             // The blank frame draws nothing.
             if (frame != EnemyProjectileFrameId.Blank)
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
-                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, ProjectileTileBase(projectile.Graphics),
-                    projectile.Graphics.Shading);
+                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
         }
     }
-
-    /// <summary>
-    /// The sheet character a projectile drawn with <paramref name="graphics"/> takes its parts from: the tile base's
-    /// position within its 256-character page, because a projectile's drawing reads only that part of the base its
-    /// spawner supplied. The spawned-object sheets are composed at the same character.
-    /// </summary>
-    internal static int ProjectileTileBase(SpriteGraphics graphics) => graphics.TileBase % ProjectileTilePageCharacters;
-
-    /// <summary>The characters one projectile tile page holds.</summary>
-    private const int ProjectileTilePageCharacters = 256;
 
     /// <summary>Searches the slots from the last down to the first and returns null when the finite pool is full.</summary>
     internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
@@ -943,7 +932,7 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             particle,
             kind,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         particle.Position = particle.Position.WithWhole(new(CoordinateAxis.Wrap(source.Position.X.Whole + xOffset), source.Position.Y.Whole));
         particle.Velocity = velocity;
     }

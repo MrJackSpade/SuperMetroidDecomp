@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 6;
+    public const int ManifestVersion = 7;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -104,27 +104,26 @@ public static class EnemySheetFiles
             }
         }
         var spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>();
-        foreach ((string set, Dictionary<string, SpawnedObjectSheetDocument> bases) in manifest.Spawned)
+        foreach ((string set, Dictionary<string, SpawnedObjectSheetDocument> owners) in manifest.Spawned)
         {
             SetRegions regions = setRegions.TryGetValue(set, out SetRegions? known) ? known
                 : throw new InvalidDataException($"Enemy sheet manifest spawns objects under graphics set {set}, which it installs no sheets for.");
-            foreach ((string baseText, SpawnedObjectSheetDocument entry) in bases)
+            foreach ((string ownerName, SpawnedObjectSheetDocument entry) in owners)
             {
-                if (!int.TryParse(baseText, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int tileBase))
-                    throw new InvalidDataException($"Enemy sheet manifest set {set} names spawned tile base {baseText}, not a decimal number.");
+                SpawnedObjectOwner owner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(ownerName);
                 EnemyDefinitionId[] spawners = [.. entry.Spawners.Select(name => Enum.TryParse(name, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
                     ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
                 SpriteSheet sheet = loaded[entry.Sheet];
-                Dictionary<string, CharacterRange[][]> framePictures = FramePictures(manifest.SpawnedPictures, set, baseText, regions);
-                Dictionary<string, string> frameRots = RotFrames(manifest.SpawnedRotPictures, set, baseText, setCorpses[set]);
+                Dictionary<string, CharacterRange[][]> framePictures = FramePictures(manifest.SpawnedPictures, set, ownerName, regions);
+                Dictionary<string, string> frameRots = RotFrames(manifest.SpawnedRotPictures, set, ownerName, setCorpses[set]);
                 if (!sheet.HoldsExactly(SpawnedObjectSheetComposer.FrameNames(spawners, entry.Anywhere).SelectMany(frame => PictureNames(frame,
                         regions, framePictures, frameRots, setCorpses[set], SpawnedObjectSheetComposer.ShowsRot(frame)))))
                     throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
-                spawned.Add(new SpawnedObjectSheetKey(set, tileBase), new SpawnedObjectSheet(sheet));
+                spawned.Add(new SpawnedObjectSheetKey(set, owner), new SpawnedObjectSheet(sheet));
                 if (framePictures.Count > 0)
-                    spawnedPictures.Add(new SpawnedObjectSheetKey(set, tileBase), Named(framePictures, regions));
+                    spawnedPictures.Add(new SpawnedObjectSheetKey(set, owner), Named(framePictures, regions));
                 if (frameRots.Count > 0)
-                    spawnedRotPictures.Add(new SpawnedObjectSheetKey(set, tileBase), frameRots);
+                    spawnedRotPictures.Add(new SpawnedObjectSheetKey(set, owner), frameRots);
             }
         }
         return new InstalledEnemySheets(new(sheets, pictures, rotPictures), new(spawned, spawnedPictures, spawnedRotPictures),

@@ -154,7 +154,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.CeresDoor];
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);

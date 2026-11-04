@@ -260,7 +260,7 @@ internal sealed class MotherBrainFakeDeath
         if (projectile is null)
             return;
 
-        MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.CharacterZeroIn(_motherBrainEncounter.Colours.SpriteShading));
+        MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.SharedIn(_motherBrainEncounter.Colours.SpriteShading));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.State = new MotherBrainTopTubeState();

@@ -118,7 +118,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 body,
                 RoomEnemyProjectileKind.YappingMawBody,
-                slot.Graphics);
+                SpriteGraphics.SpawnedBy(slot));
             body.Position = body.Position.WithWhole(slot.Position.Whole);
             body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? YappingMawBodyProjectileProgram.FacingDown
@@ -133,7 +133,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
-            slot.Graphics);
+            SpriteGraphics.SpawnedBy(slot));
 
         if (state.RootSpriteObject is null)
         {

@@ -3,9 +3,7 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>An enemy definition: its gameplay fields and how its room graphics set shows its tiles, as the import decodes its header.</summary>
-/// <param name="TileByteCount">The bytes of the enemy's tile set, which its room graphics set shows in the enemy tile area.</param>
-/// <param name="TilePlacement">Where the graphics set shows the tiles in the enemy tile area.</param>
+/// <summary>An enemy definition: its gameplay fields, as the import decodes its header.</summary>
 /// <param name="Health">Initial health in enemy damage units.</param>
 /// <param name="Damage">Contact-damage value before Samus damage-reduction rules.</param>
 /// <param name="Radius">Horizontal and vertical collision half-extents in room pixels.</param>
@@ -31,8 +29,6 @@ namespace SuperMetroid.Core.Enemies;
 /// The enemy's own vulnerabilities, or null when it takes the standard ones; <see cref="EnemyVulnerabilities.Of"/> resolves it.
 /// </param>
 public readonly record struct RoomEnemyDefinition(
-    int TileByteCount,
-    EnemyTilePlacement TilePlacement,
     int Health,
     int Damage,
     Extent16<RoomPixels> Radius,

@@ -83,7 +83,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Metroid.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
-        SpriteGraphics graphics = slot.Graphics;
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(slot);
         RoomSpriteObjectSlot outerBodyA = _spriteObjects.SpawnRoomSpriteObject(
             slot.Position.Whole,
             RoomSpriteObjectKind.MetroidOuterBodyA,
@@ -136,8 +136,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The ordinary body supplies the central map. Both outer objects are
         // repositioned and re-enabled every non-frozen main call, exactly after movement.
-        PositionMetroidOuterBody(state.OuterBodyA, slot, slot.Graphics);
-        PositionMetroidOuterBody(state.OuterBodyB, slot, slot.Graphics);
+        PositionMetroidOuterBody(state.OuterBodyA, slot, SpriteGraphics.SpawnedBy(slot));
+        PositionMetroidOuterBody(state.OuterBodyB, slot, SpriteGraphics.SpawnedBy(slot));
     }
 
     /// <summary>Ports proportional 16.16 attraction in <c>Metroid_Func_1</c>.</summary>

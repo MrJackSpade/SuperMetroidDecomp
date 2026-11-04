@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>One immutable terminated enemy graphics set.</summary>
+/// <summary>One immutable enemy graphics set: an ordered list of the members whose installed sheets its rooms draw from.</summary>
 /// <param name="name">The set's name.</param>
-/// <param name="records">The set's ordered records, retained without copying artwork pixels.</param>
-public sealed class RoomEnemyGraphicsSetDefinition(string name, RoomEnemyGraphicsSetHeader[] records)
+/// <param name="records">The set's ordered members.</param>
+public sealed class RoomEnemyGraphicsSetDefinition(string name, RoomEnemyGraphicsSetMember[] records)
 {
-    /// <summary>Catalog-owned four-byte records in the order the engine stages their tiles.</summary>
-    private readonly RoomEnemyGraphicsSetHeader[] staged = records;
+    /// <summary>Catalog-owned members in the set's order.</summary>
+    private readonly RoomEnemyGraphicsSetMember[] members = records;
     /// <summary>The set's name.</summary>
     public string Name { get; } = Ensure.NotNull(name);
-    /// <summary>Read-only view of catalog-owned members in staging order, excluding the terminator and trailing metadata; duplicate source associations and palette sharing are retained.</summary>
-    public ReadOnlyMemory<RoomEnemyGraphicsSetHeader> Records => staged;
+    /// <summary>Read-only view of catalog-owned members in the set's order; a member listed twice is retained twice.</summary>
+    public ReadOnlyMemory<RoomEnemyGraphicsSetMember> Records => members;
 }

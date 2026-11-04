@@ -83,11 +83,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
             slot.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
 
-        // Steam graphics are preloaded with the Ceres tileset and therefore use tile
-        // base zero. Both property changes are literal ORs performed by the initializer:
-        // normal instructions animate visibility, while extended maps supply per-frame art
-        // and collision boxes whose geometry cannot be represented by header radii.
-        slot.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.Steam];
+        // Both property changes are literal ORs performed by the initializer: normal instructions animate visibility,
+        // while extended maps supply per-frame art and collision boxes whose geometry cannot be represented by header radii.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);

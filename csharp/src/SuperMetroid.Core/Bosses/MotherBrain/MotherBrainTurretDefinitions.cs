@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -6,11 +7,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainTurretDefinitions
 {
     /// <summary>
-    /// Graphics installed by both projectile initializers: character zero in the Rinkas' colours, the standard colours
+    /// Graphics installed by both projectile initializers: the shared sheet in the Rinkas' colours, the standard colours
     /// of the sheet the import composes under Mother Brain's room's set, which loads them beside her (#1464, #1512). The
     /// turrets and their bullets exist only in the first phase, before the second phase's attack colours load.
     /// </summary>
-    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.CharacterZeroIn(PictureShading.Standard);
+    internal static SpriteGraphics Graphics { get; } = SpriteGraphics.SharedIn(PictureShading.Standard);
 
     /// <summary>Minimum random rotation delay the turret's rotation applies.</summary>
     internal const int MinimumRotationDelay = 32;

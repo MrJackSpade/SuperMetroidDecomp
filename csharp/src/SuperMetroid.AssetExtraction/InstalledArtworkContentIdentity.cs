@@ -38,18 +38,18 @@ internal static class InstalledArtworkContentIdentity
                 sheet.AppendIdentity(content);
             }
             foreach ((SpawnedObjectSheetKey key, SpawnedObjectSheet sheet) in installed.spawned.OrderBy(entry => entry.Key.Set, StringComparer.Ordinal)
-                         .ThenBy(entry => entry.Key.TileBase))
+                         .ThenBy(entry => SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), StringComparer.Ordinal))
             {
                 content.Append("spawned-set", System.Text.Encoding.UTF8.GetBytes(key.Set));
-                content.Append("tile-base", key.TileBase);
+                content.Append("owner", System.Text.Encoding.UTF8.GetBytes(SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(key.Owner)));
                 sheet.Sheet.AppendIdentity(content);
             }
             AppendPictures(content, "pictures", installed.pictures.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
             AppendPictures(content, "spawned-pictures", installed.spawnedPictures.Select(entry => new PictureOwner(entry.Key.Set,
-                entry.Key.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), entry.Value)));
+                SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
             AppendRotPictures(content, "rot-pictures", installed.rotPictures.Select(entry => new RotPictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
             AppendRotPictures(content, "spawned-rot-pictures", installed.spawnedRotPictures.Select(entry => new RotPictureOwner(entry.Key.Set,
-                entry.Key.TileBase.ToString(System.Globalization.CultureInfo.InvariantCulture), entry.Value)));
+                SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
         });
     }
 

@@ -748,7 +748,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 _spriteObjects.SpawnRoomSpriteObject(
                     new(WordWrap.Unsigned((_room.Random.Generate() & 31) + 232), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
-                    graphics: SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours));
+                    graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
@@ -763,7 +763,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     _spriteObjects.SpawnRoomSpriteObject(
                         new(WordWrap.Unsigned((_room.Random.Generate() & 63) + 224), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
-                        graphics: SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours));
+                        graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
                 }
             }
         }
@@ -899,7 +899,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             segment,
             RoomEnemyProjectileKind.BotwoonBody,
-            head.Graphics);
+            SpriteGraphics.SpawnedBy(head));
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         segment.Velocity = segment.Velocity.WithY(new SignedEightEight(0));
 
@@ -1013,7 +1013,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
-        segment.Graphics = SpriteGraphics.CharacterZeroIn(EnemyShades.InEnemyProjectileColours);
+        segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
@@ -1036,7 +1036,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spit,
             RoomEnemyProjectileKind.BotwoonSpit,
-            head.Graphics);
+            SpriteGraphics.SpawnedBy(head));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(BotwoonProjectileAnimation.Spit());
 

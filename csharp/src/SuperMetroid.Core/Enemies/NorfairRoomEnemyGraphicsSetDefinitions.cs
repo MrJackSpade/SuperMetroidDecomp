@@ -63,7 +63,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Ridley), [
             new(EnemyDefinitionId.Ridley),
-            new(EnemyDefinitionId.RidleyExplosion, StagingBlock: 2),
+            new(EnemyDefinitionId.RidleyExplosion),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PostCrocPowerBombs), [
         ]),
@@ -262,7 +262,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.ShutterShootable),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Crocomire), [
-            new(EnemyDefinitionId.Crocomire, StagingBlock: 1),
+            new(EnemyDefinitionId.Crocomire),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.LNElevSave), [
         ]),

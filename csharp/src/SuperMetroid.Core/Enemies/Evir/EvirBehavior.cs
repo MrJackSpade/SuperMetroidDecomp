@@ -152,10 +152,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallEvirInstruction(slot, state);
 
         RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
-        // The projectile definition has no graphics-set entry of its own. Copies the
-        // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
+        // The projectile definition has no graphics-set entry of its own; it shows the body's colours, and its sheet
+        // pictures it in the Evir's art.
         slot.Shading = body.Shading;
-        slot.TileIndexBase = body.TileIndexBase;
         ResetEvirProjectilePosition(slot, state);
 
         // Clears installed-list after having installed the normal list. That oddity

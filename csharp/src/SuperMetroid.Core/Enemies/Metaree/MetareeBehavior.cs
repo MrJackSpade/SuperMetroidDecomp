@@ -177,14 +177,13 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 : -MetareeHorizontalDiveSpeed));
     }
 
-    /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then saves graphics indexes to the spawn record and deletes the actor.</summary>
+    /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then shows the enemy projectile colours and deletes the actor.</summary>
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
     {
         state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
         if (state.BurrowTimer.IsZero)
         {
             slot.Shading = EnemyShades.InEnemyProjectileColours;
-            slot.TileIndexBase = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
             return;
         }
@@ -221,7 +220,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             static (MetareeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true));
 
-    /// <summary>Spawns four metal debris actors with the dying Metaree's graphics indexes before common shot death clears them.</summary>
+    /// <summary>Spawns four metal debris actors in the dying Metaree's colours before common shot death clears them.</summary>
     internal void AddMetareeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metaree &&
@@ -230,7 +229,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             BeforeGenericDeath = c =>
             {
                 _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
-                c.Enemy.TileIndexBase = 0;
                 c.Enemy.Shading = PictureShading.Standard;
             },
         });
@@ -247,7 +245,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.Enemy.Health != 0)
                     return;
                 _projectiles.SpawnMetalParticleBurst(c.Enemy, MetareeParticleDefinitions.Burst);
-                c.Enemy.TileIndexBase = 0;
                 c.Enemy.Shading = PictureShading.Standard;
             },
         });

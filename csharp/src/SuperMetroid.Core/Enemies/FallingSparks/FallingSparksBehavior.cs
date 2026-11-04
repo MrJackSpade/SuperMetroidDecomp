@@ -39,7 +39,7 @@ internal sealed class FallingSparksBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
 
         // The initializer zeros both ordinary velocity words, then takes a random number. The

@@ -138,17 +138,6 @@ public sealed class RoomEnemySlot
         internal set => field = Ensure.NotNull(value);
     } = PictureShading.Standard;
     /// <summary>
-    /// The sheet character the occupant's graphics start at, as its graphics set places them; the projectiles and sprite
-    /// objects it spawns draw from the spawned-object sheet composed at that character (#1471 keeps it for that reader).
-    /// </summary>
-    public int TileIndexBase
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-    /// <summary>The sheet characters and shading the enemy draws with, as the projectiles and sprite objects it spawns take them.</summary>
-    public SpriteGraphics Graphics => new(TileIndexBase, Shading);
-    /// <summary>
     /// The enemy's draw layer, initially the definition's: enemies draw layer by layer, and the draw queue takes the
     /// layer's lowest three bits, so it orders the enemy among the eight queues.
     /// </summary>
@@ -208,7 +197,6 @@ public sealed class RoomEnemySlot
         FrozenTimer = WrappingCountdown.Start(0);
         FlashTimer = WrappingCountdown.Start(0);
         Layer = 0;
-        TileIndexBase = 0;
         Shading = PictureShading.Standard;
         FrameCounter = 0;
         ShakeTimer = WrappingCountdown.Start(0);

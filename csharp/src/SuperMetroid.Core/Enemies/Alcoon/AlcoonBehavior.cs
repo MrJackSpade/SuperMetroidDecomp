@@ -447,7 +447,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,
-            alcoon.Graphics);
+            SpriteGraphics.SpawnedBy(alcoon));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingLeft
             ? WordWrap.Unsigned(-AlcoonFireballGraphicsHorizontalSpeed)

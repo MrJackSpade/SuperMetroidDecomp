@@ -303,7 +303,7 @@ internal sealed class KraidRise
         if (rock is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading));
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
@@ -313,7 +313,7 @@ internal sealed class KraidRise
             randomOffset = CoordinateAxis.AsSigned(~randomOffset);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
         rock.Velocity = new(SignedEightEight.Wrapped(random & 1008), SignedEightEight.FromSignedRaw(-1280));
-        rock.Graphics = SpriteGraphics.CharacterZeroIn(KraidColours.RocksShading);
+        rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }

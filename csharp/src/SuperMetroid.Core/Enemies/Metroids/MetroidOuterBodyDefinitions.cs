@@ -12,6 +12,6 @@ internal static class MetroidOuterBodyDefinitions
     /// <summary>The second outer body's frozen program, <c>InstList_SpriteObject_34_MetroidShell</c>.</summary>
     internal const RoomSpriteObjectProgram OuterBodyBFrozenProgram = RoomSpriteObjectProgram.MetroidShell;
 
-    /// <summary>The frozen outer bodies' graphics: character zero in the frozen colours.</summary>
-    internal static SpriteGraphics FrozenGraphics { get; } = SpriteGraphics.CharacterZeroIn(EnemyShades.FrozenLook);
+    /// <summary>The frozen outer bodies' graphics: the shared sheet in the frozen colours.</summary>
+    internal static SpriteGraphics FrozenGraphics { get; } = SpriteGraphics.SharedIn(EnemyShades.FrozenLook);
 }

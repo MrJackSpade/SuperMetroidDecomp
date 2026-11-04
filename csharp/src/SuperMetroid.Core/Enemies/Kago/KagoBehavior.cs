@@ -215,7 +215,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.KagoBug,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
 
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 

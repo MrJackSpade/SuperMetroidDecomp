@@ -11,10 +11,7 @@ internal static class EnemyTileSources
         EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetLists.All
             .SelectMany(set => set.Records.ToArray())
             .Select(record => record.DefinitionId).Distinct().Order()
-            .Select(definition => {
-                RoomEnemyDefinition header = RoomEnemyHeaders.Get(definition);
-                return new EnemyTileSourceDefinition(definition, header.TileByteCount);
-            }).ToArray();
+            .Select(definition => new EnemyTileSourceDefinition(definition, EnemyTileSetDefinitions.ByteCounts[definition])).ToArray();
         if (definitions.Length != EnemyTileArtworkFormat.RetailDefinitionCount)
             throw new InvalidDataException("Compiled enemy artwork sources differ from the installation's definition count.");
         return Array.AsReadOnly(definitions);

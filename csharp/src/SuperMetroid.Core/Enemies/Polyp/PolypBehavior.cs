@@ -167,7 +167,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.PolypRock,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.FrameBehavior = PolypRockFrameBehavior;
         projectile.State = new PolypRockState(initialYSpeed);

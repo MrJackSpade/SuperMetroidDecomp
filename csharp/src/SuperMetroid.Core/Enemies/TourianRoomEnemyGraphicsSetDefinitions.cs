@@ -27,7 +27,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.MotherBrain01), [
             new(EnemyDefinitionId.MotherBrainHead),
             new(EnemyDefinitionId.Rinka),
-            new(EnemyDefinitionId.MotherBrainBody, StagingBlock: 1),
+            new(EnemyDefinitionId.MotherBrainBody),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.TourianEyeDoor), [
         ]),

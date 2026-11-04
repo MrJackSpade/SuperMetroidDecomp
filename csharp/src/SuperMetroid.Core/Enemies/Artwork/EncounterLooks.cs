@@ -22,18 +22,18 @@ public sealed class EncounterLooks : ISpriteArtworkOverlap
     /// <summary>Where each look lands that is not a graphics-set member's: the encounter looks and the standard sprites.</summary>
     private readonly Dictionary<SpriteArtworkSource, PlacedLook> placed = [];
 
-    /// <summary>The sprite character the enemy tile area starts at, which a graphics-set member's tiles land after.</summary>
-    private readonly int enemyTilesFirstCharacter;
+    /// <summary>Where a graphics-set member's tiles land, which the import alone lays out (#1513).</summary>
+    private readonly Func<GraphicsSetTileCharacters, PlacedLook> memberLanding;
 
     /// <summary>The catalogue the import installs.</summary>
     /// <param name="encounterLooks">The encounter looks, each where it lands, in catalogue order.</param>
     /// <param name="looksByEnemy">Each enemy's encounter's looks, by the enemy whose graphics set loads the encounter.</param>
     /// <param name="standingLooks">The looks shown apart from encounters and graphics sets, each where it lands.</param>
-    /// <param name="enemyTilesFirstCharacter">The sprite character the enemy tile area starts at.</param>
+    /// <param name="memberLanding">Where a graphics-set member's tiles land.</param>
     /// <exception cref="InvalidDataException">An enemy's look is not catalogued, or a look lands at two places.</exception>
-    public EncounterLooks(IReadOnlyList<PlacedLook> encounterLooks,
+    internal EncounterLooks(IReadOnlyList<PlacedLook> encounterLooks,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkSource>> looksByEnemy,
-        IReadOnlyList<PlacedLook> standingLooks, int enemyTilesFirstCharacter)
+        IReadOnlyList<PlacedLook> standingLooks, Func<GraphicsSetTileCharacters, PlacedLook> memberLanding)
     {
         catalogue = [.. Ensure.NotNull(encounterLooks)];
         for (int place = 0; place < catalogue.Length; place++)
@@ -47,7 +47,7 @@ public sealed class EncounterLooks : ISpriteArtworkOverlap
                 : throw new InvalidDataException($"{enemy}'s encounter shows {look}, which is not catalogued at one place."))];
         foreach (PlacedLook standing in Ensure.NotNull(standingLooks))
             Place(standing);
-        this.enemyTilesFirstCharacter = Ensure.AtLeastZero(enemyTilesFirstCharacter);
+        this.memberLanding = Ensure.NotNull(memberLanding);
 
         void Place(PlacedLook look)
         {
@@ -92,19 +92,12 @@ public sealed class EncounterLooks : ISpriteArtworkOverlap
     /// <inheritdoc/>
     public bool Hides(SpriteArtworkSource later, SpriteArtworkSource earlier) => Landing(later).Covers(Landing(earlier));
 
-    /// <summary>Where <paramref name="look"/> lands: a graphics-set member's tiles after the enemy tile area's start, any other look where the catalogue places it.</summary>
-    /// <exception cref="InvalidDataException">The catalogue places no such look, or a member's tiles are not whole characters from a character's start.</exception>
+    /// <summary>Where <paramref name="look"/> lands: a graphics-set member's tiles where the import lays them out, any other look where the catalogue places it.</summary>
+    /// <exception cref="InvalidDataException">The catalogue places no such look.</exception>
     private PlacedLook Landing(SpriteArtworkSource look) => Ensure.NotNull(look) switch
     {
-        GraphicsSetTileCharacters member => new(look,
-            enemyTilesFirstCharacter + Characters(member.Entry.StagingOffset), Characters(member.Entry.TileByteCount)),
+        GraphicsSetTileCharacters member => memberLanding(member),
         _ => placed.TryGetValue(look, out PlacedLook? known) ? known
             : throw new InvalidDataException($"The installed catalogue places no {look} among the sprite characters."),
     };
-
-    /// <summary>The whole sprite characters <paramref name="byteCount"/> bytes hold.</summary>
-    /// <exception cref="InvalidDataException">The bytes are not whole characters.</exception>
-    private static int Characters(int byteCount) => byteCount % EnemyTileDataMasks.TileByteCount == 0
-        ? byteCount / EnemyTileDataMasks.TileByteCount
-        : throw new InvalidDataException($"{byteCount} bytes are not whole sprite characters.");
 }

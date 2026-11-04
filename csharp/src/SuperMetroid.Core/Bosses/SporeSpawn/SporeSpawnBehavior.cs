@@ -648,7 +648,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DeathDropRequested = true;
     }
     /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
-    private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.CharacterZeroIn((SporeSpawn
+    private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.SharedIn((SporeSpawn
         ?? throw new InvalidOperationException("Spore Spawn's spores spawn once Spore Spawn is loaded.")).Colours.Sprites);
 
     /// <summary>Spawns Spore Spawn's stalk projectile and runs its initializer.</summary>
@@ -663,7 +663,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
-            body.Graphics);
+            SpriteGraphics.SpawnedBy(body));
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
         stalk.Position = stalk.Position.WithWrappedWholeY(
@@ -683,7 +683,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
-            body.Graphics);
+            SpriteGraphics.SpawnedBy(body));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectiles.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);

@@ -13,9 +13,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="byEnemy">Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</param>
 /// <param name="standing">Where the looks shown apart from encounters and graphics sets land: the standard sprites.</param>
-/// <param name="enemyTilesFirstCharacter">The sprite character the enemy tile area starts at.</param>
 internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> byEnemy,
-    IReadOnlyList<SpriteArtworkPlacement> standing, int enemyTilesFirstCharacter)
+    IReadOnlyList<SpriteArtworkPlacement> standing)
 {
     /// <summary>Each enemy's encounter's uploads, by the enemy whose graphics set loads the encounter.</summary>
     private readonly IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyList<SpriteArtworkPlacement>> uploadsByEnemy = Ensure.NotNull(byEnemy);
@@ -43,7 +42,7 @@ internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinit
 
     /// <summary>
     /// The catalogue as Core installs it: every encounter look where it lands in catalogue order, each enemy's encounter's
-    /// looks, the standing looks and where the enemy tile area starts.
+    /// looks, the standing looks and where each graphics-set member's tiles land.
     /// </summary>
     internal EncounterLooks Looks => looks.Value;
 
@@ -51,7 +50,7 @@ internal sealed class EncounterCharacterCatalog(IReadOnlyDictionary<EnemyDefinit
     private readonly Lazy<EncounterLooks> looks = new(() => new EncounterLooks(
         [.. byEnemy.OrderBy(entry => entry.Key).SelectMany(entry => entry.Value).Distinct().Select(Installed)],
         byEnemy.ToDictionary(entry => entry.Key, entry => (IReadOnlyList<SpriteArtworkSource>)[.. entry.Value.Select(upload => upload.Source)]),
-        [.. standing.Select(Installed)], enemyTilesFirstCharacter));
+        [.. standing.Select(Installed)], member => Installed(EncounterCharacterPlacements.Placed(member))));
 
     /// <summary><paramref name="placement"/> as Core holds it.</summary>
     private static PlacedLook Installed(SpriteArtworkPlacement placement) =>

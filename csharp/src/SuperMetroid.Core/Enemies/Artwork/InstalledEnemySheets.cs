@@ -5,14 +5,15 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>
 /// The installed pre-coloured enemy sheets (#1392), by the room graphics set that loads an enemy and the enemy: the
 /// sheet shows the enemy's frames in the colours its colour set holds once that graphics set has loaded. Each set also has a
-/// sheet for each tile base its spawned objects (enemy projectiles and room sprite objects) draw at.
+/// sheet for each owner of the objects it spawns (enemy projectiles and room sprite objects): its shared sheet and each
+/// spawner's (#1513).
 /// </summary>
 public sealed class InstalledEnemySheets : IEnemySheetSource
 {
     /// <summary>Each set's sheet for each of its enemies.</summary>
     internal readonly Dictionary<EnemySheetKey, SpriteSheet> sheets;
 
-    /// <summary>Each set's spawned-object sheet for each tile base.</summary>
+    /// <summary>Each set's spawned-object sheet for each owner.</summary>
     internal readonly Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet> spawned;
 
     /// <summary>Each set's enemy sheets' frames drawn over characters its encounters upload, and the layers they draw as.</summary>
@@ -30,7 +31,7 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     private readonly Dictionary<string, SetLookCoverage> coverage;
 
     /// <summary>
-    /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and tile base, with the regions
+    /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and owner, with the regions
     /// each of their frames drawn over encounter looks draws as, the kind of corpse whose rot each of their frames drawn
     /// over a rotting corpse's rows shows, and the encounter looks the pictures show.
     /// </summary>
@@ -65,8 +66,8 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
             && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
 
     /// <inheritdoc/>
-    public string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame) =>
-        spawnedRotPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, tileBase), out IReadOnlyDictionary<string, string>? frames)
+    public string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame) =>
+        spawnedRotPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, string>? frames)
             && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
 
     /// <inheritdoc/>
@@ -75,8 +76,8 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
             && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
 
     /// <inheritdoc/>
-    public IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame) =>
-        spawnedPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, tileBase), out IReadOnlyDictionary<string, LookRegion[][]>? frames)
+    public IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame) =>
+        spawnedPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, LookRegion[][]>? frames)
             && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
 
     /// <inheritdoc/>
@@ -89,11 +90,11 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
             : throw new InvalidDataException($"Enemy graphics set {set} installs no sheet for {enemy}.");
 
     /// <inheritdoc/>
-    public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, int tileBase) => Spawned(Ensure.NotNull(set).Name, tileBase);
+    public SpawnedObjectSheet Spawned(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner) => Spawned(Ensure.NotNull(set).Name, owner);
 
-    /// <summary>The sheet graphics set <paramref name="set"/> draws the objects spawned at <paramref name="tileBase"/> from.</summary>
-    /// <exception cref="InvalidDataException">No spawner the set loads draws at that base.</exception>
-    public SpawnedObjectSheet Spawned(string set, int tileBase) =>
-        spawned.TryGetValue(new SpawnedObjectSheetKey(set, tileBase), out SpawnedObjectSheet? sheet) ? sheet
-            : throw new InvalidDataException($"Enemy graphics set {set} installs no spawned-object sheet for tile base ${tileBase:X3}.");
+    /// <summary>The sheet graphics set <paramref name="set"/> draws the objects <paramref name="owner"/> owns from.</summary>
+    /// <exception cref="InvalidDataException">The set installs no sheet for that owner.</exception>
+    public SpawnedObjectSheet Spawned(string set, SpawnedObjectOwner owner) =>
+        spawned.TryGetValue(new SpawnedObjectSheetKey(set, owner), out SpawnedObjectSheet? sheet) ? sheet
+            : throw new InvalidDataException($"Enemy graphics set {set} installs no spawned-object sheet for {owner}.");
 }

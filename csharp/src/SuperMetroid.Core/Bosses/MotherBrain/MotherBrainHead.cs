@@ -67,7 +67,6 @@ internal sealed class MotherBrainHead
         // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
         // The visible brain runs a separate program.
         head.FrameHold = WrappingCountdown.Start(1);
-        head.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainHead];
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         state.Head = head;
@@ -417,7 +416,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             bomb,
             RoomEnemyProjectileKind.MotherBrainBomb,
-            graphics: SpriteGraphics.CharacterZeroIn(state.Colours.SpriteShading));
+            graphics: SpriteGraphics.SharedIn(state.Colours.SpriteShading));
         RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
 
@@ -446,7 +445,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
-            graphics: SpriteGraphics.CharacterZeroIn(state.Colours.SpriteShading));
+            graphics: SpriteGraphics.SharedIn(state.Colours.SpriteShading));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
         ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(

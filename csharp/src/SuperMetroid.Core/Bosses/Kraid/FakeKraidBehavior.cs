@@ -259,7 +259,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FakeKraidSpit,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xOffset), -16));
@@ -284,7 +284,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             kind,
-            source.Graphics);
+            SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? FakeKraidProjectilePose.SpikeLeft
             : FakeKraidProjectilePose.SpikeRight));

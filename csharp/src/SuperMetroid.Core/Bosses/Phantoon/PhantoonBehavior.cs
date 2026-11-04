@@ -129,7 +129,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.FrameHold = WrappingCountdown.Start(1);
         part.Timer = WrappingCountdown.Start(0);
         part.Shading = state.Body.Shading;
-        part.TileIndexBase = state.Body.TileIndexBase;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
         PhantoonPartState partState = state.Parts[part.SlotIndex];
         partState.StartPart();

@@ -4,7 +4,7 @@ using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedBg2ReferenceVerification;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
@@ -118,7 +118,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
             newInstructionFrame: true);
-        var noCartridge = NewFrontendCartridgeReadGuard(rom);
+        var noCartridge = NewCartridgeReadGuard(rom);
         byte[] stockVram = DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: true);
         byte[] editedVram = DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: true);
         AssertTrue(nativeVram.SequenceEqual(stockVram),

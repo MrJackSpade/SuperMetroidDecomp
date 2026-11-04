@@ -5,7 +5,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSaveStartupVerification;
-using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
+using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
@@ -91,7 +91,7 @@ internal static class GunshipInstalledCompositionsVerification
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game = new SuperMetroidGame(new SaveSlotStore());
-        PrepareRomFreeBindings(installation, enemyArtwork)(game, true);
+        BindInstalledArtwork(installation, enemyArtwork)(game, true);
         game.BindArtwork(game.Artwork with
         {
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),

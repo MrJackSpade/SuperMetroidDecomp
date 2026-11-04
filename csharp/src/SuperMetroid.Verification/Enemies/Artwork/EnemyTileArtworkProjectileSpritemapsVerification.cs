@@ -937,11 +937,27 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 }
                 if (EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Any(manifest => manifest.OperandAddress == frame.OperandAddress))
                 {
-                    AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
-                            .LowTable.SequenceEqual(DrawSharedFrame(artwork,
-                                frame.OperandAddress,
-                                NewEnemyProjectileVisualGuard(bus)).LowTable),
-                        $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads");
+                    EnemyProjectileFrameId shown = EnemyProjectileProgramFrameOperands.Frame(frame.OperandAddress);
+                    if (SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(shown))
+                    {
+                        AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
+                                .LowTable.SequenceEqual(DrawSharedFrame(artwork,
+                                    frame.OperandAddress,
+                                    NewEnemyProjectileVisualGuard(bus)).LowTable),
+                            $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads");
+                    }
+                    else
+                    {
+                        // A frame only some enemy spawns is drawn as the game draws it: from that spawner's set, at an
+                        // artwork step it is drawn, under each graphics the spawner spawns it with (#1513).
+                        foreach ((SpriteGraphics graphics, Func<RoomEnemySystem, ushort> word, EnemyDefinitionId spawner) in SpawnerDraws(shown))
+                        {
+                            RoomEnemySystem system = SpawnerSystem(artwork, spawner, shown);
+                            AssertTrue(DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system))
+                                    .LowTable.SequenceEqual(DrawSpawnerFrame(system, frame.OperandAddress, graphics).LowTable),
+                                $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}");
+                        }
+                    }
                 }
             }
         }
@@ -1034,6 +1050,62 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
             return enemies;
+        }
+
+        // The native frame under a graphics word: the tile base and the row the game's draw ORs into every part.
+        static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)
+        {
+            ushort pointer = ReadNativeEnemyProjectileProgramWord(source, operand);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96), word, originYIsOnScreen: true);
+            return oam;
+        }
+
+        // Each way a spawner draws a frame only it spawns: from its sets' shared sheet when it spawns the frame with room
+        // graphics, from its own sheet when it spawns it with its own; the first spawner a retail room draws.
+        static IEnumerable<(SpriteGraphics Graphics, Func<RoomEnemySystem, ushort> Word, EnemyDefinitionId Spawner)> SpawnerDraws(EnemyProjectileFrameId frame)
+        {
+            var tables = SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.SharedByEnemy
+                .Where(pair => pair.Value.Projectiles.Contains(frame) && SpawnedObjectFixtures.Drawn(pair.Key)).Select(pair => (pair.Key, Shared: true))
+                .Concat(SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.ByEnemy
+                    .Where(pair => pair.Value.Projectiles.Contains(frame) && SpawnedObjectFixtures.Drawn(pair.Key)).Select(pair => (pair.Key, Shared: false)))
+                .ToList();
+            if (tables.Count == 0)
+                throw new InvalidOperationException($"No retail-drawn enemy spawns projectile frame {frame}.");
+            if (tables.FirstOrDefault(table => table.Shared) is { Key: var sharer } && tables.Any(table => table.Shared))
+                yield return (SpawnedGraphics, _ => NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics, SpawnedGraphics.FixedPaletteRow), sharer);
+            if (tables.FirstOrDefault(table => !table.Shared) is { Key: var owner } && tables.Any(table => !table.Shared))
+                yield return (new SpriteGraphics(SpawnedObjectOwner.Of(owner), PictureShading.Standard),
+                    system => NativeSpriteGraphicsWords.GraphicsWord(system.GraphicsSet.TileBaseOf(owner), system.GraphicsSet.DrawRow(owner)), owner);
+        }
+
+        // The spawner's set loaded, its artwork sequences at a step where the frame is drawn.
+        static RoomEnemySystem SpawnerSystem(InstalledEnemyArtwork artwork, EnemyDefinitionId spawner, EnemyProjectileFrameId frame)
+        {
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
+            SuperMetroid.AssetExtraction.Enemies.FrameDrawings drawings = SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame);
+            foreach (EncounterArtworkSequence sequence in Enum.GetValues<EncounterArtworkSequence>())
+            {
+                if (drawings.For(sequence) is { DrawnBeforeFirstStep: false, Steps: [var first, ..] })
+                    enemies.Room.Session.ArtworkProgress.Show(sequence, first.First);
+            }
+            return enemies;
+        }
+
+        // The frame drawn from the loaded set's sheets under the spawner's graphics.
+        static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, ushort presentationKey, SpriteGraphics graphics)
+        {
+            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
+            slot.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
+            slot.Position = slot.Position.WithWhole(new(128, 96));
+            slot.Graphics = graphics;
+            slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
+            return oam;
         }
 
         static OamBuffer DrawSharedFrame(InstalledEnemyArtwork artwork,

@@ -122,22 +122,35 @@ internal sealed class SpawnAnalysis
         {
             foreach ((PendingKey key, Collected spawns) in walk.Pending)
             {
-                IReadOnlySet<Destination> destinations = resolver.Resolve(key);
+                var destinations = new HashSet<Destination>(resolver.Resolve(key));
+                // Graphics copied from the walk's own objects may also be those its behaviour's handlers switch them to.
+                if (walk.Behaviour is { } owner && destinations.Count > 0)
+                    destinations.UnionWith(resolver.ReassignedFor(owner));
                 if (destinations.Count == 0)
                     unreadable.Add($"{walk.PendingSites[key]}: graphics {Describe(key)} reach no sheet: no code spawning with a readable sheet decides them");
                 foreach (Destination destination in destinations)
                     Merge(sheets.Of(destination), spawns);
             }
         }
-        foreach ((INamedTypeSymbol type, IReadOnlySet<Destination> destinations) in resolver.Reassignments())
+        foreach ((INamedTypeSymbol scope, IReadOnlySet<Destination> destinations) in resolver.Reassignments())
         {
+            bool linked = false;
             foreach (Walk walk in spawnWalks)
             {
-                if (!walk.EvidenceByType.TryGetValue(type, out Collected? evidence))
-                    continue;
-                foreach (Destination destination in destinations)
-                    Merge(sheets.Of(destination), evidence);
+                // A behaviour's handlers switch the graphics of whatever its walk spawns; outside every behaviour, of what
+                // the switching code's type spawns.
+                IEnumerable<Collected> evidence = SymbolEqualityComparer.Default.Equals(walk.Behaviour, scope)
+                    ? walk.EvidenceByType.Values
+                    : walk.EvidenceByType.TryGetValue(scope, out Collected? typed) ? [typed] : [];
+                foreach (Collected spawned in evidence)
+                {
+                    linked = true;
+                    foreach (Destination destination in destinations)
+                        Merge(sheets.Of(destination), spawned);
+                }
             }
+            if (!linked)
+                unreadable.Add($"{scope.ToDisplayString()}: graphics its handlers switch to ({string.Join(", ", destinations)}) reach no spawn the generator can link");
         }
         // The self-check: every spawn with copied or handed-on graphics is on every sheet the code deciding them names (a
         // falling spark's trail on the sheet of whoever spawned the spark), and no spawn's graphics are unreadable.
@@ -244,6 +257,18 @@ internal sealed class SpawnAnalysis
         Merge(result, collected);
         foreach (INamedTypeSymbol family in collected.Families)
             Merge(result, Closure(family, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)));
+        // The self-check: a sheet holding a family holds every frame its programs can show (its walk's frames and the
+        // families it spawns in turn), so a family routed to a sheet without its later frames fails here rather than when
+        // it draws.
+        var incomplete = new List<string>();
+        foreach (INamedTypeSymbol family in result.Families)
+        {
+            Collected closure = Closure(family, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
+            if (!closure.ProjectileFrames.IsSubsetOf(result.ProjectileFrames) || !closure.SpriteObjects.IsSubsetOf(result.SpriteObjects))
+                incomplete.Add($"{family.ToDisplayString()} is routed to a sheet missing some of its frames");
+        }
+        if (incomplete.Count > 0)
+            throw new InvalidDataException("Projectile families incomplete on a sheet:\n" + string.Join('\n', incomplete.Distinct()));
         return result;
     }
 

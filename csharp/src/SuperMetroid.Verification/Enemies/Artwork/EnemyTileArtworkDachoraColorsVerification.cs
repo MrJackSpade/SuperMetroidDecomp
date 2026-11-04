@@ -24,9 +24,9 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
     /// <summary>Exercises edited RGB5 colors through live CGRAM updates while preserving phase and next-frame selection.</summary>
     internal static void VerifyInstalledDachoraColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileSourceArtwork stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        DachoraColorCatalog native = stock.DachoraColors ??
+        DachoraColorCatalog native = stock.Enemies.DachoraColors ??
             throw new InvalidDataException("Installed enemy art has no Dachora colors.");
         Suite(nameof(VerifyFrame), () => VerifyFrame(DachoraPalettePhase.Default, 0));
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, DachoraColorFormat.FileName);
         File.WriteAllBytes(overrideFile, DachoraColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { DachoraColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).DachoraColors() });
         DachoraColorCatalog colors = edited.Enemies.DachoraColors ??
             throw new InvalidDataException("Edited enemy art has no Dachora colors.");
         CheckEditedFrame(DachoraPalettePhase.Default, 0);
@@ -69,8 +69,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             CheckEditedFrame(DachoraPalettePhase.Shine, frame);
         }
         AssertEqual(colors.Resolve(DachoraPalettePhase.Shine, 3, 5),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Enemies.DachoraColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DachoraColors.")).Resolve(DachoraPalettePhase.Shine, 3, 5),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).DachoraColors().Resolve(DachoraPalettePhase.Shine, 3, 5),
             "Dachora color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -115,19 +114,19 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).DachoraColors(),
             "invalid Dachora color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).DachoraColors(),
             "duplicate Dachora color property fails loudly");
         visual.Speed[0][5] = visual.Speed[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => DachoraColorFile.Read(new MemoryStream(DachoraColorFile.Write(visual))),
             "Dachora RGB5 channel outside five-bit precision is rejected");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).DachoraColors(),
             "corrupt stock Dachora colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Dachora colors: 144 native RGB5 words, eight compiled selector pointers, live speed/shine phase selection, persistent override, ROM guard and strict failures pass.");

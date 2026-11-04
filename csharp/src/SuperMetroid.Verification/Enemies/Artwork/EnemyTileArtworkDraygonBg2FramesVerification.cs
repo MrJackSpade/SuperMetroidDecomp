@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -99,7 +100,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         byte[] original = File.ReadAllBytes(stockPath);
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, null),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, null).DraygonBg2Frames(),
             "stock Draygon BG2 frames are manifest-hash checked");
         File.WriteAllBytes(stockPath, original);
 
@@ -118,8 +119,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             DraygonBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { DraygonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).DraygonBg2Frames() } };
         AssertTrue((edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "edited Draygon BG2 frame is installed");
@@ -130,8 +130,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon visual override changes the live BG2 tile word");
         AssertTrue(DrawDraygonBg2(edited, editedIdentity.Pointer, false).All(value => value == 0),
             "Draygon override preserves the native new-frame producer gate");
-        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { DraygonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).DraygonBg2Frames() } };
         AssertTrue((reloaded.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Words[0] == (ushort)changedTile,
@@ -147,7 +146,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         AssertTrue(DraygonBg2FrameDefinitions.Frames.All(frame => !legacyOverride.Frames.ContainsKey(frame.Name)),
             "the revision-2 Draygon BG2 fixture names no frame by its semantic name");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(legacyOverride, CamelCaseJson));
-        InstalledEnemyArtwork legacyEdited = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork legacyEdited = stock with { Bosses = stock.Bosses with { DraygonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).DraygonBg2Frames() } };
         foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             bool legacyInstalled = (legacyEdited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires legacyEdited.DraygonBg2Frames.")).TryGet(frame.Frame,
@@ -259,8 +258,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // His fight attaches the body layer his body frames draw on.
-        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets."), BossBodyOwner.Draygon);
+        BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Draygon);
         enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);

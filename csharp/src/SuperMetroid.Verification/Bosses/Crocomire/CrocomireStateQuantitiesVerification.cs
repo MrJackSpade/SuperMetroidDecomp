@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -340,8 +341,7 @@ internal static class CrocomireStateQuantitiesVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
         // Crocomire's initialisation attaches the body layer his sink clears rows of (#1446, #1466).
-        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets."));
+        _ = BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);

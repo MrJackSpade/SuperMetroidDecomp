@@ -494,7 +494,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapDocuments.Write(document));
-        InstalledEnemyArtwork editedArt = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork editedArt = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         EnemyProjectileSpritemapCatalog edited = (editedArt.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires editedArt.ProjectileSpritemaps."));
         var originalOam = new OamBuffer();
         var editedOam = new OamBuffer();
@@ -633,7 +633,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "a partial version-one composition cannot stand alone as stock content");
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), legacyJson);
-        InstalledEnemyArtwork migrated = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migrated = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawBurst(migrated,
                 SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
             .LowTable.SequenceEqual(stockBurst.LowTable),
@@ -652,7 +652,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTwoJson);
-        InstalledEnemyArtwork migratedV2 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV2 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawBurst(migratedV2,
                 SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
             .LowTable.SequenceEqual(editedBurst.LowTable),
@@ -674,7 +674,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionThreeJson);
-        InstalledEnemyArtwork migratedV3 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV3 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawSharedFrame(migratedV3, editableProgramFrame.OperandAddress,
                 NewEnemyProjectileVisualGuard(bus)).LowTable
             .SequenceEqual(DrawSharedFrame(editedArt, editableProgramFrame.OperandAddress,
@@ -703,7 +703,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
-        InstalledEnemyArtwork migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV4 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawProgramFrame(migratedV4, ceresOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
@@ -730,7 +730,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
-        InstalledEnemyArtwork migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV5 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawProgramFrame(migratedV5, alcoonOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable
@@ -764,7 +764,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
-        InstalledEnemyArtwork migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV6 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawProgramFrame(migratedV6, goldenMissileOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable
@@ -791,7 +791,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
-        InstalledEnemyArtwork migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV7 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         AssertTrue(DrawProgramFrame(migratedV7, goldenEggOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
@@ -821,7 +821,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionEightJson);
-        InstalledEnemyArtwork migratedV8 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV8 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         ushort editedTorizoOperand = torizoEditableOperands["Chozo orb"];
         AssertTrue(DrawProgramFrame(migratedV8, editedTorizoOperand,
                 NewEnemyProjectileVisualGuard(bus),
@@ -852,7 +852,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionNineJson);
-        InstalledEnemyArtwork migratedV9 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV9 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         ushort editedDeathOperand = genericDeathEditableOperands["enemy death"];
         AssertTrue(DrawProgramFrame(migratedV9, editedDeathOperand,
                 NewEnemyProjectileVisualGuard(bus),
@@ -883,7 +883,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTenJson);
-        InstalledEnemyArtwork migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV10 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
         ushort editedEnvironmentOperand = environmentEditableOperands["falling spark"];
         AssertTrue(DrawProgramFrame(migratedV10, editedEnvironmentOperand,
                 NewEnemyProjectileVisualGuard(bus),

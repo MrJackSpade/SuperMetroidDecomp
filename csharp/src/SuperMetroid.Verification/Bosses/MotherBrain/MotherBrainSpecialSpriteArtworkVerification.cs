@@ -85,7 +85,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             string overridePath = Path.Combine(overrideDirectory, sheet.FileName);
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainSpecialSprites = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainSpecialSprites() } };
             SnesVram editedVram = ShowMotherBrainSpecialPages(edited,
                 sheet);
             int firstDestination = ShownByte(sheet.FirstCharacter);
@@ -97,15 +97,14 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
                     MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)),
                 $"{sheet.FileName} edit leaves neighboring bytes unchanged");
-            RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.Sheet);
+            RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainSpecialSprites().Get(sheet.Sheet);
             AssertTrue(reloaded.Characters.Span.SequenceEqual(
                     (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.Sheet).Characters.Span),
                 $"{sheet.FileName} override survives catalog reload");
 
             File.WriteAllBytes(overridePath, [0]);
             AssertThrows<InvalidDataException>(
-                () => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                () => EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainSpecialSprites(),
                 $"malformed {sheet.FileName} override fails explicitly");
         }
 

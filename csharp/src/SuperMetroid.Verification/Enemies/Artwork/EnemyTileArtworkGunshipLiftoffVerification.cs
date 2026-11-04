@@ -86,7 +86,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
         }
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { GunshipLiftoff = EnemyTileArtworkFiles.Open(directory, overrides).GunshipLiftoff() });
         runtime.EnemySession.TileArtwork = edited.Enemies;
         runtime.BossArtwork.Artwork = edited.Bosses;
         byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime)), RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
@@ -95,16 +95,16 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         AssertTrue(editedPage.AsSpan(..pagesByte).SequenceEqual(installedPage.AsSpan(..pagesByte)) &&
             editedPage.AsSpan((pagesByte + 1)..).SequenceEqual(installedPage.AsSpan((pagesByte + 1)..)),
             "gunship PNG edit changes only its selected planar pixel");
-        AssertTrue(EnemyTileArtworkFiles.Load(directory, overrides).Enemies.GunshipLiftoff is not null,
+        AssertTrue(EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { GunshipLiftoff = EnemyTileArtworkFiles.Open(directory, overrides).GunshipLiftoff() }).Enemies.GunshipLiftoff is not null,
             "gunship PNG override survives reload");
 
         File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).GunshipLiftoff(),
             "corrupt stock gunship frame fails its manifest hash");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(directory, overrides),
+            () => EnemyTileArtworkFiles.Open(directory, overrides).GunshipLiftoff(),
             "malformed gunship override fails loudly");
         Console.WriteLine(
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +

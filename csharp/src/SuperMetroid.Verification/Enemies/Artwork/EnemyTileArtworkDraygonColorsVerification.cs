@@ -62,7 +62,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, DraygonColorFormat.FileName);
         File.WriteAllBytes(overrideFile, DraygonColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { DraygonColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors() } };
         DraygonColorCatalog colors = edited.Bosses.DraygonColors ??
             throw new InvalidDataException("Edited enemy art has no Draygon colors.");
         CheckEditedBand(DraygonColorDefinitions.IntroCount,
@@ -84,8 +84,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     colors.ResolveHealthBand(band, color),
                     $"Draygon health band {band} color {color} remains unchanged");
         AssertEqual(colors.ResolveHealthBand(1, 1),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.DraygonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DraygonColors.")).ResolveHealthBand(1, 1),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors().ResolveHealthBand(1, 1),
             "Draygon color override survives catalog reload");
 
         // Invoke the actual body initializer and hurt program with the visual source
@@ -161,19 +160,19 @@ internal static class EnemyTileArtworkDraygonColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors(),
             "invalid Draygon color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors(),
             "duplicate Draygon color property fails loudly");
         visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
             "reading Draygon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).DraygonColors(),
             "corrupt stock Draygon colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, persistent override, ROM guard, and strict failures pass.");

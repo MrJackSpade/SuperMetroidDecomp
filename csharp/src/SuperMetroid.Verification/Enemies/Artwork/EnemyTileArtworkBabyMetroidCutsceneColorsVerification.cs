@@ -65,7 +65,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         string overrideFile = Path.Combine(overrides,
             BabyMetroidCutsceneColorFormat.FileName);
         File.WriteAllBytes(overrideFile, BabyMetroidCutsceneColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { BabyMetroidCutsceneColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors() } };
         BabyMetroidCutsceneColorCatalog colors = edited.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Edited enemy art has no cutscene Baby colors.");
         AssertTrue(native.InitialColor(5) != colors.InitialColor(5),
@@ -80,8 +80,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
                 $"cutscene Baby fade {index} adjacent color stays native");
         }
         AssertEqual(colors.FadeColor(6, 5),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.BabyMetroidCutsceneColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BabyMetroidCutsceneColors.")).FadeColor(6, 5),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors().FadeColor(6, 5),
             "cutscene Baby color override survives catalog reload");
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
@@ -117,12 +116,12 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors(),
             "invalid cutscene Baby color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BabyMetroidCutsceneColors(),
             "duplicate cutscene Baby color property fails loudly");
         visual.Fade[0][5] = visual.Fade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
@@ -130,7 +129,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             "reading cutscene Baby colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).BabyMetroidCutsceneColors(),
             "corrupt stock cutscene Baby colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Cutscene Baby colors: 99 native RGB5 words, six selectors, live initial/fade CGRAM, persistent override, ROM guard and strict failures pass.");

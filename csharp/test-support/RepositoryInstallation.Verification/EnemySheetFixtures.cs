@@ -18,8 +18,20 @@ internal static class EnemySheetFixtures
     /// <summary>The installation's stock artwork, whose enemies a fixture's replace.</summary>
     private static readonly Lazy<EnemySheetInputs> inputs = new(() => EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
 
+    /// <summary>The installation's stock artwork the import composes enemy sheets from, loaded once per process.</summary>
+    internal static EnemySheetInputs Inputs => inputs.Value;
+
     /// <summary>Sheets already composed, by enemy artwork.</summary>
     private static readonly ConditionalWeakTable<EnemyTileSourceArtwork, ComposedOnDemand> composed = new();
+
+    /// <summary>
+    /// Sheets already composed, by the content of the artwork they were composed from: artwork loaded again with the same
+    /// content draws from the sheets composed for the first, for as long as artwork of that content lives.
+    /// </summary>
+    private static readonly Dictionary<string, WeakReference<ComposedOnDemand>> composedByContent = new(StringComparer.Ordinal);
+
+    /// <summary>The content of the installation's enemy artwork, whose enemies draw from the installed sheets.</summary>
+    private static readonly Lazy<string> stockContent = new(() => inputs.Value.Enemies.ContentIdentity);
 
     /// <summary>Each graphics set's characters as the import composes its pictures from them, by set, composed once.</summary>
     private static readonly Dictionary<RoomEnemyGraphicsSetDefinition, SetCharacters> characters = [];
@@ -45,8 +57,20 @@ internal static class EnemySheetFixtures
     internal static IEnemySheetSource For(EnemyTileSourceArtwork enemies)
     {
         ArgumentNullException.ThrowIfNull(enemies);
-        return composed.GetValue(enemies, key => new ComposedOnDemand(inputs.Value with { Enemies = key },
-            key.ContentIdentity == inputs.Value.Enemies.ContentIdentity ? InstalledFixtures.EnemySheets : null));
+        return composed.GetValue(enemies, key =>
+        {
+            string content = key.ContentIdentity;
+            lock (composedByContent)
+            {
+                if (composedByContent.TryGetValue(content, out WeakReference<ComposedOnDemand>? earlier) &&
+                    earlier.TryGetTarget(out ComposedOnDemand? sheets))
+                    return sheets;
+                sheets = new ComposedOnDemand(inputs.Value with { Enemies = key },
+                    content == stockContent.Value ? InstalledFixtures.EnemySheets : null);
+                composedByContent[content] = new WeakReference<ComposedOnDemand>(sheets);
+                return sheets;
+            }
+        });
     }
 
     /// <summary>

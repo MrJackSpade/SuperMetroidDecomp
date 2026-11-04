@@ -44,8 +44,7 @@ internal static class DraygonTilemapProductionVerification
             Pose = SamusPoseId.FacingRightNormalPose };
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
-        BossBodySheets sheets = RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        BossBodySheets sheets = InstalledFixtures.BossBodySheets;
         enemies.BossArtworkBinding.BodySheets = sheets;
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram)) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");

@@ -192,23 +192,43 @@ internal static class AudioInstrumentsVerification
         JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
     }
 
-    /// <summary>Copies extracted audio assets into a private tree before mutating instrument definitions.</summary>
+    /// <summary>
+    /// Copies the extracted synthesis assets, the audio manifest and the streams and samples it names, into a private tree
+    /// before mutating its definitions. The pre-rendered clips beside them, hundreds of megabytes the synthesis catalog
+    /// never reads, are not copied; a manifest entry naming a clip file would fail the private catalog's load loudly.
+    /// </summary>
     internal static void CopyAudioDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);
         foreach (string directory in Directory.EnumerateDirectories(
             source, "*", SearchOption.AllDirectories))
         {
+            if (IsClipLibrary(Path.GetRelativePath(source, directory)))
+                continue;
             Directory.CreateDirectory(Path.Combine(
                 destination, Path.GetRelativePath(source, directory)));
         }
         foreach (string file in Directory.EnumerateFiles(
             source, "*", SearchOption.AllDirectories))
         {
+            string relative = Path.GetRelativePath(source, file);
+            if (IsClipLibrary(relative) || relative == InstalledAudioClips.ManifestFileName)
+                continue;
             File.Copy(
                 file,
-                Path.Combine(destination, Path.GetRelativePath(source, file)));
+                Path.Combine(destination, relative));
         }
+
+        // Whether a path beneath the audio directory lies in the pre-rendered music or sound-effect clips.
+        static bool IsClipLibrary(string relative)
+        {
+            string path = relative.Replace(Path.DirectorySeparatorChar, '/');
+            return Within(path, AudioClipExporter.MusicDirectory) || Within(path, AudioClipExporter.SoundEffectDirectory);
+        }
+
+        // Whether a forward-slashed path is the folder or lies beneath it.
+        static bool Within(string path, string folder) =>
+            path == folder || path.StartsWith(folder + "/", StringComparison.Ordinal);
     }
 
     /// <summary>Runs the editable-instrument APU and PCM verification command.</summary>

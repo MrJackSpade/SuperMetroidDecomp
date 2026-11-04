@@ -31,18 +31,20 @@ internal static class AudioOverridesVerification
         ExtractedAudioAssetCatalog extracted = RepositoryInstallation.Installation.LoadAudio();
         using var rootScratch = new TestScratchDirectory("audio-override");
         var installation = new GameInstallation(rootScratch.Root);
-        void ExportStock()
-        {
-            Directory.CreateDirectory(installation.AudioDirectory);
-            AudioClipExporter.Export(
-                extracted,
-                installation.AudioDirectory,
-                [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, ReplacedTrack)],
-                [
-                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, checked((byte)SoundEffectCommands.Command(Library1Sound.UnchargedPowerBeam))),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, checked((byte)SoundEffectCommands.Command(Library3Sound.SpeedBooster))),
-                ]);
-        }
+        // The stock clips are exported once; each stock repair writes that export back over game/audio, as the
+        // installer's repair writes the same stock again.
+        using var stockScratch = new TestScratchDirectory("audio-override-stock");
+        string exportedStock = stockScratch.Root;
+        Directory.CreateDirectory(exportedStock);
+        AudioClipExporter.Export(
+            extracted,
+            exportedStock,
+            [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, ReplacedTrack)],
+            [
+                new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, checked((byte)SoundEffectCommands.Command(Library1Sound.UnchargedPowerBeam))),
+                new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, checked((byte)SoundEffectCommands.Command(Library3Sound.SpeedBooster))),
+            ]);
+        void ExportStock() => PrivateInstallationCopy.CopyInstallation(exportedStock, installation.AudioDirectory);
         ExportStock();
 
         InstalledClipAudioLibrary stock = installation.LoadAudioClips();

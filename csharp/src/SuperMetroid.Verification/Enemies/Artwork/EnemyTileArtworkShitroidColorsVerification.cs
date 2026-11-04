@@ -54,7 +54,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, ShitroidColorFormat.FileName);
         File.WriteAllBytes(overrideFile, ShitroidColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { ShitroidColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ShitroidColors() } };
         ShitroidColorCatalog colors = edited.Bosses.ShitroidColors ??
             throw new InvalidDataException("Edited enemy art has no Shitroid colors.");
         for (int frame = 0; frame < ShitroidColorDefinitions.NormalFrameCount; frame++)
@@ -72,8 +72,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
                 $"Shitroid {target} adjacent target color remains native");
         }
         AssertEqual(colors.NormalColor(7, 2),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.ShitroidColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ShitroidColors.")).NormalColor(7, 2),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).ShitroidColors().NormalColor(7, 2),
             "Shitroid color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -116,19 +115,19 @@ internal static class EnemyTileArtworkShitroidColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ShitroidColors(),
             "invalid Shitroid color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ShitroidColors(),
             "duplicate Shitroid color property fails loudly");
         visual.Normal[0][2] = visual.Normal[0][2] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => ShitroidColorFile.Read(new MemoryStream(ShitroidColorFile.Write(visual), writable: false)),
             "reading Shitroid colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ShitroidColors(),
             "corrupt stock Shitroid colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Shitroid colors: 80 native RGB5 words, native timer selection, three live target fades, persistent override, ROM guard and strict failures pass.");

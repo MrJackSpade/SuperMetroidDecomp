@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -74,7 +75,7 @@ internal static class DeadTorizoArtworkVerification
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         byte[] installedTiles = Staged(installed, 0, 0x1000);
-        byte[] editedTiles = Staged(StageDeadTorizoArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory)), 0, 0x1000);
+        byte[] editedTiles = Staged(StageDeadTorizoArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory))), 0, 0x1000);
         AssertEqual((byte)(installedTiles[0x60] ^ 0x80),
             editedTiles[0x60],
             "dead-Torizo PNG pixel edit reaches the staged corpse");
@@ -86,7 +87,7 @@ internal static class DeadTorizoArtworkVerification
                 editedTiles[offset],
                 "dead-Torizo PNG edit leaves neighboring corpse staging bytes unchanged");
         }
-        AssertEqual(editedTiles[0x60], Staged(StageDeadTorizoArtwork(EnemyTileArtworkFiles.Load(directory, overrideDirectory)), 0x60, 1)[0],
+        AssertEqual(editedTiles[0x60], Staged(StageDeadTorizoArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory))), 0x60, 1)[0],
             "dead-Torizo PNG edit survives catalog reload");
 
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");

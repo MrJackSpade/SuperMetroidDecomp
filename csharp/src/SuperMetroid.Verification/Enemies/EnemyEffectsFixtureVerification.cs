@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -44,8 +45,7 @@ internal static class EnemyEffectsFixtureVerification
         internal CrocomireDeathState Effect { get; }
 
         /// <summary>The installed boss body sheets the fixture draws from.</summary>
-        internal static BossBodySheets Sheets => RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        internal static BossBodySheets Sheets => InstalledFixtures.BossBodySheets;
 
         /// <summary>The frame band <paramref name="band"/>'s animation shows in the room, or null before any pass shows it.</summary>
         internal ArtworkFrame? MeltBand(int band) =>

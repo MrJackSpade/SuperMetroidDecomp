@@ -143,6 +143,16 @@ internal static class InstalledFixtures
     /// <summary>Backing loader for <see cref="SpriteSheets"/>.</summary>
     private static readonly Lazy<InstalledSpriteSheets> spriteSheets = new(() => RepositoryInstallation.Installation.LoadSpriteSheets());
 
+    /// <summary>
+    /// The installation's boss body sheets, loaded once per process on their own, so a check drawing a boss body does not
+    /// load every presentation catalog of <see cref="RepositoryInstallation.Artwork"/> for them.
+    /// </summary>
+    internal static SuperMetroid.Core.Enemies.BossBodies.BossBodySheets BossBodySheets => bossBodySheets.Value;
+
+    /// <summary>Backing loader for <see cref="BossBodySheets"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets> bossBodySheets =
+        new(() => RepositoryInstallation.Installation.LoadBossBodySheets());
+
     /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
     internal static SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
     /// <summary>Backing loader for <see cref="StandardObjects"/>.</summary>
@@ -290,5 +300,5 @@ internal static class InstalledFixtures
     private static readonly Lazy<object[]> boundContent = new(() =>
         [RepositoryInstallation.ArtworkLoader, samusOverreads, enemyOverreads, bossAndIntroOverreads, roomAssets,
             roomCharacters, blockCompositions, maps, enemyArtwork, projectiles, samusBody, introArtwork, enemySheets, spriteSheets,
-            standardObjects]);
+            standardObjects, bossBodySheets]);
 }

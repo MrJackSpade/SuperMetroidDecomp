@@ -108,8 +108,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
         File.WriteAllBytes(Path.Combine(overrides,
             CeresDoorVisualFormat.ColorsFileName),
             CeresDoorVisualFiles.Write(document));
-        CeresDoorSourceArtwork editedDoor = (EnemyTileArtworkFiles.Load(directory,
-            overrides).Areas.CeresDoor ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoor."));
+        CeresDoorSourceArtwork editedDoor = EnemyTileArtworkFiles.Open(directory, overrides).CeresDoor();
         CeresDoorVisuals edited = editedDoor.Visuals;
         AssertEqual((byte)(nativeTiles[0] ^ 0x80), editedDoor.Characters.Span[0],
             "Ceres-door PNG override changes the live first tile pixel");

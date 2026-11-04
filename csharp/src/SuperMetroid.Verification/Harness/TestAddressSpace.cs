@@ -115,15 +115,24 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
         var records = new List<RoomEnemyGraphicsSetMember>();
+        var rows = new List<int>();
         for (int slot = 0; slot <= 4; slot++)
         {
             ushort definitionPointerWord = ReadFixtureWord(cursor);
             if (definitionPointerWord == 0xffff)
-                return RetailSetOf(records) ?? new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
+            {
+                if (RetailSetOf(records) is { } retail)
+                    return retail;
+                // A set no retail set holds is coloured in the rows its records' placement words name (#1512).
+                var fixture = new RoomEnemyGraphicsSetDefinition($"fixture graphics set ${pointer:X4}", records.ToArray());
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetRows.Record(fixture, [.. rows]);
+                return fixture;
+            }
             EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
             records.Add(new RoomEnemyGraphicsSetMember(definitionPointer));
+            rows.Add(RoomEnemyGraphicsSetMember.NativePaletteRow(ReadFixtureWord(cursor + 2)));
             cursor += 4;
         }
         throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");

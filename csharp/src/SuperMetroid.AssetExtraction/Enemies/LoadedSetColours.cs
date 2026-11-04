@@ -34,7 +34,7 @@ internal sealed class LoadedSetColours
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
-        var rows = new GraphicsSetRows(set);
+        var rows = new GraphicsSetRows(set, inputs.SetPaletteRows);
         RgbColor[] colours = RoomLoadPalettes.SpriteColours(inputs.Palettes);
         ReadOnlySpan<RoomEnemyGraphicsSetMember> records = set.Records.Span;
         for (int record = 0; record < records.Length; record++)

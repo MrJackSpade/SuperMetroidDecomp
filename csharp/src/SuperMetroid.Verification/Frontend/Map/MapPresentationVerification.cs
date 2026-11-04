@@ -80,7 +80,6 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;

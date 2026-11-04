@@ -14,7 +14,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryActorSpriteArtworkVerification;

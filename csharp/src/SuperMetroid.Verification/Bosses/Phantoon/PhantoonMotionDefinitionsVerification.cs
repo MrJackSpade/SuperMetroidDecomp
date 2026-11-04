@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 

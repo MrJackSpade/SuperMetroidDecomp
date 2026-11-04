@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 
-using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks signed cartridge trigonometry across Bull, Yapping Maw, and Shaktool consumers.</summary>

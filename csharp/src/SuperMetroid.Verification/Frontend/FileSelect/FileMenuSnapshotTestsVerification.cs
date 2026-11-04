@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Frontend.FileSelect.FileMapSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
 using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

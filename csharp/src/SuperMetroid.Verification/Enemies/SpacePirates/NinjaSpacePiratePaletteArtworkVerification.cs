@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;

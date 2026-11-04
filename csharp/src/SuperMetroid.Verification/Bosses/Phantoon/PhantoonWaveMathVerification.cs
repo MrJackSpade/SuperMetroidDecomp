@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Enemies;
-using SuperMetroid.Verification.Harness;
 
 /// <summary>
 /// Checks that the sine wave Phantoon's wave is described as (#1468) gives every screen line the scroll the cartridge's

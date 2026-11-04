@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;

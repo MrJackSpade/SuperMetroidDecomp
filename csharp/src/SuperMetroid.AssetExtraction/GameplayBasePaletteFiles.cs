@@ -19,11 +19,10 @@ public static class GameplayBasePaletteFiles
     /// </summary>
     private const int FirstSpriteColour = CgramPalettes.ColorCount / 2;
 
-    /// <summary>Writes the initial 256-color CGRAM image and 16 common-sprite colors as RGB5 JSON with a hashed manifest, then validates the resulting stock installation.</summary>
+    /// <summary>Writes the initial 256-color CGRAM image and 16 common-sprite colors as RGB5 JSON with a hashed manifest.</summary>
     /// <param name="bus">Cartridge source for the initial palette at $9A:8000 and common-sprite palette at $9A:FC00.</param>
     /// <param name="directory">Destination directory, created if absent; existing palette JSON and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest; the final stock check requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">The generated installation has incompatible provenance, digest, palette schema, or RGB5 content.</exception>
+    /// <param name="sourceCartridgeSha256">Identity written into the manifest; installation loading requires the supported cartridge identity.</param>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -41,7 +40,6 @@ public static class GameplayBasePaletteFiles
                 GameplayBasePaletteFormat.Version, sourceCartridgeSha256,
                 Convert.ToHexString(SHA256.HashData(bytes))),
                 GameplayBasePaletteFormat.JsonOptions));
-        _ = Load(directory, null);
     }
 
     /// <summary>Validates stock provenance, digest, and both complete RGB5 arrays before compiling an optional whole-document palette replacement without cartridge access.</summary>
@@ -140,7 +138,6 @@ public static class GameplayBasePaletteFiles
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.InitialPalette, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette, GameplayBasePaletteFormat.SpriteColorCount));
-        _ = Read(new MemoryStream(Write(document), writable: false));
         RgbColor[] initial = Compile(document.Initial, CgramPalettes.ColorCount, "initial");
         int first = FirstSpriteColour;
         RgbColor[] colours = initial.AsSpan(first, CgramPalettes.ColorCount - first).ToArray();

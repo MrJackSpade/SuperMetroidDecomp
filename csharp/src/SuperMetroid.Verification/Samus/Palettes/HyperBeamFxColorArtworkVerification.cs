@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and editable JSON inputs.</summary>
@@ -129,17 +130,20 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertEqual(ReadVerificationWord(bus, 0x8dd906 + 2 * ink),
                 HyperBeamFxColorFormat.RedHighlight(RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd90c))), RgbColor.FromWord(checked(ReadVerificationWord(bus, 0x8dd906))), ink),
                 "Every original red highlight is a fifth-step white blend");
-        for (int first = 0; first < 32768; first++)
-        for (int second = 0; second < 32; second++)
-        for (int ink = 4; ink <= 7; ink++)
+        // Each first endpoint's pairs and weights run on one worker; the highlight blend is pure.
+        ParallelSweep.For(0, 32768, first =>
         {
-            double whiteWeight = (8 - ink) / 5.0;
-            int expected = 0;
-            for (int shift = 0; shift < 15; shift += 5)
-                expected |= (int)Math.Round((first >> shift & 31) * (1 - whiteWeight) + second * whiteWeight) << shift;
-            AssertEqual((ushort)expected, HyperBeamFxColorFormat.RedHighlight(RgbColor.FromWord(checked((ushort)first)), RgbColor.FromWord((ushort)(second * 1057)), ink),
-                "All RGB5 first endpoints and independent channel pairs for every highlight weight");
-        }
+            for (int second = 0; second < 32; second++)
+            for (int ink = 4; ink <= 7; ink++)
+            {
+                double whiteWeight = (8 - ink) / 5.0;
+                int expected = 0;
+                for (int shift = 0; shift < 15; shift += 5)
+                    expected |= (int)Math.Round((first >> shift & 31) * (1 - whiteWeight) + second * whiteWeight) << shift;
+                AssertEqual((ushort)expected, HyperBeamFxColorFormat.RedHighlight(RgbColor.FromWord(checked((ushort)first)), RgbColor.FromWord((ushort)(second * 1057)), ink),
+                    "All RGB5 first endpoints and independent channel pairs for every highlight weight");
+            }
+        });
         foreach (int invalidInk in new[] { int.MinValue, -1, 0, 1, 2, 3, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => HyperBeamFxColorFormat.RedHighlight(new RgbColor(0, 0, 0), new RgbColor(0, 0, 0), invalidInk), "Highlight ink bounds");
         foreach (var shade in new[] { new VerifyHyperBeamFxColorArtworkCase(Frame:0, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:4, Ink:5), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:2), new VerifyHyperBeamFxColorArtworkCase(Frame:8, Ink:5) })

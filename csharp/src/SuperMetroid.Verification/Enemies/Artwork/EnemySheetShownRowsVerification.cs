@@ -8,9 +8,10 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
 /// Checks that no installed enemy or spawned-object sheet shows a frame in a colour row its colouring leaves empty (#1513):
-/// every pixel of every frame inks a colour whose row in the sheet's manifest colours holds a colour other than black
-/// beyond its transparent colour zero. A sheet coloured in the zero colours of an enemy whose encounter sets its colours
-/// in code, as the Baby's and Ridley's were, shows only black and fails.
+/// every colour group every frame was coloured from has a row in the sheet's manifest colours holding a colour other
+/// than black beyond its transparent colour zero. It reads the manifests only and decodes no image. A sheet coloured in
+/// the zero colours of an enemy whose encounter sets its colours in code, as the Baby's and Ridley's were, shows only
+/// black and fails.
 /// </summary>
 internal static class EnemySheetShownRowsVerification
 {
@@ -41,35 +42,29 @@ internal static class EnemySheetShownRowsVerification
     }
 
     /// <summary>
-    /// Records in <paramref name="failures"/> each frame of <paramref name="sheet"/> that inks a colour whose row of the
-    /// sheet's manifest colours is black beyond colour zero, and returns how many frames it checked.
+    /// Records in <paramref name="failures"/> each frame of <paramref name="sheet"/> coloured from a colour group whose row
+    /// of the sheet's manifest colours is black beyond colour zero, and returns how many frames it checked. It reads only
+    /// the manifest: each frame names the groups its parts were coloured in, the rows its parts' own rows with the sheet's
+    /// palette bits ORed in name, and the manifest's colours for such a row are the colours that row draws in, so no
+    /// pixel is decoded.
     /// </summary>
     private static int CheckSheet(SpriteSheet sheet, string label, List<string> failures)
     {
         SpriteImage image = sheet.Image;
         ReadOnlySpan<RgbColor> colours = image.StandardColours;
-        bool[] emptyRows = new bool[colours.Length / RowColours];
-        for (int row = 0; row < emptyRows.Length; row++)
+        var emptyGroups = new List<ImageColourGroup>();
+        foreach (ImageColourGroup group in ImageColourGroup.Every)
         {
-            emptyRows[row] = true;
+            bool empty = true;
             for (int colour = 1; colour < RowColours; colour++)
-                emptyRows[row] &= colours[row * RowColours + colour] == RgbColor.Black;
+                empty &= colours[group.Number * RowColours + colour] == RgbColor.Black;
+            if (empty)
+                emptyGroups.Add(group);
         }
-        ReadOnlySpan<SpriteImageInk> inks = image.Inks;
-        int width = image.Size.X;
         foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            var rows = new SortedSet<int>();
-            for (int y = 0; y < frame.Size.Y; y++)
-            {
-                for (int x = 0; x < frame.Size.X; x++)
-                {
-                    int ink = inks[(frame.Corner.Y + y) * width + frame.Corner.X + x].PaletteIndex;
-                    if (ink % RowColours != 0 && emptyRows[ink / RowColours])
-                        rows.Add(ink / RowColours);
-                }
-            }
-            if (rows.Count > 0)
+            int[] rows = [.. emptyGroups.Where(frame.ColourGroups.Contains).Select(group => group.Number)];
+            if (rows.Length > 0)
                 failures.Add($"{label} ({image.Name}) frame {name} inks empty rows {string.Join(", ", rows)}");
         }
         return sheet.frames.Count;

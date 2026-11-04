@@ -9,7 +9,11 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="Family">Its family name: the type name without a Behavior or Factory suffix.</param>
 /// <param name="Path">The Core-relative path of the file declaring its definitions.</param>
 /// <param name="Definitions">The EnemyDefinitionId member names it serves, in declaration order.</param>
-internal sealed record Behaviour(INamedTypeSymbol Type, string Family, string Path, IReadOnlyList<string> Definitions);
+/// <param name="PartsTable">The parts table its definitions come from, when they come from one.</param>
+/// <param name="Parts">The part the parts table maps each definition to, when its entry names an enum member.</param>
+internal sealed record Behaviour(
+    INamedTypeSymbol Type, string Family, string Path, IReadOnlyList<string> Definitions, ISymbol? PartsTable,
+    IReadOnlyDictionary<string, IFieldSymbol> Parts);
 
 /// <summary>
 /// The semantic facts the generator reads from SuperMetroid.Core: its types, the enemy behaviours and the definitions
@@ -41,6 +45,7 @@ internal sealed class CoreModel
     private readonly Dictionary<ISymbol, List<ISymbol>> _dispatch = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
     private readonly HashSet<SyntaxNode> _startEntries = [];
+    private readonly INamedTypeSymbol _entity;
 
     /// <summary>Reads every fact the walks need from <paramref name="core"/>, failing on anything it cannot resolve.</summary>
     public CoreModel(CoreSource core)
@@ -54,6 +59,11 @@ internal sealed class CoreModel
         RoomEnemyProjectileKind = SingleType("RoomEnemyProjectileKind");
         EnemyDefinitionId = SingleType("EnemyDefinitionId");
         ArchitectureReview = SingleType("ArchitectureReviewAttribute");
+        EnemySheetDraw = SingleType("EnemySheetDraw");
+        SpriteGraphics = SingleType("SpriteGraphics");
+        SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
+        RoomEnemySlot = SingleType("RoomEnemySlot");
+        _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol programAnimation = SingleType("EnemyProjectileProgramAnimation", arity: 3);
         foreach (string name in TableNames)
@@ -102,6 +112,28 @@ internal sealed class CoreModel
 
     /// <summary>The enemy definition identity.</summary>
     public INamedTypeSymbol EnemyDefinitionId { get; }
+
+    /// <summary>The explicit draw of a named definition's sheet frame.</summary>
+    public INamedTypeSymbol EnemySheetDraw { get; }
+
+    /// <summary>The graphics a spawned object draws with: whose sheet, in which shading.</summary>
+    public INamedTypeSymbol SpriteGraphics { get; }
+
+    /// <summary>Whose spawned-object sheet a spawned object draws from.</summary>
+    public INamedTypeSymbol SpawnedObjectOwner { get; }
+
+    /// <summary>An enemy slot.</summary>
+    public INamedTypeSymbol RoomEnemySlot { get; }
+
+    /// <summary>Whether <paramref name="type"/> is an entity type: one implementing IEnemyEntity.</summary>
+    public bool IsEntityType(INamedTypeSymbol type) =>
+        type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _entity));
+
+    /// <summary>The EnemyDefinitionId member named <paramref name="name"/>.</summary>
+    public IFieldSymbol DefinitionField(string name) =>
+        EnemyDefinitionId.GetMembers(name) is [IFieldSymbol field]
+            ? field
+            : throw new InvalidDataException($"EnemyDefinitionId has no single member {name}.");
 
     /// <summary>The attribute the generated classes carry.</summary>
     public INamedTypeSymbol ArchitectureReview { get; }
@@ -323,6 +355,8 @@ internal sealed class CoreModel
             throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression.");
         SemanticModel model = ModelOf(collection.SyntaxTree);
         var names = new List<string>();
+        var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
+        ISymbol? partsTable = null;
         foreach (CollectionElementSyntax element in collection.Elements)
         {
             switch (element)
@@ -331,7 +365,16 @@ internal sealed class CoreModel
                     names.Add(DefinitionName(model, expression, type));
                     break;
                 case SpreadElementSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.Text: "Keys", Expression: var table } }:
-                    names.AddRange(PartsTableKeys(model.GetSymbolInfo(table).Symbol, type));
+                    ISymbol? tableSymbol = model.GetSymbolInfo(table).Symbol;
+                    if (partsTable is not null)
+                        throw new InvalidDataException($"{type.ToDisplayString()}.Definitions spreads more than one parts table.");
+                    partsTable = tableSymbol?.OriginalDefinition;
+                    foreach ((string key, IFieldSymbol? part) in PartsTableKeys(tableSymbol, type))
+                    {
+                        names.Add(key);
+                        if (part is not null)
+                            parts.Add(key, part);
+                    }
                     break;
                 default:
                     throw new InvalidDataException($"{type.ToDisplayString()}.Definitions has an element this generator cannot read: {element}");
@@ -340,7 +383,7 @@ internal sealed class CoreModel
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names);
+        return new Behaviour(type, family, RelativePath(collection.SyntaxTree), names, partsTable, parts);
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>
@@ -350,8 +393,8 @@ internal sealed class CoreModel
             ? field.Name
             : throw new InvalidDataException($"{owner.ToDisplayString()}: {expression} is not an EnemyDefinitionId member.");
 
-    /// <summary>The definitions keying a parts table, in its initializer's order.</summary>
-    private List<string> PartsTableKeys(ISymbol? table, INamedTypeSymbol owner)
+    /// <summary>The definitions keying a parts table, in its initializer's order, each with the enum member its entry maps it to.</summary>
+    private List<(string Key, IFieldSymbol? Part)> PartsTableKeys(ISymbol? table, INamedTypeSymbol owner)
     {
         ExpressionSyntax? value = table switch
         {
@@ -364,12 +407,15 @@ internal sealed class CoreModel
         if (value is not BaseObjectCreationExpressionSyntax { Initializer: { } initializer })
             throw new InvalidDataException($"{owner.ToDisplayString()}: the parts table {table?.ToDisplayString() ?? "(unresolved)"} is not a dictionary initializer.");
         SemanticModel model = ModelOf(initializer.SyntaxTree);
-        var keys = new List<string>();
+        var keys = new List<(string, IFieldSymbol?)>();
         foreach (ExpressionSyntax entry in initializer.Expressions)
         {
-            if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] } })
+            if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] }, Right: var part })
                 throw new InvalidDataException($"{owner.ToDisplayString()}: the parts table entry {entry} is not an [EnemyDefinitionId.X] = ... entry.");
-            keys.Add(DefinitionName(model, key.Expression, owner));
+            IFieldSymbol? partMember = model.GetSymbolInfo(part).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member
+                ? member.OriginalDefinition
+                : null;
+            keys.Add((DefinitionName(model, key.Expression, owner), partMember));
         }
         return keys.Count > 0 ? keys : throw new InvalidDataException($"{owner.ToDisplayString()}: the parts table {table!.ToDisplayString()} has no entries.");
     }

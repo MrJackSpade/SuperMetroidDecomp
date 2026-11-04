@@ -43,18 +43,6 @@ internal static class SoundEffectCommands
         return sound ?? throw new InvalidDataException($"{library} has no sound request ${command:X2}.");
     }
 
-    /// <summary>
-    /// The sound a cartridge operand or header word queues through <paramref name="library"/>: the request in its byte,
-    /// or none for zero.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The word does not fit a request byte, or names no request of the library.</exception>
-    internal static SoundEffectId? DecodeOptional(SoundEffectLibrary library, int word)
-    {
-        if ((uint)word > byte.MaxValue)
-            throw new InvalidDataException($"Sound word ${word:X4} for {library} does not fit a request byte.");
-        return word == 0 ? null : Decode(library, word);
-    }
-
     /// <summary>Indexes a library's sounds by request number, proving every request is distinct and nonzero.</summary>
     private static FrozenDictionary<int, TSound> Invert<TSound>(FrozenDictionary<TSound, byte> commands)
         where TSound : struct, Enum

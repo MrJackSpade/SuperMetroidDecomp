@@ -29,9 +29,6 @@ internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
     /// <inheritdoc/>
     public AreaSourceArtwork AreaTiles => installed.Areas;
 
-    /// <summary>Rejects animated tiles, which enemy tile fixtures never bind.</summary>
-    public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>
-        throw new InvalidOperationException("Enemy tile fixtures bind no animated tiles.");
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures queue no other asset.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
         timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer, asset);

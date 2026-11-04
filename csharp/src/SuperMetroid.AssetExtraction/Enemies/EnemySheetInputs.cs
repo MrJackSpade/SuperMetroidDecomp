@@ -74,11 +74,6 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     EnemyTileSourceArtwork IInstalledSpriteCharacterArtwork.EnemyTiles => Enemies;
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">No encounter uploads the room-FX tiles over the characters.</exception>
-    RoomFxAnimatedTileAtlas IInstalledSpriteCharacterArtwork.AnimatedTiles => throw new InvalidOperationException(
-        "No encounter uploads room-FX animated tiles over the OBJ characters an enemy sheet composes over.");
-
-    /// <inheritdoc/>
     BossSourceArtwork IInstalledBossSpriteCharacterArtwork.BossTiles => Bosses;
 
     /// <inheritdoc/>

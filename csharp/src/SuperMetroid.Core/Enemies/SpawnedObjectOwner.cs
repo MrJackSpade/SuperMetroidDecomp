@@ -20,14 +20,14 @@ public readonly record struct SpawnedObjectOwner
     }
 
     /// <summary>An owner naming <paramref name="spawner"/>'s sheet of kind <paramref name="kind"/>.</summary>
-    private SpawnedObjectOwner(EnemyDefinitionId spawner, SheetKind kind)
+    private SpawnedObjectOwner(EnemyDefinitionId? spawner, SheetKind kind)
     {
         Spawner = spawner;
         Kind = kind;
     }
 
     /// <summary>The room's shared sheet.</summary>
-    public static SpawnedObjectOwner Shared => default;
+    public static SpawnedObjectOwner Shared => new(null, SheetKind.Shared);
 
     /// <summary>The sheet of the shards and sparkles Mother Brain's tank glass throws as it breaks.</summary>
     public static SpawnedObjectOwner MotherBrainTankGlass => new(EnemyDefinitionId.MotherBrainBody, SheetKind.MotherBrainTankGlass);

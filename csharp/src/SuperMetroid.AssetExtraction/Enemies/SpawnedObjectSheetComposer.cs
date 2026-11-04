@@ -31,9 +31,6 @@ internal static class SpawnedObjectSheetComposer
     private static readonly HashSet<EnemyFrameId> RotEncounterFrames =
         [.. EncounterFrameDefinitions.ByEnemy.Where(encounter => CorpseRotSimulation.Rots(encounter.Key)).SelectMany(encounter => encounter.Value)];
 
-    /// <summary>Whether spawned-object sheet frame <paramref name="name"/> is a rotting corpse's own, which shows its rot.</summary>
-    internal static bool ShowsRot(string name) => RotEncounterFrames.Any(frame => EnemySheetDefinitions.EncounterFrameName(frame) == name);
-
     /// <summary>
     /// The spawned-object sheets of a set laid out as <paramref name="layout"/>, drawing <paramref name="drawn"/>, each enemy
     /// in the row <paramref name="rowOf"/> gives: the shared sheet, holding every spawner's objects at character zero with

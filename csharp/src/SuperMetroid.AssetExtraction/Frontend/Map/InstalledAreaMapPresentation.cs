@@ -42,11 +42,6 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     /// <summary>The escape timer's characters, which only the import reads to compose the escape encounters' sheets (#1513).</summary>
     public EscapeTimerCharacters EscapeTimerTiles { get; }
 
-    /// <summary>The escape timer's characters the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static EscapeTimerCharacters EscapeTimerTilesOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.EscapeTimerTiles
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no escape timer characters.");
-
     /// <summary>
     /// Ceres Ridley's colours, the shared Norfair Ridley health colours and the Ceres Baby's colours, which only the import
     /// reads to pre-colour their sheets and Ceres Ridley's room (#1512).

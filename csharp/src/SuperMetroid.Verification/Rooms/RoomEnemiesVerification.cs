@@ -185,11 +185,14 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
         "definition power-bomb reaction offset $28 names a reacting routine");
-    // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size and bit 15 its placement.
-    AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0040, false), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, primaryDefinitionPointer),
-        "the import decodes the definition's tile set size, the tile word's low fifteen bits, following the previous member");
-    AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0020, true), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, specialDefinitionPointer),
-        "the import decodes the special definition's tile word's bit 15 as placing its tiles at a fixed block");
+    // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
+    // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.
+    AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0040),
+        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, TestAddressSpace.FixtureHeaderPointer(primaryDefinitionPointer)),
+        "the import decodes the definition's tile set size, the tile word's low fifteen bits");
+    AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0020),
+        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, TestAddressSpace.FixtureHeaderPointer(specialDefinitionPointer)),
+        "the import decodes the special definition's tile set size without its bit 15");
     AssertEqual(EnemyHeaderTables.DropChances(bus, 0xf206), definition.DropChances,
         "definition item-drop table offset $3A");
     AssertEqual(EnemyHeaderTables.Vulnerability(bus, 0xec48), definition.Vulnerability,
@@ -1449,7 +1452,7 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteTestWord(bus, address + 34, 0); // The small death explosion.
     WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
-    WriteTestWord(bus, address + 26, SamusIdentityWords.GrappleAiRoutines.Word(GrappleAiRoutine.Cancel)); // Grapple AI must be a real routine.
+    WriteTestWord(bus, address + 26, GrappleAiRoutineWords.Routines.Word(GrappleAiRoutine.Cancel)); // Grapple AI must be a real routine.
     WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
     WriteTestWord(bus, address + 58, 0xf206); // Item-drop table 3, six bytes each from $F1F4.

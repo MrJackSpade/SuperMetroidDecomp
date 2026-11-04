@@ -13,20 +13,20 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidBackdropColours : IGameplayShadingSource
 {
     /// <summary>What the backdrop showed when no fade was running, or when the running fade started.</summary>
-    private KraidBackdropShown startedFrom = new KraidBackdropShown.Settled(KraidBackdropSettledColours.RoomColours);
+    private KraidBackdropShown StartedFrom { get; set; } = new KraidBackdropShown.Settled(KraidBackdropSettledColours.RoomColours);
 
     /// <summary>The fade that took the latest step, until a fade completes or the backdrop is shown outright.</summary>
     private RunningKraidBackdropFade? running;
 
     /// <summary>What the backdrop shows.</summary>
     internal KraidBackdropShown Shows => running is null
-        ? startedFrom
-        : KraidBackdropShown.Fade(startedFrom, running.Goal, running.First, running.Reached);
+        ? StartedFrom
+        : KraidBackdropShown.Fade(StartedFrom, running.Goal, running.First, running.Reached);
 
     /// <summary>Shows Kraid's backdrop colours at once, as his defeated room loads them.</summary>
     internal void ShowKraidColours()
     {
-        startedFrom = new KraidBackdropShown.Settled(KraidBackdropSettledColours.KraidColours);
+        StartedFrom = new KraidBackdropShown.Settled(KraidBackdropSettledColours.KraidColours);
         running = null;
     }
 
@@ -49,7 +49,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
             running = running with { Reached = step };
             return;
         }
-        startedFrom = Shows;
+        StartedFrom = Shows;
         running = new RunningKraidBackdropFade(goal, step, step);
     }
 
@@ -66,7 +66,7 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         KraidBackdropShown shown = Shows;
         if (running is not null && running.Goal == goal && shown != new KraidBackdropShown.Settled(goal))
             throw new InvalidOperationException($"Kraid's backdrop fade toward {goal} completes showing {shown}.");
-        startedFrom = shown;
+        StartedFrom = shown;
         running = null;
     }
 

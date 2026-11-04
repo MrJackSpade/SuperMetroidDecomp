@@ -40,8 +40,8 @@ internal static class SheetFrameSources
 
     /// <summary>
     /// Pairs each of <paramref name="sheet"/>'s frames with what it was composed from. Frames whose pictures the sheet lays
-    /// out once share one rectangle; when their compositions differ, which one a draw of that rectangle stands for is
-    /// unknowable, so the rectangle is recorded as ambiguous and a draw of it fails rather than standing for another frame.
+    /// out once share one rectangle, the first frame's composition standing for all of them over their own pages, which
+    /// show the same picture; the others' differing compositions are kept, since over another page they may not.
     /// </summary>
     private static void Add(System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource> target, SpriteSheet sheet,
         SpriteSheetSources composed)
@@ -58,7 +58,7 @@ internal static class SheetFrameSources
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
             if (image.Size.X == 0 || SameComposition(first, source))
                 continue;
-            ambiguous.AddOrUpdate(key, _ => [first.Frame.Name, source.Frame.Name], (_, names) => [.. names, source.Frame.Name]);
+            alternates.AddOrUpdate(key, _ => [source], (_, others) => [.. others, source]);
         }
     }
 
@@ -67,8 +67,8 @@ internal static class SheetFrameSources
         ReferenceEquals(first.Page, second.Page) && first.PaletteBits == second.PaletteBits && first.FramePalette == second.FramePalette
         && first.PartsKeepOwnRows == second.PartsKeepOwnRows && first.Frame.Parts.SequenceEqual(second.Frame.Parts);
 
-    /// <summary>Each shared rectangle whose frames were composed differently, with those frames' names.</summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<FrameKey, string[]> ambiguous = new();
+    /// <summary>Each shared rectangle's compositions that differ from the first frame's.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource[]> alternates = new();
 
     /// <summary>The character draw an image draw of a projectile sheet frame shows: its composition over its page, placed and mirrored alike.</summary>
     /// <exception cref="InvalidOperationException">The frame is not a projectile sheet frame.</exception>
@@ -78,15 +78,51 @@ internal static class SheetFrameSources
     /// The character draw an image draw of a sheet frame shows, its composition placed and mirrored alike, over
     /// <paramref name="characters"/> in place of the page it was composed over when given.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The frame is not a sheet frame.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The frame is not a sheet frame, or its picture is shared by frames whose compositions show different pictures over
+    /// <paramref name="characters"/>, so which one the draw stands for decides the result.
+    /// </exception>
     internal static CharacterSpriteDraw CharacterDraw(ImageSpriteDraw draw, SpriteArtwork? characters)
     {
         Ensure.NotNull(draw);
         FrameKey key = Key(draw.Image);
         FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
-        if (ambiguous.TryGetValue(key, out string[]? names))
-            throw new InvalidOperationException(
-                $"{draw} shows a picture sheet {draw.Image.Sheet.Name} lays out once for differently composed frames ({string.Join(", ", names)}); which composition it stands for is unknowable.");
+        CharacterSpriteDraw built = Build(draw, source, characters);
+        if (characters is not null && alternates.TryGetValue(key, out FrameSource[]? others))
+        {
+            Dictionary<(int X, int Y), int> inks = Inks(built);
+            foreach (FrameSource other in others)
+            {
+                if (!Inks(Build(draw, other, characters)).OrderBy(pixel => pixel.Key).SequenceEqual(inks.OrderBy(pixel => pixel.Key)))
+                    throw new InvalidOperationException(
+                        $"{draw} shows a picture sheet {draw.Image.Sheet.Name} lays out once for frames {source.Frame.Name} and {other.Frame.Name}, whose compositions show different pictures over the given characters.");
+            }
+        }
+        return built;
+    }
+
+    /// <summary>Each screen pixel <paramref name="draw"/> inks, with its palette entry; an earlier part's pixel stays over a later one's.</summary>
+    private static Dictionary<(int X, int Y), int> Inks(CharacterSpriteDraw draw)
+    {
+        var inks = new Dictionary<(int X, int Y), int>();
+        for (int part = 0; part < draw.Frame.Parts.Length; part++)
+        {
+            SpriteScreenPart placed = draw.Place(part);
+            for (ushort y = 0; y < placed.Size.Y; y++)
+            for (ushort x = 0; x < placed.Size.X; x++)
+            {
+                int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
+                int colour = draw.Artwork.ColorIndex(character, within);
+                if (colour != 0)
+                    inks.TryAdd((placed.Position.X + x, placed.Position.Y + y), (placed.Palette * 16) + colour);
+            }
+        }
+        return inks;
+    }
+
+    /// <summary>The character draw <paramref name="draw"/> shows as <paramref name="source"/>, over <paramref name="characters"/> when given.</summary>
+    private static CharacterSpriteDraw Build(ImageSpriteDraw draw, FrameSource source, SpriteArtwork? characters)
+    {
         TileFlip flip = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? TileFlip.Horizontal : TileFlip.None) |
             ((draw.Mirror & SpriteMirror.Vertical) != 0 ? TileFlip.Vertical : TileFlip.None);
         // A frontend draw's drawn shade stands for the row its colours are the cartridge's of, which the cartridge ORs into

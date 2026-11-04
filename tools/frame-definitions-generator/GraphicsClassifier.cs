@@ -150,6 +150,10 @@ internal sealed class GraphicsClassifier(CoreModel model)
         INamedTypeSymbol? scope = member.ContainingType is { } type ? model.BehaviourOf(type) : null;
         if (!model.IsSource(member))
             return [new SpawnTarget(GraphicsSource.Unknown)];
+        // A settable instance member (a spawned object's Graphics) holds whatever the code spawning or switching that object
+        // assigns: its initializer is only the free slot's value, so the graphics read from it are copied, not its initializer's.
+        if (member is IPropertySymbol { IsStatic: false, SetMethod: not null } or IFieldSymbol { IsStatic: false, IsReadOnly: false, IsConst: false })
+            return [new SpawnTarget(GraphicsSource.Inherited)];
         if (!_visiting.Add(member))
             return [];
         try

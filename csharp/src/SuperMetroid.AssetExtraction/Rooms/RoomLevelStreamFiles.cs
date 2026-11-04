@@ -123,10 +123,9 @@ public static class RoomLevelStreamFiles
                     $"Room-level manifest {manifestPath} names unknown level file {path}.");
             if (!File.Exists(path))
                 throw new InvalidDataException($"Room-level file {path} is missing.");
+            // The level file describes its own size and is read to its end (#1532): an edited room's level may hold more or
+            // fewer blocks than extraction wrote, so the length extraction recorded is not compared.
             byte[] file = File.ReadAllBytes(path);
-            if (file.Length != entry.ByteCount)
-                throw new InvalidDataException(
-                    $"Room-level file {path} has {file.Length} bytes; the manifest records {entry.ByteCount}.");
             InstalledRoomLevel installed = Decode(file, kinds, path);
             if (installed.Size.X != width)
                 throw new InvalidDataException($"Room-level file {path} is {installed.Size.X} blocks wide; its rooms are {width}.");

@@ -5,6 +5,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
@@ -43,13 +44,15 @@ internal static class EndingSnapshotTestsVerification
             int finaleDisplayFrames = 0;
             int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
+            // A sampled packet's whole description, every value it reaches through owned or shared state, is digested when
+            // captured and again after the next update (#1532).
             DisplayPacket? previousPacket = null;
-            RgbaPixel[]? previousPixels = null;
+            byte[] previousHeld = [];
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
                 if (previousPacket is not null)
-                    AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previousPacket)),
+                    AssertTrue(previousHeld.AsSpan().SequenceEqual(GraphDigest(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Stage.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Stage.Phase, tick);
@@ -361,30 +364,25 @@ internal static class EndingSnapshotTestsVerification
                         "reward branch uses native contiguous OBJ characters");
                 }
                 DisplayPacket? packet = null;
-                RgbaPixel[]? expected = null;
+                byte[] held = [];
                 if (sample)
                 {
                     // IntroDiscoverySprite.Draw only writes OAM; it does not advance
                     // this ending's sprite state. Independent owners still guard against
                     // an accidental producer-side mutation introduced by extraction.
-                    expected = legacy.Render();
-                    if (legacy.Stage.Brightness == 15)
-                    {
-
-                    }
+                    var expected = new DisplayPacket(tick, EndingCreditsPresentation.CaptureRenderSnapshot(legacy));
                     samples++;
                     packet = new(tick, EndingCreditsPresentation.CaptureRenderSnapshot(captured));
-                    AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
+                    held = GraphDigest(packet);
+                    AssertTrue(ScenePixels.Same(expected, packet),
                         $"ending reward {hours}, phase {legacy.Stage.Phase}, tick {tick} pixel parity");
                 }
                 audio.AdvanceFrame(default); otherAudio.AdvanceFrame(default);
                 AssertEqual(legacy.Stage.Phase, captured.Stage.Phase, "ending capture preserves phase");
                 AssertEqual(legacy.Flyaway.CinematicFrame, captured.Flyaway.CinematicFrame, "ending capture preserves timer");
                 AssertEqual(legacy.CreditsVerticalScroll, captured.CreditsVerticalScroll, "ending capture preserves half-pixel scroll result");
-                if (packet is not null)
-                    AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), "ending packet repeat rendering is observational");
                 previousPacket = packet;
-                previousPixels = expected;
+                previousHeld = held;
                 if (legacy.Stage.Phase == EndingCreditsPhase.SeeYouNextMission) break;
             }
             AssertEqual(EndingCreditsPhase.SeeYouNextMission, legacy.Stage.Phase, "ending capture fixture completes");
@@ -393,11 +391,13 @@ internal static class EndingSnapshotTestsVerification
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
-            RgbaPixel[] final = legacy.Render();
+            LayeredScene final = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
             LayeredScene retained = EndingCreditsPresentation.CaptureRenderSnapshot(captured);
+            AssertTrue(ScenePixels.Same(final, retained), "ending final packet shows the legacy frame's pixels");
+            byte[] retainedHeld = GraphDigest(retained);
             for (int i = 0; i < 600; i++) captured.Step();
 
-            AssertTrue(final.SequenceEqual(RenderForComparison(retained)), "ending final packet survives simulation advance");
+            AssertTrue(retainedHeld.AsSpan().SequenceEqual(GraphDigest(retained)), "ending final packet survives simulation advance");
         }
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");
     }

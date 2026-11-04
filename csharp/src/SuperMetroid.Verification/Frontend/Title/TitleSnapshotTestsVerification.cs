@@ -39,15 +39,13 @@ internal static class TitleSnapshotTestsVerification
                 bool newPhase = phases.Add(phase);
                 if (newPhase || frame % 17 == 0 || phase == TitleSequencePhase.TitleScreenFadeOut)
                 {
-                    // Compare at phase boundaries and throughout motion, not just black endpoints. The held packet is drawn
-                    // once and drawn again, and the live scene's and the control's frames are compared with it for the pixels
-                    // they show, which draws them only when their descriptions differ (#1532).
+                    // Compare at phase boundaries and throughout motion, not just black endpoints. The live scene's and the
+                    // control's frames are compared with the held packet for the pixels they show, which draws them only when
+                    // their descriptions differ (#1532).
                     FloorScene packet = scene.CaptureRenderSnapshot();
                     byte[] held = GraphDigest(packet);
-                    RgbaPixel[] expected = DisplayRendering.Render(new DisplayPacket((ushort)frame, packet));
                     AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
                         $"title snapshot {phase} frame {frame} shows the live scene's pixels");
-                    Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
                     FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
                     AssertTrue(ScenePixels.Same(new DisplayPacket(0, control.CaptureRenderSnapshot()), new DisplayPacket(0, packet)),
@@ -59,7 +57,7 @@ internal static class TitleSnapshotTestsVerification
                     scene.Step(input);
                     control.Step(input);
                     // The held packet's whole description, every value it reaches through owned or shared state, is
-                    // unchanged by the advancement, so it still shows the pixels drawn above (#1532).
+                    // unchanged by the advancement, so it still shows the pixels it showed when captured (#1532).
                     AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(packet)), $"title snapshot {phase} frame {frame} survives the scene's advancement");
                 }
                 else
@@ -73,19 +71,11 @@ internal static class TitleSnapshotTestsVerification
                 if (scene.FileSelectRequested)
                 {
                     AssertTrue(phases.Contains(TitleSequencePhase.SceneThreeZoom), "snapshot covers natural zoom");
-                    Console.WriteLine($"  Title snapshots ({source}): {comparisons} exact frames, {phases.Count} phases, retained packets and repeat rendering agree.");
+                    Console.WriteLine($"  Title snapshots ({source}): {comparisons} exact frames, {phases.Count} phases and retained packets agree.");
                     return;
                 }
             }
             throw new InvalidOperationException("Title snapshot fixture did not reach file select.");
-        }
-
-        static void Match(RgbaPixel[] expected, RgbaPixel[] actual, int frame, TitleSequencePhase phase)
-        {
-            AssertEqual(expected.Length, actual.Length, "title snapshot frame size");
-            for (int index = 0; index < expected.Length; index++)
-                if (expected[index] != actual[index])
-                    throw new InvalidOperationException($"Title snapshot {phase} frame {frame}: pixel ({index % FrontendFrame.Width},{index / FrontendFrame.Width}) expected {expected[index]}, got {actual[index]}.");
         }
     }
 

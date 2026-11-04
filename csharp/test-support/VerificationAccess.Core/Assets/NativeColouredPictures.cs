@@ -49,9 +49,15 @@ internal static class NativeColouredPictures
     }
 
     /// <summary>The sprite row <paramref name="draw"/>'s colouring ORs into its parts, or zero for a draw in no frontend colouring.</summary>
-    private static int DrawRow(ImageSpriteDraw draw) =>
-        draw.Image.Sheet.Colours == SpriteImageColours.Sprite
-            ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(draw.Shading) ?? 0
+    private static int DrawRow(ImageSpriteDraw draw) => DrawRow(draw.Image.Sheet, draw.Shading);
+
+    /// <summary>
+    /// The sprite row a draw of <paramref name="picture"/> under <paramref name="shading"/> ORs into its parts: the row of
+    /// the frontend colouring the shading names for a sprite picture, zero for any other.
+    /// </summary>
+    internal static int DrawRow(SpriteImage picture, PictureShading? shading) =>
+        Ensure.NotNull(picture).Colours == SpriteImageColours.Sprite
+            ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(shading) ?? 0
             : 0;
 
     /// <summary><paramref name="frame"/> cut from <paramref name="picture"/>, a native-coloured copy of its sheet.</summary>

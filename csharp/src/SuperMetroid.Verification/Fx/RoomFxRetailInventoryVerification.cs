@@ -466,7 +466,8 @@ internal static class RoomFxRetailInventoryVerification
 
     /// <summary>
     /// The frame the display renderer draws of a captured BG3 FX layer alone over the backdrop, with its current VRAM image
-    /// and colours, for visible-surface comparisons.
+    /// and colours, for visible-surface comparisons. Its layer-3 picture is coloured as gameplay's, so the frame is a
+    /// gameplay frame whose picture groups show their standard colours.
     /// </summary>
     private static RgbaPixel[] RenderRoomFx(
         SnesVram vram,
@@ -476,13 +477,13 @@ internal static class RoomFxRetailInventoryVerification
     {
         OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
             Layer3CellsFixtures.FromWords(plane, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram));
-        return DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram, []),
+        return DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }
 
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>
     private static RgbaPixel[] RenderRoomFxBackdrop(RgbColor[] cgram) =>
-        DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram, []), [], DisplayBrightness.Full));
+        DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []), [], DisplayBrightness.Full));
 
     /// <summary>
     /// The backdrop alone under the seeded visible FX palette every entry-path audit renders over, drawn once: each audit

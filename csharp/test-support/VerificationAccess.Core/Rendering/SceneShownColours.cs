@@ -26,22 +26,74 @@ internal static class SceneShownColours
 
     /// <summary>
     /// What <paramref name="scene"/>'s pictures show at <paramref name="place"/> of the native 256-colour image, with the
-    /// picture, the shading and the ink each colour comes from, for a failure that must name what shows it.
+    /// picture, the shading and the ink each colour comes from, for a failure that must name what shows it. A layer's
+    /// picture shows every ink of its sheet at the ink's own place; a sprite draw shows the inks its frame paints, at the
+    /// place of the ink's row with the row its colouring ORs into every part, as the cartridge's frontend draws place
+    /// them (#1512).
     /// </summary>
     internal static IReadOnlyList<ShownColourSource> SourcesAt(LayeredScene scene, int place)
     {
         Ensure.BetweenInclusive(0, NativeColouredPictures.ColorCount - 1, place);
         var shown = new List<ShownColourSource>();
-        foreach ((SpriteImage picture, PictureShading shading) in Pictures(scene))
+        foreach (ShownPictureInks entry in ShownInks(scene))
         {
-            RgbColor[] inks = shading.InkColours(picture);
-            for (int ink = 0; ink < inks.Length; ink++)
+            RgbColor[] inks = entry.Shading.InkColours(entry.Picture);
+            foreach (int ink in entry.Inks)
             {
-                if (SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(picture, ink) == place)
-                    shown.Add(new ShownColourSource(picture.Name, shading.ToString() ?? string.Empty, ink, inks[ink]));
+                if (SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(entry.Picture, ink, entry.DrawRow) == place)
+                    shown.Add(new ShownColourSource(entry.Picture.Name, entry.Shading.ToString() ?? string.Empty, ink, inks[ink]));
             }
         }
         return shown;
+    }
+
+    /// <summary>
+    /// Each distinct picture, shading and draw row <paramref name="scene"/> shows with the inks it shows: a layer's
+    /// pictures with every ink of their sheets in no draw row, then each sprite draw's picture with the inks its frame
+    /// paints in the row its colouring ORs into its parts.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// A picture names no shading, or a layer shows pictures gameplay colours by group, which a frontend scene has none of.
+    /// </exception>
+    private static List<ShownPictureInks> ShownInks(LayeredScene scene)
+    {
+        var shown = new List<ShownPictureInks>();
+        foreach ((SpriteImage picture, PictureShading shading) in LayerPictures(scene))
+            shown.Add(new ShownPictureInks(picture, shading, DrawRow: 0, [.. Enumerable.Range(0, picture.StandardColours.Length)]));
+        foreach (SpriteDraw draw in scene.Paint.SpriteDraws)
+        {
+            var image = (ImageSpriteDraw)draw;
+            SpriteImage picture = image.Image.Sheet;
+            PictureShading shading = image.Shading ?? throw new InvalidOperationException($"Picture {picture.Name} names the shading it shows in.");
+            int row = NativeColouredPictures.DrawRow(picture, shading);
+            ShownPictureInks? entry = shown.Find(known => ReferenceEquals(known.Picture, picture) && known.Shading.Equals(shading) && known.DrawRow == row);
+            if (entry is null)
+            {
+                entry = new ShownPictureInks(picture, shading, row, []);
+                shown.Add(entry);
+            }
+            entry.Inks.UnionWith(FrameInks(image.Image));
+        }
+        return shown;
+    }
+
+    /// <summary>The inks <paramref name="frame"/>'s opaque pixels are painted in.</summary>
+    private static HashSet<int> FrameInks(SpriteSheetFrame frame)
+    {
+        SpriteImage sheet = frame.Sheet;
+        ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
+        ReadOnlySpan<SpriteImageInk> inks = sheet.Inks;
+        int width = sheet.Size.X;
+        var painted = new HashSet<int>();
+        for (int y = frame.Corner.Y; y < frame.Corner.Y + frame.Size.Y; y++)
+        {
+            for (int x = frame.Corner.X; x < frame.Corner.X + frame.Size.X; x++)
+            {
+                if (pixels[y * width + x].A != 0)
+                    painted.Add(inks[y * width + x].PaletteIndex);
+            }
+        }
+        return painted;
     }
 
     /// <summary>Each distinct picture and shading <paramref name="scene"/> draws, layers first, then sprite draws.</summary>
@@ -49,6 +101,21 @@ internal static class SceneShownColours
     /// A picture names no shading, or a layer shows pictures gameplay colours by group, which a frontend scene has none of.
     /// </exception>
     private static List<(SpriteImage Picture, PictureShading Shading)> Pictures(LayeredScene scene)
+    {
+        List<(SpriteImage Picture, PictureShading Shading)> shown = LayerPictures(scene);
+        foreach (SpriteDraw draw in scene.Paint.SpriteDraws)
+        {
+            var image = (ImageSpriteDraw)draw;
+            Add(shown, image.Image.Sheet, image.Shading);
+        }
+        return shown;
+    }
+
+    /// <summary>Each distinct picture and shading the layers of <paramref name="scene"/> draw, layer by layer.</summary>
+    /// <exception cref="InvalidOperationException">
+    /// A picture names no shading, or a layer shows pictures gameplay colours by group, which a frontend scene has none of.
+    /// </exception>
+    private static List<(SpriteImage Picture, PictureShading Shading)> LayerPictures(LayeredScene scene)
     {
         Ensure.NotNull(scene);
         var shown = new List<(SpriteImage Picture, PictureShading Shading)>();
@@ -88,11 +155,6 @@ internal static class SceneShownColours
                     throw new InvalidOperationException($"Layer {layer.GetType().Name} is not one this check knows the pictures of.");
             }
         }
-        foreach (SpriteDraw draw in scene.Paint.SpriteDraws)
-        {
-            var image = (ImageSpriteDraw)draw;
-            Add(shown, image.Image.Sheet, image.Shading);
-        }
         return shown;
     }
 
@@ -113,6 +175,13 @@ internal static class SceneShownColours
             shown.Add((picture, named));
     }
 }
+
+/// <summary>A picture a scene shows under one shading in one draw row, with the inks it shows so.</summary>
+/// <param name="Picture">The picture.</param>
+/// <param name="Shading">The shading it shows under.</param>
+/// <param name="DrawRow">The sprite row its draws OR into every part, zero for a layer's picture or a draw in no frontend colouring.</param>
+/// <param name="Inks">The inks it shows.</param>
+internal sealed record ShownPictureInks(SpriteImage Picture, PictureShading Shading, int DrawRow, HashSet<int> Inks);
 
 /// <summary>One colour a picture of a scene shows at a place of the native 256-colour image.</summary>
 /// <param name="Picture">The picture's name.</param>

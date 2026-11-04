@@ -10,6 +10,7 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="SharedProjectileFrames">The projectile frames it spawns that draw from the shared sheet of the sets it is in.</param>
 /// <param name="SharedSpriteObjects">The room sprite-object kinds it spawns that draw from the shared sheet of the sets it is in.</param>
 /// <param name="ForeignEntries">The other behaviours' members its code calls directly.</param>
+/// <param name="FrameNotes">For a behaviour serving several definitions, each unit whose frames every definition shows.</param>
 internal sealed record BehaviourSpawns(
     Behaviour Behaviour,
     IReadOnlyDictionary<string, IReadOnlySet<string>> EnemyFrames,
@@ -17,7 +18,8 @@ internal sealed record BehaviourSpawns(
     IReadOnlySet<string> SpriteObjects,
     IReadOnlySet<string> SharedProjectileFrames,
     IReadOnlySet<string> SharedSpriteObjects,
-    IReadOnlyList<(Unit From, Unit To)> ForeignEntries);
+    IReadOnlyList<(Unit From, Unit To)> ForeignEntries,
+    IReadOnlyList<string> FrameNotes);
 
 /// <summary>
 /// Walks every projectile program family, every enemy behaviour (and each definition of a behaviour serving several)
@@ -74,7 +76,7 @@ internal sealed class SpawnAnalysis
             analysis._familyWalks.Add(family, walk);
         }
 
-        var walks = new List<(Behaviour Behaviour, Walk Walk, IReadOnlyDictionary<string, IReadOnlySet<string>> Frames)>();
+        var walks = new List<(Behaviour Behaviour, Walk Walk, DefinitionFrameSplit Frames)>();
         foreach (Behaviour behaviour in model.Behaviours)
         {
             var walk = new Walk(model, scanner, behaviour.Type, family: null);
@@ -82,8 +84,8 @@ internal sealed class SpawnAnalysis
             walk.Run();
             reached.UnionWith(walk.Reached);
             IReadOnlySet<string> familyFrames = analysis.WithFamilies(walk.Own).EnemyFrames;
-            IReadOnlyDictionary<string, IReadOnlySet<string>> frames = behaviour.Definitions.Count == 1
-                ? new Dictionary<string, IReadOnlySet<string>> { [behaviour.Definitions[0]] = familyFrames }
+            DefinitionFrameSplit frames = behaviour.Definitions.Count == 1
+                ? new DefinitionFrameSplit(new Dictionary<string, IReadOnlySet<string>> { [behaviour.Definitions[0]] = familyFrames }, [])
                 : new DefinitionFrames(model, scanner, behaviour, walk).Resolve(familyFrames);
             walks.Add((behaviour, walk, frames));
         }
@@ -122,12 +124,12 @@ internal sealed class SpawnAnalysis
         analysis.BySheet = sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value), StringComparer.Ordinal);
 
         var behaviours = new List<BehaviourSpawns>();
-        foreach ((Behaviour behaviour, Walk walk, IReadOnlyDictionary<string, IReadOnlySet<string>> frames) in walks)
+        foreach ((Behaviour behaviour, Walk walk, DefinitionFrameSplit frames) in walks)
         {
             Collected own = analysis.WithFamilies(Of(owned, behaviour.Type));
             Collected sharedSpawns = analysis.WithFamilies(Of(shared, behaviour.Type));
-            behaviours.Add(new BehaviourSpawns(behaviour, frames, own.ProjectileFrames, own.SpriteObjects,
-                sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries));
+            behaviours.Add(new BehaviourSpawns(behaviour, frames.Frames, own.ProjectileFrames, own.SpriteObjects,
+                sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries, frames.Notes));
         }
         analysis.Behaviours = behaviours;
         Collected anywhereSpawns = analysis.WithFamilies(everywhere);
@@ -144,11 +146,12 @@ internal sealed class SpawnAnalysis
         {
             foreach ((Unit origin, Unit target) in spawns.ForeignEntries.Where(entry => entry.To.Symbol is IMethodSymbol))
                 output.WriteLine($"{spawns.Behaviour.Family} spawns through {target} (from {origin})");
-            IReadOnlySet<string> first = spawns.EnemyFrames.Values.First();
-            if (spawns.EnemyFrames.Values.Any(frames => !frames.SetEquals(first)))
+            if (spawns.EnemyFrames.Count > 1)
             {
                 foreach ((string definition, IReadOnlySet<string> frames) in spawns.EnemyFrames)
                     output.WriteLine($"{spawns.Behaviour.Family}: {definition} shows {frames.Count} frames");
+                foreach (string note in spawns.FrameNotes)
+                    output.WriteLine($"{spawns.Behaviour.Family}: {note}");
             }
         }
         output.WriteLine($"anywhere code: {string.Join(", ", AnywhereSpawners.Select(_model.Describe))}");

@@ -16,6 +16,9 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// <summary>Checks enemy drawing after the power-bomb damage phase removes queued actors.</summary>
 internal static class PowerBombDeathDrawingVerification
 {
+    /// <summary>The palette row the fixture's one-member graphics set loads its member's colours into.</summary>
+    private const int PowerBombFixtureRow = 1;
+
     /// <summary>Reproduces issue #1168's queue, damage, and draw order for lethal and surviving enemies.</summary>
     internal static void VerifyPowerBombDeathDrawing()
     {
@@ -35,6 +38,8 @@ internal static class PowerBombDeathDrawingVerification
             enemies.TileArtwork = artwork;
             // The room's graphics set loads the enemy, as every room that holds one does.
             var set = new RoomEnemyGraphicsSetDefinition($"power-bomb {header}", [new RoomEnemyGraphicsSetMember(header)]);
+            // The fixture's set loads its one member's colours into row one, as its record would name.
+            FixtureGraphicsSetRows.Record(set, [PowerBombFixtureRow]);
             enemies.GraphicsSet.LoadGraphicsSet(set);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);

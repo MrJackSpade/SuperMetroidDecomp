@@ -58,8 +58,11 @@ internal static class BossSpriteEntriesVerification
         var queue = new VramWriteQueue();
         var owned = new InstalledArtworkUploadSource(InstalledArtworkId.StandardObjectTiles);
         var content = RuntimeArtworkContent.Of(runtime);
-        ReadOnlyMemory<byte> picture = owned.Resolve(content)[..0x800];
-        queue.EnqueueSource(owned, checked((ushort)picture.Length), VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters));
+        // An owned source's transfer copies the whole source, so the upload is the installed characters entire; the staged
+        // upload after it lands over its bytes from 0x800 on.
+        ReadOnlyMemory<byte> installed = owned.Resolve(content);
+        ReadOnlyMemory<byte> picture = installed[..0x800];
+        queue.EnqueueSource(owned, checked((ushort)installed.Length), VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters));
         var staging = new VramStagingBuffer(64);
         staging.ByteView(0, 64)[3] = 0x5a;
         queue.EnqueueStaging(64, 0x7e9000, staging, 0, VramDmaDestinationConstants.At(GameplayVramLayoutConstants.ObjectCharacters, 0x400));

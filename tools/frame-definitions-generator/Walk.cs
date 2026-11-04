@@ -105,6 +105,8 @@ internal sealed class Walk
     private readonly HashSet<Unit> _recorded = [];
     private readonly Dictionary<Unit, HashSet<Unit>> _callers = [];
     private readonly Dictionary<Unit, Collected> _helperEvidence = [];
+    private readonly List<(Unit Unit, SpawnCall Call)> _openSpriteObjectSpawns = [];
+    private readonly List<(Unit Unit, string Kind)> _dataSpriteObjects = [];
     private readonly Queue<(Unit Unit, WalkContext Context)> _pending = new();
 
     /// <summary>
@@ -183,13 +185,41 @@ internal sealed class Walk
             (Unit unit, WalkContext context) = _pending.Dequeue();
             UnitScan scan = ScanOf(unit);
             if (_recorded.Add(unit))
+            {
                 RecordCalls(unit, scan);
+                _openSpriteObjectSpawns.AddRange(scan.SpawnCalls.Where(call => call.OpenSpriteObjectKind).Select(call => (unit, call)));
+            }
             foreach (IFieldSymbol member in scan.EnumMembers)
                 Record(unit, scan, member, context);
             foreach (Unit target in scan.Targets)
                 Reach(target, context, viaDispatch: false, origin: unit);
         }
+        RouteDataSpriteObjects();
         RouteHelperEvidence();
+    }
+
+    /// <summary>
+    /// Sends each room sprite-object kind named by code that spawns nothing (a cue or frame table carrying the kind) to the
+    /// sheets of the walk's spawn calls whose kind is not a constant, since only such a call spawns a kind other code
+    /// chose; a walk without one routes them as other helper evidence.
+    /// </summary>
+    private void RouteDataSpriteObjects()
+    {
+        foreach ((Unit unit, string kind) in _dataSpriteObjects)
+        {
+            if (_openSpriteObjectSpawns.Count == 0)
+            {
+                foreach (SpawnTarget target in ScanOf(unit).UnitTargets)
+                    Collect(unit, target)?.SpriteObjects.Add(kind);
+                Of(_helperEvidence, unit).SpriteObjects.Add(kind);
+                continue;
+            }
+            foreach ((Unit spawning, SpawnCall call) in _openSpriteObjectSpawns)
+            {
+                foreach (SpawnTarget target in call.Targets)
+                    Collect(spawning, target)?.SpriteObjects.Add(kind);
+            }
+        }
     }
 
     /// <summary>
@@ -364,8 +394,16 @@ internal sealed class Walk
         }
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomSpriteObjectKind))
         {
-            if (!ExcludedSpriteObjects.Contains(member.Name))
-                add = collected => collected.SpriteObjects.Add(member.Name);
+            if (ExcludedSpriteObjects.Contains(member.Name))
+                return;
+            if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+            {
+                Spawners.Add(unit);
+                Evidence(unit).SpriteObjects.Add(member.Name);
+                _dataSpriteObjects.Add((unit, member.Name));
+                return;
+            }
+            add = collected => collected.SpriteObjects.Add(member.Name);
         }
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEnemyProjectileKind) && _model.StartedFamily(member) is { } started)
         {

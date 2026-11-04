@@ -10,7 +10,12 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="Callee">The method called.</param>
 /// <param name="Graphics">The graphics expression, as written, for the self-check's report.</param>
 /// <param name="Copied">Whether the graphics are read from a settable instance member: another object's graphics, copied.</param>
-internal sealed record SpawnCall(IReadOnlyList<SpawnTarget> Targets, IReadOnlySet<IFieldSymbol> Arguments, IMethodSymbol Callee, string Graphics, bool Copied);
+/// <param name="OpenSpriteObjectKind">
+/// Whether the call spawns a room sprite object whose kind its argument names without a constant: a kind other code
+/// chose, such as one a cue or frame table carries.
+/// </param>
+internal sealed record SpawnCall(IReadOnlyList<SpawnTarget> Targets, IReadOnlySet<IFieldSymbol> Arguments, IMethodSymbol Callee, string Graphics, bool Copied,
+    bool OpenSpriteObjectKind);
 
 /// <summary>What one unit's code references: the units it may run and the enum members it names.</summary>
 internal sealed class UnitScan
@@ -404,6 +409,7 @@ internal sealed class UnitScanner(CoreModel model)
     private void RecordSpawnCall(UnitScan scan, SemanticModel semantic, ArgumentListSyntax arguments, IMethodSymbol method)
     {
         ExpressionSyntax? graphics = null;
+        bool openSpriteObjectKind = false;
         var others = new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default);
         for (int index = 0; index < arguments.Arguments.Count; index++)
         {
@@ -416,6 +422,11 @@ internal sealed class UnitScanner(CoreModel model)
                 graphics = argument.Expression;
                 continue;
             }
+            if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomSpriteObjectKind)
+                && !argument.Expression.DescendantNodesAndSelf().Any(part => part is ExpressionSyntax value
+                    && semantic.GetSymbolInfo(value).Symbol is IFieldSymbol named
+                    && SymbolEqualityComparer.Default.Equals(named.ContainingType, model.RoomSpriteObjectKind)))
+                openSpriteObjectKind = true;
             foreach (SyntaxNode part in argument.Expression.DescendantNodesAndSelf())
             {
                 if (part is ExpressionSyntax value && semantic.GetSymbolInfo(value).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member)
@@ -427,7 +438,7 @@ internal sealed class UnitScanner(CoreModel model)
         bool copied = semantic.GetSymbolInfo(graphics).Symbol is IPropertySymbol { IsStatic: false, SetMethod: not null }
             or IFieldSymbol { IsStatic: false, IsReadOnly: false, IsConst: false };
         scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others, method.OriginalDefinition,
-            graphics.ToString(), copied));
+            graphics.ToString(), copied, openSpriteObjectKind));
     }
 
     /// <summary>Records one referenced symbol as an enum member or as the units it reaches.</summary>

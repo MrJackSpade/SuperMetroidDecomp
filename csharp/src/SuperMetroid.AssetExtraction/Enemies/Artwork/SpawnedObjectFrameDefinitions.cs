@@ -502,14 +502,9 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Bosses/Draygon/DraygonBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] DraygonSpriteObjects =
     [
-        RoomSpriteObjectKind.BotwoonLargeExplosion,
-        RoomSpriteObjectKind.DraygonBreathBubble,
-        RoomSpriteObjectKind.DraygonDeathEvirFacingRight,
-        RoomSpriteObjectKind.DraygonIntroEvir,
         RoomSpriteObjectKind.DustCloud,
         RoomSpriteObjectKind.SmallExplosion,
         RoomSpriteObjectKind.Smoke,
-        RoomSpriteObjectKind.SporeSpawnDyingExplosion,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns.</summary>
@@ -2917,6 +2912,7 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The room sprite objects <c>Bosses/Draygon/DraygonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomSpriteObjectKind[] DraygonSharedSpriteObjects =
     [
+        RoomSpriteObjectKind.BotwoonLargeExplosion,
         RoomSpriteObjectKind.DraygonBreathBubble,
         RoomSpriteObjectKind.DraygonDeathEvirFacingRight,
         RoomSpriteObjectKind.DraygonIntroEvir,
@@ -2925,6 +2921,7 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.EnemyProjectileDud,
         RoomSpriteObjectKind.SmallExplosion,
         RoomSpriteObjectKind.Smoke,
+        RoomSpriteObjectKind.SporeSpawnDyingExplosion,
     ];
 
     /// <summary>The projectile frames <c>Bosses/Kraid/FakeKraidBehavior.cs</c> spawns onto its sets' shared sheet.</summary>

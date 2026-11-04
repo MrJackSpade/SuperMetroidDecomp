@@ -105,11 +105,11 @@ public sealed class PauseSelectorSourcePresentation : PauseSelectorPresentation
             frames, document.Palette);
     }
 
-    /// <summary>Validates and writes a pause-selector document as JSON.</summary>
+    /// <summary>Writes a pause-selector document as JSON.</summary>
     public static void Write(Stream output, PauseSelectorDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+        output.Write(bytes);
     }
 
     /// <summary>The import-side presentation <paramref name="selectors"/> was read with.</summary>

@@ -46,11 +46,10 @@ public sealed class MapScreenPresentation
         }
         return new(pages);
     }
-    /// <summary>Validates and writes a map-screen document as camel-case JSON.</summary>
+    /// <summary>Writes a map-screen document as camel-case JSON.</summary>
     public static void Write(Stream output, MapScreenDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 }

@@ -157,22 +157,42 @@ internal static class GameplayHudPresentationVerification
         using (var output = File.Create(replacement))
             GameplayHudPresentationFile.Write(output, document);
 
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null,
-            document with { SelectedPalette = 8 }), "HUD rejects invalid highlight palette");
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null,
-            document with { Template = document.Template[..^1] }), "HUD rejects incomplete template");
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null,
-            document with { TopRow = document.TopRow[..^1] }), "HUD rejects incomplete immutable row");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameplayHudPresentationFile.Write(written, document with { SelectedPalette = 8 });
+            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "HUD rejects invalid highlight palette on read");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameplayHudPresentationFile.Write(written, document with { Template = document.Template[..^1] });
+            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "HUD rejects incomplete template on read");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameplayHudPresentationFile.Write(written, document with { TopRow = document.TopRow[..^1] });
+            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "HUD rejects incomplete immutable row on read");
         var overlap = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
             ArtworkJson.Options);
         overlap = overlap with { Digits = overlap.Digits with { HealthAnchor = new(8, 0) } };
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null, overlap),
-            "HUD rejects overlapping visual owners");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameplayHudPresentationFile.Write(written, overlap);
+            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "HUD rejects overlapping visual owners on read");
         var missingIcon = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
             ArtworkJson.Options);
         missingIcon.Icons.Remove("XRay");
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(Stream.Null, missingIcon),
-            "HUD rejects missing named icons");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameplayHudPresentationFile.Write(written, missingIcon);
+            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "HUD rejects missing named icons on read");
 
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");
     }

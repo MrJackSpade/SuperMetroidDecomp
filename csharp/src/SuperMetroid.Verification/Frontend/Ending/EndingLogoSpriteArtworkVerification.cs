@@ -73,7 +73,8 @@ internal static class EndingLogoSpriteArtworkVerification
             {
                 using var invalid = new MemoryStream();
                 EndingLogoSpritePresentation.Write(invalid, document);
-            }, "ending logo sprites reject missing named art");
+                _ = EndingLogoSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+            }, "ending logo sprites reject missing named art on read");
             return edited;
         }
         finally

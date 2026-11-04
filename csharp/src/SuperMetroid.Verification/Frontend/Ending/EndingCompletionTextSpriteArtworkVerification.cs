@@ -111,7 +111,8 @@ internal static class EndingCompletionTextSpriteArtworkVerification
             {
                 using var invalid = new MemoryStream();
                 EndingCompletionTextSpritePresentation.Write(invalid, document);
-            }, "ending completion text sprites reject missing named art");
+                _ = EndingCompletionTextSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+            }, "ending completion text sprites reject missing named art on read");
         }
         finally
         {

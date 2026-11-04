@@ -31,13 +31,12 @@ public static class MapArrowFile
         }
     }
 
-    /// <summary>Validates and writes a map-arrow presentation document as JSON.</summary>
+    /// <summary>Writes a map-arrow presentation document as JSON.</summary>
     /// <param name="json">Caller-owned destination stream.</param>
-    /// <param name="document">The document to validate and serialize.</param>
+    /// <param name="document">The document to serialize.</param>
     public static void Write(Stream json, MapArrowDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

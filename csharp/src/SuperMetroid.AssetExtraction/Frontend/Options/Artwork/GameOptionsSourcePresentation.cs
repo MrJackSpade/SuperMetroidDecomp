@@ -309,14 +309,12 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
-    /// <summary>Serializes an authored document, validating it with the loader before writing any output bytes.</summary>
+    /// <summary>Serializes an authored document to the output.</summary>
     /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
-    /// <param name="document">Authored artwork and layout, whose collections are not modified by serialization or validation.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails options-menu presentation validation.</exception>
+    /// <param name="document">Authored artwork and layout, whose collections are not modified by serialization.</param>
     public static void Write(Stream output, GameOptionsPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

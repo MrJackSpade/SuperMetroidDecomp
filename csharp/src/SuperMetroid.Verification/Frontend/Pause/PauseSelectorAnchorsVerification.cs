@@ -81,8 +81,12 @@ internal static class PauseSelectorAnchorsVerification
         var extra = new Dictionary<string, PauseEquipmentLabel>(document.Labels) { ["Absent.Key"] = document.Labels[names[0]] };
         Reject(extra);
         void Reject(Dictionary<string, PauseEquipmentLabel> labels) =>
-            AssertThrows<InvalidDataException>(() => PauseEquipmentLabelPresentation.Write(new MemoryStream(), document with { Labels = labels }),
-                "label loader rejects missing, substituted, case-changed or extra identities");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                PauseEquipmentLabelPresentation.Write(written, document with { Labels = labels });
+                _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+            }, "label loader rejects missing, substituted, case-changed or extra identities on read");
     }
 
     /// <summary>Checks one coordinate axis against retail geometry and validates authored boundary values.</summary>
@@ -115,8 +119,12 @@ internal static class PauseSelectorAnchorsVerification
             var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors);
             var first = anchors["Reserve.Mode"];
             anchors["Reserve.Mode"] = horizontal ? new(unchecked((ushort)invalid), first.Y) : new(first.X, unchecked((ushort)invalid));
-            AssertThrows<InvalidDataException>(() => PauseSelectorSourcePresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
-                "invalid authored coordinate");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                PauseSelectorSourcePresentation.Write(written, document with { Anchors = anchors });
+                _ = PauseSelectorSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid authored coordinate on read");
         }
     }
 }

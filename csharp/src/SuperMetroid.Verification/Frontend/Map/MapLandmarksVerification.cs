@@ -94,7 +94,12 @@ internal static class MapLandmarksVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
         foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
             document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() => MapLandmarkFile.Write(new MemoryStream(), bad), "invalid landmark schema/identity/position rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                MapLandmarkFile.Write(written, bad);
+                _ = MapLandmarkFile.Read(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid landmark schema/identity/position rejected on read");
         File.WriteAllText(path, "{bad landmarks");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad landmark override cannot fall back");
         AssertEqual("{bad landmarks", File.ReadAllText(path), "bad landmark override preserved for repair");

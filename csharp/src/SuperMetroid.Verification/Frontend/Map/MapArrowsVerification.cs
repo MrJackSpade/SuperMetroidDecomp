@@ -75,10 +75,20 @@ internal static class MapArrowsVerification
         foreach (int duration in new[] { 0, 255, -1 })
         {
             entries["Left"] = entries["Left"] with { DurationTicks = [duration] };
-            AssertThrows<InvalidDataException>(() => MapArrowFile.Write(new MemoryStream(), document with { Arrows = entries }), "invalid arrow duration rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                MapArrowFile.Write(written, document with { Arrows = entries });
+                _ = MapArrowFile.Read(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid arrow duration rejected on read");
         }
         entries.Remove("Down");
-        AssertThrows<InvalidDataException>(() => MapArrowFile.Write(new MemoryStream(), document with { Arrows = entries }), "missing direction rejected");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            MapArrowFile.Write(written, document with { Arrows = entries });
+            _ = MapArrowFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "missing direction rejected on read");
         File.WriteAllText(path, "broken arrow override");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "broken arrow override fails loudly");
         AssertEqual("broken arrow override", File.ReadAllText(path), "broken override never replaced");

@@ -180,7 +180,8 @@ internal static class CeresDestructionArtworkVerification
         {
             using var invalid = new MemoryStream();
             CeresRevealActorLayoutFile.Write(invalid, actorsDocument);
-        }, "Zebes reveal layout rejects missing or reordered actor identities");
+            _ = CeresRevealActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "Zebes reveal layout rejects missing or reordered actor identities on read");
         File.Delete(actorsOverride);
 
         string destructionActorsName = CeresDestructionActorLayoutFormat.FileName;
@@ -248,7 +249,8 @@ internal static class CeresDestructionArtworkVerification
         {
             using var invalid = new MemoryStream();
             CeresDestructionActorLayoutFile.Write(invalid, destructionActorsDocument);
-        }, "Ceres destruction layout rejects missing or reordered actor identities");
+            _ = CeresDestructionActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "Ceres destruction layout rejects missing or reordered actor identities on read");
         File.Delete(destructionActorsOverride);
 
         string spritesName = CeresDestructionSpriteFormat.FileName;
@@ -280,7 +282,8 @@ internal static class CeresDestructionArtworkVerification
         {
             using var invalid = new MemoryStream();
             CeresDestructionSpritePresentation.Write(invalid, spriteDocument);
-        }, "Ceres destruction sprites reject a missing named frame");
+            _ = CeresDestructionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "Ceres destruction sprites reject a missing named frame on read");
         File.WriteAllBytes(spritesPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "a destruction sprite override cannot hide corrupt stock artwork");

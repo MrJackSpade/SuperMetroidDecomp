@@ -49,8 +49,12 @@ internal static class MapArrowCasesVerification
         {
             var missing = new Dictionary<string, MapArrowEntry>(document.Arrows);
             missing.Remove(name);
-            AssertThrows<InvalidDataException>(() => MapArrowFile.Write(new MemoryStream(), document with { Arrows = missing }),
-                "all four named directions remain required");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                MapArrowFile.Write(written, document with { Arrows = missing });
+                _ = MapArrowFile.Read(new MemoryStream(written.ToArray(), writable: false));
+            }, "all four named directions remain required on read");
         }
     }
 

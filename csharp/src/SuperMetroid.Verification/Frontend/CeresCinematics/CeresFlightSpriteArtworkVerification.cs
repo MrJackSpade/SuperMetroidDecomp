@@ -99,7 +99,8 @@ internal static class CeresFlightSpriteArtworkVerification
         {
             using var invalid = new MemoryStream();
             CeresFlightSpritePresentation.Write(invalid, document);
-        }, "Ceres flight sprites reject a missing named frame");
+            _ = CeresFlightSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "Ceres flight sprites reject a missing named frame on read");
 
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),

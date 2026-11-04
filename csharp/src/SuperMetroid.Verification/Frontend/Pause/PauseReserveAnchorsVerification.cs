@@ -63,8 +63,12 @@ internal static class PauseReserveAnchorsVerification
         {
             var anchors = (Position16<SpritePixels>[])document.Anchors.Clone();
             anchors[0] = horizontal ? new(unchecked((ushort)invalid), anchors[0].Y) : new(anchors[0].X, unchecked((ushort)invalid));
-            AssertThrows<InvalidDataException>(() => PauseReserveTankSourcePresentation.Write(new MemoryStream(), document with { Anchors = anchors }),
-                "invalid authored reserve coordinate");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                PauseReserveTankSourcePresentation.Write(written, document with { Anchors = anchors });
+                _ = PauseReserveTankSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid authored reserve coordinate on read");
         }
     }
 }

@@ -104,13 +104,12 @@ public sealed class IntroEyeTilemapPresentation
         return new IntroEyeTilemapPresentation(frames);
     }
 
-    /// <summary>Validates and writes an opening-eye tilemap document as JSON.</summary>
+    /// <summary>Writes an opening-eye tilemap document as JSON.</summary>
     public static void Write(Stream json, IntroEyeTilemapDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

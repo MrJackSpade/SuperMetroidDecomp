@@ -278,7 +278,8 @@ internal static class CeresFlightArtworkVerification
         {
             using var invalid = new MemoryStream();
             CeresFlightActorLayoutFile.Write(invalid, document);
-        }, "Ceres flight layout rejects missing or reordered actor identities");
+            _ = CeresFlightActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "Ceres flight layout rejects missing or reordered actor identities on read");
         File.Delete(overridePath);
     }
 

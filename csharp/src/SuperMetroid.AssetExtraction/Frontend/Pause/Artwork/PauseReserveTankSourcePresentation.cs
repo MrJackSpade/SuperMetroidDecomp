@@ -95,13 +95,13 @@ public sealed class PauseReserveTankSourcePresentation : PauseReserveTankPresent
     /// <param name="Fills">The seven partial-fill frames, indexed by fill level less one.</param>
     internal sealed record FrameSet(SpriteComposition? Full, SpriteComposition? EndCap, SpriteComposition? Empty,
         ImmutableArray<SpriteComposition?> Fills);
-    /// <summary>Validates and writes an editable reserve-tank presentation document as JSON.</summary>
+    /// <summary>Writes an editable reserve-tank presentation document as JSON.</summary>
     /// <param name="output">The caller-owned destination stream.</param>
-    /// <param name="document">The presentation document to validate and serialize.</param>
+    /// <param name="document">The presentation document to serialize.</param>
     public static void Write(Stream output, PauseReserveTankDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+        output.Write(bytes);
     }
 
     /// <summary>The import-side presentation <paramref name="tanks"/> was read with.</summary>

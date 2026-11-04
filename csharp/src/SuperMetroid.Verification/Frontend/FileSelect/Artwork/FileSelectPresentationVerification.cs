@@ -126,14 +126,21 @@ internal static class FileSelectPresentationVerification
             "corrupt file-select override fails loudly");
         using (var output = File.Create(replacement))
             FileSelectSourcePresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() => FileSelectSourcePresentation.Write(Stream.Null,
-            document with { ObjectPalette = 8 }),
-            "file-select rejects invalid object palette");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            FileSelectSourcePresentation.Write(written, document with { ObjectPalette = 8 });
+            _ = FileSelectSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "file-select rejects invalid object palette on read");
         var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
         missingPage.Pages.Remove(FileSelectParts.PageName(FileSelectPage.CopyCompleted));
-        AssertThrows<InvalidDataException>(() => FileSelectSourcePresentation.Write(Stream.Null, missingPage),
-            "file-select rejects a missing named page");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            FileSelectSourcePresentation.Write(written, missingPage);
+            _ = FileSelectSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "file-select rejects a missing named page on read");
         var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
         FileSelectPatchCellDocument duplicate = duplicatePatch.Patches[
@@ -143,8 +150,11 @@ internal static class FileSelectPresentationVerification
             Cells = [duplicate, duplicate],
         };
         AssertThrows<InvalidDataException>(() =>
-                FileSelectSourcePresentation.Write(Stream.Null, duplicatePatch),
-            "file-select rejects duplicate patch coordinates");
+        {
+            using var written = new MemoryStream();
+            FileSelectSourcePresentation.Write(written, duplicatePatch);
+            _ = FileSelectSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "file-select rejects duplicate patch coordinates on read");
 
         Console.WriteLine(
             $"File-select presentation: {comparedFrames} exact ROM-free frames through " +

@@ -87,7 +87,11 @@ internal static class PauseEquipmentBaseAssetsVerification
             "restored equipment base reproduces stock pixels at the retained phase");
 
         void Reject(PauseEquipmentBaseDocument invalid) => AssertThrows<InvalidDataException>(() =>
-            PauseEquipmentBasePresentation.Write(new MemoryStream(), invalid), "invalid equipment base rejected");
+        {
+            using var written = new MemoryStream();
+            PauseEquipmentBasePresentation.Write(written, invalid);
+            _ = PauseEquipmentBasePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "invalid equipment base rejected on read");
         Reject(document with { Version = 2 });
         Reject(document with { Cells = document.Cells[..^1] });
         var invalidCells = document.Cells.ToArray();

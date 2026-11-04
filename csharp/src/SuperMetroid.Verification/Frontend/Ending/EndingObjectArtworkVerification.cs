@@ -306,7 +306,8 @@ internal static class EndingObjectArtworkVerification
         {
             using var invalid = new MemoryStream();
             EndingCloudSpritePresentation.Write(invalid, cloudDocument);
-        }, "ending cloud sprites reject missing named art");
+            _ = EndingCloudSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending cloud sprites reject missing named art on read");
         File.Delete(cloudSpriteOverride);
 
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);

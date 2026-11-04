@@ -53,15 +53,14 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
         return new IntroScientistSpritePresentation(frames);
     }
 
-    /// <summary>Validates and writes an editable scientist-scene baby sprite document as JSON.</summary>
+    /// <summary>Writes an editable scientist-scene baby sprite document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The ten-frame sprite document to validate and serialize.</param>
+    /// <param name="document">The ten-frame sprite document to serialize.</param>
     public static void Write(Stream json, IntroScientistSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

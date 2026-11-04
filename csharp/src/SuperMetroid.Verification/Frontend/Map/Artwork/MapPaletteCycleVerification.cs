@@ -163,12 +163,20 @@ internal static class MapPaletteCycleVerification
         {
             var invalid = document with { Frames = [document.Frames[0] with { DurationTicks = duration }] };
             using var output = new MemoryStream();
-            AssertThrows<InvalidDataException>(() => MapPaletteCycleFile.Write(output, invalid), "invalid palette duration rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                MapPaletteCycleFile.Write(output, invalid);
+                _ = MapPaletteCycleFile.Read(new MemoryStream(output.ToArray(), writable: false));
+            }, "invalid palette duration rejected on read");
         }
         var badColors = document.Frames[0].Colors.ToArray();
         badColors[0] = badColors[0] with { Red = 32 };
         using (var output = new MemoryStream())
-            AssertThrows<InvalidDataException>(() => MapPaletteCycleFile.Write(output, document with { Frames = [document.Frames[0] with { Colors = badColors }] }), "palette RGB overflow rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                MapPaletteCycleFile.Write(output, document with { Frames = [document.Frames[0] with { Colors = badColors }] });
+                _ = MapPaletteCycleFile.Read(new MemoryStream(output.ToArray(), writable: false));
+            }, "palette RGB overflow rejected on read");
         File.WriteAllText(replacement, "broken palette JSON");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid palette override never falls back to stock");
         AssertEqual("broken palette JSON", File.ReadAllText(replacement), "invalid palette override retained for repair");

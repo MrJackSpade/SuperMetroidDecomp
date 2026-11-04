@@ -129,7 +129,8 @@ internal static class IntroEggEffectSpriteArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroEggEffectSpritePresentation.Write(malformed, document);
-        }, "egg effect artwork rejects a missing named frame");
+            _ = IntroEggEffectSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "egg effect artwork rejects a missing named frame on read");
         File.Delete(overridePath);
     }
 }

@@ -62,15 +62,14 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
         return new CeresFlightSpritePresentation(frames);
     }
 
-    /// <summary>Serializes a sprite document using the presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
-    /// <param name="json">Caller-owned destination stream for the validated UTF-8 JSON.</param>
+    /// <summary>Serializes a sprite document using the presentation JSON options and writes it to the destination.</summary>
+    /// <param name="json">Caller-owned destination stream for the UTF-8 JSON.</param>
     /// <param name="document">Document containing all six required named visual frames.</param>
     public static void Write(Stream json, CeresFlightSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

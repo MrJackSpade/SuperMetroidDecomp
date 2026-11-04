@@ -143,23 +143,37 @@ internal static class GameOverPresentationVerification
             "corrupt game-over override fails loudly");
         using (var output = File.Create(replacement))
             GameOverSourcePresentation.Write(output, document);
-        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null,
-            document with { BabyPalette = 8 }),
-            "game-over rejects invalid actor palette");
-        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null,
-            document with { Tilemap = document.Tilemap[..^1] }),
-            "game-over rejects incomplete tilemap");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOverSourcePresentation.Write(written, document with { BabyPalette = 8 });
+            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "game-over rejects invalid actor palette on read");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOverSourcePresentation.Write(written, document with { Tilemap = document.Tilemap[..^1] });
+            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "game-over rejects incomplete tilemap on read");
         var missingSprite = RequiredJson.Deserialize<GameOverPresentationDocument>(
             extracted, ArtworkJson.Options);
         missingSprite.Sprites.Remove(GameOverPresentationDefinitions.EggFrame);
-        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null, missingSprite),
-            "game-over rejects missing named sprite");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOverSourcePresentation.Write(written, missingSprite);
+            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "game-over rejects missing named sprite on read");
         var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
             extracted, ArtworkJson.Options);
         shortPalette.BabyPalettes[GameOverPresentationNames.BabyPaletteName(
             GameOverBabyPalette.OpenCry)] = [0];
-        AssertThrows<InvalidDataException>(() => GameOverSourcePresentation.Write(Stream.Null, shortPalette),
-            "game-over rejects malformed Baby palette");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameOverSourcePresentation.Write(written, shortPalette);
+            _ = GameOverSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "game-over rejects malformed Baby palette on read");
 
         Console.WriteLine(
             $"Game-over presentation: {comparedFrames} exact ROM-free frames, compiled " +

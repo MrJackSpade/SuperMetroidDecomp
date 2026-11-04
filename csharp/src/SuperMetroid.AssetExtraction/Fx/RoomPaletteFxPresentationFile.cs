@@ -268,16 +268,14 @@ public static class RoomPaletteFxPresentationFile
         return RoomPaletteFxColorRecognition.Create(colors);
     }
 
-    /// <summary>Serializes a current-version presentation document and validates it before writing any bytes to the destination.</summary>
-    /// <param name="json">The stream that receives the validated UTF-8 JSON document.</param>
+    /// <summary>Serializes a current-version presentation document to the destination.</summary>
+    /// <param name="json">The stream that receives the UTF-8 JSON document.</param>
     /// <param name="document">The complete editable color document; animation timing and destinations remain defined by engine mechanics.</param>
-    /// <exception cref="InvalidDataException">The document fails the current schema or palette-row validation.</exception>
     public static void Write(Stream json, RoomPaletteFxPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document,
             ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 

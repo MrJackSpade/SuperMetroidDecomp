@@ -132,14 +132,12 @@ public sealed class GameplayMessageTitlePresentation
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    /// <summary>Serializes and validates every installed title and the shared border before writing any UTF-8 JSON bytes.</summary>
+    /// <summary>Serializes every installed title and the shared border as UTF-8 JSON bytes.</summary>
     /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Authored title dictionary and border array read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or title validation.</exception>
     public static void Write(Stream output, GameplayMessageTitleDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

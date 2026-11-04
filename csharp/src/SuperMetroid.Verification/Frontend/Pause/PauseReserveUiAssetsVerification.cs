@@ -90,7 +90,11 @@ internal static class PauseReserveUiAssetsVerification
             "restored reserve UI rebind reproduces the current stock presentation at the retained phase");
 
         void Reject(PauseReserveUiDocument invalid) => AssertThrows<InvalidDataException>(() =>
-            PauseReserveUiFile.Write(new MemoryStream(), invalid), "invalid reserve UI schema rejected");
+        {
+            using var written = new MemoryStream();
+            PauseReserveUiFile.Write(written, invalid);
+            _ = PauseReserveUiFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "invalid reserve UI schema rejected on read");
         Reject(document with { Version = 2 });
         Reject(document with { Labels = [] });
         Reject(document with { Digits = document.Digits with { Cells = document.Digits.Cells[..9] } });

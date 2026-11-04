@@ -255,8 +255,6 @@ internal static class EnemySheetComposer
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
-            // An enemy whose encounter sets its colours is coloured in those its frames first show in (#1513).
-            RgbColor[] colours = loaded.Shades.FirstShownColours([enemy]);
             int tileBase = layout.TileBaseOf(enemy);
             // The sheet is coloured in the row the set loads, or the enemy's initialization selects, its colours in.
             int paletteBits = loaded.Colours.RowOf(enemy);
@@ -264,8 +262,11 @@ internal static class EnemySheetComposer
             var variations = new Dictionary<string, FrameArtworkVariation[]>(StringComparer.Ordinal);
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            foreach (FramePictures framePictures in Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters,
-                CorpseRotSimulation.Rots(enemy)))
+            FramePictures[] pictures = [.. Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters, CorpseRotSimulation.Rots(enemy))];
+            // An enemy whose encounter sets its colours is coloured in those its frames first show in, and a frame family
+            // always drawn in one colouring in that colouring (#1513).
+            RgbColor[] colours = loaded.Shades.WithFrameColourings(loaded.Shades.FirstShownColours([enemy]), pictures, paletteBits);
+            foreach (FramePictures framePictures in pictures)
             {
                 frames.AddRange(framePictures.Sources);
                 if (framePictures.Variations.Length > 0)

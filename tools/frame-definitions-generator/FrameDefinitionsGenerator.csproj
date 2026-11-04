@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Generates the AssetExtraction enemy frame and spawned-object tables from SuperMetroid.Core's semantic call graph
+       (#1513). It lies outside csharp/, so the repository's Directory.Build files and module map do not cover it. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- The shared Windows no-dialog policy uses LibraryImport, whose generated stubs are unsafe. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>SuperMetroid.FrameDefinitionsGenerator</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- MSBuildWorkspace evaluates SuperMetroid.Core in its own build host. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
+  </ItemGroup>
+  <Import Project="../../csharp/test-support/WindowsConsole.projitems" />
+</Project>

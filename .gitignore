@@ -26,6 +26,8 @@ csharp/.vs/
 csharp/**/bin/
 csharp/**/obj/
 csharp/**/altbin/
+tools/**/bin/
+tools/**/obj/
 *.csproj.user
 # Android signing identities are machine/private backup material, never source artifacts.
 *.keystore

@@ -46,14 +46,11 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, WorkRobotPaletteCycleFormat.FileName);
         File.WriteAllBytes(overrideFile, WorkRobotPaletteCycleFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        WorkRobotPaletteCycle cycle = edited.Enemies.WorkRobotPaletteCycle ??
-            throw new InvalidDataException("Edited enemy art has no Work Robot palette cycle.");
+        WorkRobotPaletteCycle cycle = EnemyTileArtworkFiles.Open(stockDirectory, overrides).WorkRobotPaletteCycle();
         AssertTrue(cycle.Resolve(2, 1) != native.Resolve(2, 1),
             "Work Robot color override changes the selected RGB5 word");
         AssertEqual(cycle.Resolve(2, 1),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Enemies.WorkRobotPaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .WorkRobotPaletteCycle.")).Resolve(2, 1),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).WorkRobotPaletteCycle().Resolve(2, 1),
             "Work Robot color override persists across reload");
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
         for (int color = 0; color < WorkRobotPaletteDefinitions.ColorCount; color++)
@@ -63,12 +60,12 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).WorkRobotPaletteCycle(),
             "invalid Work Robot color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1,\"frames\":[]}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).WorkRobotPaletteCycle(),
             "duplicate Work Robot color property fails loudly");
         visual.Frames[2][1] = prior with { Green = 32 };
         AssertThrows<InvalidDataException>(() => WorkRobotPaletteCycleFile.Read(new MemoryStream(WorkRobotPaletteCycleFile.Write(visual))),
@@ -77,7 +74,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
 
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, null),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, null).WorkRobotPaletteCycle(),
             "corrupt stock Work Robot colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Work Robot colors: 24 native RGB5 words, persistent override and strict stock/override failures pass.");

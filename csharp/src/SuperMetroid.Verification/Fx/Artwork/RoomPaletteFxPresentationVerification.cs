@@ -345,18 +345,22 @@ internal static class RoomPaletteFxPresentationVerification
         AssertEqual(9, independentComponents, "Stock endpoint words reduce to nine independent channel inputs");
         var endpointFixture = splitEndpoints.Concat(new ushort[] { 0xdb6d, 0xdb6f, 0xdb7d, 0xdb83, 0xdce5, 0xdce7, 0xdce9, 0xde3b })
             .ToDictionary(pointer => pointer, pointer => ReadVerificationWord(bus, 0x8d0000 | pointer));
+        // The supplied words keyed once; each case is that table with one endpoint's word replaced.
+        Dictionary<PaletteFxColorKey, RgbColor> keyedEndpointFixture = PaletteFxColorAddressAccess.Keyed(ToColors(endpointFixture));
         foreach (ushort endpoint in splitEndpoints)
-        for (int rgb = 0; rgb < 32768; rgb++)
         {
-            var supplied = new Dictionary<ushort, ushort>(endpointFixture) { [endpoint] = (ushort)rgb };
-            Dictionary<PaletteFxColorKey, RgbColor> source = PaletteFxColorAddressAccess.Keyed(ToColors(supplied));
-            var view = new LoadingPaletteInputView(source);
-            foreach (ushort selected in splitEndpoints)
+            PaletteFxColorKey endpointKey = PaletteFxColorAddressAccess.KeyAt(endpoint);
+            for (int rgb = 0; rgb < 32768; rgb++)
             {
-                AssertTrue(view.TryGetValue(selected, out RgbColor actual), "Split endpoint remains owned");
-                AssertEqual(selected == endpoint ? (ushort)rgb : endpointFixture[selected], actual,
-                    "Every RGB5 endpoint edit preserves its value and other supplied endpoints");
-                AssertTrue(!source.ContainsKey(selected), "No complete split endpoint word remains stored");
+                var source = new Dictionary<PaletteFxColorKey, RgbColor>(keyedEndpointFixture) { [endpointKey] = RgbColor.FromWord((ushort)rgb) };
+                var view = new LoadingPaletteInputView(source);
+                foreach (ushort selected in splitEndpoints)
+                {
+                    AssertTrue(view.TryGetValue(selected, out RgbColor actual), "Split endpoint remains owned");
+                    AssertEqual(selected == endpoint ? (ushort)rgb : endpointFixture[selected], actual,
+                        "Every RGB5 endpoint edit preserves its value and other supplied endpoints");
+                    AssertTrue(!source.ContainsKey(selected), "No complete split endpoint word remains stored");
+                }
             }
         }
         var aliases = new Dictionary<ushort, ushort>();
@@ -496,22 +500,25 @@ internal static class RoomPaletteFxPresentationVerification
         var inputs = presentation.heatInputs;
         foreach (int? channel in new[] { inputs.greenOverride, inputs.blueOverride, inputs.mixedBlueOverride })
             AssertTrue(channel is null, "Stock endpoint channels are calculated, not stored overrides");
-        foreach (ushort endpoint in new ushort[] { 0xe55c, 0xe55e })
-        for (int rgb = 0; rgb < 32768; rgb++)
+        // The native endpoint words keyed once; each case is that table with one endpoint's word replaced.
+        Dictionary<PaletteFxColorKey, RgbColor> keyedHeatEndpoints = PaletteFxColorAddressAccess.Keyed(ToColors(new Dictionary<ushort, ushort>
         {
-            var supplied = new Dictionary<ushort, ushort>
+            [0xe46e] = ReadVerificationWord(bus, 0x8de46e),
+            [0xe470] = ReadVerificationWord(bus, 0x8de470),
+            [0xe55c] = ReadVerificationWord(bus, 0x8de55c),
+            [0xe55e] = ReadVerificationWord(bus, 0x8de55e),
+        }));
+        foreach (ushort endpoint in new ushort[] { 0xe55c, 0xe55e })
+        {
+            PaletteFxColorKey endpointKey = PaletteFxColorAddressAccess.KeyAt(endpoint);
+            for (int rgb = 0; rgb < 32768; rgb++)
             {
-                [0xe46e] = ReadVerificationWord(bus, 0x8de46e),
-                [0xe470] = ReadVerificationWord(bus, 0x8de470),
-                [0xe55c] = ReadVerificationWord(bus, 0x8de55c),
-                [0xe55e] = ReadVerificationWord(bus, 0x8de55e),
-            };
-            supplied[endpoint] = (ushort)rgb;
-            Dictionary<PaletteFxColorKey, RgbColor> source = PaletteFxColorAddressAccess.Keyed(ToColors(supplied));
-            var split = new HeatPaletteInputView(source);
-            AssertTrue(split.TryGetValue(endpoint, out RgbColor actual), "Split endpoint remains owned");
-            AssertEqual((ushort)rgb, actual, "Every independently edited RGB5 endpoint survives channel decomposition");
-            AssertTrue(!source.ContainsKey(endpoint), "No complete endpoint word remains in source storage");
+                var source = new Dictionary<PaletteFxColorKey, RgbColor>(keyedHeatEndpoints) { [endpointKey] = RgbColor.FromWord((ushort)rgb) };
+                var split = new HeatPaletteInputView(source);
+                AssertTrue(split.TryGetValue(endpoint, out RgbColor actual), "Split endpoint remains owned");
+                AssertEqual((ushort)rgb, actual, "Every independently edited RGB5 endpoint survives channel decomposition");
+                AssertTrue(!source.ContainsKey(endpoint), "No complete endpoint word remains in source storage");
+            }
         }
         var expectedAliases = new Dictionary<ushort, ushort>();
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })

@@ -72,7 +72,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainEscapeText = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainEscapeText() } };
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
         int firstDestination = EscapeNativePageWords.Of(EscapeTextPages.PageFirstCharacter(0)) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
@@ -83,14 +83,13 @@ internal static class MotherBrainEscapeTextArtworkVerification
             .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
                 EscapeTextPages.PageByteCount(0) - 1)),
             "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
-        RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-            .Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainEscapeText."));
+        RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainEscapeText();
         AssertTrue(reloaded.Characters.Span.SequenceEqual((edited.Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Characters.Span),
             "Mother Brain escape-text override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+            () => EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainEscapeText(),
             "malformed Mother Brain escape-text override is rejected explicitly");
         Console.WriteLine(
             "  Mother Brain escape text art: five guarded OBJ pages, cartridge parity, visible edit, reload and invalid override pass.");

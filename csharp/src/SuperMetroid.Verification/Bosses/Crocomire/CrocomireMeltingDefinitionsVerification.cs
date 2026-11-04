@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -178,8 +179,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
         // Crocomire's initialization attaches the body canvases his melt is drawn on (#1355, #1466).
-        BossBodySheets sheets = RepositoryInstallation.Artwork.BossBodySheets
-            ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+        BossBodySheets sheets = InstalledFixtures.BossBodySheets;
         CrocomireDeathState death = BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch

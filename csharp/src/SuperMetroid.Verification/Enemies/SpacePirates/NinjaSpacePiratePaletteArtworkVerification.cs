@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -61,7 +62,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         JsonNode red = edit.Required("colors").Required(4).Required("red");
         edit.Required("colors").Required(4)["red"] = red.GetValue<int>() ^ 1;
         File.WriteAllText(overridePath, edit.ToJsonString());
-        var selected = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork selected = EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory));
         (RoomEnemySlot editedSlot, _) = Initialize(selected);
         SpriteSheetShadeDocument editedShade = GoldWallShade(selected);
         AssertTrue(editedShade.Inks.SequenceEqual(stockShade.Inks), "Gold-Pirate color edit keeps the shade's inks");
@@ -75,7 +76,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
-        InstalledEnemyArtwork restored = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork restored = EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory));
         (RoomEnemySlot restoredSlot, _) = Initialize(restored);
         AssertTrue(GoldWallShade(restored).Colours.SequenceEqual(editedShade.Colours),
             "Reload after stock repair retains the selected ninja target colors");
@@ -86,7 +87,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // The gold wall shade the import pre-colours the first ninja its graphics sets place in, from artwork's enemy colours.
         static SpriteSheetShadeDocument GoldWallShade(InstalledEnemyArtwork artwork)
         {
-            EnemySheetInputs inputs = EnemySheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory) with { Enemies = artwork.Enemies };
+            EnemySheetInputs inputs = EnemySheetFixtures.Inputs with { Enemies = artwork.Enemies };
             RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
                 candidate.Records.ToArray().Any(record => IsNinja(record.DefinitionId)));
             EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.First(sheet => IsNinja(sheet.Enemy));

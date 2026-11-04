@@ -1,7 +1,10 @@
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
@@ -18,7 +21,7 @@ internal static class BossBodyWords
     /// <exception cref="InvalidDataException">A part names a frame <paramref name="bosses"/> does not hold, or a cell the frame does not write.</exception>
     internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossArtworkCatalog bosses, ushort? blankWord = null)
     {
-        Dictionary<string, BossBodyFrameSource> frames = BossBodySheetComposer.Frames(bosses.Sources, owner).ToDictionary(frame => frame.Name, StringComparer.Ordinal);
+        Dictionary<string, BossBodyFrameSource> frames = FramesOf(bosses.Sources, owner);
         ushort blank = blankWord ?? BossBodySheetComposer.BlankOf(owner).PackedWord;
         var words = new ushort[layer.Rows * BossBodyDefinitions.ColumnCount];
         foreach (BossBodyPlacement placement in layer.Placements)
@@ -41,4 +44,15 @@ internal static class BossBodyWords
         }
         return words;
     }
+
+    /// <summary>
+    /// The frames composed from each installed artwork, by boss: installed artwork never changes, so a check reading a layer
+    /// every frame composes its boss's frames once rather than once per read.
+    /// </summary>
+    private static readonly ConditionalWeakTable<BossSourceArtwork, ConcurrentDictionary<BossBodyOwner, Dictionary<string, BossBodyFrameSource>>> composed = new();
+
+    /// <summary>The frames <paramref name="owner"/> draws in <paramref name="sources"/>, by name, composed on first use.</summary>
+    private static Dictionary<string, BossBodyFrameSource> FramesOf(BossSourceArtwork sources, BossBodyOwner owner) =>
+        composed.GetValue(sources, _ => new()).GetOrAdd(owner, boss =>
+            BossBodySheetComposer.Frames(sources, boss).ToDictionary(frame => frame.Name, StringComparer.Ordinal));
 }

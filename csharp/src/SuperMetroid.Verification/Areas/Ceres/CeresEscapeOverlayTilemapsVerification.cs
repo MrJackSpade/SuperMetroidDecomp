@@ -92,8 +92,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         document.Pages[title.Name][0] = BackgroundTileWordBytes.Tile(document.Pages[title.Name][0].PackedWord ^ 1);
         File.WriteAllBytes(Path.Combine(overrideDirectory, fileName),
             CeresEscapeOverlays.Write(document));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        InstalledEnemyArtwork edited = stock with { Areas = stock.Areas with { CeresEscapeOverlayTilemaps = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeOverlayTilemaps() } };
         AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> stockTiles),
             "stock English Ceres title resolves");
         AssertTrue((edited.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title, out ReadOnlyMemory<BackgroundTile> editedTiles),
@@ -110,15 +109,14 @@ internal static class CeresEscapeOverlayTilemapsVerification
         int titleWord = CeresEscapeOverlayTilemapDefinitions.Emergency.Cell;
         AssertEqual(native[titleWord] ^ 1, editedOverlay.Overlay.WordsIn(edited.Areas.CeresEscapeOverlayTilemaps)[titleWord],
             "edited Ceres title changes the word shown over BG1");
-        AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title,
+        AssertTrue(EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeOverlayTilemaps().TryResolve(title,
                     out ReadOnlyMemory<BackgroundTile> reloaded) &&
                    BackgroundTileWordBytes.Of(reloaded.Span).AsSpan().SequenceEqual(editedWords),
             "Ceres title tilemap edit survives catalog reload");
 
         File.WriteAllBytes(Path.Combine(overrideDirectory, fileName), [1, 2, 3]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeOverlayTilemaps(),
             "corrupt Ceres overlay JSON fails loudly");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.
         Console.WriteLine(

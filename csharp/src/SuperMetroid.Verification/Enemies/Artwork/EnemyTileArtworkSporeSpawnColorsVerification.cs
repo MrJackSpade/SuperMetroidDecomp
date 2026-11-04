@@ -64,7 +64,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, SporeSpawnColorFormat.FileName);
         File.WriteAllBytes(overrideFile, SporeSpawnColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { SporeSpawnColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors() } };
         SporeSpawnColorCatalog colors = edited.Bosses.SporeSpawnColors ??
             throw new InvalidDataException("Edited enemy art has no Spore Spawn colors.");
         AssertTrue(native.ResolveSpore(5) != colors.ResolveSpore(5),
@@ -84,8 +84,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                 frame, "death background");
         }
         AssertEqual(colors.ResolveDeathSprite(6, 5),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.SporeSpawnColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .SporeSpawnColors.")).ResolveDeathSprite(6, 5),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors().ResolveDeathSprite(6, 5),
             "Spore Spawn override survives catalog reload");
 
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
@@ -140,19 +139,19 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors(),
             "invalid Spore Spawn override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors(),
             "duplicate Spore Spawn color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
             "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).SporeSpawnColors(),
             "corrupt stock Spore Spawn colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, current and target palette edits, ROM guard and strict failures pass.");

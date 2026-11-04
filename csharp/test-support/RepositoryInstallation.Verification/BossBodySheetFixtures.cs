@@ -25,8 +25,7 @@ internal static class BossBodySheetFixtures
         Enum.GetValues<BossBodyOwner>().ToDictionary(owner => owner, _ => new ConditionalWeakTable<BossArtworkCatalog, BossBodyArtworkFixture>());
 
     /// <summary>The installation's frames and its installed sheets, for a fixture whose boss draws no body layer.</summary>
-    internal static BossBodyArtworkFixture Stock => new(inputs.Value.Bosses, RepositoryInstallation.Artwork.BossBodySheets
-        ?? throw new InvalidOperationException("The repository installation has no boss body sheets."));
+    internal static BossBodyArtworkFixture Stock => new(inputs.Value.Bosses, InstalledFixtures.BossBodySheets);
 
     /// <summary>The frames <paramref name="owner"/> draws its body from in <paramref name="bosses"/>, and the sheets composed from them.</summary>
     /// <exception cref="InvalidDataException"><paramref name="bosses"/> holds no frames for <paramref name="owner"/>, or they cannot be pictured.</exception>

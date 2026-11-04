@@ -47,7 +47,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, BotwoonColorFormat.FileName);
         File.WriteAllBytes(overrideFile, BotwoonColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { BotwoonColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors() } };
         BotwoonColorCatalog colors = edited.Bosses.BotwoonColors ??
             throw new InvalidDataException("Edited enemy art has no Botwoon colors.");
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
@@ -58,8 +58,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
                 $"Botwoon health band {band} adjacent color remains native");
         }
         AssertEqual(colors.HealthColor(7, 5),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.BotwoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BotwoonColors.")).HealthColor(7, 5),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors().HealthColor(7, 5),
             "Botwoon color override survives catalog reload");
 
         var guard = NewBotwoonColorReadGuard(rom);
@@ -95,19 +94,19 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors(),
             "invalid Botwoon color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors(),
             "duplicate Botwoon color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(visual), writable: false)),
             "reading Botwoon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).BotwoonColors(),
             "corrupt stock Botwoon colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Botwoon colors: 128 native RGB5 words, eight live health bands, preserved threshold progression, persistent override, ROM guard and strict failures pass.");

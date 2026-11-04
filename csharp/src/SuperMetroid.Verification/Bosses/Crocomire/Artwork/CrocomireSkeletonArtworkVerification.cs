@@ -94,8 +94,7 @@ internal static class CrocomireSkeletonArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Colours);
         }
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
-            stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { CrocomireSkeleton = EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireSkeleton() } };
         (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
         int firstDestination = steps[0].Single().FirstByte;
@@ -109,18 +108,18 @@ internal static class CrocomireSkeletonArtworkVerification
             "Crocomire skeleton edit leaves every other OBJ character byte unchanged");
         AssertEqual(0, editedGuard.ForbiddenReadAttempts,
             "edited Crocomire skeleton remains ROM-free at upload time");
-        AssertEqual(editedCharacters[firstDestination], RunInstalled(
-                EnemyTileArtworkFiles.Load(stockDirectory, overrides)).Characters[firstDestination],
+        AssertEqual(editedCharacters[firstDestination], RunInstalled(stock with { Bosses = stock.Bosses with
+                { CrocomireSkeleton = EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireSkeleton() } }).Characters[firstDestination],
             "Crocomire skeleton PNG override survives catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, null),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, null).CrocomireSkeleton(),
             "corrupt stock Crocomire skeleton fails its manifest hash");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireSkeleton(),
             "malformed Crocomire skeleton override fails loudly");
         Console.WriteLine("Crocomire skeleton art: six native transfers, OBJ character parity, " +
             "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");

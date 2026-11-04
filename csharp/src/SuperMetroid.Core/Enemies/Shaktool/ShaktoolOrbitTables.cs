@@ -11,13 +11,26 @@ public static class ShaktoolOrbitTables
     /// corrective samples. Reflection, true pi or direct negative cosine differ.
     /// This exact convention does not identify the original authoring software.
     /// </remarks>
-    internal static int Sample(int index) => (int)UnquantizedSample(index);
+    internal static int Sample(int index)
+    {
+        if ((uint)index >= SampleCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return Samples[index];
+    }
+
+    /// <summary>The number of words: the negative-cosine prefix and the full signed sine wave.</summary>
+    private const int SampleCount = 320;
+
+    /// <summary>
+    /// <see cref="Sample"/> at each index, evaluated once: each word is a pure function of its index, and evaluating
+    /// the decimal series on every segment placement made every orbiting Shaktool pay for it.
+    /// </summary>
+    private static readonly int[] Samples = [.. Enumerable.Range(0, SampleCount).Select(index => (int)UnquantizedSample(index))];
 
     /// <summary>Evaluates Shaktool's byte-angle sine with 24 decimal Taylor terms instead of platform math functions.</summary>
     /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the original-table proof checks both bounds at every index.</remarks>
     internal static decimal UnquantizedSample(int index)
     {
-        if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= SampleCount) throw new ArgumentOutOfRangeException(nameof(index));
         int angle = (index + 192) % 256;
         decimal x = angle * 3.14159m / 128;
         decimal squared = x * x;

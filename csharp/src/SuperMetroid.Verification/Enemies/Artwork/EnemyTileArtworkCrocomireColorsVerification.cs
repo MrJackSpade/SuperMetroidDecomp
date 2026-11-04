@@ -60,7 +60,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, CrocomireColorFormat.FileName);
         File.WriteAllBytes(overrideFile, CrocomireColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { CrocomireColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors() } };
         CrocomireColorCatalog colors = edited.Bosses.CrocomireColors ??
             throw new InvalidDataException("Edited enemy art has no Crocomire colors.");
         CheckEditedBand(CrocomireColorDefinitions.FightBodyCount,
@@ -75,8 +75,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         CheckEditedBand(CrocomireColorDefinitions.WallSpikesCount,
             native.ResolveWallSpikes, colors.ResolveWallSpikes, "wall spikes");
         AssertEqual(colors.ResolveFightBody(1),
-            (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .Bosses.CrocomireColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .CrocomireColors.")).ResolveFightBody(1),
+            EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors().ResolveFightBody(1),
             "Crocomire color override survives catalog reload");
 
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads
@@ -125,19 +124,19 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors(),
             "invalid Crocomire color override fails loudly");
         File.WriteAllBytes(overrideFile,
             "{\"version\":1,\"version\":1}"u8.ToArray());
         AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
+            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireColors(),
             "duplicate Crocomire color property fails loudly");
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => CrocomireColorFile.Read(new MemoryStream(CrocomireColorFile.Write(visual), writable: false)),
             "reading Crocomire colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),
+        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).CrocomireColors(),
             "corrupt stock Crocomire colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Crocomire colors: five native RGB5 transfers, live boss CGRAM, white flash, persistent override, and strict failures pass.");

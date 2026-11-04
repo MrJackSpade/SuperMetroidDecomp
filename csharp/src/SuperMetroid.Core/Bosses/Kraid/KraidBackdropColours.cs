@@ -55,9 +55,8 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
                 KraidBackdropShows.KraidColours or KraidBackdropShows.FadingOut => throw CannotFade(fade),
                 _ => throw CannotFade(fade),
             },
-            // The cartridge fades the backdrop's colour memory toward black from whatever it holds: Kraid's colours after
-            // his growth, the room's when he dies before his growth fades the backdrop in, or the growth fade's colours
-            // when he dies during it.
+            // The death fade takes the backdrop toward black from whatever it shows: Kraid's colours after his growth, the
+            // room's when he dies before his growth fades the backdrop in, or the growth fade's colours when he dies during it.
             KraidBackdropFade.ToBlack => Shows switch
             {
                 KraidBackdropShows.KraidColours or KraidBackdropShows.RoomColours or KraidBackdropShows.FadingInFromRoomColours =>
@@ -80,7 +79,10 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
         {
             KraidBackdropShows.RoomColours => step,
             KraidBackdropShows.FadingInFromRoomColours => Steps,
-            _ => 0,
+            KraidBackdropShows.KraidColours => 0,
+            KraidBackdropShows.FadingOut or KraidBackdropShows.Black or KraidBackdropShows.FadingInFromBlack =>
+                throw new InvalidOperationException($"Kraid's backdrop cannot begin a fade to black while it shows {Shows}."),
+            _ => throw new InvalidOperationException($"Undefined Kraid backdrop {Shows}."),
         };
         return KraidBackdropShows.FadingOut;
     }
@@ -90,7 +92,10 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     {
         KraidBackdropShows.RoomColours => KraidShades.BackdropFadingOutFromRoomColours(fadingOutOrigin, value),
         KraidBackdropShows.FadingInFromRoomColours => KraidShades.BackdropFadingOutFromFadingIn(fadingOutOrigin, value),
-        _ => KraidShades.BackdropFadingOut(value),
+        KraidBackdropShows.KraidColours => KraidShades.BackdropFadingOut(value),
+        KraidBackdropShows.FadingOut or KraidBackdropShows.Black or KraidBackdropShows.FadingInFromBlack =>
+            throw new InvalidOperationException($"Kraid's backdrop fades to black from {fadingOutFrom}, which no fade to black starts from."),
+        _ => throw new InvalidOperationException($"Undefined Kraid backdrop {fadingOutFrom}."),
     };
 
     /// <summary>Completes the running fade: the backdrop shows the colours it faded to.</summary>

@@ -78,7 +78,7 @@ public static class SamusAtmosphericArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Samus atmospheric artwork manifest does not match the pinned cartridge.");
-            SamusArtworkFile stock = SamusArtworkFile.Stock(Path.Combine(stockDirectory, ArtworkFileName), manifest.ArtworkSha256);
+            SamusArtworkFile stock = SamusArtworkFile.Read(Path.Combine(stockDirectory, ArtworkFileName));
             _ = stock.WithContext(() => Build(stock.Json<ArtworkDocument>(JsonOptions), stock.Path));
             SamusArtworkFile selected = stock.Select(overrideDirectory);
             return selected.WithContext(() => Build(selected.Json<ArtworkDocument>(JsonOptions), selected.Path));

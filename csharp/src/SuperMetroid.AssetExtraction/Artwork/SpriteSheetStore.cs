@@ -205,16 +205,16 @@ internal sealed class SpriteSheetStore
         hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
-    /// <summary>The player's override of a file when present, otherwise the stock file after checking its hash.</summary>
+    /// <summary>
+    /// The player's override of a file when present, otherwise the stock file as installed. An installed file a player
+    /// edited in place is used as edited (#1532); it fails only where it is decoded, when it does not decode.
+    /// </summary>
     private byte[] Selected(string name)
     {
-        string stockPath = Path.Combine(stockDirectory, name);
-        byte[] stock = File.ReadAllBytes(stockPath);
-        if (!hashes.TryGetValue(name, out string? expected) ||
-            !string.Equals(Convert.ToHexString(SHA256.HashData(stock)), expected, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock sprite sheet file {stockPath} failed its manifest hash.");
+        if (!hashes.ContainsKey(name))
+            throw new InvalidDataException($"Sprite sheet manifest {Path.Combine(stockDirectory, manifestFileName)} omits {name}.");
         string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-        return overridePath is not null && File.Exists(overridePath) ? File.ReadAllBytes(overridePath) : stock;
+        return File.ReadAllBytes(overridePath is not null && File.Exists(overridePath) ? overridePath : Path.Combine(stockDirectory, name));
     }
 
     /// <summary>Stable camel-case manifest fields.</summary>

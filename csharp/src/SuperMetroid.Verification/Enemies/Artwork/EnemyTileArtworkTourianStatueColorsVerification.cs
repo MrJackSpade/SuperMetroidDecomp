@@ -168,7 +168,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         File.Delete(overridePath);
         File.WriteAllText(stockPath, "broken stock");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).TourianStatueColors(),
-            "Corrupt Tourian statue stock colors fail manifest validation");
+            "Corrupt Tourian statue stock colors fail loudly where it is read");
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Tourian statue colors: 56 native RGB5 words, entrance/eye/grey shown colours match native writes, isolated edits, ROM guard, override persistence and strict failures pass.");
 

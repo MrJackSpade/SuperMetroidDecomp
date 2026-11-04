@@ -356,7 +356,7 @@ internal static class EnemyTileArtworkVerification
             byte[] original = File.ReadAllBytes(editedFile);
             File.WriteAllBytes(editedFile, new byte[] { 0 });
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
-                "corrupt stock enemy artwork fails its manifest hash");
+                "corrupt stock enemy artwork fails loudly where it is read");
             File.WriteAllBytes(editedFile, original);
             File.WriteAllBytes(overridePath, new byte[] { 0 });
             AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),

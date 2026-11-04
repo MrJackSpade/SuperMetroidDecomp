@@ -128,7 +128,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ShitroidColors(),
-            "corrupt stock Shitroid colors fail manifest hash validation");
+            "corrupt stock Shitroid colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Shitroid colors: 80 native RGB5 words, native timer selection, three live target fades, persistent override, ROM guard and strict failures pass.");
 

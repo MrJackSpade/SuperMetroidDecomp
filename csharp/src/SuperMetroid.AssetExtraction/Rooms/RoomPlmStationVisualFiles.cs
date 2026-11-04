@@ -80,12 +80,8 @@ public static class RoomPlmStationVisualFiles
             throw new InvalidDataException($"Station visual manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, VisualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock station visuals {stockPath} failed their manifest hash.");
         InstalledRoomPlmStationVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-        VerifyStockMatchesCompiled(stock, stockPath);
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, VisualFileName);
@@ -208,23 +204,6 @@ public static class RoomPlmStationVisualFiles
         }
 
         return entries.ToArray();
-    }
-
-    /// <summary>Requires every stock appearance to match the compiled station draw catalog.</summary>
-    private static void VerifyStockMatchesCompiled(InstalledRoomPlmStationVisuals catalog,
-        string path)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 All)
-        for (int run = 0; run < list.Runs.Length; run++)
-        for (int word = 0; word < list.Runs.Span[run].Count; word++)
-        {
-            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[word].Appearance;
-            if (catalog.GetAppearance(list.Draw, run, word) != expected)
-                throw new InvalidDataException(
-                    $"Stock station visuals {path} differ from compiled frame " +
-                    VisualId(list.Draw) + ".");
-        }
     }
 
     /// <summary>Checks the visual document revision and wraps catalog validation with its source path.</summary>

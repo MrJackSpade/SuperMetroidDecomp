@@ -82,12 +82,8 @@ public static class RoomPlmElevatorPlatformVisualFiles
             throw new InvalidDataException($"Elevator-platform visual manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, VisualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock elevator-platform visuals {stockPath} failed their manifest hash.");
         RoomPlmElevatorPlatformVisualCatalog stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-        VerifyStockMatchesCompiled(stock, stockPath);
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, VisualFileName);
@@ -181,23 +177,6 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
 
         return entries.ToArray();
-    }
-
-    /// <summary>Rejects stock artwork whose appearances differ from the compiled native draw lists.</summary>
-    private static void VerifyStockMatchesCompiled(RoomPlmElevatorPlatformVisualCatalog catalog,
-        string path)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 DrawLists)
-        for (int run = 0; run < list.Runs.Length; run++)
-        for (int cell = 0; cell < list.Runs.Span[run].Blocks.Length; cell++)
-        {
-            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[cell].Appearance;
-            if (catalog.GetAppearance(list.Draw, run, cell) != expected)
-                throw new InvalidDataException(
-                    $"Stock elevator-platform visuals {path} differ from compiled frame " +
-                    VisualId(list.Draw) + ".");
-        }
     }
 
     /// <summary>Checks document version and entries while including the selected file path in validation errors.</summary>

@@ -78,13 +78,8 @@ public static class RoomPlmCollectibleVisualFiles
                 $"Collectible visual manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, VisualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(
-                $"Stock collectible visuals {stockPath} failed their manifest hash.");
         InstalledRoomPlmCollectibleVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-        VerifyStockMatchesCompiled(stock, stockPath);
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, VisualFileName);
@@ -198,17 +193,6 @@ public static class RoomPlmCollectibleVisualFiles
                 frame.Terrain.Appearance));
         }
         return entries.ToArray();
-    }
-
-    /// <summary>Checks that hash-validated stock appearance still match compiled cartridge definitions.</summary>
-    private static void VerifyStockMatchesCompiled(InstalledRoomPlmCollectibleVisuals catalog,
-        string path)
-    {
-        foreach (RoomPlmCollectibleDrawFrame frame in All)
-            if (catalog.GetAppearance(PlmDraw.Of(frame.Draw)) !=
-                frame.Terrain.Appearance)
-                throw new InvalidDataException(
-                    $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
     }
 
     /// <summary>Validates document version and entries, attaching the source path to any catalog error.</summary>

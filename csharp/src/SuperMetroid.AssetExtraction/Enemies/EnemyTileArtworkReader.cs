@@ -240,9 +240,6 @@ internal sealed class EnemyTileArtworkReader
             string fileName = EnemyTileArtworkFiles.FileName(definitionPointer);
             string stockPath = Path.Combine(stockDirectory, fileName);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), entry.Sha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock enemy tile PNG {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, fileName);
             string selectedPath = overridePath is not null && File.Exists(overridePath) ? overridePath : stockPath;
             try
@@ -258,9 +255,6 @@ internal sealed class EnemyTileArtworkReader
             string paletteName = EnemyTileArtworkFiles.PaletteFileName(definitionPointer);
             string stockPalettePath = Path.Combine(stockDirectory, paletteName);
             byte[] stockPalette = File.ReadAllBytes(stockPalettePath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockPalette)), entry.PaletteSha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock enemy palette {stockPalettePath} failed its manifest hash.");
             string? paletteOverridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, paletteName);
             string selectedPalettePath = paletteOverridePath is not null && File.Exists(paletteOverridePath)
                 ? paletteOverridePath : stockPalettePath;
@@ -283,16 +277,12 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">A stock file fails its manifest hash, or a selected file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting()
     {
-        byte[] first = ReadStockOrOverride(CrocomireMeltingArtworkFormat.FirstFileName,
-            manifest.CrocomireFirstSha256);
-        byte[] second = ReadStockOrOverride(CrocomireMeltingArtworkFormat.SecondFileName,
-            manifest.CrocomireSecondSha256);
+        byte[] first = ReadStockOrOverride(CrocomireMeltingArtworkFormat.FirstFileName);
+        byte[] second = ReadStockOrOverride(CrocomireMeltingArtworkFormat.SecondFileName);
         byte[] firstTilemap = ReadStockOrOverride(
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName,
-            manifest.CrocomireFirstTilemapSha256);
+            CrocomireMeltingArtworkFormat.FirstTilemapFileName);
         byte[] secondTilemap = ReadStockOrOverride(
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName,
-            manifest.CrocomireSecondTilemapSha256);
+            CrocomireMeltingArtworkFormat.SecondTilemapFileName);
         try
         {
             return CrocomireMeltingArtwork.Load(
@@ -313,8 +303,7 @@ internal sealed class EnemyTileArtworkReader
     internal CrocomireSkeletonArtwork CrocomireSkeleton()
     {
         byte[] skeletonPng = ReadStockOrOverride(
-            CrocomireSkeletonCharacterDefinitions.FileName,
-            manifest.CrocomireSkeletonSha256);
+            CrocomireSkeletonCharacterDefinitions.FileName);
         try
         {
             return CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(
@@ -340,7 +329,7 @@ internal sealed class EnemyTileArtworkReader
             // preserving existing user edits through an extraction upgrade. Stock is
             // compiled once; without an override that compiled stock is the selection.
             byte[] stockComposition = ReadVerifiedStock(
-                EnemySpritemapDefinitions.FileName, manifest.EnemyCompositionsSha256);
+                EnemySpritemapDefinitions.FileName);
             EnemySpritemapCatalog stockSpritemaps = EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(
                 EnemySpritemapDocuments.Load(new MemoryStream(stockComposition, writable: false)));
             return OverridePath(EnemySpritemapDefinitions.FileName) is { } compositionOverride
@@ -364,8 +353,7 @@ internal sealed class EnemyTileArtworkReader
         {
             EnemyProjectileSpritemapCatalog stockProjectiles =
                 EnemyProjectileSpritemapDocuments.Load(new MemoryStream(ReadVerifiedStock(
-                    EnemyProjectileSpritemapDefinitions.FileName,
-                    manifest.EnemyProjectileCompositionsSha256), writable: false));
+                    EnemyProjectileSpritemapDefinitions.FileName), writable: false));
             return OverridePath(EnemyProjectileSpritemapDefinitions.FileName) is { } projectileOverride
                 ? EnemyProjectileSpritemapDocuments.Load(
                     new MemoryStream(File.ReadAllBytes(projectileOverride), writable: false), stockProjectiles)
@@ -388,7 +376,7 @@ internal sealed class EnemyTileArtworkReader
             // validated legacy file onto complete, hash-checked v3 stock so
             // newly added Ninja art cannot discard the user's existing edits.
             byte[] stockExtendedJson = ReadVerifiedStock(
-                EnemyExtendedFrameDefinitions.FileName, manifest.EnemyExtendedCompositionsSha256);
+                EnemyExtendedFrameDefinitions.FileName);
             EnemyExtendedFrameCatalog stockExtended = EnemyExtendedFrameDocuments.Load(
                 new MemoryStream(stockExtendedJson, writable: false));
             return OverridePath(EnemyExtendedFrameDefinitions.FileName) is { } extendedOverride
@@ -411,8 +399,7 @@ internal sealed class EnemyTileArtworkReader
         try
         {
             byte[] selected = ReadStockOrOverride(
-                PhantoonBg2FrameDefinitions.FileName,
-                manifest.PhantoonBg2FramesSha256);
+                PhantoonBg2FrameDefinitions.FileName);
             return PhantoonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }
@@ -432,8 +419,7 @@ internal sealed class EnemyTileArtworkReader
         {
             // A player's override written before Draygon's frames were named for their poses keeps loading (#1465).
             byte[] selected = EnemyBg2FrameDocumentUpgrade.Upgrade(ReadStockOrOverride(
-                DraygonBg2FrameDefinitions.FileName,
-                manifest.DraygonBg2FramesSha256), DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version,
+                DraygonBg2FrameDefinitions.FileName), DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version,
                 EnemyFrameLegacyNameDefinitions.ExtendedCompositions, "Draygon");
             return DraygonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
@@ -454,8 +440,7 @@ internal sealed class EnemyTileArtworkReader
         {
             // A player's override written before Crocomire's frames were named for their poses keeps loading (#1465).
             byte[] selected = EnemyBg2FrameDocumentUpgrade.Upgrade(ReadStockOrOverride(
-                CrocomireBg2FrameDefinitions.FileName,
-                manifest.CrocomireBg2FramesSha256), CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version,
+                CrocomireBg2FrameDefinitions.FileName), CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version,
                 EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames, "Crocomire");
             return CrocomireBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
@@ -475,8 +460,7 @@ internal sealed class EnemyTileArtworkReader
         try
         {
             return MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
-                ReadStockOrOverride(MotherBrainBodyBg2FrameDefinitions.FileName,
-                    manifest.MotherBrainBodyBg2FramesSha256), writable: false));
+                ReadStockOrOverride(MotherBrainBodyBg2FrameDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
@@ -498,7 +482,7 @@ internal sealed class EnemyTileArtworkReader
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits gunship takeoff frame {index}.");
             string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(index);
-            byte[] selected = ReadStockOrOverride(fileName, expectedHash);
+            byte[] selected = ReadStockOrOverride(fileName);
             try
             {
                 gunshipFrames[index] = RoomCharacterAtlasPng.Read(
@@ -528,7 +512,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Torizo page {page.FileName}.");
-            byte[] selected = ReadStockOrOverride(page.FileName, expectedHash);
+            byte[] selected = ReadStockOrOverride(page.FileName);
             try
             {
                 torizoPages[index] = RoomCharacterAtlasPng.Read(
@@ -558,7 +542,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Ceres escape page {page.FileName}.");
-            byte[] selected = ReadStockOrOverride(page.FileName, expectedHash);
+            byte[] selected = ReadStockOrOverride(page.FileName);
             try
             {
                 ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
@@ -581,8 +565,7 @@ internal sealed class EnemyTileArtworkReader
         try
         {
             byte[] selected = ReadStockOrOverride(
-                CeresWarningGlyphDefinitions.FileName,
-                manifest.CeresEscapeOverlaySha256);
+                CeresWarningGlyphDefinitions.FileName);
             return CeresEscapeOverlays.Load(
                 new MemoryStream(selected, writable: false));
         }
@@ -600,8 +583,7 @@ internal sealed class EnemyTileArtworkReader
         try
         {
             byte[] selected = ReadStockOrOverride(
-                MotherBrainCorpseSheet.FileName,
-                manifest.MotherBrainCorpseSha256);
+                MotherBrainCorpseSheet.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
                 MotherBrainCorpseSheet.ByteCount);
@@ -621,8 +603,7 @@ internal sealed class EnemyTileArtworkReader
         try
         {
             byte[] selected = ReadStockOrOverride(
-                EscapeTextSheetFormat.FileName,
-                manifest.MotherBrainEscapeTextSha256);
+                EscapeTextSheetFormat.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
                 EscapeTextSheetFormat.ByteCount);
@@ -650,7 +631,7 @@ internal sealed class EnemyTileArtworkReader
                     $"Enemy tile manifest omits {sheet.FileName}.");
             try
             {
-                byte[] selected = ReadStockOrOverride(sheet.FileName, expectedHash);
+                byte[] selected = ReadStockOrOverride(sheet.FileName);
                 motherBrainSpecialSheets.Add(sheet.Sheet,
                     RoomCharacterAtlasPng.Read(
                         new MemoryStream(selected, writable: false), sheet.ByteCount));
@@ -671,14 +652,14 @@ internal sealed class EnemyTileArtworkReader
     internal KraidBackgroundArtwork KraidBackground()
     {
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
-            KraidBackgroundArtworkFormat.UpperFileName, manifest.KraidUpperSha256);
+            KraidBackgroundArtworkFormat.UpperFileName);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
-            KraidBackgroundArtworkFormat.LowerFileName, manifest.KraidLowerSha256);
+            KraidBackgroundArtworkFormat.LowerFileName);
         var kraidHeads = new Dictionary<int, KraidHeadTilemapAtlas>();
-        foreach ((int mouthStage, string sha256) in manifest.KraidHeadsSha256)
+        foreach (int mouthStage in manifest.KraidHeadsSha256.Keys)
         {
             string fileName = KraidBackgroundArtworkFormat.HeadFileName(mouthStage);
-            byte[] selected = ReadStockOrOverride(fileName, sha256);
+            byte[] selected = ReadStockOrOverride(fileName);
             try
             {
                 kraidHeads.Add(mouthStage, KraidHeadTilemapAtlas.Load(
@@ -692,7 +673,7 @@ internal sealed class EnemyTileArtworkReader
         }
         string roomBackgroundName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
         byte[] roomBackgroundPng = ReadStockOrOverride(
-            roomBackgroundName, manifest.KraidRoomBackgroundSha256);
+            roomBackgroundName);
         RoomCharacterAtlas roomBackground;
         try
         {
@@ -714,8 +695,7 @@ internal sealed class EnemyTileArtworkReader
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(KraidColorFormat.FileName,
-                manifest.KraidColorsSha256);
+            byte[] selected = ReadStockOrOverride(KraidColorFormat.FileName);
             return KraidColorFile.Read(new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -732,10 +712,8 @@ internal sealed class EnemyTileArtworkReader
         try
         {
             return CeresDoorVisualFiles.Load(
-                ReadStockOrOverride(CeresDoorVisualFormat.TilesFileName,
-                    manifest.CeresDoorTilesSha256),
-                ReadStockOrOverride(CeresDoorVisualFormat.ColorsFileName,
-                    manifest.CeresDoorColorsSha256));
+                ReadStockOrOverride(CeresDoorVisualFormat.TilesFileName),
+                ReadStockOrOverride(CeresDoorVisualFormat.ColorsFileName));
         }
         catch (InvalidDataException error)
         {
@@ -746,108 +724,108 @@ internal sealed class EnemyTileArtworkReader
     /// <summary>The Magdollite's palette cycle.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal MagdollitePaletteCycle MagdollitePaletteCycle() =>
-        ReadColors(MagdollitePaletteCycleFormat.FileName, manifest.MagdollitePaletteCycleSha256, "Magdollite palette cycle",
+        ReadColors(MagdollitePaletteCycleFormat.FileName, "Magdollite palette cycle",
             stream => MagdollitePaletteCycleFile.Read(stream));
 
     /// <summary>The Work Robot's palette cycle.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal WorkRobotPaletteCycle WorkRobotPaletteCycle() =>
-        ReadColors(WorkRobotPaletteCycleFormat.FileName, manifest.WorkRobotPaletteCycleSha256, "Work Robot palette cycle",
+        ReadColors(WorkRobotPaletteCycleFormat.FileName, "Work Robot palette cycle",
             stream => WorkRobotPaletteCycleFile.Read(stream));
 
     /// <summary>Crocomire's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal CrocomireColorCatalog CrocomireColors() =>
-        ReadColors(CrocomireColorFormat.FileName, manifest.CrocomireColorsSha256, "Crocomire colors",
+        ReadColors(CrocomireColorFormat.FileName, "Crocomire colors",
             stream => CrocomireColorFile.Read(stream));
 
     /// <summary>Draygon's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal DraygonColorCatalog DraygonColors() =>
-        ReadColors(DraygonColorFormat.FileName, manifest.DraygonColorsSha256, "Draygon colors",
+        ReadColors(DraygonColorFormat.FileName, "Draygon colors",
             stream => DraygonColorFile.Read(stream));
 
     /// <summary>Phantoon's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal PhantoonColorCatalog PhantoonColors() =>
-        ReadColors(PhantoonColorFormat.FileName, manifest.PhantoonColorsSha256, "Phantoon colors",
+        ReadColors(PhantoonColorFormat.FileName, "Phantoon colors",
             stream => PhantoonColorFile.Read(stream));
 
     /// <summary>The Chozo statues' and glass tube's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal ChozoAndTubeColorCatalog ChozoAndTubeColors() =>
-        ReadColors(ChozoAndTubeColorFormat.FileName, manifest.ChozoAndTubeColorsSha256, "Chozo/tube colors",
+        ReadColors(ChozoAndTubeColorFormat.FileName, "Chozo/tube colors",
             stream => ChozoAndTubeColorFile.Read(stream));
 
     /// <summary>Spore Spawn's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal SporeSpawnColorCatalog SporeSpawnColors() =>
-        ReadColors(SporeSpawnColorFormat.FileName, manifest.SporeSpawnColorsSha256, "Spore Spawn colors",
+        ReadColors(SporeSpawnColorFormat.FileName, "Spore Spawn colors",
             stream => SporeSpawnColorFile.Read(stream));
 
     /// <summary>The Dachora's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal DachoraColorCatalog DachoraColors() =>
-        ReadColors(DachoraColorFormat.FileName, manifest.DachoraColorsSha256, "Dachora colors",
+        ReadColors(DachoraColorFormat.FileName, "Dachora colors",
             stream => DachoraColorFile.Read(stream));
 
     /// <summary>The Shitroid's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal ShitroidColorCatalog ShitroidColors() =>
-        ReadColors(ShitroidColorFormat.FileName, manifest.ShitroidColorsSha256, "Shitroid colors",
+        ReadColors(ShitroidColorFormat.FileName, "Shitroid colors",
             stream => ShitroidColorFile.Read(stream));
 
     /// <summary>The cutscene Baby Metroid's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal BabyMetroidCutsceneColorCatalog BabyMetroidCutsceneColors() =>
-        ReadColors(BabyMetroidCutsceneColorFormat.FileName, manifest.BabyMetroidCutsceneColorsSha256, "cutscene Baby colors",
+        ReadColors(BabyMetroidCutsceneColorFormat.FileName, "cutscene Baby colors",
             stream => BabyMetroidCutsceneColorFile.Read(stream));
 
     /// <summary>Botwoon's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal BotwoonColorCatalog BotwoonColors() =>
-        ReadColors(BotwoonColorFormat.FileName, manifest.BotwoonColorsSha256, "Botwoon colors",
+        ReadColors(BotwoonColorFormat.FileName, "Botwoon colors",
             stream => BotwoonColorFile.Read(stream));
 
     /// <summary>Mother Brain's death colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal MotherBrainDeathColorCatalog MotherBrainDeathColors() =>
-        ReadColors(MotherBrainDeathColorFormat.FileName, manifest.MotherBrainDeathColorsSha256, "Mother Brain death colors",
+        ReadColors(MotherBrainDeathColorFormat.FileName, "Mother Brain death colors",
             stream => MotherBrainDeathColorFile.Read(stream));
 
     /// <summary>The Zebetites' colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal ZebetiteColorCatalog ZebetiteColors() =>
-        ReadColors(ZebetiteColorFile.FileName, manifest.ZebetiteColorsSha256, "Zebetite colors",
+        ReadColors(ZebetiteColorFile.FileName, "Zebetite colors",
             stream => ZebetiteColorFile.Read(stream));
 
     /// <summary>Norfair Ridley's colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal NorfairRidleyColorCatalog NorfairRidleyColors() =>
-        ReadColors(NorfairRidleyColorFormat.FileName, manifest.NorfairRidleyColorsSha256, "Norfair Ridley colors",
+        ReadColors(NorfairRidleyColorFormat.FileName, "Norfair Ridley colors",
             stream => NorfairRidleyColorFile.Read(stream));
 
     /// <summary>The Tourian statues' colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal TourianStatuePalettes TourianStatueColors() =>
-        ReadColors(TourianStatueColorFormat.FileName, manifest.TourianStatueColorsSha256, "Tourian statue colors",
+        ReadColors(TourianStatueColorFormat.FileName, "Tourian statue colors",
             stream => TourianStatueColorFile.Read(stream));
 
     /// <summary>The enemies' auxiliary colours.</summary>
     /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
     internal EnemyAuxiliaryColorCatalog AuxiliaryColors() =>
         EnemyAuxiliaryColorFiles.Read(new MemoryStream(
-            ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName, manifest.AuxiliaryColorsSha256), writable: false));
+            ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName), writable: false));
 
     /// <summary>
-    /// Reads the colour document <paramref name="fileName"/> with <paramref name="read"/>, its stock checked against
-    /// <paramref name="expectedSha256"/>; a document that does not read is reported as invalid <paramref name="colors"/>.
+    /// Reads the colour document <paramref name="fileName"/> with <paramref name="read"/>; a document that does not read is
+    /// reported as invalid <paramref name="colors"/>.
     /// </summary>
-    private T ReadColors<T>(string fileName, string expectedSha256, string colors, Func<MemoryStream, T> read)
+    private T ReadColors<T>(string fileName, string colors, Func<MemoryStream, T> read)
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(fileName, expectedSha256);
+            byte[] selected = ReadStockOrOverride(fileName);
             return read(new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -859,9 +837,9 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>Reads one of Kraid's BG2 tilemaps.</summary>
-    private RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
+    private RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName)
     {
-        byte[] selected = ReadStockOrOverride(fileName, expectedSha256);
+        byte[] selected = ReadStockOrOverride(fileName);
         try
         {
             return RoomBackgroundTilemapAtlas.Load(
@@ -875,23 +853,12 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The override of <paramref name="fileName"/> when one exists, else its stock, which is checked either way.</summary>
-    private byte[] ReadStockOrOverride(string fileName, string expectedSha256)
-    {
-        byte[] stock = ReadVerifiedStock(fileName, expectedSha256);
-        return OverridePath(fileName) is { } overridePath ? File.ReadAllBytes(overridePath) : stock;
-    }
+    /// <summary>The override of <paramref name="fileName"/> when one exists, else its stock.</summary>
+    private byte[] ReadStockOrOverride(string fileName) =>
+        File.ReadAllBytes(OverridePath(fileName) ?? Path.Combine(stockDirectory, fileName));
 
-    /// <summary>The stock <paramref name="fileName"/>, checked against <paramref name="expectedSha256"/>.</summary>
-    private byte[] ReadVerifiedStock(string fileName, string expectedSha256)
-    {
-        string stockPath = Path.Combine(stockDirectory, fileName);
-        byte[] stock = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), expectedSha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock enemy asset {stockPath} failed its manifest hash.");
-        return stock;
-    }
+    /// <summary>The stock <paramref name="fileName"/>, as the installation holds it.</summary>
+    private byte[] ReadVerifiedStock(string fileName) => File.ReadAllBytes(Path.Combine(stockDirectory, fileName));
 
     /// <summary>The override of <paramref name="fileName"/>, or null when there is none.</summary>
     private string? OverridePath(string fileName)

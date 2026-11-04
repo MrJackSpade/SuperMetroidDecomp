@@ -99,7 +99,7 @@ internal static class MaridiaElevatubeVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmMaridiaElevatubeVisualFilesConstants.ValidateStock(
                     installation.RoomPlmMaridiaElevatubeVisualDirectory),
-                "tampered elevatube stock fails manifest validation");
+                "tampered elevatube stock fails loudly where it is read");
         }
         Console.WriteLine(
             "Maridia elevatube visuals: native tile, live edit, physical/sound isolation, stock repair and strict failures pass.");

@@ -170,7 +170,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMotherBrainGlassVisuals(),
-                "tampered glass stock fails manifest validation");
+                "tampered glass stock fails loudly where it is read");
         }
     }
 

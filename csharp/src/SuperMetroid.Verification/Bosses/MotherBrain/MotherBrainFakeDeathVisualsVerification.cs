@@ -83,7 +83,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
                     installation.RoomPlmMotherBrainFakeDeathVisualDirectory),
-                "tampered Mother Brain fake-death stock fails manifest validation");
+                "tampered Mother Brain fake-death stock fails loudly where it is read");
 
             JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
                 .Single(entry => entry.Required("id").GetValue<string>() == id);

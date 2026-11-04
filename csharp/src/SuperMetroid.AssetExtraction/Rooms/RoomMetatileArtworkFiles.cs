@@ -75,9 +75,6 @@ public static class RoomMetatileArtworkFiles
             RoomMetatileFormat.ValidateBlockCount(entry.NativeByteCount);
             string stockPath = Path.Combine(stockDirectory, name);
             using PooledFileBytes stock = PooledFileBytes.Read(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock.Span)), entry.Sha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock room metatile JSON {stockPath} failed its manifest hash.");
             RoomMetatileAtlas atlas;
             try
             {

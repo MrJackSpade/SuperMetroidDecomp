@@ -90,7 +90,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ChozoAndTubeColors(),
-            "corrupt stock Chozo/tube colors fail manifest hash validation");
+            "corrupt stock Chozo/tube colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Chozo/tube colors: 96 native RGB5 words, all three live initializers, persistent overrides, ROM guard, and strict failures pass.");
 

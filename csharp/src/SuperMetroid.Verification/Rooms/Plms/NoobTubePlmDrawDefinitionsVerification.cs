@@ -163,7 +163,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmNoobTubeVisuals(),
-            "tampered tube stock fails manifest validation");
+            "tampered tube stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock glass-tube visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

@@ -77,7 +77,7 @@ internal static class SamusEaterVisualsVerification
         AssertThrows<InvalidDataException>(
             () => RoomPlmSamusEaterVisualFilesConstants.ValidateStock(
                 installation.RoomPlmSamusEaterVisualDirectory),
-            "tampered Samus Eater stock fails manifest validation");
+            "tampered Samus Eater stock fails loudly where it is read");
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
     }
 

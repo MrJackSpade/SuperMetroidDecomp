@@ -79,7 +79,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmSporeSpawnCeilingVisualFilesConstants.ValidateStock(
                     installation.RoomPlmSporeSpawnCeilingVisualDirectory),
-                "tampered Spore Spawn ceiling stock fails manifest validation");
+                "tampered Spore Spawn ceiling stock fails loudly where it is read");
         }
         Console.WriteLine(
             "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");

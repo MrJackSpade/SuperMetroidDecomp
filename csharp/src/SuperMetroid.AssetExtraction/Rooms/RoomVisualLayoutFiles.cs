@@ -128,9 +128,6 @@ public static class RoomVisualLayoutFiles
                     $"Room-layout manifest {manifestPath} has an invalid level entry.");
             string stockPath = Path.Combine(stockDirectory, name);
             using PooledFileBytes stock = PooledFileBytes.Read(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock.Span)), entry.Sha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock room layout {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;

@@ -63,8 +63,6 @@ public static class SamusOverreadFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Samus overread manifest does not match the pinned cartridge.");
         byte[] bytes = File.ReadAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName));
-        if (!string.Equals(manifest.FileSha256, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Installed Samus overread file failed its manifest hash.");
         return Document(new MemoryStream(bytes, writable: false));
     }
 

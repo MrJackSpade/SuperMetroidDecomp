@@ -165,7 +165,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmBlueDoorVisuals(),
-            "tampered blue-door stock fails manifest validation");
+            "tampered blue-door stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock blue-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

@@ -185,7 +185,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).MotherBrainDeathColors(),
-            "corrupt stock Mother Brain death colors fail manifest hash validation");
+            "corrupt stock Mother Brain death colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Mother Brain death colors: 582 native RGB5 words, 24 selectors, live body/leg/corpse/door CGRAM, persistent override, ROM guard and strict failures pass.");
 

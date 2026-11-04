@@ -173,7 +173,7 @@ internal static class EscapeGateVisualsVerification
         AssertThrows<InvalidDataException>(
             () => RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
                 installation.RoomPlmEscapeGateVisualDirectory),
-            "tampered escape-gate stock fails manifest validation");
+            "tampered escape-gate stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock escape-gate visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

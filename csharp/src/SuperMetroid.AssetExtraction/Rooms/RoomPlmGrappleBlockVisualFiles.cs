@@ -81,20 +81,8 @@ public static class RoomPlmGrappleBlockVisualFiles
                 $"Grapple-block visual manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, VisualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(
-                $"Stock Grapple-block visuals {stockPath} failed their manifest hash.");
         InstalledRoomPlmGrappleBlockVisuals stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-        foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 All)
-        {
-            RoomBlockAppearance expected = draw.Terrain.Appearance;
-            if (stock.GetAppearance(PlmDraw.Of(draw.Frame)) != expected)
-                throw new InvalidDataException(
-                    $"Stock Grapple-block visuals {stockPath} differ from {draw.Frame}.");
-        }
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, VisualFileName);

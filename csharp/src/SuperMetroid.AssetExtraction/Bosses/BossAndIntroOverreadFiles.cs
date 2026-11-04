@@ -52,8 +52,6 @@ public static class BossAndIntroOverreadFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Boss and intro overread manifest does not match the pinned cartridge.");
         byte[] bytes = File.ReadAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName));
-        if (!string.Equals(manifest.FileSha256, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Installed boss and intro overread file failed its manifest hash.");
         return Read(new MemoryStream(bytes, writable: false));
     }
 

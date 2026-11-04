@@ -120,7 +120,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         File.Delete(overridePath);
         File.WriteAllText(stockPath, "broken stock");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ZebetiteColors(),
-            "Corrupt stock Zebetite colors fail manifest validation");
+            "Corrupt stock Zebetite colors fail loudly where it is read");
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");
 

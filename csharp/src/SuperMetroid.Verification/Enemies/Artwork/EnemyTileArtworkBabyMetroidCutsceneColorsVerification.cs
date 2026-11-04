@@ -130,7 +130,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).BabyMetroidCutsceneColors(),
-            "corrupt stock cutscene Baby colors fail manifest hash validation");
+            "corrupt stock cutscene Baby colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Cutscene Baby colors: 99 native RGB5 words, six selectors, live initial/fade CGRAM, persistent override, ROM guard and strict failures pass.");
 

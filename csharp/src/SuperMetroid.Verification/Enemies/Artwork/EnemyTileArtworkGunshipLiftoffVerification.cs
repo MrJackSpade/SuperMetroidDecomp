@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).GunshipLiftoff(),
-            "corrupt stock gunship frame fails its manifest hash");
+            "corrupt stock gunship frame fails loudly where it is read");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(

@@ -17,6 +17,7 @@ internal static class PoseInputDefinitionsVerification
         int comparisons = 0;
         var unique = new HashSet<ushort>();
         int conditionCount = 0, newMask = 0, heldMask = 0;
+        var nativeLists = new List<PoseInputDefinitionsNative>[253];
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
@@ -35,7 +36,14 @@ internal static class PoseInputDefinitionsVerification
                 newMask |= native[i].New; heldMask |= native[i].Held;
             }
             if (unique.Add(pointer)) conditionCount += native.Count;
+            nativeLists[poseIndex] = native;
+        }
 
+        // Each pose's input domain runs on one worker; the lookup reads only immutable tables.
+        ParallelSweep.For(0, 253, poseIndex =>
+        {
+            SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
+            List<PoseInputDefinitionsNative> native = nativeLists[poseIndex];
             // Native conditions reference eight held bits and six rising-edge bits.
             // Cover their complete cross product, including impossible edge/held pairs.
             // Ignored bits matter only to the initial raw-zero-input branch; test both
@@ -60,9 +68,9 @@ internal static class PoseInputDefinitionsVerification
                 }
                 AssertEqual(expected, SamusPoseTransitionTable.Lookup(pose, input, edges),
                     "Compiled input graph preserves native first-match, self-match and fallback result");
-                comparisons++;
             }
-        }
+            Interlocked.Add(ref comparisons, 256 * 64 * 4);
+        });
         AssertEqual(0x0fc0, newMask, "Fixture enumerates every referenced new-input bit");
         AssertEqual(0x0ff0, heldMask, "Fixture enumerates every referenced held-input bit");
         AssertEqual(86, unique.Count, "All distinct native list identities");

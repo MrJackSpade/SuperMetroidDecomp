@@ -125,7 +125,7 @@ internal static class BotwoonWallVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmBotwoonWallVisualFilesConstants.ValidateStock(
                     installation.RoomPlmBotwoonWallVisualDirectory),
-                "tampered Botwoon wall stock fails manifest validation");
+                "tampered Botwoon wall stock fails loudly where it is read");
         }
         Console.WriteLine(
             "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");

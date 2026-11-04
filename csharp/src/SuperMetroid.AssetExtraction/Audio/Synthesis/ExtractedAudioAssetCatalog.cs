@@ -77,13 +77,8 @@ public sealed class ExtractedAudioAssetCatalog
         foreach (AudioUploadManifestEntry entry in manifest.Uploads)
         {
             string path = ResolveContainedPath(root, entry.StreamFile);
+            // An installed stream is used as installed (#1532): a player may edit it in place.
             byte[] bytes = File.ReadAllBytes(path);
-            string actualHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes));
-            if (!actualHash.Equals(entry.Sha256, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidDataException(
-                    $"Extracted audio stream '{path}' has SHA-256 {actualHash}, expected {entry.Sha256}.");
-            }
             AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).AudioSet;
             if (!loaded.TryAdd(uploadBank, bytes))
                 throw new InvalidDataException($"Audio manifest repeats SNES upload address ${entry.SnesAddress:X6}.");
@@ -321,14 +316,8 @@ public sealed class ExtractedAudioAssetCatalog
         foreach (AudioCanonicalSampleMetadata definition in definitions)
         {
             string path = ResolveContainedPath(root, definition.WavFile);
+            // An installed sample is used as installed (#1532); it fails only when it does not decode or has the wrong shape.
             byte[] bytes = File.ReadAllBytes(path);
-            string actualHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes));
-            if (!actualHash.Equals(definition.Sha256, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidDataException(
-                    $"PCM sample '{path}' has SHA-256 {actualHash}, expected {definition.Sha256}. " +
-                    "Update the manifest hash explicitly when installing a replacement sample.");
-            }
             (int sampleRate, short[] pcm) = PcmWaveFile.ReadMonoPcm16(bytes, path);
             if (sampleRate != definition.SampleRate || pcm.Length != definition.SampleCount)
             {

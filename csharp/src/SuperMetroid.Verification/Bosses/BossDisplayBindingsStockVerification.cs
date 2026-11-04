@@ -124,7 +124,7 @@ internal static class BossDisplayBindingsStockVerification
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stock, overrides), "future/malformed binding schema fails explicitly");
         using (var bytes = json.Json(document)) File.WriteAllBytes(file, bytes.ToArray());
         File.Delete(Path.Combine(stock, PhantoonBg2FrameDefinitions.FileName));
-        AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFilesConstants.ValidateStock(stock), "missing stock BG2 file fails manifest validation");
+        AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFilesConstants.ValidateStock(stock), "missing stock BG2 file fails loudly where it is read");
         AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFiles.Load(stock, overrides), "missing stock BG2 file fails installation loading");
         Console.WriteLine("PASS boss installation: validated stock manifest, selected remaps/identity/reload and malformed/missing-resource rejection.");
     }

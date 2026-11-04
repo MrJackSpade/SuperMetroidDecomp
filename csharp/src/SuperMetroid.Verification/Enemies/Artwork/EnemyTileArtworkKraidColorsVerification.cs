@@ -120,7 +120,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
 
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidColors(),
-            "tampered stock Kraid color file fails manifest hash");
+            "tampered stock Kraid color file fails loudly where it is read");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidColors(),

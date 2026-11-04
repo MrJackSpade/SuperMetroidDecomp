@@ -84,7 +84,7 @@ internal static class TourianAccessVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmTourianAccessVisualFilesConstants.ValidateStock(
                     installation.RoomPlmTourianAccessVisualDirectory),
-                "tampered Tourian stock fails manifest validation");
+                "tampered Tourian stock fails loudly where it is read");
         }
         Console.WriteLine(
             "Tourian access visuals: five native layouts, live crumble/clear edits, physical isolation, stock repair and strict failures pass.");

@@ -26,23 +26,28 @@ internal static class PhantoonMotionDefinitionsVerification
         }
         Action<PhantoonPartState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
         Action<PhantoonPartState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
-        var words = new PhantoonPartState();
         ushort[] phases = [0, 1, 2, 3, 0xffff];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];
-        foreach (bool backwards in new[] { false, true })
-        foreach (ushort phase in phases)
-        foreach (ushort fraction in fractions)
-        for (int whole = 0; whole <= ushort.MaxValue; whole++)
+        PhantoonMotionCase[] cases = [.. new[] { false, true }.SelectMany(backwards => phases.SelectMany(phase =>
+            fractions.Select(fraction => new PhantoonMotionCase(backwards, phase, fraction))))];
+        // Each direction, phase and fraction sweeps every whole speed on one worker, adjusting a state of its own; the
+        // adjustments change only the state they are given.
+        ParallelSweep.For(0, cases.Length, index =>
         {
-            words.SpeedFraction = fraction;
-            words.SpeedWhole = (ushort)whole;
-            words.SpeedPhase = phase;
-            (ushort low, ushort high, ushort next) = Expected(fraction, (ushort)whole, phase, backwards);
-            (backwards ? reverse : forward)(words);
-            AssertEqual(low, words.SpeedFraction, "Phantoon real fractional speed after adjustment");
-            AssertEqual(high, words.SpeedWhole, "Phantoon real signed whole speed after adjustment");
-            AssertEqual(next, words.SpeedPhase, "Phantoon real acceleration phase transition");
-        }
+            (bool backwards, ushort phase, ushort fraction) = cases[index];
+            var words = new PhantoonPartState();
+            for (int whole = 0; whole <= ushort.MaxValue; whole++)
+            {
+                words.SpeedFraction = fraction;
+                words.SpeedWhole = (ushort)whole;
+                words.SpeedPhase = phase;
+                (ushort low, ushort high, ushort next) = Expected(fraction, (ushort)whole, phase, backwards);
+                (backwards ? reverse : forward)(words);
+                AssertEqual(low, words.SpeedFraction, "Phantoon real fractional speed after adjustment");
+                AssertEqual(high, words.SpeedWhole, "Phantoon real signed whole speed after adjustment");
+                AssertEqual(next, words.SpeedPhase, "Phantoon real acceleration phase transition");
+            }
+        });
         Console.WriteLine("Phantoon motion: 14 native words and 5,898,240 real speed/phase adjustments match without a bus.");
 
         // Use the ROM records, wide arithmetic and explicit word extraction independently

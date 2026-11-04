@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Retains the exact selected Samus filename across hash, JSON and codec admission.</summary>
+/// <summary>Retains the exact selected Samus filename across JSON and codec admission.</summary>
 internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
 {
     /// <summary>Exception-data key marking the precise child file responsible for invalid artwork.</summary>
@@ -11,19 +11,6 @@ internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
 
     /// <summary>Captures the selected file path and its bytes before compilation.</summary>
     internal static SamusArtworkFile Read(string path) => new(path, File.ReadAllBytes(path));
-
-    /// <summary>Checks a stock artwork file against its pinned provenance hash.</summary>
-    internal static SamusArtworkFile Stock(string path, string expectedHash)
-    {
-        SamusArtworkFile file = Read(path);
-        return file.WithContext(() =>
-        {
-            if (!string.Equals(expectedHash, Convert.ToHexString(SHA256.HashData(file.Bytes)),
-                StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("Stock Samus artwork failed its provenance hash.");
-            return file;
-        });
-    }
 
     /// <summary>Uses an existing same-named override file, otherwise retaining the current artwork.</summary>
     internal SamusArtworkFile Select(string? overrideDirectory)

@@ -116,7 +116,7 @@ internal static class AudioClipExportVerification
         AssertEqual(effect == Library3Sound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
 
-    /// <summary>A tampered clip, an escaping path and a wrong format version are each rejected.</summary>
+    /// <summary>A clip edited in place loads as edited; an escaping path and a wrong format version are each rejected.</summary>
     private static void VerifyLoaderRejections(string directory, InstalledClipAudioLibrary clips)
     {
         string manifestPath = Path.Combine(directory, InstalledAudioClips.ManifestFileName);
@@ -125,10 +125,15 @@ internal static class AudioClipExportVerification
         AudioClipFile first = clips.Manifest.Music[0].Clip;
         string clipPath = Path.Combine(directory, first.Path);
         byte[] original = File.ReadAllBytes(clipPath);
-        byte[] tampered = (byte[])original.Clone();
-        tampered[^1] ^= 1;
-        File.WriteAllBytes(clipPath, tampered);
-        AssertThrows<InvalidDataException>(() => clips.ReadClip(first), "a clip whose bytes changed fails its hash");
+        short[] stockSamples = clips.ReadClip(first);
+        byte[] edited = (byte[])original.Clone();
+        edited[^1] ^= 1;
+        File.WriteAllBytes(clipPath, edited);
+        // A player may edit an installed clip in place (#1532): the edited samples play.
+        short[] editedSamples = clips.ReadClip(first);
+        AssertTrue(editedSamples.Length == stockSamples.Length && editedSamples[^1] != stockSamples[^1] &&
+                editedSamples.AsSpan(0, editedSamples.Length - 1).SequenceEqual(stockSamples.AsSpan(0, stockSamples.Length - 1)),
+            "a clip edited in place loads as edited");
         File.WriteAllBytes(clipPath, original);
 
         AudioClipManifest escaping = clips.Manifest with

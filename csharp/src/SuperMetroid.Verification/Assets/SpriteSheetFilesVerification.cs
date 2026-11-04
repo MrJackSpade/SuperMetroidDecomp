@@ -65,9 +65,9 @@ internal static class SpriteSheetFilesVerification
         byte[] stockImage = File.ReadAllBytes(Path.Combine(stock, image));
         stockImage[^20] ^= 1;
         File.WriteAllBytes(Path.Combine(stock, image), stockImage);
-        // A stock image is decoded when it is first drawn (#1430), so its manifest hash fails then, not at load.
+        // A stock image is decoded when it is first drawn (#1430), so a damaged one fails then, not at load.
         SpriteSheet damaged = SpriteSheetFiles.Load(stock, null).Get(SpriteSheetId.EscapeTimer);
-        AssertThrows<InvalidDataException>(() => { _ = damaged.Image.Pixels.Length; }, "a damaged stock sheet fails its manifest hash when first decoded");
+        AssertThrows<InvalidDataException>(() => { _ = damaged.Image.Pixels.Length; }, "a damaged stock sheet fails when it is first decoded");
 
         using (var corrupt = new MemoryStream(stockImage, writable: false))
             AssertThrows<InvalidDataException>(() => RgbaPng.Read(corrupt, out Extent16<ImagePixels> _), "a PNG chunk failing its CRC is rejected");

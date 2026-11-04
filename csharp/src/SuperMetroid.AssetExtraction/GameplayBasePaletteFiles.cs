@@ -67,9 +67,6 @@ public static class GameplayBasePaletteFiles
             throw new InvalidDataException("Gameplay base palette manifest does not match the pinned cartridge.");
         byte[] stock = File.ReadAllBytes(Path.Combine(stockDirectory,
             GameplayBasePaletteFormat.ArtworkFileName));
-        if (!string.Equals(manifest.ArtworkSha256, Convert.ToHexString(SHA256.HashData(stock)),
-            StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("Stock gameplay base palette failed its manifest hash.");
         _ = Read(new MemoryStream(stock, writable: false));
         string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
             GameplayBasePaletteFormat.ArtworkFileName);

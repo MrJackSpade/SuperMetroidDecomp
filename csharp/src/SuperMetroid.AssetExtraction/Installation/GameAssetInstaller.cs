@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Bosses;

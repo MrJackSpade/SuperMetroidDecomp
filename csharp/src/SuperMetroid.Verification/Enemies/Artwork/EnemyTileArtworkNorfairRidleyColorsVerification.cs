@@ -136,7 +136,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         File.Delete(overridePath);
         File.WriteAllText(stockPath, "broken stock");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).NorfairRidleyColors(),
-            "Corrupt Norfair Ridley stock colors fail manifest validation");
+            "Corrupt Norfair Ridley stock colors fail loudly where it is read");
         File.WriteAllBytes(stockPath, stockBytes);
         Console.WriteLine("  Norfair Ridley colors: 242 native RGB5 words, initial/reveal full-CGRAM parity, three-call cadence and terminator, ROM guard, isolated edits, override persistence and strict failures pass.");
 

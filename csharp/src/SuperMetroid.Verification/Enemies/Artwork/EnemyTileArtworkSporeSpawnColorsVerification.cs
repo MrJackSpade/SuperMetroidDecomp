@@ -152,7 +152,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).SporeSpawnColors(),
-            "corrupt stock Spore Spawn colors fail manifest hash validation");
+            "corrupt stock Spore Spawn colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, current and target palette edits, ROM guard and strict failures pass.");
 

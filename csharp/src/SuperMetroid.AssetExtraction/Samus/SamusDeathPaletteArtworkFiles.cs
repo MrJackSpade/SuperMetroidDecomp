@@ -96,7 +96,7 @@ public static class SamusDeathPaletteArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Samus death-palette manifest does not match the pinned cartridge.");
-            SamusArtworkFile stock = SamusArtworkFile.Stock(Path.Combine(stockDirectory, ArtworkFileName), manifest.ArtworkSha256);
+            SamusArtworkFile stock = SamusArtworkFile.Read(Path.Combine(stockDirectory, ArtworkFileName));
             _ = stock.WithContext(() => Build(stock.Json<ArtworkDocument>(JsonOptions)));
             SamusArtworkFile selected = stock.Select(overrideDirectory);
             return selected.WithContext(() => Build(selected.Json<ArtworkDocument>(JsonOptions)));

@@ -73,8 +73,8 @@ public static class SamusDeathTileArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Samus death-tile manifest does not match the pinned cartridge.");
-            SamusArtworkFile stock = SamusArtworkFile.Stock(Path.Combine(stockDirectory,
-                SamusDeathTileAtlasFormat.ArtworkFileName), manifest.ArtworkSha256);
+            SamusArtworkFile stock = SamusArtworkFile.Read(Path.Combine(stockDirectory,
+                SamusDeathTileAtlasFormat.ArtworkFileName));
             _ = stock.Compile(SamusDeathTileAtlas.Load);
             return stock.Select(overrideDirectory).Compile(SamusDeathTileAtlas.Load);
         }

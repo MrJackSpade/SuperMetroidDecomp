@@ -21,15 +21,13 @@ internal sealed class InstalledClipFiles(string root, int sampleRate, IReadOnlyD
     private const int BytesPerFrame = PcmSampleFormat.StereoChannelCount * sizeof(short);
 
     /// <inheritdoc />
-    /// <exception cref="InvalidDataException">The file's hash, encoding or rate does not match the manifest.</exception>
+    /// <exception cref="InvalidDataException">The file's encoding or rate does not match the manifest.</exception>
     public short[] ReadSamples(AudioClipFile clip)
     {
         Ensure.NotNull(clip);
+        // An installed clip is used as installed (#1532): a player may edit it in place.
         string path = overrideFiles.TryGetValue(clip, out string? replacement) ? replacement : ResolveContainedPath(root, clip.Path);
         byte[] bytes = File.ReadAllBytes(path);
-        string hash = Convert.ToHexString(SHA256.HashData(bytes));
-        if (!hash.Equals(clip.Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Audio clip '{path}' has SHA-256 {hash}, expected {clip.Sha256}.");
         (int rate, short[] samples) = PcmWaveFile.ReadStereoPcm16(bytes, path);
         if (rate != sampleRate)
             throw new InvalidDataException($"Audio clip '{path}' is {rate} Hz, expected {sampleRate}.");

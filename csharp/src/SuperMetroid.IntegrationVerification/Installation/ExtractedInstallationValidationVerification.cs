@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Installation;

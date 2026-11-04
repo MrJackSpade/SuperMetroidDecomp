@@ -52,26 +52,30 @@ internal static class PhantoonWaveMathVerification
 
         // Whole screens cover byte-offset wrapping, both mode lengths, the mirrored half, signed scroll wrap and
         // extreme products.
+        // Each even phase's waves run on one worker; describing and sampling a wave is pure.
         int cycles = 0;
-        foreach (PhantoonWaveLength length in new[] { PhantoonWaveLength.Long, PhantoonWaveLength.Short })
-        foreach (ushort amplitude in new ushort[] { 0, 1, 255, 256, 3072, 32768, 65535 })
-        foreach (ushort scroll in new ushort[] { 0, 32768, 65535 })
-        for (int phase = 0; phase < 512; phase += 2)
+        ParallelSweep.For(0, 256, evenPhase =>
         {
-            // The cartridge builds one cycle, its second half the first's mirror, and repeats it from the top line.
-            int half = length == PhantoonWaveLength.Long ? 64 : 32;
-            int step = 512 / (half * 2);
-            ScrollWave wave = BossLineScrolls.Of(PhantoonWaveEffect.Describe(length, new PhantoonWaveShape(phase, amplitude, scroll)));
-            for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
+            int phase = evenPhase * 2;
+            foreach (PhantoonWaveLength length in new[] { PhantoonWaveLength.Long, PhantoonWaveLength.Short })
+            foreach (ushort amplitude in new ushort[] { 0, 1, 255, 256, 3072, 32768, 65535 })
+            foreach (ushort scroll in new ushort[] { 0, 32768, 65535 })
             {
-                int index = line % (half * 2);
-                int displacement = NativeDisplacement(samples[(phase + index % half * step) & 511], amplitude);
-                ushort native = unchecked((ushort)(index < half ? scroll + displacement : scroll - displacement));
-                if (ScrollShapeLines.WaveScroll(wave, line) != native)
-                    throw new InvalidDataException($"Phantoon wave differs: length={length}, phase={phase}, amplitude={amplitude}, scroll={scroll}, line={line}.");
+                // The cartridge builds one cycle, its second half the first's mirror, and repeats it from the top line.
+                int half = length == PhantoonWaveLength.Long ? 64 : 32;
+                int step = 512 / (half * 2);
+                ScrollWave wave = BossLineScrolls.Of(PhantoonWaveEffect.Describe(length, new PhantoonWaveShape(phase, amplitude, scroll)));
+                for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
+                {
+                    int index = line % (half * 2);
+                    int displacement = NativeDisplacement(samples[(phase + index % half * step) & 511], amplitude);
+                    ushort native = unchecked((ushort)(index < half ? scroll + displacement : scroll - displacement));
+                    if (ScrollShapeLines.WaveScroll(wave, line) != native)
+                        throw new InvalidDataException($"Phantoon wave differs: length={length}, phase={phase}, amplitude={amplitude}, scroll={scroll}, line={line}.");
+                }
+                Interlocked.Increment(ref cycles);
             }
-            cycles++;
-        }
+        });
         AssertEqual(64, PhantoonWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(0, 0, 0)).Period, "the short wave's period");
         AssertEqual(128, PhantoonWaveEffect.Describe(PhantoonWaveLength.Long, new PhantoonWaveShape(0, 0, 0)).Period, "the long wave's period");
         AssertEqual(PhantoonWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(510, 0, 0)).Phase,

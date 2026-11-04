@@ -253,7 +253,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmEyeDoorVisuals(),
-            "tampered eye-door stock fails manifest validation");
+            "tampered eye-door stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock eye-door visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

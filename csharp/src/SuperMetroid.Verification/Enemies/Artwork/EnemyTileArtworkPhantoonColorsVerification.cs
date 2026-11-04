@@ -169,7 +169,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).PhantoonColors(),
-            "corrupt stock Phantoon colors fail manifest hash validation");
+            "corrupt stock Phantoon colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Phantoon colors: 256 native RGB5 targets, all health bands and three live transitions, persistent override, ROM guard, and strict failures pass.");
 

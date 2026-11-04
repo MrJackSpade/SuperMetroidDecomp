@@ -140,7 +140,7 @@ internal static class LinkedRestoreVisualsVerification
         AssertThrows<InvalidDataException>(
             () => RoomPlmLinkedRestoreVisualFilesConstants.ValidateStock(
                 installation.RoomPlmLinkedRestoreVisualDirectory),
-            "tampered restore stock fails manifest validation");
+            "tampered restore stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock linked block-restore visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

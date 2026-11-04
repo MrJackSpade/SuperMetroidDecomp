@@ -170,11 +170,9 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
     AssertEqual(2, specialGraphics.TileIndexBase,
         "second enemy tile index includes first definition size");
-    // Room load stages the tiles; they show over the OBJ characters as named transfers (#1406).
-    enemies.GraphicsSet.ShowGraphics();
+    // Room load stages the tiles where the import composes the set's pictures over them (#1406, #1513).
     var seededTiles = new SeededEnemyTileTransfers(enemies.TileArtwork ?? throw new InvalidOperationException("The fixture binds its seeded tiles."));
-    AssertEqual(2, enemies.Room.Session.SpriteLooks.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
-    byte[] shown = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, seededTiles).Characters.ToArray();
+    byte[] shown = LoadedSetCharacters.Of(enemies, seededTiles);
     AssertEqual(0x80, shown[0x2000], "ordinary enemy first tile byte");
     AssertEqual(0xbf, shown[0x203f], "ordinary enemy final tile byte");
     AssertEqual(0xc0, shown[0x1a00], "special enemy first tile byte");
@@ -218,8 +216,7 @@ internal static void VerifyRoomEnemyLoading()
     };
     var installedVram = new SnesVram();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram)));
-    installedEnemies.GraphicsSet.ShowGraphics();
-    byte[] installedShown = new ObjCharacterTablePage().Page(installedEnemies.Room.Session.SpriteLooks, seededTiles).Characters.ToArray();
+    byte[] installedShown = LoadedSetCharacters.Of(installedEnemies, seededTiles);
     AssertTrue(shown.SequenceEqual(installedShown),
         "installed enemy PNGs preserve both native ordinary and high-bit OBJ placements");
     AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
@@ -1208,13 +1205,11 @@ internal static void VerifyCeresRidleyRoomEntry()
     var backgroundTransfers = ReadRetailCeresEscapeTransfers(nativeRidleyRom, 0xa6c4fe);
     AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
-    ShownSpriteArtwork shownPages = enemies.Presentation.SpriteLooks;
-    int pagesBefore = shownPages.Uploads.Count;
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalSprite = record == spriteTransfers.Count - 1;
-        AssertEqual(pagesBefore + record + 1, shownPages.Uploads.Count,
+        AssertEqual<int?>(record, enemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
             "Ceres sprite pages show one per frame");
         AssertEqual(finalSprite ? CeresSelfDestructPhase.ShowingBackgroundPages : CeresSelfDestructPhase.ShowingObjectPages, state.CeresSelfDestructPhase, "Ceres sprite/background phase handoff");
     }
@@ -1222,27 +1217,26 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         bool finalBackground = record == backgroundTransfers.Count - 1;
-        AssertEqual(pagesBefore + spriteTransfers.Count, shownPages.Uploads.Count, "Ceres background pages show nothing over the OBJ characters");
+        AssertEqual<int?>(spriteTransfers.Count - 1, enemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
+            "Ceres background pages show nothing over the sprites");
         AssertEqual(finalBackground, !ceresOverlay.Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
         AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ShowingBackgroundPages, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
+    var escapeResolver = new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(InstalledFixtures.EnemyArtwork,
+        timer: InstalledFixtures.Maps.EscapeTimerTiles);
     for (int index = 0; index < spriteTransfers.Count; index++)
     {
         VramWriteEntry expected = spriteTransfers[index];
-        SpriteArtworkPlacement actual = shownPages.Uploads[pagesBefore + index];
-        AssertEqual(expected.SizeInBytes, actual.ByteCount, $"Ceres page {index} native size");
+        EncounterArtworkUpload actual = EncounterArtworkUploads.Step(EncounterArtworkSequence.CeresEscapePages, index, escapeResolver).Single();
+        AssertEqual(expected.SizeInBytes, actual.Characters.Length, $"Ceres page {index} native size");
         AssertEqual(SpriteArtworkPlacements.TableByte(expected.Destination), actual.FirstByte, $"Ceres page {index} native place");
         if (index < 2)
-        {
             AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,
                 $"Ceres timer {index} native source mapped to installed asset");
-            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(index == 0 ? InstalledArtworkId.EscapeTimerFirstTiles : InstalledArtworkId.EscapeTimerSecondTiles),
-                actual.Source, $"Ceres timer {index} installed source identity");
-        }
         else
-            AssertEqual<SpriteArtworkSource?>(CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes), actual.Source,
-                $"Ceres page {index} names its installed character page");
+            AssertEqual<int?>(index - 2, CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes),
+                $"Ceres page {index} names its installed warning page");
     }
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
     AssertTrue((InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
@@ -1777,6 +1771,25 @@ static void SeedCeresRidleyRoomEntryCartridge(
 
 /// <summary>Serves the loading fixture's seeded enemy tiles by definition: the bytes installed artwork would hold for them.</summary>
 /// <param name="tiles">The fixture's seeded enemy artwork.</param>
+/// <summary>The OBJ characters a loaded set leaves: each member's tiles where the room load lands them (#1513).</summary>
+internal static class LoadedSetCharacters
+{
+    /// <summary>The characters <paramref name="enemies"/>'s loaded set leaves, from the tiles <paramref name="tiles"/> holds.</summary>
+    internal static byte[] Of(RoomEnemySystem enemies, SeededEnemyTileTransfers tiles)
+    {
+        var characters = new byte[SpriteArtworkPlacements.TableByteCount];
+        foreach (RoomEnemyGraphicsSetEntry entry in enemies.GraphicsSet.Entries)
+        {
+            ReadOnlySpan<byte> bytes = tiles.EnemyTiles.TilesOf(entry.DefinitionId).Span;
+            int first = EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount + entry.StagingOffset;
+            int shown = Math.Min(bytes.Length, characters.Length - first);
+            if (shown > 0)
+                bytes[..shown].CopyTo(characters.AsSpan(first));
+        }
+        return characters;
+    }
+}
+
 internal sealed class SeededEnemyTileTransfers(EnemyTileSourceArtwork tiles)
     : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork
 {

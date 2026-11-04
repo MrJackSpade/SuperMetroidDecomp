@@ -36,7 +36,7 @@ internal static class VramWriteQueueAccess
         /// <param name="source">The owned artwork uploaded.</param>
         /// <param name="sizeInBytes">Bytes uploaded.</param>
         /// <param name="destination">Where the upload lands.</param>
-        public void EnqueueSource(SpriteArtworkSource source, ushort sizeInBytes, VramDmaDestination destination)
+        public void EnqueueSource(VerificationArtworkSource source, ushort sizeInBytes, VramDmaDestination destination)
         {
             Ensure.NotNull(source);
             if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));

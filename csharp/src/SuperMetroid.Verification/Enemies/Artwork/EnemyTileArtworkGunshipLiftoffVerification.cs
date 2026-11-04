@@ -40,7 +40,8 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
                 EnemyRomTablePointersGunship.LiftoffVramDestinationWords + index * 2);
             AssertEqual(0x940000 | source, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 $"gunship frame {index}'s import source matches the cartridge's takeoff list");
-            AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte / 32),
+            AssertEqual(destination, ObjCharacterNativeWords.Of(EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
+                    + index * GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount),
                 $"gunship frame {index} compiled place among the OBJ characters matches the cartridge");
             ReadOnlySpan<byte> pixels = installed.Resolve(transfer.Asset).Span;
             AssertEqual(GunshipLiftoffCharacterDefinitions.ByteCount, pixels.Length,
@@ -53,15 +54,13 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.EnemySession.TileArtwork = stock.Enemies;
         runtime.BossArtwork.Artwork = stock.Bosses;
-        SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock);
+        SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime));
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(transfer.Asset), stockPages.Uploads[index].Source,
+            AssertTrue(stockPages.Uploads[index].Source.Resolve(RuntimeArtworkContent.Of(runtime)).Span.SequenceEqual(installed.Resolve(transfer.Asset).Span),
                 $"takeoff frame {index} shows its installed page");
-            AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[index].FirstByte, stockPages.Uploads[index].FirstByte,
-                $"takeoff frame {index} keeps its compiled place among the OBJ characters");
             nativeQueue.Enqueue(GunshipLiftoffCharacterDefinitions.ByteCount, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(stockPages.Uploads[index].FirstByte / 32)));
         }
@@ -90,7 +89,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         runtime.EnemySession.TileArtwork = edited.Enemies;
         runtime.BossArtwork.Artwork = edited.Bosses;
-        byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock), RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
+        byte[] editedPage = new ObjCharacterTablePage().Page(ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime)), RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
         AssertEqual((byte)(installedPage[pagesByte] ^ 0x80), editedPage[pagesByte],
             "rebound PNG changes the takeoff page shown");
         AssertTrue(editedPage.AsSpan(..pagesByte).SequenceEqual(installedPage.AsSpan(..pagesByte)) &&
@@ -111,7 +110,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             "Gunship takeoff art: five compiled pages, installed PNG parity, " +
             "live/rebound page edit and strict resources pass.");
 
-        static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art)
+        static SpriteArtworkPlacements ShowAllTakeoffPages(InstalledEnemyArtwork art, IInstalledArtworkContent resolver)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
@@ -119,9 +118,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             top.SetSpeciesState(part, part.ClearWithRecord);
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
                 enemies.GunshipBehavior.ShowGunshipTakeoffPage(top);
-            AssertEqual(GunshipLiftoffTransferDefinitions.Frames.Length,
-                enemies.Room.Session.SpriteLooks.Uploads.Count, "five native takeoff calls show five pages");
-            return enemies.Room.Session.SpriteLooks.Placed;
+            AssertEqual<int?>(GunshipLiftoffTransferDefinitions.Frames.Length - 1,
+                enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.GunshipLiftoff), "five native takeoff calls reach the fifth page");
+            return EncounterArtworkPlacements.Of(enemies.Room.Session.ArtworkProgress, resolver);
         }
     }
 }

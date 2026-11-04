@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -128,10 +129,12 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
-            SpriteArtworkPlacement shown = PlacedUploads.Of(MotherBrainCharacterSources.Of(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)));
+            EncounterArtworkUpload shown = EncounterArtworkUploads.Step(EncounterArtworkSequence.MotherBrainPages,
+                EncounterArtworkPlacements.MotherBrainSteps([MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.BabyMetroid, page)])[0],
+                new EnemyTileTransfers(stock)).Single();
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)) - ObjectCharactersByte, shown.FirstByte,
                 $"Baby page {page} selection shows at its record's characters");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.ByteCount,
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.Characters.Length,
                 $"Baby page {page} selection shows its record's bytes");
         }
         AssertThrows<ArgumentOutOfRangeException>(
@@ -151,8 +154,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed,
-            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork)));
+        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
+            (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
+        var shownSteps = new List<int>();
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, shownSteps, resolver), resolver);
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
         for (int page = 0; page < MotherBrainEnemyState.LegLoadPageCount; page++)
@@ -170,12 +175,13 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
                 $"Mother Brain leg-loading page {page} next page, back to the first after the last");
             int nativeTableByte = nativeDestination * 2 - ObjectCharactersByte;
-            SpriteArtworkPlacement shown = enemies.Room.Session.SpriteLooks.LastOver(
-                nativeTableByte / SpriteArtworkPlacements.CharacterByteCount, nativeSize / SpriteArtworkPlacements.CharacterByteCount)
-                ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} shows nothing.");
+            int step = enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages)
+                ?? throw new InvalidOperationException($"Mother Brain leg-loading page {page} reaches no step.");
+            shownSteps.Add(step);
+            EncounterArtworkUpload shown = EncounterArtworkUploads.Step(EncounterArtworkSequence.MotherBrainPages, step, resolver).Single();
             AssertEqual(nativeTableByte, shown.FirstByte,
                 $"Mother Brain leg-loading page {page} shows where the cartridge's record places it");
-            AssertEqual(nativeSize, shown.ByteCount, $"Mother Brain leg-loading page {page} shows its record's bytes");
+            AssertEqual(nativeSize, shown.Characters.Length, $"Mother Brain leg-loading page {page} shows its record's bytes");
             byte[] nativePixels = RomDataReader.ReadFixedBank(rom, nativeSource, nativeSize);
             AssertTrue(ObjVram().Bytes.Slice(nativeDestination * 2, nativeSize)
                 .SequenceEqual(nativePixels),
@@ -205,12 +211,16 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         {
             TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, 
         };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed, new EnemyTileTransfers(stock, timer: timer));
+        var resolver = new EnemyTileTransfers(stock, timer: timer);
+        var shownSteps = new List<int>();
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, shownSteps, resolver), resolver);
 
         EscapeTimerTilePage[] pages = Enum.GetValues<EscapeTimerTilePage>();
         for (int page = 0; page < pages.Length; page++)
         {
             enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.EscapeTimer, page));
+            shownSteps.Add(enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages)
+                ?? throw new InvalidOperationException($"Mother Brain timer page {page} reaches no step."));
             byte[] native = ReadNativeMotherBrainPageSource(rom, EscapeTimerTilePagesConstants.SourceAddressOf(pages[page]), EscapeTimerTilePageTransfers.ByteCountOf(pages[page]));
             AssertTrue(ObjVram().Bytes.Slice(EscapeNativePageWords.Of(EscapeTimerTilePageTransfers.FirstCharacterOf(pages[page])) * 2, native.Length)
                 .SequenceEqual(native),
@@ -249,12 +259,15 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.SpriteLooks.Placed,
-            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork)));
-        MotherBrainSpritePageSheet shown = sheet.Sheet;
-        for (int page = 0; page < sheet.PageCount; page++)
-            enemies.MotherBrainEncounter.ShowSpritePage(MotherBrainSpritePage.Of(shown, page));
-        return ObjVram();
+        var resolver = new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles,
+            (BossSourceArtwork?)enemies.BossArtwork ?? InstalledFixtures.BossArtwork, InstalledFixtures.AreaArtwork));
+        MotherBrainSpritePage[] pages = [.. Enumerable.Range(0, sheet.PageCount).Select(page => MotherBrainSpritePage.Of(sheet.Sheet, page))];
+        foreach (MotherBrainSpritePage page in pages)
+            enemies.MotherBrainEncounter.ShowSpritePage(page);
+        IReadOnlyList<int> steps = EncounterArtworkPlacements.MotherBrainSteps(pages);
+        AssertEqual<int?>(steps[^1], enemies.Room.Session.ArtworkProgress.StepOf(EncounterArtworkSequence.MotherBrainPages),
+            $"the encounter reaches the last {sheet.Sheet} page's step");
+        return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, resolver), resolver);
     }
 
 

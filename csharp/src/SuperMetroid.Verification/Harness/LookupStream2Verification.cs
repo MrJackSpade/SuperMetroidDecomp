@@ -1652,19 +1652,20 @@ internal static class LookupStream2Verification
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
-        ShownSpriteArtwork shown = enemies.Room.Session.SpriteLooks;
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
             int source = 0x940000 | ReadVerificationWord(rom, 0xa2ac07 + 2 * enumerated);
             ushort destination = ReadVerificationWord(rom, 0xa2ac11 + 2 * enumerated);
             AssertEqual(source, EnemySourceDefinitions.GunshipLiftoffPageSource(enumerated), "Gunship import source matches the takeoff list");
-            AssertEqual(destination, ObjCharacterNativeWords.Of(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[enumerated].FirstByte / 32), "Gunship original destination");
+            int firstCharacter = EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
+                + enumerated * GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount;
+            AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
             AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             enemies.GunshipBehavior.ShowGunshipTakeoffPage(slot);
-            AssertEqual(PlacedUploads.Of(GunshipLiftoffTransferDefinitions.Pages)[enumerated].FirstByte, shown.Uploads[enumerated].FirstByte, "Gunship shows its page in place");
-            AssertEqual<SpriteArtworkSource>(new InstalledArtworkCharacters(transfer.Asset), shown.Uploads[enumerated].Source, "Gunship shows its installed liftoff page");
+            AssertEqual<int?>(enumerated, enemies.Room.Session.ArtworkProgress.StepOf(SuperMetroid.Core.Assets.EncounterArtworkSequence.GunshipLiftoff),
+                "Gunship reaches its page's step of the takeoff");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");

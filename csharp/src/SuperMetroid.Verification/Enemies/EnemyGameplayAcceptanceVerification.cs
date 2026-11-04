@@ -124,12 +124,10 @@ internal static class EnemyGameplayAcceptanceVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, byte[] afterCharacters) = Load(edited);
         RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
-        SpriteArtworkPlacement[] uploads = [.. baseline.Room.Session.SpriteLooks.Uploads];
-        AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
         byte[] expectedCharacters = beforeCharacters.ToArray();
         for (int index = 0; index < entries.Length; index++)
             if (entries[index].DefinitionId == editedPointer)
-                expectedCharacters[uploads[index].FirstByte] ^= 0x80;
+                expectedCharacters[LoadedFirstByte(entries[index])] ^= 0x80;
         static string ChangedOffsets(ReadOnlySpan<byte> before, ReadOnlySpan<byte> after)
         {
             var changed = new List<string>();
@@ -165,12 +163,22 @@ internal static class EnemyGameplayAcceptanceVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             var vram = new SnesVram();
             enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram)));
-            // The room's enemy tile set reaches the OBJ characters as named transfers.
-            var transfers = new EnemyTileTransfers(artwork);
-            enemies.GraphicsSet.ShowGraphics();
-            byte[] characters = new ObjCharacterTablePage().Page(enemies.Room.Session.SpriteLooks, transfers).Characters.ToArray();
+            // The room's enemy tile set as the import composes its pictures over it: each member's tiles where its load lands them.
+            var characters = new byte[SpriteArtworkPlacements.TableByteCount];
+            foreach (RoomEnemyGraphicsSetEntry entry in enemies.GraphicsSet.Entries)
+            {
+                ReadOnlySpan<byte> tiles = artwork.Enemies.TilesOf(entry.DefinitionId).Span;
+                int first = LoadedFirstByte(entry);
+                int shown = Math.Min(tiles.Length, characters.Length - first);
+                if (shown > 0)
+                    tiles[..shown].CopyTo(characters.AsSpan(first));
+            }
             return new LoadResult(enemies, characters);
         }
+
+        // The table byte the room load lands a member's tiles from.
+        static int LoadedFirstByte(RoomEnemyGraphicsSetEntry entry) =>
+            EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter * SpriteArtworkPlacements.CharacterByteCount + entry.StagingOffset;
 
         static bool IsKiHunterPairList(ushort pointer)
         {

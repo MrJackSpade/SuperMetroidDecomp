@@ -21,52 +21,45 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>
-/// Confirms Mother Brain draws from pre-coloured pictures (#1392): after each upload her encounter makes over the OBJ
-/// characters, and after each step of her corpse's rot, every brain and neck frame draws the pictures of its layers for what
-/// their regions show, painting as the frame over the characters those uploads and rotted rows leave.
+/// Confirms Mother Brain draws from pre-coloured pictures (#1392, #1513): at each page her encounter shows, and at each step
+/// of her corpse's rot, every brain and neck frame draws its picture of the steps reached, painting as the frame over the
+/// characters her room's load, every page up to the one reached and the rot step reached leave.
 /// </summary>
 internal static class MotherBrainPicturesVerification
 {
-    /// <summary>Draws every brain and neck frame after each upload and each rot step.</summary>
+    /// <summary>Draws every brain and neck frame at each page and each rot step.</summary>
     internal static void VerifyMotherBrainPictures()
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // A session reaching Tourian has started on Zebes, whose game start shows the standard characters again.
-        runtime.HudSetup.ShowStandardObjectCharacters();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemySlot head = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Mother Brain's room loads her.")).Head;
         EnemyFrameId[] frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Append(MotherBrainVisualDefinitions.NeckJointFrame).Distinct()];
         CorpseRotSimulation corpse = CorpseRotSimulation.Of(RuntimeArtworkContent.Of(runtime).EnemyTiles,
             RuntimeArtworkContent.Of(runtime).BossTiles, [EnemyDefinitionId.MotherBrainHead]).Single();
-        var shown = new Dictionary<CorpseRotRow, int>();
+        RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
         int drawn = 0;
         Draw("as her room loads them");
-        foreach (MotherBrainSpritePage page in MotherBrainPageCharacters.Pages)
+        foreach (MotherBrainSpritePage page in MotherBrainSpritePageDefinitions.Sequence)
         {
             runtime.Enemies.MotherBrainEncounter.ShowSpritePage(page);
             Draw($"after {page}");
         }
-        int steps = corpse.Shown(corpse.Rows).Max(state => state.Max() ?? 0);
+        // The rot's last step uploads nothing, so its rows stay as the step before left them.
+        int steps = corpse.StepUploads.Count - 1;
         for (int step = 1; step <= steps; step++)
         {
             runtime.Enemies.MotherBrainEncounter.ShowCorpseRotStep(step);
-            foreach (CorpseRotRow row in corpse.Rows)
-                shown[row] = step;
             Draw($"after rot step {step}");
         }
-        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainPageCharacters.All.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the live characters.");
+        Console.WriteLine($"Mother Brain pictures: {frames.Length} brain and neck frames draw their pictures after each of {MotherBrainSpritePageDefinitions.Sequence.Count} pages and {steps} rot steps; {drawn} draws paint as the frames over the characters then.");
 
         void Draw(string context)
         {
-            SpriteArtwork live = RuntimeArtworkContent.Of(runtime).GameplayObjectPage(runtime.EnemySession.SpriteLooks);
-            byte[] characters = live.Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
-            foreach ((CorpseRotRow row, int step) in shown)
-                corpse.RowBytes(row, step).CopyTo(characters.AsSpan(row.FirstByte));
-            SpriteArtwork rotted = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), characters);
+            SpriteArtwork rotted = EnemySheetFixtures.LivePage(set, UploadedPictureChecks.Reached(runtime));
             foreach (EnemyFrameId frame in frames)
             {
                 var sprites = new SpriteFrameBuffer();

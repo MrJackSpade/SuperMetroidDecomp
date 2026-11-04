@@ -22,6 +22,26 @@ internal static class EnemySheetFixtures
     /// <summary>Sheets already composed, by enemy artwork.</summary>
     private static readonly ConditionalWeakTable<EnemyTileSourceArtwork, ComposedOnDemand> composed = new();
 
+    /// <summary>Each graphics set's characters as the import composes its pictures from them, by set, composed once.</summary>
+    private static readonly Dictionary<RoomEnemyGraphicsSetDefinition, SetCharacters> characters = [];
+
+    /// <summary>
+    /// The OBJ characters graphics set <paramref name="set"/> leaves once its encounters have played each sequence
+    /// <paramref name="reached"/> names through the step it names (#1513): the room load's characters with every step up to
+    /// it copied in order, from the installation's artwork, which a frame's picture of those steps paints like.
+    /// </summary>
+    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<(EncounterArtworkSequence Sequence, int Step)> reached)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        SetCharacters? composedCharacters;
+        lock (characters)
+        {
+            if (!characters.TryGetValue(set, out composedCharacters))
+                characters.Add(set, composedCharacters = EnemySheetComposer.Load(inputs.Value, set).Characters);
+        }
+        return composedCharacters.Page(reached);
+    }
+
     /// <summary>The sheets enemies drawn with <paramref name="enemies"/> draw from.</summary>
     internal static IEnemySheetSource For(EnemyTileSourceArtwork enemies)
     {
@@ -69,28 +89,21 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public EncounterLooks Looks => SuperMetroid.AssetExtraction.Enemies.EncounterCharacterPlacements.Catalog.Looks;
-
-        /// <inheritdoc/>
-        public SetLookCoverage Coverage(RoomEnemyGraphicsSetDefinition set) =>
-            installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set) ? installed.Coverage(set) : Set(set).Coverage;
-
-        /// <inheritdoc/>
-        public IReadOnlyList<LookRegion[]> Layers(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
+        public IReadOnlyList<FrameArtworkVariation> Variations(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.Layers(set, enemy, frame);
-            return Set(set).Pictures.TryGetValue(enemy, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
-                && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
+                return installed.Variations(set, enemy, frame);
+            return Set(set).Variations.TryGetValue(enemy, out IReadOnlyDictionary<string, FrameArtworkVariation[]>? frames)
+                && frames.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? followed : [];
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<LookRegion[]> SpawnedLayers(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
+        public IReadOnlyList<FrameArtworkVariation> SpawnedVariations(RoomEnemyGraphicsSetDefinition set, int tileBase, string frame)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.SpawnedLayers(set, tileBase, frame);
-            return Set(set).SpawnedPictures.TryGetValue(tileBase, out IReadOnlyDictionary<string, LookRegion[][]>? frames)
-                && frames.TryGetValue(frame, out LookRegion[][]? layers) ? layers : [];
+                return installed.SpawnedVariations(set, tileBase, frame);
+            return Set(set).SpawnedVariations.TryGetValue(tileBase, out IReadOnlyDictionary<string, FrameArtworkVariation[]>? frames)
+                && frames.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? followed : [];
         }
 
         /// <inheritdoc/>
@@ -115,32 +128,29 @@ internal static class EnemySheetFixtures
         private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
         {
             GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs, set);
-            // The set's regions, as the installed sheets' loader divides them for the corpses its drawn enemies leave.
-            var regions = new SetRegions(EncounterCharacterPlacements.Catalog.Of(set), [.. CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses,
-                [.. setSources.Enemies.Select(source => source.Enemy)]).Where(corpse => corpse.Kind is null)]);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
-            var pictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, LookRegion[][]>>();
+            var variations = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
             var rotPictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>>();
-            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
+            foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, FrameArtworkVariation[]> frameVariations,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
             {
                 enemies[enemy] = Load(sources, $"{enemy}-{owner}");
-                pictures[enemy] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
+                variations[enemy] = frameVariations;
                 rotPictures[enemy] = frameRots;
             }
             var spawned = new Dictionary<int, SpawnedObjectSheet>();
-            var spawnedPictures = new Dictionary<int, IReadOnlyDictionary<string, LookRegion[][]>>();
+            var spawnedVariations = new Dictionary<int, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
             var spawnedRotPictures = new Dictionary<int, IReadOnlyDictionary<string, string>>();
-            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, SuperMetroid.AssetExtraction.Enemies.CharacterRange[][]> framePictures,
+            foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, FrameArtworkVariation[]> frameVariations,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
                 spawned[plan.TileBase] = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.TileBase:X3}-{owner}"));
-                spawnedPictures[plan.TileBase] = SuperMetroid.AssetExtraction.Installation.EnemySheetFiles.Named(framePictures, regions);
+                spawnedVariations[plan.TileBase] = frameVariations;
                 spawnedRotPictures[plan.TileBase] = frameRots;
             }
-            return new ComposedSet(enemies, spawned, pictures, spawnedPictures, rotPictures, spawnedRotPictures, regions.Coverage(set));
+            return new ComposedSet(enemies, spawned, variations, spawnedVariations, rotPictures, spawnedRotPictures);
         }
 
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
@@ -157,15 +167,14 @@ internal static class EnemySheetFixtures
     /// <summary>One composed graphics set's sheets.</summary>
     /// <param name="Enemies">Each enemy's sheet.</param>
     /// <param name="Spawned">Each spawned-object sheet by tile base.</param>
-    /// <param name="Pictures">Each enemy sheet's frames drawn over uploaded characters, and the regions they are drawn over.</param>
-    /// <param name="SpawnedPictures">The same for each spawned-object sheet, by tile base.</param>
+    /// <param name="Variations">Each enemy sheet's frames encounter artwork sequences change, and how each follows them.</param>
+    /// <param name="SpawnedVariations">The same for each spawned-object sheet, by tile base.</param>
     /// <param name="RotPictures">Each enemy sheet's frames drawn over a rotting corpse's rows, and the kind of corpse each shows.</param>
     /// <param name="SpawnedRotPictures">The same for each spawned-object sheet, by tile base.</param>
-    /// <param name="Coverage">What covers each region of the set's characters.</param>
     private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
         IReadOnlyDictionary<int, SpawnedObjectSheet> Spawned,
-        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, LookRegion[][]>> Pictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, LookRegion[][]>> SpawnedPictures,
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, FrameArtworkVariation[]>> Variations,
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, FrameArtworkVariation[]>> SpawnedVariations,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>> RotPictures,
-        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures, SetLookCoverage Coverage);
+        IReadOnlyDictionary<int, IReadOnlyDictionary<string, string>> SpawnedRotPictures);
 }

@@ -226,14 +226,5 @@ internal static class SuperMetroidRuntimeAccess
             // OAM would name Samus tiles before any corresponding graphics reached VRAM.
             self.Player.Samus.Presentation.PrimeGraphics(self.Player.Samus);
         }
-
-        /// <summary>
-        /// Shows the escape timer's number and label pages over the OBJ characters, as the escape's setup does (#1406).
-        /// </summary>
-        internal void ShowEscapeTimerSpriteTiles()
-        {
-            foreach (EscapeTimerTilePage page in Enum.GetValues<EscapeTimerTilePage>())
-                self.EnemySession.SpriteLooks.Show(new InstalledArtworkCharacters(EscapeTimerTilePages.AssetOf(page)));
-        }
     }
 }

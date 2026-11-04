@@ -58,11 +58,11 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileAtlasFormat.SecondByteCount,
             EscapeNativePageWords.TimerSecond),
             "Mother Brain synchronous owner recognizes second timer record");
-        AssertEqual(new SpriteArtworkPlacement(new InstalledArtworkCharacters(InstalledArtworkId.EscapeTimerFirstTiles),
+        AssertEqual(new SpriteArtworkPlacement(new InstalledArtworkUploadSource(InstalledArtworkId.EscapeTimerFirstTiles),
                 (EscapeNativePageWords.TimerFirst - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteArtworkPlacements.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.FirstByteCount / SpriteArtworkPlacements.CharacterByteCount),
             synchronous.Uploads[0], "Mother Brain synchronous first timer transfer shows the installed first page");
-        AssertEqual(new SpriteArtworkPlacement(new InstalledArtworkCharacters(InstalledArtworkId.EscapeTimerSecondTiles),
+        AssertEqual(new SpriteArtworkPlacement(new InstalledArtworkUploadSource(InstalledArtworkId.EscapeTimerSecondTiles),
                 (EscapeNativePageWords.TimerSecond - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteArtworkPlacements.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.SecondByteCount / SpriteArtworkPlacements.CharacterByteCount),
             synchronous.Uploads[1], "Mother Brain synchronous second timer transfer shows the installed second page");

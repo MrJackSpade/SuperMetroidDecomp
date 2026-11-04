@@ -24,7 +24,7 @@ internal static class EscapeTimerTileAtlasAccess
             InstalledArtworkId asset = EscapeTimerTilePages.AssetOf(page);
             if (EscapeTimerTilePageTransfers.Resolve(self, asset).Length != byteCount)
                 throw new InvalidDataException($"Escape timer {page} page no longer matches its native transfer record.");
-            uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new InstalledArtworkCharacters(asset));
+            uploads.RecordUpload(VramDmaDestination.FromNative(destinationWord), byteCount, new InstalledArtworkUploadSource(asset));
             return true;
         }
         /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>

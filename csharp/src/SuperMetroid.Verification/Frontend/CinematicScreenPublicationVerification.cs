@@ -18,8 +18,9 @@ namespace SuperMetroid.Verification.Frontend;
 internal static class CinematicScreenPublicationVerification
 {
     /// <summary>
-    /// OBSEL's size selection gives a screen's objects their sizes, and raw small objects wrap after the 128th exactly
-    /// as direct OAM stores do.
+    /// OBSEL's size selection gives a screen's objects their sizes, and raw small objects land exactly where direct OAM
+    /// stores place them, a Y below the screen wrapping above it. The object index's wrap after the 128th object is not
+    /// replicated (#1513), so fewer objects are stored.
     /// </summary>
     internal static void VerifyObjectSizesAndRawObjects()
     {
@@ -40,7 +41,7 @@ internal static class CinematicScreenPublicationVerification
         var oam = new OamBuffer();
         raw.BeginFrame();
         oam.BeginFrame();
-        for (int index = 0; index < ScreenSprites.Capacity + 2; index++)
+        for (int index = 0; index < 40; index++)
         {
             var position = new Position16<SpritePixels>((ushort)(index * 3 % 512), (ushort)(index * 7 % 256));
             raw.AddObjectImage(star, position, PictureShading.Standard);
@@ -48,10 +49,10 @@ internal static class CinematicScreenPublicationVerification
         }
         raw.FinishFrame();
         oam.FinalizeFrame();
-        AssertEqual(oam.LastFinalizedSpriteCount, raw.Draws.Length, "raw small objects wrap after the 128th like direct OAM stores");
+        AssertEqual(oam.LastFinalizedSpriteCount, raw.Draws.Length, "each raw small object is one entry, as each direct OAM store is");
         for (int index = 0; index < raw.Draws.Length; index++)
-            AssertEqual(oam.GetEntry(index), raw.GetEntry(index), $"wrapped raw object {index} stands for the record its store writes");
-        Console.WriteLine("  Screen sprites: OBSEL size pairs and wrapping raw objects match OAM.");
+            AssertEqual(oam.GetEntry(index), raw.GetEntry(index), $"raw object {index} stands for the record its store writes");
+        Console.WriteLine("  Screen sprites: OBSEL size pairs and raw objects match OAM.");
     }
 
     /// <summary>

@@ -109,7 +109,10 @@ internal static class PauseReserveFramesVerification
         }
     }
 
-    /// <summary>Checks native role and partial-fill selectors and OAM capacity for all reserve frames.</summary>
+    /// <summary>
+    /// Checks native role and partial-fill selectors for all reserve frames; the object limit that cuts a frame short in a
+    /// nearly full sprite buffer is not replicated (#1513).
+    /// </summary>
     internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {
         foreach (var (site, identity) in new[] { new VerifyPauseReserveNativeFramesCase(0x82b305, 0x1b), new VerifyPauseReserveNativeFramesCase(0x82b37d, 0x20), new VerifyPauseReserveNativeFramesCase(0x82b396, 0x1f) })
@@ -121,10 +124,8 @@ internal static class PauseReserveFramesVerification
             AssertEqual(0x20 + index % 8, (int)ReadVerificationWord(rom, 0x82b3d9 + index * 2), "native repeated partial-fill identities");
         foreach (var frame in ReserveFrameOracle())
         for (int index = 0; index < 6; index++)
-        foreach (int occupied in new[] { 0, 127, 128 })
         {
             var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-            for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); }
             ushort x = ReadVerificationWord(rom, 0x82c1d6 + index * 2);
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
@@ -133,7 +134,7 @@ internal static class PauseReserveFramesVerification
             presentation.Draw(actual, sheet, PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
-                "native reserve frame selection, OAM attributes, ordering and capacity");
+                "native reserve frame selection, OAM attributes and ordering");
         }
     }
 }

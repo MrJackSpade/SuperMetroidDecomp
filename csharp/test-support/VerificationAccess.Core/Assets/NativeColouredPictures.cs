@@ -54,13 +54,12 @@ internal static class NativeColouredPictures
             ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(draw.Shading) ?? 0
             : 0;
 
-    /// <summary><paramref name="frame"/> and its parts cut from <paramref name="picture"/>, a native-coloured copy of its sheet.</summary>
+    /// <summary><paramref name="frame"/> cut from <paramref name="picture"/>, a native-coloured copy of its sheet.</summary>
     internal static SpriteSheetFrame Of(SpriteSheetFrame frame, SpriteImage picture)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(picture);
-        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin, frame.ColourGroups,
-            [.. frame.Parts.Select(part => part with { Image = Of(part.Image, picture) })]);
+        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin, frame.ColourGroups);
     }
 
     /// <summary>

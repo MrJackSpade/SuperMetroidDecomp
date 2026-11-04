@@ -5,12 +5,12 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// Pre-assembles and pre-colours a family's frames into one sprite sheet (#1392): each frame composed from its parts over
-/// its characters, coloured with its standard palette rows, at the place its <see cref="SpriteSheetLayout"/> gives it,
-/// then each distinct part alone as a part image.
+/// its characters, coloured with its standard palette rows, at the place its <see cref="SpriteSheetLayout"/> gives it:
+/// one complete image per distinct frame, drawn as it is (#1513).
 /// </summary>
 internal static class SpriteSheetComposer
 {
-    /// <summary>Composes a sheet's frames in order onto one sheet, then their part images.</summary>
+    /// <summary>Composes a sheet's distinct frame images in order onto one sheet.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>

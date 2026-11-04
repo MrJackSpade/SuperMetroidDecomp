@@ -65,7 +65,6 @@ internal static class RoomBlockFixtures
                 Size = new Extent16<ImagePixels>(side, side),
                 Origin = default,
                 ColourGroups = coloured.ManifestMembers,
-                Parts = [],
             });
         }
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
@@ -113,7 +112,6 @@ internal static class RoomBlockFixtures
                 Size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels),
                 Origin = default,
                 ColourGroups = coloured.ManifestMembers,
-                Parts = [],
             },
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);

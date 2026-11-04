@@ -110,6 +110,5 @@ internal static class CeresCinematicPictureSheetComposer
         Size = new Extent16<ImagePixels>(checked((ushort)(columns * CharacterPixels)), checked((ushort)(rows * CharacterPixels))),
         Origin = default,
         ColourGroups = coloured.ManifestMembers,
-        Parts = [],
     };
 }

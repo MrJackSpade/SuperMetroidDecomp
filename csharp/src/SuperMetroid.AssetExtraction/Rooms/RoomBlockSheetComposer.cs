@@ -109,7 +109,6 @@ internal static class RoomBlockSheetComposer
                 Size = canvas.Size,
                 Origin = default,
                 ColourGroups = groups.ManifestMembers,
-                Parts = [],
             },
         };
         return new ComposedRoomBackground(canvas.ToRoomSheet(colours, frames), background.Words, cells);
@@ -224,7 +223,6 @@ internal static class RoomBlockSheetComposer
                 Size = new Extent16<ImagePixels>(RoomBlockSheet.BlockPixels, RoomBlockSheet.BlockPixels),
                 Origin = default,
                 ColourGroups = coloured.ManifestMembers,
-                Parts = [],
             });
             index++;
         }

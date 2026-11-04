@@ -317,7 +317,7 @@ internal static class RoomBackgroundsFixtures
                 if (index % (twoBpp ? 4 : 16) != 0 && index / 16 < 8)
                     groups = groups.With(ImageColourGroup.OfInk(index));
             }
-            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups.ManifestMembers, Parts = [] });
+            frames.Add(frame, new SpriteSheetFrameDocument { Corner = corner, Size = frameSize, Origin = default, ColourGroups = groups.ManifestMembers });
         }
         var document = new SpriteSheetDocument
         {
@@ -328,7 +328,6 @@ internal static class RoomBackgroundsFixtures
             // cartridge's set order.
             BackgroundSets = [.. InstalledPictureColours.CartridgeOrderSets],
             Frames = frames,
-            PartImages = [],
         };
         return SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
             indices, priorities);

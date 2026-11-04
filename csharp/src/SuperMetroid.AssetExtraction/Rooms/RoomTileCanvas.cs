@@ -159,6 +159,5 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
             Colours = [.. colours.Select(colour => colour.ToWord())],
             BackgroundSets = backgroundSets,
             Frames = frames,
-            PartImages = [],
         });
 }

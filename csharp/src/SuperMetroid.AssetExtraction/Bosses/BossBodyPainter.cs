@@ -136,7 +136,6 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
                 Size = new Extent16<ImagePixels>((ushort)(picture.Columns * RoomTileCanvas.CharacterPixels), (ushort)(picture.Rows * RoomTileCanvas.CharacterPixels)),
                 Origin = default,
                 ColourGroups = coloured[place].ManifestMembers,
-                Parts = [],
             });
         }
         return new ComposedBossBodySheet(owner, canvas.ToRoomSheet(colours, documents), blankPart, frames);

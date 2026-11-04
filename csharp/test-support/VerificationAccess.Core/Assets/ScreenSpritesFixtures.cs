@@ -105,13 +105,6 @@ internal static class ScreenSpritesFixtures
         /// <summary>Finishes the frame, under OAM's name for it.</summary>
         internal void FinalizeFrame() => self.FinishFrame();
 
-        /// <summary>
-        /// Occupies one object with a frame of one small object at its origin, through the spritemap loader, as capacity
-        /// checks fill the frame.
-        /// </summary>
-        internal void AddOccupyingPart(Position16<SpritePixels> position, SnesObjAttributeWord attributes) =>
-            self.AddImage(PartFrame(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes), position, PictureShading.Standard);
-
     }
 
     /// <summary>Compares OAM records with a finished frame's sprite entries.</summary>
@@ -122,12 +115,5 @@ internal static class ScreenSpritesFixtures
 
         /// <summary>The first object whose record differs from <paramref name="sprites"/>'s finished frame, for a failure message.</summary>
         internal string FirstDifference(ScreenSprites sprites) => SuperMetroid.Core.Rendering.PpuImageAccess.FirstDifference(self, ToOam(sprites));
-
-        /// <summary>
-        /// Occupies one object with a small on-screen spritemap part, as capacity checks fill the frame: unlike a raw
-        /// store, the spritemap loader stops when OAM is full.
-        /// </summary>
-        internal void AddOccupyingPart(Position16<SpritePixels> position, SnesObjAttributeWord attributes) =>
-            self.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), SnesSpritemapYByte.Create(0), attributes, position);
     }
 }

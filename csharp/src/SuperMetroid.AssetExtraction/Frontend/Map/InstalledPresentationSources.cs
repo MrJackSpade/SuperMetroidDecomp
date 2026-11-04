@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
@@ -27,6 +28,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Palettes">The colours each map and menu screen loads, which the screens' sheets and their drawn shades are pre-coloured from (#1512).</param>
 /// <param name="CeresRidleyColors">Ceres Ridley's, the shared Norfair Ridley health and the Ceres Baby's colours, which their sheets and Ceres Ridley's room are pre-coloured from (#1512).</param>
 /// <param name="CeresRidleyFloorColors">Ceres Ridley's Mode 7 floor colours for each getaway zoom step, which the floor's shades are pre-coloured from (#1512).</param>
+/// <param name="EscapeTimerTiles">The escape timer's characters, which the escape encounters' sheets are composed from (#1513).</param>
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
     GameplayMessageArtwork Messages,
@@ -41,4 +43,5 @@ internal sealed record InstalledPresentationSources(
     MapPaletteCycle HighlightColours,
     MapStaticPalettes Palettes,
     CeresRidleyColorCatalog CeresRidleyColors,
-    CeresRidleyFloorColorCatalog CeresRidleyFloorColors);
+    CeresRidleyFloorColorCatalog CeresRidleyFloorColors,
+    EscapeTimerCharacters EscapeTimerTiles);

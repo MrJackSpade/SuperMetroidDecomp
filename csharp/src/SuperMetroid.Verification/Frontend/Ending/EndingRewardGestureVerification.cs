@@ -30,7 +30,6 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
         EndingFloorArtwork rewardArtwork = RepositoryInstallation.Installation.LoadEndingMode7Art();
-        var graphicsScreen = new EndingScreen();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
@@ -44,14 +43,13 @@ internal static class EndingRewardGestureVerification
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
                 SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinationsConstants.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
-            graphicsScreen.LoadRewardChunk(chunk);
-            byte[] graphicsVram = EndingScreenMemory.Compose(graphicsScreen, rewardArtwork, null, null, null, EndingReward.Armored);
-            int uploadedBytes = (chunk + 1) * 2048;
-            AssertTrue(graphicsVram[..uploadedBytes].AsSpan().SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
-                "reward graphics DMA preserves both interleaved lanes at every upload boundary");
-            AssertTrue(graphicsVram[uploadedBytes..].All(value => value == 0),
-                "reward graphics upload leaves pending chunks unwritten");
         }
+        var graphicsScreen = new EndingScreen();
+        graphicsScreen.LoadRewardIcon();
+        byte[] graphicsVram = EndingScreenMemory.Compose(graphicsScreen, rewardArtwork, null, null, null, EndingReward.Armored);
+        int iconBytes = EndingRewardGraphicsUploadDefinitions.ArtworkBytes;
+        AssertTrue(graphicsVram[..iconBytes].AsSpan().SequenceEqual(expectedGraphics.AsSpan(0, iconBytes)),
+            "the loaded reward icon preserves both interleaved lanes");
         AssertEqual(0, uploadBus.ForbiddenReadAttempts,
             "reward icon upload no longer rereads either native address table");
         AssertThrows<ArgumentOutOfRangeException>(
@@ -79,8 +77,8 @@ internal static class EndingRewardGestureVerification
             AssertEqual(reward == EndingReward.Suitless ? 244 : 329, calls,
                 "native ED2D/EDD3 gesture durations before jump spawn");
             Console.WriteLine($"  {reward}: {calls} gesture frames, {maps.Count} OAM poses, native jump handoff.");
-            var uploads = new List<int>();
-            var jump = new EndingRewardJump(reward, uploads.Add);
+            int iconReveals = 0;
+            var jump = new EndingRewardJump(reward, () => iconReveals++);
             bool switched = false, firstMotion = false;
             int minimumY = jump.BodyY;
             int jumpCalls = 0;
@@ -103,8 +101,8 @@ internal static class EndingRewardGestureVerification
             }
             AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, sheet handoff, landing and shooting");
             AssertEqual(136, jump.BodyY, "native reward landing center");
-            AssertTrue(uploads.SequenceEqual(Enumerable.Range(0, 16)), "landing publishes all sixteen native graphics queue entries exactly once");
-            Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, 16 uploads, shot request.");
+            AssertEqual(1, iconReveals, "the fall back to the landing reveals the reward icon exactly once");
+            Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, icon reveal, shot request.");
         }
         AssertEqual(0, rewardBus.ForbiddenReadAttempts,
             "ending reward actors never reread compiled definition records");
@@ -115,7 +113,7 @@ internal static class EndingRewardGestureVerification
         new CartridgeReadGuard(source)
             .Forbid(address => address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
                     address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
-                    EndingRewardJumpDefinitions.IconChunkCount * sizeof(ushort),
+                    EndingRewardGraphicsUploadDefinitions.ChunkCount * sizeof(ushort),
                 address => $"Reward icon upload reread address-table byte ${address:X6}.");
 
     /// <summary>

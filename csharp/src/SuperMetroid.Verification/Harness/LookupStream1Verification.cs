@@ -537,7 +537,7 @@ internal static class LookupStream1Verification
             }
             return 0;
         }
-        byte[] Transfer(EscapeTimerTileAtlas value) => EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerFirstTiles).Span
+        byte[] Transfer(EscapeTimerCharacters value) => EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerFirstTiles).Span
             .ConcatToArray(EscapeTimerTilePageTransfers.Resolve(value, InstalledArtworkId.EscapeTimerSecondTiles).Span);
         AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
         AssertEqual(275, Fill(stock).Count, "Exact retained timer fill footprint after calculated digit and label shapes");

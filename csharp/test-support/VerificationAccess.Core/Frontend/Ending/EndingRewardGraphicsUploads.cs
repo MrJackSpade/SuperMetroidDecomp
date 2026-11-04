@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Frontend.Ending;
-using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingRewardGraphicsUploadDefinitions;
+﻿using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingRewardGraphicsUploadDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -21,7 +20,7 @@ internal static class EndingRewardGraphicsUploads
     /// <summary>Rejects upload indexes outside the sixteen chunk transfers.</summary>
     private static void ValidateIndex(int index)
     {
-        if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)
+        if ((uint)index >= ChunkCount)
             throw new ArgumentOutOfRangeException(nameof(index));
     }
 }

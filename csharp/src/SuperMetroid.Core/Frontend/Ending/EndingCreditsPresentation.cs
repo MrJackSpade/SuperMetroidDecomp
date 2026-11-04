@@ -22,7 +22,7 @@ internal static class EndingCreditsPresentation
                     ending.screen.LogoShown), Position16<TilePlanePixels>.Zero, null));
             layers.Add(new SpritesLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
-            // The logo assembles over the shooting scene's page.
+            // The logo is drawn from the shooting scene's sheet, which holds it.
             return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), ending.Stage.Brightness);
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
@@ -201,8 +201,7 @@ internal static class EndingCreditsPresentation
         CinematicSpriteSheet Family(CinematicSpriteFamily family) => new(Sheet(), family, ending.screen.Colours.Drawn);
 
         // A frame that draws nothing needs no sheet.
-        SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward,
-            ending.screen.LogoChunksShown));
+        SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward));
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>

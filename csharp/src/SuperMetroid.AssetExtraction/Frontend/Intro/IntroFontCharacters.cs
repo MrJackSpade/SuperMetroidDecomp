@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -29,7 +30,7 @@ public sealed class IntroFontCharacters : IntroFontAtlas
 
     /// <summary>Stores edited font bytes while allowing an exact native match to use the compiled glyph source.</summary>
     /// <param name="characters">The font's planar characters.</param>
-    internal IntroFontCharacters(byte[] characters) : base(characters.Length / (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount)) =>
+    internal IntroFontCharacters(byte[] characters) =>
         suppliedCharacters = characters.SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : characters;
 
     /// <summary>Gets the 2,304-byte SNES two-bit planar characters of all 144 narration glyph tiles.</summary>

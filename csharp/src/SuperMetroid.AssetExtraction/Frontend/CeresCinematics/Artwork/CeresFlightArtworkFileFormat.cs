@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>File identities and exact geometry of the installed Ceres approach artwork.</summary>
@@ -34,5 +32,9 @@ public static class CeresFlightArtworkFileFormat
     /// <summary>The cells of the front and rear views together, front first.</summary>
     public const int MapCellCount = 2 * MapCellsPerView;
     /// <summary>The destruction's shared sprite characters loaded over the start of the station's: 208 of them.</summary>
-    public const int SharedObjectCharacterBytes = 208 * CeresFlightArtworkFormat.ObjectCharacterBytes;
+    public const int SharedObjectCharacterBytes = 208 * ObjectCharacterBytes;
+    /// <summary>The planar bytes of one 4-bpp OBJ character.</summary>
+    public const int ObjectCharacterBytes = 32;
+    /// <summary>Exact planar 4-bpp OBJ character length, 16384 bytes for 512 characters at 32 bytes each.</summary>
+    public const int ObjectByteCount = 512 * ObjectCharacterBytes;
 }

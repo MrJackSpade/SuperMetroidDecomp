@@ -94,9 +94,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealSources(intro.Value),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
-            SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
-            SpriteSheetId.EndingShootingLogoHalfSprites or SpriteSheetId.EndingShootingLogoThreeQuartersSprites or
-            SpriteSheetId.EndingLogoSprites =>
+            SpriteSheetId.EndingShootingSprites =>
             EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes.Value, maps.Value.EndingFont, maps.Value.RoomPaletteFx),
         SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom or
             SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or SpriteSheetId.SamusDeath or

@@ -84,7 +84,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     internal EndingStage Stage { get; }
 
-    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork's uploads.</summary>
+    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
     internal EndingFlyaway Flyaway { get; }
 
     /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
@@ -205,11 +205,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EscapeScenes.StepSprites();
                 break;
 
-            case EndingCreditsPhase.ZebesExplosionTileUpload:
-                Flyaway.UploadFlyawayChunk(16 - Stage.PhaseTimer);
+            case EndingCreditsPhase.ZebesExplosionHold:
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
+                {
+                    Flyaway.LoadFlyawayFloor();
                     Stage.Phase = EndingCreditsPhase.ZebesExplosionAnimation;
+                }
                 break;
 
             case EndingCreditsPhase.ZebesExplosionAnimation:
@@ -350,8 +352,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (RewardGesture.JumpRequested)
                 {
                     CurrentRewardGesture = null;
-                    InstalledArtwork.BeginRewardIconUpload();
-                    CreditsRoll.CurrentRewardJump = new EndingRewardJump(Stage.EndingReward, InstalledArtwork.UploadRewardGraphic);
+                    CreditsRoll.CurrentRewardJump = new EndingRewardJump(Stage.EndingReward, InstalledArtwork.LoadRewardIcon);
                     Stage.Phase = EndingCreditsPhase.PostCreditsJump;
                 }
                 break;
@@ -591,6 +592,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>
-    internal bool EscapeBackgroundEnabled => EndingCreditsPhaseGroups.BeforeZebesExplosionTileUpload.Contains(Stage.Phase)
+    internal bool EscapeBackgroundEnabled => EndingCreditsPhaseGroups.BeforeZebesExplosionHold.Contains(Stage.Phase)
         || !EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 }

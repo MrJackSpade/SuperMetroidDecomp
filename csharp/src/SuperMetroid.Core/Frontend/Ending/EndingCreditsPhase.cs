@@ -23,8 +23,8 @@ internal enum EndingCreditsPhase
     FadeInZebesExplosion,
     /// <summary>Completes the explosion palette interpolation after brightness reaches full.</summary>
     ZebesExplosionPaletteCrossfade,
-    /// <summary>Loads the Ceres-derived flyaway floor art over sixteen updates.</summary>
-    ZebesExplosionTileUpload,
+    /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
+    ZebesExplosionHold,
     /// <summary>Lets the explosion actor's private instruction list control the finale.</summary>
     ZebesExplosionAnimation,
     /// <summary>Holds the explosion whiteout before queuing planet-escape music.</summary>
@@ -59,7 +59,7 @@ internal enum EndingCreditsPhase
     PostCreditsCopyright,
     /// <summary>Runs the selected reward gesture until it requests a jump.</summary>
     PostCreditsGesture,
-    /// <summary>Runs the reward jump and its staged graphics uploads until the shot.</summary>
+    /// <summary>Runs the reward jump, which reveals the reward icon as Samus falls back, until the shot.</summary>
     PostCreditsJump,
     /// <summary>Runs the post-shot palette and tile replacements before the white flash.</summary>
     PostCreditsShot,

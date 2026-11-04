@@ -1,15 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The opening cinematic's shared definitions: its installed artwork extents, text layout, palette fades, music, actors' palettes and sounds, and the narration caret.</summary>
+/// <summary>The opening cinematic's shared definitions: its text layout, palette fades, music, actors' palettes and sounds, and the narration caret.</summary>
 public static class IntroCinematicDefinitions
 {
-    /// <summary>The extents, in bytes, of the installed opening artwork the cinematic requires.</summary>
-    public static class Artwork
-    {
-        /// <summary>The narration font's 144 two-bit characters.</summary>
-        public const int FontOneBytes = 144 * 16;
-    }
-
     /// <summary>The planes the opening's scene and text are drawn on.</summary>
     public static class Planes
     {

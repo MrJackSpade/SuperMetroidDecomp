@@ -1,6 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
-/// <summary>Character geometry of the 144-tile opening font.</summary>
+/// <summary>Character geometry of the 144-tile opening font, which only the import reads (#1513).</summary>
 public static class IntroFontAtlasFormat
 {
     /// <summary>Planar bit depth of the opening narration font.</summary>

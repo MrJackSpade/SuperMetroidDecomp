@@ -299,7 +299,7 @@ internal static class EndingPaletteArtworkVerification
             EndingCreditsPhase.WaitForEscapeMusic,
             EndingCreditsPhase.FadeInEscapeSceneB,
             EndingCreditsPhase.FadeInZebesExplosion,
-            EndingCreditsPhase.ZebesExplosionTileUpload,
+            EndingCreditsPhase.ZebesExplosionHold,
             EndingCreditsPhase.PlanetEscapeFast,
             EndingCreditsPhase.Credits,
             EndingCreditsPhase.PostCreditsBlank,

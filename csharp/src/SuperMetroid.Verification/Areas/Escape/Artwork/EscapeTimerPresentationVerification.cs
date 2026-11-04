@@ -131,11 +131,11 @@ internal static class EscapeTimerPresentationVerification
         using (var output = File.Create(tileReplacement))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
         var editedArtwork = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(!EscapeTimerTilePageTransfers.Resolve(original.EscapeTimerTiles, InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
-            EscapeTimerTilePageTransfers.Resolve(editedArtwork.EscapeTimerTiles, InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(!EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(original), InstalledArtworkId.EscapeTimerFirstTiles).Span.SequenceEqual(
+            EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(editedArtwork), InstalledArtworkId.EscapeTimerFirstTiles).Span),
             "timer PNG edit changes the first compiled transfer");
-        AssertTrue(EscapeTimerTilePageTransfers.Resolve(original.EscapeTimerTiles, InstalledArtworkId.EscapeTimerSecondTiles).Span.SequenceEqual(
-            EscapeTimerTilePageTransfers.Resolve(editedArtwork.EscapeTimerTiles, InstalledArtworkId.EscapeTimerSecondTiles).Span),
+        AssertTrue(EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(original), InstalledArtworkId.EscapeTimerSecondTiles).Span.SequenceEqual(
+            EscapeTimerTilePageTransfers.Resolve(InstalledAreaMapPresentation.EscapeTimerTilesOf(editedArtwork), InstalledArtworkId.EscapeTimerSecondTiles).Span),
             "timer PNG edit leaves the second compiled transfer untouched");
 
         using (var output = File.Create(tileReplacement))

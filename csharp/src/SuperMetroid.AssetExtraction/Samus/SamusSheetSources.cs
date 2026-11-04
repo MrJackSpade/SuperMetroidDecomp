@@ -24,9 +24,7 @@ internal static class SamusSheetSources
             SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites or
             SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
-            SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
-            SpriteSheetId.EndingShootingLogoHalfSprites or SpriteSheetId.EndingShootingLogoThreeQuartersSprites or
-            SpriteSheetId.EndingLogoSprites or SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or
+            SpriteSheetId.EndingShootingSprites or SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or
             SpriteSheetId.ProjectilesWave or SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or
             SpriteSheetId.ProjectilesSpazer or SpriteSheetId.ProjectilesSpazerWave or
             SpriteSheetId.ProjectilesSpazerIce or SpriteSheetId.ProjectilesSpazerIceWave or

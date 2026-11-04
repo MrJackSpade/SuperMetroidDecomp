@@ -109,12 +109,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
     }
     /// <summary>Binds the installed opening font when the game is bound to its installed content.</summary>
-    public void BindIntroFont(IntroFontAtlas? value)
-    {
-        if (value is not null)
-            RequireFont(value);
-        IntroFont = value;
-    }
+    public void BindIntroFont(IntroFontAtlas? value) => IntroFont = value;
     /// <summary>Binds the installed BG and OBJ pixels when the game is bound to its installed content.</summary>
     public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
@@ -250,10 +245,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
-
-        RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
-            IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
-        RequireFont(introFont);
 
         // Setup loads the font and sprite sheets the intro binds; the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
@@ -1265,12 +1256,6 @@ level, samus, FrameCounterWord(elapsedUpdates));
         paletteFader.FadeOut(colours);
     }
 
-    /// <summary>Rejects truncated installed graphics before they are loaded.</summary>
-    private static void RequireMinimum(int length, int minimum, string name)
-    {
-        if (length < minimum)
-            throw new InvalidDataException($"The {name} stream expanded to ${length:X}, expected at least ${minimum:X}.");
-    }
 
     /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>
     internal LayeredScene CaptureTranslatedRenderSnapshot()
@@ -1330,12 +1315,6 @@ level, samus, FrameCounterWord(elapsedUpdates));
         }, Brightness.Level);
     }
 
-    /// <summary>Rejects a font atlas that is not the installed font's size.</summary>
-    internal static void RequireFont(IntroFontAtlas font)
-    {
-        if (Ensure.NotNull(font).CharacterCount != IntroFontAtlasFormat.TileCount)
-            throw new InvalidDataException($"Opening font contains {font.CharacterCount} characters; expected {IntroFontAtlasFormat.TileCount}.");
-    }
 
     /// <summary>
     /// The shared Samus systems' frame-counter word after <paramref name="elapsedUpdates"/> updates: its low sixteen

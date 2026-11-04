@@ -23,7 +23,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
 internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
-    ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerTileAtlas EscapeTimer)
+    ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer)
     : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>

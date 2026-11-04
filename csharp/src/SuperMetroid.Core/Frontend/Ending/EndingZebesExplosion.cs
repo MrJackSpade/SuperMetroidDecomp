@@ -13,7 +13,7 @@ internal sealed class EndingZebesExplosion
     private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
-    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork's uploads.</summary>
+    /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
     private readonly EndingFlyaway _flyaway;
     /// <summary>The ending's installed artwork: its text, font, staff credits, Mode 7, object and palette assets and their loads.</summary>
     private readonly EndingArtwork _artwork;
@@ -32,7 +32,7 @@ internal sealed class EndingZebesExplosion
     internal void SetupZebesExplosion()
     {
         _stage.LoadFloor(EndingFloorSceneId.PlanetExplosion);
-        _artwork.LoadEndingObjectCharacters();
+        _artwork.LoadExplosionPictures();
         _stage.LoadColours(EndingColourLoad.ExplosionSprites);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
@@ -69,7 +69,7 @@ internal sealed class EndingZebesExplosion
         _stage.PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
-    /// <summary>Interpolates explosion palettes on alternating calls and enters the sixteen-chunk flyaway transfer.</summary>
+    /// <summary>Interpolates explosion palettes on alternating calls and then enters the explosion's hold.</summary>
     internal void StepExplosionCrossfade()
     {
         _stage.FloorZoom += EndingExplosionFadeDefinitions.ZoomStep;
@@ -82,9 +82,9 @@ internal sealed class EndingZebesExplosion
         }
         if (--_stage.PhaseTimer < 0)
         {
-            _stage.PhaseTimer = 16;
-            _flyaway.PrepareFlyawayUploads();
-            _stage.Phase = EndingCreditsPhase.ZebesExplosionTileUpload;
+            _stage.PhaseTimer = EndingExplosionFadeDefinitions.HoldUpdates;
+            _flyaway.PrepareFlyaway();
+            _stage.Phase = EndingCreditsPhase.ZebesExplosionHold;
         }
     }
 }

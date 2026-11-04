@@ -46,7 +46,7 @@ internal static class CeresFlightArtworkVerification
             "installed Ceres Mode-7 PNG preserves every native character byte");
         AssertTrue(stock.ObjectCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightObjectCharacters,
-                maximumOutputBytes: CeresFlightArtworkFormat.ObjectByteCount)),
+                maximumOutputBytes: CeresFlightArtworkFileFormat.ObjectByteCount)),
             "installed Ceres OBJ PNG preserves every native character byte");
         byte[] nativeMaps = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 0x1000);

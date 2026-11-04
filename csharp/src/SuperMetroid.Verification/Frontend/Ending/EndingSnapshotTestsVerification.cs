@@ -98,7 +98,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(explosion.LayersOf<SpritesLayer>().Single().AddToScreen,
                         "explosion transition adds OBJ subscreen to BG1 and backdrop");
                 }
-                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
+                if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionHold)
                     AssertEqual(64, tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion],
                         "native shared explosion countdown includes screen fade-in and expires after 64 calls");
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus)
@@ -317,8 +317,8 @@ internal static class EndingSnapshotTestsVerification
                     var stars = legacy.CreditsRoll.ShootingStars;
                     var starOnlyOam = ScreenSpritesFixtures.Blank();
                     starOnlyOam.BeginFrame();
-                    // The logo has assembled by the percentage text, so the stars draw from its sheet.
-                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingLogoSprites), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
+                    // The stars draw from the shooting scene's sheet, which the logo's scenes draw from.
+                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
                     starOnlyOam.FinalizeFrame();
                     var actual = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                     AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Paint.SpriteParts()),

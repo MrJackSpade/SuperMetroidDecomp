@@ -22,13 +22,13 @@ internal static class EndingScreenPublicationVerification
     internal static void VerifyEndingScreenPublication()
     {
         var screen = new EndingScreen();
-        screen.LoadFlyawayChunk(0);
+        screen.LoadFlyawayFloor();
         screen.ShowText(EndingTextScreen.FinalText, [new ShownEndingText(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
         screen.LoadExplosionMaps();
-        AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayChunk(0), "the flyaway floor's loads are made once each, in order");
-        AssertEqual(EndingFloorShot.None, screen.FloorShot, "a floor shows only once all its loads are made");
+        AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayFloor(), "the flyaway floor is loaded once per clear");
+        AssertEqual(EndingFloorShot.Flyaway, screen.FloorShot, "the loaded flyaway floor shows");
         screen.Clear();
-        AssertTrue(screen.FlyawayChunksLoaded == 0 && !screen.ExplosionMapsLoaded && screen.FinalPageText is null,
+        AssertTrue(!screen.FlyawayFloorLoaded && !screen.ExplosionMapsLoaded && screen.FinalPageText is null,
             "a full clear forgets every load and every shown picture");
 
         var audio = new AudioQueues();

@@ -125,8 +125,7 @@ internal static class EndingSheetFixtures
     internal static CinematicSpriteSheet Drawer(EndingCreditsState ending, EndingObjectSheet objectSheet, CinematicSpriteFamily family)
     {
         ArgumentNullException.ThrowIfNull(ending);
-        return new CinematicSpriteSheet(ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward,
-            ending.screen.LogoChunksShown)), family);
+        return new CinematicSpriteSheet(ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward)), family);
     }
 
     extension(EndingArtwork self)

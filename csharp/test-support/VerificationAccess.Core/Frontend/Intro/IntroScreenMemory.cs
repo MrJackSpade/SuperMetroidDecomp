@@ -19,7 +19,6 @@ internal static class IntroScreenMemory
     [WholeImageFixture("the intro's character image")]
     internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
     {
-        IntroCinematicState.RequireFont(installedFont);
         IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(artwork);
         ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
         var vram = new SnesVram();

@@ -1,7 +1,7 @@
 ﻿
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Cartridge values and helpers of <see cref="IntroCinematicDefinitions.Artwork"/> that only verification reads.</summary>
+/// <summary>Extents of the opening artwork streams that only verification reads.</summary>
 internal static class IntroCinematicDefinitionsArtworkConstants
 {
         /// <summary>The cells of the Samus portrait's 32-by-32 tilemap.</summary>

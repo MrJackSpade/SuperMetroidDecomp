@@ -9,4 +9,9 @@ internal static class EndingExplosionFadeDefinitions
     public const int ZoomStep = 4;
     /// <summary>There are thirty-two palette steps over sixty-four calls.</summary>
     public const int Steps = 32;
+    /// <summary>
+    /// The updates the explosion holds after its crossfade, with the escape backdrop off, before its finale begins; the
+    /// flyaway's floor is ready once the hold ends.
+    /// </summary>
+    public const int HoldUpdates = 16;
 }

@@ -43,7 +43,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
         EscapeTimer = parts.EscapeTimer;
-        EscapeTimerTiles = parts.EscapeTimerTiles;
         GameplayHud = parts.GameplayHud;
         GameOver = parts.GameOver;
         GameOptions = parts.GameOptions;
@@ -90,10 +89,8 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }
-    /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
+    /// <summary>Escape countdown visual layout and digit presentation.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
-    /// <summary>Selected character bytes for the two escape-timer artwork loads.</summary>
-    public EscapeTimerTileAtlas EscapeTimerTiles { get; }
     /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
     public GameplayHudPresentation GameplayHud { get; }
     /// <summary>Selected game-over screen presentation resources.</summary>

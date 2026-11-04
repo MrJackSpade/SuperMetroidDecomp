@@ -154,9 +154,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
-            SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
-            SpriteSheetId.EndingShootingLogoHalfSprites or SpriteSheetId.EndingShootingLogoThreeQuartersSprites or
-            SpriteSheetId.EndingLogoSprites =>
+            SpriteSheetId.EndingShootingSprites =>
             EndingSpriteSheetComposer.FrameNames(sheet, ending.Value),
         SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or
             SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or SpriteSheetId.ProjectilesSpazer or

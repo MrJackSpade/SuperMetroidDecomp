@@ -1,14 +1,16 @@
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>
 /// The installed escape-timer typeface as the import pipeline reads it (#1409): selected timer contours separated from
-/// shared pixel relationships and calculated default fill sites, compiled to the timer's four-bit planar characters.
+/// shared pixel relationships and calculated default fill sites, compiled to the timer's four-bit planar characters,
+/// which only the import reads (#1513).
 /// </summary>
-public sealed class EscapeTimerCharacters : EscapeTimerTileAtlas
+public sealed class EscapeTimerCharacters
 {
+    /// <summary>The 25 timer characters in four-bit planar load order.</summary>
+    internal readonly byte[] characters;
     /// <summary>Independent fill sites of the native timer typeface beyond the calculated defaults.</summary>
     internal readonly HashSet<int> fillPixels;
     /// <summary>PNG edits that change whether a calculated basis pixel uses the fill ink.</summary>
@@ -25,8 +27,9 @@ public sealed class EscapeTimerCharacters : EscapeTimerTileAtlas
     /// <summary>Retains the typeface's separated pixels beside the characters they compile to.</summary>
     /// <param name="glyphs">The separated timer pixels.</param>
     /// <param name="characters">The 25 timer characters the pixels compile to, in transfer order.</param>
-    private EscapeTimerCharacters(TimerGlyphs glyphs, byte[] characters) : base(characters)
+    private EscapeTimerCharacters(TimerGlyphs glyphs, byte[] characters)
     {
+        this.characters = characters;
         fillPixels = glyphs.fillPixels;
         fillOverrides = glyphs.fillOverrides;
         pixelOverrides = glyphs.pixelOverrides;

@@ -16,7 +16,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// <param name="installed">The enemy, boss and area artwork whose transfers and characters are served.</param>
 /// <param name="timer">The escape-timer atlas whose pages are served as typed assets, or null for none.</param>
 internal sealed class EnemyTileTransfers(InstalledEnemyArtwork installed,
-    SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas? timer = null)
+    SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerCharacters? timer = null)
     : IInstalledArtworkContent, IInstalledArtworkTransferSource, IInstalledSpriteCharacterArtwork,
         IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {

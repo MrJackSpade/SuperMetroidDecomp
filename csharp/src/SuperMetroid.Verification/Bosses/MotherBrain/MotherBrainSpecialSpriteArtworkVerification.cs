@@ -200,7 +200,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void VerifyMotherBrainEscapeTimerPages(
         InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        EscapeTimerTileAtlas timer = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
+        EscapeTimerCharacters timer = EscapeTimerCharacters.Read(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, 

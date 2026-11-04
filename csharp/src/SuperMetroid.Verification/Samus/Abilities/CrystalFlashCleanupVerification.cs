@@ -78,8 +78,9 @@ internal static class CrystalFlashCleanupVerification
         bool bubble = false, drained = false;
         RoomEnemySlot? contactEnemy = null;
         bool contactVerified = false;
-        // Each frame's published scenes are drawn once the route has run; drawing reads nothing the runtime still owns.
-        var scenes = new List<CrystalFlashFrameScenes>();
+        // Each frame's published scenes are drawn as the frame is captured: a scene still shows state the runtime goes on
+        // changing, so drawing it later shows a later frame's body.
+        var visibility = new List<VerifyCrystalFlashVisualFrameResult>();
         for (int frame = 0; frame < 1000; frame++)
         {
             if (refill && frame == 60)
@@ -134,14 +135,13 @@ internal static class CrystalFlashCleanupVerification
             drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
             if (started >= 0)
             {
-                scenes.Add(VerifyCrystalFlashVisualFrame(runtime, bus, frame - started));
+                visibility.Add(CrystalFlashVisualsVerification.Visibility(VerifyCrystalFlashVisualFrame(runtime, bus, frame - started)));
                 AssertEqual(512, samus.Position.X.Whole, "Crystal Flash owns horizontal movement");
                 AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.Position.Y.Whole,
                     "held Jump cannot replace the native Crystal Flash vertical trajectory");
                 if (samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive) { finished = frame; break; }
             }
         }
-        VerifyCrystalFlashVisualFrameResult[] visibility = CrystalFlashVisualsVerification.Visibility(scenes);
         int visibleBodyFrames = visibility.Count(visible => visible.Body);
         int visibleWindowFrames = visibility.Count(visible => visible.Window);
         if (capacity == 10 && !refill)

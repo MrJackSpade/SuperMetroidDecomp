@@ -2473,19 +2473,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetPartDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpriteSheetPartDocument.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Artwork.SpriteSheetPlanes",
       "kind": "struct",
       "scope": "product",
@@ -3228,6 +3215,38 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.SoundEffectCommandsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Audio/SoundEffectCommandsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.SoundEffectCommandsAccess.extension(SuperMetroid.AssetExtraction.Audio.SoundEffectCommands)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Audio/SoundEffectCommandsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Audio.SoundEffectObserver",
@@ -9242,12 +9261,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.AreaBossWords",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/AreaBossWords.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/CartridgeTables/AreaBossWords.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -9518,12 +9540,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyDeathExplosionWords",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/EnemyDeathExplosionWords.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/CartridgeTables/EnemyDeathExplosionWords.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -9719,6 +9744,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/GameplayMessageRoutineWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.GrappleAiRoutineWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/CartridgeTables/GrappleAiRoutineWords.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -10987,12 +11028,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11000,12 +11044,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA0",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11013,12 +11060,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA2",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11026,12 +11076,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA3",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11039,12 +11092,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA4",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11052,12 +11108,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA5",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11065,12 +11124,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA6",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11078,12 +11140,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA7",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11091,12 +11156,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA8",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11104,12 +11172,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA9",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11117,12 +11188,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankAA",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11130,12 +11204,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankB2",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11143,12 +11220,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankB3",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyAiRoutineDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11156,12 +11236,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyInteractionCallbacks",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyInteractionCallbacks.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyInteractionCallbacks.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -11169,12 +11252,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyPowerBombCallbackDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyPowerBombCallbackDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyPowerBombCallbackDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11182,12 +11268,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyShotCallbackDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyShotCallbackDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyShotCallbackDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -11195,12 +11284,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyTouchCallbackDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Callbacks/EnemyTouchCallbackDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/Callbacks/EnemyTouchCallbackDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -12443,12 +12535,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyHeaderTableDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/EnemyHeaderTableDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -12456,12 +12551,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTables",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyHeaderTables.cs"
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/EnemyHeaderTables.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -13364,6 +13462,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.FrameColouring",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/FrameColouring.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.FrameColouringDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/FrameColouringDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.FrameDrawings",
       "kind": "class",
       "scope": "product",
@@ -13708,6 +13832,38 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/RoomEnemyDefinitionImporterAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterAccess.extension(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/RoomEnemyDefinitionImporterAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterTooling",
@@ -19612,6 +19768,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentationAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Frontend/Map/InstalledAreaMapPresentationAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentationAccess.extension(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Frontend/Map/InstalledAreaMapPresentationAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Map.InstalledPresentationSources",
@@ -37942,19 +38130,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Assets/SpriteSheetFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.SpriteSheetFramePart",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/SpriteSheetFramePart.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -140601,6 +140776,22 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetRows",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/FixtureGraphicsSetRows.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.GameInstallationAudioAccess",
       "kind": "static class",
       "scope": "test",
@@ -146523,19 +146714,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainNeckSineVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainPagePicturesVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainPagePicturesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

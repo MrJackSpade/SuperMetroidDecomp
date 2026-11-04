@@ -118,9 +118,12 @@ internal static class EncounterArtworkDrawingDefinitions
             Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value), MotherBrainVisualDefinitions.NeckJointFrame],
         };
 
-    /// <summary>Mother Brain's body, shown once her legs have loaded, with her first attack pages, until her death.</summary>
+    /// <summary>
+    /// Mother Brain's body sprites, drawn before her first page loads (a glitched fight shows them in phase one, as the
+    /// Mother Brain glitch movie does) and through every page until her death.
+    /// </summary>
     private static readonly EncounterArtworkDrawing MotherBrainBody =
-        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(11, 25)])
+        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(0, 25)])
         {
             Frames = [.. MotherBrainBodyVisualDefinitions.ShownFrames.Select(entry => entry.Value)],
         };

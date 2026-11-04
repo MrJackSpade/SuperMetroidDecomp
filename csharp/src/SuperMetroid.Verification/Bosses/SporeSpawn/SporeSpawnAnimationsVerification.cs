@@ -199,10 +199,14 @@ internal static class SporeSpawnAnimationsVerification
         return updates;
     }
 
-    /// <summary>A projectile system whose spore drops have a Samus to read.</summary>
+    /// <summary>
+    /// A projectile system with Spore Spawn loaded in slot zero, whose spores take his colours, and whose spore drops have
+    /// a Samus to read.
+    /// </summary>
     private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        enemies.SporeSpawnBehavior.SporeSpawn = new SporeSpawnEnemyState(enemies.SlotTable.Slots[0]);
         enemies.VerificationServices().NextRandom = () => 1;
         enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         return enemies;

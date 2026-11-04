@@ -664,8 +664,9 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // `$8014` supplies ten descending even table offsets with an odd no-write hold after
     // each one. The twenty-first call sees `$8000`, skips the padding pointer, and restores
-    // Power Suit. Each palette call names the Hyper-shot frame of the table offset it reads (the import pre-colours
-    // frame f from offset (10 - f) * 2), so reversed palette order shows the wrong frame (#1512).
+    // Power Suit. Each palette call names the Hyper-shot frame of the table offset it reads: the import pre-colours frame
+    // f from offset (f + 1) * 2, the glow walking its cycle backward as the timer counts down, so the first call's offset
+    // $14 shows the last frame (#1512).
     var hyperGlowColours = new SamusColours();
     for (int call = 0; call < 21; call++)
     {
@@ -682,7 +683,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             // descend from $14, selecting palettes 0..9 in order.
             AssertEqual(0x14 - palette * 2, hyperTimerBefore & 0x001e,
                 $"Hyper body glow call {call + 1} uses descending table index");
-            AssertEqual(SamusShades.HyperShot(palette), hyperGlowColours.Suit,
+            AssertEqual(SamusShades.HyperShot((0x14 - palette * 2) / 2 - 1), hyperGlowColours.Suit,
                 $"Hyper body palette {palette} shows its Hyper-shot frame");
             RgbColor[] hyperSuit = hyperGlowColours.ShownSuit(projSources);
             for (int color = 0; color < 16; color++)

@@ -167,6 +167,9 @@ internal static class BotwoonAnimationsVerification
         AssertTrue(spit.Animation is not null, "a typed spit keeps no native instruction pointer");
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
+        // Botwoon is loaded, as his initializer leaves him, before his body segments animate: they show his body's colours.
+        var state = new BotwoonEnemyState();
+        enemies.BotwoonBehavior.BotwoonState = state;
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<RoomEnemyProjectileSlot, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new RoomEnemyProjectileSlot(1)
@@ -190,8 +193,6 @@ internal static class BotwoonAnimationsVerification
         Action<RoomEnemySlot, BotwoonEnemyState, int> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
         Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyFrameBehavior;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        var state = new BotwoonEnemyState();
-        enemies.BotwoonBehavior.BotwoonState = state;
         spawnBody(head, state, 1);
         RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,

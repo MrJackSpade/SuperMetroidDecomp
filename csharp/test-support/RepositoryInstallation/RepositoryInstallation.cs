@@ -55,7 +55,7 @@ internal static class RepositoryInstallation
     }
 
     /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
-    private static readonly Lazy<GameArtwork> artwork =
+    internal static Lazy<GameArtwork> ArtworkLoader { get; } =
         new(() => SharedFixtureTiming.Load("Fixture: repository artwork",
             () => Installation.LoadGameArtwork(Installation.LoadMaps(), Installation.LoadProjectiles(), Installation.LoadEnemyTiles())));
 
@@ -63,13 +63,7 @@ internal static class RepositoryInstallation
     internal static GameInstallation Installation => installation.Value;
 
     /// <summary>The installation's presentation catalogs, shared by every fixture in the process.</summary>
-    internal static GameArtwork Artwork => artwork.Value;
-
-    /// <summary>
-    /// The loader of <see cref="Artwork"/>, which a debugger graph names content through without loading it: a graph of
-    /// a fixture that never binds the artwork does not pay for loading every catalog.
-    /// </summary>
-    internal static Lazy<GameArtwork> ArtworkLoader => artwork;
+    internal static GameArtwork Artwork => ArtworkLoader.Value;
 
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs, playing under the requested assists.</summary>
     internal static SuperMetroidRuntime CreateRuntime(

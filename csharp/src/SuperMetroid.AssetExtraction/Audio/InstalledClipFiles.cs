@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 

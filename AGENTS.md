@@ -350,6 +350,10 @@ constraint, not a side concern.
 - Make all the edits for a body of work, then build once and fix every reported error in
   a single pass. Never build after each unit or rebuild after each individual fix.
 - Build only the projects the change needs. The full solution builds in CI.
+- Build with `pwsh -File tools/build.ps1 [project or solution] [dotnet build arguments...]`, never `dotnet build`
+  directly. It deletes the unused usings (IDE0005) the build reports and builds again until none are left, then prints
+  the remaining errors once. The project's Claude Code hook (`tools/require-build-script.py`) refuses a direct
+  `dotnet build`.
 
 ### Run only the checks that cover the change
 

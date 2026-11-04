@@ -181,8 +181,8 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             "duplicate Mother Brain death property fails loudly");
         visual.BodyFade[0][5] = visual.BodyFade[0][5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
-            () => MotherBrainDeathColorFile.Write(visual),
-            "Mother Brain death RGB5 channel outside five-bit precision is rejected");
+            () => MotherBrainDeathColorFile.Read(new MemoryStream(MotherBrainDeathColorFile.Write(visual), writable: false)),
+            "reading Mother Brain death colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

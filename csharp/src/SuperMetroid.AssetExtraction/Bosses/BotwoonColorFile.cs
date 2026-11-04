@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -38,11 +39,11 @@ public static class BotwoonColorFile
         return new BotwoonHealthPaint(edits);
     }
 
-    /// <summary>Serializes a Botwoon color document and validates the resulting JSON through <see cref="Read"/>.</summary>
+    /// <summary>Serializes a Botwoon color document as UTF-8 JSON.</summary>
     /// <param name="document">The eight complete RGB5 health palettes to serialize.</param>
-    /// <returns>Validated UTF-8 JSON bytes.</returns>
+    /// <returns>UTF-8 JSON bytes.</returns>
     public static byte[] Write(BotwoonColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks a health row's sixteen five-bit RGB values before packing its SNES colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int band)

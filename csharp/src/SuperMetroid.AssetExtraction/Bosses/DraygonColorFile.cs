@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -30,9 +31,9 @@ public static class DraygonColorFile
                     $"health band {index}")).ToArray()));
     }
 
-    /// <summary>Validates and serializes a Draygon color document as indented camel-case JSON.</summary>
+    /// <summary>Serializes a Draygon color document as indented camel-case JSON.</summary>
     public static byte[] Write(DraygonColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks a named RGB5 array's required length and channel bounds before packing its colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -44,11 +45,11 @@ public static class RoomFxPaletteBlendFile
         }
     }
 
-    /// <summary>Serializes a complete blend-palette document as UTF-8 JSON and validates it through <see cref="Read"/> before returning the bytes.</summary>
+    /// <summary>Serializes a complete blend-palette document as UTF-8 JSON.</summary>
     /// <param name="document">Eight named blend selections and optional haze tint overrides.</param>
-    /// <returns>The validated UTF-8 JSON payload; this method does not write an external resource.</returns>
+    /// <returns>The UTF-8 JSON payload; this method does not write an external resource.</returns>
     public static byte[] Write(RoomFxPaletteBlendDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>The authored Ceres fixed-color tint, or the cartridge tint an older document omits; rejects a component outside RGB5 range.</summary>
     private static RgbColor HazeTint(PaletteRgb5? color, RgbColor stock, string name)

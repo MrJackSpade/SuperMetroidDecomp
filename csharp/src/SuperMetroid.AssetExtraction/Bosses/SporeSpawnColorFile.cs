@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -30,9 +31,9 @@ public static class SporeSpawnColorFile
                 "death background")));
     }
 
-    /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON, validating its version, dimensions, and RGB5 channel bounds before returning the bytes.</summary>
+    /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(SporeSpawnColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Requires the native number of ordered palette phases and compiles each sixteen-ink RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)

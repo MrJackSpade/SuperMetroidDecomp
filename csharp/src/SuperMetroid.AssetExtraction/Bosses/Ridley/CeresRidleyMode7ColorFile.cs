@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -42,9 +43,9 @@ public static class CeresRidleyMode7ColorFile
         return new(CeresRidleyPaintRecognition.Floor(rows));
     }
 
-    /// <summary>Serializes all zoom shades as UTF-8 JSON and validates them through <see cref="Read"/> before returning the payload.</summary>
-    /// <param name="document">Complete nine-row color document to validate and serialize.</param>
-    /// <returns>Validated JSON bytes, without writing an external resource.</returns>
+    /// <summary>Serializes all zoom shades as UTF-8 JSON.</summary>
+    /// <param name="document">Complete nine-row color document to serialize.</param>
+    /// <returns>JSON bytes, without writing an external resource.</returns>
     public static byte[] Write(CeresRidleyMode7ColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 }

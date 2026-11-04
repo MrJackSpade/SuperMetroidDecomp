@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
@@ -60,9 +61,9 @@ public static class CeresRidleyColorFile
         }, stockForLegacyOverride));
     }
 
-    /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>
+    /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CeresRidleyColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
     private static RgbColor[][] CompileRows(PaletteRgb5[][]? rows, int count,

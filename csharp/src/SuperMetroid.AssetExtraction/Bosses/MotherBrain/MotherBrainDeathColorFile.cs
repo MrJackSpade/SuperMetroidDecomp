@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -41,12 +42,11 @@ public static class MotherBrainDeathColorFile
                 "exploded door")));
     }
 
-    /// <summary>Serializes the editable death-color document to indented camel-case UTF-8 JSON and validates the resulting bytes through <see cref="Read"/>.</summary>
+    /// <summary>Serializes the editable death-color document to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">Palette-stage and door colors to serialize; their collections are not retained.</param>
-    /// <returns>Validated JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
-    /// <exception cref="InvalidDataException">The serialized document fails schema, dimension, or RGB5-channel validation.</exception>
+    /// <returns>JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
     public static byte[] Write(MotherBrainDeathColorDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks the authored stage count and converts each RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source,

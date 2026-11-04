@@ -1,3 +1,4 @@
+using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -98,11 +99,11 @@ public static class CeresRidleyGetawayBoostDelayFiles
     private static int[][] Frames(int[][]? frames) =>
         frames ?? throw new InvalidDataException("Ceres Ridley getaway boost delays name no wing frames.");
 
-    /// <summary>Serializes the document as UTF-8 JSON and validates it through <see cref="Read"/> before returning it.</summary>
+    /// <summary>Serializes the document as UTF-8 JSON.</summary>
     /// <param name="document">The complete delay document.</param>
-    /// <returns>Validated JSON bytes, without writing a file.</returns>
+    /// <returns>JSON bytes, without writing a file.</returns>
     public static byte[] Write(CeresRidleyGetawayBoostDelayDocument document) =>
-        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
+        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>
     /// Where in the floor update queue the unauthored cadence's first delay lies: its stream word names a bank-$91 place

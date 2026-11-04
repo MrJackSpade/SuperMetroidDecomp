@@ -126,11 +126,11 @@ internal static class RoomFxPaletteBlendsVerification
             "cosmetic override does not mutate stock presentation");
         AssertEqual((byte)0, HazeLine(GameplayEffectCapture.CaptureCeresHaze(false, intensity: 0, colors: edited)).G,
             "cosmetic color cannot change the native fade-out duration");
-        AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Write(
+        AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(
             editedDocument with
             {
                 CeresHazeBlue = editedDocument.CeresHazeBlue with { Green = 32 },
-            }), "invalid Ceres tint component fails loudly");
+            }), writable: false)), "reading an invalid Ceres tint component fails loudly");
         RoomFxBlendInks legacy = RoomFxPaletteBlendFile.Read(new MemoryStream(
             RoomFxPaletteBlendFile.Write(stock with
             {
@@ -171,13 +171,13 @@ internal static class RoomFxPaletteBlendsVerification
         AssertTrue(HazeLine(GameplayEffectCapture.CaptureCeresHaze(false,
                 colors: edited.RoomFxPaletteBlends)).G > 0,
             "installed room-FX color override reaches Ceres haze rendering");
-        AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Write(document with
+        AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(document with
         {
             Blends = new Dictionary<string, PaletteRgb5[]>(document.Blends)
             {
                 [key] = [original with { Red = 32 }, .. document.Blends[key].Skip(1)],
             },
-        }), "invalid room-FX blend component fails loudly");
+        }), writable: false)), "reading an invalid room-FX blend component fails loudly");
         File.Delete(path);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,

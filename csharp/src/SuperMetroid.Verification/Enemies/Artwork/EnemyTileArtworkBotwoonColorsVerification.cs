@@ -103,8 +103,8 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             () => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
             "duplicate Botwoon color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
-        AssertThrows<InvalidDataException>(() => BotwoonColorFile.Write(visual),
-            "Botwoon RGB5 channel outside five-bit precision is rejected");
+        AssertThrows<InvalidDataException>(() => BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(visual), writable: false)),
+            "reading Botwoon colors rejects an RGB5 channel outside five-bit precision");
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, null),

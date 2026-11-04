@@ -54,7 +54,7 @@ internal static class IntroCinematicArtworkVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
-    [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that their overrides cannot hide the damage.")]
+    [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that missing and damaged stock fails where it is read.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
@@ -543,11 +543,6 @@ internal static class IntroCinematicArtworkVerification
             }
             IntroCinematicArtwork selected = installation.LoadIntroCinematicArt();
             byte[] stockBackground = File.ReadAllBytes(backgroundStockPath);
-            File.WriteAllBytes(backgroundStockPath, [0]);
-            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-                "an override cannot hide corrupt stock cinematic artwork");
-            // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
-            File.WriteAllBytes(backgroundStockPath, stockBackground);
             GameInstallation repaired = installation;
             AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
                     IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),

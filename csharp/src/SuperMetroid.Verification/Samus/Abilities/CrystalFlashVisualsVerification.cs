@@ -20,7 +20,7 @@ internal static class CrystalFlashVisualsVerification
     /// <summary>
     /// Checks authored body and bubble palette rows, then captures the scenes that isolate the visible body and
     /// color-window pixels: the frame, the frame with Samus muted and, while the color window shows, the frame without it.
-    /// Published scenes share no storage with the runtime, so <see cref="Visibility"/> draws them after the route.
+    /// The caller draws them with <see cref="Visibility"/> before the runtime advances.
     /// </summary>
     internal static CrystalFlashFrameScenes VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace bus, int elapsed)
     {
@@ -65,22 +65,10 @@ internal static class CrystalFlashVisualsVerification
         ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
     }
 
-    /// <summary>
-    /// Draws every frame's captured scenes and decides whether its Crystal Flash body and color window show any pixel,
-    /// in frame order. The frames are independent, so they are drawn on several threads at once, each with its own
-    /// renderer; every frame is drawn and compared exactly as a frame-by-frame check would.
-    /// </summary>
-    internal static VerifyCrystalFlashVisualFrameResult[] Visibility(IReadOnlyList<CrystalFlashFrameScenes> frames)
-    {
-        ArgumentNullException.ThrowIfNull(frames);
-        var results = new VerifyCrystalFlashVisualFrameResult[frames.Count];
-        Parallel.For(0, frames.Count, index => results[index] = Visibility(frames[index]));
-        return results;
-    }
-
     /// <summary>Draws one frame's captured scenes and decides whether its body and color window show any pixel.</summary>
-    private static VerifyCrystalFlashVisualFrameResult Visibility(CrystalFlashFrameScenes frame)
+    internal static VerifyCrystalFlashVisualFrameResult Visibility(CrystalFlashFrameScenes frame)
     {
+        ArgumentNullException.ThrowIfNull(frame);
         RgbaPixel[] pixels = DisplayRendering.Render(frame.Shown);
         RgbaPixel[] mutedBody = DisplayRendering.Render(frame.SamusMuted);
         int centerX = frame.CenterX, centerY = frame.CenterY;

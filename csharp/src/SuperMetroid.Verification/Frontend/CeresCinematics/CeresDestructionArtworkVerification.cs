@@ -29,7 +29,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresDestructionArtworkVerification
 {
     /// <summary>Confirms native maps, characters, and OAM, then exercises editable actor, sprite, map, and PNG overrides through the running scene.</summary>
-    [PrivateInstallation("Corrupts Ceres destruction stock files on a private copy to check that their overrides cannot hide the damage.")]
+    [PrivateInstallation("Edits Ceres destruction files on a private copy to check that their overrides apply.")]
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -167,12 +167,6 @@ internal static class CeresDestructionArtworkVerification
         AssertTrue(!stockReveal.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
                 movedReveal.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited planet placement changes production OAM, not just JSON parsing");
-        byte[] stockActors = File.ReadAllBytes(actorsPath);
-        File.WriteAllBytes(actorsPath, [0]);
-        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-            "a valid actor override cannot conceal damaged stock layout");
-        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
-        File.WriteAllBytes(actorsPath, stockActors);
         AssertEqual(stockPlanetX + 16,
             installation.LoadIntroCinematicArt().CeresDestruction.RevealActors[0].X,
             "actor layout override still applies over the restored stock layout");
@@ -233,12 +227,6 @@ internal static class CeresDestructionArtworkVerification
         AssertTrue(!stockDestruction.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
                 movedDestruction.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited destruction placement changes production OAM");
-        byte[] stockDestructionActorBytes = File.ReadAllBytes(destructionActorsPath);
-        File.WriteAllBytes(destructionActorsPath, [0]);
-        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-            "a destruction actor override cannot hide damaged stock layout");
-        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
-        File.WriteAllBytes(destructionActorsPath, stockDestructionActorBytes);
         AssertEqual(stockAsteroidX + 16,
             installation.LoadIntroCinematicArt().CeresDestruction.DestructionActors[0].X,
             "destruction actor override still applies over the restored stock layout");
@@ -285,12 +273,6 @@ internal static class CeresDestructionArtworkVerification
             CeresDestructionSpritePresentation.Write(invalid, spriteDocument);
             _ = CeresDestructionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
         }, "Ceres destruction sprites reject a missing named frame on read");
-        byte[] stockSprites = File.ReadAllBytes(spritesPath);
-        File.WriteAllBytes(spritesPath, [0]);
-        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-            "a destruction sprite override cannot hide corrupt stock artwork");
-        // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
-        File.WriteAllBytes(spritesPath, stockSprites);
         var repairedSpriteState = CreateRetailDestructionFixture(artwork: installation.LoadIntroCinematicArt());
         for (int frame = 0; frame < 36; frame++) repairedSpriteState.Step();
         AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(

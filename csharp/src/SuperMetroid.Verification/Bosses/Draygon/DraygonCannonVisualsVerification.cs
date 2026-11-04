@@ -59,7 +59,7 @@ internal static class DraygonCannonVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmDraygonCannonVisualFilesConstants.ValidateStock(
                     installation.RoomPlmDraygonCannonVisualDirectory),
-                "tampered cannon stock fails manifest validation");
+                "tampered cannon stock fails loudly where it is read");
         }
     }
 

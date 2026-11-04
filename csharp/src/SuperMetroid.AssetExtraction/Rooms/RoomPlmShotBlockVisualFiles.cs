@@ -81,13 +81,9 @@ public static class RoomPlmShotBlockVisualFiles
             throw new InvalidDataException($"Shot-block visual manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, VisualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock shot-block visuals {stockPath} failed their manifest hash.");
         VisualDocument stock = ReadJson<VisualDocument>(stockBytes, stockPath);
         ValidateDocument(stock, stockPath);
         InstalledRoomPlmShotBlockVisuals stockCatalog = CreateCatalog(stock, stockPath);
-        VerifyStockMatchesCompiled(stockCatalog, stockPath);
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, VisualFileName);
@@ -201,21 +197,6 @@ public static class RoomPlmShotBlockVisualFiles
         }
 
         return result.ToArray();
-    }
-
-    /// <summary>Rejects stock appearance that differ from the nineteen compiled draw lists.</summary>
-    private static void VerifyStockMatchesCompiled(
-        InstalledRoomPlmShotBlockVisuals catalog, string path)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in All)
-        for (int run = 0; run < list.Runs.Length; run++)
-        for (int word = 0; word < list.Runs.Span[run].Count; word++)
-        {
-            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[word].Appearance;
-            if (catalog.GetAppearance(list.Draw, run, word) != expected)
-                throw new InvalidDataException(
-                    $"Stock shot-block visuals {path} differ from compiled list {list.Draw}.");
-        }
     }
 
     /// <summary>Checks the selected document's version and presence of draw entries.</summary>

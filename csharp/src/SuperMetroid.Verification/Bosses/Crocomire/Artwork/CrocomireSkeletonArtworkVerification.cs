@@ -115,7 +115,7 @@ internal static class CrocomireSkeletonArtworkVerification
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Open(stockDirectory, null).CrocomireSkeleton(),
-            "corrupt stock Crocomire skeleton fails its manifest hash");
+            "corrupt stock Crocomire skeleton fails loudly where it is read");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(

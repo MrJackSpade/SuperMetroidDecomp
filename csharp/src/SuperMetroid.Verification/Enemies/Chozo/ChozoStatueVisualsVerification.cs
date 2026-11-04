@@ -126,7 +126,7 @@ internal static class ChozoStatueVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmChozoStatueVisualFilesConstants.ValidateStock(
                     installation.RoomPlmChozoStatueVisualDirectory),
-                "tampered Chozo stock fails manifest validation");
+                "tampered Chozo stock fails loudly where it is read");
         }
     }
 

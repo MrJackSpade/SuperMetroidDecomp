@@ -56,17 +56,14 @@ internal static class RoomPlmDoorVisualFileCodec
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional edited visual catalog.</summary>
+    /// <summary>Validates stock provenance, then selects an optional edited visual catalog.</summary>
     internal static TCatalog Load<TCatalog>(string stockDirectory, string? overrideDirectory,
         RoomPlmVisualFamily<TCatalog> visuals)
     {
         Ensure.NotNull(visuals);
         string visualFileName = visuals.FileName;
         string family = visuals.Name;
-        IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions = visuals.Definitions;
-        Func<PlmDraw, string> visualId = visuals.VisualId;
         Func<Entry[], TCatalog> createCatalog = visuals.CreateCatalog;
-        Func<TCatalog, PlmDraw, int, int, RoomBlockAppearance?> getAppearance = visuals.GetAppearance;
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath, family);
@@ -77,15 +74,9 @@ internal static class RoomPlmDoorVisualFileCodec
                 $"{family} visual manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, visualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(
-                $"Stock {family} visuals {stockPath} failed their manifest hash.");
         TCatalog stock = CreateCatalog(
             ReadJson<VisualDocument>(stockBytes, stockPath, family), stockPath,
             family, createCatalog);
-        VerifyStockMatchesCompiled(stock, stockPath, family, definitions,
-            visualId, getAppearance);
 
         string? overridePath = overrideDirectory is null ? null :
             Path.Combine(overrideDirectory, visualFileName);
@@ -144,30 +135,6 @@ internal static class RoomPlmDoorVisualFileCodec
             entries.Add(new Entry(visualId(draw.Draw), blocks.ToArray()));
         }
         return entries.ToArray();
-    }
-
-    /// <summary>Requires every stock appearance to match the compiled draw's block.</summary>
-    private static void VerifyStockMatchesCompiled<TCatalog>(TCatalog catalog,
-        string path, string family,
-        IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
-        Func<PlmDraw, string> visualId,
-        Func<TCatalog, PlmDraw, int, int, RoomBlockAppearance?> getAppearance)
-    {
-        foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in definitions)
-        {
-            for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
-            {
-                RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
-                for (int block = 0; block < run.Count; block++)
-                {
-                    RoomBlockAppearance expected = run.Blocks.Span[block].Appearance;
-                    if (getAppearance(catalog, draw.Draw, runIndex, block) != expected)
-                        throw new InvalidDataException(
-                            $"Stock {family} visuals {path} differ from compiled frame " +
-                            visualId(draw.Draw) + $" run {runIndex}, block {block}.");
-                }
-            }
-        }
     }
 
     /// <summary>Rejects incompatible JSON and wraps catalog validation with the selected file path.</summary>

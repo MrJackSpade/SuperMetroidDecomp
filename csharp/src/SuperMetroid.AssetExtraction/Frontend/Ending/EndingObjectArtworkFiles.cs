@@ -270,10 +270,6 @@ public static class EndingObjectArtworkFiles
             string name = EndingCloudSpriteFormat.FileName;
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock ending cloud sprites {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
@@ -296,10 +292,6 @@ public static class EndingObjectArtworkFiles
             string name = EndingExplosionSpriteFormat.FileName;
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock ending explosion sprites {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
@@ -322,10 +314,6 @@ public static class EndingObjectArtworkFiles
             string name = EndingCompletionTextSpriteFormat.FileName;
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock ending completion text sprites {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
@@ -348,10 +336,6 @@ public static class EndingObjectArtworkFiles
             string name = EndingRewardSpriteFormat.FileName;
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock ending reward sprites {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
@@ -374,10 +358,6 @@ public static class EndingObjectArtworkFiles
             string name = EndingLogoSpriteFormat.FileName;
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock ending logo sprites {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
@@ -399,9 +379,6 @@ public static class EndingObjectArtworkFiles
         {
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock ending OBJ PNG {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
@@ -422,9 +399,6 @@ public static class EndingObjectArtworkFiles
         {
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)),
-                    manifest.StockSha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock ending map {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)

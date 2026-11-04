@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).BotwoonColors(),
-            "corrupt stock Botwoon colors fail manifest hash validation");
+            "corrupt stock Botwoon colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Botwoon colors: 128 native RGB5 words, eight live health bands, preserved threshold progression, persistent override, ROM guard and strict failures pass.");
 

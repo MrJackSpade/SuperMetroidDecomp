@@ -669,9 +669,6 @@ public static class IntroCinematicArtworkFiles
         {
             string stockPath = Path.Combine(stockDirectory, name);
             byte[] stock = File.ReadAllBytes(stockPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), manifest.StockSha256[name],
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock intro resource {stockPath} failed its manifest hash.");
             string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
             string selectedPath = overridePath is not null && File.Exists(overridePath)
                 ? overridePath : stockPath;

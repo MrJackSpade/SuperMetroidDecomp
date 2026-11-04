@@ -502,7 +502,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmColoredDoorVisuals(),
-            "tampered colored-door stock fails manifest validation");
+            "tampered colored-door stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock coloured-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

@@ -115,10 +115,10 @@ public static class SamusArmCannonArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Arm-cannon manifest does not match the pinned cartridge.");
-            SamusArtworkFile stockJson = SamusArtworkFile.Stock(Path.Combine(stockDirectory,
-                SamusArmCannonArtworkFormat.JsonFileName), manifest.JsonSha256);
-            SamusArtworkFile stockPng = SamusArtworkFile.Stock(Path.Combine(stockDirectory,
-                SamusArmCannonArtworkFormat.TileFileName), manifest.PngSha256);
+            SamusArtworkFile stockJson = SamusArtworkFile.Read(Path.Combine(stockDirectory,
+                SamusArmCannonArtworkFormat.JsonFileName));
+            SamusArtworkFile stockPng = SamusArtworkFile.Read(Path.Combine(stockDirectory,
+                SamusArmCannonArtworkFormat.TileFileName));
             _ = Compile(stockJson, stockPng);
             return Compile(stockJson.Select(overrideDirectory), stockPng.Select(overrideDirectory));
         }

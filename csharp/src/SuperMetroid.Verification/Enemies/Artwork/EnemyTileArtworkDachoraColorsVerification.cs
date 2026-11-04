@@ -127,7 +127,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).DachoraColors(),
-            "corrupt stock Dachora colors fail manifest hash validation");
+            "corrupt stock Dachora colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Dachora colors: 144 native RGB5 words, eight compiled selector pointers, live speed/shine phase selection, persistent override, ROM guard and strict failures pass.");
 

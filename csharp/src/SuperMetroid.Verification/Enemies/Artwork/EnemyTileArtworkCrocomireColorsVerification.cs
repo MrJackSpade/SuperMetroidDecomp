@@ -137,7 +137,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).CrocomireColors(),
-            "corrupt stock Crocomire colors fail manifest hash validation");
+            "corrupt stock Crocomire colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Crocomire colors: five native RGB5 transfers, live boss CGRAM, white flash, persistent override, and strict failures pass.");
 

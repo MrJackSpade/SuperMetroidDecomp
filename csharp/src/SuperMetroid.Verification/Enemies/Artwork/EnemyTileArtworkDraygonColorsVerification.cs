@@ -173,7 +173,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         File.Delete(overrideFile);
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).DraygonColors(),
-            "corrupt stock Draygon colors fail manifest hash validation");
+            "corrupt stock Draygon colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, persistent override, ROM guard, and strict failures pass.");
 

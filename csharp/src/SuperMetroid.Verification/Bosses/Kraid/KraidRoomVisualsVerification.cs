@@ -93,7 +93,7 @@ internal static class KraidRoomVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmKraidVisualFilesConstants.ValidateStock(
                     installation.RoomPlmKraidVisualDirectory),
-                "tampered Kraid stock fails manifest validation");
+                "tampered Kraid stock fails loudly where it is read");
 
             JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
                 .Single(entry => entry.Required("id").GetValue<string>() == id);

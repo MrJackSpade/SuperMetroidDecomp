@@ -81,7 +81,7 @@ internal static class EnemyTileArtworkKraidVerification
 
         File.WriteAllBytes(upperPath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
-            "tampered stock Kraid BG2 map fails its manifest hash");
+            "tampered stock Kraid BG2 map fails loudly where it is read");
         File.WriteAllBytes(upperPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
@@ -141,7 +141,7 @@ internal static class EnemyTileArtworkKraidVerification
 
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
-            "tampered Kraid head stock map fails manifest hash");
+            "tampered Kraid head stock map fails loudly where it is read");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
@@ -191,7 +191,7 @@ internal static class EnemyTileArtworkKraidVerification
 
         File.WriteAllBytes(stockPath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
-            "tampered Kraid room-background stock PNG fails manifest hash");
+            "tampered Kraid room-background stock PNG fails loudly where it is read");
         File.WriteAllBytes(stockPath, original);
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),

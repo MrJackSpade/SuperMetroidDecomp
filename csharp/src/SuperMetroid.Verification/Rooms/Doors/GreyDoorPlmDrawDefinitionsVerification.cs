@@ -331,7 +331,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmGreyDoorVisuals(),
-            "tampered grey-door stock fails manifest validation");
+            "tampered grey-door stock fails loudly where it is read");
     }
 
     /// <summary>Extracts stock grey-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>

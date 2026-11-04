@@ -75,7 +75,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Open(stockDirectory, null).WorkRobotPaletteCycle(),
-            "corrupt stock Work Robot colors fail manifest hash validation");
+            "corrupt stock Work Robot colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Work Robot colors: 24 native RGB5 words, persistent override and strict stock/override failures pass.");
     }

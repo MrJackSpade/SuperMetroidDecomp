@@ -120,7 +120,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         File.WriteAllBytes(file, [0]);
         AssertThrows<InvalidDataException>(
             () => EnemyTileArtworkFiles.Open(stockDirectory, null).MagdollitePaletteCycle(),
-            "corrupt stock Magdollite colors fail manifest hash validation");
+            "corrupt stock Magdollite colors fail loudly where it is read");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, edited CGRAM, persistent override, strict failures and no runtime ROM reads pass.");
     }

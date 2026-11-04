@@ -253,8 +253,8 @@ public static class SamusBodyArtworkFiles
         for (int set = 0; set < metadata.Length; set++)
         {
             string name = FileName(upperHalf, set);
-            if (!manifest.Hashes.TryGetValue(name, out string? expectedHash))
-                throw new InvalidDataException($"Samus body manifest omits the provenance hash for {name}.");
+            if (!manifest.Hashes.ContainsKey(name))
+                throw new InvalidDataException($"Samus body manifest omits {name}.");
             // Sizes belong to JSON, not to the PNG codec. Reject them under the
             // manifest's context before reading any image that uses the sizes.
             foreach (DefinitionEntry entry in metadata[set])
@@ -262,7 +262,7 @@ public static class SamusBodyArtworkFiles
                     entry.FirstSize + entry.SecondSize > SamusBodyCharacterArtwork.BytesPerDefinitionSlot ||
                     (entry.FirstSize + entry.SecondSize) % 32 != 0)
                     throw new InvalidDataException($"Samus body definition {name} has invalid sizes.");
-            SamusArtworkFile selected = SamusArtworkFile.Stock(Path.Combine(stockDirectory, name), expectedHash)
+            SamusArtworkFile selected = SamusArtworkFile.Read(Path.Combine(stockDirectory, name))
                 .Select(overrideDirectory);
             int height = checked(metadata[set].Length * DefinitionHeight);
             result[set] = selected.Compile(stream => DecodeSet(stream));

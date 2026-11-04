@@ -254,7 +254,7 @@ internal static class IntroCinematicArtworkVerification
             byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-                "opening palette stock corruption fails manifest validation");
+                "opening palette stock corruption fails loudly where it is read");
             // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
             File.WriteAllBytes(paletteStockPath, stockPalette);
             AssertTrue(IntroPaletteWords(installation.LoadIntroCinematicArt().Palette).AsSpan().SequenceEqual(

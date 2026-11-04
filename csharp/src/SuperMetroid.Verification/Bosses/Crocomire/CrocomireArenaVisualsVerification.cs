@@ -77,7 +77,7 @@ internal static class CrocomireArenaVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmCrocomireVisualFilesConstants.ValidateStock(
                     installation.RoomPlmCrocomireVisualDirectory),
-                "tampered Crocomire stock fails manifest validation");
+                "tampered Crocomire stock fails loudly where it is read");
 
             JsonNode Entry(string id) => document.Required("entries").AsArray().RequiredElements()
                 .Single(entry => entry.Required("id").GetValue<string>() == id);

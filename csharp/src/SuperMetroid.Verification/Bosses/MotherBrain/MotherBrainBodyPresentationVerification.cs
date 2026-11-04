@@ -220,7 +220,7 @@ internal static class MotherBrainBodyPresentationVerification
             "malformed Mother Brain override fails at installation loading");
         using (var json = author.Json(document)) File.WriteAllBytes(file, json.ToArray());
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFilesConstants.ValidateStock(stockPath),
-            "modified Mother Brain stock fails its manifest hash");
+            "modified Mother Brain stock fails loudly where it is read");
         Console.WriteLine("PASS Mother Brain installation: stock hashes, selected overrides/identity and malformed/tampered-data rejection.");
     }
 

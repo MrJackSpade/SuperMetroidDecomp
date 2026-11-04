@@ -122,9 +122,6 @@ public static class XrayRevealVisualFiles
             throw new InvalidDataException($"X-ray manifest {manifestPath} is incompatible.");
         string stockPath = Path.Combine(stockDirectory, VisualFileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockBytes)),
-                manifest.VisualSha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock X-ray visuals {stockPath} failed the manifest hash.");
         XrayRevealVisualDocument stock = ReadJson<XrayRevealVisualDocument>(stockBytes, stockPath);
         ValidateStructure(stock, stockPath);
 

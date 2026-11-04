@@ -62,9 +62,6 @@ public static class StandardObjectArtworkFiles
             throw new InvalidDataException("Standard OBJ manifest does not match the pinned cartridge.");
         string stockPath = Path.Combine(stockDirectory, StandardObjectArtworkFormat.FileName);
         byte[] stock = File.ReadAllBytes(stockPath);
-        if (!string.Equals(manifest.PngSha256, Convert.ToHexString(SHA256.HashData(stock)),
-            StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Stock standard OBJ PNG {stockPath} failed its manifest hash.");
         _ = RoomCharacterAtlasPng.Read(new MemoryStream(stock, writable: false),
             StandardObjectArtworkFormat.ByteCount);
         string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,

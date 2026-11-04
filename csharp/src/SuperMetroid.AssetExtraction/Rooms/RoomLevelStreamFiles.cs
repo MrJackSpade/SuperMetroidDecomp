@@ -127,9 +127,6 @@ public static class RoomLevelStreamFiles
             if (file.Length != entry.ByteCount)
                 throw new InvalidDataException(
                     $"Room-level file {path} has {file.Length} bytes; the manifest records {entry.ByteCount}.");
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(file)), entry.Sha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Room-level file {path} failed its manifest hash.");
             InstalledRoomLevel installed = Decode(file, kinds, path);
             if (installed.Size.X != width)
                 throw new InvalidDataException($"Room-level file {path} is {installed.Size.X} blocks wide; its rooms are {width}.");

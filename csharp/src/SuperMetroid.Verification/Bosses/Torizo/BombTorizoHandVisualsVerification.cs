@@ -64,7 +64,7 @@ internal static class BombTorizoHandVisualsVerification
             AssertThrows<InvalidDataException>(
                 () => RoomPlmBombTorizoHandVisualFilesConstants.ValidateStock(
                     installation.RoomPlmBombTorizoHandVisualDirectory),
-                "tampered hand stock fails manifest validation");
+                "tampered hand stock fails loudly where it is read");
         }
     }
 

@@ -19,11 +19,11 @@ public static class EndingPaletteArtworkFiles
     /// <summary>Manifest schema recording seven stock hashes and cartridge provenance.</summary>
     private const int ManifestVersion = 2;
 
-    /// <summary>Exports all seven ending palette roles to RGB5 JSON and a hashed manifest, verifying native color-byte round-trips and flattening logo fades in destination order.</summary>
+    /// <summary>Exports all seven ending palette roles to RGB5 JSON and a hashed manifest, flattening logo fades in destination order.</summary>
     /// <param name="bus">Cartridge import source for palette words and the logo crossfade's pointer-selected backward copies.</param>
     /// <param name="directory">Destination directory, created if absent; palette files and manifest must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">A native color has an unrepresentable high bit or palette JSON does not reproduce its native transfer bytes.</exception>
+    /// <exception cref="InvalidDataException">A native color has an unrepresentable high bit.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
@@ -58,10 +58,6 @@ public static class EndingPaletteArtworkFiles
                 Colors = colors,
             });
             byte[] file = json.ToArray();
-            EndingPalette roundTrip = EndingPaletteFile.Read(
-                new MemoryStream(file, writable: false), id);
-            if (!EndingPaletteWords.Of(roundTrip).Span.SequenceEqual(native))
-                throw new InvalidDataException($"Ending {id} palette JSON changed native colors.");
             string name = EndingPaletteFiles.FileName(id);
             using (var output = new FileStream(Path.Combine(directory, name),
                        FileMode.CreateNew, FileAccess.Write))

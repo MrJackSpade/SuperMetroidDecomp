@@ -121,7 +121,8 @@ internal static class SpawnedObjectSheetComposer
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
                     : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase,
-                    EncounterRow(frame, plan.Spawners, rowOf)),
+                    EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
+                        : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
                 RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
@@ -151,8 +152,8 @@ internal static class SpawnedObjectSheetComposer
             .Distinct().Order() : [];
 
     /// <summary>
-    /// The row the encounter drawing <paramref name="frame"/> draws it in: its enemy's own, as the cartridge ORs the palette index
-    /// an encounter's initialization stores (Ridley's wings and tail, for one) into every part of the frames it draws itself.
+    /// The row the encounter drawing <paramref name="frame"/> draws it in, for a frame its encounter draws in its own row: its
+    /// enemy's, as the cartridge ORs the palette index the encounter's initialization stores into every part.
     /// </summary>
     /// <exception cref="InvalidDataException">Two of the sheet's encounters draw the frame in different rows.</exception>
     private static int EncounterRow(EnemyFrameId frame, IEnumerable<EnemyDefinitionId> spawners, Func<EnemyDefinitionId, int> rowOf)

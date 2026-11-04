@@ -216,6 +216,8 @@ internal static class LookupStream5Verification
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
             body.Position = body.Position.WithWhole(new(111, 99)); state.Parts[body.SlotIndex].PathCursor = 42; state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.FromRaw(17);
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeOutDuringFlameRain;
+            // He fades out of the colouring the fight shows him in (#1512), his health band's.
+            state.Colours.Show(PhantoonBodyLook.Health(0));
             fade(body, state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual(17, state.Parts[body.SlotIndex].FunctionTimer.RawValue, "Incomplete fade preserves prior countdown");
@@ -1843,7 +1845,7 @@ internal static class LookupStream5Verification
             DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 2, priority: 0).PaletteBits, BaseTileIndex = 0 });
             expected.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
-                "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");
+                $"Byte-decoded quake preserves actual low/high OAM through coordinate wrap (x {x}, camera {camera}, phase {phase}: {expected.FirstDifference(actual)})");
         }
         Console.WriteLine("Ceres quake byte decoding:56 actual wrapped low/high OAM frames match full native overlapping-word reads.");
     }

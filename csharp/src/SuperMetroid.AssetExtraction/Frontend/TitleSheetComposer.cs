@@ -39,8 +39,9 @@ internal static class TitleSheetComposer
         var shades = new List<SheetShade>();
         foreach (TitleSpriteColouring colouring in Enum.GetValues<TitleSpriteColouring>())
         {
-            shades.Add(SheetShade.Run(TitleShades.Drawn(colouring), FrameInk,
-                sprites.AsSpan(TitleSheetInks.SpriteSet(colouring) * TitleSheetInks.GroupColours, TitleSheetInks.GroupColours)));
+            shades.Add(SheetShade.DrawnRun(TitleShades.Drawn(colouring), FrameInk,
+                sprites.AsSpan(TitleSheetInks.SpriteSet(colouring) * TitleSheetInks.GroupColours, TitleSheetInks.GroupColours),
+                TitleSheetInks.SpriteSet(colouring)));
         }
         shades.Add(new SheetShade(TitleShades.RestoredCopyright,
             [FrameInk + TitleSheetInks.CopyrightWhiteColour, FrameInk + TitleSheetInks.CopyrightRedColour],

@@ -44,8 +44,8 @@ internal static class IntroSheetShades
         foreach (IntroSpriteColouring colouring in colourings)
         {
             int set = IntroSheetInks.SpriteSet(colouring);
-            shades.Add(SheetShade.Run(IntroShades.Drawn(colouring), frameInk,
-                [.. sprites.Skip(set * IntroSheetInks.SetColours).Take(IntroSheetInks.SetColours)]));
+            shades.Add(SheetShade.DrawnRun(IntroShades.Drawn(colouring), frameInk,
+                [.. sprites.Skip(set * IntroSheetInks.SetColours).Take(IntroSheetInks.SetColours)], set));
         }
         foreach (IntroSpriteFade group in Enum.GetValues<IntroSpriteFade>())
         {

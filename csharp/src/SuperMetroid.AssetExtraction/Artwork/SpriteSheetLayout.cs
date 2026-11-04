@@ -183,7 +183,7 @@ internal sealed class SpriteSheetLayout
             inks.Add(ink);
             shown.Add(shade.Colours[index]);
         }
-        return new SheetShade(shade.Shade, [.. inks], [.. shown]);
+        return shade with { Inks = [.. inks], Colours = [.. shown] };
     }
 
     /// <summary>

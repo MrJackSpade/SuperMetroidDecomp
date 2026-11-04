@@ -20,13 +20,17 @@ internal static class NativeColouredPictures
     /// </summary>
     /// <exception cref="ArgumentException">The image does not hold 256 colours.</exception>
     [WholeImageFixture("a picture coloured from a 256-colour native colour image")]
-    internal static SpriteImage Of(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours)
+    internal static SpriteImage Of(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours) => Of(picture, nativeColours, drawRow: 0);
+
+    /// <summary>A copy of <paramref name="picture"/> coloured as <see cref="Of(SpriteImage, ReadOnlySpan{RgbColor})"/> colours it, under a draw ORing sprite row <paramref name="drawRow"/> into its parts.</summary>
+    [WholeImageFixture("a picture coloured from a 256-colour native colour image under a draw's row")]
+    internal static SpriteImage Of(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours, int drawRow)
     {
         Ensure.NotNull(picture);
         Ensure.LengthEqual(nativeColours, ColorCount);
         var standard = new RgbColor[picture.StandardColours.Length];
         for (int ink = 0; ink < standard.Length; ink++)
-            standard[ink] = nativeColours[InstalledPictureColoursConstants.CartridgeColourOf(picture, ink)];
+            standard[ink] = nativeColours[InstalledPictureColoursConstants.CartridgeColourOf(picture, ink, drawRow)];
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
         ReadOnlySpan<SpriteImageInk> inks = picture.Inks;
         var shown = new RgbaPixel[pixels.Length];
@@ -43,6 +47,12 @@ internal static class NativeColouredPictures
         return new SpriteImage(picture.Name, picture.Size, shown, indices,
             new SpriteImagePalette(picture.Colours, [.. standard]), priorities);
     }
+
+    /// <summary>The sprite row <paramref name="draw"/>'s colouring ORs into its parts, or zero for a draw in no frontend colouring.</summary>
+    private static int DrawRow(ImageSpriteDraw draw) =>
+        draw.Image.Sheet.Colours == SpriteImageColours.Sprite
+            ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(draw.Shading) ?? 0
+            : 0;
 
     /// <summary><paramref name="frame"/> and its parts cut from <paramref name="picture"/>, a native-coloured copy of its sheet.</summary>
     internal static SpriteSheetFrame Of(SpriteSheetFrame frame, SpriteImage picture)
@@ -86,17 +96,17 @@ internal static class NativeColouredPictures
             images.Add(draw as ImageSpriteDraw
                 ?? throw new ArgumentException($"Sprite draw {draw} draws no picture.", nameof(draws)));
         }
-        var copies = new Dictionary<SpriteImage, SpriteImage>();
-        foreach (SpriteImage sheet in images.Select(image => image.Image.Sheet).Distinct())
+        // A frontend draw's colouring is the row the cartridge ORs into every part (#1512); each sheet is copied once per row.
+        var copies = new Dictionary<(SpriteImage Sheet, int Row), SpriteImage>();
+        foreach ((SpriteImage Sheet, int Row) key in images.Select(image => (image.Image.Sheet, DrawRow(image))).Distinct())
         {
-            // Each sheet is copied once, however many draws show it.
-            SpriteImage copy = Of(sheet, nativeColours);
-            copies.Add(sheet, copy);
+            SpriteImage copy = Of(key.Sheet, nativeColours, key.Row);
+            copies.Add(key, copy);
         }
         var shown = ImmutableArray.CreateBuilder<SpriteDraw>(draws.Length);
         foreach (ImageSpriteDraw image in images)
         {
-            shown.Add(new ImageSpriteDraw(image.Source, Of(image.Image, copies[image.Image.Sheet]), image.Origin, image.Mirror)
+            shown.Add(new ImageSpriteDraw(image.Source, Of(image.Image, copies[(image.Image.Sheet, DrawRow(image))]), image.Origin, image.Mirror)
             {
                 Shading = PictureShading.Standard,
             });

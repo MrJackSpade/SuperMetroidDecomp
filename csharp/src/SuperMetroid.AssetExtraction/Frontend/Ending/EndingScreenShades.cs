@@ -97,8 +97,8 @@ internal static class EndingScreenShades
         foreach (EndingSpriteColouring colouring in colourings)
         {
             int set = EndingScreenInks.SpriteSet(colouring);
-            shades.Add(SheetShade.Run(EndingShades.Drawn(colouring), frameInk,
-                [.. sprites.Skip(set * EndingScreenInks.GroupColours).Take(EndingScreenInks.GroupColours)]));
+            shades.Add(SheetShade.DrawnRun(EndingShades.Drawn(colouring), frameInk,
+                [.. sprites.Skip(set * EndingScreenInks.GroupColours).Take(EndingScreenInks.GroupColours)], set));
         }
         foreach (SheetShade shade in screen)
         {

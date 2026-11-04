@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 7;
+    public const int Version = 8;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
@@ -93,7 +93,10 @@ public static class SpriteSheetFile
         {
             Shades = (document.Shades ?? []).ToImmutableDictionary(
                 shade => PictureShade.FromKey(shade.Key),
-                shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])),
+                shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])
+                {
+                    TakesColourMath = shade.Value.ColourMath,
+                }),
         };
 
     /// <summary>Cuts a manifest's part images and frames from the sheet image.</summary>

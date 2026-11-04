@@ -58,7 +58,7 @@ internal static class CeresSheetInks
     internal static IReadOnlyList<SheetShade> DrawnShades(RgbColor[] sprites, int frameInk)
     {
         Ensure.NotNull(sprites);
-        return [.. Enum.GetValues<CeresSpriteColouring>().Select(colouring => SheetShade.Run(CeresShades.Drawn(colouring), frameInk,
-            sprites.AsSpan(SpriteSet(colouring) * SetColours, SetColours)))];
+        return [.. Enum.GetValues<CeresSpriteColouring>().Select(colouring => SheetShade.DrawnRun(CeresShades.Drawn(colouring), frameInk,
+            sprites.AsSpan(SpriteSet(colouring) * SetColours, SetColours), SpriteSet(colouring)))];
     }
 }

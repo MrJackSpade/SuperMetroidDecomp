@@ -857,12 +857,18 @@ internal static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
+                [ceresDoorDefinitionPointer] = InstalledFixtures.EnemyTiles.TryGetSheet(ceresDoorDefinitionPointer, out RoomCharacterAtlas? doorSheet)
+                    ? doorSheet : throw new InvalidOperationException("The installation has no Ceres door characters."),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [definitionPointer] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
+                // The room's set loads the Ceres door's colours too (#1512); the fixture shows the installed ones.
+                [ceresDoorDefinitionPointer] = InstalledFixtures.EnemyTiles.PaletteOf(ceresDoorDefinitionPointer),
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
-            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps }), 
+            ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
+            // Every character-zero spawned-object sheet takes the n00b tube's crack shade (#1512).
+            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors }), 
         BossArtworkBinding =
         {
             // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
@@ -1533,9 +1539,18 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
     // need not depict retail art here; the regression concerns loader and AI addresses, and
     // the real-ROM audit covers the actual encoded graphics immediately afterward.
-    WriteTestWord(bus, 0xb40000 | tilesetPointer, TestAddressSpace.FixtureHeaderPointer(definitionPointer));
-    WriteTestWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
-    WriteTestWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
+    // The room's graphics set is the retail Ceres Ridley set, Ridley and the Ceres door, each in the palette row the
+    // import catalogues for it (#1512), so its members' sheets compose in the rows the cartridge loads their colours into.
+    RoomEnemyGraphicsSetDefinition ceresRidleySet = RoomEnemyGraphicsSetDefinitions.CeresRidley0;
+    int[] ceresRidleyRows = SuperMetroid.AssetExtraction.Enemies.EnemyGraphicsSetPaletteRowDefinitions.Rows[ceresRidleySet.Name];
+    ReadOnlySpan<RoomEnemyGraphicsSetHeader> ceresRidleyRecords = ceresRidleySet.Records.Span;
+    for (int record = 0; record < ceresRidleyRecords.Length; record++)
+    {
+        int recordAddress = (0xb40000 | tilesetPointer) + record * 4;
+        WriteTestWord(bus, recordAddress, TestAddressSpace.FixtureHeaderPointer(ceresRidleyRecords[record].DefinitionId));
+        WriteTestWord(bus, recordAddress + 2, ceresRidleyRecords[record].NativePlacement(ceresRidleyRows[record]));
+    }
+    WriteTestWord(bus, (0xb40000 | tilesetPointer) + ceresRidleyRecords.Length * 4, 0xffff);
     for (int color = 0; color < 16; color++)
         WriteTestWord(bus, 0xa6e14f + color * 2, unchecked((ushort)(0x1000 + color)));
 

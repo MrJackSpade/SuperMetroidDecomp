@@ -8,4 +8,8 @@ public sealed record SpriteSheetShadeDocument
 
     /// <summary>Each ink's colour, as a packed colour word.</summary>
     public required ushort[] Colours { get; init; }
+
+    /// <summary>Whether a draw showing the shade takes part in colour math over every part.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ColourMath { get; init; }
 }

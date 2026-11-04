@@ -22,20 +22,26 @@ internal static class SceneShownColours
     /// The colours <paramref name="scene"/>'s pictures show at <paramref name="place"/> of the native 256-colour image, one
     /// for each distinct picture and shading with an ink coloured from that place; empty where no picture has one.
     /// </summary>
-    internal static RgbColor[] ShownAt(LayeredScene scene, int place)
+    internal static RgbColor[] ShownAt(LayeredScene scene, int place) => [.. SourcesAt(scene, place).Select(source => source.Colour)];
+
+    /// <summary>
+    /// What <paramref name="scene"/>'s pictures show at <paramref name="place"/> of the native 256-colour image, with the
+    /// picture, the shading and the ink each colour comes from, for a failure that must name what shows it.
+    /// </summary>
+    internal static IReadOnlyList<ShownColourSource> SourcesAt(LayeredScene scene, int place)
     {
         Ensure.BetweenInclusive(0, NativeColouredPictures.ColorCount - 1, place);
-        var shown = new List<RgbColor>();
+        var shown = new List<ShownColourSource>();
         foreach ((SpriteImage picture, PictureShading shading) in Pictures(scene))
         {
             RgbColor[] inks = shading.InkColours(picture);
             for (int ink = 0; ink < inks.Length; ink++)
             {
                 if (SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(picture, ink) == place)
-                    shown.Add(inks[ink]);
+                    shown.Add(new ShownColourSource(picture.Name, shading.ToString() ?? string.Empty, ink, inks[ink]));
             }
         }
-        return [.. shown];
+        return shown;
     }
 
     /// <summary>Each distinct picture and shading <paramref name="scene"/> draws, layers first, then sprite draws.</summary>
@@ -107,3 +113,10 @@ internal static class SceneShownColours
             shown.Add((picture, named));
     }
 }
+
+/// <summary>One colour a picture of a scene shows at a place of the native 256-colour image.</summary>
+/// <param name="Picture">The picture's name.</param>
+/// <param name="Shading">The shading it shows under.</param>
+/// <param name="Ink">The picture's ink coloured from that place.</param>
+/// <param name="Colour">The colour it shows there.</param>
+internal readonly record struct ShownColourSource(string Picture, string Shading, int Ink, RgbColor Colour);

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -51,11 +50,9 @@ internal static class SaveLoadRandomAudit
                     if (wait == 1)
                     {
                         // A debugger capture in the menu must retain its RNG history,
-                        // not lazily recreate the reset seed when gameplay is loaded.
-                        using var graph = new MemoryStream();
-                        DebuggerObjectGraphSerializer.Serialize(graph, game);
-                        graph.Position = 0;
-                        game = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(graph);
+                        // not lazily recreate the reset seed when gameplay is loaded. The capture names the installed
+                        // content it reaches by path, as a host's store does, rather than copying it into the state.
+                        game = GraphDigestVerification.RoundTrip(game);
                         bindPresentation(game);
                     }
                 }

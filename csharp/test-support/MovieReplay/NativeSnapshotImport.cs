@@ -349,6 +349,10 @@ internal static class NativeSnapshotImport
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState));
+        // The room load showed the colours of the Samus the Ceres start made; the imported equipment names the suit and
+        // beams whose colours the cartridge loaded (#1512), under which her palette-FX records are then laid.
+        SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
+        runtime.Artwork.UpdateBeamTilesAndPalette(runtime.Player.Colours, samus.EquippedBeams);
         ImportShownPaletteFxRecords(runtime);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, W, memory);
@@ -384,17 +388,44 @@ internal static class NativeSnapshotImport
     /// <summary>
     /// The record a palette-FX program showed last before <paramref name="cursor"/>: the nearest show step before the step
     /// it resumes at. The native instruction pointer rests after the record it last showed (a loop's jump runs only when
-    /// the object next advances), so a cursor with no show step before it has shown no record yet: null.
+    /// the object next advances). A list whose last record runs on into the next list leaves the pointer at that list's
+    /// entry, so a cursor at a program's entry showed the last record of the program falling into it (each Norfair heat
+    /// phase falls into the next). A cursor with no show step before it, in its program or any falling into it, has shown
+    /// no record yet: null.
     /// </summary>
+    /// <exception cref="InvalidDataException">More than one program falls into the same program.</exception>
     private static PaletteFxFrame? LastShownRecord(SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> cursor)
     {
-        var steps = PaletteFxAnimations.Programs.Steps(cursor.Program);
-        for (int position = Math.Min(cursor.Position, steps.Count) - 1; position >= 0; position--)
+        PaletteFxProgram program = cursor.Program;
+        int end = cursor.Position;
+        while (true)
         {
-            if (steps[position] is SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep shown)
-                return shown.Frame;
+            var steps = PaletteFxAnimations.Programs.Steps(program);
+            for (int position = Math.Min(end, steps.Count) - 1; position >= 0; position--)
+            {
+                if (steps[position] is SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep shown)
+                    return shown.Frame;
+            }
+            if (ProgramFallingInto(program) is not { } previous)
+                return null;
+            program = previous;
+            end = int.MaxValue;
         }
-        return null;
+    }
+
+    /// <summary>The program whose last step runs on into <paramref name="program"/>, or null when none does.</summary>
+    /// <exception cref="InvalidDataException">More than one program falls into <paramref name="program"/>.</exception>
+    private static PaletteFxProgram? ProgramFallingInto(PaletteFxProgram program)
+    {
+        PaletteFxProgram[] falling = [.. PaletteFxNativeListAddresses.Entries.Select(entry => entry.Program).Where(candidate =>
+            PaletteFxAnimations.Programs.Steps(candidate) is [.., SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.FallIntoStep fall]
+            && fall.Target == program)];
+        return falling.Length switch
+        {
+            0 => null,
+            1 => falling[0],
+            _ => throw new InvalidDataException($"Palette-FX programs {string.Join(", ", falling)} all fall into {program}."),
+        };
     }
 
     /// <summary>

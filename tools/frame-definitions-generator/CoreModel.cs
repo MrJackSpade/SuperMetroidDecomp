@@ -46,6 +46,7 @@ internal sealed class CoreModel
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
     private readonly HashSet<SyntaxNode> _startEntries = [];
     private readonly INamedTypeSymbol _entity;
+    private readonly Dictionary<INamedTypeSymbol, bool> _entityTypes = new(SymbolEqualityComparer.Default);
 
     /// <summary>Reads every fact the walks need from <paramref name="core"/>, failing on anything it cannot resolve.</summary>
     public CoreModel(CoreSource core)
@@ -126,8 +127,15 @@ internal sealed class CoreModel
     public INamedTypeSymbol RoomEnemySlot { get; }
 
     /// <summary>Whether <paramref name="type"/> is an entity type: one implementing IEnemyEntity.</summary>
-    public bool IsEntityType(INamedTypeSymbol type) =>
-        type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _entity));
+    public bool IsEntityType(INamedTypeSymbol type)
+    {
+        if (!_entityTypes.TryGetValue(type, out bool entity))
+        {
+            entity = type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _entity));
+            _entityTypes.Add(type, entity);
+        }
+        return entity;
+    }
 
     /// <summary>The EnemyDefinitionId member named <paramref name="name"/>.</summary>
     public IFieldSymbol DefinitionField(string name) =>

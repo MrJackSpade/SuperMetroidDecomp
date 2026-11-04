@@ -39,6 +39,15 @@ internal sealed class UnitScan
     /// <summary>The enum members the code names, except where it only tests or keys by them.</summary>
     public List<IFieldSymbol> EnumMembers { get; } = [];
 
+    /// <summary>
+    /// The units the code only defers: methods it takes as delegates (method groups), which it hands on to run later, for
+    /// whoever invokes them, rather than running them itself.
+    /// </summary>
+    public HashSet<Unit> Deferred { get; } = [];
+
+    /// <summary>The units the code runs itself: everything in <see cref="Targets"/> it does not only defer.</summary>
+    public HashSet<Unit> Runs { get; } = [];
+
     /// <summary>The definitions whose sheets the code draws a frame from by name (an explicit <c>EnemySheetDraw</c>).</summary>
     public HashSet<IFieldSymbol> SheetDraws { get; } = new(SymbolEqualityComparer.Default);
 
@@ -334,6 +343,7 @@ internal sealed class UnitScanner(CoreModel model)
                 or ConstructorInitializerSyntax or PrimaryConstructorBaseTypeSyntax or BinaryExpressionSyntax
                 or PrefixUnaryExpressionSyntax or PostfixUnaryExpressionSyntax or AssignmentExpressionSyntax or CastExpressionSyntax:
                 SymbolInfo info = semantic.GetSymbolInfo(node);
+                int before = scan.Targets.Count;
                 if (info.Symbol is { } symbol)
                     Add(scan, symbol);
                 else if (info.CandidateReason is CandidateReason.MemberGroup or CandidateReason.OverloadResolutionFailure)
@@ -341,6 +351,10 @@ internal sealed class UnitScanner(CoreModel model)
                     foreach (ISymbol candidate in info.CandidateSymbols)
                         Add(scan, candidate);
                 }
+                // A lambda's code runs as part of this code's (as a program's cue callback does); a method group is handed on.
+                bool deferred = node is SimpleNameSyntax name && info.Symbol is IMethodSymbol && !IsInvoked(name);
+                foreach (Unit added in scan.Targets.Skip(before))
+                    (deferred ? scan.Deferred : scan.Runs).Add(added);
                 if (node is BaseObjectCreationExpressionSyntax creation && info.Symbol is IMethodSymbol constructor)
                     RecordSheetDraw(scan, semantic, creation, constructor);
                 break;
@@ -353,7 +367,8 @@ internal sealed class UnitScanner(CoreModel model)
                 }
                 break;
         }
-        if (node is InvocationExpressionSyntax invocation && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol method)
+        if (node is InvocationExpressionSyntax invocation && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol method
+            && method.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics)))
             RecordSpawnCall(scan, semantic, invocation.ArgumentList, method);
         if (node is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
             && semantic.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol or IFieldSymbol
@@ -369,6 +384,15 @@ internal sealed class UnitScanner(CoreModel model)
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)
             && semantic.GetConversion(expression) is { IsUserDefined: true, MethodSymbol: { } conversion })
             Add(scan, conversion);
+    }
+
+    /// <summary>Whether <paramref name="name"/> is the method an invocation calls, rather than a method group passed on.</summary>
+    private static bool IsInvoked(SimpleNameSyntax name)
+    {
+        SyntaxNode callee = name.Parent is MemberAccessExpressionSyntax access && access.Name == name ? access
+            : name.Parent is MemberBindingExpressionSyntax binding ? binding
+            : name;
+        return callee.Parent is InvocationExpressionSyntax invocation && invocation.Expression == callee;
     }
 
     /// <summary>Records an <c>EnemySheetDraw</c> whose first argument names its definition's sheet as a constant.</summary>

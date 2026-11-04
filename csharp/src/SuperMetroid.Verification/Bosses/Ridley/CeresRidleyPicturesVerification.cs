@@ -19,7 +19,8 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>
 /// Checks Ceres Ridley's room draws his scene from pictures of its pre-coloured sheets (#1392): the Baby he carries, the
-/// door overlay, his tail and his wings, once his getaway has brought up every escape page (#1513).
+/// door overlay, his tail and his wings, which no escape page his getaway brings up changes, for no frame is drawn over
+/// them (#1513).
 /// </summary>
 internal static class CeresRidleyPicturesVerification
 {
@@ -27,9 +28,9 @@ internal static class CeresRidleyPicturesVerification
     private static readonly Position16<RoomPixels> Camera = Position16<RoomPixels>.Zero;
 
     /// <summary>
-    /// In Ceres Ridley's room every frame his getaway's escape pages change follows them, and, with them all brought up, the
-    /// Baby holding a pose, the door overlay, and his tail and wings each paint exactly what their frames' parts paint over
-    /// the characters the room's load and the pages leave.
+    /// In Ceres Ridley's room no frame follows his getaway's escape pages, and, with them all brought up, the Baby holding a
+    /// pose, the door overlay, and his tail and wings each paint exactly what their frames' parts paint over the characters
+    /// the room's load leaves.
     /// </summary>
     internal static void VerifyCeresRidleyPictures()
     {
@@ -40,8 +41,8 @@ internal static class CeresRidleyPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.CeresEscapePages, CeresEscapePageDefinitions.ObjectPageCount,
-            "Ceres Ridley's getaway", requireFrames: false);
+        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.CeresEscapePages,
+            CeresEscapePageDefinitions.ObjectPageCount, "Ceres Ridley's getaway", requireFrames: false), "no frame is drawn over Ceres Ridley's escape pages");
         runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.CeresEscapePages, CeresEscapePageDefinitions.ObjectPageCount - 1);
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
@@ -56,7 +57,7 @@ internal static class CeresRidleyPicturesVerification
         ImmutableArray<SpriteDraw> scene = Draw(sprites =>
             runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(sprites, Camera));
         AssertTrue(scene.Any(draw => draw.Source.Kind == SpriteSourceKind.CeresBaby), "Ceres Ridley's scene draws the Baby");
-        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, UploadedPictureChecks.Reached(runtime), scene,
+        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, [], scene,
             $"Ceres Ridley's scene with {door.DefinitionId} following him");
 
         runtime.Enemies.RidleyEncounter.Ridley = new RidleyEnemyState
@@ -72,8 +73,8 @@ internal static class CeresRidleyPicturesVerification
         ImmutableArray<SpriteDraw> supplements = Draw(sprites =>
             runtime.Enemies.CeresRidleyBehavior.BabyScene.DrawRidleySupplementalSprites(sprites, ridley, Camera));
         AssertTrue(supplements.Any(draw => draw.Source.Kind == SpriteSourceKind.RidleyWings), "Ceres Ridley draws his wings");
-        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, UploadedPictureChecks.Reached(runtime), supplements, "Ceres Ridley's tail and wings");
-        Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the escape pages' characters.");
+        UploadedPictureChecks.AssertPicturesPaintOverSteps(set, [], supplements, "Ceres Ridley's tail and wings");
+        Console.WriteLine($"Ceres Ridley pictures: {scene.Length} scene and {supplements.Length} tail and wing pictures paint their frames over the room's own characters.");
     }
 
     /// <summary>

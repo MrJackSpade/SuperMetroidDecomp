@@ -18,8 +18,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 /// <summary>
-/// Checks Draygon's opening Evirs draw from pictures of her room's pre-coloured sheet (#1392, #1513): the set's own
-/// characters before her opening readies the Evirs, its picture of that step after.
+/// Checks Draygon's opening Evirs draw from pictures of her room's pre-coloured sheet (#1392, #1513): no picture before her
+/// opening readies the Evirs, for none is drawn then, and its picture of that step after.
 /// </summary>
 internal static class DraygonEvirPicturesVerification
 {
@@ -27,8 +27,9 @@ internal static class DraygonEvirPicturesVerification
     private static readonly Position16<RoomPixels> EvirPosition = new(0x0080, 0x0080);
 
     /// <summary>
-    /// In Draygon's room an opening Evir shows its picture of the step Draygon's opening has reached, and each picture paints
-    /// exactly what the Evir's frame paints over the characters the room's load and that step leave.
+    /// In Draygon's room an opening Evir has no picture before Draygon's opening, so drawing one then fails loudly, and after
+    /// it shows its picture of the opening, painting exactly what the Evir's frame paints over the characters the room's
+    /// load and the opening leave.
     /// </summary>
     internal static void VerifyDraygonEvirPictures()
     {
@@ -49,18 +50,17 @@ internal static class DraygonEvirPicturesVerification
         // The runtime draws from the sheets it loaded with its installation.
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         IReadOnlyList<FrameArtworkVariation> variations = sheets.SpawnedVariations(set, owner, frame);
-        AssertTrue(variations.Any(variation => variation.Sequence == EncounterArtworkSequence.DraygonEvirs),
-            $"the Evir's frame {frame} follows Draygon's opening");
+        FrameArtworkVariation opening = variations.Single(variation => variation.Sequence == EncounterArtworkSequence.DraygonEvirs);
+        AssertTrue(!opening.DrawnBeforeFirstStep && opening.DrawnAt(0), $"the Evir's frame {frame} is drawn only once Draygon's opening readies the Evirs");
         SpriteSheet sheet = sheets.Spawned(set, owner).Sheet;
-        string setPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, []);
+        AssertTrue(!sheet.frames.ContainsKey(frame), $"the spawned objects' sheet holds no picture of the Evir's frame {frame} over the set's own characters");
+        // An opening Evir is never drawn before the opening; a draw then fails loudly, for its sheet holds no picture of it.
+        AssertThrows<InvalidDataException>(() => DrawEvir(runtime, evir), "an Evir drawn before Draygon's opening");
         string evirPicture = UploadedPictureChecks.ExpectedPicture(frame, variations, [new EncounterArtworkStep(EncounterArtworkSequence.DraygonEvirs, 0)]);
-
-        UploadedPictureChecks.AssertDrawnPicture(sheet, setPicture, AssertDrawnLikeParts(runtime, set, evir, "before the opening"),
-            "an Evir drawn before the opening shows its picture of the set's own characters");
         runtime.EnemySession.ArtworkProgress.Show(EncounterArtworkSequence.DraygonEvirs, 0);
         UploadedPictureChecks.AssertDrawnPicture(sheet, evirPicture, AssertDrawnLikeParts(runtime, set, evir, "after the opening"),
             "an Evir drawn after the opening shows its picture of the Evirs' tiles");
-        Console.WriteLine($"Draygon Evir pictures: {setPicture} before her opening and {evirPicture} after, each painting its frame over the characters then.");
+        Console.WriteLine($"Draygon Evir pictures: no picture before her opening, {evirPicture} after, painting its frame over the characters then.");
     }
 
     /// <summary>
@@ -71,11 +71,7 @@ internal static class DraygonEvirPicturesVerification
         RoomSpriteObjectSlot evir, string when)
     {
         SpriteArtwork live = EnemySheetFixtures.LivePage(set, UploadedPictureChecks.Reached(runtime));
-        var sprites = new SpriteFrameBuffer();
-        sprites.BeginFrame();
-        runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);
-        sprites.FinalizeFrame();
-        ImmutableArray<SpriteDraw> drawn = [.. sprites.Draws.Where(draw => draw.Source == new SpriteSource(SpriteSourceKind.RoomSpriteObject, evir.SlotIndex))];
+        ImmutableArray<SpriteDraw> drawn = DrawEvir(runtime, evir);
         AssertTrue(drawn.Length > 0, $"the Evir draws {when}");
 
         EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame);
@@ -88,6 +84,16 @@ internal static class DraygonEvirPicturesVerification
 
         UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the Evir {when}");
         return drawn;
+    }
+
+    /// <summary>Draws the room's sprite objects and returns <paramref name="evir"/>'s draws.</summary>
+    private static ImmutableArray<SpriteDraw> DrawEvir(SuperMetroidRuntime runtime, RoomSpriteObjectSlot evir)
+    {
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        runtime.Enemies.SpriteObjects.DrawRoomSpriteObjects(sprites, Position16<RoomPixels>.Zero);
+        sprites.FinalizeFrame();
+        return [.. sprites.Draws.Where(draw => draw.Source == new SpriteSource(SpriteSourceKind.RoomSpriteObject, evir.SlotIndex))];
     }
 
     /// <summary>Runs the Draygon Evir picture check.</summary>

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// A graphics set's OBJ characters as its room load leaves them, and as each step of the artwork sequences its encounters
 /// play leaves them (#1392, #1513). A frame the sequences change gets a pre-assembled picture of each distinct look they
-/// give it, composed by copying every step up to the one shown, in order, over the loaded characters; the game names the
+/// give it at the steps it is drawn at (<see cref="EncounterArtworkDrawingDefinitions"/>), composed by copying every step up to the one shown, in order, over the loaded characters; the game names the
 /// picture by the steps reached and knows nothing of where the copies land. A corpse's frame drawn over the rows its kind
 /// uploads gets a picture of each rot the kind can show (#1406).
 /// </summary>
@@ -67,18 +67,22 @@ internal sealed class SetCharacters
 
     /// <summary>
     /// The pictures of <paramref name="frame"/>, named for <paramref name="name"/>: the frame as the room load leaves it when
-    /// no sequence changes the characters it reads, else its picture of each combination of the distinct looks the
-    /// sequences give it, each step of a sequence that leaves the frame as an earlier step did sharing that step's picture.
-    /// Only a corpse's own frames show its rot (#1406).
+    /// no sequence changes the characters it reads at a step it is drawn at, else its picture of each combination of the
+    /// distinct looks the sequences give it at the steps <paramref name="drawings"/> says it is drawn at (#1513), each step
+    /// of a sequence that leaves the frame as an earlier step did sharing that step's picture, and its loaded picture only
+    /// when it is drawn before a sequence's first step or a step it is drawn at leaves it as loaded. A sequence no entry
+    /// lists the frame for leaves it as loaded. Only a corpse's own frames show its rot (#1406).
     /// </summary>
     /// <param name="name">The frame's name, which names its pictures.</param>
     /// <param name="frame">The frame.</param>
+    /// <param name="drawings">When the frame is drawn under each sequence.</param>
     /// <param name="showsRot">Whether the frame is a corpse's own, which shows the rot of the corpses' rows it reads.</param>
     /// <exception cref="InvalidDataException">A corpse's frame reads the rows of two kinds of corpse.</exception>
-    internal FramePictures Pictures(string name, SpriteFrame frame, bool showsRot = false)
+    internal FramePictures Pictures(string name, SpriteFrame frame, FrameDrawings drawings, bool showsRot = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         Ensure.NotNull(frame);
+        Ensure.NotNull(drawings);
         if (showsRot)
         {
             CorpseRotSimulation[] rotting = [.. corpses.Where(corpse => frame.Parts.Any(part =>
@@ -93,9 +97,15 @@ internal sealed class SetCharacters
         var variations = new List<FrameArtworkVariation>();
         foreach (EncounterArtworkSteps sequence in sequences)
         {
+            if (drawings.For(sequence.Sequence) is not FrameDrawnSteps drawn)
+                continue;
+            bool[] drawnAt = [.. Enumerable.Range(0, sequence.Steps.Count).Select(drawn.DrawnAt)];
             var first = new Dictionary<string, int>(StringComparer.Ordinal);
             int?[] pictures = [.. afterStep[sequence.Sequence].Select((shown, step) =>
             {
+                // A step the frame is never drawn at has no picture of it.
+                if (!drawnAt[step])
+                    return null;
                 string look = Shown(shown, read);
                 if (look == loaded)
                     return (int?)null;
@@ -104,7 +114,7 @@ internal sealed class SetCharacters
                 return earlier;
             })];
             if (pictures.Any(step => step is not null))
-                variations.Add(new FrameArtworkVariation(sequence.Sequence, [.. pictures]));
+                variations.Add(new FrameArtworkVariation(sequence.Sequence, [.. pictures], [.. drawnAt], drawn.DrawnBeforeFirstStep));
         }
         if (variations.Count == 0)
             return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null);

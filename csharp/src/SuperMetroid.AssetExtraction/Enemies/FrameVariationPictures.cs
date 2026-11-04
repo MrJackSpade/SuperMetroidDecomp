@@ -6,14 +6,17 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The pictures a sheet holds of a frame encounter artwork sequences change (#1513): one for each distinct combination of
-/// the pictures its sequences give it at the steps they can reach together, the loaded picture among them. Sequences play
-/// independently of one another, except an interlude, which plays only while its main sequence holds one step.
+/// the pictures its sequences give it at the steps they can reach together while it is drawn, the loaded picture among
+/// them only when such a combination shows it. Sequences play independently of one another, except an interlude, which
+/// plays only while its main sequence holds one step. A sequence that has not reached its first step counts as drawn only
+/// when the frame is drawn before it.
 /// </summary>
 internal static class FrameVariationPictures
 {
     /// <summary>
-    /// Each distinct combination of the steps whose pictures <paramref name="variations"/> show, each a list of the
-    /// sequences showing a step's picture and that step; the empty combination, the loaded picture, comes first.
+    /// Each distinct combination of the steps whose pictures <paramref name="variations"/> show while the frame is drawn,
+    /// each a list of the sequences showing a step's picture and that step; the empty combination, the loaded picture, is
+    /// among them when the frame shows it.
     /// </summary>
     internal static IEnumerable<IReadOnlyList<EncounterArtworkStep>> Combinations(IReadOnlyList<FrameArtworkVariation> variations)
     {
@@ -34,7 +37,8 @@ internal static class FrameVariationPictures
 
     /// <summary>The picture <paramref name="variation"/> shows once its sequence has reached <paramref name="step"/>, if any.</summary>
     private static EncounterArtworkStep? Shown(FrameArtworkVariation variation, int? step) =>
-        step is int reached && variation.PictureAt(reached) is int picture ? new EncounterArtworkStep(variation.Sequence, picture) : null;
+        // Only steps the frame is drawn at are reached, each within the sequence.
+        step is int reached && variation.Pictures[reached] is int picture ? new EncounterArtworkStep(variation.Sequence, picture) : null;
 
     /// <summary>
     /// Each step, or none, the sequences <paramref name="variations"/> follow can have reached together, by variation:
@@ -64,7 +68,9 @@ internal static class FrameVariationPictures
             placed[partner] = true;
             int main = interlude.Main == sequence ? index : partner;
             int played = interlude.Main == sequence ? partner : index;
-            JointStep[] joint = [.. JointSteps(variations[main].Pictures.Length, interlude.HeldStep, variations[played].Pictures.Length)];
+            FrameArtworkVariation mainVariation = variations[main], playedVariation = variations[played];
+            JointStep[] joint = [.. JointSteps(mainVariation.Pictures.Length, interlude.HeldStep, playedVariation.Pictures.Length)
+                .Where(step => Drawn(mainVariation, step.Main) && Drawn(playedVariation, step.Interlude))];
             reached = [.. reached.SelectMany(earlier => joint.Select(step => With(With(earlier, main, step.Main), played, step.Interlude)))];
         }
         return reached;
@@ -89,9 +95,16 @@ internal static class FrameVariationPictures
             yield return new JointStep(step, interludeSteps - 1);
     }
 
-    /// <summary>Every step of <paramref name="variation"/>'s sequence, after none.</summary>
+    /// <summary>Every step of <paramref name="variation"/>'s sequence the frame is drawn at, after none.</summary>
     private static IEnumerable<int?> StepsOf(FrameArtworkVariation variation) =>
-        Enumerable.Range(0, variation.Pictures.Length).Select(step => (int?)step).Prepend(null);
+        Enumerable.Range(0, variation.Pictures.Length).Select(step => (int?)step).Prepend(null).Where(step => Drawn(variation, step));
+
+    /// <summary>
+    /// Whether the frame <paramref name="variation"/> follows is drawn once its sequence has reached <paramref name="step"/>,
+    /// or before its first step when none.
+    /// </summary>
+    private static bool Drawn(FrameArtworkVariation variation, int? step) =>
+        step is int reached ? variation.DrawnAt(reached) : variation.DrawnBeforeFirstStep;
 
     /// <summary>The index of the variation following <paramref name="sequence"/>, or -1.</summary>
     private static int IndexOf(IReadOnlyList<FrameArtworkVariation> variations, EncounterArtworkSequence sequence)

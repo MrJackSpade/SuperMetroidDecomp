@@ -381,9 +381,12 @@ internal static class InstalledArtworkContentIdentity
                 foreach (FrameArtworkVariation variation in variations)
                 {
                     content.Append("sequence", System.Text.Encoding.UTF8.GetBytes(variation.Sequence.ToString()));
+                    content.Append("drawn-before-first-step", variation.DrawnBeforeFirstStep ? 1 : 0);
                     for (int step = 0; step < variation.Pictures.Length; step++)
                     {
-                        if (variation.Pictures[step] is int picture)
+                        if (!variation.Drawn[step])
+                            content.Append("undrawn-step", step);
+                        else if (variation.Pictures[step] is int picture)
                             content.Append("picture-step", picture);
                         else
                             content.Append("loaded-step", step);

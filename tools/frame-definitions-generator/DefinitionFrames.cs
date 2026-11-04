@@ -93,7 +93,11 @@ internal sealed class DefinitionFrames(CoreModel model, UnitScanner scanner, Beh
         // Code only a cycle of itself runs is every definition's too.
         everyone.UnionWith(code.Where(unit => owners[unit].Count == 0));
 
-        var frames = behaviour.Definitions.ToDictionary(name => name, _ => new HashSet<string>(familyFrames, StringComparer.Ordinal), StringComparer.Ordinal);
+        // Every definition shows what the walk collects outside the behaviour's own code (shared code and projectile
+        // families); the frames its own code names are split between its definitions below.
+        var ownNamed = units.SelectMany(unit => FramesOf(scanner.Scan(unit))).ToHashSet(StringComparer.Ordinal);
+        var frames = behaviour.Definitions.ToDictionary(name => name,
+            _ => new HashSet<string>(familyFrames.Where(frame => !ownNamed.Contains(frame)), StringComparer.Ordinal), StringComparer.Ordinal);
         var notes = new List<string>();
         foreach (Unit unit in code)
         {
@@ -102,7 +106,7 @@ internal sealed class DefinitionFrames(CoreModel model, UnitScanner scanner, Beh
                 continue;
             if (everyone.Contains(unit))
                 notes.Add($"every definition shows {named.Count} frames {model.Describe(unit)} names");
-            foreach (string name in everyone.Contains(unit) ? behaviour.Definitions : owners[unit])
+            foreach (string name in everyone.Contains(unit) ? (IEnumerable<string>)behaviour.Definitions : owners[unit])
                 frames[name].UnionWith(named);
         }
         foreach (Unit unit in units.Where(u => scanner.IsDispatch(u, behaviour)))

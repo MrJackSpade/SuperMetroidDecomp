@@ -2,6 +2,7 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Harness;
 
 

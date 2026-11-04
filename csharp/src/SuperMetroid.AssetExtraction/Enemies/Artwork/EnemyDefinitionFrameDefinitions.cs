@@ -87,8 +87,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.BotwoonHead15,
     ];
 
-    /// <summary>The frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Crocomire =
+    /// <summary>The frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> shows for <c>Crocomire</c>.</summary>
+    private static readonly EnemyFrameId[] CrocomireFrames =
     [
         EnemyFrameId.CrocomireTongueFight0,
         EnemyFrameId.CrocomireTongueFight1,
@@ -182,6 +182,20 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CrocomireSkeleton30,
         EnemyFrameId.CrocomireSkeleton31,
         EnemyFrameId.CrocomireSkeleton32,
+    ];
+
+    /// <summary>The frames <c>Bosses/Crocomire/CrocomireBehavior.cs</c> shows for <c>CrocomireTongue</c>.</summary>
+    private static readonly EnemyFrameId[] CrocomireTongueFrames =
+    [
+        EnemyFrameId.CrocomireTongueFight0,
+        EnemyFrameId.CrocomireTongueFight1,
+        EnemyFrameId.CrocomireTongueFight2,
+        EnemyFrameId.CrocomireTongueFight3,
+        EnemyFrameId.CrocomireTongueMeltingPose0,
+        EnemyFrameId.CrocomireTongueMeltingPose1,
+        EnemyFrameId.CrocomireTongueMeltingPose2,
+        EnemyFrameId.CrocomireTongueMeltingPose3,
+        EnemyFrameId.CrocomireTongueMeltingPose4,
     ];
 
     /// <summary>The frames <c>Bosses/Draygon/DraygonBehavior.cs</c> shows.</summary>
@@ -370,27 +384,9 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Shitroid02,
     ];
 
-    /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] MotherBrain =
+    /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainBody</c>.</summary>
+    private static readonly EnemyFrameId[] MotherBrainBodyFrames =
     [
-        EnemyFrameId.MotherBrainHead0,
-        EnemyFrameId.MotherBrainHead1,
-        EnemyFrameId.MotherBrainHead2,
-        EnemyFrameId.MotherBrainHead3,
-        EnemyFrameId.MotherBrainHead4,
-        EnemyFrameId.MotherBrainNeckJoint,
-        EnemyFrameId.MotherBrainHead6,
-        EnemyFrameId.MotherBrainHead7,
-        EnemyFrameId.MotherBrainHead8,
-        EnemyFrameId.MotherBrainHead9,
-        EnemyFrameId.MotherBrainHead10,
-        EnemyFrameId.MotherBrainHead11,
-        EnemyFrameId.MotherBrainHead12,
-        EnemyFrameId.MotherBrainTube0,
-        EnemyFrameId.MotherBrainTube1,
-        EnemyFrameId.MotherBrainTube2,
-        EnemyFrameId.MotherBrainTube3,
-        EnemyFrameId.MotherBrainTube4,
         EnemyFrameId.MotherBrainBodyStanding,
         EnemyFrameId.MotherBrainBodyWalking0,
         EnemyFrameId.MotherBrainBodyWalking1,
@@ -408,6 +404,51 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MotherBrainBodyDeathBeam1,
         EnemyFrameId.MotherBrainBodyDeathBeam2,
         EnemyFrameId.MotherBrainBodyDeathBeam3,
+    ];
+
+    /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainHead</c>.</summary>
+    private static readonly EnemyFrameId[] MotherBrainHeadFrames =
+    [
+        EnemyFrameId.MotherBrainHead0,
+        EnemyFrameId.MotherBrainHead1,
+        EnemyFrameId.MotherBrainHead2,
+        EnemyFrameId.MotherBrainHead3,
+        EnemyFrameId.MotherBrainHead4,
+        EnemyFrameId.MotherBrainNeckJoint,
+        EnemyFrameId.MotherBrainHead6,
+        EnemyFrameId.MotherBrainHead7,
+        EnemyFrameId.MotherBrainHead8,
+        EnemyFrameId.MotherBrainHead9,
+        EnemyFrameId.MotherBrainHead10,
+        EnemyFrameId.MotherBrainHead11,
+        EnemyFrameId.MotherBrainHead12,
+        EnemyFrameId.MotherBrainBodyStanding,
+        EnemyFrameId.MotherBrainBodyWalking0,
+        EnemyFrameId.MotherBrainBodyWalking1,
+        EnemyFrameId.MotherBrainBodyWalking2,
+        EnemyFrameId.MotherBrainBodyWalking3,
+        EnemyFrameId.MotherBrainBodyWalking4,
+        EnemyFrameId.MotherBrainBodyWalking5,
+        EnemyFrameId.MotherBrainBodyWalking6,
+        EnemyFrameId.MotherBrainBodyWalking7,
+        EnemyFrameId.MotherBrainBodyCrouched,
+        EnemyFrameId.MotherBrainBodyUncrouching,
+        EnemyFrameId.MotherBrainBodyLeaningDown,
+        EnemyFrameId.MotherBrainBodyInitialDummy,
+        EnemyFrameId.MotherBrainBodyDeathBeam0,
+        EnemyFrameId.MotherBrainBodyDeathBeam1,
+        EnemyFrameId.MotherBrainBodyDeathBeam2,
+        EnemyFrameId.MotherBrainBodyDeathBeam3,
+    ];
+
+    /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainTubes</c>.</summary>
+    private static readonly EnemyFrameId[] MotherBrainTubesFrames =
+    [
+        EnemyFrameId.MotherBrainTube0,
+        EnemyFrameId.MotherBrainTube1,
+        EnemyFrameId.MotherBrainTube2,
+        EnemyFrameId.MotherBrainTube3,
+        EnemyFrameId.MotherBrainTube4,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/RinkaBehavior.cs</c> shows.</summary>
@@ -443,8 +484,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Zebetite09,
     ];
 
-    /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Phantoon =
+    /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows for <c>PhantoonBody</c>.</summary>
+    private static readonly EnemyFrameId[] PhantoonBodyFrames =
     [
         EnemyFrameId.NorfairLavaJumperPose0,
         EnemyFrameId.PhantoonInvulnerableBody0,
@@ -471,8 +512,82 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.PhantoonMouth2,
     ];
 
-    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] RidleyEntity =
+    /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows for <c>PhantoonEye</c>, <c>PhantoonMouth</c>, <c>PhantoonTentacles</c>.</summary>
+    private static readonly EnemyFrameId[] PhantoonEyeFrames =
+    [
+        EnemyFrameId.PhantoonInvulnerableBody0,
+        EnemyFrameId.PhantoonFullHitboxBody0,
+        EnemyFrameId.PhantoonEyeHitboxBody0,
+        EnemyFrameId.PhantoonClosedEye0,
+        EnemyFrameId.PhantoonOpeningEye0,
+        EnemyFrameId.PhantoonOpeningEye1,
+        EnemyFrameId.PhantoonOpeningEye2,
+        EnemyFrameId.PhantoonCenteredEye0,
+        EnemyFrameId.PhantoonGaze0,
+        EnemyFrameId.PhantoonGaze4,
+        EnemyFrameId.PhantoonGaze6,
+        EnemyFrameId.PhantoonGaze2,
+        EnemyFrameId.PhantoonGaze5,
+        EnemyFrameId.PhantoonGaze3,
+        EnemyFrameId.PhantoonGaze7,
+        EnemyFrameId.PhantoonGaze1,
+        EnemyFrameId.PhantoonTentacle0,
+        EnemyFrameId.PhantoonTentacle1,
+        EnemyFrameId.PhantoonTentacle2,
+        EnemyFrameId.PhantoonMouth0,
+        EnemyFrameId.PhantoonMouth1,
+        EnemyFrameId.PhantoonMouth2,
+    ];
+
+    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>Ridley</c>, <c>RidleyCeres</c>.</summary>
+    private static readonly EnemyFrameId[] RidleyFrames =
+    [
+        EnemyFrameId.RidleyTailSegmentSmall,
+        EnemyFrameId.RidleyTailSegmentMedium,
+        EnemyFrameId.RidleyTailSegmentLarge,
+        EnemyFrameId.RidleyTailTip12,
+        EnemyFrameId.RidleyTailTip11,
+        EnemyFrameId.RidleyTailTip10,
+        EnemyFrameId.RidleyTailTip9,
+        EnemyFrameId.RidleyTailTip8,
+        EnemyFrameId.RidleyTailTip7,
+        EnemyFrameId.RidleyTailTip6,
+        EnemyFrameId.RidleyTailTip5,
+        EnemyFrameId.RidleyTailTip4,
+        EnemyFrameId.RidleyTailTip3,
+        EnemyFrameId.RidleyTailTip2,
+        EnemyFrameId.RidleyTailTip1,
+        EnemyFrameId.RidleyTailTip0,
+        EnemyFrameId.RidleyTailTip15,
+        EnemyFrameId.RidleyTailTip14,
+        EnemyFrameId.RidleyTailTip13,
+        EnemyFrameId.RidleyWingLeft0,
+        EnemyFrameId.RidleyWingLeft1,
+        EnemyFrameId.RidleyWingLeft2,
+        EnemyFrameId.RidleyWingLeft3,
+        EnemyFrameId.RidleyWingLeft4,
+        EnemyFrameId.RidleyWingLeft5,
+        EnemyFrameId.RidleyWingRight0,
+        EnemyFrameId.RidleyWingRight1,
+        EnemyFrameId.RidleyWingRight2,
+        EnemyFrameId.RidleyWingRight3,
+        EnemyFrameId.RidleyWingRight4,
+        EnemyFrameId.RidleyWingRight5,
+        EnemyFrameId.RidleyBodyLeft,
+        EnemyFrameId.RidleyBodyRight,
+        EnemyFrameId.RidleyBodyLeftMouthHalfOpen,
+        EnemyFrameId.RidleyBodyLeftMouthOpen,
+        EnemyFrameId.RidleyBodyRightMouthHalfOpen,
+        EnemyFrameId.RidleyBodyRightMouthOpen,
+        EnemyFrameId.RidleyBodyLeftLegsHalfExtended,
+        EnemyFrameId.RidleyBodyLeftLegsExtended,
+        EnemyFrameId.RidleyBodyRightLegsHalfExtended,
+        EnemyFrameId.RidleyBodyRightLegsExtended,
+        EnemyFrameId.RidleyBodyForward,
+    ];
+
+    /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows for <c>RidleyExplosion</c>.</summary>
+    private static readonly EnemyFrameId[] RidleyExplosionFrames =
     [
         EnemyFrameId.RidleyTailSegmentSmall,
         EnemyFrameId.RidleyTailSegmentMedium,
@@ -885,8 +1000,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChootFallEnd,
     ];
 
-    /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] ChozoStatue =
+    /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows for <c>Chozo</c>.</summary>
+    private static readonly EnemyFrameId[] ChozoFrames =
     [
         EnemyFrameId.ChozoStatuePose17,
         EnemyFrameId.ChozoStatuePose18,
@@ -915,6 +1030,9 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChozoStatuePose9,
         EnemyFrameId.ChozoStatuePose10,
     ];
+
+    /// <summary>The frames <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> shows for <c>NoobTubeCrack</c>.</summary>
+    private static readonly EnemyFrameId[] NoobTubeCrackFrames = [];
 
     /// <summary>The frames <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] DeadSidehopper =
@@ -1290,8 +1408,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KiHunterPose40,
     ];
 
-    /// <summary>The frames <c>Enemies/Kzan/KzanBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Kzan =
+    /// <summary>The frames <c>Enemies/Kzan/KzanBehavior.cs</c> shows for <c>KzanBottom</c>.</summary>
+    private static readonly EnemyFrameId[] KzanBottomFrames = [];
+
+    /// <summary>The frames <c>Enemies/Kzan/KzanBehavior.cs</c> shows for <c>KzanTop</c>.</summary>
+    private static readonly EnemyFrameId[] KzanTopFrames =
     [
         EnemyFrameId.Kzan00,
     ];
@@ -2178,8 +2299,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Steam] = CeresSteam,
             [EnemyDefinitionId.TourianStatue] = TourianEntranceStatue,
             [EnemyDefinitionId.Botwoon] = Botwoon,
-            [EnemyDefinitionId.Crocomire] = Crocomire,
-            [EnemyDefinitionId.CrocomireTongue] = Crocomire,
+            [EnemyDefinitionId.Crocomire] = CrocomireFrames,
+            [EnemyDefinitionId.CrocomireTongue] = CrocomireTongueFrames,
             [EnemyDefinitionId.DraygonArms] = Draygon,
             [EnemyDefinitionId.DraygonBody] = Draygon,
             [EnemyDefinitionId.DraygonEye] = Draygon,
@@ -2194,19 +2315,19 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.KraidNail] = Kraid,
             [EnemyDefinitionId.KraidNailBad] = Kraid,
             [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
-            [EnemyDefinitionId.MotherBrainBody] = MotherBrain,
-            [EnemyDefinitionId.MotherBrainHead] = MotherBrain,
-            [EnemyDefinitionId.MotherBrainTubes] = MotherBrain,
+            [EnemyDefinitionId.MotherBrainBody] = MotherBrainBodyFrames,
+            [EnemyDefinitionId.MotherBrainHead] = MotherBrainHeadFrames,
+            [EnemyDefinitionId.MotherBrainTubes] = MotherBrainTubesFrames,
             [EnemyDefinitionId.Rinka] = Rinka,
             [EnemyDefinitionId.BabyMetroid] = Shitroid,
             [EnemyDefinitionId.Zebetite] = Zebetite,
-            [EnemyDefinitionId.PhantoonBody] = Phantoon,
-            [EnemyDefinitionId.PhantoonEye] = Phantoon,
-            [EnemyDefinitionId.PhantoonMouth] = Phantoon,
-            [EnemyDefinitionId.PhantoonTentacles] = Phantoon,
-            [EnemyDefinitionId.Ridley] = RidleyEntity,
-            [EnemyDefinitionId.RidleyCeres] = RidleyEntity,
-            [EnemyDefinitionId.RidleyExplosion] = RidleyEntity,
+            [EnemyDefinitionId.PhantoonBody] = PhantoonBodyFrames,
+            [EnemyDefinitionId.PhantoonEye] = PhantoonEyeFrames,
+            [EnemyDefinitionId.PhantoonMouth] = PhantoonEyeFrames,
+            [EnemyDefinitionId.PhantoonTentacles] = PhantoonEyeFrames,
+            [EnemyDefinitionId.Ridley] = RidleyFrames,
+            [EnemyDefinitionId.RidleyCeres] = RidleyFrames,
+            [EnemyDefinitionId.RidleyExplosion] = RidleyExplosionFrames,
             [EnemyDefinitionId.SporeSpawn] = SporeSpawn,
             [EnemyDefinitionId.BombTorizo] = BombTorizo,
             [EnemyDefinitionId.GoldenTorizo] = BombTorizo,
@@ -2222,8 +2343,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Bull] = Bull,
             [EnemyDefinitionId.Cacatac] = Cacatac,
             [EnemyDefinitionId.Choot] = Choot,
-            [EnemyDefinitionId.Chozo] = ChozoStatue,
-            [EnemyDefinitionId.NoobTubeCrack] = ChozoStatue,
+            [EnemyDefinitionId.Chozo] = ChozoFrames,
+            [EnemyDefinitionId.NoobTubeCrack] = NoobTubeCrackFrames,
             [EnemyDefinitionId.CorpseSidehopper] = DeadSidehopper,
             [EnemyDefinitionId.CorpseTorizo] = DeadTorizo,
             [EnemyDefinitionId.CorpseRipper] = DeadTourian,
@@ -2266,8 +2387,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.KihunterRedWings] = KiHunter,
             [EnemyDefinitionId.KihunterYellow] = KiHunter,
             [EnemyDefinitionId.KihunterYellowWings] = KiHunter,
-            [EnemyDefinitionId.KzanBottom] = Kzan,
-            [EnemyDefinitionId.KzanTop] = Kzan,
+            [EnemyDefinitionId.KzanBottom] = KzanBottomFrames,
+            [EnemyDefinitionId.KzanTop] = KzanTopFrames,
             [EnemyDefinitionId.Squeept] = NorfairLavaJumpingEnemy,
             [EnemyDefinitionId.Magdollite] = Magdollite,
             [EnemyDefinitionId.BabyTurtle] = MamaTurtle,

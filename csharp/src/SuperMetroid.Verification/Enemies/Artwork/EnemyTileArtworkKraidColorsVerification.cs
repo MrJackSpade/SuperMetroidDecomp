@@ -245,6 +245,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
                     KraidShades.Health(band), 0);
                 Lay(colours, BossSheetShades.OwnRow(artwork.Bosses, EnemyDefinitionId.Kraid, KraidPartsRow * 16), KraidShades.Health(band),
                     SpriteImage.SpriteColourCount);
+                // Every body shade draws his eyes in one set of colours, which his eye glow replaces with the band's or the flash's.
+                ReadOnlySpan<RgbColor> glow = state.Colours.EyeGlow.Shown;
+                for (int eye = 0; eye < glow.Length; eye++)
+                    colours[113 + eye] = glow[eye];
                 break;
             }
             case KraidPaletteConsumer.EyeUnglow:

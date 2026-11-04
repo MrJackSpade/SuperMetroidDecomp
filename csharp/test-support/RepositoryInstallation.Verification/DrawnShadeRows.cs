@@ -1,10 +1,12 @@
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -18,13 +20,15 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// </summary>
 internal static class DrawnShadeRows
 {
-    /// <summary>The row each opening, Ceres, title and map sprite colouring's drawn shade stands for.</summary>
+    /// <summary>The row each opening, Ceres, title, ending and map sprite colouring's drawn shade stands for.</summary>
     private static readonly FrozenDictionary<PictureShade, int> Rows = Enum.GetValues<IntroSpriteColouring>()
         .Select(colouring => (Shade: IntroShades.Drawn(colouring), Row: IntroSheetInks.SpriteSet(colouring)))
         .Concat(Enum.GetValues<CeresSpriteColouring>()
             .Select(colouring => (Shade: CeresShades.Drawn(colouring), Row: CeresSheetInks.SpriteSet(colouring))))
         .Concat(Enum.GetValues<TitleSpriteColouring>()
             .Select(colouring => (Shade: TitleShades.Drawn(colouring), Row: TitleSheetInks.SpriteSet(colouring))))
+        .Concat(Enum.GetValues<EndingSpriteColouring>()
+            .Select(colouring => (Shade: EndingShades.Drawn(colouring), Row: EndingScreenInks.SpriteSet(colouring))))
         .Concat(Enum.GetValues<MapSpriteColouring>().SelectMany(colouring => Enum.GetValues<MapSpriteScreen>()
             .Select(screen => (Shade: MapSpriteShades.Drawn(screen, colouring), Row: MapSpriteColouringSets.SpriteSet(colouring)))))
         .ToFrozenDictionary(entry => entry.Shade, entry => entry.Row);
@@ -46,6 +50,9 @@ internal static class DrawnShadeRows
         {
             if (Rows.TryGetValue(shade, out int row))
                 return row;
+            // The highlight cycle recolours the highlighted sprites' inks, whatever frame of the cycle it stands at.
+            if (shade == MapSpriteShades.Highlight(shade.Step))
+                return MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
         }
         return null;
     }

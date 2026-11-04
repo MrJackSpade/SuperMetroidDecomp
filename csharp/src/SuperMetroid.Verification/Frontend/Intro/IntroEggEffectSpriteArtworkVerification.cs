@@ -65,8 +65,9 @@ internal static class IntroEggEffectSpriteArtworkVerification
             RequiredJson.Deserialize<IntroEggEffectSpriteDocument>(
                 File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        // The part inherits the draw's row, so a art edit cannot show (#1512); the next frame's character can.
         document.Frames["fragment-0"] = document.Frames["fragment-0"]
-            .Select(part => part with { Palette = 0 }).ToArray();
+            .Select(part => part with { TileColumn = 6 }).ToArray();
         string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
         using (var output = File.Create(overridePath))
             IntroEggEffectSpritePresentation.Write(output, document);
@@ -110,6 +111,12 @@ internal static class IntroEggEffectSpriteArtworkVerification
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
             state.SetupBabyDiscoveryCrossfade();
+            // The discovery fades in, and its sprites' shading follows the fade (#1512), so the fragment shows once lit.
+            for (int frame = 0; frame < 128 &&
+                state.Phase == IntroCinematicPhase.BabyDiscoveryCrossfade; frame++)
+                state.StepBabyDiscoveryCrossfade();
+            AssertEqual(IntroCinematicPhase.BabyDiscovery, state.Phase,
+                "egg fragment visual probe reached the lit gameplay palette");
             var discovery = state.CurrentBabyDiscovery;
             var particles = (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).eggParticles;
             particles.Add(fragment);

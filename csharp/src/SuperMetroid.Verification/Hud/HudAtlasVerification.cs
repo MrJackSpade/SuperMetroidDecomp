@@ -130,7 +130,7 @@ internal static class HudAtlasVerification
                 colours);
             var layer = new OverlayBlendLayer(plane, 0, Layer3Plane.Rows, 0, BlendOperation.Add,
                 ScrollBands.Uniform(0), ScrollBands.Uniform(0));
-            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(colours, []),
+            RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(colours, []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];
         }

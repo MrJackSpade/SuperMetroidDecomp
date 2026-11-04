@@ -120,7 +120,8 @@ internal static class SpawnedObjectSheetComposer
             .Concat(EncounterFrames(plan.Spawners, plan.Anywhere).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase, 0),
+                    : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), tileBase,
+                    EncounterRow(frame, plan.Spawners, rowOf)),
                 RotEncounterFrames.Contains(frame))))];
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
@@ -148,6 +149,19 @@ internal static class SpawnedObjectSheetComposer
     private static IEnumerable<EnemyFrameId> EncounterFrames(IEnumerable<EnemyDefinitionId> spawners, bool anywhere) =>
         anywhere ? spawners.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).SelectMany(enemy => EncounterFrameDefinitions.ByEnemy[enemy])
             .Distinct().Order() : [];
+
+    /// <summary>
+    /// The row the encounter drawing <paramref name="frame"/> draws it in: its enemy's own, as the cartridge ORs the palette index
+    /// an encounter's initialization stores (Ridley's wings and tail, for one) into every part of the frames it draws itself.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two of the sheet's encounters draw the frame in different rows.</exception>
+    private static int EncounterRow(EnemyFrameId frame, IEnumerable<EnemyDefinitionId> spawners, Func<EnemyDefinitionId, int> rowOf)
+    {
+        int[] rows = [.. spawners.Where(enemy => EncounterFrameDefinitions.ByEnemy.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? frames) && frames.Contains(frame))
+            .Select(rowOf).Distinct()];
+        return rows.Length == 1 ? rows[0]
+            : throw new InvalidDataException($"Encounter frame {frame} is drawn in {rows.Length} rows by the sheet's encounters, not one.");
+    }
 
     /// <summary>Every object a plan's spawners, and any room when it says so, can spawn, each once in a stable order.</summary>
     private static SpawnedObjects Spawned(SpawnedObjectSheetPlan plan)

@@ -6667,6 +6667,7 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly RoomSpriteObjectKind[] SparkSpriteObjects =
     [
         RoomSpriteObjectKind.EnemyProjectileDud,
+        RoomSpriteObjectKind.FallingSparkTrail,
     ];
 
     /// <summary>The projectile frames <c>Enemies/Stoke/StokeBehavior.cs</c> spawns.</summary>
@@ -19883,7 +19884,6 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.BotwoonSmallExplosion,
         RoomSpriteObjectKind.DustCloud,
         RoomSpriteObjectKind.EnemyProjectileDud,
-        RoomSpriteObjectKind.FallingSparkTrail,
         RoomSpriteObjectKind.ShortBigDustCloud,
         RoomSpriteObjectKind.SmallExplosion,
         RoomSpriteObjectKind.Smoke,

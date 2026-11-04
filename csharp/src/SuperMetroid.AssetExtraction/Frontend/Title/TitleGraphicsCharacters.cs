@@ -37,6 +37,26 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
     /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
     public ReadOnlySpan<byte> FloorMap => floorMap;
 
+    /// <summary>
+    /// Canonical selected title graphics, independent of PNG and JSON encoding: the floor map, the floor, object and Baby
+    /// characters, and every title composition's parts in sprite order, with whether each keeps its sheet's palette.
+    /// </summary>
+    internal string ContentIdentity => SelectedPresentationHash.Create("TitleGraphicsCharacters-v1", content =>
+    {
+        content.Append("floorMap", floorMap);
+        content.Append("floorCharacters", floorCharacters);
+        content.Append("objectCharacters", objectCharacters);
+        content.Append("babyCharacters", babyCharacters);
+        foreach ((TitleSprite sprite, SpriteComposition composition) in sprites.OrderBy(entry => entry.Key))
+        {
+            content.AppendName("sprite", sprite.ToString());
+            IReadOnlyList<SpritePart> parts = [.. Enumerable.Range(0, composition.PartCount).Select(index => composition.Part(index).Part)];
+            content.AppendEnemyParts(parts);
+            content.AppendBytes("inheritsPalette", [.. Enumerable.Range(0, composition.PartCount)
+                .Select(index => composition.Part(index).InheritPalette ? 1 : 0)]);
+        }
+    });
+
     /// <summary>Eight-bit Mode-7 character lane uploaded for the title backdrop.</summary>
     public ReadOnlySpan<byte> FloorCharacters => floorCharacters;
 

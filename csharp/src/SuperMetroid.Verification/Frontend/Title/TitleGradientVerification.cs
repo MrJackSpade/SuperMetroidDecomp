@@ -123,7 +123,8 @@ internal static class TitleGradientVerification
         {
             stock.Step(0);
             installed.Step(0);
-            if (!stock.Render().SequenceEqual(installed.Render()))
+            // Frames whose descriptions are equal show equal pixels without either being drawn; any other pair is drawn.
+            if (!ScenePixels.Same(new DisplayPacket(0, stock.CaptureRenderSnapshot()), new DisplayPacket(0, installed.CaptureRenderSnapshot())))
                 throw new InvalidDataException($"Installed title graphics differ from stock at frame {frame}.");
         }
         bool reachedTitle = false;

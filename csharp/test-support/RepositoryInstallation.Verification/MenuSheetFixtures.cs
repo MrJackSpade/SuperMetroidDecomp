@@ -113,7 +113,7 @@ internal static class MenuSheetFixtures
     internal static InstalledSpriteSheets WithTitle(TitleGraphicsPresentation graphics)
     {
         ArgumentNullException.ThrowIfNull(graphics);
-        return ReferenceEquals(graphics, InstalledFixtures.Maps.TitleGraphics) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(graphics, InstalledFixtures.Maps.TitleGraphics) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
             : titles.GetValue(graphics, key =>
             {
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
@@ -128,6 +128,19 @@ internal static class MenuSheetFixtures
 
     /// <summary>Installed sheets with a title sheet already composed, by title palette.</summary>
     private static readonly ConditionalWeakTable<TitlePalettePresentation, InstalledSpriteSheets> titlePalettes = new();
+
+    /// <summary>
+    /// Whether <paramref name="graphics"/> holds the installation's title graphics: the same content, read again (#1532),
+    /// whose sheets are the installed sheets.
+    /// </summary>
+    private static bool ShowsStockTitle(TitleGraphicsPresentation graphics) =>
+        graphics is SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters characters
+        && characters.ContentIdentity == stockTitleContent.Value;
+
+    /// <summary>The installation's title graphics' content identity, computed once.</summary>
+    private static readonly Lazy<string> stockTitleContent = new(() =>
+        (InstalledFixtures.Maps.TitleGraphics as SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters
+            ?? throw new InvalidOperationException("The installation's title graphics are not installed title characters.")).ContentIdentity);
 
     /// <summary>
     /// The installed sheets with the title and title floor sheets the installation's title graphics compose under

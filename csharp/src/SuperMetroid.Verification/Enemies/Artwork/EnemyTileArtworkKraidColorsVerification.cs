@@ -293,7 +293,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     }
 
     /// <summary>The backdrop settled on <paramref name="colours"/>.</summary>
-    private static KraidBackdropShown SettledBackdrop(KraidBackdropSettledColours colours) => new KraidBackdropShown.Settled(colours);
+    private static KraidBackdropShown.Settled SettledBackdrop(KraidBackdropSettledColours colours) => new KraidBackdropShown.Settled(colours);
 
     /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>
     private static ushort[] ReferenceKraidPaletteConsumer(

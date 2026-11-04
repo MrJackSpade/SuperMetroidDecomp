@@ -28,7 +28,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         .Select(_ => new PaletteFxSlot())
         .ToArray();
     /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
-    private readonly PaletteFxShown shown = new();
+    internal readonly PaletteFxShown shown = new();
     /// <summary>The records Samus's suit groups showed during the current handler pass, in order (#1512).</summary>
     private readonly List<ShownPaletteFxRecord> suitShown = [];
     /// <summary>The records the enemies' groups showed during the current handler pass, in order (#1512).</summary>

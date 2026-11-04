@@ -349,9 +349,52 @@ internal static class NativeSnapshotImport
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState));
+        ImportShownPaletteFxRecords(runtime);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, W, memory);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);
+    }
+
+    /// <summary>
+    /// Restores the colour record each live palette-FX object last showed, in slot order, as its handler pass showed it
+    /// (#1512): the record becomes its group's last, which the room's pictures shade with; a record of Samus's suit groups
+    /// is laid over her suit and one of an enemy's groups is shown over its owner's colours, as the runtime does after the
+    /// pass. Native colour memory already holds those records at the checkpoint, while the imported slots only resume
+    /// their programs, which show their next record later.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A live object's record lies in colours no gameplay picture shows.</exception>
+    private static void ImportShownPaletteFxRecords(SuperMetroidRuntime runtime)
+    {
+        foreach (var slot in runtime.RoomPaletteFx.slots)
+        {
+            if (slot.Object is null || slot.Target is not { } colours || LastShownRecord(slot.Cursor) is not { } record)
+                continue;
+            runtime.RoomPaletteFx.shown.Show(colours, record);
+            if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
+                continue;
+            if (PaletteFxSamusColourDefinitions.SuitColours.Contains(colours))
+                runtime.Player.Colours.LayOverSuit(PaletteFxShades.Of(colours, record));
+            else if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(colours))
+                runtime.Enemies.PaletteFxShows.Show(colours, record);
+            else
+                throw new InvalidOperationException($"Imported palette-FX object {slot.Object} showed {colours}, which no gameplay picture shows.");
+        }
+    }
+
+    /// <summary>
+    /// The record a palette-FX program showed last before <paramref name="cursor"/>: the nearest show step before the step
+    /// it resumes at. The native instruction pointer rests after the record it last showed (a loop's jump runs only when
+    /// the object next advances), so a cursor with no show step before it has shown no record yet: null.
+    /// </summary>
+    private static PaletteFxFrame? LastShownRecord(SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> cursor)
+    {
+        var steps = PaletteFxAnimations.Programs.Steps(cursor.Program);
+        for (int position = Math.Min(cursor.Position, steps.Count) - 1; position >= 0; position--)
+        {
+            if (steps[position] is SuperMetroid.Core.Programs.AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep shown)
+                return shown.Frame;
+        }
+        return null;
     }
 
     /// <summary>

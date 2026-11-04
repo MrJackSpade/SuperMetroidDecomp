@@ -34,24 +34,28 @@ internal static class FileMapSnapshotTestsVerification
             var legacy = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var capture = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
+            // Each update's two frames are compared for the pixels they show (#1532). The capture side advances first, so
+            // its held packet is compared once more with the legacy frame of the same update, whose owner has not yet
+            // advanced: the packet still showing those pixels proves the update did not reach into it.
             LayeredScene? previous = null;
-            RgbaPixel[]? previousPixels = null;
+            LayeredScene? previousExpected = null;
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {
                 ControllerButton input = tick == 48 ? ControllerButton.Start
                     : tick == 130 ? (cancel ? ControllerButton.B : ControllerButton.Start)
                     : cancel && tick == 240 ? ControllerButton.B
                     : tick is >= 110 and <= 119 ? ControllerButton.Right : 0;
-                legacy.Step(input); capture.Step(input);
-                if (previous is not null)
-                    AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previous)), "map packet survives window/palette/marker update");
+                capture.Step(input);
+                if (previous is not null && previousExpected is not null)
+                    AssertTrue(ScenePixels.Same(previousExpected, previous), "map packet survives window/palette/marker update");
+                legacy.Step(input);
                 phases.Add(legacy.Phase);
-                RgbaPixel[] expected = legacy.Render();
+                LayeredScene expected = legacy.CaptureRenderSnapshot();
                 LayeredScene packet = capture.CaptureRenderSnapshot();
                 Compare(expected, packet, $"map navigation {legacy.Phase}, tick {tick}, cancel {cancel}");
                 AssertEqual(legacy.Phase, capture.Phase, "map capture preserves navigation");
                 AssertEqual(legacy.LoadRequested, capture.LoadRequested, "map capture preserves load signal");
-                previous = packet; previousPixels = expected;
+                previous = packet; previousExpected = expected;
             }
             AssertTrue(phases.Contains(FileSelectMapNavigationPhase.Room) && phases.Contains(FileSelectMapNavigationPhase.ExpandingWindow),
                 "map fixture reaches expansion and room map");
@@ -82,7 +86,7 @@ internal static class FileMapSnapshotTestsVerification
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
             var reference = game.Step(input); var actual = capturedGame.StepCaptured(input);
             sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
-            AssertTrue(game.PublishedPixels().SequenceEqual(RenderForComparison(actual.Snapshot)), "saved-file frontend pixels");
+            AssertTrue(ScenePixels.Same(game.GetRetainedDisplay(), actual.Snapshot), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
             AssertEqual(reference.Phase, actual.Frame.Phase, "saved-file frontend phase");
             AssertSequenceEqual(game.AudioEventsForVerification, capturedGame.AudioEventsForVerification, "saved-file frontend audio event order");
@@ -90,11 +94,10 @@ internal static class FileMapSnapshotTestsVerification
         AssertTrue(sawMap && game.GameState == SuperMetroidGameState.MainGameplay, "saved-file frontend completes map and load");
         Console.WriteLine($"  File map snapshots: {samples} area/room/entry/window/load/cancel comparisons match.");
 
-        void Compare(RgbaPixel[] expected, LayeredScene captured, string name)
+        void Compare(LayeredScene expected, LayeredScene captured, string name)
         {
             samples++;
-            var packet = new DisplayPacket(0, captured);
-            AssertTrue(expected.SequenceEqual(RenderForComparison(packet)), name);
+            AssertTrue(ScenePixels.Same(expected, captured), name);
         }
     }
 

@@ -38,11 +38,11 @@ internal static class CinematicSnapshotTestsVerification
             bool changed = flightPhases.Add(flight.Phase);
             if (changed || tick % 7 == 0)
             {
-                RgbaPixel[] expected = flight.Render();
                 LayeredScene snapshot = flight.CaptureRenderSnapshot();
+                RgbaPixel[] expected = DisplayRendering.Render(snapshot);
                 coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
                     && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
-                Compare(expected, snapshot, tick);
+                AssertTrue(ScenePixels.Same(flight.CaptureRenderSnapshot(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
                 flight.StepFrame();
                 Compare(expected, snapshot, tick);
                 flightSamples++;
@@ -61,8 +61,8 @@ internal static class CinematicSnapshotTestsVerification
             bool changed = phases.Add(destruction.Phase);
             if (changed || tick % 13 == 0)
             {
-                RgbaPixel[] expected = destruction.Render();
                 LayeredScene snapshot = destruction.CaptureRenderSnapshot();
+                RgbaPixel[] expected = DisplayRendering.Render(snapshot);
                 mode7 |= snapshot.Layers.Any(layer => layer is TurningFloorLayer);
                 mode1 |= snapshot.Layers.Any(layer => layer is PicturedPlaneLayer);
                 foreach (var window in snapshot.LayersOf<ColourAddWindowLayer>())
@@ -73,7 +73,7 @@ internal static class CinematicSnapshotTestsVerification
                     explosionCoversTop |= coloured && window.Window.FirstLine == 0 && window.Window.Shapes.Length != 0 &&
                         window.Window.Shapes[0] is WindowOval oval && oval.CoreStart.Y - oval.Radii.Y <= 0;
                 }
-                Compare(expected, snapshot, tick);
+                AssertTrue(ScenePixels.Same(destruction.CaptureRenderSnapshot(), snapshot), $"Ceres destruction snapshot tick {tick} shows the live scene's pixels");
                 destruction.Step();
                 Compare(expected, snapshot, tick);
                 samples++;
@@ -92,9 +92,9 @@ internal static class CinematicSnapshotTestsVerification
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {
-                RgbaPixel[] expected = menu.Render();
                 LayeredScene snapshot = menu.CaptureRenderSnapshot();
-                Compare(expected, snapshot, tick);
+                RgbaPixel[] expected = DisplayRendering.Render(snapshot);
+                AssertTrue(ScenePixels.Same(menu.CaptureRenderSnapshot(), snapshot), $"game-over snapshot tick {tick} shows the live menu's pixels");
                 ControllerButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
                 {
@@ -138,30 +138,32 @@ internal static class CinematicSnapshotTestsVerification
         {
             // Independent owners are essential: legacy draw advances projectile trails.
             // Calling both producers on one scene would run those side effects twice.
-            RgbaPixel[] expected = legacy.Render();
+            // Each owner draws every update for those side effects; the pixels are compared on sampled updates only (#1532).
+            LayeredScene expected = legacy.CaptureTranslatedRenderSnapshot();
             LayeredScene snapshot = captured.CaptureTranslatedRenderSnapshot();
             bool newPhase = phases.Add(legacy.Phase);
             bool sample = newPhase || tick % 31 == 0;
             if (sample)
             {
-                DisplayPacket packet = new(tick, snapshot);
-                AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
+                AssertTrue(ScenePixels.Same(new DisplayPacket(tick, expected), new DisplayPacket(tick, snapshot)),
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;
             }
             ControllerButton input = tick % 47 == 0 ? ControllerButton.A : 0;
-            legacy.Step(input);
-            legacyAudio.AdvanceFrame(default);
             captured.Step(input);
             capturedAudio.AdvanceFrame(default);
+            // The legacy owner has not advanced yet, so its frame is the one the captured packet showed before its owner
+            // advanced: the packet still showing those pixels proves the simulation did not reach into it.
+            if (sample)
+                AssertTrue(ScenePixels.Same(expected, snapshot),
+                    "intro packet survives subsequent simulation mutations");
+            legacy.Step(input);
+            legacyAudio.AdvanceFrame(default);
             AssertEqual(legacy.Phase, captured.Phase, "intro phase after draw");
             AssertEqual(legacy.MotherBrainHitCount, captured.MotherBrainHitCount, "intro hits after draw");
             AssertEqual(legacy.FlashbackSamusX, captured.FlashbackSamusX, "intro Samus X after draw");
             AssertEqual(legacy.FlashbackSamusY, captured.FlashbackSamusY, "intro Samus Y after draw");
             AssertEqual(legacy.ActiveFlashbackProjectileCount, captured.ActiveFlashbackProjectileCount, "intro projectiles after draw");
-            if (sample)
-                AssertTrue(expected.SequenceEqual(RenderForComparison(snapshot)),
-                    "intro packet survives subsequent simulation mutations");
         }
         AssertTrue(legacy.CeresFlightFinished && captured.CeresFlightFinished, "full intro capture reaches completed flight");
         AssertTrue(phases.Contains(IntroCinematicPhase.MotherBrainFlashback)

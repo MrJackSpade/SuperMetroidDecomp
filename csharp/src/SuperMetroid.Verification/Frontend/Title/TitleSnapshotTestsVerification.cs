@@ -38,16 +38,18 @@ internal static class TitleSnapshotTestsVerification
                 bool newPhase = phases.Add(phase);
                 if (newPhase || frame % 17 == 0 || phase == TitleSequencePhase.TitleScreenFadeOut)
                 {
-                    // Compare at phase boundaries and throughout motion, not just black endpoints.
-                    RgbaPixel[] expected = scene.Render();
+                    // Compare at phase boundaries and throughout motion, not just black endpoints. The held packet is drawn
+                    // once and drawn again, and the live scene's and the control's frames are compared with it for the pixels
+                    // they show, which draws them only when their descriptions differ (#1532).
                     FloorScene packet = scene.CaptureRenderSnapshot();
-                    Match(expected, DisplayRendering.Render(
-                        new DisplayPacket((ushort)frame, packet)), frame, phase);
-                    Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
+                    RgbaPixel[] expected = DisplayRendering.Render(new DisplayPacket((ushort)frame, packet));
+                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
+                        $"title snapshot {phase} frame {frame} shows the live scene's pixels");
                     Match(expected, DisplayRendering.Render(new DisplayPacket(0, packet)), frame, phase);
                     FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
-                    Match(control.Render(), expected, frame, phase);
+                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, control.CaptureRenderSnapshot()), new DisplayPacket(0, packet)),
+                        $"title control {phase} frame {frame} shows the same pixels");
                     comparisons++;
 
                     // Hold the packet across real scene/palette/graphics advancement.

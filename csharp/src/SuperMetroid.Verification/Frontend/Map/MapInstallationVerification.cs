@@ -31,15 +31,19 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 /// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification
 {
-    /// <summary>Opt-in full importer transaction; all ROM/audio/fixture data stays in ignored test-temp.</summary>
-    [PrivateInstallation("Checks the full installer: fresh import, startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and override preservation.")]
+    /// <summary>
+    /// Opt-in installer transaction on a private copy of the shared installation, which the repository's fresh import
+    /// produced (#1532): startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and
+    /// override preservation. All ROM/audio/fixture data stays in ignored test-temp.
+    /// </summary>
+    [PrivateInstallation("Repairs and upgrades a private copy of the shared installation to check startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and override preservation.")]
     internal static void VerifyMapInstallation(string sourceRom)
     {
-        using var rootScratch = new TestScratchDirectory("map-installation");
-        string root = rootScratch.Root;
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        string root = copy.Root;
         byte[] sourceHash = SHA256.HashData(File.ReadAllBytes(sourceRom));
-        Console.WriteLine($"Full installation fixture: {root}");
-        var installation = GameAssetInstaller.Install(sourceRom, root, progress: new ImmediateInstallProgress());
+        Console.WriteLine($"Installation fixture: {root}");
+        var installation = copy.Installation;
         if (OperatingSystem.IsWindows())
         {
             // An exclusive handle makes a startup ROM read fail deterministically.

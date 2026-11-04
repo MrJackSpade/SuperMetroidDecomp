@@ -4,51 +4,172 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.FrameDefinitionsGenerator;
 
+/// <summary>Where a spawn draws from, as the graphics it is spawned with say.</summary>
+/// <param name="Shared">Whether it draws from the room's shared sheet (emptied or shared graphics) rather than its spawner's.</param>
+/// <param name="Scope">The behaviour whose member supplies the graphics, when one does; otherwise the code's own scope.</param>
+/// <param name="Sheet">The sheet-specific owner (a SpawnedObjectOwner property, as the tank glass) it draws from alone, when it names one.</param>
+internal readonly record struct SpawnTarget(bool Shared, INamedTypeSymbol? Scope, string? Sheet = null)
+{
+    /// <summary>A spawn with its spawner's graphics in the code's own scope: what code spawns unless its graphics say otherwise.</summary>
+    public static SpawnTarget Default => default;
+
+    /// <summary>A spawn drawing from the room's shared sheet.</summary>
+    public static SpawnTarget SharedSheet => new(Shared: true, Scope: null);
+
+    /// <inheritdoc/>
+    public bool Equals(SpawnTarget other) =>
+        Shared == other.Shared && SymbolEqualityComparer.Default.Equals(Scope, other.Scope) && Sheet == other.Sheet;
+
+    /// <inheritdoc/>
+    public override int GetHashCode() =>
+        HashCode.Combine(Shared, Scope is null ? 0 : SymbolEqualityComparer.Default.GetHashCode(Scope), Sheet);
+}
+
+/// <summary>One call that is handed the graphics a spawned object draws with, and the enum members its other arguments name.</summary>
+/// <param name="Target">Where the spawn draws from.</param>
+/// <param name="Arguments">The enum members the call's other arguments name.</param>
+internal sealed record SpawnCall(SpawnTarget Target, IReadOnlySet<IFieldSymbol> Arguments);
+
 /// <summary>What one unit's code references: the units it may run and the enum members it names.</summary>
 internal sealed class UnitScan
 {
     /// <summary>The units the code may run: members it calls, reads, constructs or takes as method groups, and initializations.</summary>
     public List<Unit> Targets { get; } = [];
 
-    /// <summary>The enum members the code names.</summary>
+    /// <summary>The enum members the code names, except where it only tests or keys by them.</summary>
     public List<IFieldSymbol> EnumMembers { get; } = [];
+
+    /// <summary>The definitions whose sheets the code draws a frame from by name (an explicit <c>EnemySheetDraw</c>).</summary>
+    public HashSet<IFieldSymbol> SheetDraws { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>The calls in the code that hand a spawned object its graphics.</summary>
+    public List<SpawnCall> SpawnCalls { get; } = [];
+
+    /// <summary>
+    /// Where what the code spawns draws from: the one target all its spawn calls name, or <see cref="SpawnTarget.Default"/>
+    /// when it makes none or they differ (then <see cref="TargetOf"/> routes each call's own arguments).
+    /// </summary>
+    public SpawnTarget UnitTarget =>
+        Reassignments.Count > 0 && Reassignments.All(t => t.Equals(Reassignments[0])) ? Reassignments[0]
+        : SpawnCalls.Count > 0 && SpawnCalls.All(c => c.Target.Equals(SpawnCalls[0].Target)) ? SpawnCalls[0].Target
+        : SpawnTarget.Default;
+
+    /// <summary>
+    /// Where graphics this code assigns to a spawned object (after spawning it, before it draws) make it draw from: the
+    /// graphics in effect when it draws, which decide the code's spawns over the graphics it spawned them with.
+    /// </summary>
+    public List<SpawnTarget> Reassignments { get; } = [];
+
+    /// <summary>Where <paramref name="member"/>, named by this code, is spawned to draw from.</summary>
+    public SpawnTarget TargetOf(IFieldSymbol member)
+    {
+        if (SpawnCalls.Count == 0 && Reassignments.Count == 0)
+            return SpawnTarget.Default;
+        SpawnTarget unit = UnitTarget;
+        if (!unit.Equals(SpawnTarget.Default))
+            return unit;
+        // Mixed spawns: a member a call's own arguments name goes where that call's graphics say; the rest stay the code's.
+        foreach (SpawnCall call in SpawnCalls)
+        {
+            if (call.Arguments.Contains(member))
+                return call.Target;
+        }
+        return SpawnTarget.Default;
+    }
 }
+
+/// <summary>The enemy definition one per-definition walk evaluates its behaviour's dispatch for.</summary>
+/// <param name="Behaviour">The behaviour serving the definition.</param>
+/// <param name="Definition">The definition's EnemyDefinitionId member.</param>
+/// <param name="Part">The part its behaviour's parts table maps it to, when it has one.</param>
+internal sealed record DefinitionContext(Behaviour Behaviour, IFieldSymbol Definition, IFieldSymbol? Part);
 
 /// <summary>Reads, once per unit, the semantic references in that unit's code.</summary>
 /// <param name="model">The Core facts.</param>
 internal sealed class UnitScanner(CoreModel model)
 {
     private readonly Dictionary<Unit, UnitScan> _scans = [];
+    private readonly Dictionary<(Unit Unit, string Definition), UnitScan> _definitionScans = [];
 
     /// <summary>The references in <paramref name="unit"/>'s code.</summary>
-    public UnitScan Scan(Unit unit)
+    public UnitScan Scan(Unit unit) => Scan(unit, context: null);
+
+    /// <summary>
+    /// The references in <paramref name="unit"/>'s code, with <paramref name="context"/>'s definition's dispatch evaluated
+    /// when the unit is its behaviour's entity code or entity factory: switches over the definition's part, and tests of
+    /// the entity's own slot's definition, take only the branches that definition takes.
+    /// </summary>
+    public UnitScan Scan(Unit unit, DefinitionContext? context)
+    {
+        if (context is null || !IsDispatch(unit, context.Behaviour))
+            return Cached(unit, null);
+        var key = (unit, context.Definition.Name);
+        if (!_definitionScans.TryGetValue(key, out UnitScan? scan))
+        {
+            scan = Build(unit, context);
+            _definitionScans.Add(key, scan);
+        }
+        return scan;
+    }
+
+    /// <summary>Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's entity factory.</summary>
+    public bool IsDispatch(Unit unit, Behaviour behaviour) =>
+        model.IsEntityType(unit.Type) || IsCreate(unit, behaviour);
+
+    /// <summary>Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory method.</summary>
+    public static bool IsCreate(Unit unit, Behaviour behaviour) =>
+        unit is { Kind: UnitKind.Member, Symbol: IMethodSymbol { Name: "Create" } create }
+        && SymbolEqualityComparer.Default.Equals(create.ContainingType.OriginalDefinition, behaviour.Type);
+
+    /// <summary>The unevaluated scan of <paramref name="unit"/>.</summary>
+    private UnitScan Cached(Unit unit, DefinitionContext? context)
     {
         if (!_scans.TryGetValue(unit, out UnitScan? scan))
         {
-            scan = new UnitScan();
-            switch (unit.Kind)
-            {
-                case UnitKind.StaticInitialization:
-                    AddInitializers(scan, unit.Type, isStatic: true);
-                    break;
-                case UnitKind.InstanceInitialization:
-                    AddInitializers(scan, unit.Type, isStatic: false);
-                    break;
-                default:
-                    ScanMember(scan, unit.Symbol);
-                    break;
-            }
+            scan = Build(unit, context);
             _scans.Add(unit, scan);
         }
         return scan;
     }
 
-    /// <summary>Adds the initialized fields and properties (and for static initialization the static constructor) of a type.</summary>
-    private void AddInitializers(UnitScan scan, INamedTypeSymbol type, bool isStatic)
+    /// <summary>Scans <paramref name="unit"/>, evaluating <paramref name="context"/>'s dispatch when it is given.</summary>
+    private UnitScan Build(Unit unit, DefinitionContext? context)
+    {
+        var scan = new UnitScan();
+        switch (unit.Kind)
+        {
+            case UnitKind.StaticInitialization:
+                AddStaticConstructor(scan, unit.Type);
+                break;
+            case UnitKind.InstanceInitialization:
+                AddInstanceInitializers(scan, unit.Type);
+                break;
+            default:
+                ScanMember(scan, unit, context);
+                break;
+        }
+        return scan;
+    }
+
+    /// <summary>
+    /// Adds a type's static constructor: what reading any of its static data runs besides that member's own initializer.
+    /// Each static field or property initializer is its own unit, reached by the code that reads it.
+    /// </summary>
+    private static void AddStaticConstructor(UnitScan scan, INamedTypeSymbol type)
+    {
+        foreach (IMethodSymbol constructor in type.StaticConstructors)
+        {
+            if (!constructor.IsImplicitlyDeclared)
+                scan.Targets.Add(Unit.Member(constructor.OriginalDefinition));
+        }
+    }
+
+    /// <summary>Adds the initialized instance fields and properties of a type, which every non-chaining constructor runs.</summary>
+    private static void AddInstanceInitializers(UnitScan scan, INamedTypeSymbol type)
     {
         foreach (ISymbol member in type.GetMembers())
         {
-            if (member.IsStatic != isStatic || member.IsImplicitlyDeclared)
+            if (member.IsStatic || member.IsImplicitlyDeclared)
                 continue;
             switch (member)
             {
@@ -58,20 +179,18 @@ internal sealed class UnitScanner(CoreModel model)
                 case IPropertySymbol property when property.DeclaringSyntaxReferences.Any(r => r.GetSyntax() is PropertyDeclarationSyntax { Initializer: not null }):
                     scan.Targets.Add(Unit.Member(property.OriginalDefinition));
                     break;
-                case IMethodSymbol { MethodKind: MethodKind.StaticConstructor } constructor:
-                    scan.Targets.Add(Unit.Member(constructor.OriginalDefinition));
-                    break;
             }
         }
     }
 
     /// <summary>Scans one member's declaration, and for a constructor the initialization it runs.</summary>
-    private void ScanMember(UnitScan scan, ISymbol member)
+    private void ScanMember(UnitScan scan, Unit unit, DefinitionContext? context)
     {
+        ISymbol member = unit.Symbol;
         switch (member)
         {
             case IMethodSymbol { MethodKind: MethodKind.Constructor or MethodKind.StaticConstructor } constructor:
-                ScanConstructor(scan, constructor);
+                ScanConstructor(scan, unit, constructor, context);
                 break;
             // Synthesized members (a record's equality, printing and cloning) have no code of their own; their
             // declaring reference is the whole type declaration, which is not what they run.
@@ -81,7 +200,7 @@ internal sealed class UnitScanner(CoreModel model)
                 foreach (SyntaxReference reference in field.DeclaringSyntaxReferences)
                 {
                     if (reference.GetSyntax() is VariableDeclaratorSyntax { Initializer: { } initializer })
-                        Visit(scan, initializer);
+                        Visit(scan, initializer, unit, context);
                 }
                 break;
             case IPropertySymbol or IEventSymbol or IMethodSymbol:
@@ -90,7 +209,7 @@ internal sealed class UnitScanner(CoreModel model)
                     SyntaxNode declaration = reference.GetSyntax();
                     // A positional record's property is its constructor parameter, which has no code of its own.
                     if (declaration is not ParameterSyntax)
-                        Visit(scan, declaration);
+                        Visit(scan, declaration, unit, context);
                 }
                 break;
             default:
@@ -103,13 +222,13 @@ internal sealed class UnitScanner(CoreModel model)
     /// type's static initialization; its instance initializers unless it chains to another constructor of its type;
     /// and the base constructor it implicitly calls.
     /// </summary>
-    private void ScanConstructor(UnitScan scan, IMethodSymbol constructor)
+    private void ScanConstructor(UnitScan scan, Unit unit, IMethodSymbol constructor, DefinitionContext? context)
     {
         INamedTypeSymbol type = constructor.ContainingType;
         if (constructor.MethodKind == MethodKind.StaticConstructor)
         {
             foreach (SyntaxReference reference in constructor.DeclaringSyntaxReferences)
-                Visit(scan, reference.GetSyntax());
+                Visit(scan, reference.GetSyntax(), unit, context);
             return;
         }
 
@@ -122,17 +241,17 @@ internal sealed class UnitScanner(CoreModel model)
             switch (reference.GetSyntax())
             {
                 case ConstructorDeclarationSyntax declaration:
-                    Visit(scan, declaration);
+                    Visit(scan, declaration, unit, context);
                     chainsToThis |= declaration.Initializer?.ThisOrBaseKeyword.IsKind(SyntaxKind.ThisKeyword) == true;
                     callsBase |= declaration.Initializer?.ThisOrBaseKeyword.IsKind(SyntaxKind.BaseKeyword) == true;
                     break;
                 case TypeDeclarationSyntax primary:
                     if (primary.ParameterList is { } parameters)
-                        Visit(scan, parameters);
+                        Visit(scan, parameters, unit, context);
                     foreach (PrimaryConstructorBaseTypeSyntax baseCall in primary.BaseList?.Types.OfType<PrimaryConstructorBaseTypeSyntax>()
                                  ?? Enumerable.Empty<PrimaryConstructorBaseTypeSyntax>())
                     {
-                        Visit(scan, baseCall);
+                        Visit(scan, baseCall, unit, context);
                         callsBase = true;
                     }
                     break;
@@ -151,12 +270,14 @@ internal sealed class UnitScanner(CoreModel model)
 
     /// <summary>
     /// Binds every reference in <paramref name="root"/>'s code. Attributes, nameof and typed-start entries are not code
-    /// that runs, and a value a case label, constant pattern or equality test compares against is tested, not used:
-    /// those are skipped.
+    /// that runs; a value a case label, constant pattern or equality test compares against is tested, not used; and a
+    /// table keyed by an enum member looks things up by it rather than producing it: those are skipped. With a
+    /// definition context, the dispatch on that definition takes only the branches it takes.
     /// </summary>
-    private void Visit(UnitScan scan, SyntaxNode root)
+    private void Visit(UnitScan scan, SyntaxNode root, Unit unit, DefinitionContext? context)
     {
         SemanticModel semantic = model.ModelOf(root.SyntaxTree);
+        DefinitionPruner? pruner = context is null ? null : new DefinitionPruner(model, semantic, context, unit);
         var pending = new Stack<SyntaxNode>([root]);
         while (pending.Count > 0)
         {
@@ -172,14 +293,36 @@ internal sealed class UnitScanner(CoreModel model)
                 continue;
             }
             Bind(scan, semantic, node);
+            if (pruner is not null && pruner.TakenChildren(node) is { } taken)
+            {
+                foreach (SyntaxNode child in taken)
+                    pending.Push(child);
+                continue;
+            }
             bool comparison = node.IsKind(SyntaxKind.EqualsExpression) || node.IsKind(SyntaxKind.NotEqualsExpression);
+            SyntaxNode? key = KeyOf(node);
             foreach (SyntaxNode child in node.ChildNodes())
             {
-                if (comparison && semantic.GetSymbolInfo(child).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum })
+                if ((comparison || ReferenceEquals(child, key)) && IsEnumMember(semantic, child))
                     continue;
                 pending.Push(child);
             }
         }
+    }
+
+    /// <summary>The key of a keyed initializer entry: <c>[key] = value</c>'s index, or a <c>{ key, value }</c> element's first expression.</summary>
+    private static SyntaxNode? KeyOf(SyntaxNode node) => node switch
+    {
+        ImplicitElementAccessSyntax { ArgumentList: { Arguments.Count: 1 } index } => index,
+        InitializerExpressionSyntax { RawKind: (int)SyntaxKind.ComplexElementInitializerExpression, Expressions: [var first, _, ..] } => first,
+        _ => null,
+    };
+
+    /// <summary>Whether <paramref name="node"/> (or the one expression an index's brackets hold) names an enum member.</summary>
+    private static bool IsEnumMember(SemanticModel semantic, SyntaxNode node)
+    {
+        SyntaxNode expression = node is BracketedArgumentListSyntax { Arguments: [var argument] } ? argument.Expression : node;
+        return expression is ExpressionSyntax && semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum };
     }
 
     /// <summary>Records the symbols <paramref name="node"/> references.</summary>
@@ -198,6 +341,8 @@ internal sealed class UnitScanner(CoreModel model)
                     foreach (ISymbol candidate in info.CandidateSymbols)
                         Add(scan, candidate);
                 }
+                if (node is BaseObjectCreationExpressionSyntax creation && info.Symbol is IMethodSymbol constructor)
+                    RecordSheetDraw(scan, semantic, creation, constructor);
                 break;
             case CommonForEachStatementSyntax loop:
                 ForEachStatementInfo loopInfo = semantic.GetForEachStatementInfo(loop);
@@ -208,9 +353,67 @@ internal sealed class UnitScanner(CoreModel model)
                 }
                 break;
         }
+        if (node is InvocationExpressionSyntax invocation && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol method)
+            RecordSpawnCall(scan, semantic, invocation.ArgumentList, method);
+        if (node is AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
+            && semantic.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol or IFieldSymbol
+            && semantic.GetTypeInfo(assignment.Left).Type is { } assigned
+            && SymbolEqualityComparer.Default.Equals(assigned.OriginalDefinition, model.SpriteGraphics))
+        {
+            var classifier = new GraphicsClassifier(model);
+            // Reshading keeps the owner, and graphics copied from another object's instance member name no owner of their own.
+            bool copied = semantic.GetSymbolInfo(assignment.Right).Symbol is IPropertySymbol { IsStatic: false } or IFieldSymbol { IsStatic: false };
+            if (!copied && !classifier.IsReshading(semantic, assignment.Right))
+                scan.Reassignments.Add(classifier.Classify(semantic, assignment.Right));
+        }
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)
             && semantic.GetConversion(expression) is { IsUserDefined: true, MethodSymbol: { } conversion })
             Add(scan, conversion);
+    }
+
+    /// <summary>Records an <c>EnemySheetDraw</c> whose first argument names its definition's sheet as a constant.</summary>
+    private void RecordSheetDraw(UnitScan scan, SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, IMethodSymbol constructor)
+    {
+        if (!SymbolEqualityComparer.Default.Equals(constructor.ContainingType.OriginalDefinition, model.EnemySheetDraw)
+            || creation.ArgumentList is not { Arguments: [var first, ..] })
+        {
+            return;
+        }
+        if (semantic.GetSymbolInfo(first.Expression).Symbol is IFieldSymbol definition
+            && SymbolEqualityComparer.Default.Equals(definition.ContainingType, model.EnemyDefinitionId))
+        {
+            scan.SheetDraws.Add(definition.OriginalDefinition);
+        }
+    }
+
+    /// <summary>
+    /// Records a call handed a spawned object's graphics: where they make it draw from, and the enum members its other
+    /// arguments name.
+    /// </summary>
+    private void RecordSpawnCall(UnitScan scan, SemanticModel semantic, ArgumentListSyntax arguments, IMethodSymbol method)
+    {
+        ExpressionSyntax? graphics = null;
+        var others = new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default);
+        for (int index = 0; index < arguments.Arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments.Arguments[index];
+            IParameterSymbol? parameter = argument.NameColon is { } name
+                ? method.Parameters.FirstOrDefault(p => p.Name == name.Name.Identifier.Text)
+                : index < method.Parameters.Length ? method.Parameters[index] : null;
+            if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, model.SpriteGraphics))
+            {
+                graphics = argument.Expression;
+                continue;
+            }
+            foreach (SyntaxNode part in argument.Expression.DescendantNodesAndSelf())
+            {
+                if (part is ExpressionSyntax value && semantic.GetSymbolInfo(value).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member)
+                    others.Add(member.OriginalDefinition);
+            }
+        }
+        if (graphics is null)
+            return;
+        scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others));
     }
 
     /// <summary>Records one referenced symbol as an enum member or as the units it reaches.</summary>
@@ -226,7 +429,7 @@ internal sealed class UnitScanner(CoreModel model)
                 if (!model.IsSource(definition) || definition.IsImplicitlyDeclared)
                     return;
                 scan.Targets.Add(Unit.Member(definition));
-                // Reading static data runs the type's whole static initialization; a constant is inlined and runs nothing.
+                // Reading static data runs the type's static constructor; a constant is inlined and runs nothing.
                 if (definition.IsStatic && !definition.IsConst)
                     scan.Targets.Add(Unit.StaticInitialization(definition.ContainingType));
                 break;

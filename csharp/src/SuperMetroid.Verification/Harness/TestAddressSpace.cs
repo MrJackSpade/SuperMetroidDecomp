@@ -146,7 +146,8 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     /// <exception cref="InvalidDataException">Retail sets holding these records catalogue different palette rows.</exception>
     private static RoomEnemyGraphicsSetDefinition? RetailSetOf(List<RoomEnemyGraphicsSetMember> records)
     {
-        RoomEnemyGraphicsSetDefinition[] matches = [.. SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetLists.DrawnUnder
+        // Only the cartridge's own sets: the session's start-up set is no retail set and catalogues no palette rows.
+        RoomEnemyGraphicsSetDefinition[] matches = [.. RoomEnemyGraphicsSetDefinitions.Retail
             .Where(set => set.Records.Span.SequenceEqual(records.ToArray()))];
         if (matches.Length == 0)
             return null;

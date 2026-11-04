@@ -28,10 +28,6 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
         (EnemyTileSourceArtwork?)runtime.EnemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
 
     /// <inheritdoc/>
-    public RoomFxAnimatedTileAtlas AnimatedTiles =>
-        runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles ?? throw new InvalidOperationException("No map presentation is installed.");
-
-    /// <inheritdoc/>
     public BossSourceArtwork BossTiles =>
         (BossSourceArtwork?)runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
 

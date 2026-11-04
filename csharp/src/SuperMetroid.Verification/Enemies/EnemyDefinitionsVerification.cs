@@ -86,7 +86,7 @@ internal static class EnemyDefinitionsVerification
                 $"the import's tile set size for {pointer} is its header's");
             AssertEqual((tileWord & 0x8000) != 0, SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.ContainsKey(pointer),
                 $"the import places {pointer}'s tiles at a fixed block exactly when its header does");
-            AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(tileWord & 0x7fff, (tileWord & 0x8000) != 0),
+            AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(tileWord & 0x7fff),
                 SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer),
                 $"the importer decodes {pointer}'s tile word as the oracle does");
         }
@@ -192,7 +192,7 @@ internal static class EnemyDefinitionsVerification
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
             SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)), AreaBossWords.Decode(Word(16)),
             EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
-            SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
+            GrappleAiRoutineWords.Routines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
             EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
             Word(42) >= 0x8000 ? (ushort)0 : Word(42),

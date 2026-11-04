@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
 /// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Frames land where the
 /// game places them: nine-bit X and eight-bit Y read by the spritemap loader the origin selects. A frame is always drawn
-/// whole, as its one pre-assembled image; the cartridge's object limit, which cuts a crowded frame short, is not
-/// replicated (#1513). The placed frames are the screen's state, and the draws are made from them.
+/// whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513). The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
 public sealed class ScreenSprites
 {

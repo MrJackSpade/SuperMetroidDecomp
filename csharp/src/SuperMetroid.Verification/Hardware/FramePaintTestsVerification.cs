@@ -26,6 +26,9 @@ internal static class FramePaintTestsVerification
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(8, 8), default,
             ImageColourGroups.None), new(10, 20), SpriteMirror.None));
         sprites.FinalizeFrame();
+        // The frame's own draws, which draw the recorded fixture picture; a capture's draws draw native-coloured copies of it,
+        // which no sheet loader recorded, so a repaint starts from these.
+        ImmutableArray<SpriteDraw> fixtureDraws = sprites.Draws;
         RgbColor[] expectedPalette = cgram.Colors.ToArray();
 
         FramePaint first = FramePaintConstants.Capture(cgram, sprites);
@@ -42,7 +45,7 @@ internal static class FramePaintTestsVerification
         AssertTrue(Shown(first).SequenceEqual(NativeShown(expectedPalette)) && first.SpriteDraws.Length == 1,
             "later simulation writes changed a published frame");
 
-        var fromFixture = FramePaint.FromNative(expectedPalette, first.SpriteDraws);
+        var fromFixture = FramePaint.FromNative(expectedPalette, fixtureDraws);
         // Flip every color bit (the PPU stores fifteen).
         expectedPalette[0] = RgbColor.FromWord((ushort)(expectedPalette[0].ToWord() ^ 0x7fff));
         AssertTrue(Shown(fromFixture).SequenceEqual(Shown(first)) && Order(fromFixture.SpriteDraws).SequenceEqual(Order(first.SpriteDraws)),

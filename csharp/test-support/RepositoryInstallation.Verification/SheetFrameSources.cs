@@ -101,6 +101,20 @@ internal static class SheetFrameSources
         return built;
     }
 
+    /// <summary>
+    /// Every character draw an image draw of a sheet frame can stand for: its rectangle's first frame's composition, then
+    /// each differing composition of the frames whose identical pictures share it. A cartridge OAM oracle matches one of
+    /// them, since the sheet keeps one picture for all of them.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The frame is not a sheet frame.</exception>
+    internal static IReadOnlyList<CharacterSpriteDraw> CharacterDrawCandidates(ImageSpriteDraw draw)
+    {
+        Ensure.NotNull(draw);
+        FrameKey key = Key(draw.Image);
+        FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
+        return [Build(draw, source, null), .. (alternates.TryGetValue(key, out FrameSource[]? others) ? others : []).Select(other => Build(draw, other, null))];
+    }
+
     /// <summary>Each screen pixel <paramref name="draw"/> inks, with its palette entry; an earlier part's pixel stays over a later one's.</summary>
     private static Dictionary<(int X, int Y), int> Inks(CharacterSpriteDraw draw)
     {

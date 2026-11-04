@@ -955,7 +955,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                             RoomEnemySystem system = SpawnerSystem(artwork, spawner, shown);
                             OamBuffer reference = DrawReferenceProgramFrameWith(frame.OperandAddress, bus, word(system));
                             OamBuffer drawn = DrawSpawnerFrame(system, frame.OperandAddress, graphics);
-                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable),
+                            AssertTrue(reference.LowTable.SequenceEqual(drawn.LowTable) || SharedPictureStandsFor(system, reference),
                                 $"{spawner}'s frame $86:{frame.OperandAddress:X4} runs without visual ROM reads under {graphics.Owner}: " +
                                 $"records (x, y, tile, attributes) native {OamRecords(reference)}, installed {OamRecords(drawn)}");
                         }
@@ -1055,6 +1055,21 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         // The native frame under a graphics word: the tile base and the row the game's draw ORs into every part.
+        // Whether the frame drawn last stands for the native records through another frame whose identical picture its
+        // sheet keeps once: the OAM of one of the compositions that picture stands for is the native OAM (#1513).
+        static bool SharedPictureStandsFor(RoomEnemySystem enemies, OamBuffer reference)
+        {
+            var frame = new SpriteFrameBuffer();
+            frame.BeginFrame();
+            enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
+            enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);
+            frame.FinalizeFrame();
+            if (frame.Draws is not [ImageSpriteDraw image])
+                return false;
+            return SheetFrameSources.CharacterDrawCandidates(image).Any(candidate =>
+                SpriteFrameBufferAccess.Assemble([candidate], parkUnused: false).LowTable.SequenceEqual(reference.LowTable));
+        }
+
         // The used records of an OAM low table, for a failure message.
         static string OamRecords(OamBuffer oam) => string.Join(" ",
             Enumerable.Range(0, oam.NextByteOffset / 4).Select(record =>

@@ -81,9 +81,10 @@ internal static class SpriteColouringAccess
     {
         /// <summary>
         /// The row the graphics' draws select under <paramref name="enemies"/>' loaded graphics set: their sheet's, the row
-        /// of the member drawing at their tile base or the common row at character zero, unless a selection shade names another.
+        /// of their spawner, or the common row for the shared sheet and a spawner drawing from character zero, unless a
+        /// selection shade names another.
         /// </summary>
-        internal int PaletteRowIn(RoomEnemySystem enemies) => RowSelectedBy(self.Shading, enemies.GraphicsSet.RowAtTileBase(self.TileBase));
+        internal int PaletteRowIn(RoomEnemySystem enemies) => RowSelectedBy(self.Shading, enemies.GraphicsSet.RowOf(self.Owner));
 
         /// <summary>The row graphics at character zero select: the common row, unless a selection shade names another.</summary>
         internal int FixedPaletteRow => RowSelectedBy(self.Shading, EnemySheetRowDefinitions.Common);
@@ -95,17 +96,17 @@ internal static class SpriteColouringAccess
         /// <summary>The row <paramref name="enemy"/>'s sheets are coloured in under the set.</summary>
         internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(self.LoadedSet).RowOf(enemy);
 
-        /// <summary>The row of the first member drawing at tile base <paramref name="tileBase"/>, or the common row at character zero.</summary>
-        internal int RowAtTileBase(int tileBase)
+        /// <summary>
+        /// The row the objects of <paramref name="owner"/> are coloured in under the set: the common row for the shared sheet
+        /// and for a spawner the cartridge draws from character zero, otherwise their spawner's.
+        /// </summary>
+        internal int RowOf(SpawnedObjectOwner owner)
         {
-            if (tileBase == 0)
+            if (owner.Spawner is not { } spawner)
                 return EnemySheetRowDefinitions.Common;
-            foreach (RoomEnemyGraphicsSetEntry entry in self.Entries)
-            {
-                if (self.DrawIndexes(entry.DefinitionId).TileBase == tileBase)
-                    return self.DrawRow(entry.DefinitionId);
-            }
-            throw new InvalidDataException($"No member of graphics set {self.LoadedSet.Name} draws at tile base {tileBase}.");
+            if (!owner.IsMotherBrainTankGlass && self.TileBaseOf(spawner) == 0)
+                return EnemySheetRowDefinitions.Common;
+            return self.DrawRow(spawner);
         }
 
         /// <summary>The shading native row <paramref name="row"/> denotes for a sprite drawn by <paramref name="owner"/> under the set.</summary>

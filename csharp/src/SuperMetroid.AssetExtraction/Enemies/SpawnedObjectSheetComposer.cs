@@ -47,7 +47,10 @@ internal static class SpawnedObjectSheetComposer
         Ensure.NotNull(layout);
         Ensure.NotNull(drawn);
         Ensure.NotNull(rowOf);
-        var shared = new SpawnedObjectSheetPlan(SpawnedObjectOwner.Shared, 0, 0, 0, [], Anywhere: true);
+        var shared = new SpawnedObjectSheetPlan(SpawnedObjectOwner.Shared, 0, 0, 0, [], Anywhere: true, []);
+        // An enemy that spawns no objects of its own hands its spawns, the objects any room spawns, the shared sheet.
+        foreach (EnemyDefinitionId enemy in drawn.Where(enemy => !SpawnedObjectFrameDefinitions.ByEnemy.ContainsKey(enemy)).Distinct())
+            shared.AlsoOwnedBy.Add(SpawnedObjectOwner.Of(enemy));
         var plans = new List<SpawnedObjectSheetPlan> { shared };
         // The frames encounters draw themselves at character zero join the objects any room spawns.
         foreach (EnemyDefinitionId enemy in drawn.Where(EncounterFrameDefinitions.ByEnemy.ContainsKey).Distinct())
@@ -62,12 +65,12 @@ internal static class SpawnedObjectSheetComposer
             int palette = tileBase == 0 ? 0 : rowOf(enemy);
             // A projectile draws at its spawner's index's place in its page, a sprite object at the index itself.
             plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Of(enemy), tileBase % ProjectilePageCharacters, tileBase, palette,
-                [enemy], Anywhere: false));
+                [enemy], Anywhere: false, []));
             // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435).
             if (enemy == EnemyDefinitionId.MotherBrainBody)
                 plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.MotherBrainTankGlass,
                     EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters,
-                    rowOf(enemy), [enemy], Anywhere: false));
+                    rowOf(enemy), [enemy], Anywhere: false, []));
         }
         return plans;
     }
@@ -135,7 +138,7 @@ internal static class SpawnedObjectSheetComposer
     /// <summary>The frames a spawned-object sheet holding the objects of <paramref name="spawners"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(IEnumerable<EnemyDefinitionId> spawners, bool anywhere)
     {
-        SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Shared, 0, 0, 0, [.. spawners], anywhere));
+        SpawnedObjects spawned = Spawned(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Shared, 0, 0, 0, [.. spawners], anywhere, []));
         return spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
             .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName))
             .Concat(EncounterFrames(spawners, anywhere).Select(EnemySheetDefinitions.EncounterFrameName));

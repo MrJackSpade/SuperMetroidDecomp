@@ -46,17 +46,17 @@ internal static class DraygonEvirPicturesVerification
         // The room load's uploads reach the OBJ characters when its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomSpriteObjectSlot evir = runtime.Enemies.SpriteObjects.SpawnRoomSpriteObject(EvirPosition,
-            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Intro).With(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Sprite))) ?? throw new InvalidOperationException(
+            RoomSpriteObjectKind.DraygonIntroEvir, SpriteGraphics.SharedIn(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Intro).With(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Sprite))) ?? throw new InvalidOperationException(
             "Draygon's room has a free sprite-object slot for an opening Evir.");
 
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
-        int tileBase = evir.Graphics.TileBase;
+        SpawnedObjectOwner owner = evir.Graphics.Owner;
         string frame = EnemySheetDefinitions.SpriteObjectFrameName(RoomSpriteObjectVisualDefinitions.ShownFrames.Of(evir.Frame));
         // The runtime draws from the sheets it loaded with its installation.
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
-        IReadOnlyList<LookRegion[]> layers = sheets.SpawnedLayers(set, tileBase, frame);
+        IReadOnlyList<LookRegion[]> layers = sheets.SpawnedLayers(set, owner, frame);
         AssertTrue(layers.Count > 0, $"the Evir's frame {frame} is drawn over characters Draygon's opening uploads");
-        SpriteSheet sheet = sheets.Spawned(set, tileBase).Sheet;
+        SpriteSheet sheet = sheets.Spawned(set, owner).Sheet;
         IReadOnlyList<string> setPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, []);
         IReadOnlyList<string> evirPictures = UploadedPictureChecks.ExpectedPictures(sheets, set, frame, layers, [PlacedUploads.Of(DraygonIntroPresentationDefinitions.EvirTiles)]);
 
@@ -87,7 +87,7 @@ internal static class DraygonEvirPicturesVerification
             .TryGetDisplay(shown, out EnemySpritemapParts parts), $"the Evir's frame {shown} has an installed composition");
         int paletteRow = evir.Graphics.PaletteRowIn(runtime.Enemies);
         CharacterSpriteDraw parted = EnemyPartComposition.Parts(live, drawn[0].Source,
-            SuperMetroid.AssetExtraction.Enemies.EnemySpriteFrames.Frame(parts, evir.Graphics.TileBase, paletteRow),
+            SuperMetroid.AssetExtraction.Enemies.EnemySpriteFrames.Frame(parts, evir.Graphics.NativeTileBaseIn(runtime.Enemies), paletteRow),
             drawn[0].Origin, NativeSpriteGraphicsWords.PaletteBits(paletteRow));
 
         UploadedPictureChecks.AssertPaintsLikeParts(drawn, [parted], $"the Evir {when}");

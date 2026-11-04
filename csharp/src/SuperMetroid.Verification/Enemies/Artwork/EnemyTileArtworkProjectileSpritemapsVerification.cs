@@ -60,7 +60,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     /// The graphics the production-drawn checks give a projectile: the enemy projectiles' colours, palette row five, at
     /// character zero, where every set composes each object it can spawn (#1392).
     /// </summary>
-    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours);
+    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours);
 
     /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
     private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
@@ -957,7 +957,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 EnemyDefinitionId spawner = BurstSpawner(program);
                 RoomEnemySystem burstSystem = BurstSystem(artwork, spawner);
                 OamBuffer native = DrawReferenceBurst(program, bus, NativeSpriteGraphicsWords.GraphicsWord(
-                    burstSystem.GraphicsSet.DrawIndexes(spawner), burstSystem.GraphicsSet.DrawRow(spawner)));
+                    burstSystem.GraphicsSet.TileBaseOf(spawner), burstSystem.GraphicsSet.DrawRow(spawner)));
                 OamBuffer installedBurst = DrawBurst(artwork, program,
                     NewEnemyProjectileVisualGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
@@ -1007,10 +1007,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             };
-            // The spawner holds the tile base and colours its set gives it, as a room's spawn would.
-            SpriteGraphics graphics = enemies.GraphicsSet.DrawIndexes(spawner);
-            enemy.TileIndexBase = graphics.TileBase;
-            enemy.Shading = graphics.Shading;
+            // The spawner is the enemy its set loads, in its sheet's standard colours, as a room's spawn would leave it;
+            // its particles draw from its own spawned-object sheet (#1513).
+            enemy.Bind(spawner, CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(spawner));
+            enemy.Shading = PictureShading.Standard;
             spawn(enemy);
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))

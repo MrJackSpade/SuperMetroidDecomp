@@ -66,12 +66,12 @@ internal static class EnemyDefinitionBoundaryVerification
                 $"installed Torizo extended frame {frame:X4}");
             // The port draws Torizo as its room's set loads it; the cartridge ORs that palette into each part and adds that
             // tile base, so the reference draws the spritemaps with the same graphics (#1441).
-            SpriteGraphics drawn = default;
+            int drawnBase = 0;
             int drawnRow = 0;
             OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitionsConstants.Bank, frame, new(x, y),
                 (slot, system) =>
                 {
-                    drawn = slot.Graphics;
+                    drawnBase = slot.NativeTileBaseIn(system);
                     drawnRow = slot.PaletteRowIn(system);
                 });
             var expected = new OamBuffer();
@@ -85,7 +85,7 @@ internal static class EnemyDefinitionBoundaryVerification
                     continue;
                 // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
                 // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
-                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawnRow), BaseTileIndex = drawn.TileBase });
+                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawnRow), BaseTileIndex = drawnBase });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual),

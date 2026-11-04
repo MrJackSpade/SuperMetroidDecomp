@@ -27,7 +27,6 @@ internal static class SkreeMetareeParticleBehaviorVerification
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            TileIndexBase = 256,
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         foreach ((Action<RoomEnemySlot> spawn, SkreeMetareeParticleProgram program) in new VerifySkreeMetareeParticleBehaviorCase[]

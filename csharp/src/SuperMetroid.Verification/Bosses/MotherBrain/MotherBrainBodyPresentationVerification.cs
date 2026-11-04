@@ -145,7 +145,7 @@ internal static class MotherBrainBodyPresentationVerification
             int y = body.Position.Y.Whole + component.OffsetY + part.OffsetY;
             // The cartridge adds the body's tile base to each part and ORs the row holding its colours into the part's (#1446).
             int palette = (part.Palette ?? throw new InvalidDataException("Body OAM fixture requires an explicit palette.")) | body.PaletteRowIn(enemies);
-            ushort tile = checked((ushort)(part.TileRow * 16 + part.TileColumn + body.TileIndexBase | palette << 9 |
+            ushort tile = checked((ushort)(part.TileRow * 16 + part.TileColumn + body.NativeTileBaseIn(enemies) | palette << 9 |
                 part.Priority << 12 | (part.FlipX ? 0x4000 : 0) | (part.FlipY ? 0x8000 : 0)));
             expected[index * 4] = unchecked((byte)x); expected[index * 4 + 1] = unchecked((byte)y);
             expected[index * 4 + 2] = (byte)tile; expected[index * 4 + 3] = LittleEndianBytes.HighByte(tile);

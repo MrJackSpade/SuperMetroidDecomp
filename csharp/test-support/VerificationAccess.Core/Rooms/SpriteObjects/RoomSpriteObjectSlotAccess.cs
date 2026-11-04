@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.SpriteObjects;
@@ -42,11 +43,11 @@ internal static class RoomSpriteObjectSlotAccess
         internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
 
         /// <summary>
-        /// The native OBJ attribute word the slot's tile base and the row holding its colours under
-        /// <paramref name="enemies"/>' loaded graphics set encode to.
+        /// The native OBJ attribute word the character index the slot's owner draws from and the row holding its colours
+        /// under <paramref name="enemies"/>' loaded graphics set encode to.
         /// </summary>
         internal ushort GraphicsIndexIn(RoomEnemySystem enemies) =>
-            SnesObjAttributeWord.Create(self.Graphics.TileBase, self.Graphics.PaletteRowIn(enemies), priority: 0).Raw;
+            SnesObjAttributeWord.Create(self.Graphics.NativeTileBaseIn(enemies), self.Graphics.PaletteRowIn(enemies), priority: 0).Raw;
 
         /// <summary>The native disable word.</summary>
         internal int DisableFlags => self.UpdatesDisabled ? 1 : 0;

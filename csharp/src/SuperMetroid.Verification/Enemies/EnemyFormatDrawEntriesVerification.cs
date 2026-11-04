@@ -22,10 +22,8 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class EnemyFormatDrawEntriesVerification
 {
     /// <summary>The row holding the projectile's colours, the enemy projectiles'.</summary>
-    /// <summary>The projectile's tile base: character zero, where its set composes every object it can spawn.</summary>
-    private const ushort ProjectileTileBase = 0;
-    /// <summary>The projectile's graphics: its tile base in the enemy projectiles' colours.</summary>
-    private static readonly SpriteGraphics ProjectileGraphics = new(ProjectileTileBase, EnemyShades.InEnemyProjectileColours);
+    /// <summary>The projectile's graphics: the set's shared sheet, which holds every object it can spawn, in the enemy projectiles' colours.</summary>
+    private static readonly SpriteGraphics ProjectileGraphics = SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours);
 
     /// <summary>Loads a room graphics set, publishes a constructed population and checks every entry.</summary>
     internal static void VerifyEnemyFormatDrawEntries()
@@ -38,9 +36,7 @@ internal static class EnemyFormatDrawEntriesVerification
 
         // A room's graphics set: a Beetom, an ordinary enemy, and a walking space pirate, an extended one.
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetDefinitions.GreenPiratesShaft;
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, set);
-        RoomEnemyGraphicsSetEntry beetom = enemies.GraphicsSet.Entry(EnemyDefinitionId.Beetom);
-        RoomEnemyGraphicsSetEntry pirate = enemies.GraphicsSet.Entry(EnemyDefinitionId.PirateGreenWalking);
+        enemies.GraphicsSet.LoadGraphicsSet(set);
 
         // Ordinary enemy on layer zero, in the row its graphics set loaded it in.
         EnemyFrameId ordinaryFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.Beetom]
@@ -48,7 +44,6 @@ internal static class EnemyFormatDrawEntriesVerification
         RoomEnemySlot ordinary = enemies.SlotTable.Slots[0];
         ordinary.Bind(EnemyDefinitionId.Beetom, default(RoomEnemyDefinition));
         ordinary.Frame = ordinaryFrame;
-        ordinary.TileIndexBase = checked((ushort)beetom.TileIndexBase);
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
         enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
 
@@ -59,7 +54,6 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.Frame = extendedFrame;
-        extended.TileIndexBase = checked((ushort)pirate.TileIndexBase);
         extended.FrameHold = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, extended);
@@ -100,7 +94,7 @@ internal static class EnemyFormatDrawEntriesVerification
         }
         AssertTrue(entry > 2, "The extended enemy publishes one entry per visible component");
 
-        SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, ProjectileTileBase);
+        SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
         AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
             projectileSheet.Sheet.Frame(EnemySheetDefinitions.ProjectileFrameName(projectileFrame)), new(30, 40),
             EnemyShades.InEnemyProjectileColours, "Enemy projectile");

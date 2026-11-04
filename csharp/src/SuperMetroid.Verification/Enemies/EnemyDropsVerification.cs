@@ -338,7 +338,6 @@ internal static class EnemyDropsVerification
         RoomEnemySlot enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
-        enemy.TileIndexBase = 256;
         enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Properties = (EnemyProperties.RespawnIfKilled);
 
@@ -366,7 +365,7 @@ internal static class EnemyDropsVerification
             EnemyDeathExplosions.Program(EnemyDeathExplosion.Small),
             ProgramOf(explosion),
             "a Fireflea health above four starts the small explosion");
-        AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, explosion.Graphics,
+        AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.Emptied, explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with the cleared word's common colours");
 
         EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);

@@ -333,6 +333,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(WorkRobotLaserBehaviorVerification.VerifyWorkRobotLaserBehavior), () => WorkRobotLaserBehaviorVerification.VerifyWorkRobotLaserBehavior(LoadRepositoryRom())),
         new(nameof(PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations), () => PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations(LoadRepositoryRom())),
         new(nameof(PowampSpikeBehaviorVerification.VerifyPowampSpikeBehavior), () => PowampSpikeBehaviorVerification.VerifyPowampSpikeBehavior(LoadRepositoryRom())),
+        new(nameof(PowampBurstExplosionVerification.VerifyPowampBurstExplosion), PowampBurstExplosionVerification.VerifyPowampBurstExplosion),
         new(nameof(PolypRockAnimationsVerification.VerifyPolypRockAnimations), () => PolypRockAnimationsVerification.VerifyPolypRockAnimations(LoadRepositoryRom())),
         new(nameof(PolypRockBehaviorVerification.VerifyPolypRockBehavior), () => PolypRockBehaviorVerification.VerifyPolypRockBehavior(LoadRepositoryRom())),
         new(nameof(KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations), () => KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations(LoadRepositoryRom())),

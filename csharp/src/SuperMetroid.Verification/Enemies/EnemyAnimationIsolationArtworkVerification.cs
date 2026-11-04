@@ -116,7 +116,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             expected.AddEnemySpritemap(EnemySpritemapCompiler.CompileParts(EditedAnimationParts(selectedIndex),
                 definitions[selectedIndex].Name), new Position16<SpritePixels>(actor.Position.X.Whole, actor.Position.Y.Whole),
                 NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(edited.Enemies)),
-                checked((ushort)actor.TileIndexBase));
+                checked((ushort)actor.NativeTileBaseIn(edited.Enemies)));
         }
         else
         {
@@ -133,7 +133,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
             void Add(int x, int y, int tile) => expected.AddEnemySpritemap(
                 EnemySpritemapCompiler.CompileParts(EditedAnimationParts(tile), definitions[selectedIndex].Name),
                 new Position16<SpritePixels>(unchecked((ushort)(actor.Position.X.Whole + x)), unchecked((ushort)(actor.Position.Y.Whole + y))),
-                NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(edited.Enemies)), checked((ushort)actor.TileIndexBase), clipVerticalWrap: true);
+                NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(edited.Enemies)), checked((ushort)actor.NativeTileBaseIn(edited.Enemies)), clipVerticalWrap: true);
         }
         // Body is queued before projectiles; compare its exact packed OAM prefix.
         // This independent authored expectation fails if drawing uses the native

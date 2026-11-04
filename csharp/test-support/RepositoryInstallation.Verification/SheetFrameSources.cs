@@ -117,7 +117,7 @@ internal static class SheetFrameSources
             foreach ((SuperMetroid.Core.Enemies.EnemyDefinitionId enemy, SpriteSheetSources composed, _, _) in setSources.Enemies)
                 Register(InstalledFixtures.EnemySheets.For(set.Name, enemy), composed);
             foreach ((SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetPlan plan, SpriteSheetSources composed, _, _) in setSources.Spawned)
-                Register(InstalledFixtures.EnemySheets.Spawned(set.Name, plan.TileBase).Sheet, composed);
+                Register(InstalledFixtures.EnemySheets.Spawned(set.Name, plan.Owner).Sheet, composed);
         }
         return true;
     }));

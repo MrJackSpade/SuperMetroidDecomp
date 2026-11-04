@@ -498,10 +498,12 @@ internal static class EnemySpritemapArtworkVerification
                 continue;
             RoomEnemySlot? drawn = null;
             int drawnRow = 0;
+            int drawnBase = 0;
             var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer, owner, inspect: (slot, system) =>
                 {
                     drawn = slot;
                     drawnRow = slot.PaletteRowIn(system);
+                    drawnBase = slot.NativeTileBaseIn(system);
                 },
                 spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
@@ -509,7 +511,7 @@ internal static class EnemySpritemapArtworkVerification
             {
                 Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080),
                 PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawn is null ? throw new InvalidOperationException("Verification requires the drawn slot.") : drawnRow),
-                BaseTileIndex = checked((ushort)drawn.TileIndexBase),
+                BaseTileIndex = checked((ushort)drawnBase),
             });
             AssertTrue(room.ImageEquals(nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
@@ -2829,14 +2831,12 @@ internal static class EnemySpritemapArtworkVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(definition));
-            SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(definition);
+            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(definition));
             enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.TileIndexBase = indexes.TileBase;
-            slot.Shading = indexes.Shading;
+            slot.Shading = PictureShading.Standard;
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             byte frameBank = spritemapBank ?? (definition == EnemyDefinitionId.YappingMaw
@@ -2957,14 +2957,14 @@ internal static class EnemySpritemapArtworkVerification
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         EnemyGraphicsSet headSet = MotherBrainHeadSet();
-        SpriteGraphics indexes = headSet.DrawIndexes(EnemyDefinitionId.MotherBrainHead);
+        int tileBase = headSet.TileBaseOf(EnemyDefinitionId.MotherBrainHead);
         int indexesRow = headSet.DrawRow(EnemyDefinitionId.MotherBrainHead);
         foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames())
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(indexesRow), BaseTileIndex = indexes.TileBase });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = NativeSpriteGraphicsWords.PaletteBits(indexesRow), BaseTileIndex = tileBase });
             AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");
@@ -2992,12 +2992,11 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         // She draws from the sheet her room's set composes from this artwork, at the indexes it loads her with.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
-        SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.MotherBrainHead);
         var oam = new OamBuffer();
         EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
         oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites,
-            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, indexes.Shading),
+            new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, PictureShading.Standard),
             new Position16<RoomPixels>(0x0100, 0x0010)));
         return oam;
     }
@@ -3029,13 +3028,13 @@ internal static class EnemySpritemapArtworkVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         // Draygon's evirs show in Draygon's room, whose graphics set loads her.
-        enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.DraygonBody));
+        enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.DraygonBody));
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =
             (owner, oam, camera) => owner.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
         AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind,
-                SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Intro).With(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Sprite))) is not null,
+                SpriteGraphics.SharedIn(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Intro).With(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Sprite))) is not null,
             "installed room sprite object allocated");
         var oam = new OamBuffer();
         draw(enemies, oam, Position16<RoomPixels>.Zero);

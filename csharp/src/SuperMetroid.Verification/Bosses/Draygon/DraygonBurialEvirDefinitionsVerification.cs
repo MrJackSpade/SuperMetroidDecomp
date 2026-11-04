@@ -65,7 +65,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} spawned X");
             AssertEqual(definition.Initial.Y, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
-            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(draygon.Colours.Sprites), sprite.Graphics,
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(draygon.Colours.Sprites), sprite.Graphics,
                 $"Draygon burial Evir {entry} draws in the shading his sprites show");
         }
         AssertTrue(draygon.Colours.Sprites.Shades.Contains(DraygonShades.SpriteWhite), "Draygon's sprites show the white flash");
@@ -75,7 +75,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         draygon.ShadeEvirs(enemies.SpriteObjects);
         foreach (RoomSpriteObjectSlot evir in enemies.SpriteObjects.InProcessingOrder.Take(6))
         {
-            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(draygon.Colours.Sprites), evir.Graphics,
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(draygon.Colours.Sprites), evir.Graphics,
                 "A burial Evir follows Draygon's material colours after his white flash");
             AssertTrue(evir.Graphics.Shading.Shades.Contains(DraygonShades.Sprite) && !evir.Graphics.Shading.Shades.Contains(DraygonShades.SpriteWhite),
                 "A burial Evir no longer shows the white flash");

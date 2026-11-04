@@ -62,7 +62,7 @@ internal static class BossDisplayBindingsStockVerification
                     parts += original.Parts.Length;
                     expectedOam.AddEnemySpritemap(original.Parts,
                         new Position16<SpritePixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))),
-                        NativeSpriteGraphicsWords.PaletteBits(fixture.Actor.PaletteRowIn(fixture.Enemies)), checked((ushort)fixture.Actor.TileIndexBase),
+                        NativeSpriteGraphicsWords.PaletteBits(fixture.Actor.PaletteRowIn(fixture.Enemies)), checked((ushort)fixture.Actor.NativeTileBaseIn(fixture.Enemies)),
                         clipVerticalWrap: true, originYIsOnScreen: (EightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
                 }
                 ReadOnlyMemory<EnemyBg2TilemapWrite> writes = StockBossWrites(installed, frame);

@@ -100,21 +100,24 @@ internal static class EnemySheetComposer
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
                 SpawnedObjectSheetPlan plan = sheet.Plan;
-                string owner = SpawnedObjectOwnerNames.Name(plan.Owner);
-                string name = names.Of(sheet.Layout, $"Spawned-{owner}");
-                bases.Add(owner, new SpawnedObjectSheetDocument
+                string name = names.Of(sheet.Layout, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}");
+                // Every owner the game names the sheet by finds it under its own name.
+                foreach (string owner in plan.AlsoOwnedBy.Prepend(plan.Owner).Select(SpawnedObjectOwnerNames.Name))
                 {
-                    Sheet = name,
-                    Palette = plan.Palette,
-                    Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
-                    Anywhere = plan.Anywhere,
-                });
-                if (sheet.Pictures.Count > 0)
-                    basePictures[owner] =
-                        new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
-                if (sheet.RotPictures.Count > 0)
-                    baseRotPictures[owner] =
-                        new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
+                    bases.Add(owner, new SpawnedObjectSheetDocument
+                    {
+                        Sheet = name,
+                        Palette = plan.Palette,
+                        Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
+                        Anywhere = plan.Anywhere,
+                    });
+                    if (sheet.Pictures.Count > 0)
+                        basePictures[owner] =
+                            new Dictionary<string, CharacterRange[][]>(sheet.Pictures, StringComparer.Ordinal);
+                    if (sheet.RotPictures.Count > 0)
+                        baseRotPictures[owner] =
+                            new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
+                }
             }
             spawned.Add(set.Name, bases);
             if (basePictures.Count > 0)

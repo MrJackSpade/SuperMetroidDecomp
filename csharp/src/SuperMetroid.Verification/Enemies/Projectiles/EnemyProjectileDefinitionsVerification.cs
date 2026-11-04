@@ -59,7 +59,7 @@ internal static class EnemyProjectileDefinitionsVerification
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             projectile.Clear();
-            initialize(projectile, kind, SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
+            initialize(projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.FrameBehavior, projectile.FrameBehavior,
                 $"{kind} production pre-instruction");
@@ -82,7 +82,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production persistence property");
             AssertEqual(definition.BlocksSamusProjectiles, projectile.BlocksSamusProjectiles,
                 $"{kind} production projectile-blocking property");
-            AssertEqual(SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook), projectile.Graphics,
+            AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook), projectile.Graphics,
                 $"{kind} production graphics: the spawner's tile base and colours");
 
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));

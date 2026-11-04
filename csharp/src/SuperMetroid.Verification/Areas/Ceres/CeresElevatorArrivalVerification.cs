@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Rendering;
@@ -39,7 +40,7 @@ internal static class CeresElevatorArrivalVerification
         // With tile base zero, each actor shows its composition at tile base zero in the parts' own palettes; leaked
         // enemy graphics would add a base tile and select other colours. A new game clears the concealer's colour before
         // the arrival spawns (#1512), so both actors publish the shade that shows it black until they delete themselves.
-        var noGraphics = SpriteGraphics.CharacterZeroIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
+        var noGraphics = SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
         VerificationAssertions.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
             "Ceres arrival actors draw with tile base zero, the concealer's colour cleared");
         var oam = new OamBuffer();

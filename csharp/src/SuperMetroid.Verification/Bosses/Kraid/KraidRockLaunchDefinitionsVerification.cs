@@ -59,7 +59,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw - 96)), rock.Position.Y.Whole, "Kraid mouth Y offset and wrap");
             AssertEqual((ushort)0, rock.Position.X.Fraction, "Clear stale rock X fraction");
             AssertEqual((ushort)0, rock.Position.Y.Fraction, "Clear stale rock Y fraction");
-            AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.KraidSpitRock;

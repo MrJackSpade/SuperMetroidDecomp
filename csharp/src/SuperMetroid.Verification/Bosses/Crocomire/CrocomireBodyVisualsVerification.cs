@@ -113,7 +113,7 @@ internal static class CrocomireBodyVisualsVerification
             "forty-two Crocomire body roots have a BG2 half");
 
         EnemyGraphicsSet crocomireSet = CrocomireSet(stock);
-        SpriteGraphics indexes = crocomireSet.DrawIndexes(EnemyDefinitionId.Crocomire);
+        int tileBase = crocomireSet.TileBaseOf(EnemyDefinitionId.Crocomire);
         int indexesRow = crocomireSet.DrawRow(EnemyDefinitionId.Crocomire);
         foreach (ushort pointer in CrocomireBodyVisualDefinitionsConstants.Frames)
         {
@@ -222,7 +222,7 @@ internal static class CrocomireBodyVisualsVerification
         // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him at.
         DrawNativeResult DrawNative(ushort pointer, bool newFrame) =>
             new DrawNativeResult(DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080),
-                    NativeSpriteGraphicsWords.PaletteBits(indexesRow), checked((ushort)indexes.TileBase)),
+                    NativeSpriteGraphicsWords.PaletteBits(indexesRow), checked((ushort)tileBase)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
         static DrawNativeResult Draw(InstalledEnemyArtwork art,
@@ -241,10 +241,8 @@ internal static class CrocomireBodyVisualsVerification
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             // He draws as his room draws him: at his tile base and in his palette there.
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
-            SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(EnemyDefinitionId.Crocomire);
-            slot.TileIndexBase = indexes.TileBase;
-            slot.Shading = indexes.Shading;
+            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
+            slot.Shading = PictureShading.Standard;
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);
             if (newFrame)
@@ -261,7 +259,7 @@ internal static class CrocomireBodyVisualsVerification
         static EnemyGraphicsSet CrocomireSet(InstalledEnemyArtwork art)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
-            enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
+            enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             return enemies.GraphicsSet;
         }
     }

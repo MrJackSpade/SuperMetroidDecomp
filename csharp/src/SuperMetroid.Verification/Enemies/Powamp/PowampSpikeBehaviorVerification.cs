@@ -23,12 +23,13 @@ internal static class PowampSpikeBehaviorVerification
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            TileIndexBase = 256,
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
-        enemies.PowampBehavior.SpawnPowampSpikeBurst(body);
+        int? lastSpikePlace = enemies.PowampBehavior.SpawnPowampSpikeBurst(body);
         RoomEnemyProjectileSlot[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];
         AssertEqual(8, spikes.Length, "a burst spawns all eight spikes");
+        // Spawning searches the pool from its last place down, so the eighth spike takes the lowest of the eight places.
+        AssertEqual<int?>(spikes.Min(spike => spike.SlotIndex), lastSpikePlace, "the burst reports the place of the last spike it fired");
         foreach (RoomEnemyProjectileSlot spike in spikes)
         {
             AssertEqual(PowampSpikeProgram.Initial, ProgramOf(spike), $"spike {spike.StateOf<PowampSpikeState>().Direction} starts its looping program");

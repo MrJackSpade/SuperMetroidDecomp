@@ -9,5 +9,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Palette">The palette row its frames are coloured in: its spawner's, or the common row at character zero.</param>
 /// <param name="Spawners">The enemies whose spawned objects it holds.</param>
 /// <param name="Anywhere">Whether it also holds the objects any room spawns.</param>
+/// <param name="AlsoOwnedBy">
+/// The other owners the game names this sheet by: on the shared sheet, each enemy drawn under the set that has no
+/// spawned objects of its own, whose objects are those any room spawns.
+/// </param>
 internal sealed record SpawnedObjectSheetPlan(SpawnedObjectOwner Owner, int ProjectileCharacters, int ObjectCharacters, int Palette,
-    List<EnemyDefinitionId> Spawners, bool Anywhere);
+    List<EnemyDefinitionId> Spawners, bool Anywhere, List<SpawnedObjectOwner> AlsoOwnedBy);

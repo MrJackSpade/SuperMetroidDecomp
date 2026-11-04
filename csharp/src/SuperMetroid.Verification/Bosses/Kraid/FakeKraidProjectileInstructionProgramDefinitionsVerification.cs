@@ -44,7 +44,6 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            TileIndexBase = 256,
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
         var state = new FakeKraidEnemyState();

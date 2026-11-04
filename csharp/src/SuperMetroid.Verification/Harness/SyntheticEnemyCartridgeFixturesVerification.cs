@@ -40,12 +40,13 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
     /// record's definition pointer and packed VRAM/palette word, then the <c>$FFFF</c> terminator.
     /// </summary>
     internal static void SeedRoomEnemyGraphicsSet(
-        TestAddressSpace bus, ushort tileset, params ReadOnlySpan<RoomEnemyGraphicsSetHeader> records)
+        TestAddressSpace bus, ushort tileset, params ReadOnlySpan<RoomEnemyGraphicsSetMember> records)
     {
         int address = 0xb40000 | tileset;
-        foreach (RoomEnemyGraphicsSetHeader record in records)
+        foreach (RoomEnemyGraphicsSetMember record in records)
         {
-            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), record.NativePlacement(paletteRow: FixturePaletteRow));
+            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), RoomEnemyGraphicsSetMember.NativePlacement(FixturePaletteRow,
+                SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.GetValueOrDefault(record.DefinitionId)));
             address += 4;
         }
         WriteTestWord(bus, address, 0xffff);

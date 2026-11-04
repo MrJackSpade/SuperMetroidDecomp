@@ -72,9 +72,10 @@ internal static class PauseReserveTankAssetsVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
-        // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, priority 3, both flips, in palette 5
-        // with the highlight cycle's row ORed in, as the cartridge ORs it into the reserve strip's parts.
-        int highlighted = 5 | SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
+        // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, priority 3, both flips. The screen
+        // shows the strip under the highlight cycle, whose row a part naming no palette of its own takes; the authored
+        // palette shows in the strip's standard-shaded draws, which the reserve frame checks compare.
+        int highlighted = SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
         var tankParts = new OamBuffer();
         tankParts.BeginFrame();
         tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),

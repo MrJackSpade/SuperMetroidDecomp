@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputDefinitions;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
@@ -130,28 +129,19 @@ internal static class SamusPoseInputs
         ((input & ControllerButton.Right) != ControllerButton.None ? ControllerButton.Left : ControllerButton.None);
 
     /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
-    internal static bool Has(ControllerButton input, CanonicalPoseButtons required)
-    {
-        ControllerButton buttons = ChordMasks[required];
-        return (input & buttons) == buttons;
-    }
+    internal static bool Has(ControllerButton input, CanonicalPoseButtons required) =>
+        (input & Buttons(required)) == Buttons(required);
 
-    /// <summary>
-    /// The controller buttons each chord of the canonical buttons names, built once: every pose lookup tests several
-    /// chords, and composing each chord's buttons from <see cref="ChordButtons"/> on every test made the lookup pay for it.
-    /// </summary>
-    private static readonly FrozenDictionary<CanonicalPoseButtons, ControllerButton> ChordMasks = BuildChordMasks();
-
-    /// <summary>Every combination of the canonical buttons, each with the controller buttons standing for its members.</summary>
-    private static FrozenDictionary<CanonicalPoseButtons, ControllerButton> BuildChordMasks()
+    /// <summary>The controller buttons an authored chord names.</summary>
+    private static ControllerButton Buttons(CanonicalPoseButtons chord)
     {
-        var masks = new Dictionary<CanonicalPoseButtons, ControllerButton> { [default] = ControllerButton.None };
+        ControllerButton buttons = ControllerButton.None;
         foreach ((CanonicalPoseButtons bit, ControllerButton button) in ChordButtons)
         {
-            foreach ((CanonicalPoseButtons chord, ControllerButton buttons) in masks.ToArray())
-                masks[chord | bit] = buttons | button;
+            if ((chord & bit) == bit)
+                buttons |= button;
         }
-        return masks.ToFrozenDictionary();
+        return buttons;
     }
 
     /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>

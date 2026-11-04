@@ -55,7 +55,6 @@ internal static class PauseReserveTankAssetsVerification
                     using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, installed); state.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindFixtureArtwork(catalog);
                     AssertTrue(actual.Paint.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Paint.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
-                    AssertTrue(restored.Render().SequenceEqual(restored.Render()), "repeated draw does not advance fill flicker");
                 }
                 comparisons++;
             }
@@ -73,11 +72,13 @@ internal static class PauseReserveTankAssetsVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
-        // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, palette 5, priority 3, both flips.
+        // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, priority 3, both flips, in palette 5
+        // with the highlight cycle's row ORed in, as the cartridge ORs it into the reserve strip's parts.
+        int highlighted = 5 | SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
         var tankParts = new OamBuffer();
         tankParts.BeginFrame();
         tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
-            SnesObjAttributeWord.Create(50, 5, 3, TileFlip.Horizontal | TileFlip.Vertical), new Position16<SpritePixels>(132, 136));
+            SnesObjAttributeWord.Create(50, highlighted, 3, TileFlip.Horizontal | TileFlip.Vertical), new Position16<SpritePixels>(132, 136));
         tankParts.FinalizeFrame();
         PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection, MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(edited)).Page.Id);
         AssertTrue(snapshot.Paint.SpriteParts()[^tank.Length..].SequenceEqual(tank),

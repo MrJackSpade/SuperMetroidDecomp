@@ -5,9 +5,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
-/// The frames each enemy definition can show (#1392): the frames its behaviour's code names, which its pre-coloured
-/// sheets hold. Generated from the enemy behaviours by tools/generate-enemy-definition-frames.py; regenerate rather
-/// than edit.
+/// The frames each enemy definition can show (#1392): the frames its behaviour's code reaches, which its pre-coloured
+/// sheets hold. Generated from the enemy behaviours by tools/frame-definitions-generator; regenerate rather than edit.
 /// </summary>
 [ArchitectureReview("large", "Generated data: the two thousand frames the enemy definitions show; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
 internal static class EnemyDefinitionFrameDefinitions
@@ -29,7 +28,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CeresDoorInitial,
         EnemyFrameId.CeresDoorTurningFloorLeftWall,
         EnemyFrameId.CeresDoorTurningFloorRightWall,
-        EnemyFrameId.CeresDoorRidleyPrivateOverlay,
     ];
 
     /// <summary>The frames <c>Areas/Ceres/CeresSteamBehavior.cs</c> shows.</summary>
@@ -237,28 +235,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.DraygonFrame79,
         EnemyFrameId.DraygonFrame80,
         EnemyFrameId.DraygonFrame81,
-        EnemyFrameId.PhantoonInvulnerableBody0,
-        EnemyFrameId.PhantoonFullHitboxBody0,
-        EnemyFrameId.PhantoonEyeHitboxBody0,
-        EnemyFrameId.PhantoonClosedEye0,
-        EnemyFrameId.PhantoonOpeningEye0,
-        EnemyFrameId.PhantoonOpeningEye1,
-        EnemyFrameId.PhantoonOpeningEye2,
-        EnemyFrameId.PhantoonCenteredEye0,
-        EnemyFrameId.PhantoonGaze0,
-        EnemyFrameId.PhantoonGaze4,
-        EnemyFrameId.PhantoonGaze6,
-        EnemyFrameId.PhantoonGaze2,
-        EnemyFrameId.PhantoonGaze5,
-        EnemyFrameId.PhantoonGaze3,
-        EnemyFrameId.PhantoonGaze7,
-        EnemyFrameId.PhantoonGaze1,
-        EnemyFrameId.PhantoonTentacle0,
-        EnemyFrameId.PhantoonTentacle1,
-        EnemyFrameId.PhantoonTentacle2,
-        EnemyFrameId.PhantoonMouth0,
-        EnemyFrameId.PhantoonMouth1,
-        EnemyFrameId.PhantoonMouth2,
         EnemyFrameId.DraygonFrame6,
         EnemyFrameId.DraygonFrame7,
         EnemyFrameId.DraygonFrame8,
@@ -389,44 +365,9 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] BabyMetroidCutscene =
     [
-        EnemyFrameId.MotherBrainHead0,
-        EnemyFrameId.MotherBrainHead1,
-        EnemyFrameId.MotherBrainHead2,
-        EnemyFrameId.MotherBrainHead3,
-        EnemyFrameId.MotherBrainHead4,
-        EnemyFrameId.MotherBrainNeckJoint,
-        EnemyFrameId.MotherBrainHead6,
-        EnemyFrameId.MotherBrainHead7,
-        EnemyFrameId.MotherBrainHead8,
-        EnemyFrameId.MotherBrainHead9,
-        EnemyFrameId.MotherBrainHead10,
-        EnemyFrameId.MotherBrainHead11,
-        EnemyFrameId.MotherBrainHead12,
-        EnemyFrameId.MotherBrainTube0,
-        EnemyFrameId.MotherBrainTube1,
-        EnemyFrameId.MotherBrainTube2,
-        EnemyFrameId.MotherBrainTube3,
-        EnemyFrameId.MotherBrainTube4,
         EnemyFrameId.Shitroid00,
         EnemyFrameId.Shitroid01,
         EnemyFrameId.Shitroid02,
-        EnemyFrameId.MotherBrainBodyStanding,
-        EnemyFrameId.MotherBrainBodyWalking0,
-        EnemyFrameId.MotherBrainBodyWalking1,
-        EnemyFrameId.MotherBrainBodyWalking2,
-        EnemyFrameId.MotherBrainBodyWalking3,
-        EnemyFrameId.MotherBrainBodyWalking4,
-        EnemyFrameId.MotherBrainBodyWalking5,
-        EnemyFrameId.MotherBrainBodyWalking6,
-        EnemyFrameId.MotherBrainBodyWalking7,
-        EnemyFrameId.MotherBrainBodyCrouched,
-        EnemyFrameId.MotherBrainBodyUncrouching,
-        EnemyFrameId.MotherBrainBodyLeaningDown,
-        EnemyFrameId.MotherBrainBodyInitialDummy,
-        EnemyFrameId.MotherBrainBodyDeathBeam0,
-        EnemyFrameId.MotherBrainBodyDeathBeam1,
-        EnemyFrameId.MotherBrainBodyDeathBeam2,
-        EnemyFrameId.MotherBrainBodyDeathBeam3,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows.</summary>
@@ -482,16 +423,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/MotherBrain/ShitroidBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Shitroid =
     [
-        EnemyFrameId.Zebetite00,
-        EnemyFrameId.Zebetite01,
-        EnemyFrameId.Zebetite02,
-        EnemyFrameId.Zebetite03,
-        EnemyFrameId.Zebetite04,
-        EnemyFrameId.Zebetite05,
-        EnemyFrameId.Zebetite06,
-        EnemyFrameId.Zebetite07,
-        EnemyFrameId.Zebetite08,
-        EnemyFrameId.Zebetite09,
         EnemyFrameId.Shitroid00,
         EnemyFrameId.Shitroid01,
         EnemyFrameId.Shitroid02,
@@ -543,23 +474,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] RidleyEntity =
     [
-        EnemyFrameId.CeresDoorRotatingOverlay,
-        EnemyFrameId.CeresDoorLeftHold,
-        EnemyFrameId.CeresDoorLeftTransition0,
-        EnemyFrameId.CeresDoorLeftTransition1,
-        EnemyFrameId.CeresDoorLeftTransition2,
-        EnemyFrameId.CeresDoorLeftTransition3,
-        EnemyFrameId.CeresDoorRightHold,
-        EnemyFrameId.CeresDoorRightTransition0,
-        EnemyFrameId.CeresDoorRightTransition1,
-        EnemyFrameId.CeresDoorRightTransition2,
-        EnemyFrameId.CeresDoorRightTransition3,
-        EnemyFrameId.CeresDoorTurningFloorLeftWall,
-        EnemyFrameId.CeresDoorTurningFloorRightWall,
-        EnemyFrameId.CeresDoorRidleyPrivateOverlay,
-        EnemyFrameId.CeresBabyHorizontal,
-        EnemyFrameId.CeresBabyRound,
-        EnemyFrameId.CeresBabyVertical,
         EnemyFrameId.RidleyTailSegmentSmall,
         EnemyFrameId.RidleyTailSegmentMedium,
         EnemyFrameId.RidleyTailSegmentLarge,
@@ -1023,6 +937,7 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Corpses/DeadTorizoBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] DeadTorizo =
     [
+        EnemyFrameId.DeadTorizoCorpseHook,
         EnemyFrameId.DeadTorizoStationary,
     ];
 

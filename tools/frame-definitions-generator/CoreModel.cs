@@ -407,7 +407,7 @@ internal sealed class CoreModel
                 case BaseObjectCreationExpressionSyntax creation
                     when model.GetSymbolInfo(creation).Symbol is IMethodSymbol { ContainingType: { } created } && IsSource(created)
                          && node.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault() is { } context:
-                    INamedTypeSymbol contextType = model.GetDeclaredSymbol(context)
+                    INamedTypeSymbol contextType = model.GetDeclaredSymbol(context) as INamedTypeSymbol
                         ?? throw new InvalidDataException($"{RelativePath(tree)}: {context.Identifier} declares no type symbol.");
                     INamedTypeSymbol key2 = created.OriginalDefinition;
                     if (!_creationContexts.TryGetValue(key2, out List<INamedTypeSymbol>? contexts))

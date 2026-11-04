@@ -233,12 +233,12 @@ internal static class CeresDestructionArtworkVerification
         AssertTrue(!stockDestruction.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
                 movedDestruction.CaptureRenderSnapshot().Paint.SpriteParts()),
             "edited destruction placement changes production OAM");
-        byte[] stockDestructionActors = File.ReadAllBytes(destructionActorsPath);
+        byte[] stockDestructionActorBytes = File.ReadAllBytes(destructionActorsPath);
         File.WriteAllBytes(destructionActorsPath, [0]);
         AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
             "a destruction actor override cannot hide damaged stock layout");
         // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
-        File.WriteAllBytes(destructionActorsPath, stockDestructionActors);
+        File.WriteAllBytes(destructionActorsPath, stockDestructionActorBytes);
         AssertEqual(stockAsteroidX + 16,
             installation.LoadIntroCinematicArt().CeresDestruction.DestructionActors[0].X,
             "destruction actor override still applies over the restored stock layout");

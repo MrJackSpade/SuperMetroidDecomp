@@ -24,7 +24,7 @@ internal static class FileSelectMapGraphicsPixelsAccess
         internal RgbaPixel[] RenderBackgrounds(bool includeBackdropInColorMath = true) =>
             FrontendScenePixelsAccess.Pixels(graphics.BackgroundsScene(includeBackdropInColorMath));
 
-        /// <summary>The scene <see cref="RenderBackgrounds(bool)"/> draws, for a comparison of the pixels two scenes show.</summary>
+        /// <summary>The scene <c>RenderBackgrounds(bool)</c> draws, for a comparison of the pixels two scenes show.</summary>
         internal LayeredScene BackgroundsScene(bool includeBackdropInColorMath = true) =>
             graphics.CaptureBackgrounds(ColorMath(includeBackdropInColorMath));
     }
@@ -48,7 +48,7 @@ internal static class FileSelectMapGraphicsPixelsAccess
         internal RgbaPixel[] RenderBackgrounds(Position16<MapPixels> scroll) =>
             FrontendScenePixelsAccess.Pixels(graphics.BackgroundsScene(scroll));
 
-        /// <summary>The scene <see cref="RenderBackgrounds(Position16{MapPixels})"/> draws, for a comparison of the pixels two scenes show.</summary>
+        /// <summary>The scene <c>RenderBackgrounds(scroll)</c> draws, for a comparison of the pixels two scenes show.</summary>
         /// <param name="scroll">The map's scroll in pixels.</param>
         internal LayeredScene BackgroundsScene(Position16<MapPixels> scroll) => graphics.CaptureRenderSnapshot(scroll);
     }

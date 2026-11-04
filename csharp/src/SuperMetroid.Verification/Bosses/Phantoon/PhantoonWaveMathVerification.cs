@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rendering;

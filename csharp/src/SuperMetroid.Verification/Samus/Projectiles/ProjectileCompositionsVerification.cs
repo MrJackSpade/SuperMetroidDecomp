@@ -74,7 +74,7 @@ internal static class ProjectileCompositionsVerification
         var edited = InstalledProjectileSprites.Load(new MemoryStream(editedJson));
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
         GameInstallation installation = RepositoryInstallation.Installation;
-        var roomAssets = new MapPresentationInstalledRoomAssets(installation);
+        var roomAssets = MapPresentationInstalledRoomAssets.Shared;
         Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(editedId, InstalledFixtures.SpriteSheets,
             roomAssets, InstalledFixtures.Maps));
         if (!compositionOnly)

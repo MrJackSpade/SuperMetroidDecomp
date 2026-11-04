@@ -37,6 +37,7 @@ internal static class EnemyTileStockReExtraction
     private static readonly ConditionalWeakTable<ISnesAddressSpace, IReadOnlyDictionary<string, byte[]>> extracted = new();
 
     /// <summary>The files the stock enemy-art extraction from <paramref name="bus"/> writes, by path beneath its directory.</summary>
+    [PrivateInstallation("Extracts the stock enemy artwork once per cartridge into a scratch directory so ReExtractStock can write those exact files over a private copy's stock beside an override without running the extractor again; the shared installation is never written.")]
     private static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         using var scratch = new TestScratchDirectory("enemy-tile-stock");

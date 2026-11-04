@@ -30,7 +30,7 @@ internal static class ChargeFlareCompositionsVerification
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
         GameInstallation installation = RepositoryInstallation.Installation;
         InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
-        var roomAssets = new MapPresentationInstalledRoomAssets(installation);
+        var roomAssets = MapPresentationInstalledRoomAssets.Shared;
         var maps = installation.LoadMaps();
         Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, body,
             roomAssets, maps));

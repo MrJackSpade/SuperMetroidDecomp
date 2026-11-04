@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;

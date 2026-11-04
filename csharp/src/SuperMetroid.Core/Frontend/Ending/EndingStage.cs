@@ -322,7 +322,6 @@ internal sealed class EndingStage
     /// <summary>
     /// Selects the installed floor artwork when the game is bound to its installed content. The active
     /// backdrop is refreshed without resetting actors, palette, transform or music.
-    /// During the flyaway's artwork loading, already-loaded chunks are reapplied last.
     /// </summary>
     internal void BindFloorArtwork(EndingFloorArtwork? value)
     {

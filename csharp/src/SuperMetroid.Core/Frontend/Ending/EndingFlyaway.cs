@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork's uploads.</summary>
+/// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars, the fade and the flight artwork.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingFlyaway
 {

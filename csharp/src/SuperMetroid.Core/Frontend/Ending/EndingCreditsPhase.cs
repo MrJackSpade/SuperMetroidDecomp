@@ -59,7 +59,7 @@ internal enum EndingCreditsPhase
     PostCreditsCopyright,
     /// <summary>Runs the selected reward gesture until it requests a jump.</summary>
     PostCreditsGesture,
-    /// <summary>Runs the reward jump and its staged graphics uploads until the shot.</summary>
+    /// <summary>Runs the reward jump, which reveals the reward icon as Samus falls back, until the shot.</summary>
     PostCreditsJump,
     /// <summary>Runs the post-shot palette and tile replacements before the white flash.</summary>
     PostCreditsShot,

@@ -688,41 +688,46 @@ internal static class EnemyTrigonometryVerification
             int magnitude = EightEight.Multiply(bytes[angle & 127], unchecked((byte)radius));
             return angle < 128 ? magnitude : -magnitude;
         }
-        for (int angle = 0; angle < 256; angle++)
-        for (int radius = 0; radius < 256; radius++)
+        // Each angle's radii run on one worker; every function swept is pure.
+        ParallelSweep.For(0, 256, angle =>
         {
-            // Poison high bytes to prove native byte truncation remains in the
-            // production helpers. The fractional negation deliberately has no carry.
-            ushort a = (ushort)(0xff00 | angle), r = (ushort)(0xab00 | radius);
-            int product = bytes[angle & 127] * radius;
-            var expected = SignedSixteenSixteen.FromParts((short)(angle < 128 ? EightEight.WholeOf(product) : -EightEight.WholeOf(product)),
-                unchecked((ushort)(angle < 128 ? SixteenSixteen.FromEightEight(product) : -SixteenSixteen.FromEightEight(product))));
-            if (pixel(a, r) != ExpectedPixel(angle, radius) || fixedProduct(a, r) != expected ||
-                cosine(a, r) != ExpectedPixel(angle + 64, radius) || negative(a, r) != ExpectedPixel(angle + 128, radius))
-                throw new InvalidDataException($"Compiled byte sine result differs at angle={angle}, radius={radius}.");
-            foreach (int phase in new[] { 64, 128 })
+            for (int radius = 0; radius < 256; radius++)
             {
-                int shiftedAngle = unchecked((byte)(angle + phase));
-                int shiftedProduct = bytes[shiftedAngle & 127] * radius;
-                short whole = (short)(shiftedAngle < 128 ? EightEight.WholeOf(shiftedProduct) : -EightEight.WholeOf(shiftedProduct));
-                ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SixteenSixteen.FromEightEight(shiftedProduct) : -SixteenSixteen.FromEightEight(shiftedProduct)));
-                var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
-                var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
-                var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
-                uint magnitude = words[shiftedAngle & 127] * (uint)radius;
-                if (fixedActual != SignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SignedSixteenSixteen.FromParts(whole, fraction) ||
-                    unsignedActual.RawValue != magnitude)
-                    throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
+                // Poison high bytes to prove native byte truncation remains in the
+                // production helpers. The fractional negation deliberately has no carry.
+                ushort a = (ushort)(0xff00 | angle), r = (ushort)(0xab00 | radius);
+                int product = bytes[angle & 127] * radius;
+                var expected = SignedSixteenSixteen.FromParts((short)(angle < 128 ? EightEight.WholeOf(product) : -EightEight.WholeOf(product)),
+                    unchecked((ushort)(angle < 128 ? SixteenSixteen.FromEightEight(product) : -SixteenSixteen.FromEightEight(product))));
+                if (pixel(a, r) != ExpectedPixel(angle, radius) || fixedProduct(a, r) != expected ||
+                    cosine(a, r) != ExpectedPixel(angle + 64, radius) || negative(a, r) != ExpectedPixel(angle + 128, radius))
+                    throw new InvalidDataException($"Compiled byte sine result differs at angle={angle}, radius={radius}.");
+                foreach (int phase in new[] { 64, 128 })
+                {
+                    int shiftedAngle = unchecked((byte)(angle + phase));
+                    int shiftedProduct = bytes[shiftedAngle & 127] * radius;
+                    short whole = (short)(shiftedAngle < 128 ? EightEight.WholeOf(shiftedProduct) : -EightEight.WholeOf(shiftedProduct));
+                    ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SixteenSixteen.FromEightEight(shiftedProduct) : -SixteenSixteen.FromEightEight(shiftedProduct)));
+                    var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
+                    var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
+                    var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
+                    uint magnitude = words[shiftedAngle & 127] * (uint)radius;
+                    if (fixedActual != SignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SignedSixteenSixteen.FromParts(whole, fraction) ||
+                        unsignedActual.RawValue != magnitude)
+                        throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
+                }
             }
-        }
-        for (int index = 0; index < 128; index++)
-        for (int magnitude = 0; magnitude <= ushort.MaxValue; magnitude++)
+        });
+        ParallelSweep.For(0, 128, index =>
         {
-            int expected = unchecked((int)((uint)words[index] * magnitude));
-            if (unsigned((ushort)(0xff80 | index), (ushort)magnitude, 128) != expected ||
-                unsigned((ushort)(0xffc0 + index), (ushort)magnitude, 64) != expected)
-                throw new InvalidDataException($"Compiled unsigned sine differs at index={index}, magnitude={magnitude}.");
-        }
+            for (int magnitude = 0; magnitude <= ushort.MaxValue; magnitude++)
+            {
+                int expected = unchecked((int)((uint)words[index] * magnitude));
+                if (unsigned((ushort)(0xff80 | index), (ushort)magnitude, 128) != expected ||
+                    unsigned((ushort)(0xffc0 + index), (ushort)magnitude, 64) != expected)
+                    throw new InvalidDataException($"Compiled unsigned sine differs at index={index}, magnitude={magnitude}.");
+            }
+        });
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 

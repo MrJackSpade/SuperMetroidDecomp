@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks signed cartridge trigonometry across Bull, Yapping Maw, and Shaktool consumers.</summary>
@@ -91,25 +92,34 @@ internal static class FamilyTrigonometryVerification
 
         // A real linked-slot placement with no loaded bus verifies the production
         // caller, low angular byte, preceding segment subpixels and signed carry/wrap.
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
-        var previous = enemies.SlotTable.Slots[0];
-        var segment = enemies.SlotTable.Slots[1];
-        previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
-        var segmentState = new ShaktoolSegmentState();
-        Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
-        foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
-        for (int angle = 0; angle <= ushort.MaxValue; angle++)
+        // Each origin's angles run in sixteen blocks, each on one worker with a room of its own: a placement reads and
+        // writes only its own room's two slots and segment state.
+        uint[] origins = [0, 0x0080ff37, 0xffffff37];
+        const int AngleBlocks = 16;
+        const int AnglesPerBlock = (ushort.MaxValue + 1) / AngleBlocks;
+        ParallelSweep.For(0, origins.Length * AngleBlocks, block =>
         {
-            previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
-            segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
-            place(segment, segmentState);
-            uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
-            uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
-            if ((segment.Position.X.RawValue) != expectedX ||
-                (segment.Position.Y.RawValue) != expectedY ||
-                segmentState.OrbitAngle.RawValue != angle)
-                throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
-        }
+            uint initial = origins[block / AngleBlocks];
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+            var previous = enemies.SlotTable.Slots[0];
+            var segment = enemies.SlotTable.Slots[1];
+            previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
+            var segmentState = new ShaktoolSegmentState();
+            Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
+            int firstAngle = block % AngleBlocks * AnglesPerBlock;
+            for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)
+            {
+                previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
+                segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
+                place(segment, segmentState);
+                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
+                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
+                if ((segment.Position.X.RawValue) != expectedX ||
+                    (segment.Position.Y.RawValue) != expectedY ||
+                    segmentState.OrbitAngle.RawValue != angle)
+                    throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
+            }
+        });
         Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");
     }
 

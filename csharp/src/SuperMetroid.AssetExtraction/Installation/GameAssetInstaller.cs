@@ -123,7 +123,7 @@ public static class GameAssetInstaller
             // The receipt names the format and source the content was extracted for, which decides whether later opens
             // reuse it.
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
-                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256, ImportIdentity)));
+                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // Before publishing: a refused rename leaves the old content in place, so the next start retries it.
@@ -214,15 +214,7 @@ public static class GameAssetInstaller
     }
 
     /// <summary>The published content's format and the digest of the source revision it was extracted from.</summary>
-    private sealed record InstallationReceipt(int FormatVersion, string RomSha256, string? ImportIdentity);
-
-    /// <summary>
-    /// The build of the import that extracts content: the module identities of the extraction assembly and of the Core
-    /// assembly whose definitions it extracts against. Builds are deterministic, so the identity changes exactly when the
-    /// import's code does, and content another build of the import extracted is extracted again.
-    /// </summary>
-    private static string ImportIdentity { get; } =
-        $"{typeof(GameAssetInstaller).Assembly.ManifestModule.ModuleVersionId:N}-{typeof(SuperMetroid.Core.Ensure).Assembly.ManifestModule.ModuleVersionId:N}";
+    private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 
     /// <summary>One extraction stage: its progress text and extractor.</summary>
     private sealed record InstallerStep(
@@ -400,8 +392,6 @@ public static class GameAssetInstaller
                 $"{GameInstallationLayout.FormatVersion}; found {receipt?.FormatVersion.ToString() ?? "null"}. Reimport the supported cartridge.";
         if (receipt.RomSha256 != SupportedCartridge.Sha256)
             return $"Installation receipt {receiptPath} has unsupported source provenance.";
-        if (receipt.ImportIdentity != ImportIdentity)
-            return $"Installation receipt {receiptPath} was extracted by another build of the import. Reimport the supported cartridge.";
         return null;
     }
 }

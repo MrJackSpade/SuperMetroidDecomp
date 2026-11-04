@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 8;
+    public const int Version = 9;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
@@ -99,45 +99,26 @@ public static class SpriteSheetFile
                 }),
         };
 
-    /// <summary>Cuts a manifest's part images and frames from the sheet image.</summary>
-    /// <exception cref="InvalidDataException">The manifest places a frame off the image or names a missing part image.</exception>
+    /// <summary>Cuts a manifest's frames from the sheet image.</summary>
+    /// <exception cref="InvalidDataException">The manifest lists no frames, a null frame, or places a frame off the image.</exception>
     private static SpriteSheet CutFrames(SpriteSheetDocument document, string name, SpriteImage image)
     {
-        // Part images come first: the frames name them.
-        var partImages = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
-        foreach ((string partName, SpriteSheetFrameDocument? part) in document.PartImages ??
-            throw new InvalidDataException($"Sprite sheet {name} has no part image list."))
-        {
-            if (part is not { Parts.Length: 0 })
-                throw new InvalidDataException($"Sprite sheet {name} part image {partName} is null or has parts of its own.");
-            partImages.Add(partName, Cut(image, name, partName, part, []));
-        }
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
         foreach ((string frameName, SpriteSheetFrameDocument? frame) in document.Frames ??
             throw new InvalidDataException($"Sprite sheet {name} has no frame list."))
         {
-            if (frame?.Parts is null)
-                throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null or has no part list.");
-            SpriteSheetFramePart[] parts = [.. frame.Parts.Select(part =>
-            {
-                SpriteSheetFrame partImage = partImages.TryGetValue(part.Image, out SpriteSheetFrame? found) ? found
-                    : throw new InvalidDataException($"Sprite sheet {name} frame {frameName} names missing part image {part.Image}.");
-                // The part lands at its place from the frame's origin when drawn at that origin.
-                var placed = new SpriteSheetFrame(image, partImage.Corner, partImage.Size, partImage.Origin + -part.Offset, partImage.ColourGroups, []);
-                return new SpriteSheetFramePart(placed, part.Offset);
-            })];
-            frames.Add(frameName, Cut(image, name, frameName, frame, parts));
+            frames.Add(frameName, Cut(image, name, frameName, frame
+                ?? throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.")));
         }
         return new SpriteSheet(image, frames);
     }
 
-    /// <summary>Cuts one frame or part image from the sheet image.</summary>
-    private static SpriteSheetFrame Cut(SpriteImage image, string sheet, string name, SpriteSheetFrameDocument document,
-        IReadOnlyList<SpriteSheetFramePart> parts)
+    /// <summary>Cuts one frame from the sheet image.</summary>
+    private static SpriteSheetFrame Cut(SpriteImage image, string sheet, string name, SpriteSheetFrameDocument document)
     {
         try
         {
-            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, ImageColourGroups.FromManifest(document.ColourGroups), parts);
+            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, ImageColourGroups.FromManifest(document.ColourGroups));
         }
         catch (ArgumentException error)
         {

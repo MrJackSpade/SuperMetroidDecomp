@@ -115,15 +115,6 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("origin y", frame.Origin.Y);
                 foreach (ImageColourGroup group in ImageColourGroup.Every)
                     content.Append("colour group", frame.ColourGroups.Contains(group) ? 1 : 0);
-                foreach (SpriteSheetFramePart part in frame.Parts)
-                {
-                    content.Append("part corner x", part.Image.Corner.X);
-                    content.Append("part corner y", part.Image.Corner.Y);
-                    content.Append("part width", part.Image.Size.X);
-                    content.Append("part height", part.Image.Size.Y);
-                    content.Append("part offset x", part.Offset.X);
-                    content.Append("part offset y", part.Offset.Y);
-                }
             }
         }
     }

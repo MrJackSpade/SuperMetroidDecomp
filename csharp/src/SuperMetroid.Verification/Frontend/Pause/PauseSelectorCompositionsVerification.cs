@@ -95,7 +95,10 @@ internal static class PauseSelectorCompositionsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
     }
 
-    /// <summary>Compares each group's 14 phases with native OAM at several preoccupied-buffer sizes.</summary>
+    /// <summary>
+    /// Compares each group's 14 phases with native OAM; the object limit that cuts a frame short in a nearly full sprite
+    /// buffer is not replicated (#1513).
+    /// </summary>
     internal static void VerifyPauseSelectorNativeCompositions(ISnesAddressSpace rom, PauseSelectorPresentation selector, int group)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
@@ -106,18 +109,16 @@ internal static class PauseSelectorCompositionsVerification
             ushort x = (ushort)(ReadVerificationWord(rom, positions + anchor.Item * 4) - 1);
             ushort y = (ushort)(ReadVerificationWord(rom, positions + anchor.Item * 4 + 2) - 1);
             for (int phase = 0; phase < 14; phase++)
-            foreach (int occupied in new[] { 0, 127, 128 })
             {
                 int sprite = ReadVerificationWord(rom, bases + (int)anchor.Category * 2) + rom.ReadCartridgeByte(program + phase * 3 + 2);
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + sprite * 2);
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                for (int i = 0; i < occupied; i++) { expected.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); actual.AddOccupyingPart(new Position16<SpritePixels>(12, 34), 56); }
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
                 selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
-                    "native selector composition, attributes, order and OAM capacity");
+                    "native selector composition, attributes and order");
             }
         }
     }

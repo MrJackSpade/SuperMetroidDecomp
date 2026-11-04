@@ -10,9 +10,27 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
 /// The shades of Kraid's room backdrop (#1512), which the import pre-colours his room's pictures in: his backdrop
-/// colours over the room colour group his growth recolours, and each step of its fades, as
+/// colours over the room colour group his growth recolours, black, and every fade's colours the encounter can show, as
 /// <c>AdvanceKraidRoomBackgroundFade</c> moves each colour by its remaining distance over the steps left.
 /// </summary>
+/// <remarks>
+/// The fades the encounter makes, and what each can start from:
+/// <list type="bullet">
+/// <item>His growth (<c>KraidRise</c>) fades the room's colours into his. Its redraw of the room's background zeroes the
+/// shared counter first, so its steps run from zero.</item>
+/// <item>His death (<c>KraidDeath</c>) fades to black from what the backdrop shows when it begins. Kraid's colours when
+/// his growth fade completed, which zeroed the counter. The room's colours when he dies before his growth fade (it waits
+/// after his health falls), at whatever value the shared counter then holds. The growth fade's colours when he dies
+/// during it: the death fade continues that fade's counter, its first step at the value after the growth fade's last.
+/// When he dies with the counter past the growth fade's last value, the death fade takes no step and leaves his colours.</item>
+/// <item>Once his body has sunk, the death zeroes the counter and the backdrop fades back into his colours from what it
+/// shows: black after a death fade that stepped, his colours after one that took none or in his defeated room (a fade
+/// that changes nothing), or the room's colours after a death fade that took none before his growth (the growth fade's
+/// own shades).</item>
+/// </list>
+/// The death fade and the fade back each run until they complete, which follows the step at the last moving value and
+/// lands on the goal, so no fade starts from either's colours partway; only the growth fade is interrupted.
+/// </remarks>
 internal static class KraidBackdropShades
 {
     /// <summary>The first ink of a room picture the backdrop recolours: the fifth tile colour group's first.</summary>
@@ -21,46 +39,92 @@ internal static class KraidBackdropShades
     /// <summary>The fades' length: their last moving step.</summary>
     private const int Denominator = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
 
+    /// <summary>The last counter value of a fade's colours partway, before the step that lands on its goal.</summary>
+    private const int LastPartway = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
+
+    /// <summary>The room's own backdrop colours.</summary>
+    private static readonly KraidBackdropShown ShowsRoomColours = new KraidBackdropShown.Settled(KraidBackdropSettledColours.RoomColours);
+
+    /// <summary>Kraid's backdrop colours.</summary>
+    private static readonly KraidBackdropShown ShowsKraidColours = new KraidBackdropShown.Settled(KraidBackdropSettledColours.KraidColours);
+
+    /// <summary>Black.</summary>
+    private static readonly KraidBackdropShown ShowsBlack = new KraidBackdropShown.Settled(KraidBackdropSettledColours.Black);
+
     /// <summary>Every backdrop shade of a room whose standard colours are <paramref name="standard"/>, to Kraid's <paramref name="kraid"/>.</summary>
     internal static IReadOnlyList<SheetShade> Of(ReadOnlySpan<RgbColor> standard, KraidColorCatalog kraid)
     {
         Ensure.NotNull(kraid);
-        var room = new RgbColor[KraidPalettes.BandColors];
-        var backdrop = new RgbColor[KraidPalettes.BandColors];
-        for (int colour = 0; colour < backdrop.Length; colour++)
+        var palettes = new KraidBackdropPalettes(
+            new RgbColor[KraidPalettes.BandColors], new RgbColor[KraidPalettes.BandColors], new RgbColor[KraidPalettes.BandColors]);
+        for (int colour = 0; colour < KraidPalettes.BandColors; colour++)
         {
-            room[colour] = standard[FirstInk + colour];
-            backdrop[colour] = kraid.Resolve(KraidPaletteSource.RoomBackdrop, colour);
+            palettes.Room[colour] = standard[FirstInk + colour];
+            palettes.Kraid[colour] = kraid.Resolve(KraidPaletteSource.RoomBackdrop, colour);
         }
-        var black = new RgbColor[backdrop.Length];
-        var shades = new List<SheetShade> { SheetShade.Run(KraidShades.Backdrop, FirstInk, backdrop) };
-        for (int value = 0; value < KraidShades.BackdropFadeShades; value++)
-        {
-            shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromRoomColours(value), FirstInk, Faded(room, backdrop, value)));
-            shades.Add(SheetShade.Run(KraidShades.BackdropFadingOut(value), FirstInk, Faded(backdrop, black, value)));
-            shades.Add(SheetShade.Run(KraidShades.BackdropFadingInFromBlack(value), FirstInk, Faded(black, backdrop, value)));
-        }
-        // Kraid may die before his growth fades the backdrop in, or during that fade: the fade to black then starts from
-        // the room's colours at whatever value the shared counter holds, or continues the growth fade's counter from the
-        // colours its last step showed.
-        for (int first = 0; first < KraidShades.BackdropFadeShades; first++)
-        {
-            for (int value = first; value < KraidShades.BackdropFadeShades; value++)
-                shades.Add(SheetShade.Run(KraidShades.BackdropFadingOutFromRoomColours(first, value), FirstInk,
-                    Faded(room, black, first, value)));
-            RgbColor[] fadingIn = Faded(room, backdrop, first);
-            for (int value = first + 1; value < KraidShades.BackdropFadeShades; value++)
-                shades.Add(SheetShade.Run(KraidShades.BackdropFadingOutFromFadingIn(first, value), FirstInk,
-                    Faded(fadingIn, black, first + 1, value)));
-        }
+        var shades = new List<SheetShade>();
+        foreach (KraidBackdropShown shown in Reachable())
+            shades.Add(SheetShade.Run(KraidShades.BackdropShowing(shown), FirstInk, Colours(shown, palettes)));
         return shades;
     }
 
+    /// <summary>What the encounter's fades can show besides the room's own colours, as the remarks derive it.</summary>
+    private static IEnumerable<KraidBackdropShown> Reachable()
+    {
+        yield return ShowsKraidColours;
+        yield return ShowsBlack;
+        // His growth, the fade back from black, and the death fade from his colours, each from a zeroed counter.
+        foreach (KraidBackdropShown shown in Partway(ShowsRoomColours, KraidBackdropSettledColours.KraidColours, first: 0))
+            yield return shown;
+        foreach (KraidBackdropShown shown in Partway(ShowsBlack, KraidBackdropSettledColours.KraidColours, first: 0))
+            yield return shown;
+        foreach (KraidBackdropShown shown in Partway(ShowsKraidColours, KraidBackdropSettledColours.Black, first: 0))
+            yield return shown;
+        // The death fade from the room's colours, at whatever value the shared counter holds.
+        for (int first = 0; first <= LastPartway; first++)
+        {
+            foreach (KraidBackdropShown shown in Partway(ShowsRoomColours, KraidBackdropSettledColours.Black, first))
+                yield return shown;
+        }
+        // The death fade from the growth fade's colours partway, continuing its counter.
+        foreach (KraidBackdropShown.Fading growth in Partway(ShowsRoomColours, KraidBackdropSettledColours.KraidColours, first: 0))
+        {
+            foreach (KraidBackdropShown shown in Partway(growth, KraidBackdropSettledColours.Black, growth.Reached + 1))
+                yield return shown;
+        }
+    }
+
     /// <summary>
-    /// Each of <paramref name="from"/>'s colours after the fade's steps toward <paramref name="to"/>'s from the shared
-    /// counter's zero through <paramref name="value"/>.
+    /// A fade from <paramref name="from"/> toward <paramref name="goal"/>'s colours partway, its first step at counter
+    /// value <paramref name="first"/>: each latest step whose colours are neither what it started from nor its goal.
     /// </summary>
-    private static RgbColor[] Faded(RgbColor[] from, RgbColor[] to, int value) => Faded(from, to, 0, value);
+    /// <exception cref="InvalidOperationException">A step's colours are not a fade's partway.</exception>
+    private static IEnumerable<KraidBackdropShown.Fading> Partway(KraidBackdropShown from, KraidBackdropSettledColours goal, int first)
+    {
+        for (int reached = Math.Max(first, 1); reached <= LastPartway; reached++)
+        {
+            KraidBackdropShown shown = KraidBackdropShown.Fade(from, goal, first, reached);
+            yield return shown as KraidBackdropShown.Fading
+                ?? throw new InvalidOperationException($"Kraid's backdrop fade from {from} toward {goal} at {first} through {reached} shows {shown}.");
+        }
+    }
+
+    /// <summary>The colours <paramref name="shown"/> names, from the room's, Kraid's and black.</summary>
+    private static RgbColor[] Colours(KraidBackdropShown shown, KraidBackdropPalettes palettes) => shown switch
+    {
+        KraidBackdropShown.Settled settled => Colours(settled.Colours, palettes),
+        KraidBackdropShown.Fading fading => Faded(Colours(fading.From, palettes), Colours(fading.Goal, palettes), fading.First, fading.Reached),
+        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
+    };
+
+    /// <summary>The settled <paramref name="colours"/>.</summary>
+    private static RgbColor[] Colours(KraidBackdropSettledColours colours, KraidBackdropPalettes palettes) => colours switch
+    {
+        KraidBackdropSettledColours.RoomColours => palettes.Room,
+        KraidBackdropSettledColours.KraidColours => palettes.Kraid,
+        KraidBackdropSettledColours.Black => palettes.Black,
+        _ => throw new ArgumentOutOfRangeException(nameof(colours), colours, "Undefined Kraid backdrop colours."),
+    };
 
     /// <summary>
     /// Each of <paramref name="from"/>'s colours after the fade's steps toward <paramref name="to"/>'s at the shared
@@ -78,4 +142,10 @@ internal static class KraidBackdropShades
         }
         return faded;
     }
+
+    /// <summary>The settled colours of the backdrop's ink run.</summary>
+    /// <param name="Room">The room's own colours.</param>
+    /// <param name="Kraid">Kraid's backdrop colours.</param>
+    /// <param name="Black">Black.</param>
+    private sealed record KraidBackdropPalettes(RgbColor[] Room, RgbColor[] Kraid, RgbColor[] Black);
 }

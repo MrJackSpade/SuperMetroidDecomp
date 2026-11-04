@@ -3,9 +3,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
-/// The shades the import pre-colours Kraid's room pictures in for his backdrop's fades (#1512), one per value of the
-/// shared counter a step can take, each showing the colours after the steps from zero through it: the fade the room's
-/// backdrop takes as he grows, and the fades out to black and back in as he dies.
+/// The shades the import pre-colours Kraid's pictures in (#1512): his health bands, his death colours and rocks, and what
+/// his room's backdrop shows through its fades, each fade's colours named by the colours it started from and the shared
+/// counter's values at its steps.
 /// </summary>
 public static class KraidShades
 {
@@ -27,30 +27,48 @@ public static class KraidShades
     /// <summary>Kraid's backdrop colours, as his defeated room shows them.</summary>
     public static PictureShade Backdrop { get; } = new("kraid-backdrop", 0);
 
-    /// <summary>The backdrop after the step of counter value <paramref name="value"/> of its fade from the room's colours into Kraid's.</summary>
-    public static PictureShade BackdropFadingInFromRoomColours(int value) => new("kraid-backdrop-fading-in-from-room-colours", value);
-
-    /// <summary>The backdrop after the step of counter value <paramref name="value"/> of its fade from Kraid's colours to black.</summary>
-    public static PictureShade BackdropFadingOut(int value) => new("kraid-backdrop-fading-out", value);
+    /// <summary>The backdrop black, as his death fade leaves it.</summary>
+    public static PictureShade BackdropBlack { get; } = new("kraid-backdrop-black", 0);
 
     /// <summary>
-    /// The backdrop after the step of counter value <paramref name="value"/> of its fade to black from the room's colours,
-    /// which began at counter value <paramref name="first"/>: Kraid died before his growth faded the backdrop in.
+    /// The shade of what Kraid's backdrop shows: his colours, black, or a fade's colours, which the fade names by the
+    /// chain of fades that led to them and the shared counter's first and latest value in each.
     /// </summary>
-    public static PictureShade BackdropFadingOutFromRoomColours(int first, int value) =>
-        new("kraid-backdrop-fading-out-from-room-colours", Pair(first, value));
+    /// <param name="shown">What the backdrop shows, other than the room's own colours.</param>
+    /// <exception cref="ArgumentException">The backdrop shows the room's own colours, its pictures' standard colouring.</exception>
+    internal static PictureShade BackdropShowing(KraidBackdropShown shown) => shown switch
+    {
+        KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.KraidColours } => Backdrop,
+        KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.Black } => BackdropBlack,
+        KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.RoomColours } => throw new ArgumentException(
+            "The room's own backdrop colours are its pictures' standard colouring, which no shade names.", nameof(shown)),
+        KraidBackdropShown.Fading fading => new($"kraid-backdrop-from-{ChainName(fading)}", ChainStep(fading)),
+        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
+    };
 
-    /// <summary>
-    /// The backdrop after the step of counter value <paramref name="value"/> of its fade to black from the colours step
-    /// <paramref name="lastFadeIn"/> of his growth fade showed: Kraid died during that fade, which the fade to black
-    /// continues the shared counter of.
-    /// </summary>
-    public static PictureShade BackdropFadingOutFromFadingIn(int lastFadeIn, int value) =>
-        new("kraid-backdrop-fading-out-from-fading-in", Pair(lastFadeIn, value));
+    /// <summary>The colours a chain of fades started from, then each fade's goal in turn.</summary>
+    private static string ChainName(KraidBackdropShown shown) => shown switch
+    {
+        KraidBackdropShown.Settled settled => ColoursName(settled.Colours),
+        KraidBackdropShown.Fading fading => $"{ChainName(fading.From)}-to-{ColoursName(fading.Goal)}",
+        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
+    };
 
-    /// <summary>One shade step naming two counter values of a fade.</summary>
-    private static int Pair(int first, int value) => first * BackdropFadeShades + value;
+    /// <summary>The first and latest counter values of each fade of a chain, as the digits of one step.</summary>
+    /// <exception cref="OverflowException">The chain holds more fades than one step can name.</exception>
+    private static int ChainStep(KraidBackdropShown shown) => shown switch
+    {
+        KraidBackdropShown.Settled => 0,
+        KraidBackdropShown.Fading fading => checked(((ChainStep(fading.From) * BackdropFadeShades) + fading.First) * BackdropFadeShades + fading.Reached),
+        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
+    };
 
-    /// <summary>The backdrop after the step of counter value <paramref name="value"/> of its fade from black into Kraid's colours.</summary>
-    public static PictureShade BackdropFadingInFromBlack(int value) => new("kraid-backdrop-fading-in-from-black", value);
+    /// <summary>The name of settled backdrop colours in a shade's name.</summary>
+    private static string ColoursName(KraidBackdropSettledColours colours) => colours switch
+    {
+        KraidBackdropSettledColours.RoomColours => "room-colours",
+        KraidBackdropSettledColours.KraidColours => "kraid-colours",
+        KraidBackdropSettledColours.Black => "black",
+        _ => throw new ArgumentOutOfRangeException(nameof(colours), colours, "Undefined Kraid backdrop colours."),
+    };
 }

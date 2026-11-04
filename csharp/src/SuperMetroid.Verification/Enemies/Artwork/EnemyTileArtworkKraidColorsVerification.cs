@@ -31,6 +31,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Suite(nameof(VerifyKraidPaletteSourceLengths), () => VerifyKraidPaletteSourceLengths());
         Suite(nameof(VerifyKraidBackdropSurvivesReinitialization), () => VerifyKraidBackdropSurvivesReinitialization(stock));
         Suite(nameof(VerifyKraidDeathFadeFromRoomColours), () => VerifyKraidDeathFadeFromRoomColours(stock));
+        Suite(nameof(VerifyKraidFadeBackFromKraidColours), () => VerifyKraidFadeBackFromKraidColours(stock));
+        Suite(nameof(VerifyKraidDeathFadeDuringGrowthFade), () => VerifyKraidDeathFadeDuringGrowthFade(stock));
         KraidColorCatalog catalog = stock.Bosses.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
@@ -147,15 +149,15 @@ internal static class EnemyTileArtworkKraidColorsVerification
         int growthSteps = 0;
         while (!fade(KraidBackdropFade.ToRoomColors))
             AssertTrue(++growthSteps <= KraidShades.BackdropFadeShades, "Kraid's growth fade completes after its shades");
-        AssertEqual(KraidBackdropShows.KraidColours, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
         // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        AssertEqual(KraidBackdropShows.KraidColours, enemies.KraidBehavior.Access.Backdrop.Shows,
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
             "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
         while (!fade(KraidBackdropFade.ToBlack))
             AssertTrue(++deathSteps <= KraidShades.BackdropFadeShades, "Kraid's death fade completes after its shades");
-        AssertEqual(KraidBackdropShows.Black, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade ends on black");
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade ends on black");
     }
 
     /// <summary>
@@ -166,36 +168,132 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// </summary>
     private static void VerifyKraidDeathFadeFromRoomColours(InstalledEnemyArtwork artwork)
     {
+        KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
+        RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToBlack, expected, fixture.Black, untilCounter: null,
+            "Kraid's death fade from the room's colours");
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), fixture.Enemies.KraidBehavior.Access.Backdrop.Shows,
+            "Kraid's death fade from the room's colours ends on black");
+    }
+
+    /// <summary>
+    /// The fade back toward the room's colours once Kraid's body has sunk can start while the backdrop still shows his
+    /// colours (#1512): his growth fade steps through its last value, he dies before it completes, so his death fade
+    /// completes without a step and leaves his colours; the death zeroes the counter and the fade back then steps from
+    /// his colours, each step showing what the cartridge's gradual colour change computes, and ends on them. His defeated
+    /// room, which shows his colours at once, takes the same fade back.
+    /// </summary>
+    private static void VerifyKraidFadeBackFromKraidColours(InstalledEnemyArtwork artwork)
+    {
+        KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
+        RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToRoomColors, expected, fixture.Kraid,
+            untilCounter: KraidBackgroundDefinitions.BackdropFadeLastStep, "Kraid's growth fade");
+        var fade = new Func<KraidBackdropFade, bool>(fixture.Enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        AssertTrue(fade(KraidBackdropFade.ToBlack), "Kraid's death fade after his growth fade's last step completes without a step");
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), fixture.Enemies.KraidBehavior.Access.Backdrop.Shows,
+            "a death fade that took no step leaves Kraid's colours");
+        // The death zeroes the shared counter once his body has sunk, before the fade back.
+        fixture.Enemies.Presentation.GradualColorChange.Reset();
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToRoomColors, expected, fixture.Kraid, untilCounter: null,
+            "Kraid's fade back from his colours");
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), fixture.Enemies.KraidBehavior.Access.Backdrop.Shows,
+            "Kraid's fade back from his colours ends on them");
+
+        KraidBackdropFixture defeated = NewKraidBackdropFixture(artwork);
+        defeated.Enemies.KraidBehavior.Access.Backdrop.ShowKraidColours();
+        RgbColor[] defeatedExpected = (RgbColor[])defeated.Kraid.Clone();
+        StepKraidBackdropFade(defeated, KraidBackdropFade.ToRoomColors, defeatedExpected, defeated.Kraid, untilCounter: null,
+            "Kraid's defeated room's fade back");
+    }
+
+    /// <summary>
+    /// Kraid can die during his growth fade (#1512): his death fade then starts from the growth fade's colours at its last
+    /// step and continues its counter, each step showing those colours after the cartridge's gradual colour change toward
+    /// black, and ends on black.
+    /// </summary>
+    private static void VerifyKraidDeathFadeDuringGrowthFade(InstalledEnemyArtwork artwork)
+    {
+        KraidBackdropFixture fixture = NewKraidBackdropFixture(artwork);
+        RgbColor[] expected = (RgbColor[])fixture.Room.Clone();
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToRoomColors, expected, fixture.Kraid, untilCounter: 5, "Kraid's growth fade");
+        AssertTrue(fixture.Enemies.KraidBehavior.Access.Backdrop.Shows is KraidBackdropShown.Fading,
+            "Kraid's growth fade is partway when he dies");
+        StepKraidBackdropFade(fixture, KraidBackdropFade.ToBlack, expected, fixture.Black, untilCounter: null,
+            "Kraid's death fade during his growth fade");
+        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.Black), fixture.Enemies.KraidBehavior.Access.Backdrop.Shows,
+            "Kraid's death fade during his growth fade ends on black");
+    }
+
+    /// <summary>A fresh Kraid room's enemies, the import's backdrop shades for a room of distinct colours, and those colours.</summary>
+    /// <param name="Enemies">The room's enemies, Kraid loaded.</param>
+    /// <param name="Shades">The import's backdrop shades.</param>
+    /// <param name="Room">The room's own backdrop colours.</param>
+    /// <param name="Kraid">Kraid's backdrop colours.</param>
+    /// <param name="Black">Black.</param>
+    private sealed record KraidBackdropFixture(RoomEnemySystem Enemies, IReadOnlyList<SheetShade> Shades, RgbColor[] Room, RgbColor[] Kraid, RgbColor[] Black);
+
+    /// <summary>The first ink of a room picture Kraid's backdrop recolours.</summary>
+    private const int KraidBackdropFirstInk = 96;
+
+    /// <summary>Loads Kraid into a fresh room and makes the import's backdrop shades for a room whose fifth colour group holds distinct colours.</summary>
+    private static KraidBackdropFixture NewKraidBackdropFixture(InstalledEnemyArtwork artwork)
+    {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
-        var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
-        int steps = 0;
-        while (!fade(KraidBackdropFade.ToBlack))
-        {
-            AssertEqual(KraidBackdropShows.FadingOut, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade runs from the room's colours");
-            AssertTrue(++steps <= KraidShades.BackdropFadeShades, "Kraid's death fade completes after its shades");
-        }
-        AssertEqual(KraidBackdropShows.Black, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade from the room's colours ends on black");
-
-        // A room whose fifth colour group holds distinct colours, so every step of the fade moves them.
+        // A room whose fifth colour group holds distinct colours, so every step of a fade moves them.
         var standard = new RgbColor[SpriteImage.SpriteColourCount];
         for (int colour = 0; colour < standard.Length; colour++)
             standard[colour] = new RgbColor(colour % 32, (colour * 7) % 32, (31 - colour % 32));
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
-        IReadOnlyList<SheetShade> shades = KraidBackdropShades.Of(standard, kraid);
-        const int firstInk = 96;
-        const int denominator = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
-        var expected = new RgbColor[KraidPalettes.BandColors];
-        Array.Copy(standard, firstInk, expected, 0, expected.Length);
-        for (int value = 0; value < KraidShades.BackdropFadeShades; value++)
-        {
-            for (int colour = 0; colour < expected.Length; colour++)
-                expected[colour] = GradualColourFade.Step(value, expected[colour], RgbColor.Black, denominator);
-            SheetShade shade = shades.Single(candidate => candidate.Shade == KraidShades.BackdropFadingOutFromRoomColours(0, value));
-            AssertTrue(shade.Colours.SequenceEqual(expected), $"Kraid's death fade from the room's colours shows the cartridge's step {value}");
-        }
-        AssertTrue(expected.All(colour => colour == RgbColor.Black), "Kraid's death fade from the room's colours reaches black");
+        var room = new RgbColor[KraidPalettes.BandColors];
+        Array.Copy(standard, KraidBackdropFirstInk, room, 0, room.Length);
+        RgbColor[] backdrop = [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.RoomBackdrop, colour))];
+        return new KraidBackdropFixture(enemies, KraidBackdropShades.Of(standard, kraid), room, backdrop, new RgbColor[KraidPalettes.BandColors]);
     }
+
+    /// <summary>
+    /// Steps a fade of Kraid's backdrop through production, through the step at counter <paramref name="untilCounter"/>
+    /// or until it completes, moving <paramref name="expected"/> toward <paramref name="goal"/> by the cartridge's gradual
+    /// colour change at each counter value, and checks that what the backdrop shows names an import shade of those colours.
+    /// </summary>
+    private static void StepKraidBackdropFade(KraidBackdropFixture fixture, KraidBackdropFade fade, RgbColor[] expected, RgbColor[] goal,
+        int? untilCounter, string label)
+    {
+        const int denominator = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
+        var advance = new Func<KraidBackdropFade, bool>(fixture.Enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        int steps = 0;
+        while (true)
+        {
+            int value = fixture.Enemies.Presentation.GradualColorChange.Numerator;
+            if (advance(fade))
+            {
+                AssertTrue(untilCounter is null, $"{label} completes only when stepped to its end");
+                AssertTrue(expected.SequenceEqual(goal), $"{label} reaches its goal");
+                AssertKraidBackdropShows(fixture, expected, $"{label} completed");
+                return;
+            }
+            for (int colour = 0; colour < expected.Length; colour++)
+                expected[colour] = GradualColourFade.Step(value, expected[colour], goal[colour], denominator);
+            AssertKraidBackdropShows(fixture, expected, $"{label} at counter {value}");
+            AssertTrue(++steps <= KraidShades.BackdropFadeShades, $"{label} completes after its shades");
+            if (value == untilCounter)
+                return;
+        }
+    }
+
+    /// <summary>Checks that what Kraid's backdrop shows is <paramref name="expected"/>: the room's own colours, or the import's shade it names.</summary>
+    private static void AssertKraidBackdropShows(KraidBackdropFixture fixture, RgbColor[] expected, string label)
+    {
+        KraidBackdropShown shown = fixture.Enemies.KraidBehavior.Access.Backdrop.Shows;
+        RgbColor[] colours = shown == SettledBackdrop(KraidBackdropSettledColours.RoomColours)
+            ? fixture.Room
+            : fixture.Shades.Single(candidate => candidate.Shade == KraidShades.BackdropShowing(shown)).Colours;
+        AssertTrue(colours.SequenceEqual(expected), $"{label} shows the cartridge's colours");
+    }
+
+    /// <summary>The backdrop settled on <paramref name="colours"/>.</summary>
+    private static KraidBackdropShown SettledBackdrop(KraidBackdropSettledColours colours) => new KraidBackdropShown.Settled(colours);
 
     /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>
     private static ushort[] ReferenceKraidPaletteConsumer(
@@ -281,7 +379,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             case KraidPaletteConsumer.BackdropLoad:
                 // The defeated room shows Kraid's backdrop: the import's shade of it lays his colours over the backdrop's inks.
                 enemies.KraidBehavior.Access.Backdrop.ShowKraidColours();
-                AssertEqual(KraidBackdropShows.KraidColours, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's defeated room shows his backdrop");
+                AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's defeated room shows his backdrop");
                 Lay(colours, KraidBackdropShades.Of(new RgbColor[SpriteImage.SpriteColourCount], kraid), KraidShades.Backdrop, 0);
                 break;
             case KraidPaletteConsumer.InitialTargetLoad:
@@ -293,9 +391,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 for (int step = 0; step < 13; step++)
                     enemies.Presentation.GradualColorChange.Advance();
                 _ = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToRoomColors);
-                AssertEqual(KraidBackdropShows.FadingInFromRoomColours, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fades his backdrop in");
+                AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
+                    "Kraid's growth fade's last step lands on his colours");
                 Lay(colours, KraidBackdropShades.Of(new RgbColor[SpriteImage.SpriteColourCount], kraid),
-                    KraidShades.BackdropFadingInFromRoomColours(enemies.KraidBehavior.Access.Backdrop.Steps), 0);
+                    KraidShades.BackdropShowing(enemies.KraidBehavior.Access.Backdrop.Shows), 0);
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:

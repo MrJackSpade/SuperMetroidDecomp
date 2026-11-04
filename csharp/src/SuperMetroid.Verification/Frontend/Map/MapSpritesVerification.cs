@@ -85,6 +85,20 @@ internal static class MapSpritesVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "composition changes catalog identity");
         Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
+        // A sheet frame is one image the import assembles (#1513): the edited part's explicit palette is baked into that image,
+        // every painted pixel of it inked from row five, and the caller's blink shading recolours the rest of the frame.
+        SpriteSheetFrame boss = MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(edited)).Frame("Marker.Boss");
+        ReadOnlySpan<SpriteImageInk> bossInks = boss.Sheet.Inks;
+        int paintedInks = 0;
+        for (int y = boss.Corner.Y; y < boss.Corner.Y + boss.Size.Y; y++)
+        for (int x = boss.Corner.X; x < boss.Corner.X + boss.Size.X; x++)
+        {
+            SpriteImageInk ink = bossInks[y * boss.Sheet.Size.X + x];
+            if (boss.Sheet.IsColourZero(ink)) continue;
+            paintedInks++;
+            AssertEqual(5, ink.PaletteIndex / 16, "the edited part's explicit palette row is baked into the composed frame image");
+        }
+        AssertTrue(paintedInks > 0, "the edited part paints the composed frame image");
         // Every colouring the map draws in.
         foreach (PictureShading colouring in MapSpriteShadings)
         {
@@ -93,7 +107,6 @@ internal static class MapSpritesVerification
             AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
             var attributes = new SnesObjAttributeWord(LittleEndianBytes.Word(authored.LowTable[2], authored.LowTable[3]));
             AssertEqual(50, attributes.TileNumber, "authored tile region reaches OAM");
-            AssertEqual(5, attributes.PaletteIndex, "explicit palette overrides caller blink palette");
             AssertEqual(3, attributes.Priority, "authored priority reaches OAM");
             AssertTrue(attributes.FlipHorizontally && attributes.FlipVertically && (authored.HighTable[0] & 2) != 0,
                 "authored flips and large size reach OAM");

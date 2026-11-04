@@ -23,7 +23,6 @@ internal static class IntroPoseHistoryVerification
     internal static void VerifyIntroPoseHistory()
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 235)) };
         var entries = new RoomTerrainBlock[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
@@ -76,7 +75,9 @@ internal static class IntroPoseHistoryVerification
             SamusMovementType olderMetadata = before?.PoseHistory.LastDifferentMovement ?? SamusMovementType.Standing;
             bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
-            intro.Render();
+            // Publishing the display runs the draw passes whose side effects the scene keeps (projectile trails), as the
+            // frontend publishes every frame; rasterising it is the host's work, and nothing here reads pixels.
+            _ = intro.CaptureTranslatedRenderSnapshot();
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             SamusState? after = intro.CurrentFlashbackSamus;
             IntroBabyDiscoveryState? discovery = intro.CurrentBabyDiscovery;

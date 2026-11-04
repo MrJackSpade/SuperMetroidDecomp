@@ -64,6 +64,9 @@ internal static class GameplayCaptureIntegrationTestsVerification
         {
             MapPresentation = presentation,
         });
+        // The content both games draw from, indexed once now that all of it is loaded, so the packets' graphs name it by
+        // path rather than copying it into every comparison.
+        object[] content = [presentation, .. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent];
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
@@ -118,8 +121,12 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
             AssertSequenceEqual(legacy.AudioEventsForVerification, packets.AudioEventsForVerification, "gameplay capture audio event order");
-            AssertTrue(legacy.PublishedPixels().SequenceEqual(DisplayRendering.Render(actual.Snapshot)),
-                $"gameplay capture pixels in {expected.Phase}");
+            // A packet holds everything the renderer draws and nothing else, so two packets with equal graphs show equal
+            // pixels; only packets whose graphs differ are drawn and their pixels compared.
+            DisplayPacket shown = legacy.GetRetainedDisplay();
+            if (!GraphDigest(shown, content).SequenceEqual(GraphDigest(actual.Snapshot, content)))
+                AssertTrue(DisplayRendering.Render(shown).SequenceEqual(DisplayRendering.Render(actual.Snapshot)),
+                    $"gameplay capture pixels in {expected.Phase}");
         }
     }
 }

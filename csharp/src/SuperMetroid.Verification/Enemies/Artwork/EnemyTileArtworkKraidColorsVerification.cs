@@ -30,6 +30,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Suite(nameof(VerifyKraidPaletteSourceAddresses), () => VerifyKraidPaletteSourceAddresses(rom));
         Suite(nameof(VerifyKraidPaletteSourceLengths), () => VerifyKraidPaletteSourceLengths());
         Suite(nameof(VerifyKraidBackdropSurvivesReinitialization), () => VerifyKraidBackdropSurvivesReinitialization(stock));
+        Suite(nameof(VerifyKraidDeathFadeFromRoomColours), () => VerifyKraidDeathFadeFromRoomColours(stock));
         KraidColorCatalog catalog = stock.Bosses.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
@@ -155,6 +156,45 @@ internal static class EnemyTileArtworkKraidColorsVerification
         while (!fade(KraidBackdropFade.ToBlack))
             AssertTrue(++deathSteps <= KraidShades.BackdropFadeShades, "Kraid's death fade completes after its shades");
         AssertEqual(KraidBackdropShows.Black, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade ends on black");
+    }
+
+    /// <summary>
+    /// Kraid can die before his growth fades the backdrop in (the growth waits 180 updates after his health falls below six
+    /// eighths, and he takes damage meanwhile): his death fade then fades the room's colours to black, as the cartridge's
+    /// gradual colour change fades the backdrop's colour memory from whatever it holds (#1532). Each step's shade the import
+    /// makes is the room's colours after the cartridge's steps toward black, and the fade ends on black.
+    /// </summary>
+    private static void VerifyKraidDeathFadeFromRoomColours(InstalledEnemyArtwork artwork)
+    {
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
+        var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
+        int steps = 0;
+        while (!fade(KraidBackdropFade.ToBlack))
+        {
+            AssertEqual(KraidBackdropShows.FadingOut, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade runs from the room's colours");
+            AssertTrue(++steps <= KraidShades.BackdropFadeShades, "Kraid's death fade completes after its shades");
+        }
+        AssertEqual(KraidBackdropShows.Black, enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's death fade from the room's colours ends on black");
+
+        // A room whose fifth colour group holds distinct colours, so every step of the fade moves them.
+        var standard = new RgbColor[SpriteImage.SpriteColourCount];
+        for (int colour = 0; colour < standard.Length; colour++)
+            standard[colour] = new RgbColor(colour % 32, (colour * 7) % 32, (31 - colour % 32));
+        KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
+        IReadOnlyList<SheetShade> shades = KraidBackdropShades.Of(standard, kraid);
+        const int firstInk = 96;
+        const int denominator = KraidBackgroundDefinitions.BackdropFadeLastStep - 1;
+        var expected = new RgbColor[KraidPalettes.BandColors];
+        Array.Copy(standard, firstInk, expected, 0, expected.Length);
+        for (int value = 0; value < KraidShades.BackdropFadeShades; value++)
+        {
+            for (int colour = 0; colour < expected.Length; colour++)
+                expected[colour] = GradualColourFade.Step(value, expected[colour], RgbColor.Black, denominator);
+            SheetShade shade = shades.Single(candidate => candidate.Shade == KraidShades.BackdropFadingOutFromRoomColours(0, value));
+            AssertTrue(shade.Colours.SequenceEqual(expected), $"Kraid's death fade from the room's colours shows the cartridge's step {value}");
+        }
+        AssertTrue(expected.All(colour => colour == RgbColor.Black), "Kraid's death fade from the room's colours reaches black");
     }
 
     /// <summary>Builds an independent CGRAM reference from pinned sm_a7.c palette writes; zero thresholds select health band eight at 1000 HP and odd hurt frames select flash.</summary>

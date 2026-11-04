@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;

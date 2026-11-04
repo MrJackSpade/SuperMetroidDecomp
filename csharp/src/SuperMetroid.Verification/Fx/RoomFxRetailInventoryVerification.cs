@@ -327,7 +327,7 @@ internal static class RoomFxRetailInventoryVerification
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
             RgbaPixel[] hiddenFrame = RenderRoomFx(vram, cgram, hiddenSnapshot, EffectPlane(actual));
-            AssertTrue(hiddenFrame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
+            AssertTrue(hiddenFrame.SequenceEqual(SeededBackdrop.Value),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} negative liquid surface is visually absent");
             return audit;
@@ -354,7 +354,7 @@ internal static class RoomFxRetailInventoryVerification
                     $"Room {room.Identity} visible liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
             RgbaPixel[] visibleFrame = RenderRoomFx(vram, cgram, visibleSnapshot, EffectPlane(actual));
-            AssertTrue(!visibleFrame.SequenceEqual(RenderRoomFxBackdrop(cgram)),
+            AssertTrue(!visibleFrame.SequenceEqual(SeededBackdrop.Value),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} visibly composes {expectedType}");
         }
@@ -483,6 +483,17 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>
     private static RgbaPixel[] RenderRoomFxBackdrop(RgbColor[] cgram) =>
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(cgram, []), [], DisplayBrightness.Full));
+
+    /// <summary>
+    /// The backdrop alone under the seeded visible FX palette every entry-path audit renders over, drawn once: each audit
+    /// seeds the same colours, so each compares its frame with the same backdrop.
+    /// </summary>
+    private static readonly Lazy<RgbaPixel[]> SeededBackdrop = new(() =>
+    {
+        var cgram = new RgbColor[SnesCgram.ColorCount];
+        SeedVisibleRoomFxPalette(cgram);
+        return RenderRoomFxBackdrop(cgram);
+    });
 
     /// <summary>
     /// The tile words of the BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348), as the

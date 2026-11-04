@@ -98,7 +98,7 @@ internal static class EnemySheetFixtures
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.For(set, enemy);
-            return Set(set).Enemies.TryGetValue(enemy, out SpriteSheet? sheet) ? sheet
+            return Set(set).Enemies.TryGetValue(enemy, out Lazy<SpriteSheet>? sheet) ? sheet.Value
                 : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no sheet for {enemy}.");
         }
 
@@ -107,7 +107,7 @@ internal static class EnemySheetFixtures
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
                 return installed.Spawned(set, owner);
-            return Set(set).Spawned.TryGetValue(owner, out SpawnedObjectSheet? sheet) ? sheet
+            return Set(set).Spawned.TryGetValue(owner, out Lazy<SpawnedObjectSheet>? sheet) ? sheet.Value
                 : throw new InvalidDataException($"Enemy graphics set {set.Name} composes no spawned-object sheet for {owner}.");
         }
 
@@ -147,30 +147,35 @@ internal static class EnemySheetFixtures
                 && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
         }
 
-        /// <summary>Composes and registers one graphics set's sheets.</summary>
+        /// <summary>
+        /// Gathers one graphics set's sheet sources; each sheet is composed and registered the first time it is drawn, so a
+        /// check reading one enemy's sheet composes that sheet alone.
+        /// </summary>
         private ComposedSet Compose(RoomEnemyGraphicsSetDefinition set)
         {
             // A fixture's own set is coloured in the rows its records name, which the fixture recorded.
             GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs with { SetPaletteRows = FixtureGraphicsSetRows.CatalogueFor(set) }, set);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
-            var enemies = new Dictionary<EnemyDefinitionId, SpriteSheet>();
+            var enemies = new Dictionary<EnemyDefinitionId, Lazy<SpriteSheet>>();
             var variations = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
             var rotPictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>>();
             foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, FrameArtworkVariation[]> frameVariations,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Enemies)
             {
-                enemies[enemy] = Load(sources, $"{enemy}-{owner}");
+                string name = $"{enemy}-{owner}";
+                enemies[enemy] = new Lazy<SpriteSheet>(() => Load(sources, name));
                 variations[enemy] = frameVariations;
                 rotPictures[enemy] = frameRots;
             }
-            var spawned = new Dictionary<SpawnedObjectOwner, SpawnedObjectSheet>();
+            var spawned = new Dictionary<SpawnedObjectOwner, Lazy<SpawnedObjectSheet>>();
             var spawnedVariations = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
             var spawnedRotPictures = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, string>>();
             foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, FrameArtworkVariation[]> frameVariations,
                          IReadOnlyDictionary<string, string> frameRots) in setSources.Spawned)
             {
-                var sheet = new SpawnedObjectSheet(Load(sources, $"Spawned-{plan.Owner}-{owner}"));
+                string name = $"Spawned-{plan.Owner}-{owner}";
+                var sheet = new Lazy<SpawnedObjectSheet>(() => new SpawnedObjectSheet(Load(sources, name)));
                 foreach (SpawnedObjectOwner spawnedOwner in plan.AlsoOwnedBy.Prepend(plan.Owner))
                 {
                     spawned[spawnedOwner] = sheet;
@@ -193,14 +198,14 @@ internal static class EnemySheetFixtures
     }
 
     /// <summary>One composed graphics set's sheets.</summary>
-    /// <param name="Enemies">Each enemy's sheet.</param>
-    /// <param name="Spawned">Each spawned-object sheet by tile base.</param>
+    /// <param name="Enemies">Each enemy's sheet, composed when first drawn.</param>
+    /// <param name="Spawned">Each spawned-object sheet by tile base, composed when first drawn.</param>
     /// <param name="Variations">Each enemy sheet's frames encounter artwork sequences change, and how each follows them.</param>
     /// <param name="SpawnedVariations">The same for each spawned-object sheet, by tile base.</param>
     /// <param name="RotPictures">Each enemy sheet's frames drawn over a rotting corpse's rows, and the kind of corpse each shows.</param>
     /// <param name="SpawnedRotPictures">The same for each spawned-object sheet, by tile base.</param>
-    private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, SpriteSheet> Enemies,
-        IReadOnlyDictionary<SpawnedObjectOwner, SpawnedObjectSheet> Spawned,
+    private sealed record ComposedSet(IReadOnlyDictionary<EnemyDefinitionId, Lazy<SpriteSheet>> Enemies,
+        IReadOnlyDictionary<SpawnedObjectOwner, Lazy<SpawnedObjectSheet>> Spawned,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, FrameArtworkVariation[]>> Variations,
         IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, FrameArtworkVariation[]>> SpawnedVariations,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, string>> RotPictures,

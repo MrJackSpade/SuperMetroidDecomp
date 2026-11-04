@@ -246,15 +246,13 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
             new(borderSprites, cursorSprites, helmetSprites), Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
-    /// <summary>Serializes an authored document and validates the serialized presentation before writing any bytes to the output.</summary>
+    /// <summary>Serializes an authored document to the output.</summary>
     /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
-    /// <param name="document">Authored layout and artwork to validate and serialize; its collections are not modified.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails file-select presentation validation.</exception>
+    /// <param name="document">Authored layout and artwork to serialize; its collections are not modified.</param>
     public static void Write(Stream output, FileSelectPresentationDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

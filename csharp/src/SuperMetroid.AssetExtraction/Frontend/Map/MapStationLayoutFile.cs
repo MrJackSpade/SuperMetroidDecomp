@@ -35,13 +35,12 @@ public static class MapStationLayoutFile
         return new(new(document.Markers, StringComparer.Ordinal));
     }
 
-    /// <summary>Validates and writes an editable map-station layout document as JSON.</summary>
+    /// <summary>Writes an editable map-station layout document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The station-marker layout to validate and serialize.</param>
+    /// <param name="document">The station-marker layout to serialize.</param>
     public static void Write(Stream json, MapStationLayoutDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

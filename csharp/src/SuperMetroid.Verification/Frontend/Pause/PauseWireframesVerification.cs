@@ -120,7 +120,11 @@ internal static class PauseWireframesVerification
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
         void Reject(PauseWireframeDocument invalid) => AssertThrows<InvalidDataException>(() =>
-            PauseWireframePresentation.Write(new MemoryStream(), invalid), "invalid wireframe schema/shape/atlas reference rejected");
+        {
+            using var written = new MemoryStream();
+            PauseWireframePresentation.Write(written, invalid);
+            _ = PauseWireframePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "invalid wireframe schema/shape/atlas reference rejected on read");
         Reject(document with { Version = 2 }); Reject(document with { Frames = [] });
         var invalidFrames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
         invalidFrames[nameof(PauseWireframeKind.PowerSuit)] = []; Reject(document with { Frames = invalidFrames });

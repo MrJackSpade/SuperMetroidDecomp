@@ -41,15 +41,14 @@ public static class IntroCinematicPaletteFile
         return IntroCinematicPaletteRecognition.Recognise(image);
     }
 
-    /// <summary>Serializes the complete opening palette as UTF-8 JSON and validates it through <see cref="Read"/> before writing any destination bytes.</summary>
+    /// <summary>Serializes the complete opening palette as UTF-8 JSON.</summary>
     /// <param name="json">Caller-owned destination stream.</param>
-    /// <param name="document">Complete ordered RGB5 palette to validate and serialize.</param>
+    /// <param name="document">Complete ordered RGB5 palette to serialize.</param>
     public static void Write(Stream json, IntroCinematicPaletteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

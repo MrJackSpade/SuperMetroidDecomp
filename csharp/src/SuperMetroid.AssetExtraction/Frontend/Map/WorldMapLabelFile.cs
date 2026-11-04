@@ -33,13 +33,12 @@ public static class WorldMapLabelFile
             RequireArea(AreaId.WreckedShip), RequireArea(AreaId.Maridia), RequireArea(AreaId.Tourian));
     }
 
-    /// <summary>Validates and writes a world-map label document as JSON.</summary>
+    /// <summary>Writes a world-map label document as JSON.</summary>
     /// <param name="json">Destination stream.</param>
-    /// <param name="document">Document to validate and serialize.</param>
+    /// <param name="document">Document to serialize.</param>
     public static void Write(Stream json, WorldMapLabelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

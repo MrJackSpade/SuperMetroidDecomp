@@ -96,7 +96,12 @@ internal static class PauseReserveTankAssetsVerification
         menu.Step(0, ControllerButton.Down); menu.Step(0, ControllerButton.A);
         AssertEqual(51, samus.Health, "custom reserve art cannot change transfer amount");
         AssertEqual(99, samus.ReserveEnergy, "custom reserve art cannot change reserve consumption");
-        void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() => PauseReserveTankSourcePresentation.Write(new MemoryStream(), invalid), "invalid reserve presentation rejected");
+        void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            PauseReserveTankSourcePresentation.Write(written, invalid);
+            _ = PauseReserveTankSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, "invalid reserve presentation rejected on read");
         Reject(document with { Version = 2 }); Reject(document with { Palette = 8 }); Reject(document with { Anchors = [] }); Reject(document with { Frames = [] });
         var badAnchors = anchors.ToArray(); badAnchors[0] = new(256, 0); Reject(document with { Anchors = badAnchors });
         Reject(custom with { Frames = new(frames) { ["Full"] = [frames["Full"][0] with { TileColumn = 15 }] } });

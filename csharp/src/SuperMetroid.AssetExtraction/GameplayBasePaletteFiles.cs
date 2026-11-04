@@ -102,12 +102,11 @@ public static class GameplayBasePaletteFiles
             }));
     }
 
-    /// <summary>Validates and serializes a gameplay base-palette document as JSON.</summary>
+    /// <summary>Serializes a gameplay base-palette document as JSON.</summary>
     public static byte[] Write(GameplayBasePaletteDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             GameplayBasePaletteFormat.JsonOptions);
-        _ = Read(new MemoryStream(bytes, writable: false));
         return bytes;
     }
 

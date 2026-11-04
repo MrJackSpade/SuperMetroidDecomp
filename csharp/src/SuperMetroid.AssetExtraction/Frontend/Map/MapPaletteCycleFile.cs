@@ -54,14 +54,12 @@ public static class MapPaletteCycleFile
         return new(durations, colors);
     }
 
-    /// <summary>Serializes and validates a complete highlight cycle before writing any UTF-8 document bytes to the destination.</summary>
+    /// <summary>Serializes a complete highlight cycle as UTF-8 document bytes to the destination.</summary>
     /// <param name="json">Caller-owned writable stream, written at its current position without being disposed.</param>
     /// <param name="document">Ordered selected frames satisfying <see cref="Read"/>'s version, duration, count, and color requirements.</param>
-    /// <exception cref="InvalidDataException">The document is null or fails highlight-cycle validation.</exception>
     public static void Write(Stream json, MapPaletteCycleDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

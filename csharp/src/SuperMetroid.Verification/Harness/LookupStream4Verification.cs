@@ -3543,8 +3543,12 @@ internal static class LookupStream4Verification
         for (int cell = 2; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809997 + cell * 2)), tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)], "unedited AUTO anchors unchanged");
         document.AutoReserve.Anchors[0] = document.AutoReserve.Anchors[1];
-        AssertThrows<InvalidDataException>(() => GameplayHudPresentationFile.Write(new MemoryStream(), document),
-            "HUD anchor compilation rejects overlap");
+        AssertThrows<InvalidDataException>(() =>
+        {
+            using var written = new MemoryStream();
+            GameplayHudPresentationFile.Write(written, document);
+            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
+        }, "HUD anchor compilation rejects overlap on read");
         foreach (int invalid in new[] { -1, 14, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GameplayHudStockCells.EnergyTankCell(invalid), "tank exact domain");
         foreach (int invalid in new[] { -1, 5, int.MinValue, int.MaxValue })

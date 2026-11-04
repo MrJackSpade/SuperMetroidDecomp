@@ -52,7 +52,7 @@ public static class EndingPaletteArtworkFiles
                 };
             }
             using var json = new MemoryStream();
-            EndingPaletteFile.Write(json, id, new EndingPaletteDocument
+            EndingPaletteFile.Write(json, new EndingPaletteDocument
             {
                 Version = EndingPaletteDefinitions.Version,
                 Colors = colors,

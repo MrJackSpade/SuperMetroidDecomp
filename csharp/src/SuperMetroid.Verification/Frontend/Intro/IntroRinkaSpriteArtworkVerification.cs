@@ -132,7 +132,8 @@ internal static class IntroRinkaSpriteArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroRinkaSpritePresentation.Write(malformed, document);
-        }, "intro Rinka artwork rejects a missing named frame");
+            _ = IntroRinkaSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "intro Rinka artwork rejects a missing named frame on read");
         File.Delete(overridePath);
     }
 }

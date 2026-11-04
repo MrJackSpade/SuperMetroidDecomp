@@ -115,15 +115,14 @@ public sealed class CreditsPresentation
         return new(document.Lines, Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    /// <summary>Validates and writes a credits document as JSON.</summary>
+    /// <summary>Writes a credits document as JSON.</summary>
     /// <param name="output">Destination stream.</param>
-    /// <param name="document">Document to validate and serialize.</param>
+    /// <param name="document">Document to serialize.</param>
     public static void Write(Stream output, CreditsPresentationDocument document)
     {
         Ensure.NotNull(output);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

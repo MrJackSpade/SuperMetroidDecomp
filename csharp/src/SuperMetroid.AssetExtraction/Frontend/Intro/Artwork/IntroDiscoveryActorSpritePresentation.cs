@@ -58,15 +58,14 @@ public sealed class IntroDiscoveryActorSpritePresentation : ICinematicSpriteFram
         return new IntroDiscoveryActorSpritePresentation(frames);
     }
 
-    /// <summary>Validates and writes an editable SR388 discovery-actor sprite document as JSON.</summary>
+    /// <summary>Writes an editable SR388 discovery-actor sprite document as JSON.</summary>
     /// <param name="json">The caller-owned destination stream.</param>
-    /// <param name="document">The twenty-frame sprite document to validate and serialize.</param>
+    /// <param name="document">The twenty-frame sprite document to serialize.</param>
     public static void Write(Stream json, IntroDiscoveryActorSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

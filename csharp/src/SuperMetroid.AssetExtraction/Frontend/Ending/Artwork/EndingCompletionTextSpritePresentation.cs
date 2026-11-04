@@ -56,7 +56,7 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
         return new EndingCompletionTextSpritePresentation(frames);
     }
 
-    /// <summary>Serializes completion-text compositions as UTF-8 JSON and validates the complete named-frame set and OAM fields before writing any bytes.</summary>
+    /// <summary>Serializes completion-text compositions as UTF-8 JSON.</summary>
     /// <param name="json">Destination written at its current position and left open.</param>
     /// <param name="document">Versioned phrase-prefix, digit, and colon compositions to serialize.</param>
     public static void Write(Stream json, EndingCompletionTextSpriteDocument document)
@@ -64,7 +64,6 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

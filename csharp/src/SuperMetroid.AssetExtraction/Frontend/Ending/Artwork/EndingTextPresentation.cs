@@ -142,13 +142,12 @@ public sealed class EndingTextPresentation
             percentage, final, document.ResultPanel.Text, Convert.ToHexString(SHA256.HashData(source)));
     }
 
-    /// <summary>Serializes an editable ending-text document as UTF-8 JSON, validating it with <see cref="Load"/> before writing any bytes.</summary>
+    /// <summary>Serializes an editable ending-text document as UTF-8 JSON.</summary>
     /// <param name="output">Destination written at its current position and left open.</param>
     /// <param name="document">Versioned tilemap templates and bounded labels to serialize.</param>
     public static void Write(Stream output, EndingTextDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

@@ -90,7 +90,8 @@ internal static class RoomFxLayer3TilemapsVerification
             document.Pages[nameof(RoomFxType.Lava)][0] = originalCell with { TileColumn = 32 };
             using var invalid = new MemoryStream();
             RoomFxLayer3Pages.Write(invalid, document);
-        }, "invalid room-FX BG3 tile index fails loudly");
+            _ = RoomFxLayer3Pages.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "invalid room-FX BG3 tile index fails loudly on read");
         File.Delete(path);
         AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
         AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,

@@ -49,15 +49,13 @@ public static class GameplayHudPresentationFile
         return new GameplayHudArtwork(Decode(document, Convert.ToHexString(SHA256.HashData(source))));
     }
 
-    /// <summary>Validates and writes a gameplay-HUD presentation document as UTF-8 JSON.</summary>
+    /// <summary>Writes a gameplay-HUD presentation document as UTF-8 JSON.</summary>
     /// <param name="output">The destination stream.</param>
     /// <param name="document">The editable presentation document to serialize.</param>
-    /// <exception cref="InvalidDataException">The document would not load.</exception>
     public static void Write(Stream output, GameplayHudPresentationDocument document)
     {
         Ensure.NotNull(output);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 

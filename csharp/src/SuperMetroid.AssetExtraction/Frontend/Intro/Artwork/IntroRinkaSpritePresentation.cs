@@ -52,17 +52,15 @@ public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
         return new IntroRinkaSpritePresentation(frames);
     }
 
-    /// <summary>Serializes and validates the complete Rinka visual document before writing any bytes to the destination.</summary>
+    /// <summary>Serializes the complete Rinka visual document to the destination.</summary>
     /// <param name="json">Writable destination at its current position; it remains open and caller-owned.</param>
     /// <param name="document">Editable artwork containing the supported version and all three canonical frame names.</param>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">The serialized document does not satisfy the loader's schema and visual-field constraints.</exception>
     public static void Write(Stream json, IntroRinkaSpriteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

@@ -94,14 +94,12 @@ public sealed class PauseBackdropPresentation
         return new(areas, Differences(buttonTilemap, PauseBackdropTiles.StockButtonTile));
     }
 
-    /// <summary>Serializes and validates every backdrop and button cell before writing the UTF-8 JSON document.</summary>
+    /// <summary>Serializes every backdrop and button cell as the UTF-8 JSON document.</summary>
     /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
     /// <param name="document">Editable page collections read for serialization, not retained by the writer.</param>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or artwork-reference validation.</exception>
     public static void Write(Stream output, PauseBackdropDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(json, writable: false));
         output.Write(json);
     }
 }

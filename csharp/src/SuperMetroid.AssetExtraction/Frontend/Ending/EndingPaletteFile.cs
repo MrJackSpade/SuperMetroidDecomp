@@ -43,19 +43,15 @@ public static class EndingPaletteFile
             : EndingPaletteRecognition.FromRun(compiled);
     }
 
-    /// <summary>Serializes and validates the entire selected palette before writing its UTF-8 JSON bytes.</summary>
+    /// <summary>Serializes the entire selected palette as UTF-8 JSON bytes.</summary>
     /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>
-    /// <param name="id">Palette role used to validate the document's color count.</param>
     /// <param name="document">Authored color collection read for serialization, not retained by the writer.</param>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not a defined palette role.</exception>
-    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Read"/>'s schema or RGB5 validation.</exception>
-    public static void Write(Stream json, EndingPaletteId id, EndingPaletteDocument document)
+    public static void Write(Stream json, EndingPaletteDocument document)
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false), id);
         json.Write(bytes);
     }
 }

@@ -68,7 +68,12 @@ internal static class WorldMapLabelsVerification
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },
             document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<System.IO.InvalidDataException>(() => WorldMapLabelFile.Write(new MemoryStream(), invalid), "invalid label schema/area/coordinate rejected");
+            AssertThrows<System.IO.InvalidDataException>(() =>
+            {
+                using var written = new MemoryStream();
+                WorldMapLabelFile.Write(written, invalid);
+                _ = WorldMapLabelFile.Read(new MemoryStream(written.ToArray(), writable: false));
+            }, "invalid label schema/area/coordinate rejected on read");
         File.WriteAllText(replacement, "{bad labels");
         AssertThrows<System.IO.InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad label override cannot silently fall back");
         AssertEqual("{bad labels", File.ReadAllText(replacement), "bad label override remains for repair");

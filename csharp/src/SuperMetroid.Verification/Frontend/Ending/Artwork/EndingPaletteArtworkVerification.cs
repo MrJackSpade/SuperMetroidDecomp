@@ -337,7 +337,7 @@ internal static class EndingPaletteArtworkVerification
                 Red = (document.Colors[changedColor].Red + 17) & 31,
             };
             using (var output = File.Create(overridePath))
-                EndingPaletteFile.Write(output, id, document);
+                EndingPaletteFile.Write(output, document);
             EndingPaletteSet edited = installation.LoadEndingPalettes();
             ReadOnlySpan<byte> original = EndingPaletteWords.Of(stock[id]).Span;
             ReadOnlySpan<byte> changed = EndingPaletteWords.Of(edited[id]).Span;
@@ -403,7 +403,7 @@ internal static class EndingPaletteArtworkVerification
             Green = (persistent.Colors[0].Green + 1) & 31,
         };
         using (var output = File.Create(invalidPath))
-            EndingPaletteFile.Write(output, EndingPaletteId.Escape, persistent);
+            EndingPaletteFile.Write(output, persistent);
         byte[] selected = EndingPaletteWords.Of(installation.LoadEndingPalettes()[EndingPaletteId.Escape]).ToArray();
         string stockCreditsPath = Path.Combine(installation.EndingPaletteDirectory,
             EndingPaletteFiles.FileName(EndingPaletteId.Credits));
@@ -533,7 +533,7 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
-            EndingPaletteFile.Write(output, EndingPaletteId.Credits, document);
+            EndingPaletteFile.Write(output, document);
         EndingPaletteSet edited = installation.LoadEndingPalettes();
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();
@@ -582,7 +582,7 @@ internal static class EndingPaletteArtworkVerification
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         using (var output = File.Create(overridePath))
-            EndingPaletteFile.Write(output, EndingPaletteId.LogoCrossfade, document);
+            EndingPaletteFile.Write(output, document);
         EndingPaletteSet edited = installation.LoadEndingPalettes();
         var editedAudio = new AudioQueues();
         var stockAudio = new AudioQueues();

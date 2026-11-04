@@ -72,13 +72,12 @@ public static class PauseReserveUiFile
         }
     }
 
-    /// <summary>Serializes and validates the complete reserve UI document before writing its UTF-8 bytes to the destination.</summary>
+    /// <summary>Serializes the complete reserve UI document as UTF-8 bytes to the destination.</summary>
     /// <param name="output">Caller-owned writable destination stream, written at its current position without being disposed.</param>
     /// <param name="document">Selected editable visuals satisfying the same schema and field limits as <see cref="Read"/>.</param>
-    /// <exception cref="InvalidDataException">The document is null or fails presentation validation.</exception>
     public static void Write(Stream output, PauseReserveUiDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+        output.Write(bytes);
     }
 }

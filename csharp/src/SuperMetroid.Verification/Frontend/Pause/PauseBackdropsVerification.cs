@@ -130,7 +130,11 @@ internal static class PauseBackdropsVerification
         AssertTrue(glitchPage.SequenceEqual(glitch.ShownVram().AsSpan(0x6000, 0x800)), "replacing backdrop does not rebuild away live native equipment glitch");
 
         void Reject(PauseBackdropDocument invalid, string message) => AssertThrows<InvalidDataException>(() =>
-            PauseBackdropPresentation.Write(new MemoryStream(), invalid), message);
+        {
+            using var written = new MemoryStream();
+            PauseBackdropPresentation.Write(written, invalid);
+            _ = PauseBackdropPresentation.Load(new MemoryStream(written.ToArray(), writable: false));
+        }, message);
         Reject(document with { Version = 2 }, "unsupported backdrop version rejected");
         Reject(document with { Areas = [] }, "missing areas rejected");
         Reject(document with { Buttons = [] }, "incomplete button image rejected");

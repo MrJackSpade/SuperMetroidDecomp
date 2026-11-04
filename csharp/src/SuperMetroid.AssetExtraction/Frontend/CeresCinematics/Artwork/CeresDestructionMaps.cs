@@ -31,7 +31,7 @@ public sealed class CeresDestructionMaps
         return new CeresDestructionMaps(maps);
     }
 
-    /// <summary>Serializes the three-view Mode 7 map as UTF-8 JSON, validating version, dimensions, cell counts, and eight-bit tile indexes before writing any bytes.</summary>
+    /// <summary>Serializes the three-view Mode 7 map as UTF-8 JSON.</summary>
     /// <param name="json">Destination written at its current position and left open.</param>
     /// <param name="document">Ordered destruction-view and clear-view cells to serialize.</param>
     public static void Write(Stream json, CeresDestructionMapDocument document)
@@ -39,7 +39,6 @@ public sealed class CeresDestructionMaps
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 

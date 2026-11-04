@@ -82,7 +82,11 @@ internal static class MapStaticPalettesVerification
             document with { World = new Dictionary<string, PaletteRgb5[]>() } })
         {
             using var output = new MemoryStream();
-            AssertThrows<InvalidDataException>(() => MapStaticPalettesFile.Write(output, invalid), "invalid static palette schema/color/area rejected");
+            AssertThrows<InvalidDataException>(() =>
+            {
+                MapStaticPalettesFile.Write(output, invalid);
+                _ = MapStaticPalettesFile.Read(new MemoryStream(output.ToArray(), writable: false));
+            }, "invalid static palette schema/color/area rejected on read");
         }
         File.WriteAllText(path, "{broken static colors");
         AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt static palette override fails without fallback");

@@ -60,12 +60,12 @@ public sealed class PauseEquipmentBasePresentation
         return new(PauseTileGrid.Compile(document.Cells, "EquipmentBase"));
     }
 
-    /// <summary>Validates and writes an editable equipment-page base document as JSON.</summary>
+    /// <summary>Writes an editable equipment-page base document as JSON.</summary>
     /// <param name="output">The caller-owned destination stream.</param>
     /// <param name="document">The complete 32-by-32 tile-reference document to serialize.</param>
     public static void Write(Stream output, PauseEquipmentBaseDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+        output.Write(bytes);
     }
 }

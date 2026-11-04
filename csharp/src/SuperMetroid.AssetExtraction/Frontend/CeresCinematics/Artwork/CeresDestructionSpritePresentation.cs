@@ -61,7 +61,7 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
         return new CeresDestructionSpritePresentation(frames);
     }
 
-    /// <summary>Serializes the destruction/reveal compositions as UTF-8 JSON and validates the complete named-frame set and OAM fields before writing any bytes.</summary>
+    /// <summary>Serializes the destruction/reveal compositions as UTF-8 JSON.</summary>
     /// <param name="json">Destination written at its current position and left open.</param>
     /// <param name="document">Versioned selected backdrop and blast compositions to serialize.</param>
     public static void Write(Stream json, CeresDestructionSpriteDocument document)
@@ -69,7 +69,6 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

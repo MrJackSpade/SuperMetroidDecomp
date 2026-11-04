@@ -47,13 +47,12 @@ public static class MapSaveMarkerFile
         return new(overrides);
     }
 
-    /// <summary>Serializes the complete marker document as UTF-8 JSON and validates it through <see cref="Read"/> before writing any bytes to the destination.</summary>
+    /// <summary>Serializes the complete marker document as UTF-8 JSON to the destination.</summary>
     /// <param name="json">Caller-owned destination stream.</param>
-    /// <param name="document">Complete editable marker layout to validate and serialize.</param>
+    /// <param name="document">Complete editable marker layout to serialize.</param>
     public static void Write(Stream json, MapSaveMarkerDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Read(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
 }

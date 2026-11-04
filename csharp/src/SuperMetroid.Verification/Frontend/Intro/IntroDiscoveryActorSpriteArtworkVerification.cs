@@ -102,7 +102,8 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroDiscoveryActorSpritePresentation.Write(malformed, document);
-        }, "discovery actor artwork rejects a missing named frame");
+            _ = IntroDiscoveryActorSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "discovery actor artwork rejects a missing named frame on read");
         File.Delete(overridePath);
     }
 }

@@ -937,7 +937,8 @@ internal static class IntroCinematicArtworkVerification
         {
             using var malformed = new MemoryStream();
             IntroMotherBrainExplosionSpritePresentation.Write(malformed, document);
-        }, "intro explosion artwork rejects a missing named frame");
+            _ = IntroMotherBrainExplosionSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
+        }, "intro explosion artwork rejects a missing named frame on read");
         File.Delete(overridePath);
     }
 

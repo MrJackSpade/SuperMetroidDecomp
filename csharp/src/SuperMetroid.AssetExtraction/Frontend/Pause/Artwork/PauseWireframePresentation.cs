@@ -67,13 +67,12 @@ public sealed class PauseWireframePresentation
         internal BackgroundTile Tile(int cell) => edits.TryGetValue(cell, out BackgroundTile edited)
             ? edited : PauseWireframeTiles.StockTile(kind, cell);
     }
-    /// <summary>Serializes a wireframe document using the map-presentation JSON options and validates it through <see cref="Load"/> before writing any bytes to the destination.</summary>
-    /// <param name="output">Caller-owned destination stream for the validated UTF-8 JSON.</param>
+    /// <summary>Serializes a wireframe document using the map-presentation JSON options and writes it to the destination.</summary>
+    /// <param name="output">Caller-owned destination stream for the UTF-8 JSON.</param>
     /// <param name="document">Document containing all four complete wireframe variants.</param>
     public static void Write(Stream output, PauseWireframeDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
 }

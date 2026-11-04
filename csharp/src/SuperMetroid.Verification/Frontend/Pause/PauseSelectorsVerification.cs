@@ -101,6 +101,9 @@ internal static class PauseSelectorsVerification
                 "the frame shows exactly the authored selector phase");
             if (expectedFrame == 1)
             {
+                // The authored palettes reach the sprite words under standard shading; the highlight cycle shades the screen's.
+                var standard = new ScreenSprites(); standard.BeginFrame(); edited.PauseSelectors.Draw(standard, MenuSheetFixtures.For(edited).Get(SpriteSheetId.PauseSprites), PauseEquipmentCategory.Beams, 0, expectedFrame, PictureShading.Standard); standard.FinishFrame();
+                oam = standard;
                 AssertEqual((byte)112, oam.LowTable[0], "authored selector anchor plus X offset");
                 AssertEqual((byte)86, oam.LowTable[1], "authored selector anchor plus Y offset");
                 var attributes = new SnesObjAttributeWord(LittleEndianBytes.Word(oam.LowTable[2], oam.LowTable[3]));

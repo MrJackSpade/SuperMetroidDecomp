@@ -176,12 +176,10 @@ internal static class GraphDigestVerification
                                 ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(rightArray), Buffer.ByteLength(rightArray))))
                             return false;
                     }
-                    else
+                    else if (!ValueArrayComparer(element)(leftArray, rightArray))
                     {
                         // Value elements (typed blocks, behaviours) compare by their own equality, one by one.
-                        for (int index = 0; index < leftArray.Length; index++)
-                            if (!Equals(leftArray.GetValue(index), rightArray.GetValue(index)))
-                                return false;
+                        return false;
                     }
                 }
                 else if (left is not null && right is not null && !Equals(left, right) && left.GetType() == right.GetType() &&
@@ -195,6 +193,24 @@ internal static class GraphDigestVerification
             }
         return true;
     }
+    /// <summary>
+    /// Compares two arrays of one value element type element by element with that type's own equality, as
+    /// <see cref="object.Equals(object?, object?)"/> compares each pair, without boxing every element (#1532): a room's
+    /// block arrays hold thousands of elements, and a check restoring a room per case compares them per case.
+    /// </summary>
+    [ReflectionAudit("structural equality: each value element type's arrays compare through that type's own equality")]
+    private static Func<Array, Array, bool> ValueArrayComparer(Type element) => valueArrayComparers.GetOrAdd(element, static type =>
+        (typeof(GraphDigestVerification).GetMethod(nameof(ValueArraysEqual), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+            ?? throw new InvalidOperationException("The value-array comparison is missing."))
+            .MakeGenericMethod(type).CreateDelegate<Func<Array, Array, bool>>());
+
+    /// <summary>Each value element type's array comparison, made once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<Array, Array, bool>> valueArrayComparers = new();
+
+    /// <summary>Whether two arrays of <typeparamref name="T"/> hold equal elements by <typeparamref name="T"/>'s equality.</summary>
+    private static bool ValueArraysEqual<T>(Array left, Array right) =>
+        new ReadOnlySpan<T>((T[])left).SequenceEqual((T[])right, EqualityComparer<T>.Default);
+
     /// <summary>The pixels a packet shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
         DisplayRendering.Render(frame);

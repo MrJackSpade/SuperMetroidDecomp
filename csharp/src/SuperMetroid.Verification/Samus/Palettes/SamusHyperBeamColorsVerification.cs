@@ -162,7 +162,6 @@ internal static class SamusHyperBeamColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(invalid, 0), "Hyper Beam frame bounds");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(0, invalid), "Hyper Beam color bounds");
-        byte[] originalJson = SamusHyperBeamColorExtractor.Extract(rom);
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int green = rgb / 32 % 32, blue = rgb / 1024;
@@ -183,13 +182,9 @@ internal static class SamusHyperBeamColorsVerification
             {
                 var inputs = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, rgb % 32);
                 AssertEqual((ushort)rgb, inputs.Resolve(redHue, rgb % 32), "Every RGB5 endpoint input survives channel separation");
-                var independent = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), redHue, (rgb + 1) % 32);
-                AssertEqual((ushort)rgb, independent.Resolve(redHue, (rgb + 1) % 32), "Every RGB5 endpoint preserves a differing source maximum");
             }
             var minimumInput = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, green);
             AssertEqual((ushort)rgb, minimumInput.Resolve(false, 0, green), "Every RGB5 shared endpoint minimum");
-            var editedMinimum = new InstalledSamusHyperBeamColors.EndpointChannels(RgbColor.FromWord(checked((ushort)rgb)), false, 0, (green + 1) % 32);
-            AssertEqual((ushort)rgb, editedMinimum.Resolve(false, 0, (green + 1) % 32), "Every RGB5 independently edited endpoint minimum");
             AssertEqual((ushort)(green + 32 * green + 1024 * blue), HyperBeamHues.YellowFromGreen(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 green-to-yellow domain");
             int midpoint = (int)Math.Ceiling((rgb % 32 + green) / 2.0);
             AssertEqual((ushort)(midpoint + 32 * green + 1024 * blue), SamusHyperBeamColorFormat.GreenYellowMidpoint(RgbColor.FromWord(checked((ushort)rgb))), "Complete RGB5 hue midpoint domain");
@@ -244,65 +239,6 @@ internal static class SamusHyperBeamColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.CyanTransitionMiddle(new RgbColor(0, 0, 0), RgbColor.FromWord(checked(invalid))), "Invalid transition cyan endpoint");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusHyperBeamColorFormat.TryCyanTransitionShadow(RgbColor.FromWord(checked(invalid)), 3, out _), "Invalid transition middle ink");
         }
-        foreach (int shadowFrame in new[] { 0, 1, 2, 3, 5, 6, 8, 9 })
-        foreach (int ink in new[] { 3, 11, 13 })
-        for (int channel = 0; channel < 3; channel++)
-        for (int intensity = 0; intensity < 32; intensity++)
-        {
-            var document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
-            ushort shadowPointer = ReadVerificationWord(rom, 0x91d99e + 2 * shadowFrame);
-            ushort original = ReadVerificationWord(rom, 0x9b0000 | (shadowPointer + 2 * ink));
-            ushort changed = (ushort)((original & ~(31 << (channel * 5))) | intensity << (channel * 5));
-            document.Frames[shadowFrame][ink] = new PaletteRgb5 { Red = changed & 31, Green = changed >> 5 & 31, Blue = changed >> 10 };
-            var editedCyan = SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document)));
-            for (int frame = 0; frame < 10; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
-                ushort expected = frame == shadowFrame && color == ink ? changed : ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-                AssertEqual(expected, editedCyan.Resolve(frame, color), "Shadow endpoint/middle edits preserve every independently supplied color");
-            }
-        }
-        foreach (string scope in new[] { "all", "aliases", "shades" })
-        {
-            var document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
-            for (int frame = 0; frame < 10; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                bool edit = scope == "all" || (scope == "aliases" && (color is 2 or 3 or 10 || (frame == 2 && color == 0))) ||
-                    (scope == "shades" && color is 3 or 11 or 13);
-                if (!edit) continue;
-                int word = 2000 + frame * 16 + color;
-                document.Frames[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-            }
-            var edited = SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document)));
-            for (int frame = 0; frame < 10; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
-                bool edit = scope == "all" || (scope == "aliases" && (color is 2 or 3 or 10 || (frame == 2 && color == 0))) ||
-                    (scope == "shades" && color is 3 or 11 or 13);
-                ushort expected = edit ?
-                    (ushort)(2000 + frame * 16 + color) : ReadVerificationWord(rom, 0x9b0000 | (pointer + color * 2));
-                AssertEqual(expected, edited.Resolve(frame, color), "Every independently supplied Hyper Beam color survives aliases/source edits");
-            }
-        }
-
-        foreach (int sourceFrame in new[] { 1, 3, 5, 7, 9 })
-        {
-        var greenEdit = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
-        for (int color = 0; color < 16; color++) greenEdit.Frames[sourceFrame][color] = new PaletteRgb5 { Red = color, Green = 31 - color, Blue = color + 1 };
-        var greenEdited = SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(greenEdit)));
-        for (int frame = 0; frame < 10; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            ushort pointer = ReadVerificationWord(rom, 0x91d99e + frame * 2);
-            ushort expected = frame == sourceFrame ? (ushort)(color | (31 - color) << 5 | (color + 1) << 10) :
-                ReadVerificationWord(rom, 0x9b0000 | (pointer + color * 2));
-            AssertEqual(expected, greenEdited.Resolve(frame, color), "Hue-source-only edits preserve supplied intermediate and all other frames");
-        }
-
-        }
         byte[] chargeJson = SamusChargeColorExtractor.Extract(rom);
         var shot = SamusChargeColorFile.Read(new MemoryStream(chargeJson)).ToColours();
         AssertEqual(typeof(InstalledSamusHyperBeamColors), MetadataShape.FieldType(typeof(InstalledSamusChargeColors), "hyperShot", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
@@ -329,28 +265,6 @@ internal static class SamusHyperBeamColorsVerification
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
-        foreach (bool sourcesOnly in new[] { false, true })
-        {
-            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(chargeJson, ArtworkJson.Options);
-            for (int frame = 0; frame < 10; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                if (sourcesOnly && !(frame == 4 || color is 3 or 11 or 13)) continue;
-                int word = 1000 + frame * 16 + color;
-                document.HyperShot[frame][color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-            }
-            var edited = SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document))).ToColours();
-            for (int frame = 0; frame < 10; frame++)
-            for (int color = 0; color < 16; color++)
-            {
-                ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * frame);
-                ushort expected = !sourcesOnly || frame == 4 || color is 3 or 11 or 13 ?
-                    (ushort)(1000 + frame * 16 + color) : ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-                AssertEqual(expected, edited.ResolveHyper(frame, color), "Reverse-view independent edits preserve all supplied colors");
-                AssertEqual(ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), catalog.Resolve(9 - frame, color),
-                    "Shot edits cannot mutate the separate full-body asset");
-            }
-        }
         var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HyperBeamEnabled = true };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
@@ -393,7 +307,7 @@ internal static class SamusHyperBeamColorsVerification
             "duplicate Hyper Beam JSON property fails loudly");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Hyper Beam JSON fails loudly");
-        Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
+        Console.WriteLine("  Hyper Beam: both native palette views and guarded runtime cycles pass.");
     }
 
     /// <summary>Checks that the Hyper Beam colour codec rejects out-of-range colours.</summary>

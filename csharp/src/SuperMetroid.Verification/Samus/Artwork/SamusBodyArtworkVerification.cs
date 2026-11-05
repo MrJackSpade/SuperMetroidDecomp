@@ -91,7 +91,6 @@ internal static class SamusBodyArtworkVerification
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(bottomAddress),
                 sprites.BottomBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} bottom OAM base");
         }
-        var spritemapGuard = NewCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
         ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
             CartridgeImportSource.Require(bus).ReadCartridgeWord(InstalledSamusSpritemaps.PointerTableAddress + index * 2))];
@@ -153,7 +152,6 @@ internal static class SamusBodyArtworkVerification
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's
         // initial frame, including all flashback/normal-gameplay pose identities.
-        var guardedBus = NewCartridgeReadGuard(bus);
         // These two production owners call the same indexed bank-$92 OAM routine as
         // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
         // their binding from the generic catalog's all-index byte-parity test.

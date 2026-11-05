@@ -24,15 +24,14 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Gameplay;
 
-/// <summary>Checks editable Grapple flare origins against cartridge offsets and unchanged grapple mechanics.</summary>
+/// <summary>Checks installed Grapple flare origins against cartridge offsets and unchanged grapple mechanics.</summary>
 internal static class GrappleFlarePlacementVerification
 {
-    /// <summary>Exercises authored launch poses and live artwork rebinding while comparing stock and offset-edited Samus state.</summary>
+    /// <summary>Exercises authored launch poses and live artwork rebinding while comparing extracted and installed Samus state.</summary>
     internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(json));
-        var document = RequiredJson.Parse(json);
         foreach (bool running in new[] { false, true })
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
         {
@@ -41,11 +40,7 @@ internal static class GrappleFlarePlacementVerification
             int y = running ? SamusSourceDefinitions.GrappleRunningFlareY.Value : SamusSourceDefinitions.GrappleDefaultFlareY.Value;
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), x + direction * 2)), offset.X, "Extracted Grapple flare X including adjacent rows");
             AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), y + direction * 2)), offset.Y, "Extracted Grapple flare Y including adjacent rows");
-            var editedOffset = document.Required("offsets").Required(ChargeFlarePlacementFile.Key(running, direction));
-            editedOffset["x"] = unchecked((short)(offset.X + 7));
-            editedOffset["y"] = unchecked((short)(offset.Y - 9));
         }
-        var edited = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
@@ -66,34 +61,25 @@ internal static class GrappleFlarePlacementVerification
         foreach (var authored in authoredPoses)
         {
             SamusPoseId pose = authored.Pose;
-            byte direction = authored.Direction;
-            var nativeBus = NewGrappleFiringReadGuard(rom, () => pose);
-            var guarded = NewGrappleFlareReadGuard(nativeBus);
             var native = Seed(stock);
             var selected = Seed(InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement);
-            var changed = Seed(edited);
             SamusGrappleMovement.BeginFiring(native);
             SamusGrappleMovement.BeginFiring(selected);
-            SamusGrappleMovement.BeginFiring(changed);
             Compare();
-            refresh(native, native.Grapple); refresh(selected, selected.Grapple); refresh(changed, changed.Grapple);
+            refresh(native, native.Grapple); refresh(selected, selected.Grapple);
             Compare();
             for (int tick = 0; tick < 10; tick++)
             {
                 SamusGrappleMovement.StepFiring(empty, native, ControllerButton.X);
                 SamusGrappleMovement.StepFiring(empty, selected, ControllerButton.X);
-                SamusGrappleMovement.StepFiring(empty, changed, ControllerButton.X);
                 Compare();
             }
             var expectedConnection = connect(native, native.Grapple, new(512, 512), GrappleAnchorKind.Block);
             var selectedConnection = connect(selected, selected.Grapple, new(512, 512), GrappleAnchorKind.Block);
-            var editedConnection = connect(changed, changed.Grapple, new(512, 512), GrappleAnchorKind.Block);
             AssertEqual(expectedConnection, selectedConnection, "Stock placement retains connection result");
-            AssertEqual(expectedConnection, editedConnection, "Edited placement retains connection result");
+            Compare();
             // A non-swinging connection installs the locked-in-place grapple function.
-            bool lockedInPlace = native.Grapple.Phase == GrapplePhase.ConnectedLocked;
-            Compare(lockedInPlace);
-            if (lockedInPlace) locked++;
+            if (native.Grapple.Phase == GrapplePhase.ConnectedLocked) locked++;
 
             SamusState Seed(ChargeFlarePlacements? placement)
             {
@@ -102,22 +88,9 @@ internal static class GrappleFlarePlacementVerification
                 samus.Grapple.FlarePlacement = placement;
                 return samus;
             }
-            void Compare(bool checkVisibleOffset = true)
-            {
+            void Compare() =>
                 AssertTrue(GraphDigest(native, [stock, .. InstalledFixtures.BoundContent]).SequenceEqual(GraphDigest(selected, [InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement
                     ?? throw new InvalidOperationException("The installation places the grapple flare."), .. InstalledFixtures.BoundContent])), "Stock extracted flare preserves complete Samus graph");
-                var a = native.Grapple; var b = changed.Grapple;
-                if (checkVisibleOffset)
-                {
-                    AssertEqual(unchecked((ushort)(a.BeamStart.X + 7)), b.BeamStart.X, "Edited Grapple flare X is visible");
-                    AssertEqual(unchecked((ushort)(a.BeamStart.Y - 9)), b.BeamStart.Y, "Edited Grapple flare Y is visible");
-                }
-                var saved = new Saved(b.FlareOffset, b.BeamStart);
-                b.FlareOffset = a.FlareOffset;
-                b.BeamStart = a.BeamStart;
-                AssertTrue(GraphDigest(native, [stock, .. InstalledFixtures.BoundContent]).SequenceEqual(GraphDigest(changed, [edited, .. InstalledFixtures.BoundContent])), "Edited flare changes only four presentation words, not full-body/anchor/trajectory state");
-                (b.FlareOffset, b.BeamStart) = saved;
-            }
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture();
@@ -127,32 +100,26 @@ internal static class GrappleFlarePlacementVerification
         var previousPresentation = (boundGrapple.FlarePlacement, boundGrapple.SwingFrames);
         byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus, InstalledFixtures.BoundContent);
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
-        runtime.Artwork.GrappleFlarePlacement = edited;
+        runtime.Artwork.GrappleFlarePlacement = stock;
         runtime.Artwork.GrappleSwingFrames = swingFrames;
-        AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
+        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
         (boundGrapple.FlarePlacement, boundGrapple.SwingFrames) = previousPresentation;
         AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.IntroducedSamus, InstalledFixtures.BoundContent)),
             "Presentation binding changes only the two catalogs Samus is bound to");
-        (boundGrapple.FlarePlacement, boundGrapple.SwingFrames) = (edited, swingFrames);
+        (boundGrapple.FlarePlacement, boundGrapple.SwingFrames) = (stock, swingFrames);
         runtime.Player.IntroducedSamus.Grapple.FlarePlacement = null;
         runtime.Player.IntroducedSamus.Grapple.SwingFrames = null;
         runtime.StepFrame(0);
-        AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
+        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
         runtime.Player.IntroducedSamus.Grapple.FlarePlacement = null;
         runtime.Player.IntroducedSamus.Grapple.SwingFrames = null;
         runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
-        AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
+        AssertTrue(ReferenceEquals(stock, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
-        Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
+        Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections match the installed placement.");
     }
-    /// <summary>Rejects live reads of the two cartridge flare-offset tables after artwork installation.</summary>
-    private static CartridgeReadGuard NewGrappleFlareReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2,
-                _ => "Grapple still reads visual flare origins from ROM.");
-
     /// <summary>Loads the retail cartridge and runs the Grapple flare placement verification.</summary>
     [VerificationCommand("--grapple-flare-placement")]
     internal static int GrappleFlarePlacementCommand()

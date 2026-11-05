@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Retail and guarded-runtime checks for respawning/permanent grapple-block PLMs and editable visuals.</summary>
+/// <summary>Retail and guarded-runtime checks for respawning/permanent grapple-block PLMs and their installed visuals.</summary>
 internal static class GrappleBlockProgramsVerification
 {
     /// <summary>Checks all nineteen compiled control addresses and values across the full 16-bit bank-local domain.</summary>
@@ -95,7 +95,7 @@ internal static class GrappleBlockProgramsVerification
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks calculated stock tile choices and content identity, then rejects missing, duplicate, or collision-bit edits.</summary>
+    /// <summary>Checks calculated stock tile choices and content identity, then rejects missing or duplicate selections.</summary>
     private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];

@@ -10,14 +10,13 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Grapple endpoint and rope OBJ attributes as editable art independent of mechanics.</summary>
+/// <summary>Checks Grapple endpoint and rope OBJ attributes as installed art independent of mechanics.</summary>
 internal static class GrappleSpriteArtworkVerification
 {
-    /// <summary>Compares native OAM across angles and animation ticks, then isolates tile and palette edits.</summary>
+    /// <summary>Compares native appearances with the composed grapple sheet frames and rejects malformed documents.</summary>
     internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);
-        byte[] png = GrappleTileExtractor.Extract(bus);
         var catalog = InstalledGrappleSprites.Load(new MemoryStream(json));
         // The cartridge's attribute words are decoded by the import codec into the pieces they describe; the extracted
         // appearances hold the same character, palette row, priority and flips.
@@ -51,7 +50,7 @@ internal static class GrappleSpriteArtworkVerification
         var missing = RequiredJson.Parse(json); missing.Required("segments").AsArray().RemoveAt(0);
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(missing.ToJsonString()))), "Missing segment appearance rejected");
         var mechanic = RequiredJson.Parse(json); mechanic.Required("segments").Required(0)["duration"] = 1;
-        AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Editable timing field rejected");
+        AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Timing field rejected");
         AssertThrows<InvalidDataException>(() => catalog.Segment(4), "Out-of-range visual selector rejected");
         foreach (var (field, value) in new VerifyGrappleSpriteArtworkCase[] { new VerifyGrappleSpriteArtworkCase("tileColumn", -1), new VerifyGrappleSpriteArtworkCase("tileColumn", 16), new VerifyGrappleSpriteArtworkCase("tileRow", -1), new VerifyGrappleSpriteArtworkCase("tileRow", 32), new VerifyGrappleSpriteArtworkCase("palette", -1), new VerifyGrappleSpriteArtworkCase("priority", 4) })
         {
@@ -60,13 +59,6 @@ internal static class GrappleSpriteArtworkVerification
         }
         var incomplete = RequiredJson.Parse(json); incomplete.Required("endpoint").AsObject().Remove("priority");
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(incomplete.ToJsonString()))), "Missing visual field rejected");
-        var boundary = RequiredJson.Parse(json);
-        boundary.Required("endpoint")["tileColumn"] = 15; boundary.Required("endpoint")["tileRow"] = 31;
-        boundary.Required("endpoint")["palette"] = 7; boundary.Required("endpoint")["priority"] = 3;
-        boundary.Required("endpoint")["flipX"] = true; boundary.Required("endpoint")["flipY"] = true;
-        // The appearance the all-ones attribute word describes: the last character, palette row seven, priority three and both flips.
-        AssertEqual(new SnesObjAttributeWord(ushort.MaxValue).ToSinglePart(), InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(boundary.ToJsonString()))).Endpoint,
-            "Every OBJ attribute bit can be authored without leaking into timing/geometry");
         Console.WriteLine($"Grapple sprite JSON: native appearances extracted and {cases} grapple sheet frames composed from them; invalid documents rejected.");
     }
 

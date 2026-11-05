@@ -60,6 +60,11 @@ internal static class EnemySheetFixtures
         ArgumentNullException.ThrowIfNull(enemies);
         return composed.GetValue(enemies, key =>
         {
+            // The shared installed artwork holds the installation's stock content by construction (fixtures that author
+            // their own content load artwork of their own), so it draws a retail set from the installed sheets without its
+            // content being hashed to show that.
+            if (InstalledFixtures.IsSharedEnemyTiles(key))
+                return new ComposedOnDemand(inputs.Value with { Enemies = key }, InstalledFixtures.EnemySheets);
             string content = key.ContentIdentity;
             lock (composedByContent)
             {

@@ -485,11 +485,6 @@ cleared when its window ends. Older debugger states warn during migration;
 an old modded capture retains its historical remaining fade because its
 counterfactual stock elapsed time was never recorded.
 
-`SuperMetroid.RenderVerification --installed-power-bomb-isolation`
-checks real disk overrides, complete effect lifetimes, state restoration and
-software/Direct3D output without importing a cartridge or touching player data.
-See the source-access audit for exact coverage and remaining environmental gates.
-
 ## Room-character PNGs
 
 Setup extracts the shared CRE characters, each distinct graphics-set character

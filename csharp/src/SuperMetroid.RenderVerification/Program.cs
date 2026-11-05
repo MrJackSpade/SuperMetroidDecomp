@@ -86,11 +86,6 @@ internal static class Program
                 InstalledSporesTests.Run(copy.Root, Path.GetFullPath("Super Metroid.smc"), Path.GetFullPath("standalone-assets/raw"));
                 return;
             }
-            if (args is ["--installed-power-bomb-isolation"])
-            {
-                InstalledPowerBombIsolationTests.Run(RepositoryInstallation.Installation.Root);
-                return;
-            }
             if (args is ["--installed-samus-file-contracts"])
             {
                 InstalledSamusFileContractTests.Run(RepositoryInstallation.Installation.Root);

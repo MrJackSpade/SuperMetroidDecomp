@@ -121,6 +121,9 @@ internal static class MapLoadAnchorsVerification
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             var typedArea = (AreaId)area;
+            // The cartridge's map of the area, imported once for every station and visibility pattern it is scrolled
+            // over; a scroll only reads it (#1532).
+            var nativeMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea);
             for (int stationIndex = 0; stationIndex < MapSaveMarkerDefinitions.SlotsPerArea; stationIndex++)
             {
                 if (!MapSaveMarkers.Indices(typedArea).Contains(stationIndex))
@@ -144,7 +147,7 @@ internal static class MapLoadAnchorsVerification
                     {
                         system.SetAreaMapAcquired(area);
                     }
-                    var native = new FileSelectMapScroll(SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
+                    var native = new FileSelectMapScroll(nativeMap, system, expected);
                     var compiled = new FileSelectMapScroll(catalog.Get(typedArea), system, actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (ControllerButton input in MapScrollControls.Buttons)
@@ -176,7 +179,8 @@ internal static class MapLoadAnchorsVerification
             {
                 var stations = new ushort[FileSelectMapDefinitions.AreaCount];
                 for (int index = 0; index < stations.Length; index++) stations[index] = (ushort)((mask >> index) & 1);
-                AssertTrue(native.Render(stations).SequenceEqual(compiled.Render(stations)), "compiled area order retains label layering and visibility for every area combination");
+                // The two maps' frames are compared for the pixels they show, drawn only when their descriptions differ (#1532).
+                AssertTrue(ScenePixels.Same(native.Scene(stations), compiled.Scene(stations)), "compiled area order retains label layering and visibility for every area combination");
             }
         }
         Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry and 384 display-order frames pass with every bus access forbidden; unbound cartridge fallback is rejected.");

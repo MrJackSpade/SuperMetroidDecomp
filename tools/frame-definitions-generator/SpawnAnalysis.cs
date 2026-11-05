@@ -91,8 +91,13 @@ internal sealed class SpawnAnalysis
             DefinitionFrameSplit frames = behaviour.Definitions.Count == 1
                 ? new DefinitionFrameSplit(new Dictionary<string, IReadOnlySet<string>> { [behaviour.Definitions[0]] = familyFrames }, [])
                 : new DefinitionFrames(model, scanner, behaviour, walk).Resolve(familyFrames);
+            // A behaviour whose parts share one frame table splits it by what each part's own programs show.
+            if (PartFrameConfiguration.All.SingleOrDefault(configuration => configuration.Behaviour == behaviour.Type.Name) is { } parts)
+                frames = frames with { Frames = new PartFrames(model, parts).Apply(behaviour, frames.Frames) };
             walks.Add((behaviour, walk, frames));
         }
+        if (PartFrameConfiguration.All.FirstOrDefault(configuration => model.Behaviours.All(b => b.Type.Name != configuration.Behaviour)) is { } unknown)
+            throw new InvalidDataException($"The part frame configuration names {unknown.Behaviour}, which is no enemy behaviour.");
 
         // The code outside every behaviour is every shared unit no behaviour or family reaches; it reaches shared code
         // the behaviours reach too, as the enemy deaths it runs for every enemy. A static data member of a type the walks

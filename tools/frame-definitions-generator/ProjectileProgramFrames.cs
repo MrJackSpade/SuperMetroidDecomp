@@ -216,14 +216,16 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                     if (parameter is not null)
                         bound[parameter.Name] = ValueOf(semantic, argument.Expression, bindings);
                 }
-                foreach (SyntaxReference reference in helper.DeclaringSyntaxReferences)
-                {
-                    if (reference.GetSyntax() is not MethodDeclarationSyntax declaration)
-                        continue;
-                    SyntaxNode? body = (SyntaxNode?)declaration.ExpressionBody ?? declaration.Body;
-                    if (body is not null)
-                        Visit(body, model.ModelOf(declaration.SyntaxTree), bound, items, programType, frameType, helpers, depth + 1);
-                }
+                VisitBody(helper, bound, items, programType, frameType, helpers, depth + 1);
+                return;
+            // A step helper handed on as a method group (the hand beam's Stage in .SelectMany(Stage)) runs with arguments no
+            // constant decides, so its parameters match every value.
+            case IdentifierNameSyntax group
+                when (semantic.GetSymbolInfo(group).Symbol ?? semantic.GetSymbolInfo(group).CandidateSymbols.FirstOrDefault()) is IMethodSymbol handedOn
+                     && IsStepHelper(handedOn, helpers):
+                if (depth > 8)
+                    throw new InvalidDataException($"{helpers.ToDisplayString()}'s step helpers nest deeper than this generator inlines: {group}");
+                VisitBody(handedOn, new Dictionary<string, string>(StringComparer.Ordinal), items, programType, frameType, helpers, depth + 1);
                 return;
             case IdentifierNameSyntax name when semantic.GetSymbolInfo(name).Symbol is IFieldSymbol field:
                 FindRoomCues();
@@ -235,6 +237,20 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         }
         foreach (SyntaxNode child in node.ChildNodes())
             Visit(child, semantic, bindings, items, programType, frameType, helpers, depth);
+    }
+
+    /// <summary>Visits step helper <paramref name="helper"/>'s body with its parameters bound as <paramref name="bound"/> says.</summary>
+    private void VisitBody(IMethodSymbol helper, IReadOnlyDictionary<string, string> bound, List<ProgramItem> items,
+        INamedTypeSymbol programType, INamedTypeSymbol frameType, INamedTypeSymbol helpers, int depth)
+    {
+        foreach (SyntaxReference reference in helper.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is not MethodDeclarationSyntax declaration)
+                continue;
+            SyntaxNode? body = (SyntaxNode?)declaration.ExpressionBody ?? declaration.Body;
+            if (body is not null)
+                Visit(body, model.ModelOf(declaration.SyntaxTree), bound, items, programType, frameType, helpers, depth);
+        }
     }
 
     /// <summary>

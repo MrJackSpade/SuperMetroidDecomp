@@ -54,10 +54,17 @@ internal static class SuiteTimingVerification
         finally
         {
             suiteDepth--;
+            long allocated = GC.GetTotalAllocatedBytes() - allocatedBefore;
+            // Each outermost suite starts from its own live data only: it collects after itself, returning its garbage
+            // instead of letting the heap grow. A nested suite collects only when it allocated past the budget, and
+            // inside its own time, so the collection is charged to the suite (or shared fixture load) whose garbage
+            // it returns. A full compacting collection walks every fixture the process holds (#1532): one after each
+            // small nested check made definition suites spend nearly all their time in the collector.
+            if (suiteDepth > 0 && allocated > MemoryBudgetBytes)
+                Collect();
             watch.Stop();
             TimeSpan self = watch.Elapsed - nestedSuiteTime.Pop();
             if (nestedSuiteTime.Count > 0) nestedSuiteTime.Push(nestedSuiteTime.Pop() + watch.Elapsed);
-            long allocated = GC.GetTotalAllocatedBytes() - allocatedBefore;
             long selfAllocated = allocated - nestedSuiteAllocation.Pop();
             if (nestedSuiteAllocation.Count > 0) nestedSuiteAllocation.Push(nestedSuiteAllocation.Pop() + allocated);
             string marker = (self > SuiteBreakdownThreshold ? "  [over 30 s: break down]" : "") +
@@ -65,14 +72,13 @@ internal static class SuiteTimingVerification
             double allocatedMegabytes = allocated / (1024.0 * 1024.0);
             Console.WriteLine($"TIME {new string(' ', 2 * suiteDepth)}{name}: {watch.Elapsed.TotalSeconds:0.00} s (self {self.TotalSeconds:0.00} s), " +
                 $"{allocatedMegabytes:0.0} MB allocated (self {selfAllocated / (1024.0 * 1024.0):0.0} MB){marker}");
-            // Each outermost suite starts from its own live data only: collect and return the previous suite's garbage
-            // instead of letting the heap grow. A nested suite is collected after only when it allocated past the budget,
-            // since a full compacting collection walks every fixture the process holds and runs inside the enclosing
-            // suite's time (#1532): one after each small check made definition suites spend nearly all their time in it.
-            if (suiteDepth == 0 || allocated > MemoryBudgetBytes)
-                GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
+            if (suiteDepth == 0)
+                Collect();
         }
     }
+
+    /// <summary>Runs a full blocking compacting collection that returns freed memory to the system.</summary>
+    private static void Collect() => GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
 
     /// <summary>The flag's peak working set, with the over-budget marker.</summary>
     internal static string PeakMemoryReport()

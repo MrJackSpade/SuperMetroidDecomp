@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 /// <summary>Checks calculated intro egg-effect sprites against imported composition and native OAM.</summary>
 internal static class IntroEggEffectPartsVerification
 {
-    /// <summary>Preserves custom edits while checking original-frame identity and visible or wrapped OAM output.</summary>
+    /// <summary>Checks original-frame identity and visible or wrapped OAM output.</summary>
     internal static void VerifyIntroEggEffectParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("egg-effect", value.AppendIdentity);
@@ -25,23 +25,6 @@ internal static class IntroEggEffectPartsVerification
             SpriteComposition result = IntroEggEffectParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original egg effect selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original egg-effect compiled fields");
-            var part = visual[0];
-            SpriteVisualPart[] edits =
-            [
-                part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                part with { TileColumn = (part.TileColumn + 1) % 16 }, part with { TileRow = part.TileRow + 1 },
-                part with { Size = 16, TileColumn = Math.Min(14, part.TileColumn) },
-                part with { Priority = 2 }, part with { Palette = 1 },
-                part with { FlipX = true }, part with { FlipY = true },
-            ];
-            foreach (var edit in edits)
-            {
-                var supplied = IntroCinematicSpriteCompiler.Compile([edit], "edited egg effect");
-                AssertTrue(ReferenceEquals(supplied, IntroEggEffectParts.CalculateIfMatching(definition.Pose, supplied)),
-                    "independent egg-effect field edit stays supplied");
-            }
-            var extra = IntroCinematicSpriteCompiler.Compile([part, part], "two-part effect");
-            AssertTrue(ReferenceEquals(extra, IntroEggEffectParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, 1, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated egg part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

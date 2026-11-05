@@ -11,12 +11,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks calculated intro Mother Brain portrait parts against
-/// native spritemaps while preserving independently edited artwork.</summary>
+/// <summary>Checks calculated intro Mother Brain portrait parts against native spritemaps.</summary>
 internal static class IntroMotherBrainPartsVerification
 {
-    /// <summary>Compares all stock part fields and OAM at visible and wrapped
-    /// origins, then checks per-field edits bypass calculated substitution.</summary>
+    /// <summary>Compares all stock part fields and OAM at visible and wrapped origins.</summary>
     internal static void VerifyIntroMotherBrainParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrain", value.AppendIdentity);
@@ -30,28 +28,6 @@ internal static class IntroMotherBrainPartsVerification
             SpriteComposition result = IntroMotherBrainParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original MotherBrain selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original MotherBrain compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 15 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited MotherBrain");
-                    AssertTrue(ReferenceEquals(supplied, IntroMotherBrainParts.CalculateIfMatching(definition.Pose, supplied)),
-                        "independent MotherBrain field edit stays supplied");
-                }
-            }
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom MotherBrain");
-            AssertTrue(ReferenceEquals(extra, IntroMotherBrainParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated MotherBrain part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

@@ -57,7 +57,7 @@ internal static class IntroCinematicArtworkVerification
     [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that missing and damaged stock fails where it is read.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
-        // Edits, corruption and repairs run on a private copy of the repository installation;
+        // Corruption and repairs run on a private copy of the repository installation;
         // ROM import itself is covered by the asset-import verification.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         string root = copy.Root;
@@ -577,7 +577,7 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>
-    /// The installed intro, Ceres and ending artwork family, with the Samus body artwork. Each suite that edits artwork
+    /// The installed intro, Ceres and ending artwork family, with the Samus body artwork. Each suite that corrupts artwork
     /// runs on its own private installation copy, so the full run schedules them independently; the read-only suites
     /// share the repository installation.
     /// </summary>

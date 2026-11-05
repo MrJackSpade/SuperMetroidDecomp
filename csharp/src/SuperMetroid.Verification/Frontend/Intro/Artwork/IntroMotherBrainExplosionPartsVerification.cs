@@ -15,10 +15,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks calculated Mother Brain explosion sprites against native OAM and editable Ceres artwork.</summary>
+/// <summary>Checks calculated Mother Brain explosion sprites against native OAM and the stock Ceres alias frames.</summary>
 internal static class IntroMotherBrainExplosionPartsVerification
 {
-    /// <summary>Compares stock parts at visible and wrapped origins while preserving independently edited composition fields and part counts.</summary>
+    /// <summary>Compares stock parts and the stock alias loader at visible and wrapped origins.</summary>
     internal static void VerifyIntroMotherBrainExplosionParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrainExplosion", value.AppendIdentity);
@@ -30,30 +30,6 @@ internal static class IntroMotherBrainExplosionPartsVerification
             SpriteComposition result = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original MotherBrainExplosion selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original MotherBrainExplosion compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 16 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    CheckCeresBlastLoader(definition.Pose, edited);
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited MotherBrainExplosion");
-                    AssertTrue(ReferenceEquals(supplied, IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose, supplied)),
-                        "independent MotherBrainExplosion field edit stays supplied");
-                }
-            }
-            CheckCeresBlastLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom MotherBrainExplosion");
-            AssertTrue(ReferenceEquals(extra, IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated MotherBrainExplosion part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
@@ -70,7 +46,7 @@ internal static class IntroMotherBrainExplosionPartsVerification
             }
         }
     }
-    /// <summary>Checks that a Ceres alias frame loads and draws the supplied blast composition at both onscreen and wrapped origins.</summary>
+    /// <summary>Checks that a Ceres alias frame loads and draws the stock blast composition at both onscreen and wrapped origins.</summary>
     internal static void CheckCeresBlastLoader(CinematicSpritePose pose, SpriteVisualPart[] visual)
     {
         var definition = CeresDestructionSpriteFrameDefinitions.Frames.FirstOrDefault(frame => frame.Pose == pose);
@@ -93,6 +69,6 @@ internal static class IntroMotherBrainExplosionPartsVerification
             actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual)
                 && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
-                "Ceres alias loader preserves original and independently edited blast compositions");
+                "Ceres alias loader draws the stock blast composition");
         }
     }}

@@ -20,7 +20,7 @@ using SuperMetroid.Core.Bosses.Draygon;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Draygon palette bands against retail colors and edited intro, hurt, flash, and health CGRAM paths.</summary>
+/// <summary>Checks installed Draygon palette bands against retail colors and installed intro, hurt, flash, and health CGRAM paths.</summary>
 internal static class EnemyTileArtworkDraygonColorsVerification
 {
     /// <summary>JSON options: Case-insensitive property matching.</summary>
@@ -53,39 +53,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(
             stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Draygon color JSON is null.");
-        visual.Intro[1] = ChangeRed(visual.Intro[1]);
-        visual.Background[1] = ChangeRed(visual.Background[1]);
-        visual.Sprite[1] = ChangeRed(visual.Sprite[1]);
-        visual.WhiteFlash[1] = ChangeRed(visual.WhiteFlash[1]);
-        visual.HealthBands[1][1] = ChangeRed(visual.HealthBands[1][1]);
-        string overrides = Path.Combine(stockDirectory, "draygon-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides, DraygonColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, DraygonColorFile.Write(visual));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { DraygonColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors() } };
-        DraygonColorCatalog colors = edited.Bosses.DraygonColors ??
-            throw new InvalidDataException("Edited enemy art has no Draygon colors.");
-        CheckEditedBand(DraygonColorDefinitions.IntroCount,
-            native.ResolveIntro, colors.ResolveIntro, "intro");
-        CheckEditedBand(DraygonColorDefinitions.BackgroundCount,
-            native.ResolveBackground, colors.ResolveBackground, "background");
-        CheckEditedBand(DraygonColorDefinitions.SpriteCount,
-            native.ResolveSprite, colors.ResolveSprite, "sprite");
-        CheckEditedBand(DraygonColorDefinitions.WhiteFlashCount,
-            native.ResolveWhiteFlash, colors.ResolveWhiteFlash, "white flash");
-        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
-        for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
-            if (band == 1 && color == 1)
-                AssertTrue(native.ResolveHealthBand(band, color) !=
-                    colors.ResolveHealthBand(band, color),
-                    "Draygon edited health-band color changes");
-            else
-                AssertEqual(native.ResolveHealthBand(band, color),
-                    colors.ResolveHealthBand(band, color),
-                    $"Draygon health band {band} color {color} remains unchanged");
-        AssertEqual(colors.ResolveHealthBand(1, 1),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors().ResolveHealthBand(1, 1),
-            "Draygon color override survives catalog reload");
+        DraygonColorCatalog colors = native;
 
         // Invoke the actual body initializer and hurt program with the visual source
         // windows forbidden. Only the resource may supply colors during installed play.
@@ -98,7 +66,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     < (DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         Type type = typeof(RoomEnemySystem);
         enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
@@ -158,24 +126,10 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(8, 0),
             "out-of-range Draygon health-band index fails loudly");
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors(),
-            "invalid Draygon color override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).DraygonColors(),
-            "duplicate Draygon color property fails loudly");
         visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
             "reading Draygon colors rejects an RGB5 channel outside five-bit precision");
-        File.Delete(overrideFile);
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).DraygonColors(),
-            "corrupt stock Draygon colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, persistent override, ROM guard, and strict failures pass.");
+        Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, ROM guard, and strict failures pass.");
 
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
@@ -193,33 +147,17 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     $"installed Draygon {name} color {color}");
         }
 
-        // The colours Draygon shows: the import's shades of his edited colours, laid as his colour state names them over
+        // The colours Draygon shows: the import's shades of his installed colours, laid as his colour state names them over
         // his room's pictures and his sprites (#1512).
         RgbColor[] Shown()
         {
-            IReadOnlyList<SheetShade> background = BossSheetShades.DraygonBackground(edited.Bosses);
-            IReadOnlyList<SheetShade> sprites = BossSheetShades.OwnRow(edited.Bosses, EnemyDefinitionId.DraygonBody, 0);
+            IReadOnlyList<SheetShade> background = BossSheetShades.DraygonBackground(stock.Bosses);
+            IReadOnlyList<SheetShade> sprites = BossSheetShades.OwnRow(stock.Bosses, EnemyDefinitionId.DraygonBody, 0);
             ushort[] colours = BossShadeColours.Laid(GameplayShadingProbe.ShadingOf(state.Colours, GameplayPictures.Room,
                 background.Select(shade => shade.Shade)).Shades, background, BossShadeColours.Room, 0);
             foreach (PictureShade shade in state.Colours.Sprites.Shades)
                 BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
             return [.. colours.Select(RgbColor.FromWord)];
-        }
-
-        static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
-        {
-            Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
-        };
-
-        static void CheckEditedBand(int count, Func<int, RgbColor> original,
-            Func<int, RgbColor> changed, string name)
-        {
-            AssertTrue(original(1) != changed(1),
-                $"Draygon {name} edit changes selected color");
-            for (int color = 0; color < count; color++)
-                if (color != 1)
-                    AssertEqual(original(color), changed(color),
-                        $"Draygon {name} edit leaves color {color} unchanged");
         }
     }
 }

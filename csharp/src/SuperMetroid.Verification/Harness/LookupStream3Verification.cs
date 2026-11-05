@@ -18,7 +18,6 @@ using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.CreditsPresentationVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyLegacyOverridesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainContactHitboxesVerification;
@@ -653,7 +652,6 @@ internal static class LookupStream3Verification
         AssertTrue(all.Skip(472).Take(expectedAdditional.Length).Select(frame => frame.Native).SequenceEqual(expectedAdditional),
             "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => new FrameAddressKey(frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
-        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
 
     /// <summary>Checks file-select patch cells and terminators against ROM, then verifies edited placement and order.</summary>
@@ -1500,11 +1498,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, invalid), "stream 3 door page bounds");
-        // The escape-text suite edits stock enemy-tile files, so it runs on a private installation copy.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string stock = copy.Installation.EnemyTileDirectory;
-        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(stock,
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(stock, null)));
+        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(InstalledFixtures.EnemyArtwork));
     }
 
     /// <summary>The installation's enemy, boss and area artwork with its escape timer, which Mother Brain's pages copy (#1513).</summary>
@@ -2725,7 +2719,7 @@ internal static class LookupStream3Verification
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapSchema.Current.Revision,
+            Version = EnemySpritemapSchema.Revision,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
@@ -2832,7 +2826,6 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
         }
-        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)

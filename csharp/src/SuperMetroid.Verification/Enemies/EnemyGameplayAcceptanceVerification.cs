@@ -64,14 +64,10 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine("Enemy reference closure: all headers resolve compiled vulnerabilities and drop chances.");
     }
 
-    /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects the OBJ characters but no enemy slot or quota.</summary>
+    /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks its slots, quota and wing placement.</summary>
     private static void VerifyEnemyPopulationPresentationIsolation()
     {
-        using var temporary = new TestScratchDirectory("map-catalog");
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string stockPath = copy.Installation.EnemyTileDirectory;
-        string overridePath = Path.Combine(temporary.Root, "overrides");
-        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
+        InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
 
         // Body/wing adjacency is gameplay-visible: the wing initializer aliases the
         // immediately preceding physical slot. Choose one complete retail pair list,
@@ -81,7 +77,7 @@ internal static class EnemyGameplayAcceptanceVerification
             .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
-        (RoomEnemySystem baseline, byte[] beforeCharacters) = Load(stock);
+        (RoomEnemySystem baseline, _) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
         AssertEqual(population.Records.Length < EnemySlotOrder.Capacity ? baseline.SlotTable.Slots[population.Records.Length] : null,
             baseline.SlotTable.FindFreeSlot(), "a spawn takes the slot after the compiled population");
@@ -101,57 +97,8 @@ internal static class EnemyGameplayAcceptanceVerification
             }
         }
 
-        // Each definition shows its own installed sheet (#1412): editing one body variant's sheet changes that
-        // variant's uploads alone, though the cartridge's three variants share one tile source.
-        EnemyDefinitionId editedPointer = EnemyDefinitionId.KihunterGreen;
-        Directory.CreateDirectory(overridePath);
-        foreach (EnemyDefinitionId alias in new[] { editedPointer })
-        {
-            int tiles = SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.ByteCounts[editedPointer] / RoomCharacterAtlasFormat.BytesPerTile;
-            int columns = Math.Min(tiles, RoomCharacterAtlasFormat.TileColumns);
-            using var input = File.OpenRead(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(alias)));
-            IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)((tiles + columns - 1) / columns * 8))));
-            image.Pixels[0] ^= 1;
-            using var output = File.Create(Path.Combine(overridePath, EnemyTileArtworkFiles.FileName(alias)));
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        }
-        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer)));
-        string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
-        (RoomEnemySystem changed, byte[] afterCharacters) = Load(edited);
-        SuperMetroid.AssetExtraction.Enemies.GraphicsSetMemberCharacters[] entries = [.. baseline.GraphicsSet.Entries];
-        byte[] expectedCharacters = beforeCharacters.ToArray();
-        for (int index = 0; index < entries.Length; index++)
-            if (entries[index].DefinitionId == editedPointer)
-                expectedCharacters[LoadedFirstByte(entries[index])] ^= 0x80;
-        static string ChangedOffsets(ReadOnlySpan<byte> before, ReadOnlySpan<byte> after)
-        {
-            var changed = new List<string>();
-            for (int offset = 0; offset < before.Length; offset++)
-                if (before[offset] != after[offset])
-                    changed.Add($"{offset:X5}:{before[offset]:X2}->{after[offset]:X2}");
-            return string.Join(",", changed);
-        }
-        AssertEqual(ChangedOffsets(beforeCharacters, expectedCharacters), ChangedOffsets(beforeCharacters, afterCharacters),
-            "PNG replacement changes exactly the authored pixel where its upload lands on the OBJ characters");
-        // An enemy's colours are the shading its slot publishes over the colours the import installs (#1512).
-        for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
-            AssertEqual(baseline.SlotTable.Slots[index].Shading, changed.SlotTable.Slots[index].Shading,
-                $"PNG replacement does not change slot {index}'s shading");
-        AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "PNG replacement changes selected presentation identity");
-        AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stockPath, overridePath).ContentIdentity,
-            "enemy replacement persists through a fresh catalog load");
-        AssertEqual(stockHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
-            Path.Combine(stockPath, EnemyTileArtworkFiles.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
-        foreach (PropertyInfo property in MetadataShape.Properties(typeof(RoomEnemySlot), BindingFlags.Instance | BindingFlags.Public))
-        for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
-            AssertEqual(property.GetValue(baseline.SlotTable.Slots[index]), property.GetValue(changed.SlotTable.Slots[index]),
-                $"enemy artwork cannot change slot {index} {property.Name}");
-        AssertEqual(baseline.PopulationLoader.DeathQuota, changed.PopulationLoader.DeathQuota, "enemy artwork cannot change death quota");
-        AssertEqual(baseline.SlotTable.FindFreeSlot()?.SlotIndex, changed.SlotTable.FindFreeSlot()?.SlotIndex, "enemy artwork cannot change slot allocation");
-        AssertEqual(baseline.RoomStatus.Boss, changed.RoomStatus.Boss, "enemy artwork cannot change boss selection");
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
-            "initialize with RAM-only memory; PNG edits change the OBJ characters, not any slot field or quota.");
+            "initialize with RAM-only memory.");
 
         LoadResult Load(InstalledEnemyArtwork artwork)
         {

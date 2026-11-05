@@ -35,7 +35,7 @@ internal static class EnemyExtendedFrameFiles
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyExtendedFrameDocument
             {
-                Version = EnemyExtendedFrameSchema.Current.Revision,
+                Version = EnemyExtendedFrameSchema.Revision,
                 Frames = frames,
                 DisplayFrames = EnemyExtendedFrameDefinitions.Frames
                     .ToDictionary(frame => frame.Name, frame => frame.Name,

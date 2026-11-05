@@ -39,7 +39,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>
+/// <summary>Exports every retail room-enemy graphics sheet; the player edits the installed files in place.</summary>
 public static class EnemyTileArtworkFiles
 {
     /// <summary>Serializer settings shared by the stock enemy-art manifest and its supplemental JSON resources.</summary>
@@ -54,7 +54,7 @@ public static class EnemyTileArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying room-enemy graphics definitions and the associated artwork sources.</param>
     /// <param name="directory">Stock output directory, created if needed; existing resource and manifest files are overwritten.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
-    /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate. Does not read or modify player overrides.</remarks>
+    /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate.</remarks>
     /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, or palette representation are invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -367,16 +367,14 @@ public static class EnemyTileArtworkFiles
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
-    /// <summary>Checks stock hashes, then compiles selected PNGs into the enemy, boss and area catalogs without reading a cartridge.</summary>
-    public static InstalledEnemyArtwork Load(string stockDirectory, string? overrideDirectory) =>
-        Open(stockDirectory, overrideDirectory).LoadAll();
+    /// <summary>Checks the manifest, then compiles the installed files into the enemy, boss and area catalogs without reading a cartridge.</summary>
+    public static InstalledEnemyArtwork Load(string directory) => Open(directory).LoadAll();
 
     /// <summary>
-    /// Checks the manifest of <paramref name="stockDirectory"/> and returns a reader of its components under
-    /// <paramref name="overrideDirectory"/>, each of which reads only its own files.
+    /// Checks the manifest of <paramref name="directory"/> and returns a reader of its components, each of which reads
+    /// only its own files.
     /// </summary>
-    internal static EnemyTileArtworkReader Open(string stockDirectory, string? overrideDirectory) =>
-        EnemyTileArtworkReader.Open(stockDirectory, overrideDirectory);
+    internal static EnemyTileArtworkReader Open(string directory) => EnemyTileArtworkReader.Open(directory);
 
     /// <summary>
     /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently

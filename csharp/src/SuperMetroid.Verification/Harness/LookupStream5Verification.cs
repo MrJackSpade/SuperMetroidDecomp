@@ -92,7 +92,7 @@ internal static class LookupStream5Verification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Melt tilemap source revision");
         InstalledEnemyArtwork catalog = SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(
-            RepositoryInstallation.Installation.EnemyTileDirectory, null);
+            RepositoryInstallation.Installation.EnemyTileDirectory);
         CrocomireMeltingArtwork art = (catalog.Bosses.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
         var native = new ushort[2][];
         for (int phase = 0; phase < 2; phase++)
@@ -136,11 +136,7 @@ internal static class LookupStream5Verification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
             "Skeleton transfer oracle revision");
-        // The skeleton check writes an override beside the stock files and corrupts a stock file.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string directory = copy.Installation.EnemyTileDirectory;
-        VerifyCrocomireSkeletonArtwork(oracle, directory,
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null));
+        VerifyCrocomireSkeletonArtwork(oracle, InstalledFixtures.EnemyArtwork);
         AssertThrows<InvalidDataException>(() => CrocomireSkeletonArtwork.IsChunk(-1),
             "Skeleton negative transfer index rejects");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = CrocomireSourceDefinitions.SkeletonChunk(6),

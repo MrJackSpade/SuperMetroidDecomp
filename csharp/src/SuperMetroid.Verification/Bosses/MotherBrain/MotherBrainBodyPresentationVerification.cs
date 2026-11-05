@@ -191,37 +191,11 @@ internal static class MotherBrainBodyPresentationVerification
         }
         Console.WriteLine($"PASS stock import: 17 Mother Brain roots, {limbs} OAM limbs/{sprites} sprites, " +
             $"16 BG2 frames/{runs} ordered runs/{tiles} tile words. Production runtime receives no cartridge source.");
-        using var temporary = new TestScratchDirectory("map-catalog");
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string stockPath = copy.Installation.EnemyTileDirectory, overridePath = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFilesConstants.ValidateStock(stockPath);
-        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(stockPath, null);
+        InstalledEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
         AssertEqual(bg2.ContentIdentity, (installed.Bosses.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,
             "manifest loads the exact imported Mother Brain body catalog");
         AssertEqual(oam.ContentIdentity, (installed.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).ContentIdentity,
             "manifest loads the complete current multipart catalog");
-        string file = Path.Combine(stockPath, MotherBrainBodyBg2FrameDefinitions.FileName);
-        var author = new EnemyIdentityFixture();
-        using var parsed = System.Text.Json.JsonDocument.Parse(File.ReadAllBytes(file));
-        var document = RequiredJson.Deserialize<EnemyBg2FrameDocument>(parsed,
-            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
-        EnemyBg2WriteDocument[] first = document.Frames.Values.First();
-        first[0].Tiles[0] = RoomBackgroundTilemapCellWords.Cell(first[0].Tiles[0].PackedWord ^ 1);
-        Directory.CreateDirectory(overridePath);
-        string selectedFile = Path.Combine(overridePath, MotherBrainBodyBg2FrameDefinitions.FileName);
-        using (var json = author.Json(document)) File.WriteAllBytes(selectedFile, json.ToArray());
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
-        AssertTrue(installed.ContentIdentity != edited.ContentIdentity, "selected Mother Brain BG2 edit changes installed bundle identity");
-        AssertEqual(installed.Enemies.ExtendedFrames.ContentIdentity, (edited.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).ContentIdentity,
-            "a BG2-only override does not alter limb compositions");
-        using (var json = author.Json(document with { Version = document.Version + 1 }))
-            File.WriteAllBytes(selectedFile, json.ToArray());
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockPath, overridePath),
-            "malformed Mother Brain override fails at installation loading");
-        using (var json = author.Json(document)) File.WriteAllBytes(file, json.ToArray());
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFilesConstants.ValidateStock(stockPath),
-            "modified Mother Brain stock fails loudly where it is read");
-        Console.WriteLine("PASS Mother Brain installation: stock hashes, selected overrides/identity and malformed/tampered-data rejection.");
     }
 
     /// <summary>Runs the RAM-only Mother Brain presentation suite through the verification dispatcher.</summary>

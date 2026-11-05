@@ -26,15 +26,14 @@ internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>
     /// Read the installation's enemy bundle, which production import code extracted, then confirm only
-    /// the reported gunship frames, legacy-override inheritance and landing draw.
+    /// the reported gunship frames and landing draw.
     /// Native bytes are a reference oracle, never the gameplay bus.
     /// </summary>
     internal static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath)
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
         string directory = new GameInstallation(Path.GetFullPath(installationRoot)).EnemyTileDirectory;
-        EnemyTileArtworkFilesConstants.ValidateStock(directory);
-        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
+        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory);
         EnemySpritemapCatalog compositions = (stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
         NativeEnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
         AssertEqual(GunshipVisualDefinitions.FrameCount, shipFrames.Length,
@@ -49,36 +48,8 @@ internal static class GunshipInstalledCompositionsVerification
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");
         }
 
-        // Schema 60 is the player's pre-fix format. Its edited ordinary frame
-        // must survive, while the newly added gunship frames inherit current stock.
-        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var stockDocument = RequiredJson.Deserialize<EnemySpritemapDocument>(
-            File.ReadAllText(Path.Combine(directory, EnemySpritemapDefinitions.FileName)), jsonOptions);
-        var oldFrames = EnemySpritemapDefinitions.Frames[..EnemySpritemapDefinitions.PreGunshipFrameCount].ToArray();
-        // Schema 60 named frames as they were named before frames were named for their meaning (#1465).
-        var legacy = stockDocument with
-        {
-            Version = EnemySpritemapSchema.PreGunship.Revision,
-            Frames = oldFrames.ToDictionary(frame => frame.LegacyName, frame => stockDocument.Frames[frame.Name].ToArray()),
-            DisplayFrames = oldFrames.ToDictionary(frame => frame.LegacyName, frame => frame.LegacyName),
-        };
-        string editedName = oldFrames[0].LegacyName;
-        legacy.Frames[editedName][0] = legacy.Frames[editedName][0] with { OffsetX = 7 };
-        using var legacyJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(legacy, jsonOptions));
-        var merged = EnemySpritemapDocuments.Load(legacyJson, compositions);
-        AssertTrue(merged.TryGetDisplay(oldFrames[0].Bank, oldFrames[0].Pointer, out var edited),
-            "#1154 schema-60 edited frame remains resolvable");
-        AssertTrue(edited.SequenceEqual(EnemySpritemapCompiler.CompileParts(legacy.Frames[editedName], editedName)),
-            "#1154 schema-60 override edit survives the upgrade");
-        foreach (NativeEnemySpritemapDefinition frame in shipFrames)
-        {
-            AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited) &&
-                (compositions ?? throw new InvalidOperationException("Verification requires compositions.")).TryGetDisplay(frame.Bank, frame.Pointer, out var expected) &&
-                inherited.SequenceEqual(expected),
-                $"#1154 legacy override inherits new {frame.Name} from stock");
-        }
         Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(installationRoot, stock));
-        Console.WriteLine("#1154: all 13 gunship compositions match native OAM; schema-60 edits survive and inherit ship art. Bundle: " + directory);
+        Console.WriteLine("#1154: all 13 gunship compositions match native OAM. Bundle: " + directory);
     }
 
     /// <summary>

@@ -380,13 +380,10 @@ public sealed record GameInstallation(string Root)
     public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     /// <summary>Loads the validated installed projectile presentation.</summary>
     public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory);
-    /// <summary>Ordinary enemy tile sheets; replacement PNGs survive stock-content rebuilds.</summary>
+    /// <summary>Installed enemy, boss and area artwork, which the player edits in place.</summary>
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Persistent ordinary-enemy PNG replacements, preserved during stock rebuilds.</summary>
-    public string EnemyTileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Loads validated enemy, boss and area artwork and compatible replacement PNGs from the persistent override tree.</summary>
-    public InstalledEnemyArtwork LoadEnemyTiles() =>
-        EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
+    /// <summary>Loads the validated installed enemy, boss and area artwork.</summary>
+    public InstalledEnemyArtwork LoadEnemyTiles() => EnemyTileArtworkFiles.Load(EnemyTileDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 

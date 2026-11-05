@@ -10,7 +10,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms the specifically identified Work Robot laser resource omission.</summary>
 internal static class WorkRobotResourceChecks
 {
-    /// <summary>Checks seven Work Robot laser frames and preservation of edited legacy art during schema upgrade.</summary>
+    /// <summary>Checks the seven Work Robot laser frames load with their compositions.</summary>
     public static void Run()
     {
         // Production catalogs, but constructed art: no cartridge, enemy AI, room,
@@ -34,7 +34,7 @@ internal static class WorkRobotResourceChecks
         }
         var document = new EnemyProjectileSpritemapDocument
         {
-            Version = (int)EnemyProjectileSpritemapVersion.Current,
+            Version = EnemyProjectileSpritemapDocuments.Version,
             Frames = frames, ProgramFrames = programs,
         };
         EnemyProjectileSpritemapCatalog stock = Load(document);
@@ -45,43 +45,13 @@ internal static class WorkRobotResourceChecks
                 stock.GetProgramFrame(laser).Span[0].Offset.X == index,
                 $"installed Work Robot frame {laser} must preserve its actual draw composition");
         }
-        var legacyPrograms = EnemyProjectilePresentationFrameSets.PreWorkRobot.ToDictionary(
-            frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
-        // The Work Robot's own schema generation is the one before the Polyp rock's: compare it, not the current one.
-        Require(EnemyProjectilePresentationFrameSets.PrePolypRock.Length - legacyPrograms.Count == WorkRobotLaserFrameDefinitions.PoseCount,
-            "the schema change must add only the seven identified Work Robot bindings");
-        EnemyProjectilePresentationFrameDefinition edited = EnemyProjectilePresentationFrameSets.PreWorkRobot[0];
-        legacyPrograms[edited.Name] = [new SpriteVisualPart
-        {
-            OffsetX = -1, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
-            TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
-        }];
-        var legacy = document with
-        {
-            Version = (int)EnemyProjectileSpritemapVersion.PreWorkRobot,
-            ProgramFrames = legacyPrograms,
-        };
-        EnemyProjectileSpritemapCatalog merged = Load(legacy, stock);
-        Require(merged.GetProgramFrame(edited.Frame).Span[0].Offset.X == -1,
-            "a schema-11 override must retain its edited existing composition");
-        for (int index = 0; index < WorkRobotLaserFrameDefinitions.PoseCount; index++)
-        {
-            EnemyProjectileFrameId laser = WorkRobotLaserFrameDefinitions.ShownProjectileFrames[new(index)];
-            Require(merged.GetProgramFrame(laser).Span[0].Offset.X == index,
-                "a schema-11 override must inherit each newly required laser composition from stock");
-        }
-        bool rejected = false;
-        try { _ = Load(legacy); }
-        catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "an incomplete schema-11 stock installation must trigger repair, not silently omit new frames");
-        Console.WriteLine("Work Robot resources: all seven bindings load; legacy edits survive, new frames inherit stock, incomplete stock is rejected.");
+        Console.WriteLine("Work Robot resources: all seven bindings load.");
     }
 
-    /// <summary>Loads a constructed projectile artwork document, optionally merging missing frames from stock.</summary>
-    private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document,
-        EnemyProjectileSpritemapCatalog? stock = null) =>
+    /// <summary>Loads a constructed projectile artwork document.</summary>
+    private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document) =>
         EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
 
     /// <summary>Reports a failed resource contract with context for the audit command.</summary>
     private static void Require(bool condition, string message)

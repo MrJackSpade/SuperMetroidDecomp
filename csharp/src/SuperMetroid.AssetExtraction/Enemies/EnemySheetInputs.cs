@@ -28,7 +28,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     internal static EnemySheetInputs Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName), null);
+        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName));
         return new(
             installed.Enemies,
             installed.Bosses,
@@ -91,5 +91,4 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) =>
         asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles ? EscapeTimerTilePageTransfers.Resolve(EscapeTimer, asset)
             : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
-
 }

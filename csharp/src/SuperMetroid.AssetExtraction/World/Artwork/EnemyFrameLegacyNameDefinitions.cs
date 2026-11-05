@@ -3,18 +3,14 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>
-/// The names enemy frames had in installed documents and players' override files before they were named for their
-/// owner and meaning (#1465): each spelled the bank-local word the cartridge stores the frame at. Only the import reads
-/// them, to carry an older document or override sheet onto the frames' semantic names.
+/// The names enemy frames had in installed documents before they were named for their owner and meaning (#1465): each
+/// spelled the bank-local word the cartridge stores the frame at.
 /// </summary>
 internal static class EnemyFrameLegacyNameDefinitions
 {
-    /// <summary>The Draygon and Crocomire BG2 frame document revision that last used these names.</summary>
-    internal const int LastBg2FrameRevision = 2;
-
     /// <summary>
-    /// The names ordinary composition documents up to <see cref="EnemySpritemapSchema.PreSemanticNames"/> gave each
-    /// renamed frame. Frames absent here kept their names.
+    /// The names ordinary composition documents gave each renamed frame before frames were named for their meaning.
+    /// Frames absent here kept their names.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, string> OrdinaryCompositions { get; } = new Dictionary<EnemyFrameId, string>
     {
@@ -496,8 +492,8 @@ internal static class EnemyFrameLegacyNameDefinitions
     };
 
     /// <summary>
-    /// The names extended-composition documents up to <see cref="EnemyExtendedFrameSchema.PreSemanticNames"/> gave each renamed
-    /// frame; the Draygon BG2 frame document used the same names for its frames. Frames absent here kept their names.
+    /// The names extended-composition documents gave each renamed frame before frames were named for their meaning; the
+    /// Draygon BG2 frame document used the same names for its frames. Frames absent here kept their names.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, string> ExtendedCompositions { get; } = new Dictionary<EnemyFrameId, string>
     {
@@ -1017,7 +1013,7 @@ internal static class EnemyFrameLegacyNameDefinitions
         [EnemyFrameId.KraidFootStanding] = "kraid_foot_oam_A565",
     };
 
-    /// <summary>The names the Crocomire BG2 frame document up to <see cref="LastBg2FrameRevision"/> gave its frames.</summary>
+    /// <summary>The names the Crocomire BG2 frame document gave its frames before they were named for their poses.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, string> CrocomireBg2Frames { get; } = new Dictionary<EnemyFrameId, string>
     {
         [EnemyFrameId.CrocomireBody0] = "crocomire_body_bg2_BFC4",

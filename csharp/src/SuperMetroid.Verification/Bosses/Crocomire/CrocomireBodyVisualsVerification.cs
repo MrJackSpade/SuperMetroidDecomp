@@ -26,9 +26,6 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
 internal static class CrocomireBodyVisualsVerification
 {
-    /// <summary>JSON options: Camel-case property names.</summary>
-    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
     /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
@@ -77,31 +74,11 @@ internal static class CrocomireBodyVisualsVerification
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "generated catalog loads every native BG2 stream by its published key");
 
-        // A player's revision-2 document named each frame by where the cartridge stores it; the import carries it onto
-        // the frames' semantic names and the current revision before the loader reads it (#1465).
-        var generated = RequiredJson.Deserialize<EnemyBg2FrameDocument>(generatedJson,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        var legacyDocument = generated with
-        {
-            Version = EnemyFrameLegacyNameDefinitions.LastBg2FrameRevision,
-            Frames = CrocomireBg2FrameDefinitions.Frames.ToDictionary(
-                frame => EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames[frame.Frame], frame => generated.Frames[frame.Name], StringComparer.Ordinal),
-        };
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(legacyDocument, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        AssertThrows<InvalidDataException>(() => CrocomireBg2FrameCatalog.Load(new MemoryStream(legacyJson, writable: false)),
-            "the loader itself reads only the current revision's names");
-        var upgraded = CrocomireBg2FrameCatalog.Load(new MemoryStream(EnemyBg2FrameDocumentUpgrade.Upgrade(legacyJson,
-            CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version, EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames, "Crocomire"),
-            writable: false));
-        foreach (var frame in expected)
-            AssertTrue(upgraded.TryGet(frame.Pointer, out var legacyWrites) && loaded.TryGet(frame.Pointer, out var currentWrites) &&
-                legacyWrites.Length == currentWrites.Length,
-                "a revision-2 Crocomire BG2 document keyed by its older names installs every frame its current equal does");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
-    /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied, then checks a BG2 edit obeys the new-frame gate.</summary>
+    /// <summary>Compares installed OAM and VRAM output for every body frame with visual ROM reads denied.</summary>
     internal static void VerifyInstalledCrocomireBodyVisuals(
-        SuperMetroidAddressSpace rom, string stockDirectory,
+        SuperMetroidAddressSpace rom,
         InstalledEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.ExtendedFrames is not null && stock.Bosses.CrocomireBg2Frames is not null,
@@ -187,35 +164,8 @@ internal static class CrocomireBodyVisualsVerification
             }
         }
 
-        string overrideDirectory = Path.Combine(stockDirectory, "crocomire-body-override");
-        Directory.CreateDirectory(overrideDirectory);
-        string source = Path.Combine(stockDirectory, CrocomireBg2FrameDefinitions.FileName);
-        var authored = RequiredJson.Deserialize<EnemyBg2FrameDocument>(
-            File.ReadAllBytes(source),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        EnemySpritemapDefinition editedFrame = CrocomireBg2FrameDefinitions.Frames[0];
-        EnemyBg2WriteDocument lastWrite = authored.Frames[editedFrame.Name][^1];
-        lastWrite.Tiles[0] = RoomBackgroundTilemapCellWords.Cell(lastWrite.Tiles[0].PackedWord ^ 1);
-        string overridePath = Path.Combine(overrideDirectory,
-            CrocomireBg2FrameDefinitions.FileName);
-        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(authored,
-            CamelCaseJson));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { CrocomireBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CrocomireBg2Frames() } };
-        var editedGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> editedGuardBlockFrame);
-        editedGuardBlockFrame(CrocomireBodyVisualToolingDefinitions.Bank, editedFrame.Pointer);
-        (OamBuffer stockOam, byte[] stockVram) = Draw(stock, editedGuard,
-            editedFrame.Pointer, true);
-        (OamBuffer editedOam, byte[] editedVram) = Draw(edited, editedGuard,
-            editedFrame.Pointer, true);
-        AssertTrue(stockOam.ImageEquals(editedOam),
-            "Crocomire BG2 edit does not move its OAM components");
-        AssertTrue(!stockVram.SequenceEqual(editedVram),
-            "Crocomire BG2 edit changes the live VRAM result");
-        AssertTrue(Draw(edited, editedGuard, editedFrame.Pointer, false).Vram
-                .SequenceEqual(Draw(stock, editedGuard, editedFrame.Pointer, false).Vram),
-            "Crocomire BG2 edit still obeys the native new-frame gate");
         Console.WriteLine(
-            "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied; BG2 edits obey the new-frame gate.");
+            "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied.");
 
         // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him at.
         DrawNativeResult DrawNative(ushort pointer, bool newFrame) =>

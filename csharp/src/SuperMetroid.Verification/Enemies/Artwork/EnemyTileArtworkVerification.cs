@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Tooling;
@@ -83,28 +84,16 @@ internal static class EnemyTileArtworkVerification
         return expected;
     }
 
-    /// <summary>
-    /// Stock enemy artwork in a private copy of the repository installation, which each enemy artwork
-    /// suite may edit, so the suites run independently.
-    /// </summary>
-    private sealed class EnemyTileFixture : IDisposable
+    /// <summary>The repository installation's enemy artwork, which the enemy artwork suites read.</summary>
+    private sealed class EnemyTileFixture
     {
         /// <summary>Retail cartridge oracle for native comparisons.</summary>
         private readonly CartridgeImportAddressSpace bus =
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        /// <summary>Private installation copy deleted on disposal.</summary>
-        private readonly PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.EnemyTileDirectory);
-        /// <summary>The copy's stock enemy-tile directory.</summary>
-        private readonly string directory;
-        /// <summary>Stock catalog loaded from the copy.</summary>
-        private readonly InstalledEnemyArtwork stock;
-
-        /// <summary>Loads the stock enemy artwork of the private copy.</summary>
-        internal EnemyTileFixture()
-        {
-            directory = copy.Installation.EnemyTileDirectory;
-            stock = EnemyTileArtworkFiles.Load(directory, null);
-        }
+        /// <summary>The installation's enemy-tile directory.</summary>
+        private readonly string directory = RepositoryInstallation.Installation.EnemyTileDirectory;
+        /// <summary>The installation's enemy artwork.</summary>
+        private readonly InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
 
         /// <summary>Supplies the cartridge, stock enemy-tile directory and stock catalog.</summary>
         internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out InstalledEnemyArtwork stock)
@@ -113,25 +102,22 @@ internal static class EnemyTileArtworkVerification
             directory = this.directory;
             stock = this.stock;
         }
-
-        /// <summary>Deletes the private installation copy.</summary>
-        public void Dispose() => copy.Dispose();
     }
 
     /// <summary>Checks installed Torizo, Ceres escape, Mother Brain, corpse, Ninja Pirate, Zebetite and Norfair Ridley artwork against retail.</summary>
     private static void VerifyBossEnemyArtwork()
     {
-        using var fixture = new EnemyTileFixture();
+        var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
-        Suite(nameof(VerifyTorizoSwapArtwork), () => VerifyTorizoSwapArtwork(bus, directory, stock));
-        Suite(nameof(VerifyCeresEscapeTileArtwork), () => VerifyCeresEscapeTileArtwork(bus, directory, stock));
-        Suite(nameof(VerifyCeresEscapeOverlayTilemaps), () => VerifyCeresEscapeOverlayTilemaps(bus, directory, stock));
-        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(directory, stock));
-        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(directory, stock));
-        Suite(nameof(VerifyInstalledMotherBrainSpecialSpriteArtwork), () => VerifyInstalledMotherBrainSpecialSpriteArtwork(directory, stock));
-        Suite(nameof(VerifyInstalledDeadTorizoArtwork), () => VerifyInstalledDeadTorizoArtwork(directory, stock));
-        Suite(nameof(VerifyInstalledDeadTourianCorpseArtwork), () => VerifyInstalledDeadTourianCorpseArtwork(directory, stock));
-        Suite(nameof(VerifyInstalledNinjaSpacePiratePalette), () => VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock));
+        Suite(nameof(VerifyTorizoSwapArtwork), () => VerifyTorizoSwapArtwork(bus, stock));
+        Suite(nameof(VerifyCeresEscapeTileArtwork), () => VerifyCeresEscapeTileArtwork(bus, stock));
+        Suite(nameof(VerifyCeresEscapeOverlayTilemaps), () => VerifyCeresEscapeOverlayTilemaps(bus, stock));
+        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(stock));
+        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(stock));
+        Suite(nameof(VerifyInstalledMotherBrainSpecialSpriteArtwork), () => VerifyInstalledMotherBrainSpecialSpriteArtwork(stock));
+        Suite(nameof(VerifyInstalledDeadTorizoArtwork), () => VerifyInstalledDeadTorizoArtwork(stock));
+        Suite(nameof(VerifyInstalledDeadTourianCorpseArtwork), () => VerifyInstalledDeadTourianCorpseArtwork(stock));
+        Suite(nameof(VerifyInstalledNinjaSpacePiratePalette), () => VerifyInstalledNinjaSpacePiratePalette(bus, stock));
         Suite(nameof(VerifyInstalledZebetiteColors), () => VerifyInstalledZebetiteColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledNorfairRidleyColors), () => VerifyInstalledNorfairRidleyColors(bus, directory, stock));
     }
@@ -139,14 +125,14 @@ internal static class EnemyTileArtworkVerification
     /// <summary>Checks installed enemy and boss color, palette-cycle and Crocomire skeleton artwork against retail.</summary>
     private static void VerifyEnemyColorArtwork()
     {
-        using var fixture = new EnemyTileFixture();
+        var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         Suite(nameof(VerifyInstalledTourianStatueColors), () => VerifyInstalledTourianStatueColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock));
         Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock.Enemies));
         Suite(nameof(VerifyInstalledCrocomireColors), () => VerifyInstalledCrocomireColors(bus, directory, stock));
         Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bus));
-        Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, directory, stock));
+        Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, stock));
         Suite(nameof(VerifyInstalledDraygonColors), () => VerifyInstalledDraygonColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledPhantoonColors), () => VerifyInstalledPhantoonColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock));
@@ -156,26 +142,26 @@ internal static class EnemyTileArtworkVerification
         Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledMotherBrainDeathColors), () => VerifyInstalledMotherBrainDeathColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledCeresDoorVisuals), () => VerifyInstalledCeresDoorVisuals(bus, directory, stock));
+        Suite(nameof(VerifyInstalledCeresDoorVisuals), () => VerifyInstalledCeresDoorVisuals(bus, stock));
     }
 
     /// <summary>Checks installed enemy spritemaps, extended frames, Kraid, BG2 frame and gunship artwork against retail.</summary>
     private static void VerifyEnemyFrameArtwork()
     {
-        using var fixture = new EnemyTileFixture();
+        var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock));
-        Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(bus, directory, stock));
+        Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(bus, stock));
         Suite(nameof(VerifyInstalledKraidColors), () => VerifyInstalledKraidColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, directory, stock));
-        Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, directory, stock));
-        Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, directory, stock));
+        Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, stock));
+        Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, stock));
+        Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, stock));
         Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
         Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
-        Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock));
+        Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, stock));
     }
 
-    /// <summary>Runs tile, palette, BG, spritemap and live override checks on the stock enemy art of a private installation copy.</summary>
+    /// <summary>Runs tile, palette, BG and spritemap checks on the installed enemy art.</summary>
     internal static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -185,19 +171,16 @@ internal static class EnemyTileArtworkVerification
             return;
         }
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        // The live override and invalid-resource checks edit stock files, so they run on a private installation copy.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.EnemyTileDirectory);
-        string directory = copy.Installation.EnemyTileDirectory;
+        string directory = RepositoryInstallation.Installation.EnemyTileDirectory;
         {
-            InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
+            InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");
-            var stockMeltImages = new List<byte[]>();
-            ushort[] stockFirstMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
+            _ = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingIllustration.First,
                 CrocomireBodyProgram.MeltingOneTopRow);
-            ushort[] stockSecondMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
+            _ = VerifyInstalledCrocomireMeltingTilemap(
                 bus, stock, CrocomireMeltingIllustration.Second,
                 CrocomireBodyProgram.MeltingTwoTopRow);
             foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -206,7 +189,6 @@ internal static class EnemyTileArtworkVerification
                 byte[] expected = ReadNativeCrocomireMeltingPassImage(bus, pass);
                 AssertTrue(actual.SequenceEqual(expected),
                     $"installed Crocomire {pass} melt image preserves the image the cartridge assembles");
-                stockMeltImages.Add(actual);
             }
             foreach (string file in files)
             {
@@ -230,163 +212,9 @@ internal static class EnemyTileArtworkVerification
                         $"enemy {pointer} RGB5 JSON preserves native palette colour {color}");
                 }
             }
-
-            string editedFile = files[0];
-            EnemyDefinitionId editedPointer = EnemyDefinitionIds.FromHeaderPointer(
-                Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16));
-            int editedByteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, editedPointer).ByteCount;
-            int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;
-            int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);
-            int rows = (tileCount + columns - 1) / columns;
-            using var stockPng = new MemoryStream(File.ReadAllBytes(editedFile), writable: false);
-            IndexedPngImage image = IndexedPng.Read(stockPng, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-            image.Pixels[0] ^= 1;
-            string overrideDirectory = Path.Combine(directory, "overrides");
-            Directory.CreateDirectory(overrideDirectory);
-            string overridePath = Path.Combine(overrideDirectory, Path.GetFileName(editedFile));
-            using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-            string meltFile = Path.Combine(directory,
-                CrocomireMeltingArtworkFormat.FirstFileName);
-            using (var meltInput = new MemoryStream(File.ReadAllBytes(meltFile), writable: false))
-            {
-                IndexedPngImage meltImage = IndexedPng.Read(meltInput, new(256, 32));
-                meltImage.Pixels[0] ^= 1;
-                using var meltOutput = File.Create(Path.Combine(overrideDirectory,
-                    CrocomireMeltingArtworkFormat.FirstFileName));
-                IndexedPng.Write(meltOutput, new(meltImage.Size.X, meltImage.Size.Y),
-                    meltImage.Pixels, meltImage.Colours);
-            }
-            InstalledEnemyArtwork editedMelt = EnemyTileArtworkFiles.Load(
-                directory, overrideDirectory);
-            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(editedMelt,
-                CrocomireMeltingIllustration.First);
-            AssertEqual((byte)(stockMeltImages[0][0] ^ 0x80), changedMelt[0],
-                "Crocomire melt PNG edit changes the live first planar pixel");
-            AssertTrue(changedMelt.AsSpan(1).SequenceEqual(stockMeltImages[0].AsSpan(1)),
-                "Crocomire melt PNG edit leaves all other image bytes unchanged");
-            AssertTrue(VerifyInstalledCrocomireMeltingPass(editedMelt,
-                    CrocomireMeltingIllustration.Second)
-                .SequenceEqual(stockMeltImages[1]),
-                "first-melt PNG edit does not change the second pass");
-            AssertTrue(VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                    CrocomireMeltingIllustration.First)
-                .SequenceEqual(changedMelt),
-                "Crocomire melt override survives catalog reload");
-            string firstTilemapFile = Path.Combine(directory,
-                CrocomireMeltingArtworkFormat.FirstTilemapFileName);
-            CrocomireMeltingTilemapDocument tilemapDocument =
-                RequiredJson.Deserialize<CrocomireMeltingTilemapDocument>(
-                    File.ReadAllBytes(firstTilemapFile),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            CrocomireMeltingTilemapCell[] editedCells =
-                (CrocomireMeltingTilemapCell[])tilemapDocument.Cells.Clone();
-            editedCells[0] = editedCells[0] with
-            {
-                TileIndex = editedCells[0].TileIndex ^ 1,
-            };
-            string tilemapOverride = Path.Combine(overrideDirectory,
-                CrocomireMeltingArtworkFormat.FirstTilemapFileName);
-            using (var tilemapOutput = File.Create(tilemapOverride))
-                CrocomireMeltingArtwork.WriteTilemap(tilemapOutput,
-                    tilemapDocument with { Cells = editedCells });
-            InstalledEnemyArtwork editedMeltMap = EnemyTileArtworkFiles.Load(
-                directory, overrideDirectory);
-            ushort[] changedTiles = VerifyInstalledCrocomireMeltingTilemap(
-                bus, editedMeltMap, CrocomireMeltingIllustration.First,
-                CrocomireBodyProgram.MeltingOneTopRow,
-                compareRom: false);
-            AssertEqual((ushort)(stockFirstMeltTiles[0] ^ 1), changedTiles[0],
-                "Crocomire melt JSON edit changes its selected BG2 tile reference");
-            AssertTrue(changedTiles.AsSpan(1).SequenceEqual(stockFirstMeltTiles.AsSpan(1)),
-                "Crocomire melt JSON edit leaves other BG2 cells unchanged");
-            AssertTrue(VerifyInstalledCrocomireMeltingTilemap(
-                    bus, editedMeltMap,
-                    CrocomireMeltingIllustration.Second,
-                    CrocomireBodyProgram.MeltingTwoTopRow,
-                    compareRom: false)
-                .SequenceEqual(stockSecondMeltTiles),
-                "first-melt tilemap edit does not change the second melt");
-            AssertTrue(VerifyInstalledCrocomireMeltingTilemap(bus,
-                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                    CrocomireMeltingIllustration.First,
-                    CrocomireBodyProgram.MeltingOneTopRow,
-                    compareRom: false)
-                .SequenceEqual(changedTiles),
-                "Crocomire melt tilemap override survives catalog reload");
-            var stockVram = new SnesVram();
-            var editedVram = new SnesVram();
-            stock.Enemies.LoadTo(editedPointer, editedByteCount, new VramRegion(stockVram, PpuMemoryLayout.Vram), 0);
-            edited.Enemies.LoadTo(editedPointer, editedByteCount, new VramRegion(editedVram, PpuMemoryLayout.Vram), 0);
-            AssertEqual((byte)(stockVram.ReadByte(0) ^ 0x80), editedVram.ReadByte(0),
-                "edited enemy PNG changes its first indexed pixel at the native tile location");
-            AssertTrue(stockVram.Bytes[1..].SequenceEqual(editedVram.Bytes[1..]),
-                "enemy PNG edit leaves all neighboring VRAM bytes unchanged");
-            var reloadedVram = new SnesVram();
-            EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .Enemies.LoadTo(editedPointer, editedByteCount, new VramRegion(reloadedVram, PpuMemoryLayout.Vram), 0);
-            AssertTrue(reloadedVram.ImageEquals(editedVram),
-                "enemy override survives content reload without modifying stock PNG");
-
-            string stockPalettePath = Path.Combine(directory,
-                EnemyTileArtworkFiles.PaletteFileName(editedPointer));
-            EnemyPaletteSheetDocument paletteDocument = RequiredJson.Deserialize<EnemyPaletteSheetDocument>(
-                File.ReadAllBytes(stockPalettePath),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            PaletteRgb5[] editedColors = (PaletteRgb5[])paletteDocument.Colors.Clone();
-            editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
-            string paletteOverridePath = Path.Combine(overrideDirectory,
-                EnemyTileArtworkFiles.PaletteFileName(editedPointer));
-            File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheetFile.Write(
-                new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
-            InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-            RgbColor[] originalColours = stock.Enemies.PaletteOf(editedPointer).Colours.ToArray();
-            RgbColor[] changedColours = editedPalette.Enemies.PaletteOf(editedPointer).Colours.ToArray();
-            AssertEqual(originalColours[0].Red ^ 1, changedColours[0].Red,
-                "RGB5 override changes its selected enemy palette channel");
-            AssertEqual(originalColours[0].WithRed(changedColours[0].Red), changedColours[0],
-                "RGB5 override leaves the colour's other channels");
-            for (int color = 1; color < originalColours.Length; color++)
-                AssertEqual(originalColours[color], changedColours[color],
-                    "enemy palette edit leaves every other colour unchanged");
-            AssertTrue(EnemyTileArtworkFiles.Load(directory, overrideDirectory).Enemies.PaletteOf(editedPointer).Colours.SequenceEqual(changedColours),
-                "enemy palette override survives catalog reload");
-
-            byte[] original = File.ReadAllBytes(editedFile);
-            File.WriteAllBytes(editedFile, new byte[] { 0 });
-            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
-                "corrupt stock enemy artwork fails loudly where it is read");
-            File.WriteAllBytes(editedFile, original);
-            File.WriteAllBytes(overridePath, new byte[] { 0 });
-            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                "malformed enemy override fails loudly");
-            File.WriteAllBytes(overridePath, File.ReadAllBytes(editedFile));
-            string meltOverride = Path.Combine(overrideDirectory,
-                CrocomireMeltingArtworkFormat.FirstFileName);
-            File.WriteAllBytes(meltOverride, new byte[] { 0 });
-            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(
-                    directory, overrideDirectory),
-                "malformed Crocomire melt override fails loudly");
-            File.WriteAllBytes(meltOverride, File.ReadAllBytes(meltFile));
-            File.WriteAllBytes(tilemapOverride, new byte[] { 0 });
-            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(
-                    directory, overrideDirectory),
-                "malformed Crocomire tilemap override fails loudly");
-            File.WriteAllBytes(tilemapOverride, File.ReadAllBytes(firstTilemapFile));
-            File.WriteAllBytes(paletteOverridePath, new byte[] { 0 });
-            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                "malformed enemy palette override fails loudly");
-            File.WriteAllText(paletteOverridePath, "{\"version\":1,\"version\":1,\"colors\":[]}");
-            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
-                "duplicate enemy palette keys fail loudly");
-            editedColors[0] = editedColors[0] with { Red = 32 };
-            AssertThrows<InvalidDataException>(() => EnemyPaletteSheetFile.Read(new MemoryStream(EnemyPaletteSheetFile.Write(
-                    new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }))),
-                "RGB5 palette channel outside native five-bit precision is rejected");
         }
-            Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
-            Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
+            Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity.");
+            Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity and installed draws pass.");
     }
 
     /// <summary>
@@ -405,7 +233,7 @@ internal static class EnemyTileArtworkVerification
     [VerificationCommand("--zebetite-colors")]
     internal static int ZebetiteColorsCommand()
     {
-        using var fixture = new EnemyTileFixture();
+        var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         VerifyInstalledZebetiteColors(bus, directory, stock);
         return 0;
@@ -415,7 +243,7 @@ internal static class EnemyTileArtworkVerification
     [VerificationCommand("--phantoon-colors")]
     internal static int PhantoonColorsCommand()
     {
-        using var fixture = new EnemyTileFixture();
+        var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         VerifyInstalledPhantoonColors(bus, directory, stock);
         return 0;
@@ -425,7 +253,7 @@ internal static class EnemyTileArtworkVerification
     [VerificationCommand("--dachora-colors")]
     internal static int DachoraColorsCommand()
     {
-        using var fixture = new EnemyTileFixture();
+        var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         VerifyInstalledDachoraColors(bus, directory, stock);
         return 0;

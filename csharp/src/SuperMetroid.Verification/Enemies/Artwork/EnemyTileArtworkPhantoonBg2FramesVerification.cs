@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Checks 22 BG2 selectors and native tile writes, then proves an override changes live VRAM without changing engine hitboxes or the new-frame gate.</summary>
+    /// <summary>Checks 22 BG2 selectors and native tile writes, the new-frame gate and engine hitboxes.</summary>
     internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)
@@ -77,65 +77,21 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             }
         }
 
-        string stockPath = Path.Combine(stockDirectory, PhantoonBg2FrameDefinitions.FileName);
-        byte[] original = File.ReadAllBytes(stockPath);
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, null).PhantoonBg2Frames(),
-            "stock Phantoon BG2 frames are manifest-hash checked");
-        File.WriteAllBytes(stockPath, original);
-
         EnemyBg2FrameDocument document =
-            RequiredJson.Deserialize<EnemyBg2FrameDocument>(original,
+            RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, PhantoonBg2FrameDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string frameName = "body_invulnerable";
         EnemyBg2WriteDocument first = document.Frames[frameName][0];
-        int originalTile = first.Tiles[0].PackedWord;
-        var editedTiles = (RoomBackgroundTilemapCell[])first.Tiles.Clone();
-        editedTiles[0] = RoomBackgroundTilemapCellWords.Cell(originalTile ^ 1);
-        document.Frames[frameName][0] = first with { Tiles = editedTiles };
-        string overrideDirectory = Path.Combine(stockDirectory, "phantoon-bg2-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        string overridePath = Path.Combine(overrideDirectory,
-            PhantoonBg2FrameDefinitions.FileName);
-        File.WriteAllBytes(overridePath,
-            JsonSerializer.SerializeToUtf8Bytes(document,
-                CamelCaseJson));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { PhantoonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).PhantoonBg2Frames() } };
-        AssertTrue((edited.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
-            PhantoonBg2FrameDefinitions.Frames[0].Frame,
-            out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
-            "Phantoon BG2 edited frame is installed");
-        AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Words[0],
-            "Phantoon BG2 override changes the selected tile reference");
-        AssertEqual((ushort)originalTile,
-            (stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(
-                PhantoonBg2FrameDefinitions.Frames[0].Frame,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> stockFrame)
-                ? stockFrame.Span[0].Words[0] : (ushort)0,
-            "Phantoon BG2 override leaves stock frame intact");
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
         byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
             newInstructionFrame: true);
         var noCartridge = NewCartridgeReadGuard(rom);
         byte[] stockVram = DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: true);
-        byte[] editedVram = DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: true);
         AssertTrue(nativeVram.SequenceEqual(stockVram),
             "installed Phantoon frame draws native BG2 without cartridge reads");
-        int changedVramByte = (PhantoonBg2FrameDefinitions.VramBase +
-            editedFrame.Span[0].FirstCell) * 2;
-        AssertEqual((ushort)(originalTile ^ 1),
-            BitConverter.ToUInt16(editedVram, changedVramByte),
-            "Phantoon BG2 override changes the live rendered tile word");
-        AssertTrue(DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: false).All(value => value == 0),
-            "Phantoon BG2 override retains the native new-frame producer gate");
-        Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock, edited));
-        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { PhantoonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).PhantoonBg2Frames() } };
-        AssertTrue((reloaded.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
-                PhantoonBg2FrameDefinitions.Frames[0].Frame,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
-            reloadedFrame.Span[0].Words[0] == (ushort)(originalTile ^ 1),
-            "Phantoon BG2 override survives catalog reload");
+        AssertTrue(DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: false).All(value => value == 0),
+            "Phantoon BG2 drawing keeps the native new-frame producer gate");
+        Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock));
 
         document.Frames[frameName][0] = first with { X = 32 };
         using var invalid = new MemoryStream(
@@ -144,12 +100,12 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");
-        Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; live VRAM edit, collision ROM guard, reload and invalid-data checks passed.");
+        Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; collision ROM guard and invalid-data checks passed.");
     }
 
-    /// <summary>Compares compiled frame components and three hitbox lists with retail data while checking stock and edited artwork select the same callbacks.</summary>
+    /// <summary>Compares compiled frame components and three hitbox lists with retail data and the callbacks the installed artwork selects.</summary>
     private static void VerifyPhantoonCollisionDefinitions(
-        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock, InstalledEnemyArtwork edited)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         var checkedLists = new HashSet<ushort>();
         foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
@@ -203,11 +159,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 new(0x0080, 0x0080), selectShot: true),
             "Phantoon full-body frame selects Phantoon's shot reaction");
         AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
-            FindPhantoonHitboxReaction(edited, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
-                new(0x0080, 0x0080), selectShot: true),
-            "Phantoon BG2 artwork edit does not move or replace hitbox reactions");
-        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
-            FindPhantoonHitboxReaction(edited, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
+            FindPhantoonHitboxReaction(stock, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
                 new(0x0080, 0x0099), selectShot: true),
             "Phantoon eye-only frame selects the vulnerable eye's shot reaction");
     }

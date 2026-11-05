@@ -69,7 +69,7 @@ public static class EnemySheetFiles
         var artwork = new Lazy<InstalledEnemyArtwork>(() => EnemyTileArtworkFiles.Load(
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
                 ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory)),
-                GameInstallationLayout.EnemyTileDirectoryName), null));
+                GameInstallationLayout.EnemyTileDirectoryName)));
         var setCorpses = new Dictionary<string, IReadOnlyList<CorpseRotSimulation>>(StringComparer.Ordinal);
         foreach ((string set, Dictionary<string, string> members) in manifest.Sets)
         {

@@ -162,14 +162,14 @@ internal static class SamusBodyDrawing
     }
 
     /// <summary>
-    /// Where the chest cover sits relative to the body's origin, or none for a pose without it. The cartridge writes one
+    /// Where the chest cover sits relative to the body's origin, or none for a pose without it. The game draws one
     /// small sprite between the top and bottom halves when the unsuited Samus faces the screen; it is not a visor, but
     /// covers the left side of the Power Suit's chest. The suited forward body has that shape in its own art and shows
-    /// no cover. The cartridge places it seven pixels left of and seventeen above Samus's world point, which is the body's
+    /// no cover. The game places it seven pixels left of and seventeen above Samus's world point, which is the body's
     /// drawn point offset by its origin rise.
     /// </summary>
     /// <remarks>
-    /// The cartridge positions the cover from the unrotated world point while Ceres's turning floor rotates the body's;
+    /// The game positions the cover from the unrotated world point while Ceres's turning floor rotates the body's;
     /// the full-body picture keeps the cover where it sits on the body, a presentation quirk the port does not replicate
     /// (owner ruling on #1513). Only the drained poses are drawn with another pose's movement type, so the forward pose's
     /// cover always follows its own.

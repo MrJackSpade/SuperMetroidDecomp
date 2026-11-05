@@ -19,7 +19,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;

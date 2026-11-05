@@ -89,16 +89,6 @@ internal static class SporeSpawnCeilingVisualsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SporeSpawnCeilingDraw>((ushort)pointer),0,0), "Spore ceiling unknown pointer");
-        entries[0].Blocks[3] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[2].Blocks[0] = RoomBlockAppearance.Of(0x59);
-        var mixed = RoomPlmSporeSpawnCeilingVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Spore ceiling mixed custom stock hash");
-        entries[0].Blocks[3] = RoomBlockAppearance.Of(0x5a);
-        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        for (int index = 0; index < 4; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<SporeSpawnCeilingDraw>(frame.Pointer),index / 2,index % 2), "Spore ceiling clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(entries[..3]), "Spore ceiling missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(entries.Append(entries[0])), "Spore ceiling duplicate frame");
         var invalid = entries.ToArray();

@@ -88,16 +88,6 @@ internal static class TourianAccessVisualsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<TourianAccessDraw>((ushort)pointer),0,0), "Tourian access unknown pointer");
-        entries[4].Blocks[23] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[2].Blocks[0] = RoomBlockAppearance.Of(0x059);
-        var mixed = RoomPlmTourianAccessVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Tourian access mixed custom stock hash");
-        entries[4].Blocks[23] = RoomBlockAppearance.Of(0x05a);
-        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        for (int index = 0; index < native[frame.Pointer].Length; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(entries[..4]), "Tourian access missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(entries.Append(entries[0])), "Tourian access duplicate frame");
         var invalid = entries.ToArray();

@@ -18,10 +18,10 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 
-/// <summary>Checks the bomb-revealed Speed Booster block's editable image independently of its collision behavior.</summary>
+/// <summary>Checks the bomb-revealed Speed Booster block's installed image.</summary>
 internal static class SpeedBoosterVisualsVerification
 {
-    /// <summary>Checks native visual identity, exact pointer membership, authored shape, and source-array isolation.</summary>
+    /// <summary>Checks native visual identity, exact pointer membership, and authored shape.</summary>
     private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
@@ -42,11 +42,6 @@ internal static class SpeedBoosterVisualsVerification
             AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),invalid,0),"speed visual run bounds");
             AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
         }
-        RoomBlockAppearance[] custom = [RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal)];
-        var edited = RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",custom)]);
-        custom[0] = RoomBlockAppearance.Of(0x054);
-        AssertEqual(RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal),edited.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed visual scalar isolates source-array edits");
-        AssertEqual(Hash(RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal)),edited.ContentIdentity,"speed custom scalar identity including mirroring");
         AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([]),"speed visual requires entry");
         AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
         AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");

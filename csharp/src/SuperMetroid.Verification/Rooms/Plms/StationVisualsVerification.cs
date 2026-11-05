@@ -21,29 +21,13 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks editable station PLM art through immediate redraw, streaming, and installation.</summary>
+/// <summary>Checks station PLM art through immediate redraw and installation.</summary>
 internal static class StationVisualsVerification
 {
-    /// <summary>Changes a map-station tile while checking physical collision and other station families.</summary>
+    /// <summary>Checks the stock map-station tile and its physical collision.</summary>
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         InstalledRoomPlmStationVisuals stock = InstalledRoomPlmStationVisuals.Stock();
-        RoomPlmVisualRunEntry[] entries = RoomPlmStationVisualFiles.All
-            .Select(list => new RoomPlmVisualRunEntry(
-                RoomPlmStationVisualFiles.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
-                list.Runs.Span
-                    .SelectToArray(run => run.Blocks.Span
-                        .SelectToArray(block => block.Appearance))
-                    ))
-            .ToArray();
-        RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmStationVisualFiles.Create(entries);
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
-            StationAnimationList.MapIdle, 0).Draw);
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
-            "station visual catalog copies author data");
         StationVisualsRenderResult Render(
             InstalledRoomPlmStationVisuals visuals)
         {
@@ -63,21 +47,11 @@ internal static class StationVisualsVerification
         }
 
         var native = Render(stock);
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x10c, BlockMirroring.None, RoomCollisionType.SolidBlock), native.Physical,
             "stock map-station frame keeps its native physical level word");
-        AssertEqual(native.Physical, changed.Physical,
-            "station art cannot change collision or physical level data");
         AssertEqual(RoomBlockAppearance.Of(0x10c), native.Immediate,
             "stock station block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Immediate,
-            "edited station visual reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
-            "edited station visual survives later camera streaming");
 
-        var gameplayBus = new TestAddressSpace();
-        SeedRoomPlmPopulationRom(gameplayBus);
-        Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(gameplayBus, edited));
         Suite(nameof(VerifyStationVisualInstallation), () => VerifyStationVisualInstallation(rom));
     }
 

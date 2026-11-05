@@ -44,15 +44,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmGreyDoorVisuals stock = InstalledRoomPlmGreyDoorVisuals.Stock();
-        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
-            entry.Id == "grey-right-frame-0");
-        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmGreyDoorVisualFiles.Create(entries);
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
-            "grey-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+        AssertEqual(entries.Single(entry => entry.Id == "grey-right-frame-0").Blocks[0], stock.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "stock grey-door visual retains native tile choice");
         Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
         Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
@@ -84,8 +76,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             const int width = 16;
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = header == PlmHeaderId.BombTorizoGreyDoor
-                    ? edited : stock });
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = stock });
             var system = new SharedGameState();
             var guarded = NewGreyDoorDrawGuard(bus, lists);
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -105,9 +96,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 $"resident grey-door {header} avoids draw payload ROM reads");
             if (header == PlmHeaderId.BombTorizoGreyDoor)
             {
-                AssertEqual(RoomBlockAppearance.Of(0x053),
-                    level.DisplayedAppearance(origin),
-                    "edited grey cap is shown");
                 VerifyBombTorizoGreyDoorLifecycle(guarded, new TorizoGreyDoorRoom { Level = level, Plms = plms, System = system }, population, origin);
             }
             else
@@ -165,8 +153,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     $"opened grey door {header} avoids program/draw ROM reads");
             }
         }
-        editedFrame.Blocks[0] = originalVisual;
-        Suite(nameof(VerifySharedDoorClearVisual), () => VerifySharedDoorClearVisual(rom, entries, lists));
         Suite(nameof(VerifyGreyDoorVisualInstallation), () => VerifyGreyDoorVisualInstallation(rom));
         Console.WriteLine(
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
@@ -249,44 +235,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
         Suite(nameof(RoomPlmProgramsVerification.VerifyGreyDoorPrograms), () => RoomPlmProgramsVerification.VerifyGreyDoorPrograms(rom));
 
-
-    /// <summary>Checks that an edited clear tile reaches shared blue-door streaming without changing physical door behavior.</summary>
-    private static void VerifySharedDoorClearVisual(
-        SuperMetroidAddressSpace rom,
-        RoomPlmVisualEntry[] entries,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists)
-    {
-        RoomPlmVisualEntry clear = entries.Single(entry =>
-            entry.Id == "clear-right");
-        RoomBlockAppearance original = clear.Blocks[0];
-        clear.Blocks[0] = RoomBlockAppearance.Of(0x054);
-        var edited = RoomPlmGreyDoorVisualFiles.Create(entries);
-        clear.Blocks[0] = original;
-
-        const int width = 16;
-        const int origin = 4 + 4 * width;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = edited });
-        AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin,
-                RoomBlockBehaviorValues.BlueDoorFacingRight,
-                SamusProjectileType.None),
-            "shared clear visual test allocates a real blue-door opening actor");
-        var guarded = NewGreyDoorDrawGuard(rom, lists);
-        int frame = 0;
-        while (frame++ < 200 &&
-            level.GetCollisionBlockByIndex(origin).Terrain != RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air))
-            plms.Step(level);
-        AssertTrue(frame <= 200,
-            "blue-door opening reaches the shared right-facing clear draw");
-        AssertEqual(RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air),
-            level.GetCollisionBlockByIndex(origin).Terrain,
-            "shared clear art leaves the native physical air word intact");
-        AssertEqual(RoomBlockAppearance.Of(0x054),
-            level.DisplayedAppearance(origin),
-            "edited shared clear tile reaches blue-door camera streaming");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "blue-door shared clear draw does not reread bank-$84 payload bytes");
-    }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)

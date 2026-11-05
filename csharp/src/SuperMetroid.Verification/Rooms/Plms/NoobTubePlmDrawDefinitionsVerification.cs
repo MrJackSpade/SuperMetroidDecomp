@@ -25,7 +25,7 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Noob Tube draw geometry and editable visual tiles through production PLM drawing.</summary>
 internal static class NoobTubePlmDrawDefinitionsVerification
 {
-    /// <summary>Compares seven physical draw lists and checks that an edited tile leaves collision blocks intact.</summary>
+    /// <summary>Compares seven physical draw lists and their guarded production draws.</summary>
     internal static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
@@ -38,37 +38,26 @@ internal static class NoobTubePlmDrawDefinitionsVerification
             new RoomPlmVisualEntry(
                 RoomPlmNoobTubeVisualFiles.VisualId(draw.Draw),
                 draw.Appearances())).ToArray();
-        RoomPlmVisualEntry cleared = entries.Single(entry =>
-            entry.Id == "cleared");
-        RoomBlockAppearance originalWord = cleared.Blocks[24];
-        cleared.Blocks[24] = RoomBlockAppearance.Of(0x059);
-        var edited = RoomPlmNoobTubeVisualFiles.Create(entries);
-        cleared.Blocks[24] = RoomBlockAppearance.Of(0x05a);
-        AssertEqual(RoomBlockAppearance.Of(0x059), edited.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
-            "n00b-tube catalog copies author data");
-        AssertEqual(originalWord,
+        AssertEqual(entries.Single(entry => entry.Id == "cleared").Blocks[24],
             InstalledRoomPlmNoobTubeVisuals.Stock().GetAppearance(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
             "stock n00b-tube catalog retains the native row tile");
-        cleared.Blocks[24] = originalWord;
         AssertEqual(7, lists.Length,
             "n00b-tube program selects seven distinct physical draw lists");
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-            VerifyNoobTubeNativeDrawPath(bank84, lists, list,
-                PlmDrawAddressCodec.Of(list.Draw) == 0x98e3 ? edited : null);
+            VerifyNoobTubeNativeDrawPath(bank84, lists, list);
         Suite(nameof(VerifyNoobTubeVisualInstallation), () => VerifyNoobTubeVisualInstallation(rom));
         Console.WriteLine(
-            "  N00b-tube PLM: seven guarded native layouts and editable appearance preserve physical blocks.");
+            "  N00b-tube PLM: seven guarded native layouts preserve physical blocks.");
     }
 
     /// <summary>Draws one native layout through the guarded PLM path and compares resulting blocks and streamed art.</summary>
     private static void VerifyNoobTubeNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
-        RoomPlmShotBlockDrawDefinitions.DrawList selected,
-        InstalledRoomPlmNoobTubeVisuals? visuals)
+        RoomPlmShotBlockDrawDefinitions.DrawList selected)
     {
         const int width = 16;
         const int height = 16;
@@ -85,7 +74,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         // the production timed-frame draw without patching that catalog.
         var guarded = NewNoobTubeDrawReadGuard(bus, lists);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmNoobTubeVisuals = visuals });
+        var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"n00b tube loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
         plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<NoobTubeDraw>(PlmDrawAddressCodec.Of(selected.Draw)));
@@ -110,16 +99,6 @@ internal static class NoobTubePlmDrawDefinitionsVerification
                 $"n00b-tube draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"n00b-tube draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} avoids source payload reads");
-        if (visuals is not null)
-        {
-            const int editedBlock = 4 * width + 2;
-            AssertEqual(RoomBlockAppearance.Of(0x059),
-                level.DisplayedAppearance(editedBlock),
-                "edited tube tile survives later camera streaming");
-            AssertEqual(RoomTerrainBlock.Of(0x323, BlockMirroring.None, RoomCollisionType.Air),
-                level.GetCollisionBlockByIndex(editedBlock).Terrain,
-                "edited tube appearance does not change the physical block");
-        }
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>

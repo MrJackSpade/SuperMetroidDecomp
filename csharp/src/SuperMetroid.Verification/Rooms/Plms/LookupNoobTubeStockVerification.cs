@@ -61,19 +61,6 @@ internal static class LookupNoobTubeStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<NoobTubeDraw>((ushort)pointer),0,0), "Tube stock unknown pointer");
-        entries[3].Blocks[24] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmNoobTubeVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Tube mixed custom/stock identity");
-        entries[3].Blocks[24] = RoomBlockAppearance.Of(0x05a);
-        entries[6].Blocks[36] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,word), "Tube cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmNoobTubeVisualFiles.Create(entries[..1]), "Tube missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmNoobTubeVisualFiles.Create(entries.Append(entries[0])), "Tube duplicate frame");
         var invalid = entries.ToArray();

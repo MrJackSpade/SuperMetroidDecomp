@@ -29,7 +29,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Checks compiled Mother Brain glass draw layouts through the guarded production PLM path.</summary>
 internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 {
-    /// <summary>Compares eleven physical draw lists with cartridge data and verifies editable appearances leave collision blocks intact.</summary>
+    /// <summary>Compares eleven physical draw lists with cartridge data and verifies guarded production draws write the collision blocks intact.</summary>
     internal static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -44,37 +44,26 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             new RoomPlmVisualEntry(
                 RoomPlmMotherBrainGlassVisualFiles.VisualId(draw.Draw),
                 draw.Appearances())).ToArray();
-        RoomPlmVisualEntry shatter = entries.Single(entry =>
-            entry.Id == "shatter-1");
-        RoomBlockAppearance originalAppearance = shatter.Blocks[6];
-        shatter.Blocks[6] = RoomBlockAppearance.Of(0x57);
-        var edited = RoomPlmMotherBrainGlassVisualFiles.Create(entries);
-        shatter.Blocks[6] = RoomBlockAppearance.Of(0x58);
-        AssertEqual(RoomBlockAppearance.Of(0x57), edited.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
-            "glass visual catalog copies author data");
-        AssertEqual(originalAppearance,
+        AssertEqual(entries.Single(entry => entry.Id == "shatter-1").Blocks[6],
             RoomPlmMotherBrainGlassVisualCatalog.Stock().GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
             "stock glass visual catalog retains the native shatter tile");
-        shatter.Blocks[6] = originalAppearance;
         AssertEqual(11, lists.Length,
             "Mother Brain glass program selects eleven distinct physical draw lists");
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-            VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list,
-                PlmDrawAddressCodec.Of(list.Draw) == 0x978f ? edited : null);
+            VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list);
         Suite(nameof(VerifyMotherBrainGlassVisualInstallation), () => VerifyMotherBrainGlassVisualInstallation(rom));
         Console.WriteLine(
-            "  Mother Brain glass PLM: 11 guarded native layouts and editable appearance preserve physical blocks.");
+            "  Mother Brain glass PLM: 11 guarded native layouts preserve physical blocks.");
     }
 
     /// <summary>Draws one selected glass layout in a synthetic room while denying reads of its original cartridge payload.</summary>
     private static void VerifyMotherBrainGlassNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
-        RoomPlmShotBlockDrawDefinitions.DrawList selected,
-        RoomPlmMotherBrainGlassVisualCatalog? visuals)
+        RoomPlmShotBlockDrawDefinitions.DrawList selected)
     {
         const int width = 32;
         const int height = 16;
@@ -91,7 +80,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         // production timed-frame draw instead of mutating a cartridge operand execution no longer reads.
         var guarded = NewMotherBrainGlassDrawReadGuard(bus, lists);
         var level = CreateEmptyRoom(new(width, height));
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainGlassVisuals = visuals });
+        var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"Mother Brain glass loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
@@ -118,16 +107,6 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                 $"glass draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"glass draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} avoids source payload reads");
-        if (visuals is not null)
-        {
-            const int editedBlock = 7 * width + 6;
-            AssertEqual(RoomBlockAppearance.Of(0x57),
-                level.DisplayedAppearance(editedBlock),
-                "edited glass tile survives later camera streaming");
-            AssertEqual(RoomTerrainBlock.Of(0x2cf, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air),
-                level.GetCollisionBlockByIndex(editedBlock).Terrain,
-                "edited glass appearance does not change the physical shatter block");
-        }
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>

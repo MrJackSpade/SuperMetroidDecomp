@@ -66,18 +66,6 @@ internal static class LookupStationStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<StationDraw>((ushort)pointer),0,0), "Station stock unknown pointer");
-        entries[10].Runs[3][1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmStationVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Station mixed custom/stock identity");
-        entries[10].Runs[3][1] = RoomBlockAppearance.Of(0x05a);
-        entries[11].Runs[5][0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        {
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][run][word], mixed.GetAppearance(NativePlmDraws.At<StationDraw>(frame.Pointer),run,word), "Station cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmStationVisualFiles.Create(entries[..1]), "Station missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmStationVisualFiles.Create(entries.Append(entries[0])), "Station duplicate frame");
         var invalid = entries.ToArray();

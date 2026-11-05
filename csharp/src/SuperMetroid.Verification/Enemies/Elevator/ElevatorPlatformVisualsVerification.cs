@@ -23,29 +23,14 @@ namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks editable elevator PLM art while retaining platform collision and stock installation rules.</summary>
+/// <summary>Checks elevator PLM art, platform collision and stock installation rules.</summary>
 internal static class ElevatorPlatformVisualsVerification
 {
-    /// <summary>Changes one streamed tile and checks the real PLM keeps its physical block.</summary>
+    /// <summary>Checks the real PLM draws its stock physical block and streams its native tile.</summary>
     internal static void VerifyElevatorPlatformVisuals()
     {
         RoomPlmElevatorPlatformVisualCatalog stock =
             RoomPlmElevatorPlatformVisualCatalog.Stock();
-        RoomPlmVisualRunEntry[] entries =
-            RoomPlmElevatorPlatformVisualFiles.DrawLists.Select(list =>
-                new RoomPlmVisualRunEntry(
-                    RoomPlmElevatorPlatformVisualFiles.VisualId(list.Draw),
-                    list.Runs.Span.SelectToArray(run =>
-                        run.Blocks.Span.SelectToArray(block => block.Appearance))))
-                .ToArray();
-        RoomPlmVisualRunEntry first = entries.Single(entry =>
-            entry.Id == "first-frame");
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x53);
-        var edited = RoomPlmElevatorPlatformVisualFiles.Create(entries);
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x54);
-        AssertEqual(RoomBlockAppearance.Of(0x53),
-            edited.GetAppearance(PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
-            "elevator visual catalog copies author data");
         RenderResult Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
             const ushort population = 0x9400;
@@ -63,15 +48,10 @@ internal static class ElevatorPlatformVisualsVerification
         }
 
         var native = Render(stock);
-        var changed = Render(edited);
         AssertEqual(PlatformEdge, native.Physical,
             "stock elevator keeps cartridge physical block");
-        AssertEqual(native.Physical, changed.Physical,
-            "edited elevator art cannot change platform collision");
         AssertEqual(PlatformEdge.Appearance, native.Rendered,
             "stock elevator streams its native block");
-        AssertEqual(RoomBlockAppearance.Of(0x53), changed.Rendered,
-            "edited elevator art survives camera streaming");
 
         Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());
     }

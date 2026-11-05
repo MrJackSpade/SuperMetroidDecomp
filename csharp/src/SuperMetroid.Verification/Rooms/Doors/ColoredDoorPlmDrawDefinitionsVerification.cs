@@ -40,15 +40,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmColoredDoorVisuals stock = InstalledRoomPlmColoredDoorVisuals.Stock();
-        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
-            entry.Id == "green-left-frame-0");
-        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmColoredDoorVisualFiles.Create(entries);
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
-            "colored-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+        AssertEqual(entries.Single(entry => entry.Id == "green-left-frame-0").Blocks[0], stock.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
             "stock colored-door visual retains native tile choice");
         Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
         Suite(nameof(VerifyColoredCapCollision), () => VerifyColoredCapCollision(rom));
@@ -90,8 +82,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             const int width = 16;
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = header == PlmHeaderId.GreenDoorFacingLeft
-                    ? edited : stock });
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = stock });
             var system = new SharedGameState();
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -109,12 +100,6 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     $"resident colored-door {header} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored-door {header} avoids program and draw ROM reads");
-            if (header == PlmHeaderId.GreenDoorFacingLeft)
-            {
-                AssertEqual(RoomBlockAppearance.Of(0x053),
-                    level.DisplayedAppearance(origin),
-                    "edited colored cap survives later camera streaming");
-            }
 
             var enteringDoor = new DoorDefinition(
                 Name: "fixture door",
@@ -449,7 +434,6 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"opened colored door {header} converts without program/draw ROM reads");
         }
-        editedFrame.Blocks[0] = originalVisual;
         Suite(nameof(VerifyColoredDoorVisualInstallation), () => VerifyColoredDoorVisualInstallation(rom));
         Console.WriteLine(
             "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");

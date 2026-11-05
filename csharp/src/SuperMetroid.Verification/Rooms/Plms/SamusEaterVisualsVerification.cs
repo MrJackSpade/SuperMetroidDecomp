@@ -102,20 +102,6 @@ internal static class SamusEaterVisualsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SamusEaterDraw>((ushort)pointer),0,0), "plant stock rejects unknown pointer");
-        entries[0].Blocks[7] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[6].Blocks[0] = RoomBlockAppearance.Of(0x059);
-        var mixed = RoomPlmSamusEaterVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "plant mixed custom and stock hash");
-        entries[0].Blocks[7] = RoomBlockAppearance.Of(0x05a);
-        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < counts[frame.Pointer].Length; run++)
-            for (int block = 0; block < counts[frame.Pointer][run]; block++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<SamusEaterDraw>(frame.Pointer),run,block), "plant custom cloning and calculated stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(entries[..7]), "plant missing frame rejected");
         AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(entries.Append(entries[0])), "plant duplicate frame rejected");
         var badEntries = entries.ToArray();

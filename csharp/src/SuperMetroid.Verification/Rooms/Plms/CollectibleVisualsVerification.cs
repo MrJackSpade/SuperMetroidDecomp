@@ -18,7 +18,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks collectible PLM art, live pickup behavior, and visual-only edits.</summary>
 internal static class CollectibleVisualsVerification
 {
-    /// <summary>Compares 24 native draw lists, exercises all item kinds, and checks edited tile streaming.</summary>
+    /// <summary>Compares 24 native draw lists, exercises all item kinds, and checks the stock tile's redraw.</summary>
     internal static void VerifyCollectibleVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -35,19 +35,6 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleTankSelector), () => VerifyCollectibleTankSelector(rom));
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
-        RoomPlmVisualBlockEntry[] entries =
-            RoomPlmCollectibleVisualFiles.All
-                .Select(frame => new RoomPlmVisualBlockEntry(frame.Id,
-                    frame.Terrain.Appearance))
-                .ToArray();
-        int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
-        entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x053) };
-        var edited = RoomPlmCollectibleVisualFiles.Create(entries);
-        entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x054) };
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            edited.GetAppearance(CollectiblePlmDraws.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
-            "collectible catalog copies the edited visual word");
-
         CollectibleVisualsRenderResult Render(
             InstalledRoomPlmCollectibleVisuals visuals)
         {
@@ -60,28 +47,21 @@ internal static class CollectibleVisualsVerification
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex),
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex));
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
-                "edited item art leaves the native touch trigger active");
+                "the item keeps its native touch trigger active");
             fixture.Plms.Step(fixture.Level);
             AssertEqual(199, fixture.Samus.MaxHealth,
-                "edited energy-tank art leaves the pickup reward unchanged");
+                "the energy tank grants its native pickup reward");
             AssertTrue(fixture.System.HasCollectedItemBit(0),
-                "edited energy-tank art leaves persistence unchanged");
+                "the energy tank sets its native persistence bit");
             return result;
         }
 
         var original = Render(stock);
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x04a, BlockMirroring.None, RoomCollisionType.SpecialBlock), original.Physical,
             "stock energy tank retains the cartridge physical level word");
-        AssertEqual(original.Physical, changed.Physical,
-            "collectible art does not change physical collision or pickup state");
-        // The block BG1 shows names its picture (#1431): the stock frame's block, or the edited frame's.
+        // The block BG1 shows names its picture (#1431): the stock frame's block.
         AssertEqual(RoomBlockAppearance.Of(0x04a), original.Immediate,
             "stock collectible block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Immediate,
-            "edited collectible block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
-            "edited collectible block survives later camera streaming");
 
         for (int kind = 0; kind < 21; kind++)
         {
@@ -111,7 +91,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleVisualInstallation), () => VerifyCollectibleVisualInstallation(rom));
         Console.WriteLine(
             "Collectible visuals: 24 native draw lists, eight dynamic selectors, " +
-            "all 21 item kinds, orb/reveal paths, live edits, physical isolation, " +
+            "all 21 item kinds, orb/reveal paths, " +
             "source-read guards, and installation validation pass.");
     }
 

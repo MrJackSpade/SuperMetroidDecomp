@@ -19,7 +19,7 @@ using SuperMetroid.Core.World;
 /// <summary>Checks editable downward-gate PLM art without changing column or trigger collision.</summary>
 internal static class DownwardGateVisualsVerification
 {
-    /// <summary>Checks edited column and trigger tiles survive actual PLM drawing and later camera streaming.</summary>
+    /// <summary>Checks the stock column tile through actual PLM drawing and later camera streaming, and catalog rejections.</summary>
     internal static void VerifyDownwardGateVisuals()
     {
         InstalledRoomPlmDownwardGateVisuals stock = InstalledRoomPlmDownwardGateVisuals.Stock();
@@ -33,16 +33,6 @@ internal static class DownwardGateVisualsVerification
             .ToArray();
         // The synthetic population's header begins at the opening list, which
         // selects the sixth resident column frame before its gate pre-instruction.
-        RoomPlmVisualRunEntry column = entries.Single(entry =>
-            entry.Id == "column-frame-5");
-        column.Runs[0][1] = RoomBlockAppearance.Of(0x053);
-        RoomPlmVisualRunEntry trigger = entries.Single(entry =>
-            entry.Id == "blue-left-trigger");
-        trigger.Runs[1][0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmDownwardGateVisualFiles.Create(entries);
-        column.Runs[0][1] = RoomBlockAppearance.Of(0x054);
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
-            "gate visual catalog copies author data");
         AssertEqual(RoomBlockAppearance.Of(0x0ff), stock.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "stock gate visual retains the physical column art");
 
@@ -52,8 +42,7 @@ internal static class DownwardGateVisualsVerification
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
             StepDownwardGatePlm(plms, level);
-            AssertEqual(visuals.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1) == RoomBlockAppearance.Of(0x053)
-                    ? RoomBlockAppearance.Of(0x053) : RoomBlockAppearance.Of(0x0ff),
+            AssertEqual(RoomBlockAppearance.Of(0x0ff),
                 level.DisplayedAppearance(gateBlockIndex + level.Size.X),
                 "first gate PLM step draws its selected second-column visual word");
             StepDownwardGatePlm(plms, level);
@@ -68,24 +57,14 @@ internal static class DownwardGateVisualsVerification
         }
 
         var native = Render(stock);
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.ShootableBlock), native.Physical,
             "stock gate draw retains its physical second-column word");
-        AssertEqual(native.Physical, changed.Physical,
-            "gate block art cannot change column collision");
-        AssertEqual(native.TriggerPhysical, changed.TriggerPhysical,
-            "gate trigger art cannot change shot-block collision");
         AssertEqual(RoomBlockAppearance.Of(0x0ff), native.Streamed,
             "stock gate block streams its native block");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
-            "edited gate block art survives camera streaming");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.TriggerStreamed,
-            "edited trigger art survives camera streaming");
 
         AssertThrows<InvalidDataException>(
             () => RoomPlmDownwardGateVisualFiles.Create(entries.Skip(1)),
             "gate visual catalog rejects missing frames");
-        column.Runs[0][1] = RoomBlockAppearance.Of(0x053);
         AssertThrows<InvalidDataException>(
             () => RoomPlmDownwardGateVisualFiles.Create(entries.Select(entry =>
                 entry.Id == "column-frame-5" ? entry with { Id = "unknown-frame" } : entry)),

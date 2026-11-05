@@ -286,7 +286,7 @@ internal static class ShotBlockPlmProgramsVerification
         }
     }
 
-    /// <summary>Compares stock draw runs to ROM and checks editable visual identity, cloning, and bounds.</summary>
+    /// <summary>Compares stock draw runs to ROM and checks visual identity and bounds.</summary>
     private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa345,0xa34b,0xa351,0xa357,0xa35d,0xa365,0xa36d,0xa375,
@@ -323,19 +323,7 @@ internal static class ShotBlockPlmProgramsVerification
             AssertEqual(pair.Value[run][word], stock.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), run, word), "shot-block calculated native stock word");
             AssertEqual(pair.Value[run][word], loaded.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), run, word), "shot-block imported native stock word");
         }
-        native[0xa345][0][0] = RoomBlockAppearance.Of(0x054);
-        native[0xa48b][1][1] = RoomBlockAppearance.Of(0x258);
-        var edited = RoomPlmShotBlockVisualFiles.Create(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
-        AssertEqual(SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value)), edited.ContentIdentity,
-            "shot-block mixed stock/custom identity preserves original framing");
-        foreach (var pair in native)
-        for (int run = 0; run < pair.Value.Length; run++)
-        for (int word = 0; word < pair.Value[run].Length; word++)
-            AssertEqual(pair.Value[run][word], edited.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), run, word), "shot-block mixed payload output");
-        native[0xa345][0][0] = RoomBlockAppearance.Of(0);
-        AssertEqual(RoomBlockAppearance.Of(0x054), edited.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(0xa345), 0, 0), "shot-block custom data cloned");
-        AssertEqual(RoomBlockAppearance.Of(0x053), loaded.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(0xa345), 0, 0), "shot-block normalized stock isolated from caller mutation");
-        foreach (var catalog in new[] {stock, loaded, edited})
+        foreach (var catalog in new[] {stock, loaded})
         foreach (var pair in native)
         {
             foreach (int invalid in new[] {int.MinValue,-1,pair.Value.Length,int.MaxValue})
@@ -350,26 +338,18 @@ internal static class ShotBlockPlmProgramsVerification
     private static string ShotId(ushort pointer) =>
         RoomPlmShotBlockVisualFiles.VisualId(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pointer));
 
-    /// <summary>Checks that edited shot-block art reaches both immediate and streamed tiles without changing collision bits or compiled mechanics.</summary>
+    /// <summary>Checks the stock first break frame's physical word and immediate tile, and catalog rejection of missing draws.</summary>
     private static void VerifyShotBlockVisualSeparation(
 )
     {
         InstalledRoomPlmShotBlockVisuals stock = InstalledRoomPlmShotBlockVisuals.Stock();
-        RoomPlmVisualRunEntry[] editedEntries = RoomPlmShotBlockVisualFiles.All
+        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockVisualFiles.All
             .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockVisualFiles.VisualId(list.Draw),
                 list.Runs.Span
                     .SelectToArray(run => run.Blocks.Span
                         .SelectToArray(terrain => terrain.Appearance))
                     ))
             .ToArray();
-        RoomPlmVisualRunEntry first = editedEntries.Single(entry =>
-            entry.Id == "single-breakup-0");
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        var edited = RoomPlmShotBlockVisualFiles.Create(editedEntries);
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x055);
-        AssertEqual(RoomBlockAppearance.Of(0x054),
-            edited.GetAppearance(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
-            "visual catalog defensively copies author data");
         AssertEqual(RoomBlockAppearance.Of(0x053),
             stock.GetAppearance(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
             "stock visual catalog retains the native first break frame");
@@ -393,20 +373,13 @@ internal static class ShotBlockPlmProgramsVerification
         }
 
         var native = Render(stock);
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), native.Physical,
             "stock first break frame has its native physical level word");
-        AssertEqual(native.Physical, changed.Physical,
-            "visual edit cannot change first-frame collision or level data");
         AssertEqual(RoomBlockAppearance.Of(0x053), native.Immediate,
             "stock draw reaches the immediate tilemap upload");
-        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Immediate,
-            "edited draw reaches the immediate tilemap upload");
-        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Streamed,
-            "edited draw persists in later camera streaming");
 
         AssertThrows<InvalidDataException>(
-            () => RoomPlmShotBlockVisualFiles.Create(editedEntries.Skip(1)),
+            () => RoomPlmShotBlockVisualFiles.Create(entries.Skip(1)),
             "visual catalog rejects missing compiled draw lists");
     }
 

@@ -20,6 +20,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -98,6 +99,16 @@ internal static class InstalledFixtures
     /// </summary>
     internal static BackgroundTile[] StockBlockTiles(TilesetDefinition tileset, bool ceres) =>
         RoomBlockComposition.StockTiles(BlockCompositions, tileset.Blocks, ceres);
+
+    /// <summary>
+    /// The installation's stock extracted audio catalog, which the synthesizer's read-only checks compare with uploaded
+    /// APU memory, loaded once per process (#1532). Checks that mutate audio definitions load a private copy instead.
+    /// </summary>
+    internal static ExtractedAudioAssetCatalog Audio => audio.Value;
+
+    /// <summary>Backing loader for <see cref="Audio"/>.</summary>
+    private static readonly Lazy<ExtractedAudioAssetCatalog> audio = new(() => SharedFixtureTiming.Load("Fixture: extracted audio",
+        () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
 
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
     internal static AreaMapPresentation Maps => maps.Value;

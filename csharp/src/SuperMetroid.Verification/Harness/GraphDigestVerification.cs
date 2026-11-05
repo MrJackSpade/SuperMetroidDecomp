@@ -162,4 +162,26 @@ internal static class GraphDigestVerification
     /// <summary>The pixels a layered scene shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
         DisplayRendering.Render(frame);
+
+    /// <summary>
+    /// Whether two packets show the same pixels (#1532). A packet holds everything the renderer draws and nothing else, so
+    /// two packets whose descriptions compare equal, or whose scenes' whole graphs digest alike naming
+    /// <paramref name="content"/> by path, show the same pixels without drawing either; this answers for a gameplay frame,
+    /// whose room layer compares only by instance. Only packets that differ in both are drawn and compared pixel by pixel.
+    /// The frame number names the publication, not what it shows, so it is not compared.
+    /// </summary>
+    internal static bool SamePixels(SuperMetroid.Core.Rendering.DisplayPacket left, SuperMetroid.Core.Rendering.DisplayPacket right,
+        params object[] content)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        if (ScenePixels.SameDescription(left, right))
+            return true;
+        object? leftScene = (object?)left.Layers ?? left.Floor, rightScene = (object?)right.Layers ?? right.Floor;
+        if (left.Brightness == right.Brightness && left.Size == right.Size && left.SolidColor == right.SolidColor
+            && leftScene is not null && rightScene is not null && leftScene.GetType() == rightScene.GetType()
+            && GraphDigest(leftScene, content).AsSpan().SequenceEqual(GraphDigest(rightScene, content)))
+            return true;
+        return ScenePixels.Same(left, right);
+    }
 }

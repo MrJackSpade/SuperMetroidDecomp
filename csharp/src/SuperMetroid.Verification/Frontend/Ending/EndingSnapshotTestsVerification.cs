@@ -27,6 +27,10 @@ internal static class EndingSnapshotTestsVerification
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         int samples = 0;
+        // The shades the import pre-colours the ending's sheets in, which the screen names (#1512), read once for every
+        // reward branch.
+        EndingPaletteSet installedPalettes = RepositoryInstallation.Installation.LoadEndingPalettes();
+        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.Maps.RoomPaletteFx);
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
@@ -38,9 +42,6 @@ internal static class EndingSnapshotTestsVerification
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
             RgbColor[]? explosionBackgroundSource = null;
-            // The shades the import pre-colours the ending's sheets in, which the screen names (#1512).
-            EndingPaletteSet installedPalettes = RepositoryInstallation.Installation.LoadEndingPalettes();
-            IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.Maps.RoomPaletteFx);
             int finaleDisplayFrames = 0;
             int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;

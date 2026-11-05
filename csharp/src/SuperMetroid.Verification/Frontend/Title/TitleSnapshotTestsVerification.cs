@@ -29,6 +29,10 @@ internal static class TitleSnapshotTestsVerification
             var scene = CreateTitleFixture(sourceBus, titleGradientPresentation: gradient);
             var control = CreateTitleFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom),
                 titleGradientPresentation: gradient);
+            // The packets are digested naming the scene's sheets by path with the installed content, so a digest reads
+            // only what the packet itself holds (#1532).
+            object[] content = [SuperMetroid.TestSupport.RepositoryInstallation.Verification.MenuSheetFixtures.WithTitle(TitleFixtureGraphics(sourceBus)),
+                .. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent];
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;
             for (int frame = 0; frame < 2500; frame++)
@@ -41,7 +45,7 @@ internal static class TitleSnapshotTestsVerification
                     // control's frames are compared with the held packet for the pixels they show, which draws them only when
                     // their descriptions differ (#1532).
                     FloorScene packet = scene.CaptureRenderSnapshot();
-                    byte[] held = GraphDigest(packet);
+                    byte[] held = GraphDigest(packet, content);
                     AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
                         $"title snapshot {phase} frame {frame} shows the live scene's pixels");
                     FloorScene repeat = scene.CaptureRenderSnapshot();
@@ -56,7 +60,7 @@ internal static class TitleSnapshotTestsVerification
                     control.Step(input);
                     // The held packet's whole description, every value it reaches through owned or shared state, is
                     // unchanged by the advancement, so it still shows the pixels it showed when captured (#1532).
-                    AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(packet)), $"title snapshot {phase} frame {frame} survives the scene's advancement");
+                    AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(packet, content)), $"title snapshot {phase} frame {frame} survives the scene's advancement");
                 }
                 else
                 {

@@ -598,7 +598,9 @@ internal static class MapPresentationVerification
         {
             MapPresentation = original,
         });
-        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
+        // The installed content, the map presentation among it, is named by path through the shared index, which
+        // every round trip of the process reuses, instead of indexing all loaded content again for this game (#1532).
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
 
         var guard = NewMapDataGuard(bus, rules);
@@ -630,7 +632,7 @@ internal static class MapPresentationVerification
             AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,
             mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-        AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
+        AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
         byte[] expected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
         var shownInstalled = MenuScreenFixtures.Vram(installed, original);
@@ -640,7 +642,7 @@ internal static class MapPresentationVerification
         // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed);
         restored.BindFixtureArtwork(original);
-        AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
+        AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), restored.BackgroundsScene(new(0, 0))),
             "restored file-select graphics keep the installed pixels");
         Console.WriteLine("File-select map: exact stock pixels, projected BG1 words, and graphics-state rebind pass.");
     }

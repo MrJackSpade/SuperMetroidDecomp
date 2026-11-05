@@ -71,6 +71,7 @@ internal static class DoorTransitionAutosaveVerification
             AssertThrows<FileNotFoundException>(() => store.Load(DebuggerStateFormat.AutomaticSlot), "missing auto load error");
             AssertThrows<ArgumentOutOfRangeException>(() => store.GetSlotPath(11), "no other implicit slots");
 
+            var doorBlocks = new Dictionary<(RoomHeaderDefinition Source, RoomHeaderDefinition Destination), Position16<RoomBlocks>>();
             PrepareDoor(RoomHeaderDefinitions.Parlor, RoomHeaderDefinitions.LandingSite);
             int writes = FinishDoor(enabled: true);
             AssertEqual(1, writes, "one autosave only at completed transition");
@@ -160,25 +161,38 @@ internal static class DoorTransitionAutosaveVerification
             }
             void PrepareDoor(RoomHeaderDefinition source, RoomHeaderDefinition destination)
             {
+                Position16<RoomBlocks> doorBlock = FindDoor(source, destination);
+                int x = doorBlock.X, y = doorBlock.Y;
+                runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
+                var block = runtime.Room.LoadedLevelData.GetCollisionBlock(doorBlock);
+                var samus = runtime.Player.IntroducedSamus;
+                samus.Control.Unlock();
+                samus.PoseId = SamusPoseId.FacingRightNormalPose;
+                samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
+                SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
+                runtime.Room.LoadedLevelData.ResolveDoorCollision(block.Behavior.Value, samus.Pose.ForRoomCollision(), true);
+                game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+                game.GameState = SuperMetroidGameState.HitDoorBlock;
+            }
+            // The door block leading from a source room to a destination, found in the room's cartridge level the first
+            // time that door is asked for (#1532): a repeated door reuses it instead of loading the room once more to
+            // search its unchanged level again.
+            Position16<RoomBlocks> FindDoor(RoomHeaderDefinition source, RoomHeaderDefinition destination)
+            {
+                if (doorBlocks.TryGetValue((source, destination), out Position16<RoomBlocks> known))
+                    return known;
                 runtime.LoadCartridgeRoomForDebug(source);
                 var level = runtime.Room.LoadedLevelData;
                 for (int y = 0; y < level.Size.Y; y++)
                 for (int x = 0; x < level.Size.X; x++)
                 {
-                    var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
+                    var position = new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)y));
+                    var block = level.GetCollisionBlock(position);
                     if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
                     var door = level.ResolveDoorCollision(block.Behavior.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
                     if (door.Door?.DestinationRoom != destination) continue;
-                    runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
-                    var samus = runtime.Player.IntroducedSamus;
-                    samus.Control.Unlock();
-                    samus.PoseId = SamusPoseId.FacingRightNormalPose;
-                    samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
-                    SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
-                    runtime.Room.LoadedLevelData.ResolveDoorCollision(block.Behavior.Value, samus.Pose.ForRoomCollision(), true);
-                    game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-                    game.GameState = SuperMetroidGameState.HitDoorBlock;
-                    return;
+                    doorBlocks.Add((source, destination), position);
+                    return position;
                 }
                 throw new InvalidDataException("Requested fixture door is absent.");
             }

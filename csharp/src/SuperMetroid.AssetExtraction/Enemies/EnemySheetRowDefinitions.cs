@@ -80,7 +80,8 @@ internal static class EnemySheetRowDefinitions
     /// The shared row each enemy whose initialization selects one draws in for its whole life: the Tourian statues', the
     /// Chozo statues', the Torizos', Mother Brain's body's and the escape Etecoons' common colours (each initialization
     /// clears the enemy's palette bits, so its parts show the rows their own bits name), Mother Brain's brain's row, the
-    /// Shitroid's and the Zebetites' row, the Baby's cutscene row, Ridley's own row, and Ceres's steam in the enemy
+    /// Shitroid's and the Zebetites' row, the Baby's cutscene row, Ridley's own row (his breakup's fragments too,
+    /// whose initialization writes it: $A6:C6A5), and Ceres's steam in the enemy
     /// projectiles' colours.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> FixedRows { get; } = new Dictionary<EnemyDefinitionId, int>
@@ -97,6 +98,7 @@ internal static class EnemySheetRowDefinitions
         [EnemyDefinitionId.EtecoonEscape] = Common,
         [EnemyDefinitionId.RidleyCeres] = Ridley,
         [EnemyDefinitionId.Ridley] = Ridley,
+        [EnemyDefinitionId.RidleyExplosion] = Ridley,
         [EnemyDefinitionId.Steam] = EnemyProjectiles,
     };
 }

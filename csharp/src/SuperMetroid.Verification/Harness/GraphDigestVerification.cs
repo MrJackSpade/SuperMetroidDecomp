@@ -24,6 +24,18 @@ internal static class GraphDigestVerification
     }
 
     /// <summary>
+    /// SHA-256 of everything <paramref name="value"/> reaches, content included: no object is named by path, so a change
+    /// to content itself, such as a part it loads on first use, changes the digest (#1532).
+    /// </summary>
+    internal static byte[] UnboundGraphDigest(object value)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        using (var stream = new HashingStream(hash))
+            DebuggerObjectGraphSerializer.Serialize(stream, value);
+        return hash.GetHashAndReset();
+    }
+
+    /// <summary>
     /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path, content loaded
     /// since the list was first indexed included.
     /// </summary>

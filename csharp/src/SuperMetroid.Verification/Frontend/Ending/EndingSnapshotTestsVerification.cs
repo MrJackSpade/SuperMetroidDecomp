@@ -353,10 +353,11 @@ internal static class EndingSnapshotTestsVerification
                     // Every picture the blank shows, at every place of the native image it is coloured from, shows the
                     // cartridge's Intro4 colour there (#1512); a place no picture is coloured from is not shown.
                     LayeredScene blank = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    IReadOnlyList<IReadOnlyList<ShownColourSource>> blankSources = SceneShownColours.SourcesByPlace(blank);
                     for (int color = 4; color < 256; color++)
                     {
                         RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2));
-                        ShownColourSource[] wrong = [.. SceneShownColours.SourcesAt(blank, color).Where(source => source.Colour != native)];
+                        ShownColourSource[] wrong = [.. blankSources[color].Where(source => source.Colour != native)];
                         AssertTrue(wrong.Length == 0, $"native end-credits Intro4 palette colour {color} ({native}): " +
                             string.Join("; ", wrong.Select(source => $"{source.Picture} ink {source.Ink} under {source.Shading} shows {source.Colour}")));
                     }

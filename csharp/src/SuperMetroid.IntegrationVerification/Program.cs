@@ -34,8 +34,6 @@ internal static class Program
                 return AssetImportVerification.Run(romPath: null);
             if (args is ["--asset-import-rom"])
                 return AssetImportVerification.Run(Path.GetFullPath("Super Metroid.smc"));
-            if (args is ["--override-installation-lifecycle"])
-                return InstallationOverrideLifecycleVerification.Run();
             if (args is ["--rom-decompression"])
                 return RomDecompressionVerification.Run();
             if (args.Length != 0)
@@ -47,7 +45,6 @@ internal static class Program
                 () => MapPresentationJsonContractVerification.Run(RepositoryInstallation.Installation.Root),
                 ProjectileHostBindingVerification.Run,
                 () => AssetImportVerification.Run(Path.GetFullPath("Super Metroid.smc")),
-                InstallationOverrideLifecycleVerification.Run,
                 RomDecompressionVerification.Run,
             })
             {

@@ -3,8 +3,8 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The pictures a room's actors wrote over a background (#1346, #1348, #1466): the Ceres escape warning over BG1, and the
-/// escape typewriter's text over BG1 (Ceres) or BG2 (Zebes), in the order they were written, each at its tilemap cell. A
+/// The pictures a room's actors wrote over a background (#1346, #1348, #1466): the Ceres escape warning over the foreground, and the
+/// escape typewriter's text over the foreground (Ceres) or the background (Zebes), in the order they were written, each at its tilemap cell. A
 /// later picture covers an earlier one where they overlap. They stay, over what the background otherwise shows, until the
 /// next room. Immutable; each write publishes a copy.
 /// </summary>

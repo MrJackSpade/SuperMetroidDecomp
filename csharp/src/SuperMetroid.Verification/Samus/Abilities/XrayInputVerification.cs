@@ -144,8 +144,8 @@ internal static class XrayInputVerification
             var excluded = (GameplayBlendLayer)excludedFrame.Layers[0];
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             var baseRooms = ((GameplaySceneLayer)baseFrame.Layers[0]).Rooms;
-            AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Bg2 == baseRooms.Bg2
-                    && excluded.Gameplay.Rooms.Bg2Image == baseRooms.Bg2Image, "excluded room retains the room's own BG2");
+            AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Background == baseRooms.Background
+                    && excluded.Gameplay.Rooms.BackgroundImage == baseRooms.BackgroundImage, "excluded room retains the room's own BG2");
             AssertTrue((excluded.Blend.Layers & ColorBlend.Sprites) == 0, "an excluded room's blend leaves Samus color unchanged");
             AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
                 excluded.Gameplay.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "CEFB alone removes BG2");

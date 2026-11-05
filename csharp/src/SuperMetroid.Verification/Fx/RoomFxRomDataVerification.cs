@@ -237,8 +237,8 @@ internal static class RoomFxRomDataVerification
                 $"{type} surface retains room-relative scanline");
             // The seeded records select a drifting, BG2-waving water surface and lava/acid's vertical heat wave.
             RoomLiquidOptions expectedOptions = type == RoomFxType.Water
-                ? RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.Bg2Wave
-                : RoomLiquidOptions.Bg2Wave;
+                ? RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave
+                : RoomLiquidOptions.BackgroundWave;
             AssertEqual(expectedOptions, snapshot.LiquidOptions,
                 $"{type} render snapshot retains its wave options");
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
@@ -254,41 +254,41 @@ internal static class RoomFxRomDataVerification
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             // The described BG2 wave (#1468), evaluated on each gameplay line.
-            ushort[] bg2Scroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
+            ushort[] backgroundScroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
                 ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(
                     snapshot,
-                    bg2Scroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
+                    backgroundScroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
                         "Wavy water did not publish a BG2 HDMA scroll table.")
                 : GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(
                     snapshot,
                     bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
                         $"{type} did not publish its BG2 HDMA scroll table."));
             AssertEqual(DisplayScreen.Height - DisplayScreen.HudHeight,
-                bg2Scroll.Length,
+                backgroundScroll.Length,
                 $"{type} BG2 wave table covers gameplay scanlines");
             if (type == RoomFxType.Water)
             {
                 AssertEqual((ushort)0x0200,
-                    bg2Scroll[90 - DisplayScreen.HudHeight],
+                    backgroundScroll[90 - DisplayScreen.HudHeight],
                     "water leaves BG2 undistorted above the surface");
                 AssertTrue(
-                    bg2Scroll.Skip(101 - DisplayScreen.HudHeight).Distinct().Count() > 1,
+                    backgroundScroll.Skip(101 - DisplayScreen.HudHeight).Distinct().Count() > 1,
                     "water distorts BG2 below the surface");
             }
             else
             {
-                AssertEqual(3, bg2Scroll.Distinct().Count(),
+                AssertEqual(3, backgroundScroll.Distinct().Count(),
                     $"{type} uses the native three-value heat waveform");
                 for (int frameNumber = 0;
                      frameNumber < LavaAcidWaveDefinitions.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
                     state.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-                    AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
+                    AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBackgroundWavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
                 state.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-                AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
+                AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBackgroundWavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
         }

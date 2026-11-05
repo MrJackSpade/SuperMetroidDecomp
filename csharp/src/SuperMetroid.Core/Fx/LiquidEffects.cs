@@ -19,7 +19,7 @@ public static class LiquidEffects
     /// periods. Within each four-sample half-wave, reflect the integer ramp around
     /// its midpoint: min(index&amp;3, 3-(index&amp;3)). Bit two reverses its sign.
     /// This is an exact integer triangular waveform, without a floating-point
-    /// generation claim. Water BG2/BG3 and the identical vertical lava/acid wave
+    /// generation claim. Water background/effect overlay and the identical vertical lava/acid wave
     /// share this mapping. All original words at C46E and B60A are independently
     /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
@@ -34,7 +34,7 @@ public static class LiquidEffects
     }
 
     /// <summary>
-    /// Signed BG2HOFS displacement for index 0..15, the lava/acid heat haze.
+    /// The background's signed horizontal scroll displacement for index 0..15, the lava/acid heat haze.
     /// This pulse pair subtracts a four-sample unit pulse starting at eight
     /// from the same pulse starting at two. The haze
     /// rotates all sixteen samples; its two unequal zero gaps are preserved.

@@ -71,7 +71,7 @@ internal static class RoomBackgroundsFixtures
         // BG2 shows the tilemap the fixture loaded at the gameplay BG2 tilemap, as a library background's image (#1403).
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
             blocks).Cells, default, RoomBlockFixtures.Pictures(definitions, image, palette)), null, BlankBg3(),
-            Bg2Image: RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord));
+            BackgroundImage: RoomBlockFixtures.LoadedBackground(image, palette, GameplayVramLayout.Bg2TilemapWord));
     }
 
     /// <summary>
@@ -198,7 +198,7 @@ internal static class RoomBackgroundsFixtures
     /// A BG3 plane of seeded two-bit pictures (#1392, #1403): each cell a quarter of a seeded 16x16 picture whose pixels
     /// keep colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones differently.
     /// </summary>
-    internal static FxOverlayCells SeededBg3Pictures(Random random, RgbColor[] scene)
+    internal static FxOverlayCells SeededFxOverlayPictures(Random random, RgbColor[] scene)
     {
         int side = RoomBlockSheet.BlockPixels, columns = 4;
         var size = new Extent16<ImagePixels>((ushort)(columns * side), (ushort)(SeededPictureCount / columns * side));
@@ -339,16 +339,16 @@ internal static class RoomBackgroundsFixtures
     /// screen and words written over BG1.
     /// </summary>
     /// <param name="random">The seeded source.</param>
-    /// <param name="bg1Scroll">The BG1 scroll registers the room is shown through.</param>
-    /// <param name="bg2Scroll">The BG2 scroll registers, or null for a seeded library background image in place of a BG2 plane.</param>
+    /// <param name="foregroundScroll">The BG1 scroll registers the room is shown through.</param>
+    /// <param name="backgroundScroll">The BG2 scroll registers, or null for a seeded library background image in place of a BG2 plane.</param>
     /// <param name="door">Whether a door's source screen covers part of BG1.</param>
     /// <param name="overlay">Whether words are written over part of BG1.</param>
     /// <param name="pictureColours">
     /// The scene's 256 CGRAM colours the planes' seeded block pictures (#1392) keep as standard in their even rows, odd rows
     /// differing as under a palette effect; null for black.
     /// </param>
-    internal static RoomBackgrounds Seeded(Random random, Position16<TilePlanePixels> bg1Scroll,
-        Position16<TilePlanePixels>? bg2Scroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
+    internal static RoomBackgrounds Seeded(Random random, Position16<TilePlanePixels> foregroundScroll,
+        Position16<TilePlanePixels>? backgroundScroll = null, bool door = false, bool overlay = false, RgbColor[]? pictureColours = null)
     {
         RoomBackgroundLayer Layer(Position16<TilePlanePixels> scroll)
         {
@@ -366,14 +366,14 @@ internal static class RoomBackgroundsFixtures
             return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks).Cells,
                 scroll - inside, SeededPictures(random, pictureColours ?? new RgbColor[SnesCgram.ColorCount]));
         }
-        RoomBackgroundLayer bg1 = Layer(bg1Scroll);
-        RoomBackgroundLayer? bg2 = bg2Scroll is { } scroll2 ? Layer(scroll2) : null;
+        RoomBackgroundLayer bg1 = Layer(foregroundScroll);
+        RoomBackgroundLayer? bg2 = backgroundScroll is { } scroll2 ? Layer(scroll2) : null;
         RoomDoorBackground? source = door
-            ? RoomDoorBackground.Begin(Layer(bg1Scroll), bg1Scroll + new Offset16<TilePlanePixels>((short)random.Next(-128, 128), 0))
+            ? RoomDoorBackground.Begin(Layer(foregroundScroll), foregroundScroll + new Offset16<TilePlanePixels>((short)random.Next(-128, 128), 0))
             : null;
         RgbColor[] scene = pictureColours ?? new RgbColor[SnesCgram.ColorCount];
         RoomOverlayPictures? written = overlay ? SeededOverlayRun(random, scene, random.Next(8, 24)) : null;
-        return new RoomBackgrounds(bg1, bg2, SeededBg3Pictures(random, scene), source, written,
-            Bg2Image: bg2 is null ? SeededBackground(random, scene) : null);
+        return new RoomBackgrounds(bg1, bg2, SeededFxOverlayPictures(random, scene), source, written,
+            BackgroundImage: bg2 is null ? SeededBackground(random, scene) : null);
     }
 }

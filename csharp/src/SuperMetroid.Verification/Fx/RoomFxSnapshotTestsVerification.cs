@@ -41,7 +41,7 @@ internal static class RoomFxSnapshotTestsVerification
         foreach (ushort currentY in new ushort[] { 400, ushort.MaxValue })
         {
             var fx = new RoomFxOverlayRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
-                WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
+                WaterOverlayWavePhase: phase, WaterSurfaceScreenY: surface);
             OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(fx, plane);
             samples++;
             var packet = new DisplayPacket(0,

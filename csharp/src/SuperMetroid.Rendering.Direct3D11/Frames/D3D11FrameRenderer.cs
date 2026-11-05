@@ -512,7 +512,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
-        FxOverlayCells? bg3 = rooms?.Bg3;
+        FxOverlayCells? bg3 = rooms?.FxOverlay;
         AffineFloor? floorMap = null;
         // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
         D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;
@@ -549,8 +549,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
         }
-        var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
-            rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
+        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.WrittenOverForeground, rooms?.Sky, bg3,
+            rooms?.WrittenOverBackground, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);

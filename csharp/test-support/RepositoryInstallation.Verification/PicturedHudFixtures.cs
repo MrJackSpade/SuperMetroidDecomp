@@ -42,7 +42,7 @@ internal static class PicturedHudFixtures
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            ["hud"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.Bg3),
+            ["hud"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.FxOverlayAndHud),
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "hud-fixture",

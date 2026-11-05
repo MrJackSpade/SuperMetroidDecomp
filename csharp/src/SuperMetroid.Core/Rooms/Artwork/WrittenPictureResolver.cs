@@ -17,7 +17,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     /// <summary>Pixels along a tile's side.</summary>
     private const int TilePixels = ScreenGeometry.BackgroundTileSizePixels;
 
-    /// <summary>What was last resolved: an overlay or a BG3 plane.</summary>
+    /// <summary>What was last resolved: an overlay or a effect overlay plane.</summary>
     private object? source;
 
     /// <summary>The frame each written picture showed when last resolved.</summary>
@@ -37,8 +37,8 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     /// <exception cref="InvalidDataException">The sheet pictures a written picture for no such values, or it runs off the tilemap.</exception>
     public ImmutableArray<BgTilePicture?> Resolve(RoomWrittenOverlay overlay, RoomAppearanceView appearance)
     {
-        if (Sheet.Layer != WrittenPictureLayer.Bg12)
-            throw new InvalidOperationException($"{Sheet.Name} pictures nothing written over BG1 or BG2.");
+        if (Sheet.Layer != WrittenPictureLayer.WrittenOverRoom)
+            throw new InvalidOperationException($"{Sheet.Name} pictures nothing written over the foreground or the background.");
         return ResolvePlaced(Ensure.NotNull(overlay), RoomWrittenOverlay.CellCount, null, overlay.Pictures, appearance);
     }
 
@@ -46,7 +46,7 @@ public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
     /// Each of <paramref name="cellCount"/> cells' picture: <paramref name="fill"/>'s one-tile picture, or nothing when it is
     /// null, with <paramref name="placed"/> laid over the cells in order, while the room's inputs take the values
     /// <paramref name="appearance"/> reads; re-laid only when <paramref name="placement"/> is another than last resolved or a
-    /// picture shows another frame. The layer that owns the placement gives it, as the BG3 plane's do.
+    /// picture shows another frame. The layer that owns the placement gives it, as the effect overlay plane's do.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// The sheet pictures a written picture for no such values, the fill is not one tile, or a picture runs off the cells.

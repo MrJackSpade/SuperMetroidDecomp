@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Rendering;
 
-/// <summary>The scrolling sky's bands as the display draws them (#1468): bands of BG2 horizontal scroll down the gameplay lines.</summary>
+/// <summary>The scrolling sky's bands as the display draws them (#1468): bands of the background horizontal scroll down the gameplay lines.</summary>
 public static class SkyBandScrolls
 {
     /// <summary>
@@ -12,7 +12,7 @@ public static class SkyBandScrolls
     /// next band, the end of the sky, or the sixteen-bit wrap. Lines above the gameplay lines show the unshifted base.
     /// </summary>
     /// <param name="sky">The sky the frame published.</param>
-    /// <param name="shift">The horizontal shift added to every line, as the room's shake adds to BG2's scroll after each band's value.</param>
+    /// <param name="shift">The horizontal shift added to every line, as the room's shake adds to the background's scroll after each band's value.</param>
     public static ScrollBands Of(ScrollingSkyLayer sky, int shift)
     {
         Ensure.NotNull(sky);

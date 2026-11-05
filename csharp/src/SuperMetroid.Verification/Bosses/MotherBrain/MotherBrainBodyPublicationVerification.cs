@@ -30,7 +30,7 @@ internal static class MotherBrainBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room loads Mother Brain.");
-        Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.Bg2Scroll;
+        Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.BackgroundScroll;
 
         // Phase one: the body is only staged; the room's pipe background shows.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -50,10 +50,10 @@ internal static class MotherBrainBodyPublicationVerification
         AssertTrue(Words(image, runtime).AsSpan(0, staged.Length).SequenceEqual(staged), "phase two publishes the staged body image");
         AssertEqual(new MotherBrainBodyPlacement(state.BodyLayerPlacement, false), runtime.Display.Latched.Bosses.MotherBrainBody,
             "phase two publishes her body at her posture scroll");
-        AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Mother Brain leaves the room's BG2 scroll alone");
+        AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.View.BackgroundMapSize, "her body shows on one 32x32 screen");
-        AssertEqual(state.BodyLayerPlacement + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.BackgroundScroll, "her scroll places her body");
+        AssertEqual(state.BodyLayerPlacement + runtime.Display.Latched.Scrolls.RoomShake.Background, drawn.View.BackgroundScroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
         AssertTrue(drawn.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "her shown body keeps BG2 on the main screen");
 

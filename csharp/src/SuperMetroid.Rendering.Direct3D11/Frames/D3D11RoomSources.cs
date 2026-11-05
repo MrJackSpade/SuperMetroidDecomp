@@ -16,10 +16,10 @@ internal static class D3D11RoomSources
     /// <exception cref="InvalidOperationException">The frame publishes nothing layer 2 shows.</exception>
     internal static uint Layer2Of(RoomBackgrounds rooms) =>
         (uint)(rooms.BossBody is not null ? D3D11RoomSource.BossBody
-            : rooms.Bg2 is not null ? D3D11RoomSource.Layer2
+            : rooms.Background is not null ? D3D11RoomSource.Layer2
             : rooms.XrayReveal is not null ? D3D11RoomSource.XrayReveal
             : rooms.Sky is not null ? D3D11RoomSource.Sky
-            : rooms.Bg2Image is not null ? D3D11RoomSource.LibraryBackground
+            : rooms.BackgroundImage is not null ? D3D11RoomSource.LibraryBackground
             : throw new InvalidOperationException("The frame publishes no layer-2 plane, sky, boss body, reveal or background image for layer 2."))
-            | (rooms.Bg2Overlay is null ? 0 : Layer2OverlayFlag);
+            | (rooms.WrittenOverBackground is null ? 0 : Layer2OverlayFlag);
 }

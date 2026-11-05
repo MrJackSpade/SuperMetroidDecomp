@@ -38,7 +38,7 @@ internal static class XrayNoFxDarkeningVerification
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
-        samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;
+        samus.Xray.SetupStage = XraySetupStage.ReadForegroundFirstScreen;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
         // The room's own foreground is the main screen colour math works on (#1433): BG1 draws from the room's block

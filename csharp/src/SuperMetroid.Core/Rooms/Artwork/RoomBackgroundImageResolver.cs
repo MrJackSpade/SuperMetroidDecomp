@@ -23,7 +23,7 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     /// <summary>The background's image.</summary>
     public RoomBackgroundImage Image { get; } = Ensure.NotNull(image);
 
-    /// <summary>The background as BG2 shows it while the room's appearance inputs take the values <paramref name="appearance"/> reads.</summary>
+    /// <summary>The background as the background shows it while the room's appearance inputs take the values <paramref name="appearance"/> reads.</summary>
     /// <exception cref="InvalidDataException">A cell whose inputs changed has no picture for their values.</exception>
     public RoomBackgroundImagePlane Resolve(RoomAppearanceView appearance)
     {

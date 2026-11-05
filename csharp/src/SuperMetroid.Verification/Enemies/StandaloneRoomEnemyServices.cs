@@ -20,10 +20,10 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     private readonly RandomNumbers random;
 
     /// <summary>The installed target of pictures written over BG1, or null when the host provides none.</summary>
-    private readonly Action<WrittenPicture>? bg1Overlay;
+    private readonly Action<WrittenPicture>? writtenOverForeground;
 
     /// <summary>The installed target of pictures written over BG2, or null when the host provides none.</summary>
-    private readonly Action<WrittenPicture>? bg2Overlay;
+    private readonly Action<WrittenPicture>? writtenOverBackground;
 
     /// <summary>The room's turning floor, or null when the host provides none.</summary>
     private readonly RoomFloor? floor;
@@ -59,11 +59,11 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     public Action<int> SeedRandom { init => random.Write = Ensure.NotNull(value); }
 
     /// <summary>Installs the target of pictures written over BG1, which the Ceres escape's warning writes (#1466).</summary>
-    public Action<WrittenPicture> WriteBg1Pictures { init => bg1Overlay = Ensure.NotNull(value); }
+    public Action<WrittenPicture> WriteBg1Pictures { init => writtenOverForeground = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void WriteBg1Picture(WrittenPicture picture) =>
-        (bg1Overlay ?? throw Unavailable.Missing("write pictures over BG1"))(picture);
+    public void WriteForegroundPicture(WrittenPicture picture) =>
+        (writtenOverForeground ?? throw Unavailable.Missing("write pictures over BG1"))(picture);
 
     /// <summary>Installs the turning floor the Ceres door and Ridley's getaway draw over.</summary>
     public RoomFloor Floor { init => floor = Ensure.NotNull(value); }
@@ -73,11 +73,11 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         (floor ?? throw Unavailable.Missing("draw over the room's turning floor")).Draw(picture);
 
     /// <summary>Installs the target of pictures written over BG2, which the Zebes escape typewriter writes (#1466).</summary>
-    public Action<WrittenPicture> WriteBg2Pictures { init => bg2Overlay = Ensure.NotNull(value); }
+    public Action<WrittenPicture> WriteBg2Pictures { init => writtenOverBackground = Ensure.NotNull(value); }
 
     /// <inheritdoc />
-    public void WriteBg2Picture(WrittenPicture picture) =>
-        (bg2Overlay ?? throw Unavailable.Missing("write pictures over BG2"))(picture);
+    public void WriteBackgroundPicture(WrittenPicture picture) =>
+        (writtenOverBackground ?? throw Unavailable.Missing("write pictures over BG2"))(picture);
 
     /// <summary>Routes generated values through a required fixture callback and current-word access through optional callbacks.</summary>
     private sealed class RandomNumbers(Func<int> generate) : IEnemyRandomNumbers

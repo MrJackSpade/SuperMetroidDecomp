@@ -64,7 +64,7 @@ internal static class XraySetupVerification
         runtime.StepFrame(held);
         var scroll = runtime.BackgroundScroll;
         var room = runtime.Room.LoadedRoom;
-        RevealedBlock?[] expected = XrayRevealMap.Build(level, scroll.Layer1Position, scroll.Bg1Offset, room.AreaIndex,
+        RevealedBlock?[] expected = XrayRevealMap.Build(level, scroll.Layer1Position, scroll.ForegroundOffset, room.AreaIndex,
             runtime.Xray.XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
             room.State.XrayOverlay, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
@@ -81,7 +81,7 @@ internal static class XraySetupVerification
         XrayRevealPlane shown = runtime.Display.Latched.XrayReveal ?? throw new InvalidOperationException("X-ray setup's reveal is not displayed.");
         AssertTrue(expected.SequenceEqual(shown.Blocks.ToArray()), "the displayed reveal shows the frozen map's blocks and arrangements");
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("X-ray setup displays no room.");
-        AssertTrue(ReferenceEquals(rooms.Bg1.Pictures, shown.Pictures), "the reveal draws its blocks from the pictures the room's BG1 draws");
+        AssertTrue(ReferenceEquals(rooms.Foreground.Pictures, shown.Pictures), "the reveal draws its blocks from the pictures the room's BG1 draws");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive, "setup fixture tears down normally");
         Console.WriteLine("  X-ray setup: the stage-four reveal resolves from level data, then stays frozen through the full beam.");

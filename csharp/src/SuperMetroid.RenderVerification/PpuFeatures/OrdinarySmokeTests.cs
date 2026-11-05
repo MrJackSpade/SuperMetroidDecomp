@@ -26,10 +26,10 @@ internal static class OrdinarySmokeTests
         // nothing (#1347); case three from a library background's image (#1403), which no 64x64 map ever shows, so a
         // room plane there.
         var rooms = RoomBackgroundsFixtures.Seeded(random, new(511, 255), new(65535, 511), door: true, overlay: true);
-        var loaded = rooms with { Bg2 = null, Bg2Image = RoomBackgroundsFixtures.SeededBackground(random, colors) };
+        var loaded = rooms with { Background = null, BackgroundImage = RoomBackgroundsFixtures.SeededBackground(random, colors) };
         var sky = rooms with
         {
-            Bg2 = null,
+            Background = null,
             Sky = new SkyPictures(RoomBackgroundsFixtures.SeededSky(random, colors), ScrollingSkyChunkTable.Ocean),
         };
         // Line scrolls described as shapes (#1468): a falling sixteen-sample ramp across, a rising one down.
@@ -80,7 +80,7 @@ internal static class OrdinarySmokeTests
                 $"{device.Kind}: ordinary {count}, block pictures, layers {flags}, HDMA {hdma}");
         }
         // A library background drawn from its image and rebound cells' pictures (#1392), through each map size BG2 takes.
-        var background = pictured with { Bg2 = null, Bg2Image = RoomBackgroundsFixtures.SeededBackground(random, colors) };
+        var background = pictured with { Background = null, BackgroundImage = RoomBackgroundsFixtures.SeededBackground(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64), new OrdinarySmokeRunCase(32, 32) })
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
@@ -97,7 +97,7 @@ internal static class OrdinarySmokeTests
         // scrolls.
         var boss = rooms with
         {
-            Bg2 = null,
+            Background = null,
             BossBody = RoomBackgroundsFixtures.SeededBody(random, colors, 128),
         };
         for (int hdma = 0; hdma < 4; hdma++)
@@ -111,7 +111,7 @@ internal static class OrdinarySmokeTests
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
         // The HUD drawn from two-bit pictures (#1392), colour zero opaque in its row's colour, some words from their characters.
-        var hudPictured = pictured with { Bg3 = RoomBackgroundsFixtures.SeededBg3Pictures(random, colors) };
+        var hudPictured = pictured with { FxOverlay = RoomBackgroundsFixtures.SeededFxOverlayPictures(random, colors) };
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
@@ -123,7 +123,7 @@ internal static class OrdinarySmokeTests
                 $"{device.Kind}: ordinary {count}, BG3 pictures, HDMA {hdma}");
         }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
-        var typed = pictured with { Bg2Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        var typed = pictured with { WrittenOverBackground = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
@@ -137,7 +137,7 @@ internal static class OrdinarySmokeTests
         }
         // Words written over BG1 drawn from their pictures (#1392), as the Ceres escape's warning is, some still from their
         // characters.
-        var warned = pictured with { Bg1Overlay = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        var warned = pictured with { WrittenOverForeground = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 new Extent16<TilemapCells>(64, 32), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);

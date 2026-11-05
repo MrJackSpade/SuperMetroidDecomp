@@ -29,7 +29,7 @@ internal static class Mode7SmokeTests
         var hudLayer = new HudLayer(hudPictures, TransparentColorZero: false, Priority: null);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).
-        RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Bg2
+        RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Background
             ?? throw new InvalidOperationException("A seeded room with a BG2 scroll has a layer-2 plane.");
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })

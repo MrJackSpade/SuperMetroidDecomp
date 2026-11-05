@@ -165,15 +165,15 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <param name="images">The image texture, holding every picture <see cref="Collect"/> named.</param>
     internal bool Pack(RoomLevelLayers frame, D3D11ImageAtlas images)
     {
-        RoomBackgroundLayer? bg1 = frame.Bg1, bg2 = frame.Bg2;
+        RoomBackgroundLayer? bg1 = frame.Foreground, bg2 = frame.Background;
         RoomDoorBackground? door = frame.Door;
-        RoomOverlayPictures? overlay = frame.Overlay, bg2Overlay = frame.Bg2Overlay;
+        RoomOverlayPictures? overlay = frame.Overlay, writtenOverBackground = frame.WrittenOverBackground;
         SkyPictures? sky = frame.Sky;
-        FxOverlayCells? bg3 = frame.Bg3;
+        FxOverlayCells? bg3 = frame.FxOverlay;
         AffineFloor? mode7 = frame.Floor;
         ShownBossBody? bossBody = frame.BossBody;
         XrayRevealPlane? reveal = frame.XrayReveal;
-        RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
+        RoomBackgroundImagePlane? image = frame.BackgroundImage, skyImage = sky?.Image;
         SpriteSheetFrame? message = frame.MessagePicture;
         PicturedHud? hud = frame.Hud;
         ImmutableArray<PicturedPlane> pictured = frame.Planes?.Planes ?? [];
@@ -237,12 +237,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         int bossBodyOffset = bossBody is null ? 0 : words;
         if (bossBody is not null)
             words += 1 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
-        ImmutableArray<BgTilePicture?> bg2OverlayPictures = bg2Overlay?.Pictures ?? default;
+        ImmutableArray<BgTilePicture?> bg2OverlayPictures = writtenOverBackground?.Pictures ?? default;
         int bg2OverlayOffset = ReserveTilePictures(bg2OverlayPictures, RoomWrittenOverlay.CellCount);
         ImmutableArray<BgTilePicture?> overlayPictures = overlay?.Pictures ?? default;
         int overlayOffset = ReserveTilePictures(overlayPictures, RoomWrittenOverlay.CellCount);
-        ImmutableArray<BgTilePicture?> bg3Pictures = bg3 is null ? default : [.. bg3.Pictures.Select(picture => (BgTilePicture?)picture)];
-        int bg3PicturesOffset = ReserveTilePictures(bg3Pictures, FxOverlayPlane.Rows * FxOverlayPlane.Columns);
+        ImmutableArray<BgTilePicture?> fxOverlayPictures = bg3 is null ? default : [.. bg3.Pictures.Select(picture => (BgTilePicture?)picture)];
+        int bg3PicturesOffset = ReserveTilePictures(fxOverlayPictures, FxOverlayPlane.Rows * FxOverlayPlane.Columns);
         // Reserves two words for each of `count` tile pictures; zero without pictures.
         int ReserveTilePictures(ImmutableArray<BgTilePicture?> pictures, int count)
         {
@@ -368,7 +368,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackBossBody(upload, bossBody, bossBodyOffset, pictureWords);
         upload[Bg3Word] = (uint)bg3PicturesOffset;
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[new(message, D3D11PictureColouring.MessageBox)];
-        PackTilePictures(upload, bg3Pictures, bg3PicturesOffset, FxOverlayPlane.Rows * FxOverlayPlane.Columns, pictureWords, D3D11PictureColouring.FxOverlay);
+        PackTilePictures(upload, fxOverlayPictures, bg3PicturesOffset, FxOverlayPlane.Rows * FxOverlayPlane.Columns, pictureWords, D3D11PictureColouring.FxOverlay);
         packed = frame;
         packedGeneration = images.Generation;
         return true;
@@ -474,7 +474,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private static IEnumerable<ShownPicture> Pictures(RoomLevelLayers frame)
     {
         RoomBackgroundImagePlane? skyImage = frame.Sky?.Image;
-        RoomBlockPictureTable?[] tables = [frame.Bg1?.Pictures, frame.Bg2?.Pictures, frame.Door?.SourceRoom.Pictures];
+        RoomBlockPictureTable?[] tables = [frame.Foreground?.Pictures, frame.Background?.Pictures, frame.Door?.SourceRoom.Pictures];
         for (int slot = 0; slot < tables.Length; slot++)
         {
             if (tables[slot] is not { } table)
@@ -493,7 +493,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     yield return new(picture, D3D11PictureColouring.Room);
             }
         }
-        foreach (RoomBackgroundImagePlane? plane in new[] { frame.Bg2Image, skyImage })
+        foreach (RoomBackgroundImagePlane? plane in new[] { frame.BackgroundImage, skyImage })
         {
             if (plane is null)
                 continue;
@@ -523,12 +523,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     yield return new(shown.Picture, D3D11PictureColouring.OwnShading, shown.Shading);
             }
         }
-        foreach (BgTilePicture? tile in Tiles(frame.Bg2Overlay?.Pictures).Concat(Tiles(frame.Overlay?.Pictures)))
+        foreach (BgTilePicture? tile in Tiles(frame.WrittenOverBackground?.Pictures).Concat(Tiles(frame.Overlay?.Pictures)))
         {
             if (tile is { } shown)
                 yield return new(shown.Picture, D3D11PictureColouring.Room);
         }
-        foreach (BgTilePicture picture in frame.Bg3?.Pictures ?? [])
+        foreach (BgTilePicture picture in frame.FxOverlay?.Pictures ?? [])
             yield return new(picture.Picture, D3D11PictureColouring.FxOverlay);
     }
 

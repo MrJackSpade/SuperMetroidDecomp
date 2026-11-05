@@ -614,30 +614,30 @@ internal static void VerifyBackgroundScrollState()
     {
         Layer1Position = new(0x1234, 0x0200),
         Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
-        Bg1Offset = new(0x0010, unchecked((short)0xfff0)),
-        Bg2Offset = new(3, 4),
+        ForegroundOffset = new(0x0010, unchecked((short)0xfff0)),
+        BackgroundOffset = new(3, 4),
     };
 
     state.StepScrolling();
-    AssertEqual(0x1244, state.Bg1Scroll.X, "$80:A3B7 BG1 X plus offset");
-    AssertEqual(0x01f0, state.Bg1Scroll.Y, "$80:A3C0 BG1 Y wrapping offset");
+    AssertEqual(0x1244, state.ForegroundScroll.X, "$80:A3B7 BG1 X plus offset");
+    AssertEqual(0x01f0, state.ForegroundScroll.Y, "$80:A3C0 BG1 Y wrapping offset");
     AssertEqual(0x091a, state.Layer2Position.X, "$80:A2F9 half-speed X parallax");
     AssertEqual(0x0200, state.Layer2Position.Y, "$80:A33A zero mode copies layer 1");
-    AssertEqual(0x091d, state.Bg2Scroll.X, "$80:A3CF BG2 X plus offset");
+    AssertEqual(0x091d, state.BackgroundScroll.X, "$80:A3CF BG2 X plus offset");
 
     // Mode one preserves both the layer-2 position and its PPU scroll mirror.
     ushort oldLayer2X = state.Layer2Position.X;
-    ushort oldBg2X = state.Bg2Scroll.X;
+    ushort oldBg2X = state.BackgroundScroll.X;
     state.Layer2Scroll = Layer2ScrollModes.FromHeader(1, 1);
     state.Layer1Position = new(0x1300, 0x0300);
     state.StepScrolling();
     AssertEqual(oldLayer2X, state.Layer2Position.X, "fixed BG2 X position remains unchanged");
-    AssertEqual(oldBg2X, state.Bg2Scroll.X, "fixed BG2 X register remains unchanged");
+    AssertEqual(oldBg2X, state.BackgroundScroll.X, "fixed BG2 X register remains unchanged");
 
-    ushort frozenBg1X = state.Bg1Scroll.X;
+    ushort frozenBg1X = state.ForegroundScroll.X;
     state.Layer1Position = state.Layer1Position.WithX(0x4444);
     state.StepScrolling(timeIsFrozen: true);
-    AssertEqual(frozenBg1X, state.Bg1Scroll.X, "$80:A3AB frozen scroll registers");
+    AssertEqual(frozenBg1X, state.ForegroundScroll.X, "$80:A3AB frozen scroll registers");
 
     var destinationParallax = new BackgroundScrollState
     {
@@ -669,16 +669,16 @@ internal static void VerifyBackgroundScrollState()
         Layer2Position = new(0xff04, 0),
     };
     rightDoor.ConfigureDoorOpeningOffsets(
-        retainedBg1Scroll: new(0x0120, 0x0340),
+        retainedForegroundScroll: new(0x0120, 0x0340),
         stagedLayer1: new(0xff00, 0x0000));
-    AssertEqual(new Offset16<RoomPixels>(0x0220, 0x0340), rightDoor.Bg1Offset,
+    AssertEqual(new Offset16<RoomPixels>(0x0220, 0x0340), rightDoor.ForegroundOffset,
         "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
-    AssertEqual(new Offset16<BackgroundPixels>(0x0100, 0), rightDoor.Bg2Offset,
+    AssertEqual(new Offset16<BackgroundPixels>(0x0100, 0), rightDoor.BackgroundOffset,
         "$80:AE3B BG2 offsets negate the staged layer-one origin on both axes");
     rightDoor.CalculateLayerScrolls();
-    AssertEqual((ushort)0x0124, rightDoor.Bg1Scroll.X,
+    AssertEqual((ushort)0x0124, rightDoor.ForegroundScroll.X,
         "$80:AE29 right-door BG1 retains source plus first step");
-    AssertEqual((ushort)0x0004, rightDoor.Bg2Scroll.X,
+    AssertEqual((ushort)0x0004, rightDoor.BackgroundScroll.X,
         "$80:AE29 right-door BG2 advances from cleared register");
 
     var leftDoor = new BackgroundScrollState
@@ -687,12 +687,12 @@ internal static void VerifyBackgroundScrollState()
         Layer2Position = new(0x00fc, 0),
     };
     leftDoor.ConfigureDoorOpeningOffsets(
-        retainedBg1Scroll: new(0x0120, 0x0340),
+        retainedForegroundScroll: new(0x0120, 0x0340),
         stagedLayer1: new(0x0100, 0x0000));
     leftDoor.CalculateLayerScrolls();
-    AssertEqual((ushort)0x011c, leftDoor.Bg1Scroll.X,
+    AssertEqual((ushort)0x011c, leftDoor.ForegroundScroll.X,
         "$80:AE29 left-door BG1 retains source minus first step");
-    AssertEqual((ushort)0xfffc, leftDoor.Bg2Scroll.X,
+    AssertEqual((ushort)0xfffc, leftDoor.BackgroundScroll.X,
         "$80:AE29 left-door BG2 retreats from cleared register");
 
     // Upward setup presents destination+$FB after the built-in first moving call.
@@ -702,10 +702,10 @@ internal static void VerifyBackgroundScrollState()
         Layer2Position = new(0, 0x01dc),
     };
     upwardDestination.ConfigureDoorOpeningOffsets(
-        retainedBg1Scroll: new(0x0120, 0x0340),
+        retainedForegroundScroll: new(0x0120, 0x0340),
         stagedLayer1: new(0, 0x0300));
     upwardDestination.CalculateLayerScrolls();
-    AssertEqual((ushort)0x033b, upwardDestination.Bg1Scroll.Y,
+    AssertEqual((ushort)0x033b, upwardDestination.ForegroundScroll.Y,
         "$80:AF89 upward setup preserves source BG1 minus five pixels");
 
     Console.WriteLine("  BG scroll: parallax, frozen frames and door setup offsets agree.");
@@ -932,7 +932,7 @@ internal static void VerifyBg2ScreenLayout()
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
-                Bg2Image = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
+                BackgroundImage = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
             },
             // The sky's first gameplay line scrolls eight pixels; the rest keep BG2's own scroll (#1468).
             new BackgroundLineScrolls { Horizontal = new ScrollBands(0, [new ScrollBand(DisplayScreen.HudHeight, 8), new ScrollBand(DisplayScreen.HudHeight + 1, 0)]) }));
@@ -1066,7 +1066,7 @@ internal static void VerifyScrollingSkyState()
 
     var sky = new ScrollingSkyState(ScrollingSkyChunkTable.Land);
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false);
-    AssertEqual(new Position16<BackgroundPixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
+    AssertEqual(new Position16<BackgroundPixels>(0, 0x041f), sky.BackgroundScroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
 
     // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
     AssertTrue(ScrollingSkyChunks.TryGetPage(ScrollingSkyChunkTable.Land, 5, out int wrapped) && wrapped == 0,

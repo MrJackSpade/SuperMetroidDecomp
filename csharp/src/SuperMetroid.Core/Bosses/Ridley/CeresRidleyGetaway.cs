@@ -328,7 +328,7 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>Writes the picture of one warning page over the room's BG1 at its overlay cell (#1466).</summary>
     private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page) =>
-        _room.Services.WriteBg1Picture(new WrittenPicture(page.Picture, page.Cell));
+        _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, page.Cell));
 
     /// <summary>
     /// Ports ProcessSpriteTilesTransfers (#1406, #1513): shows the list's next page, one an update. A page of the
@@ -367,7 +367,7 @@ internal sealed class CeresRidleyGetaway
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
         // The Ceres program types over the room's BG1 (#1348).
         if (glyph is { } typed)
-            _room.Services.WriteBg1Picture(new WrittenPicture(typed.Picture, typed.Cell));
+            _room.Services.WriteForegroundPicture(new WrittenPicture(typed.Picture, typed.Cell));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);

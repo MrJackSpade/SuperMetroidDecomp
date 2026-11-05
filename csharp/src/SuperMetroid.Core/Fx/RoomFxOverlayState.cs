@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Fx;
 /// timer the room-FX loader sets. This owner retains those words even when that effect's
 /// renderer is not translated yet, allowing PLMs to make their shared-state
 /// writes without inventing another representation for the corresponding room-effect state.
-/// The translated BG3 effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
+/// The translated effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomFxOverlayState : IGameplayShadingSource
@@ -31,20 +31,20 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>The room's fixed colour. It is session-lived, so it keeps the last writer's colour across rooms.</summary>
     public RoomFixedColor FixedColors => _session.FixedColors;
 
-    /// <summary>The effect whose authored page the room's BG3 plane shows, chosen when the room loaded; null when it shows none.</summary>
+    /// <summary>The effect whose authored page the room's effect overlay plane shows, chosen when the room loaded; null when it shows none.</summary>
     public RoomFxType? EffectPageType { get; private set; }
 
-    /// <summary>The BG3 plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
+    /// <summary>The effect overlay plane the room shows (#1348, #1466): the cleared picture, with its effect's page picture when it has one.</summary>
     public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(EffectPageType);
 
     /// <summary>
-    /// The palette blend the last FX record loaded selected for layer 3's blend colours (#1512), or null while no record
+    /// The palette blend the last FX record loaded selected for the effect overlay's blend colours (#1512), or null while no record
     /// has loaded one and the colours stay the tileset's.
     /// </summary>
     public RoomFxPaletteBlend? PaletteBlend { get; private set; }
     /// <summary>
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
-    /// byte offsets BG3 scroll before the next velocity step.
+    /// byte offsets effect overlay scroll before the next velocity step.
     /// </summary>
     private Offset16<OverlaySubpixels> drift;
     /// <summary>
@@ -70,39 +70,39 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Signed fixed-point tide displacement added to the base surface.</summary>
     internal int TideFixedOffset { get; set; }
     /// <summary>
-    /// Water's BG3 surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
+    /// Water's effect overlay surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
     /// texture. Only X moves.
     /// </summary>
     private Offset16<OverlaySubpixels> waterDrift;
-    /// <summary>Countdown before advancing the water BG3 waveform.</summary>
-    private WrappingCountdown waterBg3WaveTimer;
-    /// <summary>Countdown for the optional water BG2 horizontal wave.</summary>
-    private WrappingCountdown waterBg2WaveTimer;
-    /// <summary>Selected BG3 water displacement frame.</summary>
-    private int waterBg3WavePhase;
-    /// <summary>Selected BG2 water displacement frame.</summary>
-    private int waterBg2WavePhase;
+    /// <summary>Countdown before advancing the water effect overlay waveform.</summary>
+    private WrappingCountdown waterOverlayWaveTimer;
+    /// <summary>Countdown for the optional water background horizontal wave.</summary>
+    private WrappingCountdown waterBackgroundWaveTimer;
+    /// <summary>Selected effect overlay water displacement frame.</summary>
+    private int waterOverlayWavePhase;
+    /// <summary>Selected background water displacement frame.</summary>
+    private int waterBackgroundWavePhase;
     /// <summary>
     /// Liquid surface relative to the camera, used to clip the effect plane: the signed word of the wrapped difference, or
     /// the largest signed word when no surface is shown.
     /// </summary>
     private int waterSurfaceScreenY;
-    /// <summary>Countdown for lava or acid's optional BG2 wave.</summary>
-    private WrappingCountdown lavaAcidBg2WaveTimer;
-    /// <summary>Selected lava or acid BG2 wave displacement frame.</summary>
-    private int lavaAcidBg2WavePhase;
+    /// <summary>Countdown for lava or acid's optional background wave.</summary>
+    private WrappingCountdown lavaAcidBackgroundWaveTimer;
+    /// <summary>Selected lava or acid background wave displacement frame.</summary>
+    private int lavaAcidBackgroundWavePhase;
     /// <summary>
-    /// Set after the first liquid BG3 per-line effect pass installs its pre-instruction. Later passes
+    /// Set after the first liquid effect overlay per-line effect pass installs its pre-instruction. Later passes
     /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
     /// </summary>
-    internal bool LavaAcidBg3FrameBehaviorInstalled { get; set; }
+    internal bool LavaAcidOverlayFrameBehaviorInstalled { get; set; }
     /// <summary>
     /// Records direct deletion of liquid scroll per-line effect objects by an enemy, which stops
     /// their per-frame updates until the next room load.
     /// </summary>
     internal bool LiquidMotionStopped { get; set; }
 
-    /// <summary>per-line effect object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
+    /// <summary>per-line effect object variable two of the lava/acid effect overlay object: the ambient sound timer.</summary>
     private WrappingCountdown lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
@@ -139,13 +139,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
 
-    /// <summary>Live BG3 scroll-register shadows (BG3HOFS/BG3VOFS).</summary>
+    /// <summary>Live effect overlay scroll-register shadows (the effect overlay's scroll).</summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
 
-    /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
+    /// <summary>Whether the translated effect supplies a gameplay-region effect overlay plane.</summary>
     public bool IsRenderable => ShowsPage(Type);
 
-    /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's authored page on BG3.</summary>
+    /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's authored page on the effect overlay.</summary>
     public static bool ShowsPage(RoomFxType type) => type is
         RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
         RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
@@ -174,7 +174,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
 
-    /// <summary>Builds one room's layer-3 FX from the current door's FX record.</summary>
+    /// <summary>Builds one room's effect-overlay FX from the current door's FX record.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
@@ -188,7 +188,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         RoomHeaderDefinition? room = null) =>
         ForRecord(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
-    /// <summary>Builds one room's layer-3 FX from a load source, which may supply its record directly.</summary>
+    /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its record directly.</summary>
     /// <param name="session">The Fireflea state, fixed colour and installed FX artwork, which outlive each room.</param>
     /// <param name="source">The FX record's source.</param>
     internal static RoomFxOverlayState ForRecord(RoomFxSession session, RoomFxLoadSource source)
@@ -200,7 +200,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
-    /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="FxOverlayPlane"/>).
+    /// The effect overlay plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="FxOverlayPlane"/>).
     /// </summary>
     private void SelectRecord(RoomFxLoadSource source)
     {
@@ -233,18 +233,18 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             // Both spawned per-line effect objects execute their phase initializer on the first
             // handler pass. A one-frame timer reproduces that first-call rotation.
-            waterBg3WaveTimer = WrappingCountdown.Start(1);
-            waterBg2WaveTimer = WrappingCountdown.Start(1);
+            waterOverlayWaveTimer = WrappingCountdown.Start(1);
+            waterBackgroundWaveTimer = WrappingCountdown.Start(1);
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
             // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
-            lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
+            lavaAcidBackgroundWaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
                 ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
                 : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration);
-            lavaAcidBg2WavePhase = 0;
+            lavaAcidBackgroundWavePhase = 0;
         }
         else if (Type == RoomFxType.Rain)
         {
@@ -257,7 +257,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// True for the liquids whose BG3 per-line effect step moves the surface: lava and
+    /// True for the liquids whose effect overlay per-line effect step moves the surface: lava and
     /// acid and water. That motion belongs to the per-line effect pass.
     /// </summary>
     public bool MovesLiquidBeforeMainLoop =>
@@ -279,9 +279,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
         soundRequests.Clear();
-        if (!LavaAcidBg3FrameBehaviorInstalled)
+        if (!LavaAcidOverlayFrameBehaviorInstalled)
         {
-            LavaAcidBg3FrameBehaviorInstalled = true;
+            LavaAcidOverlayFrameBehaviorInstalled = true;
             // Water's setup sets the sound timer in the same pass that installs the frame behaviour.
             if (lavaOrAcid)
                 lavaSoundTimer = WrappingCountdown.Start(LavaAcidWaveDefinitions.AmbientSoundPeriod);
@@ -340,7 +340,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
 
         // The shared animated-tiles handler runs independently of the per-line effect
-        // pre-instruction. In particular, lava/acid need this transfer before their BG3
+        // pre-instruction. In particular, lava/acid need this transfer before their effect overlay
         // tilemap can name anything other than stale standard-HUD characters.
         animatedTiles.Step(frames);
 
@@ -361,7 +361,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (Type == RoomFxType.Rain)
         {
-            Offset16<OverlayPixels> cameraDelta = previousCamera.AsBg3Scroll() - frame.Camera.AsBg3Scroll();
+            Offset16<OverlayPixels> cameraDelta = previousCamera.AsOverlayScroll() - frame.Camera.AsOverlayScroll();
             Scroll = Position16<OverlayPixels>.Zero + cameraDelta + drift.WholePixels();
             drift += rainWindVelocity + RainFallVelocity;
             previousCamera = frame.Camera;
@@ -372,13 +372,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             // Spores sample each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
-            Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
+            Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
             drift = drift.WithY(WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity));
             return;
         }
 
         // Fog anchors to layer one and moves its texture by -$40/+50 in 8.8.
-        Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
+        Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
         drift = new(WordWrap.Signed(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity),
             WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity));
     }
@@ -394,7 +394,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         Surface = new(0, BaseY.Whole);
         waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
+        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
     }
 
     /// <summary>Captures values visible alongside the current frame boundary's sprite frame.</summary>
@@ -405,11 +405,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             Scroll,
             Surface,
             LiquidOptions,
-            waterBg3WavePhase,
-            waterBg2WavePhase,
+            waterOverlayWavePhase,
+            waterBackgroundWavePhase,
             waterSurfaceScreenY)
         {
-            LavaAcidBg2WavePhase = lavaAcidBg2WavePhase,
+            LavaAcidBackgroundWavePhase = lavaAcidBackgroundWavePhase,
         }
         : null;
 
@@ -455,7 +455,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Lays the shade of the palette blend the last record selected over the layer-3 pictures (#1512): the effect's
+    /// Lays the shade of the palette blend the last record selected over the effect-overlay pictures (#1512): the effect's
     /// pages, and the HUD's, which show the same colours.
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -494,29 +494,29 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        Scroll = (camera.AsBg3Scroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
+        Scroll = (camera.AsOverlayScroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
-        waterBg3WaveTimer = waterBg3WaveTimer.Decrement().Remaining;
-        if (waterBg3WaveTimer.IsZero)
+        waterOverlayWaveTimer = waterOverlayWaveTimer.Decrement().Remaining;
+        if (waterOverlayWaveTimer.IsZero)
         {
-            waterBg3WaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.Bg3WavePhaseDuration);
-            waterBg3WavePhase =
-                (waterBg3WavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
+            waterOverlayWaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.OverlayWavePhaseDuration);
+            waterOverlayWavePhase =
+                (waterOverlayWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
 
         if ((LiquidOptions & RoomLiquidOptions.SurfaceDrift) != RoomLiquidOptions.None)
             waterDrift += WaterDriftVelocity;
 
-        // FX $26 spawns only the BG3 water object. Its second per-line effect object moves
-        // the statue vertically instead of installing the ordinary BG2 X wave.
-        if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
+        // FX $26 spawns only the effect overlay water object. Its second per-line effect object moves
+        // the statue vertically instead of installing the ordinary background X wave.
+        if (Type != RoomFxType.Water || (LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
             return;
-        waterBg2WaveTimer = waterBg2WaveTimer.Decrement().Remaining;
-        if (waterBg2WaveTimer.IsZero)
+        waterBackgroundWaveTimer = waterBackgroundWaveTimer.Decrement().Remaining;
+        if (waterBackgroundWaveTimer.IsZero)
         {
-            waterBg2WaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.Bg2WavePhaseDuration);
-            waterBg2WavePhase =
-                (waterBg2WavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
+            waterBackgroundWaveTimer = WrappingCountdown.Start(WaterWaveDefinitions.BackgroundWavePhaseDuration);
+            waterBackgroundWavePhase =
+                (waterBackgroundWavePhase + 1) % WaterWaveDefinitions.WaveDisplacementCount;
         }
     }
 
@@ -530,7 +530,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid
-    /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
+    /// surface and the effect overlay plane follow the room camera, while one of two sixteen-scanline background
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
     private void StepLavaAcid(
@@ -542,21 +542,21 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        // Lava/acid uses the same surface-relative BG3VOFS equation as water.
+        // Lava/acid uses the same surface-relative vertical scroll equation as water.
         // Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
-        Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
+        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
         if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
             return;
-        lavaAcidBg2WaveTimer = lavaAcidBg2WaveTimer.Decrement().Remaining;
-        if (!lavaAcidBg2WaveTimer.IsZero)
+        lavaAcidBackgroundWaveTimer = lavaAcidBackgroundWaveTimer.Decrement().Remaining;
+        if (!lavaAcidBackgroundWaveTimer.IsZero)
             return;
 
-        lavaAcidBg2WavePhase =
-            (lavaAcidBg2WavePhase - 1 + LavaAcidWaveDefinitions.WaveDisplacementCount) %
+        lavaAcidBackgroundWavePhase =
+            (lavaAcidBackgroundWavePhase - 1 + LavaAcidWaveDefinitions.WaveDisplacementCount) %
             LavaAcidWaveDefinitions.WaveDisplacementCount;
-        lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
+        lavaAcidBackgroundWaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
             ? LavaAcidWaveDefinitions.VerticalWavePhaseDuration
             : LavaAcidWaveDefinitions.HorizontalWavePhaseDuration);
     }
@@ -740,15 +740,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         return FixedCoordinate.WholeOf(unchecked((int)(baseFixed + (uint)TideFixedOffset)));
     }
 
-    /// <summary>Whether the FX options select vertical BG2 displacement for lava or acid.</summary>
+    /// <summary>Whether the FX options select vertical background displacement for lava or acid.</summary>
     private bool UsesLavaAcidVerticalWave =>
-        (LiquidOptions & RoomLiquidOptions.Bg2Wave) != RoomLiquidOptions.None;
+        (LiquidOptions & RoomLiquidOptions.BackgroundWave) != RoomLiquidOptions.None;
 
-    /// <summary>Whether the FX options select horizontal BG2 displacement for lava or acid.</summary>
+    /// <summary>Whether the FX options select horizontal background displacement for lava or acid.</summary>
     private bool UsesLavaAcidHorizontalWave =>
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
-    /// <summary>Computes BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
+    /// <summary>Computes effect overlay vertical scroll from the liquid surface relative to camera Y.</summary>
     private static int ComputeLiquidVerticalScroll(int surfaceY, int cameraY)
     {
         if (CoordinateAxis.AsSigned(surfaceY) < 0)
@@ -782,14 +782,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Surface = NoSurface;
         LiquidOptions = RoomLiquidOptions.None;
         waterDrift = Offset16<OverlaySubpixels>.Zero;
-        waterBg2WaveTimer = WrappingCountdown.Start(0);
-        waterBg3WaveTimer = WrappingCountdown.Start(0);
-        waterBg3WavePhase = waterBg2WavePhase = 0;
+        waterBackgroundWaveTimer = WrappingCountdown.Start(0);
+        waterOverlayWaveTimer = WrappingCountdown.Start(0);
+        waterOverlayWavePhase = waterBackgroundWavePhase = 0;
         waterSurfaceScreenY = short.MaxValue;
-        lavaAcidBg2WaveTimer = WrappingCountdown.Start(0);
-        lavaAcidBg2WavePhase = 0;
+        lavaAcidBackgroundWaveTimer = WrappingCountdown.Start(0);
+        lavaAcidBackgroundWavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
-        LavaAcidBg3FrameBehaviorInstalled = false;
+        LavaAcidOverlayFrameBehaviorInstalled = false;
         LiquidMotionStopped = false;
         lavaSoundTimer = WrappingCountdown.Start(0);
         EarthquakeRequest = null;

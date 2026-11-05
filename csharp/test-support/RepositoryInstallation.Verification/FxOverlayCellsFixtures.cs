@@ -70,7 +70,7 @@ internal static class FxOverlayCellsFixtures
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            ["tiles"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.Bg3),
+            ["tiles"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.FxOverlayAndHud),
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "bg3-fixture",

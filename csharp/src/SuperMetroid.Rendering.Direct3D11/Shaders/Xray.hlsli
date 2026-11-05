@@ -61,14 +61,14 @@ uint XrayGameplay(uint2 screen)
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
     // Layer 2's line scroll, from its described line scrolls (#1468).
-    uint2 bg2Scroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
+    uint2 backgroundScroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
     // Inside the window (the X-ray cone, #1468) the room shows unblended.
     bool inside = InWindow(screen);
     uint source = 32;
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
-        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll);
+        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + backgroundScroll);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
@@ -87,7 +87,7 @@ uint XrayGameplay(uint2 screen)
     {
         uint sub = 0;
         if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
-            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll).x;
+            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + backgroundScroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
             uint2 bg3 = XrayBackground(SourceFxOverlay, (uint)MatrixC, uint2(32,(uint)CenterX),

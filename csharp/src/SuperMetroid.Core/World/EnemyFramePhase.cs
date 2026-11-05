@@ -119,7 +119,7 @@ internal sealed class EnemyFramePhase
                 // Phantoon's body layer is placed by his AI, while eye/tentacle collision follows enemy
                 // positions. Publish the placement before the next accepted frame latches the matching sprite
                 // frame. The room's fixed layer-two axes preserve it during camera scrolling.
-                _backgroundScroll.SetBg2Scroll(phantoon.BodyLayerPlacement);
+                _backgroundScroll.SetBackgroundScroll(phantoon.BodyLayerPlacement);
             }
             if (result.CeresEscapeStarted)
             {

@@ -31,7 +31,7 @@ internal sealed record RoomScope
     /// <summary>The room's decompressed, read-only asset graph.</summary>
     public required LoadedRoomAssets Assets { get; init; }
 
-    /// <summary>The room's BG1/BTS/BG2 allocation, shared by rendering and collision.</summary>
+    /// <summary>The room's foreground/BTS/background allocation, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
 
     /// <summary>The room's layer-1 scroll-boundary camera.</summary>
@@ -52,26 +52,26 @@ internal sealed record RoomScope
     /// <summary>Resolves the pre-coloured picture each block the room's planes show draws as (#1392).</summary>
     public required RoomBlockPictureResolver BlockPictures { get; init; }
 
-    /// <summary>Resolves what the room's library background shows on BG2, or null for a room without one (#1392).</summary>
+    /// <summary>Resolves what the room's library background shows on the background, or null for a room without one (#1392).</summary>
     public required RoomBackgroundImageResolver? BackgroundImage { get; init; }
 
-    /// <summary>Resolves what the room's scrolling sky shows on BG2, or null for a room without one (#1392).</summary>
+    /// <summary>Resolves what the room's scrolling sky shows on the background, or null for a room without one (#1392).</summary>
     public required RoomBackgroundImageResolver? SkyImage { get; init; }
 
-    /// <summary>Resolves what pictures written over BG2 show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
-    public required WrittenPictureResolver? Bg2OverlayPictures { get; init; }
+    /// <summary>Resolves what pictures written over the background show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
+    public required WrittenPictureResolver? BackgroundWrittenPictures { get; init; }
 
-    /// <summary>Resolves what pictures written over BG1 show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
-    public required WrittenPictureResolver? Bg1OverlayPictures { get; init; }
+    /// <summary>Resolves what pictures written over the foreground show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
+    public required WrittenPictureResolver? ForegroundWrittenPictures { get; init; }
 
-    /// <summary>Resolves what the HUD and the room effect's page show on BG3 (#1392, #1466).</summary>
-    public required WrittenPictureResolver Bg3Pictures { get; init; }
+    /// <summary>Resolves what the HUD and the room effect's page show on the effect overlay (#1392, #1466).</summary>
+    public required WrittenPictureResolver FxOverlayPictures { get; init; }
 
     /// <summary>The images of the message boxes the room shows (#1392).</summary>
     public required MessageBoxSheet MessageBoxes { get; init; }
 
     /// <summary>
-    /// Which artwork the blocks of <paramref name="room"/> show: the Ceres Ridley arena's setup points its BG1 and BG2 at
+    /// Which artwork the blocks of <paramref name="room"/> show: the Ceres Ridley arena's setup points its foreground and the background at
     /// the sprites' artwork (#1357); every other room, and the frames before a room is active, show the tileset's.
     /// </summary>
     internal static RoomBlockArtwork BlockArtworkOf(SelectedRoom? room) =>
@@ -79,11 +79,11 @@ internal sealed record RoomScope
             ? RoomBlockArtwork.Sprites
             : RoomBlockArtwork.Tileset;
 
-    /// <summary>Pictures the room's actors wrote over its BG1 (the Ceres escape warning), or null (#1346, #1466).</summary>
-    public RoomWrittenOverlay? Bg1Overlay { get; private set; }
+    /// <summary>Pictures the room's actors wrote over its foreground (the Ceres escape warning), or null (#1346, #1466).</summary>
+    public RoomWrittenOverlay? WrittenOverForeground { get; private set; }
 
-    /// <summary>Pictures the room's actors wrote over BG2 (the Zebes escape warning), or null (#1348, #1466).</summary>
-    public RoomWrittenOverlay? Bg2Overlay { get; private set; }
+    /// <summary>Pictures the room's actors wrote over the background (the Zebes escape warning), or null (#1348, #1466).</summary>
+    public RoomWrittenOverlay? WrittenOverBackground { get; private set; }
 
     /// <summary>The scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
@@ -100,7 +100,7 @@ internal sealed record RoomScope
     /// <summary>Samus's bombs, power bombs and the shared projectile cooldown in this room.</summary>
     public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
-    /// <summary>The room's layer-3 FX: liquid, rain, fog and the BG3 tilemap.</summary>
+    /// <summary>The room's effect-overlay FX: liquid, rain, fog and the effect overlay tilemap.</summary>
     public required RoomFxOverlayState FxOverlay { get; init; }
 
     /// <summary>The room's palette-FX objects.</summary>
@@ -154,13 +154,13 @@ internal sealed record RoomScope
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
 
-    /// <summary>Writes <paramref name="picture"/> over this room's BG1 at its tilemap cell (#1346, #1466).</summary>
-    internal void WriteBg1Picture(WrittenPicture picture) =>
-        Bg1Overlay = (Bg1Overlay ?? RoomWrittenOverlay.Empty).With(picture);
+    /// <summary>Writes <paramref name="picture"/> over this room's foreground at its tilemap cell (#1346, #1466).</summary>
+    internal void WriteForegroundPicture(WrittenPicture picture) =>
+        WrittenOverForeground = (WrittenOverForeground ?? RoomWrittenOverlay.Empty).With(picture);
 
-    /// <summary>Writes <paramref name="picture"/> over this room's BG2 at its tilemap cell (#1348, #1466).</summary>
-    internal void WriteBg2Picture(WrittenPicture picture) =>
-        Bg2Overlay = (Bg2Overlay ?? RoomWrittenOverlay.Empty).With(picture);
+    /// <summary>Writes <paramref name="picture"/> over this room's background at its tilemap cell (#1348, #1466).</summary>
+    internal void WriteBackgroundPicture(WrittenPicture picture) =>
+        WrittenOverBackground = (WrittenOverBackground ?? RoomWrittenOverlay.Empty).With(picture);
 
     /// <summary>Begins the Ceres elevator arrival in this room.</summary>
     /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>

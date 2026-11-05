@@ -8,15 +8,15 @@ public enum RoomFxType
 {
     /// <summary>No animated room-FX object is present.</summary>
     None = 0,
-    /// <summary>Animated damaging lava surface with BG3 tiles, palette effects, and optional BG2 distortion.</summary>
+    /// <summary>Animated damaging lava surface with the effect overlay tiles, palette effects, and optional background distortion.</summary>
     Lava = 1,
     /// <summary>Animated damaging acid surface sharing the liquid renderer but using acid-specific gameplay damage.</summary>
     Acid,
-    /// <summary>Animated water surface with submerged physics and optional per-scanline BG2 displacement.</summary>
+    /// <summary>Animated water surface with submerged physics and optional per-scanline background displacement.</summary>
     Water,
-    /// <summary>Full-screen drifting spore atmosphere driven through the room-FX BG3 owner.</summary>
+    /// <summary>Full-screen drifting spore atmosphere driven through the room-FX effect overlay owner.</summary>
     Spores,
-    /// <summary>Full-screen rain atmosphere whose BG3 plane is additively composited.</summary>
+    /// <summary>Full-screen rain atmosphere whose effect overlay plane is additively composited.</summary>
     Rain,
     /// <summary>Full-screen fog atmosphere with its dedicated additive screen arrangement.</summary>
     Fog,
@@ -26,7 +26,7 @@ public enum RoomFxType
     UnusedScrollingSky,
     /// <summary>Fireflea-room darkness and palette behavior, including enemy-driven light flashes.</summary>
     Fireflea,
-    /// <summary>Tourian entrance statue liquid effect, rendered through the water-compatible BG3 path.</summary>
+    /// <summary>Tourian entrance statue liquid effect, rendered through the water-compatible effect overlay path.</summary>
     TourianEntranceStatue,
     /// <summary>Ceres Ridley encounter effect that coordinates the room's scripted Mode 7 presentation.</summary>
     CeresRidley,

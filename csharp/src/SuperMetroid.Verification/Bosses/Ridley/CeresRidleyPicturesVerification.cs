@@ -98,11 +98,11 @@ internal static class CeresRidleyPicturesVerification
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.Bg1Overlay
+        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.WrittenOverForeground
             ?? throw new InvalidOperationException("Ceres Ridley's getaway wrote no warning over BG1.");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
-        RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.Bg1Overlay
+        RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.WrittenOverForeground
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, UploadedPictureChecks.Reached(runtime)).Characters;
         int written = 0;

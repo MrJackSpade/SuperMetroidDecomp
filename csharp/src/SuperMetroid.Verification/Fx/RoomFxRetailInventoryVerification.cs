@@ -821,23 +821,23 @@ internal static class RoomFxRetailInventoryVerification
             RoomEarthquakeDefinitions.RisingLiquidType *
             RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
-            firstActiveShake.Bg1.X, "room $02/$28 first shake BG1 X");
+            firstActiveShake.Foreground.X, "room $02/$28 first shake BG1 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
-            firstActiveShake.Bg1.Y, "room $02/$28 first shake BG1 Y");
+            firstActiveShake.Foreground.Y, "room $02/$28 first shake BG1 Y");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
-            firstActiveShake.Bg2.X, "room $02/$28 first shake BG2 X");
+            firstActiveShake.Background.X, "room $02/$28 first shake BG2 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
-            firstActiveShake.Bg2.Y, "room $02/$28 first shake BG2 Y");
+            firstActiveShake.Background.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);
         RoomShakeFrameResult secondActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
-        AssertEqual(unchecked((short)-firstActiveShake.Bg1.X), secondActiveShake.Bg1.X,
+        AssertEqual(unchecked((short)-firstActiveShake.Foreground.X), secondActiveShake.Foreground.X,
             "room $02/$28 alternating shake BG1 X");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg1.Y), secondActiveShake.Bg1.Y,
+        AssertEqual(unchecked((short)-firstActiveShake.Foreground.Y), secondActiveShake.Foreground.Y,
             "room $02/$28 alternating shake BG1 Y");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg2.X), secondActiveShake.Bg2.X,
+        AssertEqual(unchecked((short)-firstActiveShake.Background.X), secondActiveShake.Background.X,
             "room $02/$28 alternating shake BG2 X");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg2.Y), secondActiveShake.Bg2.Y,
+        AssertEqual(unchecked((short)-firstActiveShake.Background.Y), secondActiveShake.Background.Y,
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;

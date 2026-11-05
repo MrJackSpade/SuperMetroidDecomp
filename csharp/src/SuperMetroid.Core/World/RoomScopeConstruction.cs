@@ -63,7 +63,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>Samus's bombs, once the teardown step has built them.</summary>
     public SamusBombProjectileSystem? BombProjectiles { get; set; }
 
-    /// <summary>The layer-3 FX, once the FX step has built it.</summary>
+    /// <summary>The effect-overlay FX, once the FX step has built it.</summary>
     public RoomFxOverlayState? FxOverlay { get; set; }
 
     /// <summary>The palette FX, once the FX step has built them.</summary>
@@ -126,9 +126,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
                 Assets.Pictures.Background(RoomBackgroundImage.NameOf(background, background.PictureDoor(Door), Assets.Tileset)),
                 Assets.BlockSheet)
             : null,
-        Bg2OverlayPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
-        Bg1OverlayPictures = written is null ? null : new WrittenPictureResolver(written),
-        Bg3Pictures = new WrittenPictureResolver(Assets.Pictures.Bg3(Assets.Tileset)),
+        BackgroundWrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
+        ForegroundWrittenPictures = written is null ? null : new WrittenPictureResolver(written),
+        FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Background(RoomBackgroundImage.SkyNameOf(sky.Variant, Assets.Tileset)),

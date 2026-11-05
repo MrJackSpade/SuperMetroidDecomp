@@ -26,7 +26,7 @@ internal sealed class ActiveRoomState
     /// </summary>
     internal ScreenLayers? DoorTransitionMainScreenLayers { get; set; }
 
-    /// <summary>The source room's BG1 screen during a door's opening scroll, or null (#1346).</summary>
+    /// <summary>The source room's foreground screen during a door's opening scroll, or null (#1346).</summary>
     internal RoomDoorBackground? DoorSourceBackground { get; set; }
 
     /// <summary>The load-station record that established the loading or loaded room; null for a room entered otherwise.</summary>
@@ -93,7 +93,7 @@ internal sealed class ActiveRoomState
 
 
     /// <summary>
-    /// Active room's decompressed BG1/BTS/BG2 allocation. Rendering and collision must
+    /// Active room's decompressed foreground/BTS/background allocation. Rendering and collision must
     /// share this instance; null means no room level stream has been loaded yet.
     /// </summary>
     public RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
@@ -107,7 +107,7 @@ internal sealed class ActiveRoomState
     /// <summary>Door/header/library-background data selected for the current Landing Site entry.</summary>
     public LandingSiteEntryState? LandingSiteEntry => View(c => c.LandingSiteEntry, s => s.LandingSiteEntry);
 
-    /// <summary>The loading or loaded room's layer-3 FX, for the accepted-frame publication.</summary>
+    /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>
     internal RoomFxOverlayState? FxOverlay => View(c => c.FxOverlay, s => s.FxOverlay);
 
     /// <summary>The loading or loaded room's Tourian statues, for the accepted-frame publication.</summary>

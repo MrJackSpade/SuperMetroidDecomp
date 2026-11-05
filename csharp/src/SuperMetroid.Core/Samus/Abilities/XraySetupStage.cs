@@ -15,9 +15,9 @@ public enum XraySetupStage
     /// </summary>
     FreezeTimeSaveBackground = 1,
     /// <summary><c>XraySetup_2_ReadBG1Tilemap_2ndScreen</c>, called.</summary>
-    ReadBg1SecondScreen = 2,
+    ReadForegroundSecondScreen = 2,
     /// <summary><c>XraySetup_3_ReadBG1Tilemap_1stScreen</c>, called.</summary>
-    ReadBg1FirstScreen = 3,
+    ReadForegroundFirstScreen = 3,
     /// <summary>
     /// Call four, where the reveal is built: <c>XraySetup_4_BuildBG2Tilemap_ReadBG2Tilemap_1stScreen</c>
     ///, called. The port builds the whole reveal here.

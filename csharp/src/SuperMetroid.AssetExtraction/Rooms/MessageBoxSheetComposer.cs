@@ -40,7 +40,7 @@ internal static class MessageBoxSheetComposer
                     characters.Slice(tile.Tile * RoomTileCanvas.TwoBppCharacterBytes, RoomTileCanvas.TwoBppCharacterBytes), colours);
             }
             int messageRows = tiles.Length / width;
-            frames.Add(form.FrameName, WrittenPictureSheetComposer.Frame(canvas, top, messageRows, WrittenPictureLayer.Bg3));
+            frames.Add(form.FrameName, WrittenPictureSheetComposer.Frame(canvas, top, messageRows, WrittenPictureLayer.FxOverlayAndHud));
             top += messageRows;
         }
         return canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);

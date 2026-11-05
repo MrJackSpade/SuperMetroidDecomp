@@ -24,13 +24,13 @@ public enum LayerBlendingConfiguration
     /// <summary>Dispatcher offset <c>$08</c>, Wrecked Ship with its power off.</summary>
     WreckedShipPowerOff,
 
-    /// <summary>Dispatcher offset <c>$0A</c>, which composites the drifting-spore BG3 atmosphere.</summary>
+    /// <summary>Dispatcher offset <c>$0A</c>, which composites the drifting-spore effect overlay atmosphere.</summary>
     Spores,
 
     /// <summary>Dispatcher offset <c>$0C</c>, which applies the Fireflea room's darkness and light effects.</summary>
     Fireflea,
 
-    /// <summary>Dispatcher offset <c>$0E</c>, which adds the full-screen rain BG3 plane.</summary>
+    /// <summary>Dispatcher offset <c>$0E</c>, which adds the full-screen rain effect overlay plane.</summary>
     Rain,
 
     /// <summary>Dispatcher offset <c>$10</c>, the Morph Ball eye room.</summary>
@@ -39,13 +39,13 @@ public enum LayerBlendingConfiguration
     /// <summary>Dispatcher offset <c>$12</c>, the suit-pickup rooms.</summary>
     SuitPickup,
 
-    /// <summary>Dispatcher offset <c>$14</c>, which subtracts the water BG3 plane from the gameplay scene.</summary>
+    /// <summary>Dispatcher offset <c>$14</c>, which subtracts the water effect overlay plane from the gameplay scene.</summary>
     WaterSubtractive,
 
     /// <summary>Dispatcher offset <c>$16</c>, the subtractive water variant whose window setup supports a waterfall.</summary>
     WaterfallSubtractive,
 
-    /// <summary>Dispatcher offset <c>$18</c>, which adds a liquid or fog BG3 plane to the gameplay scene.</summary>
+    /// <summary>Dispatcher offset <c>$18</c>, which adds a liquid or fog effect overlay plane to the gameplay scene.</summary>
     LiquidOrFogAdditive,
 
     /// <summary>Dispatcher offset <c>$1A</c>, which presents Phantoon through the configured translucent composition.</summary>
@@ -54,7 +54,7 @@ public enum LayerBlendingConfiguration
     /// <summary>Dispatcher offset <c>$1C</c>, an unused half-additive configuration with reversed backgrounds.</summary>
     UnusedHalfAdditiveReversedBackgrounds,
 
-    /// <summary>Dispatcher offset <c>$1E</c>, which adds the lava or acid BG3 plane and fixed-color effect.</summary>
+    /// <summary>Dispatcher offset <c>$1E</c>, which adds the lava or acid effect overlay plane and fixed-color effect.</summary>
     LavaAcidAdditive,
 
     /// <summary>Dispatcher offset <c>$20</c>, an alternate normal-gameplay configuration.</summary>
@@ -81,7 +81,7 @@ public enum LayerBlendingConfiguration
     /// <summary>Dispatcher offset <c>$2E</c>, an unused subtractive configuration.</summary>
     UnusedSubtractive,
 
-    /// <summary>Dispatcher offset <c>$30</c>, which adds the full-screen fog BG3 plane.</summary>
+    /// <summary>Dispatcher offset <c>$30</c>, which adds the full-screen fog effect overlay plane.</summary>
     FogAdditive,
 
     /// <summary>Dispatcher offset <c>$32</c>, an unused subtractive background configuration.</summary>

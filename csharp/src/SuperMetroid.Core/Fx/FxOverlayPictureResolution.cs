@@ -4,11 +4,11 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Resolves what the BG3 plane shows from the room's BG3 picture sheet (#1392, #1403, #1466).</summary>
+/// <summary>Resolves what the effect overlay plane shows from the room's effect overlay picture sheet (#1392, #1403, #1466).</summary>
 internal static class FxOverlayPictureResolution
 {
     /// <summary>
-    /// The picture of each cell of the BG3 <paramref name="plane"/> while the room's appearance inputs take the values
+    /// The picture of each cell of the effect overlay <paramref name="plane"/> while the room's appearance inputs take the values
     /// <paramref name="appearance"/> reads, as the frames the room effects' animations selected (#1406): the cleared
     /// picture everywhere, with the effect's page picture from its first row.
     /// </summary>
@@ -18,8 +18,8 @@ internal static class FxOverlayPictureResolution
     {
         Ensure.NotNull(resolver);
         Ensure.NotNull(plane);
-        if (resolver.Sheet.Layer != WrittenPictureLayer.Bg3)
-            throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no BG3 pictures.");
+        if (resolver.Sheet.Layer != WrittenPictureLayer.FxOverlayAndHud)
+            throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no effect overlay pictures.");
         var page = new List<WrittenPicture>();
         if (plane.EffectPage is { } type)
             page.Add(new WrittenPicture(FxOverlayPlane.EffectPagePicture(type), FxOverlayPlane.EffectPageFirstRow * FxOverlayPlane.Columns));

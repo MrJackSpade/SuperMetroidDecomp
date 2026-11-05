@@ -18,7 +18,7 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>The input half of the frame boundary: the controller latches and the frame counters.</summary>
     public required AcceptedFrameInput Input { get; init; }
 
-    /// <summary>The HUD whose rows the BG3 plane shows.</summary>
+    /// <summary>The HUD whose rows the effect overlay plane shows.</summary>
     public required HudState Hud { get; init; }
 
     /// <summary>Background scroll.</summary>

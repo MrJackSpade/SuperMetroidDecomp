@@ -622,7 +622,7 @@ internal static void VerifySamusXray()
     AssertEqual(XraySetupStage.FreezeTimeSaveBackground, interrupted.Xray.SetupStage,
         "interrupted X-Mode retains first HDMA setup stage");
     interrupted.Xray.StepBeam(interrupted, ControllerButton.B);
-    AssertEqual(XraySetupStage.ReadBg1SecondScreen, interrupted.Xray.SetupStage,
+    AssertEqual(XraySetupStage.ReadForegroundSecondScreen, interrupted.Xray.SetupStage,
         "interrupted X-Mode continues the independent beam setup program");
 
     // Admission failures are kept independent so no broad host-side `grounded` boolean can

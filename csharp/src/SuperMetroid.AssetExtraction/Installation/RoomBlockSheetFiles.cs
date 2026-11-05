@@ -111,7 +111,7 @@ public static class RoomBlockSheetFiles
                     .Select(cell => new RoomBackgroundCell(cell.Cell, cell.Picture ?? throw new InvalidDataException($"Room background manifest {manifestPath} names no picture of a cell of {entry.Key}."),
                         Inputs(cell.Inputs)))),
                 StringComparer.Ordinal),
-            Sheets(WrittenPictureLayer.Bg12), Sheets(WrittenPictureLayer.Bg3),
+            Sheets(WrittenPictureLayer.WrittenOverRoom), Sheets(WrittenPictureLayer.FxOverlayAndHud),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)))),
             floors.Tilesets.Select(name => byName.TryGetValue(name, out TilesetDefinition tileset)
                     ? new RoomFloorSheet(tileset, store.Read(RoomFloorSheet.NameOf(tileset)))

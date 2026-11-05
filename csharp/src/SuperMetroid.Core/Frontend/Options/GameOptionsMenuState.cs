@@ -40,8 +40,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
     /// <summary>Screen brightness level, 0 (black) through 15, that the page fades and final exits step.</summary>
     private int brightness;
-    /// <summary>BG1 scroll used to expose the lower controller rows.</summary>
-    private int bg1VerticalScroll;
+    /// <summary>The page's vertical scroll, which exposes the lower controller rows.</summary>
+    private int pageVerticalScroll;
     /// <summary>The selection missile's frame cycle.</summary>
     private readonly MenuMissileAnimation missile = new();
 
@@ -159,7 +159,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 {
                     page = dissolveDestination;
                     SelectedItem = 0;
-                    bg1VerticalScroll = 0;
+                    pageVerticalScroll = 0;
                     LoadVisiblePage();
                     Phase = GameOptionsPhase.DissolveIn;
                 }
@@ -188,14 +188,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.ScrollControllerDown:
-                bg1VerticalScroll += GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
-                if (bg1VerticalScroll == GameOptionsDefinitions.ControllerScrollLimit)
+                pageVerticalScroll += GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
+                if (pageVerticalScroll == GameOptionsDefinitions.ControllerScrollLimit)
                     Phase = GameOptionsPhase.ControllerSettings;
                 break;
 
             case GameOptionsPhase.ScrollControllerUp:
-                bg1VerticalScroll -= GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
-                if (bg1VerticalScroll == 0)
+                pageVerticalScroll -= GameOptionsDefinitions.ControllerScrollPixelsPerFrame;
+                if (pageVerticalScroll == 0)
                     Phase = GameOptionsPhase.ControllerSettings;
                 break;
 
@@ -229,7 +229,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         // The backdrop, the page and its labels, language rows and toggle choices are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
-            screen.PagePictures(ShownPage.Frames()), CoordinateAxis.Wrap(bg1VerticalScroll), Ensure.BetweenInclusive(0, byte.MaxValue, brightness));
+            screen.PagePictures(ShownPage.Frames()), CoordinateAxis.Wrap(pageVerticalScroll), Ensure.BetweenInclusive(0, byte.MaxValue, brightness));
     }
 
     /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
@@ -240,7 +240,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
-        content.GameOptions.DrawHeading(sprites, sheet, page, bg1VerticalScroll);
+        content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
         GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame, CursorPosition());
         sprites.FinishFrame();
     }

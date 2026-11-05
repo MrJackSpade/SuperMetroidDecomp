@@ -28,7 +28,7 @@ internal static class RoomShakeDefinitionsVerification
             enemies.Earthquake.EarthquakeType = type;
             enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
-            AssertEqual(new RoomShakeFrameResult(definition.Bg1, definition.Bg2),
+            AssertEqual(new RoomShakeFrameResult(definition.Foreground, definition.Background),
                 positive,
                 $"room shake type {type} positive production frame");
             AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue,
@@ -37,8 +37,8 @@ internal static class RoomShakeDefinitionsVerification
             enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
             RoomShakeFrameResult negative = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
-                    new(unchecked((short)-definition.Bg1.X), unchecked((short)-definition.Bg1.Y)),
-                    new(unchecked((short)-definition.Bg2.X), unchecked((short)-definition.Bg2.Y))),
+                    new(unchecked((short)-definition.Foreground.X), unchecked((short)-definition.Foreground.Y)),
+                    new(unchecked((short)-definition.Background.X), unchecked((short)-definition.Background.Y))),
                 negative,
                 $"room shake type {type} alternating production frame");
 
@@ -103,12 +103,12 @@ internal static class RoomShakeDefinitionsVerification
     /// <summary>Compares BG1 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.Bg1ReferenceAddress, 8,
-            definition => new OctantVector(definition.Bg1.X, definition.Bg1.Y), "BG1"));
+            definition => new OctantVector(definition.Foreground.X, definition.Foreground.Y), "BG1"));
 
     /// <summary>Compares BG2 displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakes.Bg2ReferenceAddress, 8,
-            definition => new OctantVector(definition.Bg2.X, definition.Bg2.Y), "BG2"));
+            definition => new OctantVector(definition.Background.X, definition.Background.Y), "BG2"));
 
     /// <summary>Compares enemy-projectile displacement pairs with their native table entries.</summary>
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>

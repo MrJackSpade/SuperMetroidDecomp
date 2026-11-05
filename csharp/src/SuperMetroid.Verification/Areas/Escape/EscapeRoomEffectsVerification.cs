@@ -37,7 +37,7 @@ internal static class EscapeRoomEffectsVerification
                 runtime.StepFrame(0);
                 if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive)) explosionFrames++;
                 var shake = runtime.Enemies.Earthquake.LastRoomShake;
-                offsets.Add(new OctantVector(shake.Bg1.X, shake.Bg1.Y));
+                offsets.Add(new OctantVector(shake.Foreground.X, shake.Foreground.Y));
                 if (frame % 10 == 9)
                 {
                     var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
@@ -61,7 +61,7 @@ internal static class EscapeRoomEffectsVerification
                     var displayedShake = runtime.Display.DisplayedGameplayScrolls.RoomShake;
                     var stationary = new GameplaySceneLayer(noObjects.View with
                     {
-                        ForegroundScroll = layer.View.ForegroundScroll - displayedShake.Bg1
+                        ForegroundScroll = layer.View.ForegroundScroll - displayedShake.Foreground
                     }, layer.Rooms, layer.BackgroundLineScrolls);
                     var unshaken = DisplayRendering.Render(new LayeredScene(capture.Paint, [stationary, capture.Layers[1]], capture.Brightness));
                     visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;

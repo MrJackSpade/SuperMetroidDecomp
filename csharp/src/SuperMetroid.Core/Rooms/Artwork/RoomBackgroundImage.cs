@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// One installed pre-coloured room background (#1392, #1466): the full picture of a 32-tile-wide tilemap a room shows on
-/// BG2, coloured with its tileset's palette over what the room loads, and the cells whose pictures change with the room's
-/// appearance inputs. A library background pictures the two BG2 pages it loads, the first above the second; the scrolling
+/// The background, coloured with its tileset's palette over what the room loads, and the cells whose pictures change with the room's
+/// appearance inputs. A library background pictures the two background pages it loads, the first above the second; the scrolling
 /// sky pictures all its rows.
 /// </summary>
 public sealed class RoomBackgroundImage

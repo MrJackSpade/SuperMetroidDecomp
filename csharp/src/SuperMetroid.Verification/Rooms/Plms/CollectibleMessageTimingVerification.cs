@@ -46,7 +46,7 @@ internal static class CollectibleMessageTimingVerification
         (RoomBlockCell Cell, SpriteSheetFrame? Picture) ShownBlock()
         {
             RoomBackgroundLayer bg1 = (runtime.Display.Latched.Rooms ?? throw new InvalidOperationException(
-                "The displayed frame has no room backgrounds.")).Bg1;
+                "The displayed frame has no room backgrounds.")).Foreground;
             RoomBlockCell cell = bg1.Blocks.Cells[item.BlockIndex];
             return (cell, bg1.Pictures?.Picture(cell.Definition));
         }

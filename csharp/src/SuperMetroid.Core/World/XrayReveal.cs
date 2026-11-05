@@ -7,11 +7,11 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// X-ray reveal presentation: the revealed blocks, built once from the room's level data and BG1 plane.
+/// X-ray reveal presentation: the revealed blocks, built once from the room's level data and the foreground plane.
 /// </summary>
 internal sealed class XrayReveal
 {
-    /// <summary>Supplies layer-one scroll and BG1 offsets for reveal placement.</summary>
+    /// <summary>Supplies layer-one scroll and the foreground offsets for reveal placement.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies the active room, level, area, and X-ray pointer.</summary>
     private readonly ActiveRoomState _room;
@@ -47,7 +47,7 @@ internal sealed class XrayReveal
         var room = _room.ActiveRoom ?? throw new InvalidOperationException("X-ray setup has no room.");
         var level = _room.LevelData ?? throw new InvalidOperationException("X-ray setup has no level data.");
         Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
-        RevealedBlock?[] map = XrayRevealMap.Build(level, layer1, _backgroundScroll.Bg1Offset,
+        RevealedBlock?[] map = XrayRevealMap.Build(level, layer1, _backgroundScroll.ForegroundOffset,
             room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, plms.CollectiblePlms.Collectibles, _system,
             room.State.XrayOverlay, layer1, XrayRevealVisuals);

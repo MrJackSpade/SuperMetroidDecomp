@@ -48,8 +48,8 @@ internal static class TorizoPaletteShakeVerification
             AssertEqual(frame < 32, enemies.Earthquake.EarthquakeTimer.RawValue != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
             if (frame < 32)
             {
-                AssertEqual((short)0, shake.Bg1.X, "Landing BG1 X");
-                AssertEqual((short)(((32 - frame) & 2) == 0 ? 2 : -2), shake.Bg1.Y, "Landing BG1 Y");
+                AssertEqual((short)0, shake.Foreground.X, "Landing BG1 X");
+                AssertEqual((short)(((32 - frame) & 2) == 0 ? 2 : -2), shake.Foreground.Y, "Landing BG1 Y");
             }
         }
         // Sixteen steps: fourteen move the colours, the fifteenth settles them, the sixteenth takes the counter's zero

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// A room's background image as BG2 shows it at one moment (#1392, #1403): the image's picture, and the block picture of
+/// A room's background image as the background shows it at one moment (#1392, #1403): the image's picture, and the block picture of
 /// each 16x16 cell whose characters show artwork the room bound after loading.
 /// </summary>
 public sealed class RoomBackgroundImagePlane

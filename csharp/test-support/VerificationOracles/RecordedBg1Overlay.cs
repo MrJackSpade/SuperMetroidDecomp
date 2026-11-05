@@ -13,13 +13,13 @@ internal sealed class RecordedBg1Overlay
     public RoomWrittenOverlay Overlay { get; private set; } = RoomWrittenOverlay.Empty;
 
     /// <summary>Every picture written over BG2 so far, at its BG2 tilemap cell.</summary>
-    public RoomWrittenOverlay Bg2Overlay { get; private set; } = RoomWrittenOverlay.Empty;
+    public RoomWrittenOverlay WrittenOverBackground { get; private set; } = RoomWrittenOverlay.Empty;
 
-    /// <summary>Standalone services whose overlay writes land in <see cref="Overlay"/> and <see cref="Bg2Overlay"/>; they generate no random numbers.</summary>
+    /// <summary>Standalone services whose overlay writes land in <see cref="Overlay"/> and <see cref="WrittenOverBackground"/>; they generate no random numbers.</summary>
     public StandaloneRoomEnemyServices Services() =>
         new(() => throw new InvalidOperationException("The overlay fixture generates no random numbers."))
         {
             WriteBg1Pictures = picture => Overlay = Overlay.With(picture),
-            WriteBg2Pictures = picture => Bg2Overlay = Bg2Overlay.With(picture),
+            WriteBg2Pictures = picture => WrittenOverBackground = WrittenOverBackground.With(picture),
         };
 }

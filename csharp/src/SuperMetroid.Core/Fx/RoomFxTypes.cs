@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Fx;
 public static class RoomFxTypes
 {
     /// <summary>
-    /// Water and the statue effect select the same water page; the statue effect installs ordinary BG3
+    /// Water and the statue effect select the same water page; the statue effect installs ordinary effect overlay
     /// water motion for the statue effect. Samus dispatches both through the low
-    /// nibble, while statue BG2 motion remains independently owned.
+    /// nibble, while statue background motion remains independently owned.
     /// </summary>
     public static bool UsesWater(RoomFxType type) =>
         type is RoomFxType.Water or RoomFxType.TourianEntranceStatue;

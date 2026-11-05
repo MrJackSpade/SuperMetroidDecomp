@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The X-ray reveal BG2 shows, drawn from block pictures (#1392): every shown cell of the reveal as the block it draws and
+/// The X-ray reveal background shows, drawn from block pictures (#1392): every shown cell of the reveal as the block it draws and
 /// how it lays the block's picture out (#1431), over the pictures the room's blocks show now. A block copied from beyond
-/// the room lies below or right of anything BG2's scroll shows, and draws nothing.
+/// the room lies below or right of anything background's scroll shows, and draws nothing.
 /// </summary>
 public sealed class XrayRevealPlane
 {

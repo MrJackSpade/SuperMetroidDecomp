@@ -62,7 +62,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x50, RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Rain).FrameByteCount, "rain frame size");
 
         // RoomFxRomData's effect motion, waves and tides.
-        AssertEqual(10, WaterWaveDefinitions.Bg3WavePhaseDuration, "water layer-three wave step");
+        AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");
         AssertEqual(0x40, WaterWaveDefinitions.HorizontalSubscrollVelocity, "water drift");
         AssertEqual(16, WaterWaveDefinitions.WaveDisplacementCount, "water wave steps");
         AssertEqual(-1, LiquidEffects.WaterWaveDisplacement(5), "water wave sample 5");

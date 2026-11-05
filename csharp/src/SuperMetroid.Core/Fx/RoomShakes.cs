@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Decodes a rendered earthquake type into the displacement it applies to BG1, BG2 and projectiles.
+/// Decodes a rendered earthquake type into the displacement it applies to the foreground, background and projectiles.
 /// </summary>
 internal static class RoomShakes
 {
@@ -9,7 +9,7 @@ internal static class RoomShakes
     /// <remarks>
     /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A0/86.asm.
     /// Type encodes group=type/9, magnitude=(type/3)%3+1 and direction=type%3:
-    /// horizontal, vertical, diagonal. BG1 is enabled except group 3; BG2 except group 0;
+    /// horizontal, vertical, diagonal. The foreground is enabled except group 3; background except group 0;
     /// projectiles only in groups 2/3. All 216 original words follow this Cartesian
     /// product exactly. The three recipient vectors have separate complete-domain proofs.
     /// Validate before division/modulo; types 36+ remain caller-owned non-rendered effects.

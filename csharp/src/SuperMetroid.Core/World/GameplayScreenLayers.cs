@@ -28,8 +28,8 @@ internal sealed class GameplayScreenLayers
     public ScreenLayers Displayed { get; private set; }
 
     /// <summary>
-    /// Chooses the layers before projectile callbacks run: a door transition's own layers, BG1 and the sprites alone
-    /// while Mother Brain's death hides BG2, and the waterfall rooms' layers when their blending is subtractive.
+    /// Chooses the layers before projectile callbacks run: a door transition's own layers, foreground and the sprites alone
+    /// while Mother Brain's death hides background, and the waterfall rooms' layers when their blending is subtractive.
     /// </summary>
     internal void Choose(RoomScope room)
     {

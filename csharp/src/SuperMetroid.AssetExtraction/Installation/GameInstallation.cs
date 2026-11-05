@@ -68,13 +68,11 @@ public sealed record GameInstallation(string Root)
     public InstalledClipAudioLibrary LoadAudioClips() => InstalledAudioClips.Load(AudioDirectory);
     /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
-    /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>
+    /// <summary>Installed starting CGRAM and room-entry sprite palettes, which the player edits in place.</summary>
     public string GameplayBasePaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Editable starting CGRAM and room-entry sprite colors survive stock rebuilds.</summary>
-    public string GameplayBasePaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Validates stock starting palettes and loads any compatible user replacements for initial CGRAM and room-entry sprite colors.</summary>
+    /// <summary>Loads the installed initial CGRAM and room-entry sprite colors.</summary>
     public GameplayBasePalette LoadGameplayBasePalettes() =>
-        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
+        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory);
     /// <summary>Stock decoded results of Samus's glitch reads; not editable, so there is no override directory.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>

@@ -40,18 +40,17 @@ public static class GameplayBasePaletteFiles
                 GameplayBasePaletteFormat.JsonOptions));
     }
 
-    /// <summary>Validates stock provenance, digest, and both complete RGB5 arrays before compiling an optional whole-document palette replacement without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the base-palette JSON and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose palette JSON replaces both stock arrays when present; an absent file retains stock.</param>
-    /// <returns>An owned selected-color catalog for the initial CGRAM image and common sprites, also supplying enemy-projectile colors from the initial image.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, schema, or selected palette counts and RGB5 values are invalid.</exception>
-    public static GameplayBasePalette Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks the installed provenance, then compiles the installed palette document, as the player may have edited it in place, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the base-palette JSON and its provenance manifest.</param>
+    /// <returns>An owned color catalog for the initial CGRAM image and common sprites, also supplying enemy-projectile colors from the initial image.</returns>
+    /// <exception cref="InvalidDataException">The provenance, schema, or palette counts and RGB5 values are invalid.</exception>
+    public static GameplayBasePalette Load(string directory)
     {
         ArtworkManifest manifest;
         try
         {
             manifest = JsonSerializer.Deserialize<ArtworkManifest>(File.ReadAllBytes(Path.Combine(
-                stockDirectory, GameplayBasePaletteFormat.ManifestFileName)),
+                directory, GameplayBasePaletteFormat.ManifestFileName)),
                 GameplayBasePaletteFormat.JsonOptions) ??
                 throw new InvalidDataException("Gameplay base palette manifest is empty.");
         }
@@ -63,14 +62,9 @@ public static class GameplayBasePaletteFiles
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Gameplay base palette manifest does not match the pinned cartridge.");
-        byte[] stock = File.ReadAllBytes(Path.Combine(stockDirectory,
+        byte[] installed = File.ReadAllBytes(Path.Combine(directory,
             GameplayBasePaletteFormat.ArtworkFileName));
-        _ = Read(new MemoryStream(stock, writable: false));
-        string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory,
-            GameplayBasePaletteFormat.ArtworkFileName);
-        byte[] selected = overridePath is not null && File.Exists(overridePath)
-            ? File.ReadAllBytes(overridePath) : stock;
-        return Read(new MemoryStream(selected, writable: false));
+        return Read(new MemoryStream(installed, writable: false));
     }
 
     /// <summary>Reads and validates the full initial and common-sprite RGB5 palettes of an installed document.</summary>

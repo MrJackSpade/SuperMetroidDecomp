@@ -16,65 +16,29 @@ namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Assets;
 
-/// <summary>Checks installed gameplay CGRAM base colors, room-entry sprite restoration, and palette edits.</summary>
+/// <summary>Checks installed gameplay CGRAM base colors and room-entry sprite restoration.</summary>
 internal static class GameplayBasePalettesVerification
 {
-    /// <summary>Compares cartridge colors and exercises ROM-free runtime construction and override validation.</summary>
+    /// <summary>Compares cartridge colors and exercises ROM-free runtime construction.</summary>
     internal static void VerifyGameplayBasePalettes(string sourceRom)
     {
-        using var directoryScratch = new TestScratchDirectory("gameplay-base-palettes");
-        string directory = directoryScratch.Root;
-        // The shared installation's stock palettes are only read; the override edits go to the scratch directory.
-        string stock = RepositoryInstallation.Installation.GameplayBasePaletteDirectory;
-        string overrides = Path.Combine(directory, "overrides");
+        string installed = RepositoryInstallation.Installation.GameplayBasePaletteDirectory;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        try
-        {
-            GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(stock, overrides);
-            // The starting image holds the background colours, then the sprite colours, in the cartridge's order.
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-                AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),
-                    StartingColour(baseline, color), $"installed starting colour {color}");
-            for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
-                AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette + color * 2),
-                    baseline.CommonSprites[color], $"installed shared OBJ color {color}");
+        GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(installed);
+        // The starting image holds the background colours, then the sprite colours, in the cartridge's order.
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),
+                StartingColour(baseline, color), $"installed starting colour {color}");
+        for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
+            AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette + color * 2),
+                baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
-            var guarded = NewCartridgeReadGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-            // Runtime construction reads no cartridge and binds no base palette: only the import reads it (#1512).
-            _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
+        var guarded = NewCartridgeReadGuard(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
+        // Runtime construction reads no cartridge and binds no base palette: only the import reads it (#1512).
+        _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
 
-            var document = JsonSerializer.Deserialize<GameplayBasePaletteDocument>(
-                File.ReadAllBytes(Path.Combine(stock, GameplayBasePaletteFormat.ArtworkFileName)),
-                GameplayBasePaletteFormat.JsonOptions) ?? throw new InvalidDataException(
-                    "Stock gameplay base palette document is null.");
-            document.Initial[1] = document.Initial[1] with { Red =
-                document.Initial[1].Red == 31 ? 30 : 31 };
-            document.CommonSprites[1] = document.CommonSprites[1] with { Blue =
-                document.CommonSprites[1].Blue == 31 ? 30 : 31 };
-            Directory.CreateDirectory(overrides);
-            string overridePath = Path.Combine(overrides, GameplayBasePaletteFormat.ArtworkFileName);
-            File.WriteAllBytes(overridePath, GameplayBasePaletteFiles.Write(document));
-            GameplayBasePalette edited = GameplayBasePaletteFiles.Load(stock, overrides);
-            AssertTrue(edited.Starting.BackgroundColours[1] != baseline.Starting.BackgroundColours[1], "edited starting color differs from stock");
-
-            document.Initial[1] = document.Initial[1] with { Red = 32 };
-            File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
-                GameplayBasePaletteFormat.JsonOptions));
-            AssertThrows<InvalidDataException>(() => GameplayBasePaletteFiles.Load(stock, overrides),
-                "invalid RGB5 override fails loudly");
-            File.Delete(overridePath);
-            GameplayBasePalette restored = GameplayBasePaletteFiles.Load(stock, overrides);
-            AssertTrue(restored.Starting.BackgroundColours.SequenceEqual(baseline.Starting.BackgroundColours) &&
-                restored.Starting.SpriteColours.SequenceEqual(baseline.Starting.SpriteColours) &&
-                restored.CommonSprites.SequenceEqual(baseline.CommonSprites),
-                "removing override restores stock palette");
-            Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors, guarded runtime construction, override and malformed data pass.");
-        }
-        finally
-        {
-            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
-        }
+        Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors and guarded runtime construction pass.");
 
         static RgbColor StartingColour(GameplayBasePalette palette, int color) =>
             color < palette.Starting.BackgroundColours.Length ? palette.Starting.BackgroundColours[color]
@@ -87,7 +51,7 @@ internal static class GameplayBasePalettesVerification
     /// <summary>Reads native palette bytes for the installed-color comparison.</summary>
     private static byte GameplayBasePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Runs the gameplay base palette installation and override check.</summary>
+    /// <summary>Runs the gameplay base palette installation check.</summary>
     [VerificationCommand("--gameplay-base-palettes")]
     internal static int GameplayBasePalettesCommand()
     {

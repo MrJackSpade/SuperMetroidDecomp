@@ -84,8 +84,8 @@ Within either platform's application-data root:
 - `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
 - `game/room-palettes/`: stock RGB5 base room colors and their manifest.
 - `game/gameplay-palettes/gameplay-base-palettes.json`: the 256-color initial CGRAM
-  image and 16 common sprite colors restored on room entry. Copy the JSON to
-  `overrides/gameplay-palettes/` to edit it without altering stock content.
+  image and 16 common sprite colors restored on room entry. Edit it in place; running the extractor again
+  restores the original.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet. Copy it to `overrides/standard-objects/` for persistent edits.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are

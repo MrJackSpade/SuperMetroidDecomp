@@ -34,7 +34,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         string samusBody = Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
         InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName), null);
-        GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null);
+        GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
         IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null);
         // Her colour tables are the ones the map presentation was read with, edits included.
         AreaMapPresentation maps = MapPresentationFiles.Load(map, null);

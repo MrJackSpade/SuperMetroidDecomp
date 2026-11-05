@@ -27,6 +27,13 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// </summary>
     public PictureShading? Shading { get; init; }
 
+    /// <summary>
+    /// How a rotting corpse's frame shows as its rot has left it (#1531): each pixel row of each character column of the
+    /// image draws the image row it names, or nothing where the rot has cleared it. Null for every other draw, which shows
+    /// its image as it is.
+    /// </summary>
+    public CorpseRotPicture? CorpseRot { get; init; }
+
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }
 

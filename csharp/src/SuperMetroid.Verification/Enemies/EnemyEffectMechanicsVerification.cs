@@ -105,7 +105,6 @@ internal static class EnemyEffectMechanicsVerification
             bool[] fallenBefore = [.. rot.Schedule.Rows.Select(row => row.HasFallen)];
             var step = rot.Step(new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
             AssertEqual(call < 118, step.StillRotting, "exact corpse lifetime");
-            AssertEqual<int?>(call < 118 ? call : null, step.ShownRotStep, "every active call shows the step just taken, completion shows none");
             // Rows fallen by this call, bottom row first: each is marked fallen, except the last
             // row, whose fall ends the rot.
             int[] finishedRows = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)

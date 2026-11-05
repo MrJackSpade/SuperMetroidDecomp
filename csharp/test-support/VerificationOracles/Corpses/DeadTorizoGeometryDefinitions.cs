@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Tile geometry shared by $A9:DE18-DEBF initialization and E272/E38B row motion.

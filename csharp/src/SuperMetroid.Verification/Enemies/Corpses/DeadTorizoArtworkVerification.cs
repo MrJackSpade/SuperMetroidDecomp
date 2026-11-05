@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +28,7 @@ internal static class DeadTorizoArtworkVerification
     {
         Suite(nameof(VerifyDeadTorizoRowUploads), () => VerifyDeadTorizoRowUploads(stock));
         Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock.Enemies));
-        // The extraction stages the corpse as its initializer does, from discontinuous portions of the ordinary ED3F sheet,
+        // The character rot oracle stages the corpse as its initializer does, from discontinuous portions of the ordinary ED3F sheet,
         // and drops sand words from that same sheet, to picture each step of its rot (#1392); the runtime stages nothing.
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var nativeStaging = new NativeEnemyStaging();
@@ -183,7 +184,7 @@ internal static class DeadTorizoArtworkVerification
         return enemies;
     }
 
-    /// <summary>The corpse as the extraction stages it from installed art.</summary>
+    /// <summary>The corpse as the character rot oracle stages it from installed art.</summary>
     private static CorpseStaging StageDeadTorizoArtwork(InstalledEnemyArtwork artwork) => CorpseStaging.Torizo(Atlas(artwork));
 
     /// <summary>The installed dead-Torizo sheet.</summary>
@@ -193,11 +194,11 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>
     private static byte[] Staged(CorpseStaging staging, int offset, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging + offset, length, 0));
+        staging.Upload(new CorpseRotRow(0, CorpseWorkMemory.EnemyBg2Staging + offset, length, 0));
 
     /// <summary>The first <paramref name="length"/> bytes of the staged sand strips.</summary>
     private static byte[] Sand(CorpseStaging staging, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.CorpseRottingHeap + EnemySourceDefinitions.DeadTorizoSandOffset, length, 0));
+        staging.Upload(new CorpseRotRow(0, CorpseWorkMemory.CorpseRottingHeap + CorpseWorkMemory.DeadTorizoSandOffset, length, 0));
 
     /// <summary>Renders the corpse hook's published frame as the OAM image it stands for.</summary>
     internal static OamBuffer DrawDeadTorizoCorpseFrame(InstalledEnemyArtwork artwork, Position16<RoomPixels> camera)

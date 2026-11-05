@@ -20,7 +20,6 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool BabySpawnRequested,
     bool FinalBeamSoundQueued,
     IReadOnlyList<MotherBrainDeathExplosionRequest> DeathExplosions,
-    int? CorpseRotStepShown,
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
     bool MusicStopQueued,
     bool EscapeMusicQueued,

@@ -33,7 +33,4 @@ public enum EncounterArtworkSequence
 
     /// <summary>Mother Brain's legs, the Baby, her attacks, her corpse and the escape, page by page.</summary>
     MotherBrainPages,
-
-    /// <summary>Mother Brain's corpse rotting away, rot step by rot step.</summary>
-    MotherBrainCorpseRot,
 }

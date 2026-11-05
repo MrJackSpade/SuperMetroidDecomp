@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>Describes tile-column offsets and sheet copies for one dead Zoomer, Ripper or Skree art variant.</summary>
 /// <param name="MaximumY">First pixel row that no longer copies downward: the block height less two pixels (14 or 30).</param>

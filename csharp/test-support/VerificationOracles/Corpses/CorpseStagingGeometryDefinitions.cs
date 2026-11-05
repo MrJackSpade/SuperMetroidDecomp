@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core;
 
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Bounded, pinned bank-$A9 corpse staging geometry (#1406): where the cartridge copies a dead Sidehopper's characters into
 /// its work memory, the columns its pixel movers walk, the character rows each species' corpse lays out, and where the dead
-/// Torizo's sand falls. Only the extraction reads it, to rot the staged characters and picture each rot step.
+/// Torizo's sand falls. Only the character rot oracle reads it, to rot the staged characters (#1531).
 /// </summary>
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
 [EncodingOwner("bank-$A9 corpse work-memory and staging layout")]

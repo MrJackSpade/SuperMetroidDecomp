@@ -35,13 +35,9 @@ public sealed class CorpseRotSchedule
     private int FirstMovingLeadInRow => LastRow - 1;
 
     /// <summary>
-    /// Runs one rot call for a corpse whose sheet pictures each step's pixel rows (#1392), so only the schedule advances.
+    /// Runs one rot call, handing each pixel row it moves to <paramref name="moveRow"/>, which moves the corpse's rows its
+    /// frames are drawn through (#1531).
     /// </summary>
-    /// <param name="rowFallen">Receives each row as it falls out of the corpse, the last row too.</param>
-    /// <returns>True while another rot call is needed; false once the last row has fallen.</returns>
-    public bool Step(Action<int> rowFallen) => Step(static (_, _) => { }, rowFallen);
-
-    /// <summary>Runs one rot call, handing each pixel row it moves to <paramref name="moveRow"/>.</summary>
     /// <param name="moveRow">
     /// Receives the corpse pixel row moved and whether it is moved down, clearing its source, or copied down.
     /// </param>

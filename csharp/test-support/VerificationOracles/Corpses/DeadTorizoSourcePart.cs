@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>One square part of the dead Torizo's source sheet: its top-left tile cell and its size in tiles.</summary>
 /// <param name="Corner">The part's top-left tile cell in the source sheet.</param>

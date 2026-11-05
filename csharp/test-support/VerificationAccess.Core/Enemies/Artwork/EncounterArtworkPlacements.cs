@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// Verification's replay of the steps a room's encounters have reached (#1513): every step up to each sequence's reached
 /// one, copied in order where the import says the cartridge copies it, for checks that compare the characters those steps
-/// leave with the cartridge's own transfers. The corpse rot is its simulation's and is not replayed.
+/// leave with the cartridge's own transfers.
 /// </summary>
 internal static class EncounterArtworkPlacements
 {
@@ -21,7 +21,7 @@ internal static class EncounterArtworkPlacements
         var placements = new SpriteArtworkPlacements();
         foreach (EncounterArtworkSequence sequence in Enum.GetValues<EncounterArtworkSequence>())
         {
-            if (sequence == EncounterArtworkSequence.MotherBrainCorpseRot || progress.StepOf(sequence) is not int reached)
+            if (progress.StepOf(sequence) is not int reached)
                 continue;
             for (int step = 0; step <= reached; step++)
             {

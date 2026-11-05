@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
-        IShowsCorpseRot
+        IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotView ShownRot => species.ShownDeadSidehopperRot(Slot);
+    public CorpseRotRows? ShownRotRows => species.ShownDeadSidehopperRows(Slot);
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadSidehopper;

@@ -178,9 +178,10 @@ internal sealed class MotherBrainHead
         if (CoordinateAxis.AsSigned(screen.Y) < 0)
             return;
 
-        // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
+        // The head's sheet pictures each frame over what the encounter's uploads leave (#1392); her corpse's frame is drawn
+        // through its rows as its rot leaves them (#1531).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen)
-            { Shading = frame.Shading });
+            { Shading = frame.Shading, RotRows = _motherBrainEncounter.ShownCorpseRows });
     }
 
     /// <summary>Derives the head's current shake offset from the encounter's animation state.</summary>

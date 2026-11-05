@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 12;
+    public const int ManifestVersion = 13;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -64,8 +64,8 @@ public static class EnemySheetFiles
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
         var variations = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
         var spawnedVariations = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
-        var rotPictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>>();
-        var spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>();
+        var corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>();
+        var spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>();
         var blankPictures = new Dictionary<EnemySheetKey, IReadOnlySet<string>>();
         var spawnedBlankPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
@@ -73,14 +73,10 @@ public static class EnemySheetFiles
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
                 ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory)),
                 GameInstallationLayout.EnemyTileDirectoryName)));
-        var setCorpses = new Dictionary<string, IReadOnlyList<CorpseRotSimulation>>(StringComparer.Ordinal);
         foreach ((string set, Dictionary<string, string> members) in manifest.Sets)
         {
-            EnemyDefinitionId[] drawn = [.. members.Keys.Select(enemyName => Enum.TryParse(enemyName, out EnemyDefinitionId enemy) && Enum.IsDefined(enemy)
-                ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown enemy {enemyName}."))];
-            // The corpses that rot in the set's rooms are pictured for the rot steps the extraction plays from their art.
-            IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(artwork.Value.Enemies, artwork.Value.Bosses, drawn);
-            setCorpses[set] = [.. corpses.Where(corpse => corpse.Kind is not null)];
+            if (members.Keys.FirstOrDefault(enemyName => !Enum.TryParse(enemyName, out EnemyDefinitionId enemy) || !Enum.IsDefined(enemy)) is { } unknown)
+                throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown enemy {unknown}.");
             if (!RoomEnemyGraphicsSetLists.DrawnUnder.Any(known => known.Name == set))
                 throw new InvalidDataException($"Enemy sheet manifest names unknown graphics set {set}.");
             foreach ((string enemyName, string name) in members)
@@ -88,17 +84,16 @@ public static class EnemySheetFiles
                 var enemy = Enum.Parse<EnemyDefinitionId>(enemyName);
                 SpriteSheet sheet = loaded[name];
                 Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.Variations, set, enemyName);
-                Dictionary<string, string> frameRots = RotFrames(manifest.RotPictures, set, enemyName, setCorpses[set]);
-                HashSet<string> pictures = [.. EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => PictureNames(frame,
-                    frameVariations, frameRots, setCorpses[set]))];
+                HashSet<string> pictures = [.. EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => PictureNames(frame, frameVariations))];
+                Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.CorpsePictures, set, enemyName, pictures);
                 HashSet<string> blank = Blank(manifest.BlankPictures, set, enemyName, pictures);
                 if (!sheet.HoldsExactly(pictures.Where(picture => !blank.Contains(picture))))
                     throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the pictures of the frames {enemy} shows.");
                 sheets.Add(new EnemySheetKey(set, enemy), sheet);
                 if (frameVariations.Count > 0)
                     variations.Add(new EnemySheetKey(set, enemy), frameVariations);
-                if (frameRots.Count > 0)
-                    rotPictures.Add(new EnemySheetKey(set, enemy), frameRots);
+                if (frameCorpses.Count > 0)
+                    corpsePictures.Add(new EnemySheetKey(set, enemy), frameCorpses);
                 if (blank.Count > 0)
                     blankPictures.Add(new EnemySheetKey(set, enemy), blank);
             }
@@ -106,7 +101,7 @@ public static class EnemySheetFiles
         var spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>();
         foreach ((string set, Dictionary<string, SpawnedObjectSheetDocument> owners) in manifest.Spawned)
         {
-            if (!setCorpses.ContainsKey(set))
+            if (!manifest.Sets.ContainsKey(set))
                 throw new InvalidDataException($"Enemy sheet manifest spawns objects under graphics set {set}, which it installs no sheets for.");
             foreach ((string ownerName, SpawnedObjectSheetDocument entry) in owners)
             {
@@ -116,25 +111,25 @@ public static class EnemySheetFiles
                 SpawnedObjectOwner sheetOwner = SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Parse(entry.Owner);
                 SpriteSheet sheet = loaded[entry.Sheet];
                 Dictionary<string, FrameArtworkVariation[]> frameVariations = FrameVariations(manifest.SpawnedVariations, set, ownerName);
-                Dictionary<string, string> frameRots = RotFrames(manifest.SpawnedRotPictures, set, ownerName, setCorpses[set]);
                 CommonSpawnedObjects[] common =
                     [.. entry.Common.Select(spawner => CommonSpawners.Named(spawner).Spawned)];
                 HashSet<string> pictures = [.. SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, common).SelectMany(frame => PictureNames(frame,
-                    frameVariations, frameRots, setCorpses[set]))];
+                    frameVariations))];
+                Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.SpawnedCorpsePictures, set, ownerName, pictures);
                 HashSet<string> blank = Blank(manifest.SpawnedBlankPictures, set, ownerName, pictures);
                 if (!sheet.HoldsExactly(pictures.Where(picture => !blank.Contains(picture))))
                     throw new InvalidDataException($"Spawned-object sheet {entry.Sheet} does not hold exactly the pictures of the objects its spawners spawn.");
                 spawned.Add(new SpawnedObjectSheetKey(set, owner), new SpawnedObjectSheet(sheet));
                 if (frameVariations.Count > 0)
                     spawnedVariations.Add(new SpawnedObjectSheetKey(set, owner), frameVariations);
-                if (frameRots.Count > 0)
-                    spawnedRotPictures.Add(new SpawnedObjectSheetKey(set, owner), frameRots);
+                if (frameCorpses.Count > 0)
+                    spawnedCorpsePictures.Add(new SpawnedObjectSheetKey(set, owner), frameCorpses);
                 if (blank.Count > 0)
                     spawnedBlankPictures.Add(new SpawnedObjectSheetKey(set, owner), blank);
             }
         }
-        return new InstalledEnemySheets(new(sheets, variations, rotPictures, blankPictures),
-            new(spawned, spawnedVariations, spawnedRotPictures, spawnedBlankPictures));
+        return new InstalledEnemySheets(new(sheets, variations, corpsePictures, blankPictures),
+            new(spawned, spawnedVariations, spawnedCorpsePictures, spawnedBlankPictures));
     }
 
     /// <summary>
@@ -165,33 +160,31 @@ public static class EnemySheetFiles
             ? enemy : throw new InvalidDataException($"Enemy sheet manifest set {set} names unknown spawner {name}."))];
 
     /// <summary>
-    /// The names of the pictures a sheet holds of <paramref name="frame"/>: for a frame showing a corpse's rot, the frame
-    /// and its picture of each rot the corpse can show (#1406); for a frame encounter artwork sequences change, its picture
-    /// of each combination of the steps they show (#1513); else the frame itself.
+    /// The names of the pictures a sheet holds of <paramref name="frame"/>: for a frame encounter artwork sequences change,
+    /// its picture of each combination of the steps they show (#1513); else the frame itself.
     /// </summary>
-    private static IEnumerable<string> PictureNames(string frame, Dictionary<string, FrameArtworkVariation[]> frameVariations,
-        Dictionary<string, string> frameRots, IReadOnlyList<CorpseRotSimulation> corpses) =>
-        frameRots.TryGetValue(frame, out string? corpse)
-            ? corpses.Single(simulation => simulation.Flesh == corpse).PictureNames(frame)
-            : frameVariations.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? FrameVariationPictures.Names(frame, followed) : [frame];
+    private static IEnumerable<string> PictureNames(string frame, Dictionary<string, FrameArtworkVariation[]> frameVariations) =>
+        frameVariations.TryGetValue(frame, out FrameArtworkVariation[]? followed) ? FrameVariationPictures.Names(frame, followed) : [frame];
 
     /// <summary>
-    /// The kind of corpse the manifest says each frame of <paramref name="owner"/>'s sheet under <paramref name="set"/>
-    /// drawn over a corpse's rows shows the rot of, each of which must rot in the set's rooms.
+    /// Where the manifest says a rotting corpse lies in each picture of <paramref name="owner"/>'s sheet under
+    /// <paramref name="set"/> that shows one (#1531), each one of the sheet's frames' <paramref name="pictures"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">A frame shows the rot of a corpse that does not rot under the set.</exception>
-    private static Dictionary<string, string> RotFrames(Dictionary<string, Dictionary<string, Dictionary<string, string>>> manifest,
-        string set, string owner, IReadOnlyList<CorpseRotSimulation> corpses)
+    /// <exception cref="InvalidDataException">A named picture is no picture of the sheet's frames, or its layout spells no columns.</exception>
+    private static Dictionary<string, CorpsePictureLayout> CorpsePictures(
+        Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>> manifest, string set, string owner, HashSet<string> pictures)
     {
-        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, string>>? owners)
-            || !owners.TryGetValue(owner, out Dictionary<string, string>? frames))
-            return new Dictionary<string, string>(StringComparer.Ordinal);
-        foreach ((string frame, string corpse) in frames)
+        var layouts = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
+        if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, CorpsePictureDocument>>? owners)
+            || !owners.TryGetValue(owner, out Dictionary<string, CorpsePictureDocument>? named))
+            return layouts;
+        foreach ((string picture, CorpsePictureDocument document) in named)
         {
-            if (!corpses.Any(simulation => simulation.Flesh == corpse))
-                throw new InvalidDataException($"Enemy sheet manifest draws {set} {owner} frame {frame} with the rot of {corpse}, which does not rot under the set.");
+            if (!pictures.Contains(picture))
+                throw new InvalidDataException($"Enemy sheet manifest places a rotting corpse in {set} {owner} picture {picture}, which is no picture of its sheet's frames.");
+            layouts.Add(picture, document.Layout());
         }
-        return new Dictionary<string, string>(frames, StringComparer.Ordinal);
+        return layouts;
     }
 
     /// <summary>

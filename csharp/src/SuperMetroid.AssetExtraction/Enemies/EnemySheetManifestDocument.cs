@@ -31,19 +31,18 @@ internal sealed record EnemySheetManifestDocument
     public required Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>> SpawnedVariations { get; init; }
 
     /// <summary>
-    /// For each graphics set by name, then each enemy by definition name and each of its frames drawn over a rotting
-    /// corpse's rows by name, the name of the kind of corpse whose rot the frame shows (#1406). The enemy's sheet holds the
-    /// frame's picture of each rot that corpse can show at which it shows anything. A frame drawn over no corpse's rows is
-    /// absent.
+    /// For each graphics set by name, then each enemy by definition name and each of its frames that shows a rotting corpse
+    /// by name, where the corpse lies in the frame's pictures (#1531), which the game draws through the corpse's rows as its
+    /// rot leaves them. The enemy's sheet holds each such frame once. A frame that shows no rotting corpse is absent.
     /// </summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, string>>> RotPictures { get; init; }
+    public required Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>> CorpsePictures { get; init; }
 
-    /// <summary>The same for each set's spawned-object sheets, by the tile base in decimal in place of the enemy.</summary>
-    public required Dictionary<string, Dictionary<string, Dictionary<string, string>>> SpawnedRotPictures { get; init; }
+    /// <summary>The same for each set's spawned-object sheets, by owner in place of the enemy.</summary>
+    public required Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>> SpawnedCorpsePictures { get; init; }
 
     /// <summary>
     /// For each graphics set by name, then each enemy by definition name, the names of its frames' pictures in which every
-    /// character they read is blank (#1513), as the room's load, an encounter's artwork sequence or a corpse's rot leaves
+    /// character they read is blank (#1513), as the room's load or an encounter's artwork sequence leaves
     /// them: the frame shows nothing while it shows such a picture, so its sheet holds none and the frame draws nothing then.
     /// An enemy none of whose pictures shows nothing is absent.
     /// </summary>

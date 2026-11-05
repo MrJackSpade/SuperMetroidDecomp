@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core;
 
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// The dead Zoomer, Ripper and Skree corpses' staged art layouts (#1406): where each variant's characters are copied from
-/// the shared corpse sheet into work memory, and the columns its pixel movers walk. Only the extraction reads them.
+/// the shared corpse sheet into work memory, and the columns its pixel movers walk. Only the character rot oracle reads them (#1531).
 /// </summary>
 [EncodingOwner("bank-$A9 Tourian corpse work-memory layout")]
 internal static class DeadTourianCorpseStagingDefinitions

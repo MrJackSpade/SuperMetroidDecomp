@@ -43,16 +43,13 @@ internal static class EncounterArtworkUploads
         [.. Ensure.NotNull(set).Records.ToArray().Select(record => record.DefinitionId).Where(ByEncounter.ContainsKey)
             .Select(enemy => ByEncounter[enemy]).Distinct().Order()];
 
-    /// <summary>
-    /// What each step of <paramref name="sequence"/> copies, resolved against <paramref name="installed"/>. Mother Brain's
-    /// corpse rot is its corpse's simulation's, not installed artwork's.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The installed artwork lacks a step's characters, or the sequence is the corpse rot.</exception>
+    /// <summary>What each step of <paramref name="sequence"/> copies, resolved against <paramref name="installed"/>.</summary>
+    /// <exception cref="InvalidDataException">The installed artwork lacks a step's characters.</exception>
     internal static IReadOnlyList<IReadOnlyList<EncounterArtworkUpload>> Steps(EncounterArtworkSequence sequence, IInstalledArtworkContent installed) =>
         [.. Enumerable.Range(0, StepCount(sequence)).Select(step => Step(sequence, step, installed))];
 
     /// <summary>The steps of <paramref name="sequence"/>.</summary>
-    /// <exception cref="InvalidDataException">The sequence is the corpse rot, whose steps are its corpse's simulation's.</exception>
+    /// <exception cref="InvalidDataException">The sequence is not one the game plays.</exception>
     internal static int StepCount(EncounterArtworkSequence sequence) => sequence switch
     {
         EncounterArtworkSequence.DraygonEvirs or EncounterArtworkSequence.CeresDoor => 1,
@@ -62,8 +59,6 @@ internal static class EncounterArtworkUploads
         EncounterArtworkSequence.GoldenTorizo => TorizoArtworkSwapDefinitions.GoldenSequence.Count,
         EncounterArtworkSequence.CeresEscapePages => CeresEscapePageDefinitions.ObjectPageCount,
         EncounterArtworkSequence.MotherBrainPages => MotherBrainSpritePageDefinitions.Sequence.Count,
-        EncounterArtworkSequence.MotherBrainCorpseRot => throw new InvalidDataException(
-            "Mother Brain's corpse rot is pictured from her corpse's simulation, not from installed artwork."),
         _ => throw new InvalidDataException($"Undefined {nameof(EncounterArtworkSequence)} {sequence}."),
     };
 
@@ -94,8 +89,6 @@ internal static class EncounterArtworkUploads
                 Whole((Areas(installed).CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
                     CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))],
             EncounterArtworkSequence.MotherBrainPages => [MotherBrainPage(MotherBrainSpritePageDefinitions.Sequence[step], installed)],
-            EncounterArtworkSequence.MotherBrainCorpseRot => throw new InvalidDataException(
-                "Mother Brain's corpse rot is pictured from her corpse's simulation, not from installed artwork."),
             _ => throw new InvalidDataException($"Undefined {nameof(EncounterArtworkSequence)} {sequence}."),
         };
     }

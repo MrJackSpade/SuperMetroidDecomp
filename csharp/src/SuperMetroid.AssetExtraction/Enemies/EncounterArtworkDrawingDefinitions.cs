@@ -20,8 +20,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal static class EncounterArtworkDrawingDefinitions
 {
-    /// <summary>The frames Mother Brain's dead brain shows as a corpse, the only frames her corpse's rot changes.</summary>
-    private static readonly EnemyFrameId[] MotherBrainCorpseFrames =
+    /// <summary>The frames Mother Brain's dead brain shows as a corpse, the only frames the game shows her corpse's rot in.</summary>
+    internal static readonly EnemyFrameId[] MotherBrainCorpseFrames =
     [
         EnemyFrameId.MotherBrainHead6,
         EnemyFrameId.MotherBrainHead7,
@@ -176,13 +176,6 @@ internal static class EncounterArtworkDrawingDefinitions
             Projectiles = [.. MiscDustProjectileFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
-    /// <summary>Mother Brain's corpse, which rots once it has tipped over, every rot step drawn over it.</summary>
-    private static readonly EncounterArtworkDrawing MotherBrainCorpse =
-        new(EncounterArtworkSequence.MotherBrainCorpseRot, DrawnBeforeFirstStep: true, [new(0, null)])
-        {
-            Frames = MotherBrainCorpseFrames,
-        };
-
     /// <summary>Every entry, by sequence.</summary>
     internal static IReadOnlyList<EncounterArtworkDrawing> All { get; } =
     [
@@ -202,6 +195,5 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainEffects,
         MotherBrainHandBeam,
         MotherBrainDust,
-        MotherBrainCorpse,
     ];
 }

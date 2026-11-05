@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -15,14 +16,14 @@ internal static class DeadTorizoCorpseDefinitionsVerification
     /// <summary>The bank-$A9 address of the dead Torizo's configuration record.</summary>
     private const ushort ConfigurationPointer = 0xdd58;
 
-    /// <summary>Compares the decoded native configuration with the definition, the extraction's row movers and the slot state.</summary>
+    /// <summary>Compares the decoded native configuration with the definition, the character rot oracle's row movers and the slot state.</summary>
     internal static void VerifyDeadTorizoCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer);
         AssertEqual(DeadTorizoCorpseDefinitions.RowCount, configuration.RowCount, "dead Torizo corpse height");
         AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Torizo), configuration.RowLayoutTable,
             "dead Torizo configuration names the Torizo tile-row layout production copies with");
-        AssertEqual(configuration.Wrap, CorpseRowGeometry.Torizo.Wrap, "dead Torizo wrap is the extraction's row movers'");
+        AssertEqual(configuration.Wrap, CorpseRowGeometry.Torizo.Wrap, "dead Torizo wrap is the character rot oracle's row movers'");
         AssertEqual<RottingCorpseKind?>(null, configuration.Kind,
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 

@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>A row of characters a rotting corpse uploads.</summary>
 /// <param name="Index">The row's place among the corpse's rows.</param>

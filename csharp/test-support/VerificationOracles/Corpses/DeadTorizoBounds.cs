@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>The tile bounds of the dead Torizo's stationary composition in its source sheet, which crop its staged corpse.</summary>
 /// <param name="Left">The left edge.</param>

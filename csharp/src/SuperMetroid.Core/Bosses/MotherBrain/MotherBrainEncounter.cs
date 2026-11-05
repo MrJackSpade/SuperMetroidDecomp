@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -29,6 +30,12 @@ internal sealed class MotherBrainEncounter
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
 
+    /// <summary>
+    /// The rows Mother Brain's corpse shows as its rot has left them, which her corpse's frame is drawn through (#1531);
+    /// none before the game first shows them rotting.
+    /// </summary>
+    internal CorpseRotRows? ShownCorpseRows => MotherBrain?.RainbowBeamSequence?.ThirdPhaseDeath.CorpseRotting.Shown;
+
     /// <summary>The colours the loaded encounter has laid (#1512).</summary>
     /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
     internal MotherBrainColours Colours => (MotherBrain ?? throw new InvalidOperationException(
@@ -48,12 +55,6 @@ internal sealed class MotherBrainEncounter
     /// </summary>
     internal void ShowSpritePage(MotherBrainSpritePage page) =>
         _presentation.ShowArtwork(EncounterArtworkSequence.MotherBrainPages, MotherBrainSpritePageDefinitions.Sequence, page);
-
-    /// <summary>
-    /// Shows the rotting corpse as rot step <paramref name="step"/> left it (#1392, #1406, #1513): the corpse's sheet pictures
-    /// each step, so the room records only the step it shows.
-    /// </summary>
-    internal void ShowCorpseRotStep(int step) => _presentation.ShowArtwork(EncounterArtworkSequence.MotherBrainCorpseRot, step);
 
     /// <summary>
     /// Requests a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the

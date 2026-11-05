@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies;
@@ -10,10 +11,10 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class NativeEnemyStaging
 {
     /// <summary>Group A, <c>$7E:2000-$2FFF</c>.</summary>
-    internal readonly VramStagingBuffer Bg2 = new(EnemySourceDefinitions.EnemyBg2StagingBytes);
+    internal readonly VramStagingBuffer Bg2 = new(CorpseWorkMemory.EnemyBg2StagingBytes);
 
     /// <summary>Group B, <c>$7E:9000-$97FF</c>.</summary>
-    internal readonly VramStagingBuffer RottingHeap = new(EnemySourceDefinitions.CorpseRottingHeapBytes);
+    internal readonly VramStagingBuffer RottingHeap = new(CorpseWorkMemory.CorpseRottingHeapBytes);
 
     /// <summary>The 4bpp corpse tile surface the dead-monster and Dead Torizo rotting routines move pixel rows in.</summary>
     public StagingByteView CorpseTiles => Bg2.ByteView(0, Bg2.Length);
@@ -24,5 +25,5 @@ internal sealed class NativeEnemyStaging
 
     /// <summary>The Dead Torizo sand strips that <c>$A9:D69C</c> rewrites line by line.</summary>
     public StagingByteView DeadTorizoSand =>
-        RottingHeap.ByteView(EnemySourceDefinitions.DeadTorizoSandOffset, EnemySourceDefinitions.DeadTorizoSandBytes);
+        RottingHeap.ByteView(CorpseWorkMemory.DeadTorizoSandOffset, CorpseWorkMemory.DeadTorizoSandBytes);
 }

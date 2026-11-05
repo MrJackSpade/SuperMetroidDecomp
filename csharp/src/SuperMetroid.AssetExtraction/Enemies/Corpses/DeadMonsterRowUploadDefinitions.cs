@@ -6,7 +6,8 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
 /// The bank-$A9 row upload lists of the dead monsters (#1406): the rows a dead Sidehopper, Zoomer, Ripper or Skree uploads
-/// from its staged characters after each rot step. Only the extraction reads them, to picture the steps.
+/// from its staged characters after each rot step. Only the extraction reads them, to find the characters the corpse's rows
+/// show in (#1531).
 /// </summary>
 [EncodingOwner("bank-$A9 dead-monster row upload lists")]
 internal static class DeadMonsterRowUploadDefinitions

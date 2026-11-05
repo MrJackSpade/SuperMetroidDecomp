@@ -809,7 +809,7 @@ internal static class LookupStream2Verification
             }, Spritemaps = display });
         ReadOnlyMemory<byte> atlas = artwork.TilesOf(CorpseSheetDefinitions.DeadTorizoSheet);
         AssertEqual(CorpseSheetDefinitions.DeadTorizoSheetByteCount, atlas.Length, "Dead Torizo installed art resolves its corpse sheet");
-        // The extraction stages the corpse as the cartridge does and rots it to picture each step (#1392).
+        // The character rot oracle stages the corpse as the cartridge does and rots it to picture each step (#1392).
         CorpseStaging corpseTiles = CorpseStaging.Torizo(atlas.Span);
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
@@ -846,7 +846,7 @@ internal static class LookupStream2Verification
 
         void Compare(byte[] bytes, string context)
         {
-            byte[] staged = corpseTiles.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging, bytes.Length, 0));
+            byte[] staged = corpseTiles.Upload(new CorpseRotRow(0, CorpseWorkMemory.EnemyBg2Staging, bytes.Length, 0));
             for (int index = 0; index < bytes.Length; index++)
                 AssertEqual(bytes[index], staged[index], context);
         }

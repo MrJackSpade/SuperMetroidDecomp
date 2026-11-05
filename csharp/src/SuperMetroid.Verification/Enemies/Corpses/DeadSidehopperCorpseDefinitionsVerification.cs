@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -40,7 +41,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     }
 
     /// <summary>
-    /// Compares one corpse record, decoded by the codec, with the typed definition and the extraction's row movers: the
+    /// Compares one corpse record, decoded by the codec, with the typed definition and the character rot oracle's row movers: the
     /// kind whose upload list it names, the corpse's height, its row layout and its wrap.
     /// </summary>
     private static void VerifyDefinition(
@@ -56,7 +57,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Sidehopper), configuration.RowLayoutTable,
             $"{context} names the sidehopper tile-row layout production copies with");
         AssertEqual(configuration.Wrap, CorpseRowGeometry.Sidehopper(graphicsVariant).Wrap,
-            $"{context} wrap is the extraction's row movers'");
+            $"{context} wrap is the character rot oracle's row movers'");
     }
 
     /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>

@@ -27,10 +27,6 @@ internal static class SpawnedObjectSheetComposer
     /// </summary>
     private const int ProjectilePageCharacters = 256;
 
-    /// <summary>The frames rotting corpses' encounters draw themselves, which show the rot: the dead Torizo's hook.</summary>
-    private static readonly HashSet<EnemyFrameId> RotEncounterFrames =
-        [.. EncounterFrameDefinitions.ByEnemy.Where(encounter => CorpseRotSimulation.Rots(encounter.Key)).SelectMany(encounter => encounter.Value)];
-
     /// <summary>
     /// The spawned-object sheets of a set laid out as <paramref name="layout"/>, drawing <paramref name="drawn"/>, each enemy
     /// in the row <paramref name="rowOf"/> gives: the shared sheet, holding every spawner's objects at character zero with
@@ -144,7 +140,7 @@ internal static class SpawnedObjectSheetComposer
                     : throw new InvalidDataException($"Encounter frame {frame} has no installed composition."), objectBase,
                     EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
                         : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
-                Drawn(FrameDrawings.Of(frame)), RotEncounterFrames.Contains(frame))))];
+                Drawn(FrameDrawings.Of(frame)), RottingCorpseCells.ShowsInEncounter(frame))))];
         // Each of the sheet's spawners whose encounter sets colours leaves them in the rows they write; a frame family
         // always drawn in one colouring is coloured in it; and each frame an enemy spawns onto the shared sheet with the
         // room's graphics is coloured over the rows it inks in that spawner's first colouring (the statue fragments and orbs
@@ -157,8 +153,7 @@ internal static class SpawnedObjectSheetComposer
                 Shades: [.. inkShades.DistinctBy(shade => shade.Shade)], RowShades: [.. rowShades.DistinctBy(shade => shade.Shade)]),
             frames.Where(pictures => pictures.Variations.Length > 0)
                 .ToDictionary(pictures => pictures.Name, pictures => pictures.Variations, StringComparer.Ordinal),
-            frames.Where(pictures => pictures.RotCorpse is not null)
-                .ToDictionary(pictures => pictures.Name, pictures => pictures.RotCorpse ?? string.Empty, StringComparer.Ordinal),
+            frames.SelectMany(pictures => pictures.Corpses).ToDictionary(corpse => corpse.Key, corpse => corpse.Value, StringComparer.Ordinal),
             frames.SelectMany(pictures => pictures.Blank).ToHashSet(StringComparer.Ordinal));
     }
 

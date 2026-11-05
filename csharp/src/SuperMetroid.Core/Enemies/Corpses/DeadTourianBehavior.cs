@@ -95,7 +95,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Shading = TourianCorpseShades.InDrainedColours;
         state.Function = DeadTourianCorpseFunction.Waiting;
         state.Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
-        _deadMonsters.BeginRot(state.Flesh);
+        _deadMonsters.BeginRows(state.Flesh, definition.RowCount);
     }
 
     /// <summary>Runs the shared corpse behaviour: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
@@ -144,23 +144,24 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTourianCorpseRotting(slot);
     }
 
-    /// <summary>Runs one rot call and selects the step as the rot its kind shows, entering inert AI when it completes.</summary>
+    /// <summary>
+    /// Runs one rot call, moving its kind's rows as the call moves them (#1531), entering inert AI when it completes.
+    /// </summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state)
     {
         state.ProcessCallCount++;
-        bool stillRotting = state.Rot.Step(_ => FinishDeadTourianCorpseRow(slot, state));
+        bool stillRotting = state.Rot.Step(
+            (row, operation) => _deadMonsters.MoveRow(state.Flesh, row, operation),
+            _ => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadTourianCorpseFunction.Finished;
-        _deadMonsters.ShowRotStep(state.Flesh);
     }
 
-
-
-    /// <summary>The rot <paramref name="slot"/>'s frames show: its kind's (#1406).</summary>
-    internal CorpseRotView ShownDeadTourianRot(RoomEnemySlot slot) =>
-        _deadMonsters.Shown(RequireDeadTourianCorpseState(slot).Flesh);
+    /// <summary>The rows <paramref name="slot"/>'s frames show: its kind's, as its corpses' rot calls have left them (#1531).</summary>
+    internal CorpseRotRows ShownDeadTourianRows(RoomEnemySlot slot) =>
+        _deadMonsters.ShownRows(RequireDeadTourianCorpseState(slot).Flesh);
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// The work memory a rotting corpse stages its characters in (#1392): the room's enemy BG2 buffer, which other rooms leave
@@ -15,10 +15,10 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 internal sealed class CorpseStaging
 {
     /// <summary>The enemy BG2 buffer the Tourian corpses and the dead Torizo stage in.</summary>
-    private readonly StagedBytes bg2 = new(EnemySourceDefinitions.EnemyBg2Staging, EnemySourceDefinitions.EnemyBg2StagingBytes);
+    private readonly StagedBytes bg2 = new(CorpseWorkMemory.EnemyBg2Staging, CorpseWorkMemory.EnemyBg2StagingBytes);
 
     /// <summary>The rotting heap Mother Brain's corpse stages in and the dead Torizo's sand falls into.</summary>
-    private readonly StagedBytes heap = new(EnemySourceDefinitions.CorpseRottingHeap, EnemySourceDefinitions.CorpseRottingHeapBytes);
+    private readonly StagedBytes heap = new(CorpseWorkMemory.CorpseRottingHeap, CorpseWorkMemory.CorpseRottingHeapBytes);
 
     /// <summary>Bytes in one character.</summary>
     private const int TileBytes = 32;
@@ -48,8 +48,8 @@ internal sealed class CorpseStaging
     internal static CorpseStaging Torizo(ReadOnlySpan<byte> atlas)
     {
         var staged = new CorpseStaging();
-        staged.bg2.Clear(0, EnemySourceDefinitions.EnemyBg2StagingBytes);
-        staged.heap.Clear(EnemySourceDefinitions.DeadTorizoSandOffset, EnemySourceDefinitions.DeadTorizoSandBytes);
+        staged.bg2.Clear(0, CorpseWorkMemory.EnemyBg2StagingBytes);
+        staged.heap.Clear(CorpseWorkMemory.DeadTorizoSandOffset, CorpseWorkMemory.DeadTorizoSandBytes);
         for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
             staged.Copy(atlas, DeadTorizoGeometryDefinitions.InitialCopy(row));
         return staged;
@@ -60,8 +60,8 @@ internal sealed class CorpseStaging
     {
         var staged = new CorpseStaging();
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-            staged.heap.Copy(atlas, MotherBrainCorpseSheet.InitialCopyOffset(row),
-                row * MotherBrainCorpseSheet.RowBytes, MotherBrainCorpseSheet.InitialCopyLength(row));
+            staged.heap.Copy(atlas, MotherBrainCorpseStaging.InitialCopyOffset(row),
+                row * MotherBrainCorpseStaging.RowBytes, MotherBrainCorpseStaging.InitialCopyLength(row));
         return staged;
     }
 
@@ -103,7 +103,7 @@ internal sealed class CorpseStaging
     /// <summary>Copies the first bitplane word of eighteen spaced rows of sand line <paramref name="line"/> into the sand strips.</summary>
     internal void CopySandLine(ReadOnlySpan<byte> atlas, int line)
     {
-        int destination = (EnemySourceDefinitions.DeadTorizoSandOffset + CorpseStagingGeometryDefinitions.SandDestination(line)) / 2;
+        int destination = (CorpseWorkMemory.DeadTorizoSandOffset + CorpseStagingGeometryDefinitions.SandDestination(line)) / 2;
         int source = CorpseStagingGeometryDefinitions.SandSource(line);
         // Eighteen tile rows are sixteen bytes apart in both the source sheet and the strips; only their first word changes.
         for (int row = 0; row < 18; row++)

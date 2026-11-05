@@ -7,11 +7,4 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <param name="Row">The corpse row, from the top.</param>
 /// <param name="FirstColumn">The first column of the right-hand corpse frame the part shows.</param>
 /// <param name="ColumnCount">The columns it shows.</param>
-public readonly record struct MotherBrainCorpseRotRow(int Row, int FirstColumn, int ColumnCount)
-{
-    /// <summary>Where the part begins in the corpse's rotting characters, which hold the rows one after another.</summary>
-    public int RottingOffset => Row * MotherBrainCorpseSheet.RowBytes + FirstColumn * MotherBrainCorpseSheet.TileBytes;
-
-    /// <summary>The part's bytes.</summary>
-    public int ByteCount => ColumnCount * MotherBrainCorpseSheet.TileBytes;
-}
+public readonly record struct MotherBrainCorpseRotRow(int Row, int FirstColumn, int ColumnCount);

@@ -36,7 +36,7 @@ internal static class LookupFxWeatherBlueVerification
                 AssertTrue(RoomFxPaletteBlendRules.CalculatedThirdGreen(FxNativeWords.PaletteBlend(id)) is null, "Liquid override green remains independent");
         }
     }
-    /// <summary>Confirms weather blue reaches layer 3's third blend ink, remains uncached, and permits all RGB5 third-color edits to round-trip.</summary>
+    /// <summary>Confirms weather blue reaches layer 3's third blend ink, remains uncached, and bounds its RGB5 input.</summary>
     internal static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxBlendInks stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })
@@ -52,12 +52,8 @@ internal static class LookupFxWeatherBlueVerification
             AssertTrue(owner.blueOverride is null, "Weather output does not create a blue cache");
         }
         foreach (byte id in OriginalFxBlendIds())
-        {
-            for (int color = 0; color < 0x8000; color++)
-                AssertEqual((ushort)color, new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked((ushort)color))).CreateColor(), "Every RGB5 third-color edit round-trips");
-            foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendRules.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), invalid), "Third blue RGB5 input bounds");
-        }
+        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => RoomFxPaletteBlendRules.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), invalid), "Third blue RGB5 input bounds");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;

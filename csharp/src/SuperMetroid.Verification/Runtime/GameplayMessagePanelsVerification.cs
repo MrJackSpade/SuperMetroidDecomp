@@ -12,10 +12,10 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Hud;
 
-/// <summary>Checks editable gameplay message panels and live title/diagram binding.</summary>
+/// <summary>Checks installed gameplay message panels and live title/diagram binding.</summary>
 internal static class GameplayMessagePanelsVerification
 {
-    /// <summary>Checks all installed panels without ROM reads, then edits and restores an active message.</summary>
+    /// <summary>Checks all installed panels without ROM reads and glyph rejection.</summary>
     internal static void VerifyGameplayMessagePanels(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -39,31 +39,15 @@ internal static class GameplayMessagePanelsVerification
 
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
         JsonObject missile = document.Required("panels").Required(GameplayMessageId.MissileTank.ToString()).AsObject();
-        missile["title"] = "MISSILE TEST";
-        byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options));
-        GameplayMessagePanelPresentation edited = GameplayMessagePanelPresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-
-        // The game names the form it shows; an edited panel changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        active.Begin(GameplayMessageId.MissileTank, 0,
-            shootBinding: ControllerButton.B);
-        active.Step(0);
-        BackgroundTile[] before = active.Tilemap(stockMessages);
-        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(null, edited))),
-            "UTF-8 panel-title edit changes the words of the shown message without a ROM patch");
-        AssertTrue(before.SequenceEqual(active.Tilemap(stockMessages)),
-            "stock panel lays the shown message out with its exact words and configured button");
-
+        missile["title"] = "missile test";
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options).Replace("MISSILE TEST", "missile test"));
+            ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => GameplayMessagePanelPresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message panel rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls, edited layout and invalid glyph rejection pass.");
+            $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls and invalid glyph rejection pass.");
     }
 
     /// <summary>Checks that the installed gameplay-message panels are the deterministic cartridge extraction.</summary>

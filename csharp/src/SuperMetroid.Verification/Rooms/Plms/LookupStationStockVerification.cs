@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>Checks map, save, and recharge station visual frames against native PLM draw lists.</summary>
 internal static class LookupStationStockVerification
 {
-    /// <summary>Compares twenty stock frames and selected hashes, then checks copied edits and invalid entry rejection.</summary>
+    /// <summary>Compares twenty stock frames and selected hashes, then checks invalid entry rejection.</summary>
     internal static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomPlmStationVisuals installed)
     {

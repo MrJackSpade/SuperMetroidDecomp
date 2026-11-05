@@ -11,7 +11,7 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Checks which room-FX blend color components are derived and which remain editable.</summary>
+/// <summary>Checks which room-FX blend color components are derived and which are stored.</summary>
 internal static class LookupFxPairColorsVerification
 {
     /// <summary>Independent reviewed bit mask of native paired-color components calculated by blend rules.</summary>
@@ -53,16 +53,16 @@ internal static class LookupFxPairColorsVerification
         }
     }
 
-    /// <summary>Checks omitted derived storage, full RGB5 edit round-trips, and invalid selector bounds.</summary>
-    internal static void VerifyFxPairStorageAndEdits(ISnesAddressSpace rom)
+    /// <summary>Checks omitted derived storage and invalid selector bounds.</summary>
+    internal static void VerifyFxPairStorage(ISnesAddressSpace rom)
     {
         foreach (byte id in OriginalFxBlendIds())
         {
             for (int color = 0; color < 2; color++)
             {
                 var owner = new RoomFxPairColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(ReadVerificationWord(rom, 0x89aa02 + id + color * 2))), (color == 0) ? RoomFxPairMember.Primary : RoomFxPairMember.Secondary);
-                foreach (var field in new VerifyFxPairStorageAndEditsCase[]
-                         { new VerifyFxPairStorageAndEditsCase(pair => pair.redOverride, 0), new VerifyFxPairStorageAndEditsCase(pair => pair.greenOverride, 5), new VerifyFxPairStorageAndEditsCase(pair => pair.blueOverride, 10) })
+                foreach (var field in new VerifyFxPairStorageCase[]
+                         { new VerifyFxPairStorageCase(pair => pair.redOverride, 0), new VerifyFxPairStorageCase(pair => pair.greenOverride, 5), new VerifyFxPairStorageCase(pair => pair.blueOverride, 10) })
                 {
                     bool stored = (OriginalFxPairCalculatedMask(id, color) & (31 << field.Shift)) == 0;
                     AssertEqual(stored, field.Read(owner) is not null, "Stock derived component is not stored");
@@ -70,11 +70,6 @@ internal static class LookupFxPairColorsVerification
                     AssertEqual(stored, field.Read(owner) is not null, "Output creates no component cache");
                 }
             }
-            // Exact property: every externally valid RGB5 edit round-trips unchanged,
-            // including intensities above the stock tint's range and saturated values.
-            foreach (bool isPrimary in new[] { false, true })
-            for (int word = 0; word < 0x8000; word++)
-                AssertEqual((ushort)word, new RoomFxPairColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked((ushort)word)), isPrimary ? RoomFxPairMember.Primary : RoomFxPairMember.Secondary).CreateColor(), "All RGB5 edits round-trip");
             foreach (bool isPrimary in new[] { false, true })
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {

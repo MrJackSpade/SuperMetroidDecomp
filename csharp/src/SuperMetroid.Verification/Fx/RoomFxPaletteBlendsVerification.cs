@@ -47,11 +47,11 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyFxBlendBlackRed), () => VerifyFxBlendBlackRed(rom, catalog));
         Suite(nameof(VerifyFxBlendBlackGreen), () => VerifyFxBlendBlackGreen(rom, catalog));
         Suite(nameof(VerifyFxBlendBlackBlue), () => VerifyFxBlendBlackBlue(rom, catalog));
-        Suite(nameof(VerifyFxBlendBlackStorageAndEdits), () => VerifyFxBlendBlackStorageAndEdits(catalog));
+        Suite(nameof(VerifyFxBlendBlackStorage), () => VerifyFxBlendBlackStorage(catalog));
         Suite(nameof(VerifyFxPairRed), () => VerifyFxPairRed(rom, catalog));
         Suite(nameof(VerifyFxPairGreen), () => VerifyFxPairGreen(rom, catalog));
         Suite(nameof(VerifyFxPairBlue), () => VerifyFxPairBlue(rom, catalog));
-        Suite(nameof(VerifyFxPairStorageAndEdits), () => VerifyFxPairStorageAndEdits(rom));
+        Suite(nameof(VerifyFxPairStorage), () => VerifyFxPairStorage(rom));
         Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
         Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));

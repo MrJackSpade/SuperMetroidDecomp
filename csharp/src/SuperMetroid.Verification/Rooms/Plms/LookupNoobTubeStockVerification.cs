@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>Checks stock and installed Noob Tube visual words against native PLM draw lists.</summary>
 internal static class LookupNoobTubeStockVerification
 {
-    /// <summary>Compares seven flattened frame shapes and identities, then checks copied edits and rejection of invalid visual entries.</summary>
+    /// <summary>Compares seven flattened frame shapes and identities, then checks rejection of invalid visual entries.</summary>
     internal static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomPlmNoobTubeVisuals installed)
     {

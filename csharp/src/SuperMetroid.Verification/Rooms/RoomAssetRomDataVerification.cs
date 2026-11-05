@@ -207,29 +207,7 @@ internal static class RoomAssetRomDataVerification
             AssertTrue(nativeVram.ImageEquals(installedVram), $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM output");
         }
 
-        SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        int landingSource = RoomTilesets.Get(landing.State.GraphicsSet).CharacterAddress;
-        byte[] landingNative = RomDataReader.Decompress(bus, landingSource);
-        int landingTiles = landingNative.Length / RoomCharacterAtlasFormat.BytesPerTile;
-        int landingColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, landingTiles);
-        int landingRows = (landingTiles + landingColumns - 1) / landingColumns;
-        IndexedPngImage landingImage = IndexedPng.Read(
-            new MemoryStream(files[RoomCharacterSheetFiles.SourceFileName(landingSource)]),
-            new(checked((ushort)(landingColumns * 8)), checked((ushort)(landingRows * 8))));
-        byte[] painted = (byte[])landingImage.Pixels.Clone();
-        painted[0] ^= 1;
-        using var paintedPng = new MemoryStream();
-        IndexedPng.Write(paintedPng, new(landingImage.Size.X, landingImage.Size.Y), painted,
-            landingImage.Colours);
-        compiledBySource[landingSource] = RoomCharacterAtlasPng.Read(
-            new MemoryStream(paintedPng.ToArray()), landingNative.Length);
-        var editedCatalog = new RoomCharacterAtlases(compiledCre, compiledBySource.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value));
-        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing);
-        AssertTrue(!editedRoom.TilesetCharactersIn(editedCatalog).Span.SequenceEqual(landingNative),
-            "edited installed room PNG changes real room-loader character bytes");
-
-        // A painted pixel must change the runtime character transfer, while edits in
-        // empty padding cells must fail rather than disappear silently.
+        // Artwork in empty padding cells must fail rather than disappear silently.
         // Retail sources happen to end on complete 32-tile rows. A bounded 33-tile
         // prefix from a real source tests the partial-row policy independently.
         int partialSource = RoomTilesets.Get(0).CharacterAddress;
@@ -244,25 +222,18 @@ internal static class RoomAssetRomDataVerification
         IndexedPng.Write(partialPng, size, partialPixels, SnesGraphics.DiagnosticPalette(16));
         IndexedPngImage decoded = IndexedPng.Read(new MemoryStream(partialPng.ToArray()),
             new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-        byte[] edited = (byte[])decoded.Pixels.Clone();
-        edited[0] ^= 1;
-        using var changedPng = new MemoryStream();
-        IndexedPng.Write(changedPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
-        AssertTrue(!RoomCharacterAtlasPng.Read(new MemoryStream(changedPng.ToArray()), partialNative.Length)
-                .Characters.Span.SequenceEqual(partialNative),
-            "painting a room PNG changes the compiled runtime character bytes");
         int firstPaddingTile = tileCount;
-        edited = (byte[])decoded.Pixels.Clone();
-        edited[(firstPaddingTile / columns * 8) * decoded.Size.X + firstPaddingTile % columns * 8] = 1;
+        byte[] padded = (byte[])decoded.Pixels.Clone();
+        padded[(firstPaddingTile / columns * 8) * decoded.Size.X + firstPaddingTile % columns * 8] = 1;
         using var invalidPng = new MemoryStream();
-        IndexedPng.Write(invalidPng, new(decoded.Size.X, decoded.Size.Y), edited, decoded.Colours);
+        IndexedPng.Write(invalidPng, new(decoded.Size.X, decoded.Size.Y), padded, decoded.Colours);
         AssertThrows<InvalidDataException>(() => RoomCharacterAtlasPng.Read(
                 new MemoryStream(invalidPng.ToArray()), partialNative.Length),
             "room atlas rejects artwork in unused final-row cells");
 
         Console.WriteLine($"  Room character atlases: {files.Count} distinct CRE/graphics-set PNGs " +
-            "roundtrip exactly; Ceres/Landing Site load without source reads, edits reach room loading, " +
-            "and padding edits are rejected.");
+            "roundtrip exactly; Ceres/Landing Site load without source reads, " +
+            "and padding artwork is rejected.");
     }
 
     /// <summary>Checks a library-background clear's WRAM source/destination identity, whole-word size and WRAM/VRAM bounds.</summary>

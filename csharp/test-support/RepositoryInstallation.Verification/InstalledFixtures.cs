@@ -147,6 +147,20 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets> enemySheets =
         Shared<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>("enemy sheets", () => RepositoryInstallation.Installation.LoadEnemySheets());
 
+    /// <summary>
+    /// The installation's pre-coloured sprite sheets with <paramref name="reloaded"/> loaded again from its installed files:
+    /// a distinct sheet of the same content, so a check that rebinding the sheets reaches a draw can tell the rebound sheet
+    /// from the bound one without loading every sheet again (#1532).
+    /// </summary>
+    internal static InstalledSpriteSheets SpriteSheetsReloading(SpriteSheetId reloaded)
+    {
+        var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, SpriteSheets.Get);
+        sheets[reloaded] = SpriteSheetStore.Open(RepositoryInstallation.Installation.SpriteSheetDirectory,
+                SpriteSheetFiles.ManifestFileName, SpriteSheetDefinitions.Sheets.Count)
+            .Read(SpriteSheetDefinitions.FileNames[reloaded]);
+        return new InstalledSpriteSheets(sheets);
+    }
+
     /// <summary>Backing loader for <see cref="SpriteSheets"/>.</summary>
     private static readonly Lazy<InstalledSpriteSheets> spriteSheets = Shared<InstalledSpriteSheets>("sprite sheets", () => RepositoryInstallation.Installation.LoadSpriteSheets());
 

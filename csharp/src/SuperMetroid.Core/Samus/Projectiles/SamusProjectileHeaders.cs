@@ -5,10 +5,15 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The program each projectile header starts.</summary>
 internal static class SamusProjectileHeaders
 {
-    /// <summary>The program <paramref name="header"/>'s list field <paramref name="direction"/> selects, or null for no list.</summary>
-    internal static SamusProjectileProgram? Program(SamusProjectileHeader header, int direction)
-    {
-        ProjectileHeaderLayout layout = header switch
+    /// <summary>
+    /// The programs <paramref name="header"/>'s list fields name, in direction order: every list a projectile started
+    /// from the header can begin with, whichever direction it is fired in.
+    /// </summary>
+    internal static IEnumerable<SamusProjectileProgram> Programs(SamusProjectileHeader header) =>
+        Layout(header).Fields.OfType<SamusProjectileProgram>();
+
+    /// <summary><paramref name="header"/>'s list fields.</summary>
+    private static ProjectileHeaderLayout Layout(SamusProjectileHeader header) => header switch
         {
         // Power
         SamusProjectileHeader.UnchargedPower => new ProjectileHeaderLayout([P.PowerUpFacingRight, P.PowerUpRight, P.PowerRight, P.PowerDownRight, P.PowerDownFacingRight, P.PowerDownFacingRight, P.PowerDownLeft, P.PowerLeft, P.PowerUpLeft, P.PowerUpFacingRight], 0b0000000000),
@@ -92,6 +97,11 @@ internal static class SamusProjectileHeaders
         SamusProjectileHeader.ShinesparkEcho => new ProjectileHeaderLayout([P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight, P.ShinesparkEchoUpFacingRight], 0b0000000000),
             _ => throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header."),
         };
+
+    /// <summary>The program <paramref name="header"/>'s list field <paramref name="direction"/> selects, or null for no list.</summary>
+    internal static SamusProjectileProgram? Program(SamusProjectileHeader header, int direction)
+    {
+        ProjectileHeaderLayout layout = Layout(header);
         if ((uint)direction >= layout.Fields.Length)
             throw new ArgumentOutOfRangeException(nameof(direction), direction, "A projectile header holds ten list fields.");
         return layout.Fields[direction] is { } program ? program

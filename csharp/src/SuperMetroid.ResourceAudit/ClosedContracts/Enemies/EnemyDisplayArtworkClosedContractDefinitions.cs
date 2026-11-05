@@ -4,8 +4,8 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 internal static class EnemyDisplayArtworkClosedContractDefinitions
 {
     /// <summary>
-    /// Closed source sets for the import pipeline's installed ordinary spritemaps and the extended enemy frames' placements
-    /// gameplay draws (#1463).
+    /// Closed source sets for the import pipeline's installed ordinary spritemaps and the extended enemy frames' displays
+    /// gameplay draws (#1463, #1513).
     /// </summary>
     internal static readonly ClosedPresentationContract[] All =
     [
@@ -23,11 +23,10 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemySpritemapDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/World/Artwork/EnemySpritemapFrameList.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCompositions.cs")]),
-        new("SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFramePlacementCatalog", "installed-extended-enemy-display-frames", ["TryGetDisplay"],
-            [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFramePlacementCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFramePlacementSelection.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFramePlacements.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedComponentPlacement.cs"),
+        new("SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameDisplayCatalog", "installed-extended-enemy-display-frames", ["TryGetDisplay"],
+            [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameDisplayCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameDisplaySelection.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameDisplays.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrameCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrameSelection.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrames.cs"),

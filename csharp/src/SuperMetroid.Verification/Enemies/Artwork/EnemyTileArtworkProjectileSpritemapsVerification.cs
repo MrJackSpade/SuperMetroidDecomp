@@ -437,7 +437,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 if (EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames.Any(manifest => manifest.OperandAddress == frame.OperandAddress))
                 {
                     EnemyProjectileFrameId shown = EnemyProjectileProgramFrameOperands.Frame(frame.OperandAddress);
-                    if (SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(shown))
+                    if (SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.Common.Any(common => common.Objects.Projectiles.Contains(shown)))
                     {
                         AssertTrue(DrawReferenceProgramFrame(artwork, frame.OperandAddress, bus)
                                 .LowTable.SequenceEqual(DrawSharedFrame(artwork,

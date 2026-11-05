@@ -95,8 +95,8 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
     public EnemySpritemapCatalog? Spritemaps { get; internal set; }
 
     /// <summary>
-    /// Installed extended frame compositions the sheet composer composes the components' pictures from; replacing them
-    /// replaces the placements gameplay reads with theirs.
+    /// Installed extended frame compositions the sheet composer composes the frames' whole pictures from; replacing them
+    /// replaces the displays gameplay reads with theirs.
     /// </summary>
     public EnemyExtendedFrameCatalog? ExtendedFrames
     {
@@ -104,7 +104,7 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
         internal set
         {
             field = value;
-            ExtendedFramePlacements = value?.Placements;
+            ExtendedFrameDisplays = value?.Displays;
         }
     }
 

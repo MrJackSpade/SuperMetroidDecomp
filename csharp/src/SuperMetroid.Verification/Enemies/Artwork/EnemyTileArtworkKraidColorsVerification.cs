@@ -370,7 +370,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 break;
             case KraidPaletteConsumer.InitialTargetLoad:
                 // His rocks draw in the import's shade of his initialization's colours, over the sprite row they draw in.
-                Lay(colours, BossSheetShades.SpawnedObjects(artwork.Bosses), KraidShades.Rocks, SpriteImage.SpriteColourCount);
+                Lay(colours, BossSheetShades.SpawnedObjects(artwork.Bosses, EnemyDefinitionId.Kraid), KraidShades.Rocks, SpriteImage.SpriteColourCount);
                 break;
             case KraidPaletteConsumer.BackdropFade:
                 // Step thirteen of the growth fade shows the import's shade of the fade's end: Kraid's colours exactly.

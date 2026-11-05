@@ -41,7 +41,7 @@ public static class BossBodySheetFiles
         store.WriteAll([.. sheets.Select(sheet => new NamedComposedSheet(BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet.Sheet))]);
         store.Finish(sourceCartridgeSha256);
         var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => sheet.Owner.ToString(), sheet => (SheetDocument?)new SheetDocument(
-            Document(sheet.Blank), sheet.Frames.ToDictionary(frame => frame.Key, frame => (PartDocument[]?)frame.Value.Select(Document).ToArray(), StringComparer.Ordinal)),
+            sheet.Blank is { } blank ? Document(blank) : null, sheet.Frames.ToDictionary(frame => frame.Key, frame => (PartDocument[]?)frame.Value.Select(Document).ToArray(), StringComparer.Ordinal)),
             StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
@@ -63,7 +63,7 @@ public static class BossBodySheetFiles
                 : throw new InvalidDataException($"Boss body manifest {manifestPath} names unknown boss {entry.Key}.");
             SheetDocument document = entry.Value ?? throw new InvalidDataException($"Boss body manifest {manifestPath} has no sheet for {owner}.");
             SpriteSheet sheet = store.Read(BossBodySheetComposer.SheetNameOf(owner));
-            return new BossBodySheet(owner, sheet, Part(sheet, document.Blank, manifestPath),
+            return new BossBodySheet(owner, sheet, document.Blank is null ? null : Part(sheet, document.Blank, manifestPath),
                 (document.Frames ?? throw new InvalidDataException($"Boss body manifest {manifestPath} lists no frames for {owner}."))
                     .Select(frame => new BossBodyFrame(frame.Key, [.. (frame.Value ?? []).Select(part => Part(sheet, part, manifestPath))])));
         }));
@@ -93,7 +93,7 @@ public static class BossBodySheetFiles
     private sealed record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
 
     /// <summary>One boss's frames.</summary>
-    /// <param name="Blank">The part the boss clears its layer with.</param>
+    /// <param name="Blank">The part the boss clears its layer with, or null when its blank shows nothing.</param>
     /// <param name="Frames">Each frame's parts, by frame name.</param>
     private sealed record SheetDocument(PartDocument? Blank, Dictionary<string, PartDocument[]?>? Frames);
 

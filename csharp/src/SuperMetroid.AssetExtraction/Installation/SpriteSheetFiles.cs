@@ -88,10 +88,13 @@ public static class SpriteSheetFiles
         // The ending sheets are named from the stock ending compositions installed beside them.
         var ending = new Lazy<EndingObjectArtwork>(() => EndingObjectArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
+        // The projectile sheets are named from the frame bindings installed beside them.
+        var projectiles = new Lazy<InstalledProjectileFrameBindings>(() => ProjectileFrameBindingFile.LoadInstalled(
+            Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName)));
         foreach (SpriteSheetId sheet in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet loaded = store.Read(SpriteSheetDefinitions.FileNames[sheet]);
-            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro, ending)))
+            if (!loaded.HoldsExactly(FrameNames(sheet, body, maps, intro, ending, projectiles)))
                 throw new InvalidDataException($"Sprite sheet {FrameFile(sheet)} does not hold exactly the frames its family draws.");
             sheets.Add(sheet, loaded);
         }
@@ -99,7 +102,7 @@ public static class SpriteSheetFiles
         // Every frontend floor picture is the whole floor (#1467).
         foreach (SpriteSheetId sheet in FrontendFloorSheetComposer.Sheets)
         {
-            foreach (string frame in FrameNames(sheet, body, maps, intro, ending))
+            foreach (string frame in FrameNames(sheet, body, maps, intro, ending, projectiles))
                 _ = FloorShots.Of(installed, sheet, frame);
         }
         return installed;
@@ -112,8 +115,10 @@ public static class SpriteSheetFiles
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
+    /// <param name="projectiles">The projectile frame bindings, whose compositions name the projectile sheets' frames.</param>
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
-        Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
+        Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending,
+        Lazy<InstalledProjectileFrameBindings> projectiles) => sheet switch
     {
         SpriteSheetId.IntroScenePictures => IntroScenePictureSheetComposer.FrameNames,
         SpriteSheetId.IntroNarrationPictures => IntroNarrationPictureSheetComposer.FrameNames,
@@ -163,7 +168,7 @@ public static class SpriteSheetFiles
             SpriteSheetId.ProjectilesPlasmaWave or SpriteSheetId.ProjectilesPlasmaIce or
             SpriteSheetId.ProjectilesPlasmaIceWave or SpriteSheetId.ProjectilesSpazerPlasmaWave or
             SpriteSheetId.ProjectilesSpazerPlasmaIce =>
-            ProjectileSheetComposer.Frames,
+            ProjectileSheetComposer.Frames(sheet, projectiles.Value),
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };
 

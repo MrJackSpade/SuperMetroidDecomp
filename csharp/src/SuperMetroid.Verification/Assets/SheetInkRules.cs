@@ -57,7 +57,7 @@ internal static class SheetInkRules
         SpriteImage image = users[0].Sheet.Image;
         byte[] inks = InkPlane(directory, image);
         int setColours = image.Colours == SpriteImageColours.TwoBppBackground ? TwoBppSetColours : ImageColourGroup.Colours;
-        bool[] emptySets = EmptySets(image.StandardColours, setColours);
+        bool[] emptySets = EmptySets(image.StandardColours, setColours, [.. users.SelectMany(user => user.DefinedSets)]);
         var colourZero = new bool[InkValues];
         for (int ink = 0; ink < InkValues; ink++)
             colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, 0));
@@ -112,7 +112,7 @@ internal static class SheetInkRules
     }
 
     /// <summary>Whether each colour set of <paramref name="colours"/> holds only black beyond its colour zero.</summary>
-    private static bool[] EmptySets(ReadOnlySpan<RgbColor> colours, int setColours)
+    private static bool[] EmptySets(ReadOnlySpan<RgbColor> colours, int setColours, HashSet<int> defined)
     {
         var empty = new bool[colours.Length / setColours];
         for (int set = 0; set < empty.Length; set++)
@@ -120,7 +120,7 @@ internal static class SheetInkRules
             bool black = true;
             for (int colour = 1; colour < setColours; colour++)
                 black &= colours[set * setColours + colour] == RgbColor.Black;
-            empty[set] = black;
+            empty[set] = black && !defined.Contains(set);
         }
         return empty;
     }

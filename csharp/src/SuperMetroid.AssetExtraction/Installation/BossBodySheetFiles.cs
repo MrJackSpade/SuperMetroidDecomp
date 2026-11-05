@@ -21,8 +21,8 @@ public static class BossBodySheetFiles
     /// <summary>The manifest naming each boss's frames and their parts.</summary>
     public const string ManifestFileName = "boss-bodies.json";
 
-    /// <summary>The manifest's schema revision.</summary>
-    private const int ManifestVersion = 1;
+    /// <summary>The manifest's schema revision: 2 names each part apart from its picture, which a part that clears its cells lacks (#1513).</summary>
+    private const int ManifestVersion = 2;
 
     /// <summary>Composes and writes every boss's body sheet.</summary>
     /// <param name="content">Installed stock content holding the frames, characters and palettes the sheets compose from.</param>
@@ -70,19 +70,22 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>The manifest entry of <paramref name="part"/>.</summary>
-    private static PartDocument Document(ComposedBossBodyPart part) => new(part.Picture, part.Top, part.Footprint.Top, [.. part.Footprint.Rows],
+    private static PartDocument Document(ComposedBossBodyPart part) => new(part.Name, part.Picture, part.Top, part.Footprint.Top, [.. part.Footprint.Rows],
         part.Animation?.Name, part.Animation is null ? null : new Dictionary<string, string>(part.AnimationPictures, StringComparer.Ordinal));
 
-    /// <summary>The part <paramref name="document"/> describes, its pictures cut from <paramref name="sheet"/>.</summary>
-    /// <exception cref="InvalidDataException">The entry is missing, names no picture, or covers nothing.</exception>
+    /// <summary>
+    /// The part <paramref name="document"/> describes, its pictures cut from <paramref name="sheet"/>; a part naming no
+    /// picture clears its cells (#1513).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The entry is missing, has no name, or covers nothing.</exception>
     private static BossBodyPart Part(SpriteSheet sheet, PartDocument? document, string manifestPath)
     {
-        if (document?.Picture is null || document.Footprint is null)
+        if (document?.Name is null || document.Footprint is null)
             throw new InvalidDataException($"Boss body manifest {manifestPath} has an incomplete part.");
         var footprint = new BossBodyFootprint(document.FootprintTop, ImmutableArray.Create(document.Footprint));
         if (footprint.IsEmpty)
-            throw new InvalidDataException($"Boss body manifest {manifestPath} part {document.Picture} covers nothing.");
-        return new BossBodyPart(document.Picture, sheet.Frame(document.Picture), document.Top, footprint,
+            throw new InvalidDataException($"Boss body manifest {manifestPath} part {document.Name} covers nothing.");
+        return new BossBodyPart(document.Name, document.Picture is null ? null : sheet.Frame(document.Picture), document.Top, footprint,
             document.Animation is null ? null : new ArtworkAnimation(document.Animation),
             document.AnimationPictures?.ToDictionary(entry => entry.Key, entry => sheet.Frame(entry.Value), StringComparer.Ordinal));
     }
@@ -97,14 +100,15 @@ public static class BossBodySheetFiles
     /// <param name="Frames">Each frame's parts, by frame name.</param>
     private sealed record SheetDocument(PartDocument? Blank, Dictionary<string, PartDocument[]?>? Frames);
 
-    /// <summary>One part: its picture, where it lies and what it covers, and its animation's pictures.</summary>
-    /// <param name="Picture">The sheet frame of its still picture.</param>
+    /// <summary>One part: its name and picture, where it lies and what it covers, and its animation's pictures.</summary>
+    /// <param name="Name">The part's name in the boss's sheet.</param>
+    /// <param name="Picture">The sheet frame of its still picture, or null for a part that clears its cells.</param>
     /// <param name="Top">The layer row its picture's top edge lies on.</param>
     /// <param name="FootprintTop">The first layer row it covers.</param>
     /// <param name="Footprint">The cells it covers in each row from <paramref name="FootprintTop"/>, the lowest bit the leftmost.</param>
     /// <param name="Animation">The animation it follows, or null for a still part.</param>
     /// <param name="AnimationPictures">The sheet frame picturing it for each frame of its animation, by frame name.</param>
-    private sealed record PartDocument(string? Picture, int Top, int FootprintTop, uint[]? Footprint, string? Animation,
+    private sealed record PartDocument(string? Name, string? Picture, int Top, int FootprintTop, uint[]? Footprint, string? Animation,
         Dictionary<string, string>? AnimationPictures);
 
     /// <summary>Stable camel-case manifest fields.</summary>

@@ -382,6 +382,8 @@ internal sealed class SamusPresentation
 
         InstalledSamusBodyArtwork artwork = BodyFrames.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork.");
+        // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
+        SamusShownFrames.Of(samus.AnimationContinuation).RequireShown(movementType, samus.Pose, samus.AnimationFrame);
         int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
         int spritemapY = CoordinateAxis.Wrap(
             renderY - SamusBodyDrawing.OriginRise(movementType, samus.Pose, samus.AnimationFrame, artwork) - layer1.Y);

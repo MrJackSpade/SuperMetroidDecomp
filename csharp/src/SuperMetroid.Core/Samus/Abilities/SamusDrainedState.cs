@@ -111,9 +111,9 @@ public sealed class SamusDrainedState
 
         if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&
             samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
-            samus.AnimationFrame >= 8)
+            samus.AnimationFrame >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
         {
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
 
             // The able branch replaces the hack pointer with a no-op after the first accepted Up
             // edge. Further presses cannot restart the stand-up stream.
@@ -122,12 +122,12 @@ public sealed class SamusDrainedState
         }
 
         if (GetUpHandler == DrainedGetUpHandler.UnableToStand &&
-            samus.AnimationFrame >= 8 &&
-            samus.AnimationFrame < 12)
+            samus.AnimationFrame >= SamusDrainedAnimationDefinitions.UnableToStandFirstFrame &&
+            samus.AnimationFrame <= SamusDrainedAnimationDefinitions.UnableToStandLastFrame)
         {
             // Unlike the able branch, the failed-stand branch retains its own function pointer. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 18, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
             return true;
         }
 
@@ -139,7 +139,7 @@ public sealed class SamusDrainedState
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         Ensure.NotNull(samus);
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 28, timer: 1);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, timer: 1);
         samus.CancelPendingPoseTransition();
     }
 
@@ -178,7 +178,7 @@ public sealed class SamusDrainedState
         CommonPaletteTimer = WrappingCountdown.Start(0);
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = true;
-        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: 1);
     }
 
     /// <summary>
@@ -256,7 +256,7 @@ public sealed class SamusDrainedState
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
         // but movement remains the normal empty special-movement handler until the drained-fall
         // animation instruction appears.
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 2);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
@@ -316,7 +316,8 @@ public sealed class SamusDrainedState
             // The landing restores the normal movement pointer, jumps directly to art
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 7, timer: 8);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.LandingFrame,
+                timer: SamusDrainedAnimationDefinitions.LandingTimer);
             samus.Kinematics.YSpeed = default;
             Phase = DrainedSamusPhase.OnFloor;
         }
@@ -362,9 +363,9 @@ public sealed class SamusDrainedState
         // instruction's argument rather than on a frame; the game
         // intentionally draws that index until the next animation decrement advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
-            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 4, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
         // broad behavior instead of rejecting a caller that the game accepts.

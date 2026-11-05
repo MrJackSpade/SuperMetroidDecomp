@@ -28,12 +28,23 @@ internal static class SamusBodyDrawing
     }
 
     /// <summary>
+    /// The movement types the drained poses are drawn with: the Baby Metroid's drained-Samus commands write a drained pose
+    /// without initializing it, so the movement type of the pose Samus was last initialized in stays in force, and nothing
+    /// in the commands checks which pose that was (the Mother Brain glitch recording carries a spin jump's movement into
+    /// the drained standing pose). They are the movement types of every pose Samus can be initialized in, the drained
+    /// poses' own among them.
+    /// </summary>
+    private static readonly SamusMovementType[] DrainedPoseMovementTypes =
+        [.. Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(SamusPoseNumbering.FromNumber)
+            .Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
+
+    /// <summary>
     /// Every movement type the body can be drawn with in <paramref name="pose"/>: the pose's own, except for the drained
-    /// poses, which the drained controllers write without initializing the pose, so the movement type of whatever pose
-    /// Samus held before stays in force while they are drawn.
+    /// poses, which the drained controllers write without initializing the pose, so they are drawn with the movement type
+    /// of whichever pose Samus was last initialized in (<see cref="DrainedPoseMovementTypes"/>).
     /// </summary>
     internal static IReadOnlyList<SamusMovementType> MovementTypesDrawnWith(SamusPoseId pose) =>
-        SamusPoseMetadata.IsDrainedPose(pose) ? Enum.GetValues<SamusMovementType>() : [SamusPoseMetadata.ReadMovementType(pose)];
+        SamusPoseMetadata.IsDrainedPose(pose) ? DrainedPoseMovementTypes : [SamusPoseMetadata.ReadMovementType(pose)];
 
     /// <summary>
     /// Whether the body's frame shows its bottom half, porting the draw's complete lower-half dispatcher: a frame whose

@@ -408,23 +408,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MotherBrainHead10,
         EnemyFrameId.MotherBrainHead11,
         EnemyFrameId.MotherBrainHead12,
-        EnemyFrameId.MotherBrainBodyStanding,
-        EnemyFrameId.MotherBrainBodyWalking0,
-        EnemyFrameId.MotherBrainBodyWalking1,
-        EnemyFrameId.MotherBrainBodyWalking2,
-        EnemyFrameId.MotherBrainBodyWalking3,
-        EnemyFrameId.MotherBrainBodyWalking4,
-        EnemyFrameId.MotherBrainBodyWalking5,
-        EnemyFrameId.MotherBrainBodyWalking6,
-        EnemyFrameId.MotherBrainBodyWalking7,
-        EnemyFrameId.MotherBrainBodyCrouched,
-        EnemyFrameId.MotherBrainBodyUncrouching,
-        EnemyFrameId.MotherBrainBodyLeaningDown,
-        EnemyFrameId.MotherBrainBodyInitialDummy,
-        EnemyFrameId.MotherBrainBodyDeathBeam0,
-        EnemyFrameId.MotherBrainBodyDeathBeam1,
-        EnemyFrameId.MotherBrainBodyDeathBeam2,
-        EnemyFrameId.MotherBrainBodyDeathBeam3,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainTubes</c>.</summary>
@@ -995,14 +978,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Corpses/DeadSidehopperBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] DeadSidehopper =
     [
-        EnemyFrameId.DeadZoomerCorpse0,
-        EnemyFrameId.DeadZoomerCorpse2,
-        EnemyFrameId.DeadZoomerCorpse4,
-        EnemyFrameId.DeadRipperCorpse0,
-        EnemyFrameId.DeadRipperCorpse2,
-        EnemyFrameId.DeadSkreeCorpse0,
-        EnemyFrameId.DeadSkreeCorpse2,
-        EnemyFrameId.DeadSkreeCorpse4,
         EnemyFrameId.DeadSidehopperHopBody,
         EnemyFrameId.DeadSidehopperHopAlt,
         EnemyFrameId.DeadSidehopperIdle,
@@ -1017,26 +992,82 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.DeadTorizoStationary,
     ];
 
-    /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] DeadTourian =
+    /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows for <c>CorpseRipper</c>.</summary>
+    private static readonly EnemyFrameId[] CorpseRipperFrames =
+    [
+        EnemyFrameId.DeadRipperCorpse0,
+        EnemyFrameId.DeadRipperCorpse2,
+    ];
+
+    /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows for <c>CorpseSkree</c>.</summary>
+    private static readonly EnemyFrameId[] CorpseSkreeFrames =
+    [
+        EnemyFrameId.DeadSkreeCorpse0,
+        EnemyFrameId.DeadSkreeCorpse2,
+        EnemyFrameId.DeadSkreeCorpse4,
+    ];
+
+    /// <summary>The frames <c>Enemies/Corpses/DeadTourianBehavior.cs</c> shows for <c>CorpseZoomer</c>.</summary>
+    private static readonly EnemyFrameId[] CorpseZoomerFrames =
     [
         EnemyFrameId.DeadZoomerCorpse0,
         EnemyFrameId.DeadZoomerCorpse2,
         EnemyFrameId.DeadZoomerCorpse4,
-        EnemyFrameId.DeadRipperCorpse0,
-        EnemyFrameId.DeadRipperCorpse2,
-        EnemyFrameId.DeadSkreeCorpse0,
-        EnemyFrameId.DeadSkreeCorpse2,
-        EnemyFrameId.DeadSkreeCorpse4,
-        EnemyFrameId.DeadSidehopperHopBody,
-        EnemyFrameId.DeadSidehopperHopAlt,
-        EnemyFrameId.DeadSidehopperIdle,
-        EnemyFrameId.DeadSidehopperCorpse,
-        EnemyFrameId.DeadSidehopperInitiallyDead,
     ];
 
-    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Crawlers =
+    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Sciser</c>.</summary>
+    private static readonly EnemyFrameId[] SciserFrames =
+    [
+        EnemyFrameId.SciserUpsideRight0,
+        EnemyFrameId.SciserUpsideRight1,
+        EnemyFrameId.SciserUpsideRight2,
+        EnemyFrameId.SciserUpsideLeft0,
+        EnemyFrameId.SciserUpsideLeft1,
+        EnemyFrameId.SciserUpsideLeft2,
+        EnemyFrameId.SciserUpsideDown0,
+        EnemyFrameId.SciserUpsideDown1,
+        EnemyFrameId.SciserUpsideDown2,
+        EnemyFrameId.SciserUpsideUp0,
+        EnemyFrameId.SciserUpsideUp1,
+        EnemyFrameId.SciserUpsideUp2,
+    ];
+
+    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Zero</c>.</summary>
+    private static readonly EnemyFrameId[] ZeroFrames =
+    [
+        EnemyFrameId.ZeroCrawler00,
+        EnemyFrameId.ZeroCrawler01,
+        EnemyFrameId.ZeroCrawler02,
+        EnemyFrameId.ZeroCrawler03,
+        EnemyFrameId.ZeroCrawler04,
+        EnemyFrameId.ZeroCrawler05,
+        EnemyFrameId.ZeroCrawler06,
+        EnemyFrameId.ZeroCrawler07,
+        EnemyFrameId.ZeroCrawler08,
+        EnemyFrameId.ZeroCrawler09,
+        EnemyFrameId.ZeroCrawler10,
+        EnemyFrameId.ZeroCrawler11,
+        EnemyFrameId.ZeroCrawler12,
+        EnemyFrameId.ZeroCrawler13,
+        EnemyFrameId.ZeroCrawler14,
+        EnemyFrameId.ZeroCrawler15,
+    ];
+
+    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Viola</c>.</summary>
+    private static readonly EnemyFrameId[] ViolaFrames =
+    [
+        EnemyFrameId.ViolaSpin0,
+        EnemyFrameId.ViolaSpin1,
+        EnemyFrameId.ViolaSpin2,
+        EnemyFrameId.ViolaSpin3,
+        EnemyFrameId.ViolaSpin4,
+        EnemyFrameId.ViolaSpin5,
+        EnemyFrameId.ViolaSpin6,
+        EnemyFrameId.ViolaSpin7,
+    ];
+
+    /// <summary>The frames <c>Enemies/Crawlers/CrawlersBehavior.cs</c> shows for <c>Zeela</c>, <c>Sova</c>, <c>Zoomer</c>, <c>MZoomer</c>, <c>HZoomer</c>.</summary>
+    private static readonly EnemyFrameId[] ZeelaFrames =
     [
         EnemyFrameId.HzoomerUpsideRight0,
         EnemyFrameId.HzoomerUpsideRight1,
@@ -1058,42 +1089,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.HzoomerUpsideUp2,
         EnemyFrameId.HzoomerUpsideUp3,
         EnemyFrameId.HzoomerUpsideUp4,
-        EnemyFrameId.SciserUpsideRight0,
-        EnemyFrameId.SciserUpsideRight1,
-        EnemyFrameId.SciserUpsideRight2,
-        EnemyFrameId.SciserUpsideLeft0,
-        EnemyFrameId.SciserUpsideLeft1,
-        EnemyFrameId.SciserUpsideLeft2,
-        EnemyFrameId.SciserUpsideDown0,
-        EnemyFrameId.SciserUpsideDown1,
-        EnemyFrameId.SciserUpsideDown2,
-        EnemyFrameId.SciserUpsideUp0,
-        EnemyFrameId.SciserUpsideUp1,
-        EnemyFrameId.SciserUpsideUp2,
-        EnemyFrameId.ViolaSpin0,
-        EnemyFrameId.ViolaSpin1,
-        EnemyFrameId.ViolaSpin2,
-        EnemyFrameId.ViolaSpin3,
-        EnemyFrameId.ViolaSpin4,
-        EnemyFrameId.ViolaSpin5,
-        EnemyFrameId.ViolaSpin6,
-        EnemyFrameId.ViolaSpin7,
-        EnemyFrameId.ZeroCrawler00,
-        EnemyFrameId.ZeroCrawler01,
-        EnemyFrameId.ZeroCrawler02,
-        EnemyFrameId.ZeroCrawler03,
-        EnemyFrameId.ZeroCrawler04,
-        EnemyFrameId.ZeroCrawler05,
-        EnemyFrameId.ZeroCrawler06,
-        EnemyFrameId.ZeroCrawler07,
-        EnemyFrameId.ZeroCrawler08,
-        EnemyFrameId.ZeroCrawler09,
-        EnemyFrameId.ZeroCrawler10,
-        EnemyFrameId.ZeroCrawler11,
-        EnemyFrameId.ZeroCrawler12,
-        EnemyFrameId.ZeroCrawler13,
-        EnemyFrameId.ZeroCrawler14,
-        EnemyFrameId.ZeroCrawler15,
     ];
 
     /// <summary>The frames <c>Enemies/Crawlers/MultiviolaBehavior.cs</c> shows.</summary>
@@ -1576,31 +1571,9 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.OwtchLeft2,
     ];
 
-    /// <summary>The frames <c>Enemies/PipeBugs/PipeBugsBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] PipeBugs =
+    /// <summary>The frames <c>Enemies/PipeBugs/PipeBugsBehavior.cs</c> shows for <c>Gamet</c>.</summary>
+    private static readonly EnemyFrameId[] GametFrames =
     [
-        EnemyFrameId.PipeBrinstarNormalLeft0,
-        EnemyFrameId.PipeBrinstarNormalLeft1,
-        EnemyFrameId.PipeBrinstarNormalLeft2,
-        EnemyFrameId.PipeBrinstarNormalLeft3,
-        EnemyFrameId.PipeBrinstarNormalLeft4,
-        EnemyFrameId.PipeBrinstarNormalRight0,
-        EnemyFrameId.PipeBrinstarNormalRight1,
-        EnemyFrameId.PipeBrinstarNormalRight2,
-        EnemyFrameId.PipeBrinstarNormalRight3,
-        EnemyFrameId.PipeBrinstarNormalRight4,
-        EnemyFrameId.PipeBrinstarStrongShootLeft0,
-        EnemyFrameId.PipeBrinstarStrongShootLeft1,
-        EnemyFrameId.PipeBrinstarStrongShootLeft2,
-        EnemyFrameId.PipeBrinstarStrongRiseLeft0,
-        EnemyFrameId.PipeBrinstarStrongRiseLeft1,
-        EnemyFrameId.PipeBrinstarStrongRiseLeft2,
-        EnemyFrameId.PipeBrinstarStrongShootRight0,
-        EnemyFrameId.PipeBrinstarStrongShootRight1,
-        EnemyFrameId.PipeBrinstarStrongShootRight2,
-        EnemyFrameId.PipeBrinstarStrongRiseRight0,
-        EnemyFrameId.PipeBrinstarStrongRiseRight1,
-        EnemyFrameId.PipeBrinstarStrongRiseRight2,
         EnemyFrameId.PipeNorfairLeft0,
         EnemyFrameId.PipeNorfairLeft1,
         EnemyFrameId.PipeNorfairLeft2,
@@ -1611,6 +1584,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.PipeNorfairRight2,
         EnemyFrameId.PipeNorfairRight3,
         EnemyFrameId.PipeNorfairRight4,
+    ];
+
+    /// <summary>The frames <c>Enemies/PipeBugs/PipeBugsBehavior.cs</c> shows for <c>Geega</c>.</summary>
+    private static readonly EnemyFrameId[] GeegaFrames =
+    [
         EnemyFrameId.PipeYellowFlyLeft0,
         EnemyFrameId.PipeYellowFlyLeft1,
         EnemyFrameId.PipeYellowFlyLeft2,
@@ -1623,6 +1601,38 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.PipeYellowArcRight0,
         EnemyFrameId.PipeYellowArcRight1,
         EnemyFrameId.PipeYellowArcRight2,
+    ];
+
+    /// <summary>The frames <c>Enemies/PipeBugs/PipeBugsBehavior.cs</c> shows for <c>Zeb</c>.</summary>
+    private static readonly EnemyFrameId[] ZebFrames =
+    [
+        EnemyFrameId.PipeBrinstarNormalLeft0,
+        EnemyFrameId.PipeBrinstarNormalLeft1,
+        EnemyFrameId.PipeBrinstarNormalLeft2,
+        EnemyFrameId.PipeBrinstarNormalLeft3,
+        EnemyFrameId.PipeBrinstarNormalLeft4,
+        EnemyFrameId.PipeBrinstarNormalRight0,
+        EnemyFrameId.PipeBrinstarNormalRight1,
+        EnemyFrameId.PipeBrinstarNormalRight2,
+        EnemyFrameId.PipeBrinstarNormalRight3,
+        EnemyFrameId.PipeBrinstarNormalRight4,
+    ];
+
+    /// <summary>The frames <c>Enemies/PipeBugs/PipeBugsBehavior.cs</c> shows for <c>Zebbo</c>.</summary>
+    private static readonly EnemyFrameId[] ZebboFrames =
+    [
+        EnemyFrameId.PipeBrinstarStrongShootLeft0,
+        EnemyFrameId.PipeBrinstarStrongShootLeft1,
+        EnemyFrameId.PipeBrinstarStrongShootLeft2,
+        EnemyFrameId.PipeBrinstarStrongRiseLeft0,
+        EnemyFrameId.PipeBrinstarStrongRiseLeft1,
+        EnemyFrameId.PipeBrinstarStrongRiseLeft2,
+        EnemyFrameId.PipeBrinstarStrongShootRight0,
+        EnemyFrameId.PipeBrinstarStrongShootRight1,
+        EnemyFrameId.PipeBrinstarStrongShootRight2,
+        EnemyFrameId.PipeBrinstarStrongRiseRight0,
+        EnemyFrameId.PipeBrinstarStrongRiseRight1,
+        EnemyFrameId.PipeBrinstarStrongRiseRight2,
     ];
 
     /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows.</summary>
@@ -1807,17 +1817,33 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ShaktoolPrimarySaw2,
     ];
 
-    /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Shutters =
+    /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>Kamer</c>.</summary>
+    private static readonly EnemyFrameId[] KamerFrames =
     [
         EnemyFrameId.KamerPlatform0,
         EnemyFrameId.KamerPlatform1,
         EnemyFrameId.KamerPlatform2,
         EnemyFrameId.KamerPlatform3,
+    ];
+
+    /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterDestroyable</c>, <c>ShutterShootable</c>.</summary>
+    private static readonly EnemyFrameId[] ShutterDestroyableFrames =
+    [
+        EnemyFrameId.ShutterVertical40px,
+    ];
+
+    /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterGrowing</c>.</summary>
+    private static readonly EnemyFrameId[] ShutterGrowingFrames =
+    [
         EnemyFrameId.ShutterGrowing10px,
         EnemyFrameId.ShutterGrowing20px,
         EnemyFrameId.ShutterGrowing30px,
         EnemyFrameId.ShutterVertical40px,
+    ];
+
+    /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterHorizShootable</c>.</summary>
+    private static readonly EnemyFrameId[] ShutterHorizShootableFrames =
+    [
         EnemyFrameId.ShutterHorizontal,
     ];
 
@@ -2300,17 +2326,17 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.NoobTubeCrack] = NoobTubeCrackFrames,
             [EnemyDefinitionId.CorpseSidehopper] = DeadSidehopper,
             [EnemyDefinitionId.CorpseTorizo] = DeadTorizo,
-            [EnemyDefinitionId.CorpseRipper] = DeadTourian,
-            [EnemyDefinitionId.CorpseSkree] = DeadTourian,
-            [EnemyDefinitionId.CorpseZoomer] = DeadTourian,
-            [EnemyDefinitionId.Sciser] = Crawlers,
-            [EnemyDefinitionId.Zero] = Crawlers,
-            [EnemyDefinitionId.Viola] = Crawlers,
-            [EnemyDefinitionId.Zeela] = Crawlers,
-            [EnemyDefinitionId.Sova] = Crawlers,
-            [EnemyDefinitionId.Zoomer] = Crawlers,
-            [EnemyDefinitionId.MZoomer] = Crawlers,
-            [EnemyDefinitionId.HZoomer] = Crawlers,
+            [EnemyDefinitionId.CorpseRipper] = CorpseRipperFrames,
+            [EnemyDefinitionId.CorpseSkree] = CorpseSkreeFrames,
+            [EnemyDefinitionId.CorpseZoomer] = CorpseZoomerFrames,
+            [EnemyDefinitionId.Sciser] = SciserFrames,
+            [EnemyDefinitionId.Zero] = ZeroFrames,
+            [EnemyDefinitionId.Viola] = ViolaFrames,
+            [EnemyDefinitionId.Zeela] = ZeelaFrames,
+            [EnemyDefinitionId.Sova] = ZeelaFrames,
+            [EnemyDefinitionId.Zoomer] = ZeelaFrames,
+            [EnemyDefinitionId.MZoomer] = ZeelaFrames,
+            [EnemyDefinitionId.HZoomer] = ZeelaFrames,
             [EnemyDefinitionId.Multiviola] = Multiviola,
             [EnemyDefinitionId.Dragon] = Dragon,
             [EnemyDefinitionId.Elevator] = Elevator,
@@ -2353,10 +2379,10 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Eye] = MorphBallEye,
             [EnemyDefinitionId.Puromi] = NuclearWaffle,
             [EnemyDefinitionId.Owtch] = Owtch,
-            [EnemyDefinitionId.Gamet] = PipeBugs,
-            [EnemyDefinitionId.Geega] = PipeBugs,
-            [EnemyDefinitionId.Zeb] = PipeBugs,
-            [EnemyDefinitionId.Zebbo] = PipeBugs,
+            [EnemyDefinitionId.Gamet] = GametFrames,
+            [EnemyDefinitionId.Geega] = GeegaFrames,
+            [EnemyDefinitionId.Zeb] = ZebFrames,
+            [EnemyDefinitionId.Zebbo] = ZebboFrames,
             [EnemyDefinitionId.Kamer2] = Platforms,
             [EnemyDefinitionId.Tripper] = Platforms,
             [EnemyDefinitionId.LavaRocks] = Polyp,
@@ -2371,11 +2397,11 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Sbug] = Sbug,
             [EnemyDefinitionId.Sbug2] = Sbug,
             [EnemyDefinitionId.Shaktool] = Shaktool,
-            [EnemyDefinitionId.Kamer] = Shutters,
-            [EnemyDefinitionId.ShutterDestroyable] = Shutters,
-            [EnemyDefinitionId.ShutterGrowing] = Shutters,
-            [EnemyDefinitionId.ShutterHorizShootable] = Shutters,
-            [EnemyDefinitionId.ShutterShootable] = Shutters,
+            [EnemyDefinitionId.Kamer] = KamerFrames,
+            [EnemyDefinitionId.ShutterDestroyable] = ShutterDestroyableFrames,
+            [EnemyDefinitionId.ShutterGrowing] = ShutterGrowingFrames,
+            [EnemyDefinitionId.ShutterHorizShootable] = ShutterHorizShootableFrames,
+            [EnemyDefinitionId.ShutterShootable] = ShutterDestroyableFrames,
             [EnemyDefinitionId.Skree] = Skree,
             [EnemyDefinitionId.Skultera] = Skultera,
             [EnemyDefinitionId.PirateGoldNinja] = NinjaSpacePirate,

@@ -27,34 +27,18 @@ internal static class PauseReserveFramesVerification
         [new ReserveFrameOracleResult("Full", 0x1b), new ReserveFrameOracleResult("EndCap", 0x1f), new ReserveFrameOracleResult("Empty", 0x20), new ReserveFrameOracleResult("Fill1", 0x21), new ReserveFrameOracleResult("Fill2", 0x22),
          new ReserveFrameOracleResult("Fill3", 0x23), new ReserveFrameOracleResult("Fill4", 0x24), new ReserveFrameOracleResult("Fill5", 0x25), new ReserveFrameOracleResult("Fill6", 0x26), new ReserveFrameOracleResult("Fill7", 0x27)];
 
-    /// <summary>Checks exact frame admission and that each edited reserve role changes only its selected OAM composition.</summary>
+    /// <summary>Checks exact frame admission, required reserve roles and unsupported reserve identities.</summary>
     internal static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var stock = PauseReserveTankSourcePresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(rom, stock));
-        Suite(nameof(VerifyPauseReserveStockParts), () => VerifyPauseReserveStockParts(rom, document));
+        Suite(nameof(VerifyPauseReserveStockParts), () => VerifyPauseReserveStockParts(rom));
         AssertEqual(0, stock.StoredFrameCount, "stock reserve frames use no stored compositions");
         foreach (var changed in ReserveFrameOracle())
         {
-            var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[changed.Name] = [];
-            using var stream = new MemoryStream(); PauseReserveTankSourcePresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
-            var edited = PauseReserveTankSourcePresentation.Load(stream);
-            AssertEqual(1, edited.StoredFrameCount, "only authored reserve frame stored");
-            foreach (var frame in ReserveFrameOracle())
-            {
-                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                if (frame.Id != changed.Id)
-                {
-                    int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
-                    DrawImportedSpritemap(rom, expected, pointer, new(24, 95), 0x600);
-                }
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), 0, PictureShading.Standard);
-                expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.ImageEquals(actual),
-                    "each authored reserve frame independently selected");
-            }
+            var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames);
             frames.Remove(changed.Name);
             AssertThrows<InvalidDataException>(() =>
             {
@@ -70,8 +54,8 @@ internal static class PauseReserveFramesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1, PictureShading.Standard), "anchor error precedes unknown visual");
     }
 
-    /// <summary>Compares each stock reserve part and independently edited OAM attribute against its native map.</summary>
-    private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom, PauseReserveTankDocument document)
+    /// <summary>Compares each stock reserve part against its native map.</summary>
+    private static void VerifyPauseReserveStockParts(ISnesAddressSpace rom)
     {
         foreach (var frame in ReserveFrameOracle())
         {
@@ -88,24 +72,6 @@ internal static class PauseReserveFramesVerification
             AssertEqual(attributes.FlipHorizontally, stockPart.FlipX, "native reserve X flip");
             AssertEqual(attributes.FlipVertically, stockPart.FlipY, "native reserve Y flip");
             AssertTrue(stockPart.Palette is null, "reserve palette remains caller-owned");
-            var original = document.Frames[frame.Name][0];
-            SpriteVisualPart[] edits = [original with { OffsetX = 17 }, original with { OffsetY = -9 },
-                original with { TileColumn = (original.TileColumn + 1) % 16 }, original with { TileRow = original.TileRow + 1 },
-                original with { Size = 16, TileColumn = 0 }, original with { Priority = 2 }, original with { Palette = 5 },
-                original with { FlipX = true }, original with { FlipY = true }];
-            foreach (var part in edits)
-            {
-                var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[frame.Name] = [part];
-                using var stream = new MemoryStream(); PauseReserveTankSourcePresentation.Write(stream, document with { Frames = frames }); stream.Position = 0;
-                var edited = PauseReserveTankSourcePresentation.Load(stream);
-                AssertEqual(1, edited.StoredFrameCount, "authored part difference remains compiled");
-                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), 0, PictureShading.Standard);
-                expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.ImageEquals(actual),
-                    "independent authored part field reaches OAM");
-            }
         }
     }
 

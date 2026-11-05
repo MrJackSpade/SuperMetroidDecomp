@@ -86,7 +86,7 @@ internal static class SamusBodySheetComposer
     /// colouring inks a row a colouring recolours: the sheet's colours are one set for all its frames.
     /// </exception>
     private static RgbColor[] WithPoseColourings(RgbColor[] sheetColours, IReadOnlyList<SheetFrameSource> frames,
-        IReadOnlyDictionary<string, PictureShade[]> colourings, IReadOnlyList<SheetShade> shades)
+        Dictionary<string, PictureShade[]> colourings, IReadOnlyList<SheetShade> shades)
     {
         RgbColor[] shown = [.. sheetColours];
         var recoloured = new Dictionary<int, RgbColor>();

@@ -145,10 +145,12 @@ internal static class SpawnedObjectSheetComposer
                     EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
                         : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
                 Drawn(FrameDrawings.Of(frame)), RotEncounterFrames.Contains(frame))))];
-        // Each spawner whose encounter sets colours leaves them in the rows they write, the enemies spawning onto the shared
-        // sheet with the room's graphics among them (the statue fragments and orbs a Torizo's colours show, Spore Spawn's
-        // spores), and a frame family always drawn in one colouring is coloured in it (#1513).
-        RgbColor[] colours = shades.WithFrameColourings(shades.FirstShownColours(plan.Spawners.Concat(plan.SharedSpawners)), frames, plan.Palette);
+        // Each of the sheet's spawners whose encounter sets colours leaves them in the rows they write; a frame family
+        // always drawn in one colouring is coloured in it; and each frame an enemy spawns onto the shared sheet with the
+        // room's graphics is coloured over the rows it inks in that spawner's first colouring (the statue fragments and orbs
+        // a Torizo's colours show, Spore Spawn's spores), so spawners that show their objects at different times in
+        // different colourings each colour only their own objects' rows (#1513).
+        RgbColor[] colours = shades.WithFrameColourings(shades.FirstShownColours(plan.Spawners), frames, plan.Palette, SharedSpawnersOf(plan));
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.GameplaySizes, plan.Palette,
@@ -209,6 +211,30 @@ internal static class SpawnedObjectSheetComposer
         sources = plan.Common.Select(common => common.Objects).Concat(sources);
         return new SpawnedObjects([.. sources.SelectMany(spawned => spawned.Projectiles).Distinct().Order()],
             [.. sources.SelectMany(spawned => spawned.SpriteObjects).Distinct().Order()]);
+    }
+
+    /// <summary>
+    /// The enemies of <paramref name="plan"/> that spawn each of its frames with the room's graphics, by frame name: on the
+    /// shared sheet, each of its shared spawners for every projectile frame and sprite-object frame it spawns there.
+    /// </summary>
+    private static SharedSpawnerFrames SharedSpawnersOf(SpawnedObjectSheetPlan plan)
+    {
+        var spawnersOf = new Dictionary<string, List<EnemyDefinitionId>>(StringComparer.Ordinal);
+        foreach (EnemyDefinitionId spawner in plan.SharedSpawners.Distinct())
+        {
+            SpawnedObjects spawned = SpawnedObjectFrameDefinitions.SharedByEnemy[spawner];
+            foreach (string frame in spawned.Projectiles.Select(EnemySheetDefinitions.ProjectileFrameName)
+                .Concat(SpriteObjectFrames(spawned.SpriteObjects).Select(EnemySheetDefinitions.SpriteObjectFrameName)).Distinct())
+            {
+                if (!spawnersOf.TryGetValue(frame, out List<EnemyDefinitionId>? spawners))
+                {
+                    spawners = [];
+                    spawnersOf.Add(frame, spawners);
+                }
+                spawners.Add(spawner);
+            }
+        }
+        return new SharedSpawnerFrames(spawnersOf);
     }
 
     /// <summary>The enemy frames the room sprite objects of <paramref name="kinds"/> show, each once.</summary>

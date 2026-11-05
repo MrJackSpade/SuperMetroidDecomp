@@ -287,7 +287,8 @@ internal static class EnemySheetComposer
             FramePictures[] pictures = [.. Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters, CorpseRotSimulation.Rots(enemy))];
             // An enemy whose encounter sets its colours is coloured in those its frames first show in, and a frame family
             // always drawn in one colouring in that colouring (#1513).
-            RgbColor[] colours = loaded.Shades.WithFrameColourings(loaded.Shades.FirstShownColours([enemy]), pictures, paletteBits);
+            RgbColor[] colours = loaded.Shades.WithFrameColourings(loaded.Shades.FirstShownColours([enemy]), pictures, paletteBits,
+                SharedSpawnerFrames.None);
             foreach (FramePictures framePictures in pictures)
             {
                 frames.AddRange(framePictures.Sources);

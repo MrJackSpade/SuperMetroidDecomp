@@ -105,30 +105,48 @@ internal sealed class EnemySheetShades
     }
 
     /// <summary>
-    /// <paramref name="sheetColours"/> with each of <paramref name="frames"/> whose family
-    /// <see cref="FrameColouringDefinitions"/> names a colouring for coloured in it (#1513): the colouring's shades laid
-    /// over the rows the frame's parts ink, its parts' own rows with <paramref name="paletteBits"/> ORed in, so the
-    /// frame's picture shows the colours the game always draws it in. A frame named by none keeps the sheet's colours.
+    /// <paramref name="sheetColours"/> with each of <paramref name="frames"/> coloured in the colouring it is drawn in
+    /// (#1513): a frame whose family <see cref="FrameColouringDefinitions"/> names a colouring in that one; any other
+    /// frame an enemy spawns onto a set's shared sheet with the room's graphics, which <paramref name="sharedSpawners"/>
+    /// names, in each such spawner's <see cref="EnemyFirstShownColourDefinitions"/> colouring. A colouring's shades are
+    /// laid over only the rows the frame's parts ink, its parts' own rows with <paramref name="paletteBits"/> ORed in, so
+    /// two spawners whose colourings differ in rows their objects never ink colour one sheet. A frame neither names keeps
+    /// the sheet's colours.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// A colouring names a shade its owner's effects lack, or two frames of the sheet need one colour two colourings.
+    /// A colouring names a shade its owner's effects lack, or two colourings of the sheet's frames, two spawners' of one
+    /// frame among them, need one colour in two colours; the sheet holds one picture per frame, drawn in one colour per ink.
     /// </exception>
-    internal RgbColor[] WithFrameColourings(RgbColor[] sheetColours, IEnumerable<FramePictures> frames, int paletteBits)
+    internal RgbColor[] WithFrameColourings(RgbColor[] sheetColours, IEnumerable<FramePictures> frames, int paletteBits,
+        SharedSpawnerFrames sharedSpawners)
     {
         Ensure.NotNull(sheetColours);
         Ensure.NotNull(frames);
+        Ensure.NotNull(sharedSpawners);
         RgbColor[] shown = [.. sheetColours];
         var recoloured = new Dictionary<int, RgbColor>();
+        var recolouredBy = new Dictionary<int, string>();
         foreach (FramePictures pictures in frames)
         {
-            IReadOnlyList<SheetShade> laid;
-            if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
-                laid = [.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))];
-            else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
-                laid = Common([common]).Inks;
-            else
-                continue;
             HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? 0) | paletteBits))];
+            if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
+                Lay([.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))], rows, $"frame {pictures.Name}'s family colouring");
+            else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
+                Lay(Common([common]).Inks, rows, $"frame {pictures.Name}'s common spawner colouring");
+            else
+            {
+                foreach (EnemyDefinitionId spawner in sharedSpawners.SpawnersOf(pictures.Name))
+                {
+                    if (EnemyFirstShownColourDefinitions.Shades.TryGetValue(spawner, out PictureShade[]? firstShown))
+                        Lay([.. firstShown.Select(name => EffectOf(spawner, name))], rows, $"frame {pictures.Name} as {spawner} first shows it");
+                }
+            }
+        }
+        return shown;
+
+        // The shades are laid in order, so a later one wins, over the rows the frame inks only.
+        void Lay(IReadOnlyList<SheetShade> laid, HashSet<int> rows, string colouredBy)
+        {
             var left = new Dictionary<int, RgbColor>();
             foreach (SheetShade shade in laid)
             {
@@ -141,12 +159,13 @@ internal sealed class EnemySheetShades
             foreach ((int ink, RgbColor colour) in left)
             {
                 if (recoloured.TryGetValue(ink, out RgbColor other) && other != colour)
-                    throw new InvalidDataException($"A sheet's frames are drawn with sprite colour {ink} in two colourings, frame {pictures.Name}'s among them.");
+                    throw new InvalidDataException(
+                        $"A sheet's frames are drawn with sprite colour {ink} in two colourings: {recolouredBy[ink]} and {colouredBy}.");
                 recoloured[ink] = colour;
+                recolouredBy[ink] = colouredBy;
                 shown[ink] = colour;
             }
         }
-        return shown;
     }
 
     /// <summary>

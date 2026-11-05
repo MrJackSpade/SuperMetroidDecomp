@@ -1,20 +1,21 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// Adds a one-screen pictured plane's colours onto the screen (#1467); an optional covering plane limits the addition to
-/// where it is opaque. Sprites stay where the screen places them.
+/// A one-screen pictured plane that glows over the screen (#1467, #1514): its colours are added to what the layers behind
+/// it show, each channel clamped at full. Unless the layer names what it glows over, the glow covers the whole screen, the
+/// backdrop included; when it names a plane, it covers only where that plane is opaque, and when it names a sprite layer,
+/// where one of those sprites shows, the glow covers it if the sprite takes part in blends and leaves it otherwise.
 /// </summary>
-/// <param name="Plane">The added plane's pictures, a 32-by-32-cell plane.</param>
-/// <param name="MainCoverage">An optional plane shown on the screen; the addition applies only where it is opaque, and everywhere when null.</param>
-/// <param name="IncludeObjects">Whether the sprites are drawn into the added plane, at their depths among its pictures, before its colours are added.</param>
-/// <param name="MainObjects">Whether, with a covering plane, the sprites shown on the screen, and whether they blend, also decide where the addition applies; no effect without that plane.</param>
+/// <param name="Plane">The glowing plane's pictures, a 32-by-32-cell plane.</param>
+/// <param name="GlowsOver">The plane the glow covers where it is opaque, or null for a glow that names no plane.</param>
+/// <param name="GlowsOverSprites">
+/// The sprite layer, one of the scene's layers, whose sprites the glow covers where they show, or null for none.
+/// </param>
 /// <param name="VerticalScroll">Vertical scroll in pixels, every line's.</param>
-[IndependentFlag("independent settings of the layer: whether the sprites are drawn into it, and whether they decide where it adds")]
-public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
-    PicturedPlaneLayer? MainCoverage = null, bool IncludeObjects = false,
-    bool MainObjects = false, int VerticalScroll = 0) : DisplayLayer
+public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneLayer? GlowsOver = null,
+    SpritesLayer? GlowsOverSprites = null, int VerticalScroll = 0) : DisplayLayer
 {
-    /// <summary>The added plane's pictures.</summary>
+    /// <summary>The glowing plane's pictures.</summary>
     /// <exception cref="ArgumentException">The plane is not one screen.</exception>
     public PicturedPlane Plane
     {
@@ -25,7 +26,7 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
     /// <summary>The largest scroll.</summary>
     public const int MaximumScroll = ushort.MaxValue;
 
-    /// <summary>The one-screen plane, in cells, an added layer reads.</summary>
+    /// <summary>The one-screen plane, in cells, a glowing layer shows.</summary>
     public static readonly Extent16<TilemapCells> MapSize = new(32, 32);
 
     /// <summary>Vertical scroll in pixels, every line's, 0 through <see cref="MaximumScroll"/>.</summary>
@@ -36,12 +37,12 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
     } = Ensure.BetweenInclusive(0, MaximumScroll, VerticalScroll);
 
     /// <summary>
-    /// The sine wave that ripples the added plane sideways (#1468), or null for a horizontal scroll of zero on every line;
+    /// The sine wave that ripples the glowing plane sideways (#1468), or null for a horizontal scroll of zero on every line;
     /// the plane repeats within its 256-by-256 pixels, and the wave does not move the sprites.
     /// </summary>
     public ScrollWave? HorizontalWave { get; init; }
 
-    /// <summary>Requires a one-screen plane, the plane the addition reads.</summary>
+    /// <summary>Requires a one-screen plane, the plane the glow shows.</summary>
     /// <exception cref="ArgumentException">The plane is not <see cref="MapSize"/>.</exception>
     private static PicturedPlane RequireScreen(PicturedPlane plane) => Ensure.NotNull(plane).Size == MapSize ? plane
         : throw new ArgumentException($"The layer adds a {MapSize.X}x{MapSize.Y}-cell plane, not {plane.Size.X}x{plane.Size.Y}.", nameof(plane));

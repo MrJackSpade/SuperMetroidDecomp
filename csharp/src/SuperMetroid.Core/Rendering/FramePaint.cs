@@ -12,14 +12,25 @@ namespace SuperMetroid.Core.Rendering;
 /// <remarks>
 /// Capture on the simulation owner. Once captured, later simulation writes cannot change it.
 /// Sprites are whole-frame draws only; a frontend screen's sprites become draws when it is captured
-/// (the extraction pipeline's ObjCharacterImage).
+/// (the extraction pipeline's ObjCharacterImage), and are drawn by its scene's sprite layers (#1514).
 /// </remarks>
 public sealed class FramePaint
 {
     /// <summary>
-    /// Keeps a frontend screen's backdrop and sprite draws (#1512): the screen shows <paramref name="backdrop"/> where nothing
-    /// is drawn, and each of its pictures and sprite draws names the shading it shows in, so the frame holds no colours an
-    /// owner shares.
+    /// Keeps a frontend screen's backdrop (#1514): the screen shows <paramref name="backdrop"/> where nothing is drawn, and
+    /// its sprites are drawn by its scene's sprite layers, each at its place among the screen's layers.
+    /// </summary>
+    /// <param name="backdrop">The solid colour the screen shows where nothing is drawn.</param>
+    public FramePaint(RgbColor backdrop)
+        : this(backdrop, ImmutableArray<SpriteDraw>.Empty)
+    {
+    }
+
+    /// <summary>
+    /// Keeps a frontend screen's backdrop and the sprite draws a turning floor's blend composes itself (#1512, #1514): the
+    /// screen shows <paramref name="backdrop"/> where nothing is drawn, and each of its pictures and sprite draws names the
+    /// shading it shows in, so the frame holds no colours an owner shares. A screen whose sprites show at a place among
+    /// its layers publishes them in sprite layers instead.
     /// </summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn.</param>
     /// <param name="spriteDraws">The draws, frontmost first, each naming its shading.</param>

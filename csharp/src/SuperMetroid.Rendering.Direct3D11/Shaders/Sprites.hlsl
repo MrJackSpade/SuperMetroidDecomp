@@ -3,6 +3,12 @@
 // colour shown and, below it, the pixel's priority against the backgrounds with whether it blends above that; a pixel
 // no draw covers keeps the cleared "none" value. D3D11SpriteDrawBuffer packs the records.
 StructuredBuffer<uint> SpriteDraws : register(t1);
+// The run of draws this pass draws (#1514): a sprite layer's own, or every draw of the frame. FirstDraw counts from the
+// frontmost packed draw; D3D11FrameRenderer.DrawSpriteLayer uploads both.
+cbuffer SpriteRun : register(b0)
+{
+    uint FirstDraw, DrawCount;
+};
 // Each texel: the image's pre-coloured pixel, then its ink (D3D11ImageAtlas): its ink index with its priority above it.
 // Compiled apart from Tiles.hlsl, which declares the same texture.
 Texture2D<uint2> Images : register(t4);
@@ -31,8 +37,8 @@ struct SpriteVertex
 
 SpriteVertex SpriteQuad(uint corner : SV_VertexID, uint instance : SV_InstanceID)
 {
-    // Instance zero is the backmost draw, the last one emitted.
-    uint record = 1 + (SpriteDraws[0] - 1 - instance) * SpriteRecordWords;
+    // Instance zero is the run's backmost draw, the last one emitted.
+    uint record = 1 + (FirstDraw + DrawCount - 1 - instance) * SpriteRecordWords;
     uint position = SpriteDraws[record];
     uint extent = SpriteDraws[record + 1];
     float2 origin = float2(((int)(position << 16)) >> 16, ((int)position) >> 16);

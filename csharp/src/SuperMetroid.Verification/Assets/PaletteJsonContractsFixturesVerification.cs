@@ -30,6 +30,13 @@ namespace SuperMetroid.Verification.Assets;
 /// <summary>Constructs valid palette JSON baselines for the shared schema-mutation checks.</summary>
 internal static class PaletteJsonContractsFixturesVerification
 {
+    /// <summary>Loads an in-memory palette document through its production stream parser.</summary>
+    internal static T ReadPaletteContract<T>(JsonObject document, Func<Stream, T> load)
+    {
+        using var json = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()), writable: false);
+        return load(json);
+    }
+
     /// <summary>Uses bounded five-bit channels with distinct patterns to expose misplaced color values.</summary>
     private static PaletteRgb5[] PaletteContractColors(int count, int seed = 0) => Enumerable.Range(0, count)
         .Select(index => new PaletteRgb5 { Red = (index + seed) % 32, Green = (index * 3 + seed) % 32,
@@ -103,7 +110,7 @@ internal static class PaletteJsonContractsFixturesVerification
                 BackLegs = PaletteContractColors(legs, frame), TrailingColor = trailing ? PaletteContractColors(1, frame)[0] : null }).ToArray();
         yield return new("Mother Brain rainbow", PaletteContractDocument(new MotherBrainRainbowPaletteDocument
         {
-            Version = (int)MotherBrainRainbowPaletteVersion.Current,
+            Version = MotherBrainRainbowPaletteFile.Version,
             Rainbow = Frames(MotherBrainRainbowPaletteFormat.RainbowFrameCount, MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, false),
             ToGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.DrainedColors,

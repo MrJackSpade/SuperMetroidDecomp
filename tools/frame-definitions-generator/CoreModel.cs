@@ -53,6 +53,7 @@ internal sealed class CoreModel
     private readonly Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>?> _owners = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<ISymbol, List<ISymbol>> _dispatch = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<IFieldSymbol, IReadOnlySet<string>> _startPrograms = new(SymbolEqualityComparer.Default);
     private readonly HashSet<SyntaxNode> _startEntries = [];
     private readonly HashSet<INamedTypeSymbol> _constructedFamilies = new(SymbolEqualityComparer.Default);
     private readonly INamedTypeSymbol _entity;
@@ -77,6 +78,7 @@ internal sealed class CoreModel
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol programAnimation = SingleType("EnemyProjectileProgramAnimation", arity: 3);
+        ProgramAnimation = programAnimation;
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
         foreach (string name in MemberSpawnerTypeNames)
@@ -138,6 +140,14 @@ internal sealed class CoreModel
     /// <summary>An enemy slot.</summary>
     public INamedTypeSymbol RoomEnemySlot { get; }
 
+    /// <summary>The base every projectile program family derives from, whose type arguments are its program, pose and cue types.</summary>
+    public INamedTypeSymbol ProgramAnimation { get; }
+
+    /// <summary>What each projectile program family's programs show, read from their program sets once.</summary>
+    public ProjectileProgramFrames ProgramFrames => _programFrames ??= new ProjectileProgramFrames(this);
+
+    private ProjectileProgramFrames? _programFrames;
+
     /// <summary>Whether <paramref name="type"/> is an entity type: one implementing IEnemyEntity.</summary>
     public bool IsEntityType(INamedTypeSymbol type)
     {
@@ -183,6 +193,58 @@ internal sealed class CoreModel
 
     /// <summary>The program family a typed-start entry starts for <paramref name="kind"/>, if the kind has one.</summary>
     public INamedTypeSymbol? StartedFamily(IFieldSymbol kind) => _starts.GetValueOrDefault(kind);
+
+    /// <summary>
+    /// The programs a typed-start entry starts <paramref name="kind"/>'s family in, when its construction names them as
+    /// constants; null when it names none or the kind has no entry.
+    /// </summary>
+    public IReadOnlySet<string>? StartedPrograms(IFieldSymbol kind) => _startPrograms.GetValueOrDefault(kind);
+
+    /// <summary>
+    /// The programs <paramref name="creation"/>, a construction of a projectile program family, can start it in: the
+    /// members of the family's program type its first argument names, each branch of a conditional or switch among them;
+    /// null when any branch is no such member.
+    /// </summary>
+    public IReadOnlySet<string>? ProgramsOf(SemanticModel semantic, BaseObjectCreationExpressionSyntax creation, INamedTypeSymbol family)
+    {
+        INamedTypeSymbol? programType = null;
+        for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, ProgramAnimation))
+            {
+                programType = type.TypeArguments[0] as INamedTypeSymbol;
+                break;
+            }
+        }
+        if (creation.ArgumentList is not { Arguments: [var first, ..] } || programType is null)
+            return null;
+        var programs = new HashSet<string>(StringComparer.Ordinal);
+        return AddPrograms(semantic, first.Expression, programType, programs) ? programs : null;
+    }
+
+    /// <summary>
+    /// Adds the members of <paramref name="programType"/> <paramref name="expression"/> can be to <paramref name="programs"/>,
+    /// through conditionals, switches and parentheses; false when some branch is no such member.
+    /// </summary>
+    private static bool AddPrograms(SemanticModel semantic, ExpressionSyntax expression, INamedTypeSymbol programType, HashSet<string> programs)
+    {
+        switch (expression)
+        {
+            case ParenthesizedExpressionSyntax parenthesized:
+                return AddPrograms(semantic, parenthesized.Expression, programType, programs);
+            case ConditionalExpressionSyntax conditional:
+                return AddPrograms(semantic, conditional.WhenTrue, programType, programs) & AddPrograms(semantic, conditional.WhenFalse, programType, programs);
+            case SwitchExpressionSyntax choice:
+                bool all = true;
+                foreach (SwitchExpressionArmSyntax arm in choice.Arms)
+                    all &= AddPrograms(semantic, arm.Expression, programType, programs);
+                return all;
+        }
+        if (semantic.GetSymbolInfo(expression).Symbol is not IFieldSymbol program || !SymbolEqualityComparer.Default.Equals(program.ContainingType, programType))
+            return false;
+        programs.Add(program.Name);
+        return true;
+    }
 
     /// <summary>Whether <paramref name="node"/> is a typed-start entry, which the walks read as its kind's family, not as code.</summary>
     public bool IsStartEntry(SyntaxNode node) => _startEntries.Contains(node);
@@ -528,6 +590,8 @@ internal sealed class CoreModel
         if (_starts.TryGetValue(kind, out INamedTypeSymbol? previous) && !SymbolEqualityComparer.Default.Equals(previous, started))
             throw new InvalidDataException($"{kind.Name} starts both {previous.Name} and {started.Name}.");
         _starts[kind] = started;
+        if (ProgramsOf(model, creation, started) is { } programs)
+            _startPrograms[kind] = programs;
         _startEntries.Add(entry);
     }
 

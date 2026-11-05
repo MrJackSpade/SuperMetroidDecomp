@@ -10,7 +10,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
 
-/// <summary>Compares the WARP reference and the graphics device's Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
+/// <summary>Compares the WARP reference and the graphics device's Direct3D sprite layers across sprite sizes, counts, a plane behind them, and overlap.</summary>
 internal static class ObjectSmokeTests
 {
     /// <summary>Renders seeded OAM and VRAM samples plus a transparent overlapping-sprite case on the given device.</summary>
@@ -31,16 +31,10 @@ internal static class ObjectSmokeTests
         {
             byte obsel = (byte)((size << 5) | selection);
             var memory = FramePaint.FromOam(vram, palette, oam, count, obsel);
-            Check(memory, obsel, new DisplayLayer[] { new SpritesLayer() });
-            Check(memory, obsel, new DisplayLayer[] {
-                new SpriteDepthLayer(0),
-                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), false),
-                new SpriteDepthLayer(1), new SpriteDepthLayer(2),
-                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), true),
-                new SpriteDepthLayer(3) });
+            Check(memory, obsel);
+            Check(memory, obsel, new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11)));
         }
-        // Earlier OAM wins even when the later entry has greater display priority.
-        // A transparent hole in the winner must still expose that later entry.
+        // The earlier draw covers the later one; a transparent hole in it must still expose the later draw.
         Array.Clear(vram); Array.Clear(oam); Array.Clear(palette);
         palette[129] = new RgbColor(31, 0, 0);
         palette[145] = new RgbColor(0, 0, 31);
@@ -48,16 +42,13 @@ internal static class ObjectSmokeTests
         for (int row = 0; row < 8; row++) vram[32 + row * 2] = 0xff;
         oam[6] = 1; oam[7] = 0x32;
         var overlap = FramePaint.FromOam(vram, palette, oam, 2, 0);
-        Check(overlap, 0, new DisplayLayer[] { new SpritesLayer() });
-        for (byte priority = 0; priority < 4; priority++)
-            Check(overlap, 0, new DisplayLayer[] { new SpriteDepthLayer(priority) });
+        Check(overlap, 0);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {cases} exact OBJ comparisons passed.");
 
-        void Check(FramePaint memory, byte obsel, DisplayLayer[] layers)
+        void Check(FramePaint memory, byte obsel, params DisplayLayer[] behind)
         {
             cases++;
-            var frame = new DisplayPacket(0,
-                new LayeredScene(memory, layers, 15));
+            var frame = new DisplayPacket(0, memory.SpritesScene(15, SpriteBlend.Drawn, behind));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame),
                 renderer.RenderForReadback(frame), $"{device.Kind}: OBJ sample {cases}, OBSEL {obsel}, parts {memory.SpriteParts().Length}");
         }

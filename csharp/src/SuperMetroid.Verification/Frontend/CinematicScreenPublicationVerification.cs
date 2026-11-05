@@ -93,7 +93,7 @@ internal static class CinematicScreenPublicationVerification
         // The intro publishes its faded backdrop and its pictures' shading, not a palette (#1512).
         LayeredScene introFrame = intro.CaptureTranslatedRenderSnapshot(), restoredFrame = restoredIntro.CaptureTranslatedRenderSnapshot();
         AssertEqual(introFrame.Paint.Backdrop, restoredFrame.Paint.Backdrop, "a restored intro keeps its backdrop");
-        AssertTrue(PlacedSpritePart.Of(introFrame.Paint.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredFrame.Paint.SpriteDraws)),
+        AssertTrue(PlacedSpritePart.Of(introFrame.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredFrame.SpriteDraws)),
             "a restored intro places the same sprite entries");
         Console.WriteLine("  Cinematic screens: the rear view shows its map, and the flight, destruction and intro survive a debugger round trip.");
     }

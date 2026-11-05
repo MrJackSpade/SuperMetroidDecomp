@@ -103,8 +103,8 @@ internal static class EndingSnapshotTestsVerification
                             }
                         }
                     }
-                    AssertTrue(explosion.LayersOf<SpritesLayer>().Single().AddToScreen,
-                        "explosion transition adds OBJ subscreen to BG1 and backdrop");
+                    AssertTrue(explosion.LayersOf<SpritesLayer>().Single().Blend == SpriteBlend.Glows,
+                        "explosion transition's sprites glow over the planet and the sky");
                 }
                 if (firstPhaseFrame && legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionHold)
                     AssertEqual(64, tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion],
@@ -129,29 +129,28 @@ internal static class EndingSnapshotTestsVerification
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
                 if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
-                    Live().LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.MainObjects))
+                    Live().LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.GlowsOverSprites is not null))
                 {
                     var burst = Live();
                     var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
                     AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.Segment7C)),
                         "F2B7 selects burst BG2 map");
-                    AssertTrue(ShowsOnly(legacy, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).Plane,
+                    AssertTrue(ShowsOnly(legacy, (sub.GlowsOver ?? throw new InvalidOperationException("Verification requires sub.GlowsOver.")).Plane,
                             SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.Segment70)),
-                        "F2B7 keeps BG1 map and excludes backdrop color math");
+                        "the burst glows over the planet's map, not over the sky");
 
                     burstDisplayFrames++;
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation
-                    && Live().LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.IncludeObjects))
+                    && Live().LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer is { GlowsOver: null, GlowsOverSprites: null }))
                 {
                     var finale = Live();
                     var backgrounds = finale.LayersOf<PicturedPlaneLayer>();
-                    AssertTrue(backgrounds.Zip(new[] { EndingObjectFragmentId.Segment78, EndingObjectFragmentId.Segment74, EndingObjectFragmentId.Segment78,
-                            EndingObjectFragmentId.Segment74 }).All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures,
-                            EndingPictureNames.ExplosionMap(shown.Second))),
-                        "native explosion finale selects both background maps in main-screen priority order");
-                    AssertTrue(!finale.Layers.Any(layer => layer is SpritesLayer or SpriteDepthLayer),
-                        "F2FA moves OBJ exclusively to the subscreen");
+                    AssertTrue(backgrounds.Length == 2 && backgrounds.Zip(new[] { EndingObjectFragmentId.Segment78, EndingObjectFragmentId.Segment74 })
+                            .All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(shown.Second))),
+                        "the explosion finale shows its glow's map behind the planet's");
+                    AssertTrue(finale.LayersOf<SpritesLayer>().All(layer => layer.Blend == SpriteBlend.Glows),
+                        "the finale's debris only glows, never covering the planet");
                     if (hours == 2 && finaleDisplayFrames == 10)
                     {
 
@@ -184,7 +183,7 @@ internal static class EndingSnapshotTestsVerification
                     var expectedOam = ScreenSpritesFixtures.Frame(objects => referenceJump.Draw(objects, rewardArt));
                     // The live ending also appends the restored shooting stars after the reference jump actors.
                     PlacedSpritePart[] jumpParts = PlacedSpritePart.Of(expectedOam.Draws);
-                    PlacedSpritePart[] liveParts = [.. jumpFrame.Paint.SpriteParts().Take(jumpParts.Length)];
+                    PlacedSpritePart[] liveParts = [.. jumpFrame.SpriteParts().Take(jumpParts.Length)];
                     int[] mismatches = [.. Enumerable.Range(0, jumpParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != jumpParts[index])];
                     AssertTrue(mismatches.Length == 0,
                         "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame" +
@@ -306,17 +305,17 @@ internal static class EndingSnapshotTestsVerification
                     if (expectedWhite > 0)
                     {
                         AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
-                        AssertTrue(flight.LayersOf<SpriteDepthLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
-                        AssertTrue(flight.Layers[0] is ScreenTintLayer && flight.Layers[1] is SpriteDepthLayer { Depth: 0 }
+                        var white = new RgbColor(fixedColors[0].Red, fixedColors[0].Green, fixedColors[0].Blue);
+                        AssertTrue(flight.LayersOf<SpritesLayer>().All(layer => layer.Tint == white), "the sprites and the sky share the flyaway's white");
+                        AssertTrue(flight.Layers[0] is ScreenTintLayer && flight.Layers[1] is SpritesLayer
                             && flight.Layers[2] is TurningFloorLayer,
-                            "fixed backdrop is composed before unaffected Mode7 BG1");
+                            "the white sky and the sprites behind the gunship are composed before its untinted floor");
                     }
 
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
-                    var memory = Live().Paint;
-                    AssertTrue(memory.SpriteParts().All(part => part.Part.Palette <= 2),
+                    AssertTrue(Live().SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
                 if (legacy.Stage.Phase >= EndingCreditsPhase.ItemPercentage)
@@ -329,7 +328,7 @@ internal static class EndingSnapshotTestsVerification
                     stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
                     starOnlyOam.FinalizeFrame();
                     var actual = Live();
-                    AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Paint.SpriteParts()),
+                    AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.SpriteParts()),
                         "native E58A leaves only the independent shooting stars before final percentage text");
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)

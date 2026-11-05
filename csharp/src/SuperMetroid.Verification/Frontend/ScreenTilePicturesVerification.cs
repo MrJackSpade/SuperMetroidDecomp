@@ -52,17 +52,17 @@ internal static class ScreenTilePicturesVerification
             SpriteSheetFrame foreground = sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[shownArea]).Frame(AreaMapPictures.WorldForegroundFrame);
             SpriteSheetFrame background = sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[shownArea]).Frame(AreaMapPictures.WorldBackgroundFrame);
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
-            foreach (AreaMapColorMath math in new[] { AreaMapColorMath.WithBackdrop, AreaMapColorMath.ForegroundOnly })
+            foreach (AreaMapBackgroundGlow math in new[] { AreaMapBackgroundGlow.WholeScreen, AreaMapBackgroundGlow.ForegroundOnly })
             {
                 LayeredScene scene = world.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(used), math);
                 AssertTrue(scene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } shownForeground] } && ReferenceEquals(shownForeground.Picture, foreground)
                     && scene.Layers[1] is AddedPicturedPlaneLayer { Plane.Pictures: [{ } shownBackground] } added && ReferenceEquals(shownBackground.Picture, background)
-                    && (added.MainCoverage is null) == (math == AreaMapColorMath.WithBackdrop),
-                    $"{shownArea} world map shows its foreground and adds its background ({math})");
+                    && (added.GlowsOver is null) == (math == AreaMapBackgroundGlow.WholeScreen),
+                    $"{shownArea} world map shows its foreground and its background glowing over it ({math})");
             }
             var room = new FileSelectRoomMapGraphics(explored, shownArea, mapPresentation: maps, sheets: sheets);
             LayeredScene roomScene = room.CaptureRenderSnapshot();
-            AssertTrue(roomScene.Layers.Length == 4 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
+            AssertTrue(roomScene.Layers.Length == 2 && roomScene.Layers[1] is PictureGridLayer { Grid: { } grid }
                 && grid.Cells.Length == AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles && grid.Cells.All(cell => cell is not null),
                 $"{shownArea} room map shows every cell's picture");
             AssertTrue(room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer { Plane.Pictures: [{ } frame] }]

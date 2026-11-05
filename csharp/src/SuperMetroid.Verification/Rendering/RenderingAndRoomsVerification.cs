@@ -77,15 +77,12 @@ internal static void VerifyObjRendering()
 
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
-    RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(
-        FramePaint.FromNative(cgram.Colors, []), new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
-    RgbaPixel[] pixels = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
+    RgbaPixel[] backdrop = DisplayRendering.Render(FramePaint.FromNative(cgram.Colors, []).SpritesScene(DisplayBrightness.Full));
+    RgbaPixel[] pixels = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
     AssertEqual(new RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
-    // OBJ priority controls only the winning sprite pixel's position relative to BGs.
-    // It does not override OAM order when two sprites overlap. Model the Ceres failure
+    // Within a sprite layer the earlier draw covers the later one, whatever priority its parts carried. Model the Ceres failure
     // directly: an earlier Samus-like OBJ2 must hide a later Ridley-like OBJ3, otherwise
     // the hidden boss is painted over Samus. Distinct palettes make the winner observable
     // without private ROM art; both entries deliberately use the same one-pixel tile and
@@ -95,8 +92,7 @@ internal static void VerifyObjRendering()
     oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
     oam.AddRawSmallSprite(position: new Position16<SpritePixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
-    RgbaPixel[] overlap = DisplayRendering.Render(new LayeredScene(
-        FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0), new DisplayLayer[] { new SpritesLayer() }, DisplayBrightness.Full));
+    RgbaPixel[] overlap = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
     AssertEqual(
         new RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],

@@ -40,7 +40,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                    new DisplayLayer[] { new SpritesLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
+                    new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "Mode-7 base cannot erase earlier layers");
             }
         }
         // Retail room assets with explicitly constructed getaway registers exercise

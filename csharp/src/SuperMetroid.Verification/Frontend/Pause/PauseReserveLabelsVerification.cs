@@ -71,8 +71,7 @@ internal static class PauseReserveLabelsVerification
                 .Where(placed => placed.Shading == PictureShading.Standard))
                 AssertTrue(PictureShading.Standard.InkColours(placed.Picture.Sheet).SequenceEqual(nativeColours.Colors[..SpriteImage.SpriteColourCount].ToArray()),
                     $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
-            var expectedMemory = snapshot.Paint.WithNativeColours(PauseShownColours.Of(pause));
-            var expectedPixels = DisplayRendering.Render(new LayeredScene(expectedMemory, snapshot.Layers, snapshot.Brightness));
+            var expectedPixels = DisplayRendering.Render(snapshot.WithNativeColours(PauseShownColours.Of(pause)));
             var actualPixels = pause.Render();
 
             AssertTrue(actualPixels.SequenceEqual(expectedPixels),

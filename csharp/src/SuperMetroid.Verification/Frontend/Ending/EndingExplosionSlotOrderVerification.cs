@@ -36,21 +36,17 @@ internal static class EndingExplosionSlotOrderVerification
         expected.FinalizeFrame();
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
         var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-        var actual = snapshot.Paint;
         PlacedSpritePart[] afterglowParts = PlacedSpritePart.Of(expected.Draws);
-        PlacedSpritePart[] liveParts = [.. actual.SpriteParts().Take(afterglowParts.Length)];
+        PlacedSpritePart[] liveParts = [.. snapshot.SpriteParts().Take(afterglowParts.Length)];
         int[] mismatches = [.. Enumerable.Range(0, afterglowParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != afterglowParts[index])];
         AssertTrue(mismatches.Length == 0,
             "native slot order preserves all 37 afterglow pieces before starfield OAM overflow" +
             string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {afterglowParts[index].Part}]")));
-        var background = snapshot.LayersOf<TurningFloorLayer>().Single();
-        AssertTrue(actual.SpriteParts().All(part => part.Part.Priority == 0), "live flyaway actors use native priority zero");
+        // The white sky, then the afterglow behind the departing gunship, tinted with the sky's white, then the gunship
+        // (#1514).
         var fixedWhite = snapshot.LayersOf<ScreenTintLayer>().Single();
-        DisplayLayer[] order = [fixedWhite, new SpritesLayer(FixedColor: fixedWhite), background];
-        var nativePixels = DisplayRendering.Render(new LayeredScene(actual, order, snapshot.Brightness));
-        var actualPixels = ending.Render();
-
-        AssertTrue(actualPixels.SequenceEqual(nativePixels),
-            "live getaway ship occludes priority-zero afterglow pixels");
+        var white = new RgbColor(fixedWhite.Red, fixedWhite.Green, fixedWhite.Blue);
+        AssertTrue(snapshot.Layers is [ScreenTintLayer, SpritesLayer { Tint: { } tint }, TurningFloorLayer] && tint == white,
+            "the live getaway ship covers the afterglow, which shares the sky's white");
     }
 }

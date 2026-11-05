@@ -140,12 +140,13 @@ internal static class EndingPlanetBoundaryVerification
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             RgbColor[] snapshotColours = EndingShownColours.Of(ending);
             var projection = snapshot.LayersOf<TurningFloorLayer>().Single();
-            // D837 retains M7SEL=0 from atmospheric setup. Its main is BG1,
-            // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
+            // The crossfade keeps the atmosphere's wrapping floor, and the scene's sprites glow over the planet and the
+            // sky (#1514); the native reconstruction draws the scene's sprites in the native colours.
+            FramePaint nativeSprites = new FramePaint(snapshot.Paint.Backdrop, snapshot.SpriteDraws).WithNativeColours(snapshotColours);
             DisplayLayer[] nativeLayers = [new TurningFloorLayer(projection.Transform with { Outside = FloorOverflowMode.Wrap },
                     AffineFloorFixtures.Floor(nativeVram, snapshotColours)),
-                new SpritesLayer(AddToScreen: true)];
-            var nativeMemory = snapshot.Paint.WithNativeColours(snapshotColours);
+                new SpritesLayer(nativeSprites.SpriteDraws, SpriteBlend.Glows)];
+            var nativeMemory = new FramePaint(nativeSprites.Backdrop);
             var expected = DisplayRendering.Render(new LayeredScene(nativeMemory, nativeLayers, snapshot.Brightness));
             var actual = ending.Render();
             int changed = actual.Zip(expected, (first, second) => first != second).Count(differs => differs);
@@ -155,13 +156,13 @@ internal static class EndingPlanetBoundaryVerification
                 // Each layer alone on both sides says whether the floor's colours or the sprites' combination differ.
                 string inkTrace = SpriteInkTrace(snapshot, pixel % DisplayScreen.Width, pixel / DisplayScreen.Width);
                 string screenShades = string.Join(" ", ending.screen.Colours.Shading.Shades.Select(shade => shade.Key));
-                string spriteShades = string.Join(" | ", snapshot.Paint.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()
+                string spriteShades = string.Join(" | ", snapshot.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()
                     .Select(draw => draw.Shading is { } shading ? string.Join(" ", shading.Shades.Select(shade => shade.Key)) : "none").Distinct());
                 int FloorOnly() => DisplayRendering.Render(new LayeredScene(snapshot.Paint, [projection], snapshot.Brightness))
                     .Zip(DisplayRendering.Render(new LayeredScene(nativeMemory, [nativeLayers[0]], snapshot.Brightness)), (first, second) => first != second)
                     .Count(differs => differs);
-                int SpritesOnly() => DisplayRendering.Render(new LayeredScene(snapshot.Paint, [new SpritesLayer(AddToScreen: true)], snapshot.Brightness))
-                    .Zip(DisplayRendering.Render(new LayeredScene(nativeMemory, [new SpritesLayer(AddToScreen: true)], snapshot.Brightness)), (first, second) => first != second)
+                int SpritesOnly() => DisplayRendering.Render(new LayeredScene(snapshot.Paint, [snapshot.LayersOf<SpritesLayer>().Single()], snapshot.Brightness))
+                    .Zip(DisplayRendering.Render(new LayeredScene(nativeMemory, [nativeLayers[1]], snapshot.Brightness)), (first, second) => first != second)
                     .Count(differs => differs);
                 firstDifference = $"frame {checkedFrames} ({ending.Stage.Phase}) pixel ({pixel % DisplayScreen.Width},{pixel / DisplayScreen.Width}): " +
                     $"live {actual[pixel]}, native {expected[pixel]}, {changed} pixels that frame; floor alone differs at {FloorOnly()} pixels, " +
@@ -244,7 +245,7 @@ internal static class EndingPlanetBoundaryVerification
     internal static string SpriteInkTrace(LayeredScene scene, int x, int y)
     {
         var covering = new List<string>();
-        ImageSpriteDraw[] draws = [.. scene.Paint.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()];
+        ImageSpriteDraw[] draws = [.. scene.SpriteDraws.ToArray().OfType<ImageSpriteDraw>()];
         for (int index = 0; index < draws.Length; index++)
         {
             ImageSpriteDraw draw = draws[index];

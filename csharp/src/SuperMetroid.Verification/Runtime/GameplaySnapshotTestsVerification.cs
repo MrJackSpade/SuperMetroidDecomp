@@ -41,7 +41,7 @@ internal static class GameplaySnapshotTestsVerification
             new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         var layer = new GameplaySceneLayer(registers, rooms, scrolls);
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-            new DisplayLayer[] { new SpritesLayer(), layer }, 15), "base cannot erase prior operations");
+            new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "base cannot erase prior operations");
 
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

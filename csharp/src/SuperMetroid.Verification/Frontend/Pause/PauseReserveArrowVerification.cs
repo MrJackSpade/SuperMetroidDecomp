@@ -78,8 +78,7 @@ internal static class PauseReserveArrowVerification
             }
             AssertEqual(color6, colors[102], context + " arrow's darker bevel colour");
             AssertEqual(colorB, colors[107], context + " arrow's lighter bevel colour");
-            var memory = capture.Paint.WithNativeColours(colors);
-            var expectedPixels = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
+            var expectedPixels = DisplayRendering.Render(capture.WithNativeColours(colors));
             AssertTrue(pause.Render().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");
         }
     }

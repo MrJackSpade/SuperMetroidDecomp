@@ -41,7 +41,7 @@ internal static class PauseSelectorsVerification
                 native.Step(0, 0); pause.Step(0, 0);
                 AssertEqual(native.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "real selector phase and timer follow native decrement/advance order");
                 var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
-                AssertTrue(nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) && PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) &&
+                AssertTrue(nativeInputs.SpriteParts().SequenceEqual(portInputs.SpriteParts()) && PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) &&
                     PauseScreenMemory.SameImage(native, pause) && nativeInputs.Brightness == portInputs.Brightness,
                     "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)

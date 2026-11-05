@@ -12,9 +12,6 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// Content loads parts of itself on first use (<see cref="Lazy{T}"/>) and fills some collections on demand:
 /// <see cref="Refresh"/> indexes what it loaded since, and a capture that must name it refreshes first. A path steps
 /// through a lazily loaded part by its value, which a restore loads again. An object once indexed keeps its path.
-/// A graph of roots that extend another graph's roots (<see cref="BoundObjectGraph(IReadOnlyList{object}, BoundObjectGraph)"/>)
-/// indexes only what its own roots reach first and names the rest by the other graph's paths, renumbered, so a list
-/// that extends indexed content does not walk that content again.
 /// </summary>
 internal sealed class BoundObjectGraph
 {
@@ -32,12 +29,6 @@ internal sealed class BoundObjectGraph
 
     /// <summary>The bound roots, in the order their paths number them.</summary>
     private readonly object[] roots;
-
-    /// <summary>The graph whose roots follow this graph's own, or null for a graph that indexes all its roots itself.</summary>
-    private readonly BoundObjectGraph? extended;
-
-    /// <summary>How many roots precede the extended graph's, which its root numbers are offset by.</summary>
-    private readonly int extendedOffset;
 
     /// <summary>Each reachable object's parent and the step from it; a root's parent is null and its step is its number.</summary>
     private readonly Dictionary<object, Origin> origins = new(ReferenceEqualityComparer.Instance);
@@ -76,47 +67,18 @@ internal sealed class BoundObjectGraph
         for (int index = 0; index < this.roots.Length; index++)
         {
             object root = Ensure.NotNull(this.roots[index]);
-            if (origins.TryAdd(root, new Origin(null, index.ToString(System.Globalization.CultureInfo.InvariantCulture), 0)))
+            if (origins.TryAdd(root, new Origin(null, index.ToString(System.Globalization.CultureInfo.InvariantCulture))))
                 pending.Enqueue(root);
         }
-        Index(pending, refreshing: false);
-    }
-
-    /// <summary>
-    /// Indexes the roots <paramref name="prefix"/> followed by <paramref name="extended"/>'s roots, walking only what the
-    /// prefix reaches first. The index is the one a graph of all those roots makes: breadth first from every root at once,
-    /// earlier roots first, an object takes the path it is first reached by. An object the prefix reaches no later than the
-    /// extended graph does is reached first through the prefix, and so is everything reached first through it; every other
-    /// object the extended graph holds is reached first through the extended graph's roots, by the path it holds, so it keeps
-    /// that path with its root renumbered past the prefix. The walk from the prefix therefore stops at an object the extended
-    /// graph reaches sooner.
-    /// </summary>
-    /// <param name="prefix">The roots numbered before the extended graph's.</param>
-    /// <param name="extended">The indexed graph whose roots follow the prefix.</param>
-    internal BoundObjectGraph(IReadOnlyList<object> prefix, BoundObjectGraph extended)
-    {
-        Ensure.NotNull(prefix);
-        this.extended = Ensure.NotNull(extended);
-        extendedOffset = prefix.Count;
-        roots = [.. prefix, .. extended.roots];
-        var pending = new Queue<object>();
-        for (int index = 0; index < prefix.Count; index++)
-        {
-            object root = Ensure.NotNull(prefix[index]);
-            if (origins.TryAdd(root, new Origin(null, index.ToString(System.Globalization.CultureInfo.InvariantCulture), 0)))
-                pending.Enqueue(root);
-        }
-        Index(pending, refreshing: false);
+        Index(pending);
     }
 
     /// <summary>
     /// Indexes what the content loaded since the last refresh: the values of lazily loaded parts loaded since. An object
-    /// keeps the path it was first indexed under, so a path never changes once a capture has used it. A graph that extends
-    /// another refreshes that graph first, and indexes from its own roots only what that graph does not already name.
+    /// keeps the path it was first indexed under, so a path never changes once a capture has used it.
     /// </summary>
     internal void Refresh()
     {
-        extended?.Refresh();
         var pending = new Queue<object>();
         foreach (GrowingCollection collection in collections)
         {
@@ -132,39 +94,35 @@ internal sealed class BoundObjectGraph
             if (LazyValue(lazy, force: false) is not { } loaded)
                 continue;
             unloaded.RemoveAt(index);
-            if (!loaded.GetType().IsValueType)
-                Reach(loaded, new Origin(lazy, LazyValueStep, origins[lazy].Depth + 1), refreshing: true, pending);
+            if (!loaded.GetType().IsValueType && origins.TryAdd(loaded, new Origin(lazy, LazyValueStep)))
+                pending.Enqueue(loaded);
         }
-        Index(pending, refreshing: true);
+        Index(pending);
     }
 
     /// <summary>
     /// Indexes everything reachable from <paramref name="pending"/> that is not indexed yet, breadth first, so each object's
     /// path is its shortest from a root.
     /// </summary>
-    /// <param name="pending">The indexed objects whose children are walked.</param>
-    /// <param name="refreshing">Whether the walk indexes content loaded since the graph was first indexed.</param>
-    private void Index(Queue<object> pending, bool refreshing)
+    private void Index(Queue<object> pending)
     {
         while (pending.Count > 0)
         {
             object current = pending.Dequeue();
-            int depth = origins[current].Depth + 1;
             if (IsLazy(current.GetType()) && LazyValue(current, force: false) is null)
                 unloaded.Add(current);
             if (VersionReader(current.GetType()) is { } versionReader && trackedCollections.Add(current))
                 collections.Add(new GrowingCollection(current, versionReader));
-            IndexChildren(current, depth, refreshing, pending);
+            IndexChildren(current, pending);
         }
     }
 
     /// <summary>
     /// Indexes every object <paramref name="value"/> holds that is not indexed yet, as <see cref="Children"/> names them
     /// (#1532): a reference held by a field or an array element is reached directly, its step built only when a capture
-    /// names it, and only a value type walked through goes through <see cref="Reached"/>. Each child is reached in
-    /// <paramref name="depth"/> steps from a root.
+    /// names it, and only a value type walked through goes through <see cref="Reached"/>.
     /// </summary>
-    private void IndexChildren(object value, int depth, bool refreshing, Queue<object> pending)
+    private void IndexChildren(object value, Queue<object> pending)
     {
         Type type = value.GetType();
         if (type == typeof(string) || value is Delegate || value is Type || value is MemberInfo || value is Pointer)
@@ -172,7 +130,7 @@ internal sealed class BoundObjectGraph
         if (IsLazy(type))
         {
             if (LazyValue(value, force: false) is { } loaded && !loaded.GetType().IsValueType)
-                Reach(loaded, new Origin(value, LazyValueStep, depth), refreshing, pending);
+                Reach(loaded, new Origin(value, LazyValueStep), pending);
             return;
         }
         if (value is Array array)
@@ -189,14 +147,14 @@ internal sealed class BoundObjectGraph
                     if (items[index] is not { } item)
                         continue;
                     if (item.GetType().IsValueType)
-                        ReachThrough(item, value, ElementStep + index.ToString(System.Globalization.CultureInfo.InvariantCulture), depth, refreshing, pending);
+                        ReachThrough(item, value, ElementStep + index.ToString(System.Globalization.CultureInfo.InvariantCulture), pending);
                     else
-                        Reach(item, new Origin(value, Step: null, depth, index), refreshing, pending);
+                        Reach(item, new Origin(value, Step: null, index), pending);
                 }
                 return;
             }
             foreach ((object child, string step) in Children(value))
-                Reach(child, new Origin(value, step, depth), refreshing, pending);
+                Reach(child, new Origin(value, step), pending);
             return;
         }
         foreach ((FieldInfo field, string step) in ReferenceFields(type))
@@ -204,84 +162,42 @@ internal sealed class BoundObjectGraph
             if (field.GetValue(value) is not { } fieldValue)
                 continue;
             if (fieldValue.GetType().IsValueType)
-                ReachThrough(fieldValue, value, step, depth, refreshing, pending);
+                ReachThrough(fieldValue, value, step, pending);
             else
-                Reach(fieldValue, new Origin(value, step, depth), refreshing, pending);
+                Reach(fieldValue, new Origin(value, step), pending);
         }
     }
 
     /// <summary>Indexes the references the value <paramref name="held"/> holds, each named through its step from <paramref name="parent"/>.</summary>
-    private void ReachThrough(object held, object parent, string step, int depth, bool refreshing, Queue<object> pending)
+    private void ReachThrough(object held, object parent, string step, Queue<object> pending)
     {
         foreach ((object child, string childStep) in Reached(held, step))
-            Reach(child, new Origin(parent, childStep, depth), refreshing, pending);
+            Reach(child, new Origin(parent, childStep), pending);
     }
 
-    /// <summary>
-    /// Indexes <paramref name="child"/> at <paramref name="origin"/> unless it is indexed already, or the graph this one
-    /// extends names it as <see cref="Admits"/> decides.
-    /// </summary>
-    private void Reach(object child, Origin origin, bool refreshing, Queue<object> pending)
+    /// <summary>Indexes <paramref name="child"/> at <paramref name="origin"/> unless it is indexed already.</summary>
+    private void Reach(object child, Origin origin, Queue<object> pending)
     {
-        if (Admits(child, origin.Depth, refreshing) && origins.TryAdd(child, origin))
+        if (origins.TryAdd(child, origin))
             pending.Enqueue(child);
-    }
-
-    /// <summary>
-    /// Whether this graph indexes <paramref name="child"/>, reached from its own roots at <paramref name="depth"/> steps:
-    /// always for a graph that extends none. A graph that extends another leaves it to that graph when that graph reaches it
-    /// in fewer steps, as a walk from every root at once reaches it first from there, and, once first indexed, leaves it every
-    /// object that graph names, so a path it named never changes.
-    /// </summary>
-    private bool Admits(object child, int depth, bool refreshing) =>
-        extended is null || !extended.Holds(child, out int heldDepth) || (!refreshing && heldDepth >= depth);
-
-    /// <summary>Whether this graph names <paramref name="value"/>, and the steps from its roots it was reached in when it does.</summary>
-    private bool Holds(object value, out int depth)
-    {
-        if (origins.TryGetValue(value, out Origin origin))
-        {
-            depth = origin.Depth;
-            return true;
-        }
-        if (extended is not null)
-            return extended.Holds(value, out depth);
-        depth = 0;
-        return false;
     }
 
     /// <summary>Whether <paramref name="value"/> is a bound object, and its path when it is.</summary>
     internal bool TryGetPath(object value, [NotNullWhen(true)] out string? path)
     {
-        if (paths.TryGetValue(value, out path))
-            return true;
-        if (origins.TryGetValue(value, out Origin origin))
+        if (!origins.TryGetValue(value, out Origin origin))
+        {
+            path = null;
+            return false;
+        }
+        if (!paths.TryGetValue(value, out path))
         {
             path = origin.Parent is { } parent && TryGetPath(parent, out string? parentPath)
                 ? parentPath + StepSeparator + origin.Named
                 : origin.Named;
             paths.Add(value, path);
-            return true;
         }
-        if (extended is not null && extended.TryGetPath(value, out string? extendedPath))
-        {
-            path = Renumbered(extendedPath);
-            paths.Add(value, path);
-            return true;
-        }
-        path = null;
-        return false;
-    }
-
-    /// <summary>A path of the extended graph with its root numbered among this graph's roots.</summary>
-    private string Renumbered(string extendedPath)
-    {
-        int separator = extendedPath.IndexOf(StepSeparator, StringComparison.Ordinal);
-        ReadOnlySpan<char> root = separator < 0 ? extendedPath.AsSpan() : extendedPath.AsSpan(0, separator);
-        int number = int.Parse(root, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture) + extendedOffset;
-        return separator < 0
-            ? number.ToString(System.Globalization.CultureInfo.InvariantCulture)
-            : number.ToString(System.Globalization.CultureInfo.InvariantCulture) + extendedPath[separator..];
+        return true;
     }
 
     /// <summary>The object <paramref name="path"/> names among the bound objects.</summary>
@@ -517,9 +433,8 @@ internal sealed class BoundObjectGraph
     /// </summary>
     /// <param name="Parent">The holding object, or null for a root.</param>
     /// <param name="Step">The step from the parent, or the root's number; null for an array element named by its index.</param>
-    /// <param name="Depth">The steps from a root it was reached in: zero for a root, one more than its parent's otherwise.</param>
     /// <param name="Element">The element's index in its array when <paramref name="Step"/> is null.</param>
-    private readonly record struct Origin(object? Parent, string? Step, int Depth, int Element = 0)
+    private readonly record struct Origin(object? Parent, string? Step, int Element = 0)
     {
         /// <summary>The step from the parent, as a path names it.</summary>
         internal string Named => Step ?? ElementStep + Element.ToString(System.Globalization.CultureInfo.InvariantCulture);

@@ -26,15 +26,19 @@ internal static class InlineArrayElements
     /// <summary>Each struct type's inline-array length, or null for a struct that is not one, read once.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, int?> lengths = new();
 
-    /// <summary>Each typed helper bound to a buffer type and its element type, by helper and buffer type, bound once.</summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string Helper, Type Type), MethodInfo> helpers = new();
+    /// <summary><see cref="ReadTyped"/> bound to each buffer type and its element type, bound once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, MethodInfo> readers = new();
+
+    /// <summary><see cref="CreateTyped"/> bound to each buffer type and its element type, bound once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, MethodInfo> creators = new();
 
     /// <summary>Every element of the boxed inline array <paramref name="buffer"/>, in order.</summary>
     [ReflectionAudit("debugger state capture reads every element of an inline-array struct through its element type")]
     internal static object?[] Read(object buffer)
     {
         Type type = buffer.GetType();
-        return (object?[])Invoke(nameof(ReadTyped), type, buffer, Length(type) ?? throw NotInline(type));
+        MethodInfo reader = readers.GetOrAdd(type, static buffer => Bind(nameof(ReadTyped), buffer));
+        return (object?[])Invoke(reader, type, buffer, Length(type) ?? throw NotInline(type));
     }
 
     /// <summary>A boxed inline array of <paramref name="type"/> holding <paramref name="elements"/> in order.</summary>
@@ -44,14 +48,15 @@ internal static class InlineArrayElements
         int length = Length(type) ?? throw NotInline(type);
         if (elements.Length != length)
             throw new InvalidDataException($"The saved {type.FullName} holds {elements.Length} elements; this build holds {length}.");
-        return Invoke(nameof(CreateTyped), type, elements, length);
+        MethodInfo creator = creators.GetOrAdd(type, static buffer => Bind(nameof(CreateTyped), buffer));
+        return Invoke(creator, type, elements, length);
     }
 
-    /// <summary>Runs a typed helper for <paramref name="type"/> and its element type.</summary>
+    /// <summary>Runs a typed helper bound to <paramref name="type"/> and its element type.</summary>
     [ReflectionAudit("debugger state binds the typed inline-array helpers to the buffer's own element type")]
-    private static object Invoke(string helper, Type type, object argument, int length) =>
-        helpers.GetOrAdd((helper, type), static key => Bind(key.Helper, key.Type)).Invoke(null, [argument, length])
-            ?? throw new InvalidOperationException($"{helper} returned nothing for {type.FullName}.");
+    private static object Invoke(MethodInfo helper, Type type, object argument, int length) =>
+        helper.Invoke(null, [argument, length])
+            ?? throw new InvalidOperationException($"{helper.Name} returned nothing for {type.FullName}.");
 
     /// <summary>The typed helper <paramref name="helper"/> bound to <paramref name="type"/> and its element type.</summary>
     [ReflectionAudit("debugger state binds the typed inline-array helpers to the buffer's own element type")]

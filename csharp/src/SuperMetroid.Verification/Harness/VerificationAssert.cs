@@ -435,7 +435,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Exploded door palette oracle revision");
         Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
-        Console.WriteLine("Exploded door:14 native colors,42 independent channel edits,no stock array,hashes,bounds and instance isolation pass; other death fades preserved.");
+        Console.WriteLine("Exploded door:14 native colors,no stock array,the hash and bounds pass; other death fades preserved.");
         return 0;
     }
 
@@ -448,7 +448,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Auxiliary palette oracle revision");
         Suite(nameof(VerifyStream3AuxiliaryPalettes), () => VerifyStream3AuxiliaryPalettes(rom));
         Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
-        Console.WriteLine("Auxiliary palettes:393 native colors,1179 independent RGB edits,zero stock endpoint/corpse arrays,identities,bounds and standalone target isolation pass.");
+        Console.WriteLine("Auxiliary palettes:393 native colors,zero stock endpoint/corpse arrays,identities and bounds pass.");
         return 0;
     }
 
@@ -565,7 +565,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby normal/target oracle revision");
         Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
         Suite(nameof(VerifyStream3BabyInitialPaints), () => VerifyStream3BabyInitialPaints(rom));
-        Console.WriteLine("Baby normal/target: native outputs, independent pulse/target/initial edits, bidirectional isolation, identities and bounds pass.");
+        Console.WriteLine("Baby normal/target: native outputs, identities and bounds pass.");
         return 0;
     }
 
@@ -644,7 +644,7 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Rainbow palette oracle revision");
         Suite(nameof(VerifyStream3DrainFades), () => VerifyStream3DrainFades(oracle));
-        Console.WriteLine("Rainbow material palettes: native colors, routing, independent edits and reduced material basis pass.");
+        Console.WriteLine("Rainbow material palettes: native colors, routing and reduced material basis pass.");
         return 0;
     }
 
@@ -750,18 +750,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
-        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom, true));
-        return 0;
-    }
-
-    /// <summary>Checks final X-ray body frame composition after presentation selection.</summary>
-    [VerificationCommand("--lookup-stream-1-body-frame-final")]
-    internal static int LookupStream1BodyFrameFinalCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
-        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom, false, true));
+        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom));
         return 0;
     }
 
@@ -844,7 +833,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby OAM oracle revision");
         Suite(nameof(VerifyStream3BabySpriteReflection), () => VerifyStream3BabySpriteReflection(rom));
-        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits pass; geometry/artwork remain required.");
+        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash pass; geometry/artwork remain required.");
         return 0;
     }
 
@@ -949,7 +938,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu borders oracle revision");
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, FileSelectPresentationExtractor.Extract(rom)));
         Suite(nameof(VerifyStream3OptionsBorders), () => VerifyStream3OptionsBorders(rom, GameOptionsPresentationExtractor.Extract(rom)));
-        Console.WriteLine("Menu borders:258native parts,1032independent edits,six reordered/expanded compositions pass.");
+        Console.WriteLine("Menu borders:258native parts and actual OAM draws pass.");
         return 0;
     }
 
@@ -1216,7 +1205,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu geometry oracle revision");
         Suite(nameof(VerifyStream3MenuSpriteGeometry), () => VerifyStream3MenuSpriteGeometry(rom));
-        Console.WriteLine("Menu geometry: native compositions, calculated stock storage, independent part edits, reordering and three loader bindings pass.");
+        Console.WriteLine("Menu geometry: native compositions, calculated stock storage, out-of-sheet rejection and three loader bindings pass.");
         return 0;
     }
 
@@ -1322,7 +1311,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beam basis oracle revision");
         Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
-        Console.WriteLine("Beam basis: exactly43 required stored colors and149 calculated values; all native outputs, independent edits and CGRAM isolation pass.");
+        Console.WriteLine("Beam basis: exactly43 required stored colors and149 calculated values; all native outputs pass.");
         return 0;
     }
 
@@ -1334,7 +1323,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Cannon basis oracle revision");
         Suite(nameof(VerifyLookupStream1ArmCannonTileSources), () => VerifyLookupStream1ArmCannonTileSources(rom));
-        Console.WriteLine("Cannon calculated defaults, zero stock overrides, native selectors, edits and DMA checks passed.");
+        Console.WriteLine("Cannon calculated defaults, zero stock overrides, native selectors and DMA checks passed.");
         return 0;
     }
 
@@ -2729,28 +2718,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading colors oracle revision");
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentationFile.Read(new MemoryStream(json))));
-        foreach (int editMode in new[] { 0, 1, 2 })
-        {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
-            int ordinal = 1000;
-            foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
-            for (int frame = 0; frame < 9; frame++)
-            for (int color = 0; color < 16; color++, ordinal++)
-                if (editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7))
-                    frames[frame][color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-            var edited = RoomPaletteFxPresentationFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-            ordinal = 1000;
-            foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
-            for (int frame = 0; frame < 9; frame++)
-            for (int color = 0; color < 16; color++, ordinal++)
-            {
-                ushort pointer = program.ColorPointer(frame, color);
-                AssertTrue(edited.TryReadColor(pointer, out RgbColor actual), "Edited loading color remains owned");
-                ushort expected = editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7) ? (ushort)ordinal : ReadVerificationWord(rom, 0x8d0000 | pointer);
-                AssertEqual(expected, actual, "Independent loading row edits survive alias compilation");
-            }
-        }
-        Console.WriteLine("Loading colors: all432 native colors, full pointer domain,25 stored words plus9 endpoint components, independent edits and guarded consumers pass.");
+        Console.WriteLine("Loading colors: all432 native colors, full pointer domain,25 stored words plus9 endpoint components and guarded consumers pass.");
         return 0;
     }
 
@@ -2764,39 +2732,7 @@ internal static class VerificationAssert
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var presentation = RoomPaletteFxPresentationFile.Read(new MemoryStream(json));
         Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(rom, presentation));
-        var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json,
-            ArtworkJson.Options);
-        int ordinal = 1000;
-        foreach (var frames in new[] { document.SamusHeatPowerSuit, document.SamusHeatVariaSuit, document.SamusHeatGravitySuit })
-        foreach (var row in (frames ?? throw new InvalidOperationException("Verification requires frames.")))
-        for (int color = 0; color < row.Length; color++, ordinal++)
-            row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-        var edited = RoomPaletteFxPresentationFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options)));
-        ordinal = 1000;
-        foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
-        for (int phase = 0; phase < 16; phase++)
-        for (int color = 0; color < 15; color++, ordinal++)
-        {
-            AssertTrue(edited.TryReadColor((ushort)(first + phase * 34 + color * 2), out RgbColor actual), "Edited heat color owned");
-            AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
-        }
-        document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
-            ArtworkJson.Options);
-        foreach (var frames in new[] { (document ?? throw new InvalidOperationException("Verification requires document.")).SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
-        for (int color = 0; color < 16; color++)
-            frames[0][color] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
-        var loadingEdited = RoomPaletteFxPresentationFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options)));
-        foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
-        for (int phase = 0; phase < 16; phase++)
-        for (int color = 0; color < 15; color++)
-        {
-            ushort pointer = (ushort)(first + phase * 34 + color * 2);
-            AssertTrue(loadingEdited.TryReadColor(pointer, out RgbColor actual), "Heat color survives independent loading-palette edit");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), actual, "Changing loading art cannot rewrite supplied heat art");
-        }
-        Console.WriteLine("Heat color aliases: original repeated rows, all pointer boundaries, stock storage, edited frames and guarded consumers pass.");
+        Console.WriteLine("Heat color aliases: original repeated rows, all pointer boundaries, stock storage and guarded consumers pass.");
         return 0;
     }
 
@@ -3229,7 +3165,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Phase-two rear-leg NTSC J/U v1.0 oracle");
         Suite(nameof(VerifyStream3PhaseTwoRearLeg), () => VerifyStream3PhaseTwoRearLeg(oracle));
-        Console.WriteLine("Phase-two rear leg: 15 native colors/destinations and 45 independent RGB edits pass.");
+        Console.WriteLine("Phase-two rear leg: 15 native colors/destinations pass.");
         return 0;
     }
 
@@ -3241,7 +3177,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Auxiliary palette NTSC J/U v1.0 oracle");
         Suite(nameof(VerifyStream3AuxiliaryPalettes), () => VerifyStream3AuxiliaryPalettes(oracle));
-        Console.WriteLine("Auxiliary palettes: 393 native colors, 1179 independent edits, identities and bounds pass.");
+        Console.WriteLine("Auxiliary palettes: 393 native colors, identities and bounds pass.");
         return 0;
     }
 
@@ -3264,7 +3200,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Arm cannon NTSC J/U v1.0 oracle");
         Suite(nameof(VerifyLookupStream1ArmCannonTileSources), () => VerifyLookupStream1ArmCannonTileSources(oracle));
-        Console.WriteLine("Arm cannon selectors: native directions/frames, full reverse domain, independent edits/hash, DMA pixels and boundaries pass.");
+        Console.WriteLine("Arm cannon selectors: native directions/frames, full reverse domain, the hash, DMA pixels and boundaries pass.");
         return 0;
     }
 

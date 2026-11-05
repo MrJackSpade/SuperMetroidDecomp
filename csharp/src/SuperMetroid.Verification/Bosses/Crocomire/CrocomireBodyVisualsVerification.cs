@@ -1,7 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedBg2ReferenceVerification;

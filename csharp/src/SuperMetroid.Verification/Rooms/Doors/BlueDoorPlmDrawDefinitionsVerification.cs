@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueDoorStockVerification;
 using SuperMetroid.Verification.Rooms.Plms;
@@ -14,7 +12,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;

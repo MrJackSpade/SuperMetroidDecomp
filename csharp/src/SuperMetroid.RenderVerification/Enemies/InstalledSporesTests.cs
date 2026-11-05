@@ -2,18 +2,14 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
-using System.Security.Cryptography;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Enemies;
@@ -22,8 +18,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests

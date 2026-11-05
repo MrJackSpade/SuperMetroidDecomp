@@ -1,19 +1,13 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
-using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 

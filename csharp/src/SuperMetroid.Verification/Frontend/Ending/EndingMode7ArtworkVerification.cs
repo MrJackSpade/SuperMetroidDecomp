@@ -1,8 +1,5 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingRewardIconArtworkVerification;
@@ -13,11 +10,9 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +14,6 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.Verification.Areas.Ceres.Artwork;

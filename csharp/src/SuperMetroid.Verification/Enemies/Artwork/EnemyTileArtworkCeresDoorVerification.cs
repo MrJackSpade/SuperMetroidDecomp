@@ -1,8 +1,5 @@
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
@@ -13,7 +10,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

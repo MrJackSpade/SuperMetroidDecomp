@@ -1,32 +1,15 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
-using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
-using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Areas.Escape;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Verifies installer startup, upgrade and player-data preservation on a private installation copy.</summary>
 internal static class MapInstallationVerification

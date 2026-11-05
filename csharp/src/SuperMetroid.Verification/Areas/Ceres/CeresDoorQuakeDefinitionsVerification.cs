@@ -1,8 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.World.Artwork;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -17,7 +15,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks Ceres Ridley's private door quake offsets and installed overlay art.</summary>
 internal static class CeresDoorQuakeDefinitionsVerification

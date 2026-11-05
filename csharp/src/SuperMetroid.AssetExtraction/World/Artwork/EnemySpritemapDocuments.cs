@@ -27,8 +27,8 @@ public static class EnemySpritemapDocuments
         Ensure.NotNull(json);
         EnemySpritemapDocument document;
         document = JsonAssetDocument.Read<EnemySpritemapDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, "enemy composition");
-        ReadOnlySpan<EnemySpritemapDefinition> expected = EnemySpritemapDefinitions.Frames;
-        if (document.Version != EnemySpritemapSchema.Revision || document.Frames is null || document.Frames.Count != expected.Length)
+        EnemySpritemapFrameList expected = EnemySpritemapDefinitions.Frames;
+        if (document.Version != EnemySpritemapSchema.Revision || document.Frames is null || document.Frames.Count != expected.Count)
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
 

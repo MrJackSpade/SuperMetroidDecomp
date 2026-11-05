@@ -1,16 +1,10 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Options.GameOptionsCursorPhasesVerification;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 

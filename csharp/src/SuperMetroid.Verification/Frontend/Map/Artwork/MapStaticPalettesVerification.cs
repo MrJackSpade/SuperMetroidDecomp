@@ -1,16 +1,8 @@
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -22,9 +14,8 @@ internal static class MapStaticPalettesVerification
 {
     /// <summary>Compares stock palettes with the cartridge and the six stock world selections.</summary>
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original, ImportedAreaMap[] rules)
+        AreaMapPresentation original)
     {
-        var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Artwork.PauseColors);
         MapStaticPalettes installed = InstalledAreaMapPresentation.PalettesOf(original);

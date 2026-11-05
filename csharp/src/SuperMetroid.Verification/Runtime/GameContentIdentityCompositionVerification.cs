@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Runtime;
 

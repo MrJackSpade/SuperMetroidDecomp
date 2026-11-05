@@ -2,8 +2,6 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

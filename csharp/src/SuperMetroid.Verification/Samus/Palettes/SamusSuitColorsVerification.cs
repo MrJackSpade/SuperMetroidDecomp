@@ -204,8 +204,6 @@ internal static class SamusSuitColorsVerification
             "Samus suit colors reject out-of-range RGB5 channels");
 
         Console.WriteLine("Samus suit colors: three stock palettes reach live CGRAM, production entry, normal restoration branches, ROM guard and invalid data pass.");
-
-    }
     }
 
     /// <summary>Native addresses of Power, Varia, and Gravity palette words guarded during runtime checks.</summary>

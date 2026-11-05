@@ -1,17 +1,9 @@
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandStockVerification;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>Checks Bomb Torizo hand draw-list extraction and the installed stock.</summary>

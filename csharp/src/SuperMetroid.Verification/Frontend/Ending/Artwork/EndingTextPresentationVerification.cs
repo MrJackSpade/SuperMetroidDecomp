@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -8,7 +7,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
@@ -16,7 +14,6 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed ending text and font assets against native tilemaps and guarded typewriter execution.</summary>
 internal static class EndingTextPresentationVerification

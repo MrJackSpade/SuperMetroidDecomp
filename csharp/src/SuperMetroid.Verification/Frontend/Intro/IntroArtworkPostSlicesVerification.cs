@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingPaletteArtw
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

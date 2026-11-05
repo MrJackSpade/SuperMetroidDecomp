@@ -12,7 +12,6 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -23,7 +22,6 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>

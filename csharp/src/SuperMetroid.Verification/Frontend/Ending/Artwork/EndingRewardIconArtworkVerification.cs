@@ -1,10 +1,7 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -34,7 +31,6 @@ internal static class EndingRewardIconArtworkVerification
                 EndingRewardIconArtworkFormat.ByteCount)),
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");
 
-        var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
         var nativeAudio = new AudioQueues();
         var installedAudio = new AudioQueues();

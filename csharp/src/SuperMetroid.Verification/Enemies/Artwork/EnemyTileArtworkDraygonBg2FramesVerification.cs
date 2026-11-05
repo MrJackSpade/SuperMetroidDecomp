@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification

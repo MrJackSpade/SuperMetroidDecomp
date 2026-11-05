@@ -1,9 +1,7 @@
-using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;

@@ -6,13 +6,11 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks extracted staff-credit rows, playback cadence, and document validation.</summary>
 internal static class CreditsPresentationVerification

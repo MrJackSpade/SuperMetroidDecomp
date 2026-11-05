@@ -1,11 +1,9 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;

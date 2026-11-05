@@ -1,22 +1,14 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the bomb-revealed Speed Booster block's installed image.</summary>
 internal static class SpeedBoosterVisualsVerification

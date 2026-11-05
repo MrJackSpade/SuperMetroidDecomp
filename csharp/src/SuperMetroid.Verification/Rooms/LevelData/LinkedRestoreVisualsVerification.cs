@@ -1,20 +1,14 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 
 /// <summary>Checks bomb and crumble block restore artwork against native draw lists and production PLM behavior.</summary>

@@ -7,12 +7,9 @@ using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -23,9 +20,7 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>

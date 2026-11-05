@@ -1,15 +1,12 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Installation;
 

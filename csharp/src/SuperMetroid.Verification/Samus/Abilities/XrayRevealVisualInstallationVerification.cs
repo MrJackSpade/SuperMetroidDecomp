@@ -1,5 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -7,14 +5,12 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Abilities;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Checks installed X-ray block, item, and room overlay visuals against native records and live rendering.</summary>

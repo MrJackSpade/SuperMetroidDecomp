@@ -1,7 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationOracleVerification;
@@ -18,7 +15,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid BG2, head, and room-background artwork against native transfers.</summary>

@@ -1,9 +1,6 @@
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 

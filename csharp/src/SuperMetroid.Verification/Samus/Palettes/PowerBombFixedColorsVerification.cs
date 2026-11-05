@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -13,8 +12,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks fixed RGB5 colors through Power Bomb and Crystal Flash lifecycles against retail data.</summary>
 internal static class PowerBombFixedColorsVerification

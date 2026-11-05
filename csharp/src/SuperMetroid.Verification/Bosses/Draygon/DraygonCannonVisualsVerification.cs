@@ -1,17 +1,9 @@
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.Draygon.LookupDraygonCannonStockVerification;
-using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
 /// <summary>Checks Draygon cannon visual extraction, installation, and stock integrity.</summary>

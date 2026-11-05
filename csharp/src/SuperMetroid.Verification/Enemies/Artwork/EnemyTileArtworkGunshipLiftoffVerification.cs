@@ -13,7 +13,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

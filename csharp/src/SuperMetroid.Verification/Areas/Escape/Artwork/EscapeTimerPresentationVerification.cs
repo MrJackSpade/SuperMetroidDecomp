@@ -1,23 +1,19 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification

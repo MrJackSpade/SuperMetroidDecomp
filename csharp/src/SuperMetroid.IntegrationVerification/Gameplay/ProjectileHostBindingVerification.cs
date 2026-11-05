@@ -1,6 +1,4 @@
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -9,7 +7,6 @@ using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 using SuperMetroid.Diagnostics.Sessions;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks a host's binding of installed projectile art at startup.</summary>
 internal static class ProjectileHostBindingVerification

@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -16,7 +14,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -29,7 +26,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks imported projectile OAM against native records and production draw owners.</summary>
 internal static class ProjectileCompositionsVerification

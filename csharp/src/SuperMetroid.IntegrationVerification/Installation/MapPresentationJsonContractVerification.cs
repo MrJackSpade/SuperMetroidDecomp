@@ -1,4 +1,3 @@
-using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Installation;

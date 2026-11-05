@@ -1,31 +1,17 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
-using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
-using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
 internal static class MapPaletteCycleVerification
 {
-    /// <summary>The first of the sixteen sprite colours, colour group three, the highlight shade recolours.</summary>
-    private const int HighlightColours = 176;
-
     /// <summary>Compares native animation cadence and CGRAM with the installed highlight cycle.</summary>
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus,
         AreaMapPresentation original, ImportedAreaMap[] rules)

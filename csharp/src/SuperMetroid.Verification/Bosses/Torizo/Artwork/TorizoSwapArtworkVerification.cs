@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +10,6 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 

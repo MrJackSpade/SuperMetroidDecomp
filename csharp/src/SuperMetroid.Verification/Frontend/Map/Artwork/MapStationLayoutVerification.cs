@@ -1,16 +1,10 @@
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -18,7 +12,7 @@ namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 internal static class MapStationLayoutVerification
 {
     /// <summary>Compares every discovery subset's station icons with native OAM.</summary>
-    internal static void VerifyMapStationLayout(ISnesAddressSpace bus, AreaMapPresentation original)
+    internal static void VerifyMapStationLayout(AreaMapPresentation original)
     {
         int combinations = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())

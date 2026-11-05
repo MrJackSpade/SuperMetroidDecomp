@@ -1,15 +1,10 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
-using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.GameOver;
-using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;
 

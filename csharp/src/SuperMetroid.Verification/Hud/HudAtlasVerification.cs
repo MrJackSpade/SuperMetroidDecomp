@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
@@ -29,12 +27,11 @@ internal static class HudAtlasVerification
     /// Checks that the selected stock HUD characters show at the next accepted NMI and render the native pixels.
     /// </summary>
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original, ImportedAreaMap[] rules,
+        AreaMapPresentation original,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
         AssertTrue(source.SequenceEqual(MapCharacterArtwork.Of(original).Hud.Bytes.Span), "HUD PNG and compiled padding match all native bytes");
-        var guard = NewMapDataGuard(bus, rules);
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         native.Artwork.MapPresentation = original;
         var installed = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);

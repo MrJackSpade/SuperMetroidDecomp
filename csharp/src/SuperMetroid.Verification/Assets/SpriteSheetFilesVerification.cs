@@ -6,10 +6,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Assets;
 

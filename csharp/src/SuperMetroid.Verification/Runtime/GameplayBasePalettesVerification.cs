@@ -1,10 +1,8 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -33,8 +31,6 @@ internal static class GameplayBasePalettesVerification
             AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.CommonSpritePalette + color * 2),
                 baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
-        var guarded = NewCartridgeReadGuard(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
         // Runtime construction reads no cartridge and binds no base palette: only the import reads it (#1512).
         _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
 

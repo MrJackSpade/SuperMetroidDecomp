@@ -1,16 +1,11 @@
-using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend;
-using System.Text.Json;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 

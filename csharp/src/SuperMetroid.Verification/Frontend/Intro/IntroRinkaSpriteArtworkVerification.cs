@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

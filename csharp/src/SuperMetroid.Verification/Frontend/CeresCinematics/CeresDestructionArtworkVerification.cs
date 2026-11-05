@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -21,7 +19,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 

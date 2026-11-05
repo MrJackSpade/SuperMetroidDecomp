@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hardware;

@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -10,11 +9,9 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art and live tile updates.</summary>

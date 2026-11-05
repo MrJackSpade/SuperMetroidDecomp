@@ -7,15 +7,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks installed Samus hurt and intro flash palettes against native CGRAM behavior.</summary>

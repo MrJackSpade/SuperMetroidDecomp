@@ -1,13 +1,10 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using System.Text.Json;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -39,7 +36,6 @@ internal static class CeresEscapeOverlayTilemapsVerification
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
 
-        var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installedOverlay = new RecordedBg1Overlay();
         var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };

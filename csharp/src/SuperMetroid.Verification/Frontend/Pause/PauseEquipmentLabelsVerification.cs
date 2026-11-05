@@ -1,20 +1,10 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -22,10 +12,8 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseEquipmentLabelsVerification
 {
     /// <summary>Compares inventory tilemaps with ROM reads blocked.</summary>
-    internal static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus,
-        AreaMapPresentation original)
+    internal static void VerifyPauseEquipmentLabelAssets(AreaMapPresentation original)
     {
-        var guard = NewPauseEquipmentLabelReadGuard(bus);
 
         SamusState[] inventories =
         [
@@ -61,10 +49,4 @@ internal static class PauseEquipmentLabelsVerification
             MaxReserveEnergy = value.MaxReserveEnergy,
         };
     }
-
-    /// <summary>Blocks bank-$82 equipment-label source reads during installed pause rendering.</summary>
-    private static CartridgeReadGuard NewPauseEquipmentLabelReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x82bf32 and < 0x82c0b2,
-                address => $"Installed pause equipment label read native source ${address:X6}.");
 }

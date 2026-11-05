@@ -5,13 +5,11 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>

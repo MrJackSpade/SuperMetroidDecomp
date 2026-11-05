@@ -12,8 +12,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;

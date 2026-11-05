@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -15,8 +13,6 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork rebind.</summary>
 internal static class CeresEnginePaletteBindingVerification

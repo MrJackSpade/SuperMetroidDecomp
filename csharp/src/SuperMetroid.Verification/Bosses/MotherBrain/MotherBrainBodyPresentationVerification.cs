@@ -1,11 +1,9 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBodyPresentationFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;

@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
-using static SuperMetroid.Verification.Bosses.BossDisplayBindingsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;

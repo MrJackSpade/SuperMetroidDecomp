@@ -1,19 +1,13 @@
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Frontend.Ending.EndingLogoSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -26,10 +20,8 @@ internal static class PostCreditsCharacterArtworkVerification
         EndingObjectArtwork stock = installation.LoadEndingObjectArt();
         EndingFloorArtwork stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var guardedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
             var nativeAudio = new AudioQueues();
             var installedAudio = new AudioQueues();

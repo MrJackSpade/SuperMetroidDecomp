@@ -5,14 +5,10 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Map;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 /// <summary>Checks occupancy-derived SRAM map packing against native lists and production save/load behavior.</summary>
 internal static class ExploredMapPackingDefinitionsVerification

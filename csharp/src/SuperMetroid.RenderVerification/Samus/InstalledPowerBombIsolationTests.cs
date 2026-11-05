@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Assets;
 using System.Reflection;
-using System.Text.Json;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -14,10 +12,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>

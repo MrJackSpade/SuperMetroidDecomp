@@ -7,7 +7,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

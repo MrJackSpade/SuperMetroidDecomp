@@ -1,6 +1,4 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
@@ -9,7 +7,6 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;

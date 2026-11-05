@@ -1,9 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveAnchorsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveFramesVerification;
@@ -12,14 +7,10 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks reserve tank visuals across supply, flicker and restore.</summary>

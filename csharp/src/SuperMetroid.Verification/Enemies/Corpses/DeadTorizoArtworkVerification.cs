@@ -1,6 +1,4 @@
-using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;

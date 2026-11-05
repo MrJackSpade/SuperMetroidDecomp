@@ -2,12 +2,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Fx;
 

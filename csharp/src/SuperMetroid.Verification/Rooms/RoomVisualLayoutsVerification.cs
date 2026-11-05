@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;

@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -9,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyColorsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyMode7ColorsVerification;
-using static SuperMetroid.Verification.Frontend.Ending.Artwork.CreditsPresentationVerification;
 using static SuperMetroid.Verification.Samus.Abilities.CrystalFlashColorsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
@@ -50,7 +47,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseTileAtlasVerification
 using static SuperMetroid.Verification.Frontend.Pause.PauseWireframesVerification;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
 using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using static SuperMetroid.Verification.Fx.RoomFxLayer3TilemapsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxPaletteBlendsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusChargeColorsVerification;
@@ -62,21 +58,17 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerificati
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
-using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
-using SuperMetroid.Verification.Frontend.Title;
 using static SuperMetroid.Verification.Frontend.Map.WorldMapLabelsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -99,19 +91,10 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Fx.PaletteFx;
-using SuperMetroid.AssetExtraction.Map.Artwork;
-using SuperMetroid.AssetExtraction.Progression;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks the installed map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
@@ -300,13 +283,13 @@ internal static class MapPresentationVerification
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, rules.Values.ToArray(), MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, original, rules.Values.ToArray()));
+        Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, original));
         Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, original,
-            rules.Values.ToArray(), MapCatalogFixture.FixtureAssets));
+            MapCatalogFixture.FixtureAssets));
         Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, original, rules.Values.ToArray()));
-        Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, original, rules.Values.ToArray()));
+        Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, original));
         Suite(nameof(VerifyWorldMapLabels), () => VerifyWorldMapLabels(bus, original));
-        Suite(nameof(VerifyMapStationLayout), () => VerifyMapStationLayout(bus, original));
+        Suite(nameof(VerifyMapStationLayout), () => VerifyMapStationLayout(original));
         Suite(nameof(VerifyMapLandmarks), () => VerifyMapLandmarks(bus, original));
         Suite(nameof(VerifyMapSaveMarkers), () => VerifyMapSaveMarkers(bus, original));
         Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, original));
@@ -375,7 +358,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(bus, original));
         Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, original));
         Suite(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(bus, original));
-        Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(bus, original));
+        Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(original));
     }
 
     /// <summary>Checks installed HUD, menu, message, typewriter, narration, ending and file-select presentation assets.</summary>

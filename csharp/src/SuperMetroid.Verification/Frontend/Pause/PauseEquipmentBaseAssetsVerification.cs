@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using SuperMetroid.Core.Frontend.Pause;
@@ -9,11 +8,9 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>
@@ -28,7 +25,6 @@ internal static class PauseEquipmentBaseAssetsVerification
         AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(InstalledAreaMapPresentation.PauseOf(original).EquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match the native tiles");
 
-        var guard = NewPauseEquipmentBaseReadGuard(bus);
         var native = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new SharedGameState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var installed = new PauseMenuState(new PauseMenuEntry { Samus = Samus(), System = new SharedGameState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         int toMap = PausePageTransitionNativeLength + 1;
@@ -60,10 +56,4 @@ internal static class PauseEquipmentBaseAssetsVerification
             MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245, ReserveTankMode = ReserveTankMode.Auto,
         };
     }
-
-    /// <summary>Blocks the native equipment base tilemap while installed pause pages render.</summary>
-    private static CartridgeReadGuard NewPauseEquipmentBaseReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(PauseMenuSourceDefinitions.EquipmentPage,
-            PauseEquipmentBaseDefinitions.Cells * sizeof(ushort),
-            address => $"Installed pause read equipment base at {address:X6}.");
 }

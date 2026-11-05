@@ -1,5 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend;
@@ -330,7 +328,4 @@ internal static class EndingObjectArtworkVerification
         return guard;
     }
 
-    /// <summary>The turning floors <paramref name="scene"/> shows, in layer order.</summary>
-    private static AffineFloor[] ShownFloors(LayeredScene scene) =>
-        [.. scene.Layers.ToArray().OfType<TurningFloorLayer>().Select(static layer => layer.Floor)];
 }

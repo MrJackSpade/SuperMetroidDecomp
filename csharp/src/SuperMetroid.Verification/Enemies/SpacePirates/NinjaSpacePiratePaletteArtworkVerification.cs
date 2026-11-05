@@ -2,8 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -11,7 +9,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;
 
-using SuperMetroid.Verification.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
 /// <summary>

@@ -1,7 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.AssetExtraction.World.Artwork;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;

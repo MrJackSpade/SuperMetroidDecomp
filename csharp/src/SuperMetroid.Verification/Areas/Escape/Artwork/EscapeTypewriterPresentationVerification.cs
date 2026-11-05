@@ -6,7 +6,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
@@ -14,7 +13,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks the installed Ceres and Zebes escape typewriter text through VRAM writes, debugger restore and glyph validation.</summary>
 internal static class EscapeTypewriterPresentationVerification

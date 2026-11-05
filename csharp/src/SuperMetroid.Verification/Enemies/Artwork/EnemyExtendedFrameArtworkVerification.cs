@@ -3,9 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification;
@@ -18,7 +16,6 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -27,7 +24,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Bosses.Artwork;

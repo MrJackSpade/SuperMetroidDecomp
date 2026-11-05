@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -9,7 +8,6 @@ using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -17,7 +15,6 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed opening narration and font artwork through the cinematic's live tilemap and VRAM paths.</summary>
 internal static class IntroNarrationPresentationVerification

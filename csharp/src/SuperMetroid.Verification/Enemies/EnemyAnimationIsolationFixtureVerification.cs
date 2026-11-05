@@ -1,13 +1,10 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
-using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

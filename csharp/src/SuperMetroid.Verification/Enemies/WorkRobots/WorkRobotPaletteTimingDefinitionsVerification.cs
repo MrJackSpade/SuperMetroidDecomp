@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
@@ -10,7 +9,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;

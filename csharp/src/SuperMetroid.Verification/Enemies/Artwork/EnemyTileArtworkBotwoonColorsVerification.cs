@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;

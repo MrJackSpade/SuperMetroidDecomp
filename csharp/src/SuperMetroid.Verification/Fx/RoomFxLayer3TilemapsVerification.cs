@@ -7,15 +7,12 @@ using static SuperMetroid.Verification.Fx.LookupLiquidTilemapsVerification;
 using static SuperMetroid.Verification.Fx.LookupSporeTilemapVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Fx;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification

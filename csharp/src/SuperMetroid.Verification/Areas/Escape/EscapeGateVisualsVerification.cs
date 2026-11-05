@@ -1,29 +1,13 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Areas.Escape.LookupEscapeGateStockVerification;
-using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.AssetExtraction.Video;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Areas.Escape;
-using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Mother Brain escape gate visuals against PLM collision and install contracts.</summary>

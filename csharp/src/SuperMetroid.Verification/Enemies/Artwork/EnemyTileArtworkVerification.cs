@@ -1,10 +1,8 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
 using SuperMetroid.Core.Assets;
-using System.Text.Json;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBg2ScrollVerification;
@@ -51,13 +49,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Rendering;
 
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live consumers.</summary>

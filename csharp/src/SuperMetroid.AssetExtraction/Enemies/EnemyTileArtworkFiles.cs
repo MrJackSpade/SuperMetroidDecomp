@@ -226,7 +226,7 @@ public static class EnemyTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, MotherBrainCorpseSheet.FileName),
             corpsePng);
         // The following bank-$B7 pages are a different visual owner: the escape
-        // typewriter characters. Keep their override separate from corpse decay.
+        // typewriter characters. Keep their file separate from corpse decay.
         byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeSourceDefinitions.TextCharacters,
             EscapeTextSheetFormat.ByteCount);

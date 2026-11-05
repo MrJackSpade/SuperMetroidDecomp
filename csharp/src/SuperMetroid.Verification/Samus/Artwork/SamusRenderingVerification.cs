@@ -305,8 +305,8 @@ internal static void VerifySamusRenderingSlice()
     samus.InvincibilityTimer = WrappingCountdown.Start(0);
     samus.KnockbackTimer = WrappingCountdown.Start(0);
     SeedBodyHalfRoutingTileAnimation(bus);
-    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
-    {
+    SamusRenderingVerifySamusRenderingSliceCase[] routingCases =
+    [
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 0, 1, "$D7 frame zero top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceLeftPose, 0x0a, 2, 1, "$D8 frame two top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 3, 2, "$D7 frame three split"),
@@ -325,12 +325,18 @@ internal static void VerifySamusRenderingSlice()
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose65, 0x0d, 0, 2, "unused type-D pose $65 frame-zero split"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose66, 0x0d, 1, 1, "unused type-D pose $66 later top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose63, 0x0d, 1, 2, "other unused type-D pose remains split"),
-    })
+    ];
+    // Every case's pose records are seeded before any is drawn: each draw reads only its own pose's records, so the cases
+    // share one body built from the seeded tables rather than each composing its own body's sheets.
+    foreach ((SamusPoseId pose, byte movementType, _, _, _) in routingCases)
     {
         WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
         WriteSamusTileAnimationPointer(bus, pose, 0xe100);
-        AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
+    }
+    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in routingCases)
+    {
+        AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         samus.Pose = pose;
         samus.AnimationFrame = frame;
         oamFrame.BeginFrame();

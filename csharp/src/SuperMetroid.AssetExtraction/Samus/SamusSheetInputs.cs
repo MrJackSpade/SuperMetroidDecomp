@@ -60,7 +60,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         return new(
             projectiles,
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
-                StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters.Span),
+                StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters.Span),
             palettes,
             intro,
             SamusBodyArtworkFiles.LoadCharacters(samusBody, null),

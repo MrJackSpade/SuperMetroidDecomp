@@ -10,28 +10,27 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
 
-/// <summary>Checks installed standard OBJ characters and their override path (#1513: the game selects no sprite characters).</summary>
+/// <summary>Checks installed standard OBJ characters and a player's in-place edit of them (#1513: the game selects no sprite characters).</summary>
 internal static class StandardObjectArtworkVerification
 {
     /// <summary>The cartridge's standard sprite sheet at $9A:D200.</summary>
     private const int NativeStandardObjects = 0x9ad200;
 
-    /// <summary>Compares every native OBJ byte, then checks the edited PNG and provenance.</summary>
+    /// <summary>Compares every native OBJ byte, then checks an in-place PNG edit and a malformed one.</summary>
     internal static void VerifyStandardObjectArtwork(string sourceRom)
     {
-        // A private installation copy, whose standard OBJ override is written and whose stock sheet is damaged below.
+        // A private installation copy, whose installed standard OBJ sheet is edited and damaged in place below.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.StandardObjectDirectory);
-        string stock = copy.Installation.StandardObjectDirectory;
-        string overrides = copy.Installation.StandardObjectOverrideDirectory;
+        string directory = copy.Installation.StandardObjectDirectory;
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        RoomCharacterAtlas baseline = StandardObjectArtworkFiles.Load(stock, overrides);
+        RoomCharacterAtlas baseline = StandardObjectArtworkFiles.Load(directory);
         for (int offset = 0; offset < StandardObjectArtworkFormat.ByteCount; offset++)
             AssertEqual(native.ReadCartridgeByte(NativeStandardObjects + offset),
                 baseline.Characters.Span[offset], $"standard OBJ native byte {offset:X4}");
 
 
-        string stockPath = Path.Combine(stock, StandardObjectArtworkFormat.FileName);
-        byte[] originalPng = File.ReadAllBytes(stockPath);
+        string installedPath = Path.Combine(directory, StandardObjectArtworkFormat.FileName);
+        byte[] originalPng = File.ReadAllBytes(installedPath);
         int tiles = StandardObjectArtworkFormat.ByteCount /
             RoomCharacterAtlasFormat.BytesPerTile;
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles);
@@ -39,36 +38,16 @@ internal static class StandardObjectArtworkVerification
         IndexedPngImage image = IndexedPng.Read(new MemoryStream(originalPng),
             new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
         image.Pixels[0] = (byte)(image.Pixels[0] == 1 ? 2 : 1);
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, StandardObjectArtworkFormat.FileName);
-        using (var output = File.Create(overridePath))
+        using (var output = File.Create(installedPath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
+        RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(directory);
         AssertTrue(!edited.Characters.Span.SequenceEqual(baseline.Characters.Span),
-            "selected indexed PNG changes the native standard OBJ transfer");
-        AssertTrue(ReExtractStandardObjectStock(native, Path.Combine(copy.Root, "refreshed-stock"), overrides).Characters.Span
-            .SequenceEqual(edited.Characters.Span),
-            "stock re-extraction preserves the selected external OBJ override");
+            "an in-place edit of the installed indexed PNG changes the standard OBJ transfer");
 
-        File.WriteAllText(overridePath, "not an indexed PNG");
-        AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(stock, overrides),
-            "invalid OBJ override does not silently fall back");
-        File.Delete(overridePath);
-        AssertTrue(StandardObjectArtworkFiles.Load(stock, overrides).Characters.Span
-            .SequenceEqual(baseline.Characters.Span),
-            "removing override restores stock standard OBJ transfer");
-        File.WriteAllText(stockPath, "damaged stock");
-        AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(stock, overrides),
-            "damaged stock OBJ provenance fails loudly");
-        Console.WriteLine("Standard OBJ art: all $2E00 native bytes, visible PNG edit, invalid override and stock provenance pass.");
-    }
-
-    /// <summary>Extracts the stock standard OBJ sheet from the cartridge into <paramref name="refreshed"/> and loads it under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs StandardObjectArtworkFiles.Extract into a fresh stock directory beside the copy's standard OBJ override, to check that a stock re-extraction keeps the edited indexed PNG's OBJ characters selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomCharacterAtlas ReExtractStandardObjectStock(ISnesAddressSpace native, string refreshed, string overrides)
-    {
-        StandardObjectArtworkFiles.Extract(native, refreshed, SupportedCartridge.Sha256);
-        return StandardObjectArtworkFiles.Load(refreshed, overrides);
+        File.WriteAllText(installedPath, "not an indexed PNG");
+        AssertThrows<InvalidDataException>(() => StandardObjectArtworkFiles.Load(directory),
+            "an installed OBJ sheet edited into a malformed PNG fails loudly");
+        Console.WriteLine("Standard OBJ art: all $2E00 native bytes, in-place PNG edit loaded, malformed edit rejected.");
     }
 
     /// <summary>Runs the standard object-artwork check against the repository's retail ROM.</summary>

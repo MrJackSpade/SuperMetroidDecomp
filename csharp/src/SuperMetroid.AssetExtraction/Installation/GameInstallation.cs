@@ -97,13 +97,10 @@ public sealed record GameInstallation(string Root)
     public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
     /// <summary>Loads every installed enemy sheet.</summary>
     public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
-    /// <summary>Stock indexed common gameplay OBJ sheet and its source manifest.</summary>
+    /// <summary>Installed indexed common gameplay OBJ sheet and its source manifest, which the player edits in place.</summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
-    public string StandardObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Validates the stock common OBJ sheet and selects a compatible replacement PNG for the shared character transfer.</summary>
-    public RoomCharacterAtlas LoadStandardObjects() =>
-        StandardObjectArtworkFiles.Load(StandardObjectDirectory, StandardObjectOverrideDirectory);
+    /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
+    public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
     /// <summary>Stock projectile artwork and presentation selectors under the replaceable content tree.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Stock Samus body PNGs and visual selectors under the replaceable content tree.</summary>

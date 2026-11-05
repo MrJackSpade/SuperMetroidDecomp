@@ -33,7 +33,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             installed.Enemies,
             installed.Bosses,
             installed.Areas,
-            StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters,
+            StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters,
             GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null),
             LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)))
         {

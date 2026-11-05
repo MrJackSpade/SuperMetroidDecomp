@@ -523,9 +523,20 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ? new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<TilePlanePixels>.Zero, screen.Colours.Shading)])
         : PicturedPlane.Empty(ScreenCells);
 
-    /// <summary>The explosion's one-screen <paramref name="map"/>, once the explosion has loaded its maps (#1467).</summary>
-    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map) =>
-        ScreenPicture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(map), screen.ExplosionMapsLoaded);
+    /// <summary>
+    /// The explosion's one-screen <paramref name="map"/>, once the explosion has loaded its maps (#1467), its picture placed
+    /// where the screen shows it: its top <see cref="EndingExplosionDisplayDefinitions.MapRowsAboveScreen"/> lie above the
+    /// screen's top, so the screen shows the map from the row below its first.
+    /// </summary>
+    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map)
+    {
+        if (!screen.ExplosionMapsLoaded)
+            return PicturedPlane.Empty(ScreenCells);
+        int height = ScreenCells.Y * ScreenGeometry.BackgroundTileSizePixels;
+        var corner = new Position16<TilePlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
+        return new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
+            EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.Shading)]);
+    }
 
     /// <summary>The credits roll's plane: its held rows' line pictures (#1467) in the ending's colours (#1512).</summary>
     internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows), screen.Colours.Shading);

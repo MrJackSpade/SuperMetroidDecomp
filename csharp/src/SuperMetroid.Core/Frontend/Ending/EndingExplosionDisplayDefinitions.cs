@@ -4,6 +4,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Which explosion artwork each background plane of the ending's Zebes explosion shows, phase by phase.</summary>
 internal static class EndingExplosionDisplayDefinitions
 {
+    /// <summary>The pixel rows of each explosion map's picture that lie above the screen's top.</summary>
+    public const int MapRowsAboveScreen = 1;
     /// <summary>The explosion the first background plane shows from Func117 until the finale replaces it.</summary>
     public const EndingObjectFragmentId InitialMap = EndingObjectFragmentId.Segment70;
     /// <summary>The explosion the first background plane shows during the finale (F2FA).</summary>

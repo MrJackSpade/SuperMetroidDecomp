@@ -276,9 +276,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        // The map page shows the area map from its scroll; the equipment page sits at the top of the screen.
+        // The map page shows the area map from the map row below its scroll position: the position names the row above
+        // the screen's top, the row Samus's marker and the map's icons are placed from. The equipment page's pictures are
+        // placed where the screen shows them, so its plane is not scrolled.
         Position16<TilePlanePixels> mapScroll = ScreenMode == PauseScreenMode.Map
-            ? new(MapScrollPosition.X, MapScrollPosition.Y)
+            ? new(MapScrollPosition.X, CoordinateAxis.Wrap(MapScrollPosition.Y + 1))
             : Position16<TilePlanePixels>.Zero;
         // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
         // and the frame the area's backdrop and button pictures (#1467).

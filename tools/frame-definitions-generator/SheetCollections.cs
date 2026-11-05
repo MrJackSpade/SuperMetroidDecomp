@@ -7,8 +7,10 @@ internal sealed class SheetCollections
 {
     private readonly Dictionary<Destination, Collected> _byDestination = [];
 
-    /// <summary>What every set's shared sheet holds.</summary>
-    public Collected Anywhere => Of(new Destination(DestinationKind.Anywhere));
+    /// <summary>What each common spawner puts on the shared sheet of the sets whose rooms run it, by spawner.</summary>
+    public IReadOnlyDictionary<string, Collected> Common =>
+        _byDestination.Where(pair => pair.Key.Kind == DestinationKind.Common)
+            .ToDictionary(pair => pair.Key.Spawner ?? throw new InvalidOperationException("A common destination names no spawner."), pair => pair.Value, StringComparer.Ordinal);
 
     /// <summary>What each sheet-specific owner's sheet holds, by the owner property naming it.</summary>
     public IReadOnlyDictionary<string, Collected> Sheets =>

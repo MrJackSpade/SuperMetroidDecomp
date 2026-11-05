@@ -143,30 +143,45 @@ internal static class BossSheetShades
             .Select(band => SheetShade.Run(KraidShades.Health(band), firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
     }
 
-    /// <summary>The shades every character-zero spawned-object sheet takes for the objects bosses spawn: Kraid's rocks.</summary>
+    /// <summary>
+    /// The shades the objects <paramref name="enemy"/> spawns show, wherever they are drawn (#1513): Kraid's rocks,
+    /// Botwoon's, Draygon's and Spore Spawn's sprite colours, and Crocomire's wall; none for any other enemy.
+    /// </summary>
     /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> SpawnedObjects(BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> SpawnedObjects(BossSourceArtwork bosses, EnemyDefinitionId enemy)
     {
         Ensure.NotNull(bosses);
-        KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's rocks are shaded from the installed Kraid colours.");
-        return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
-            [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))]),
-            .. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours),
-            .. DraygonSprites(bosses),
-            .. SporeSpawnSheetShades.Sprites(bosses),
-            SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
+        if (KraidParts.Contains(enemy))
+        {
+            KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's rocks are shaded from the installed Kraid colours.");
+            return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
+                [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))])];
+        }
+        if (enemy == EnemyDefinitionId.Botwoon)
+            return [.. Botwoon(bosses, BotwoonRow * LoadedSetColours.RowColours)];
+        if (DraygonParts.Contains(enemy))
+            return [.. DraygonSprites(bosses)];
+        if (enemy == EnemyDefinitionId.SporeSpawn)
+            return SporeSpawnSheetShades.Sprites(bosses);
+        if (enemy is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue)
+        {
+            return [SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
                 Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
+        }
+        return [];
     }
 
     /// <summary>
-    /// The row shades every character-zero spawned-object sheet takes for the objects bosses spawn in a row their fight
-    /// loads: Crocomire's projectiles, in the projectiles' row with his colours in it over <paramref name="colours"/>.
+    /// The row shades the objects <paramref name="enemy"/> spawns in a row its fight loads show (#1513): Crocomire's
+    /// projectiles, in the projectiles' row with his colours in it over <paramref name="colours"/>; none for any other enemy.
     /// </summary>
     /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetRowShade> SpawnedRows(BossSourceArtwork bosses, LoadedSetColours colours)
+    internal static IReadOnlyList<SheetRowShade> SpawnedRows(BossSourceArtwork bosses, LoadedSetColours colours, EnemyDefinitionId enemy)
     {
         Ensure.NotNull(bosses);
         Ensure.NotNull(colours);
+        if (enemy is not (EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue))
+            return [];
         RgbColor[] projectiles = Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialProjectile);
         return [new(CrocomireShades.Projectiles, CrocomireProjectileRow,
             colours.With(CrocomireProjectileRow, 0, projectiles[..LoadedSetColours.RowColours]))];

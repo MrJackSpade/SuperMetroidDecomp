@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             "installed Crocomire colors leave the initial program unchanged");
         // The import pre-colours his pictures in each load of his colours, which his colour state names (#1512).
         BossSourceArtwork bosses = stock.Bosses;
-        AssertBand(BossSheetShades.SpawnedObjects(bosses), CrocomireShades.Wall, 16, colors.ResolveInitialWall, "initial wall");
+        AssertBand(BossSheetShades.SpawnedObjects(bosses, EnemyDefinitionId.Crocomire), CrocomireShades.Wall, 16, colors.ResolveInitialWall, "initial wall");
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
         IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], []);

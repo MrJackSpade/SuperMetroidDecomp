@@ -33,11 +33,20 @@ internal sealed class CoreModel
         "EnemyExtendedFrameCompositions",
     ];
 
+    /// <summary>
+    /// The types outside every behaviour whose members are each a common spawner of their own: the enemy projectile
+    /// engine's spawn services serve unrelated rooms (the save station's electricity, the dud shot, the dust explosion),
+    /// so each runs where its own callers do rather than wherever any of them does.
+    /// </summary>
+    private static readonly string[] MemberSpawnerTypeNames = ["EnemyProjectileEngine"];
+
     /// <summary>The owners marker for a type whose owners are still being resolved, so a cycle contributes nothing.</summary>
     private static readonly HashSet<INamedTypeSymbol> Resolving = new(SymbolEqualityComparer.Default);
 
     private readonly Dictionary<SyntaxTree, SemanticModel> _models = [];
     private readonly HashSet<INamedTypeSymbol> _tables = new(SymbolEqualityComparer.Default);
+    private readonly HashSet<INamedTypeSymbol> _memberSpawnerTypes = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<string, INamedTypeSymbol> _spawnerTypes = new(StringComparer.Ordinal);
     private readonly HashSet<INamedTypeSymbol> _families = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, Behaviour> _behaviours = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _creationContexts = new(SymbolEqualityComparer.Default);
@@ -70,6 +79,8 @@ internal sealed class CoreModel
         INamedTypeSymbol programAnimation = SingleType("EnemyProjectileProgramAnimation", arity: 3);
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
+        foreach (string name in MemberSpawnerTypeNames)
+            _memberSpawnerTypes.Add(SingleType(name));
 
         foreach (INamedTypeSymbol type in Types)
         {
@@ -299,6 +310,30 @@ internal sealed class CoreModel
     /// <summary>The usings a generated file needs for <paramref name="types"/>, in the given order without repeats.</summary>
     public static IEnumerable<string> Usings(params INamedTypeSymbol[] types) =>
         types.Select(t => $"using {t.ContainingNamespace.ToDisplayString()};").Distinct(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The common spawner whose code <paramref name="unit"/> is, outside every behaviour: its type's name, or for a type
+    /// whose members spawn for unrelated rooms, <c>Type.Member</c>. The import names each spawner so.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two different types would share one spawner name.</exception>
+    public string SpawnerKey(Unit unit)
+    {
+        INamedTypeSymbol type = Chain(unit.Type).Last();
+        if (_spawnerTypes.TryGetValue(type.Name, out INamedTypeSymbol? known) && !SymbolEqualityComparer.Default.Equals(known, type))
+            throw new InvalidDataException($"Common spawners {known.ToDisplayString()} and {type.ToDisplayString()} share the name {type.Name}.");
+        _spawnerTypes[type.Name] = type;
+        if (!_memberSpawnerTypes.Contains(type))
+            return type.Name;
+        string member = unit.Kind switch
+        {
+            UnitKind.StaticInitialization => "StaticInitialization",
+            UnitKind.InstanceInitialization => "InstanceInitialization",
+            _ when unit.IsConstructor => "Constructor",
+            _ => unit.Symbol.Name,
+        };
+        INamedTypeSymbol declaring = Chain(unit.Type).First();
+        return SymbolEqualityComparer.Default.Equals(declaring, type) ? $"{type.Name}.{member}" : $"{type.Name}.{declaring.Name}.{member}";
+    }
 
     /// <summary>Where <paramref name="unit"/> is declared, as a Core-relative path and line, with the unit's name.</summary>
     public string Describe(Unit unit)

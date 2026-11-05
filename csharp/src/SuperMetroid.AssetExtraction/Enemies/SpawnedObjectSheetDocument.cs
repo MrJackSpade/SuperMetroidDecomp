@@ -18,6 +18,6 @@ internal sealed record SpawnedObjectSheetDocument
     /// <summary>On the shared sheet, the enemies whose room-graphics spawns it holds, by definition name.</summary>
     public required List<string> SharedSpawners { get; init; }
 
-    /// <summary>Whether it also holds the objects any room spawns.</summary>
-    public required bool Anywhere { get; init; }
+    /// <summary>On the shared sheet, the common spawners whose objects it holds, by spawner name (#1513).</summary>
+    public required List<string> Common { get; init; }
 }

@@ -59,7 +59,7 @@ internal static class EnemyFormatDrawEntriesVerification
         enemies.Drawing.Enqueue(1, extended);
 
         // Enemy projectile in front of Samus, drawn from the set's spawned-object sheet.
-        EnemyProjectileFrameId projectileFrame = SpawnedObjectFrameDefinitions.Anywhere.Projectiles
+        EnemyProjectileFrameId projectileFrame = EnemySheetComposer.CommonSpawnersOf(set).SelectMany(common => common.Objects.Projectiles).Order()
             .First(frame => EnemyProjectileFrames.Parts(projectileSpritemaps, frame).Length > 0);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;

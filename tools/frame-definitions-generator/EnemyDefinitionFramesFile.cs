@@ -29,7 +29,8 @@ internal static class EnemyDefinitionFramesFile
         {
             Behaviour behaviour = spawns.Behaviour;
             // Definitions showing the same frames share one array; a behaviour whose definitions all do keeps its family's name.
-            var groups = behaviour.Definitions
+            // A definition that shows no frames, as Kraid himself, whose body is no sprite, has no entry.
+            var groups = behaviour.Definitions.Where(spawns.EnemyFrames.ContainsKey)
                 .GroupBy(name => string.Join(',', CoreModel.InDeclarationOrder(model.EnemyFrameId, spawns.EnemyFrames[name])), StringComparer.Ordinal)
                 .ToList();
             foreach (IGrouping<string, string> group in groups)
@@ -63,7 +64,7 @@ internal static class EnemyDefinitionFramesFile
         lines.Add("        new Dictionary<EnemyDefinitionId, IReadOnlyList<EnemyFrameId>>");
         lines.Add("        {");
         foreach (BehaviourSpawns spawns in analysis.Behaviours)
-            lines.AddRange(spawns.Behaviour.Definitions.Select(name => $"            [EnemyDefinitionId.{name}] = {arrayOf[name]},"));
+            lines.AddRange(spawns.Behaviour.Definitions.Where(arrayOf.ContainsKey).Select(name => $"            [EnemyDefinitionId.{name}] = {arrayOf[name]},"));
         lines.Add("        };");
         lines.Add("}");
 

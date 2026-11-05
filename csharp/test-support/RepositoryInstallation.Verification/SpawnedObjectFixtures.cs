@@ -44,9 +44,12 @@ internal static class SpawnedObjectFixtures
     internal static SpriteGraphics LoadSetSpawning(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics shared)
     {
         ArgumentNullException.ThrowIfNull(enemies);
-        if (SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(frame))
+        if (SpawnedObjectFrameDefinitions.Common.Any(common => common.Objects.Projectiles.Contains(frame)))
         {
-            enemies.GraphicsSet.LoadGraphicsSet(RoomEnemyGraphicsSetLists.All[0]);
+            // An object a common spawner spawns is held by the shared sheet of the sets whose rooms run that spawner (#1513).
+            enemies.GraphicsSet.LoadGraphicsSet(RoomEnemyGraphicsSetLists.DrawnUnder.FirstOrDefault(set => EnemySheetComposer.CommonSpawnersOf(set)
+                    .Any(common => common.Objects.Projectiles.Contains(frame)))
+                ?? throw new InvalidOperationException($"No graphics set's rooms run a common spawner of projectile frame {frame}."));
             return shared;
         }
         if (SetLoadingSpawner(SpawnedObjectFrameDefinitions.ByEnemy, frame) is ({ } ownSet, { } owner))

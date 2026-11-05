@@ -169,8 +169,7 @@ internal sealed class EnemyDrawList
                 // uses the original engine-owned extended hitbox records, never the picture.
                 if (draw.Pictured)
                     _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(slot.DefinitionId, EnemySheetDefinitions.FrameName(draw.Frame),
-                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y),
-                        (slot.Entity as IShowsCorpseRot)?.ShownRot)
+                        new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y))
                     {
                         Shading = draw.Shading,
                         RotRows = (slot.Entity as IShowsCorpseRotRows)?.ShownRotRows,

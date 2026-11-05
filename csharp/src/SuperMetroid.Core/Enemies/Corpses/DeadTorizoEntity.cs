@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
-        IShowsCorpseRot
+        IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotView ShownRot => species.ShownDeadTorizoRot(Slot);
+    public CorpseRotRows? ShownRotRows => species.ShownDeadTorizoRows(Slot);
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTorizo;

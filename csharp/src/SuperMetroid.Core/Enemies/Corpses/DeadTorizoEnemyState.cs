@@ -32,6 +32,15 @@ public sealed class DeadTorizoEnemyState
 
     /// <summary>The rot step the odd half of the corpse's rows shows, or none before a main-AI call first shows it (#1406).</summary>
     public int? OddHalfStep { get; internal set; }
+
+    /// <summary>The corpse's body rows as its rot calls have left them (#1531).</summary>
+    internal RottingCorpseRows Rows { get; } = new(DeadTorizoCorpseDefinitions.RowCount);
+
+    /// <summary>The body rows as a main-AI call last showed the even half, or none before one first shows it (#1531).</summary>
+    internal CorpseRotRows? EvenHalfRows { get; set; }
+
+    /// <summary>The body rows as a main-AI call last showed the odd half, or none before one first shows it (#1531).</summary>
+    internal CorpseRotRows? OddHalfRows { get; set; }
     /// <summary>Contact-delay calls counted before rotting, 0..16: the sixteenth enters rotting and the corpse never returns to the delay. Direct shot or touch triggering bypasses it.</summary>
     public int PreRotDelayCounter { get; internal set; }
     /// <summary>Host diagnostic count of shared corpse-rotting scheduler calls since initialization, including the call that completes its final entry.</summary>

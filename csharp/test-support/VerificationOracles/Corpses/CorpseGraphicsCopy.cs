@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>One copy of a corpse's graphics between its rotting surfaces.</summary>
 /// <param name="SourceOffset">The first byte copied, within the source surface.</param>

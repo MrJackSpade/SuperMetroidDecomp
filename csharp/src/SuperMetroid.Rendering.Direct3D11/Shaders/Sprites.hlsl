@@ -10,6 +10,8 @@ static const uint SpriteRecordWords = 6;
 static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteRecolour = 512;
 // A rotting corpse's row word naming a row its rot has cleared (#1531), which draws nothing.
 static const uint SpriteClearedRow = 0xffffffffu;
+// The pixels of one of a rotting corpse's character columns, each with its own table of rows.
+static const uint SpriteCorpseColumnPixels = 8;
 // A record flag marking a draw whose colouring's set takes part in colour math, which the cartridge ORs into every
 // part's palette, so each of its pixels blends whatever its ink's own group (#1512).
 static const uint SpriteColourMath = 1024;
@@ -54,12 +56,12 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint2 delta = uint2(int2(vertex.position.xy) - origin);
     uint2 source = uint2((flags & SpriteFlipX) != 0 ? size.x - 1 - delta.x : delta.x,
         (flags & SpriteFlipY) != 0 ? size.y - 1 - delta.y : delta.y);
-    // A rotting corpse's image row shows the image row its rot has moved there, or nothing once the rot has cleared it
-    // (#1531): one lookup per row, in the words the record's sixth word starts.
-    uint rows = SpriteDraws[record + 5];
-    if (rows != 0)
+    // A rotting corpse's image pixel shows the row of its character column the rot has moved there, or nothing once the
+    // rot has cleared it (#1531): the record's sixth word starts a word per column naming the column's table of rows.
+    uint columns = SpriteDraws[record + 5];
+    if (columns != 0)
     {
-        uint shown = SpriteDraws[rows + source.y];
+        uint shown = SpriteDraws[SpriteDraws[columns + source.x / SpriteCorpseColumnPixels] + source.y];
         if (shown == SpriteClearedRow) discard;
         source.y = shown;
     }

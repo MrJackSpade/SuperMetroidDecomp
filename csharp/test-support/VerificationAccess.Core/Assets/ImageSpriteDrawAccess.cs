@@ -18,15 +18,15 @@ internal static class ImageSpriteDrawAccess
             : throw new InvalidOperationException($"{self} shows no pixel at ({cell.X},{cell.Y}): its corpse's rot has cleared that row.");
         /// <summary>
         /// Where on the sheet the pixel shown at <paramref name="cell"/> lies, as the renderer samples it: through a rotting
-        /// corpse's rows, if the draw shows any (#1531); none where the rot has cleared the row.
+        /// corpse's rows, by the pixel's character column, if the draw shows any (#1531); none where the rot has cleared it.
         /// </summary>
         internal int? SheetIndex(Position16<ScreenPixels> cell)
         {
             int sourceX = (self.Mirror & SpriteMirror.Horizontal) != 0 ? self.Image.Size.X - 1 - cell.X : cell.X;
             int sourceY = (self.Mirror & SpriteMirror.Vertical) != 0 ? self.Image.Size.Y - 1 - cell.Y : cell.Y;
-            if (self.RotRows is { } rows)
+            if (self.CorpseRot is { } rot)
             {
-                if (rows.Shown(sourceY) is not int shown)
+                if (rot.Shown(rot.TableOf(sourceX / CorpseRotPicture.ColumnPixels), sourceY) is not int shown)
                     return null;
                 sourceY = shown;
             }

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One DeadTourian occupant: its own AI handlers, with the shared reactions.</summary>
@@ -11,7 +9,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => species.ShownDeadTourianRows(Slot);
+    public CorpseRotRows? ShownRotRows => species.ShownDeadTourianRows(Slot);
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTourianCorpse;

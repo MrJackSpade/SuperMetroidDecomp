@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
@@ -65,7 +66,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             "unknown dead Tourian corpse species");
         VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(
-            "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' kinds and heights, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");
+            "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' kinds, heights, row layouts and wraps, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");
     }
 
     /// <summary>
@@ -97,8 +98,8 @@ internal static class DeadTourianCorpseDefinitionsVerification
     }
 
     /// <summary>
-    /// Compares one decoded configuration record with the typed definition: the kind whose upload list it names and the
-    /// corpse's height.
+    /// Compares one decoded configuration record with the typed definition and the extraction's row movers: the kind whose
+    /// upload list it names, the corpse's height and its wrap.
     /// </summary>
     private static void VerifyDeadTourianCorpseConfiguration(
         SuperMetroidAddressSpace rom,
@@ -110,6 +111,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertEqual<RottingCorpseKind?>(definition.Kind, configuration.Kind,
             $"dead {species} variant {variantIndex} rots the kind whose upload list its record names");
         AssertEqual(definition.RowCount, configuration.RowCount, $"dead {species} variant {variantIndex} corpse height");
+        AssertEqual(configuration.Wrap,
+            CorpseRowGeometry.Tourian(species, DeadTourianCorpseStagingDefinitions.Variants(species)[variantIndex]).Wrap,
+            $"dead {species} variant {variantIndex} wrap is the extraction's row movers'");
     }
 
     /// <summary>Checks one corpse initializer's installed instruction, rot table, callbacks, and row limits.</summary>
@@ -139,6 +143,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
         CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");
         AssertEqual(expected.Kind, state.Flesh,
             $"dead {species} variant {variantIndex} rots the configured kind of corpse");
+        AssertEqual(CorpseRowLayouts.TableAddress(DeadTourianCorpseStagingDefinitions.RowLayout(state.Species)),
+            CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer(rom, species, variantIndex)).RowLayoutTable,
+            $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
     }
 
 

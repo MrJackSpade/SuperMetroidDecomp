@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text;
+using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
@@ -47,8 +48,8 @@ internal static class InstalledArtworkContentIdentity
             AppendPictures(content, "variations", installed.variations.Select(entry => new PictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
             AppendPictures(content, "spawned-variations", installed.spawnedVariations.Select(entry => new PictureOwner(entry.Key.Set,
                 SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
-            AppendRotPictures(content, "rot-pictures", installed.rotPictures.Select(entry => new RotPictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
-            AppendRotPictures(content, "spawned-rot-pictures", installed.spawnedRotPictures.Select(entry => new RotPictureOwner(entry.Key.Set,
+            AppendCorpsePictures(content, "corpse-pictures", installed.corpsePictures.Select(entry => new CorpsePictureOwner(entry.Key.Set, entry.Key.Enemy.ToString(), entry.Value)));
+            AppendCorpsePictures(content, "spawned-corpse-pictures", installed.spawnedCorpsePictures.Select(entry => new CorpsePictureOwner(entry.Key.Set,
                 SuperMetroid.AssetExtraction.Enemies.SpawnedObjectOwnerNames.Name(entry.Key.Owner), entry.Value)));
         });
     }
@@ -340,22 +341,28 @@ internal static class InstalledArtworkContentIdentity
         });
     }
 
-    /// <summary>Appends each sheet's frames drawn over a rotting corpse's rows and the corpse each shows, in a stable order.</summary>
-    private static void AppendRotPictures(SelectedPresentationHash content, string label, IEnumerable<RotPictureOwner> owners)
+    /// <summary>Appends each sheet's frames that show a rotting corpse and where the corpse lies in each (#1531), in a stable order.</summary>
+    private static void AppendCorpsePictures(SelectedPresentationHash content, string label, IEnumerable<CorpsePictureOwner> owners)
     {
-        foreach (RotPictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
+        foreach (CorpsePictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
         {
             content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, string corpse) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-                content.Append("rot-frame", System.Text.Encoding.UTF8.GetBytes($"{frame}={corpse}"));
+            foreach ((string frame, CorpsePictureLayout layout) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                string columns = string.Join(',', layout.Columns.Select(column => column is { } rot
+                    ? $"{rot.FirstBand.ToString(CultureInfo.InvariantCulture)}:{string.Join('.', rot.Bands.Select(band => band.ToString(CultureInfo.InvariantCulture)))}"
+                    : "-"));
+                content.Append("corpse-frame", System.Text.Encoding.UTF8.GetBytes(
+                    $"{frame}@{layout.Top.ToString(CultureInfo.InvariantCulture)}:{columns}"));
+            }
         }
     }
 
-    /// <summary>One sheet's frames drawn over a rotting corpse's rows.</summary>
+    /// <summary>One sheet's frames that show a rotting corpse.</summary>
     /// <param name="Set">The graphics set's name.</param>
-    /// <param name="Owner">The enemy's name, or the spawned objects' tile base.</param>
-    /// <param name="Frames">The frames and the kind of corpse whose rot each shows.</param>
-    private sealed record RotPictureOwner(string Set, string Owner, IReadOnlyDictionary<string, string> Frames);
+    /// <param name="Owner">The enemy's name, or the spawned objects' owner.</param>
+    /// <param name="Frames">The frames and where the corpse lies in each.</param>
+    private sealed record CorpsePictureOwner(string Set, string Owner, IReadOnlyDictionary<string, CorpsePictureLayout> Frames);
 
     /// <summary>
     /// Appends each sheet's frames encounter artwork sequences change and the step whose picture each shows at each step of

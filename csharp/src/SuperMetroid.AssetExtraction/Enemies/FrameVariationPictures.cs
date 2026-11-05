@@ -7,9 +7,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// The pictures a sheet holds of a frame encounter artwork sequences change (#1513): one for each distinct combination of
 /// the pictures its sequences give it at the steps they can reach together while it is drawn, the loaded picture among
-/// them only when such a combination shows it. Sequences play independently of one another, except an interlude, which
-/// plays only while its main sequence holds one step. A sequence that has not reached its first step counts as drawn only
-/// when the frame is drawn before it.
+/// them only when such a combination shows it. Sequences play independently of one another. A sequence that has not
+/// reached its first step counts as drawn only when the frame is drawn before it.
 /// </summary>
 internal static class FrameVariationPictures
 {
@@ -42,57 +41,18 @@ internal static class FrameVariationPictures
 
     /// <summary>
     /// Each step, or none, the sequences <paramref name="variations"/> follow can have reached together, by variation:
-    /// every step of each independent sequence with every step of the others, and an interlude's steps only with the step
-    /// its main sequence holds while it plays.
+    /// every step of each sequence the frame is drawn at with every step of the others.
     /// </summary>
     private static IEnumerable<int?[]> ReachedSteps(IReadOnlyList<FrameArtworkVariation> variations)
     {
         IEnumerable<int?[]> reached = [new int?[variations.Count]];
-        var placed = new bool[variations.Count];
         for (int index = 0; index < variations.Count; index++)
         {
-            if (placed[index])
-                continue;
-            placed[index] = true;
-            EncounterArtworkSequence sequence = variations[index].Sequence;
-            EncounterArtworkInterlude? interlude = EncounterArtworkInterludes.All.SingleOrDefault(entry => entry.Main == sequence || entry.Interlude == sequence);
-            int partner = interlude is null ? -1
-                : IndexOf(variations, interlude.Main == sequence ? interlude.Interlude : interlude.Main);
-            if (interlude is null || partner < 0)
-            {
-                int current = index;
-                int?[] steps = [.. StepsOf(variations[current])];
-                reached = [.. reached.SelectMany(earlier => steps.Select(step => With(earlier, current, step)))];
-                continue;
-            }
-            placed[partner] = true;
-            int main = interlude.Main == sequence ? index : partner;
-            int played = interlude.Main == sequence ? partner : index;
-            FrameArtworkVariation mainVariation = variations[main], playedVariation = variations[played];
-            JointStep[] joint = [.. JointSteps(mainVariation.Pictures.Length, interlude.HeldStep, playedVariation.Pictures.Length)
-                .Where(step => Drawn(mainVariation, step.Main) && Drawn(playedVariation, step.Interlude))];
-            reached = [.. reached.SelectMany(earlier => joint.Select(step => With(With(earlier, main, step.Main), played, step.Interlude)))];
+            int current = index;
+            int?[] steps = [.. StepsOf(variations[current])];
+            reached = [.. reached.SelectMany(earlier => steps.Select(step => With(earlier, current, step)))];
         }
         return reached;
-    }
-
-    /// <summary>
-    /// The steps a main sequence of <paramref name="mainSteps"/> steps and an interlude of <paramref name="interludeSteps"/>
-    /// steps it plays at <paramref name="heldStep"/> can have reached together: the main sequence up to the held step before
-    /// the interlude starts, the held step through every step of the interlude, and every later main step once the
-    /// interlude has played through. Its last step is the one it finishes on, whose picture any step it shows last gives.
-    /// </summary>
-    private static IEnumerable<JointStep> JointSteps(int mainSteps, int heldStep, int interludeSteps)
-    {
-        if (heldStep >= mainSteps)
-            throw new InvalidDataException($"An interlude plays at step {heldStep} of a sequence of {mainSteps} steps.");
-        yield return new JointStep(null, null);
-        for (int step = 0; step <= heldStep; step++)
-            yield return new JointStep(step, null);
-        for (int played = 0; played < interludeSteps; played++)
-            yield return new JointStep(heldStep, played);
-        for (int step = heldStep + 1; step < mainSteps; step++)
-            yield return new JointStep(step, interludeSteps - 1);
     }
 
     /// <summary>Every step of <paramref name="variation"/>'s sequence the frame is drawn at, after none.</summary>
@@ -106,17 +66,6 @@ internal static class FrameVariationPictures
     private static bool Drawn(FrameArtworkVariation variation, int? step) =>
         step is int reached ? variation.DrawnAt(reached) : variation.DrawnBeforeFirstStep;
 
-    /// <summary>The index of the variation following <paramref name="sequence"/>, or -1.</summary>
-    private static int IndexOf(IReadOnlyList<FrameArtworkVariation> variations, EncounterArtworkSequence sequence)
-    {
-        for (int index = 0; index < variations.Count; index++)
-        {
-            if (variations[index].Sequence == sequence)
-                return index;
-        }
-        return -1;
-    }
-
     /// <summary>A copy of <paramref name="reached"/> with variation <paramref name="index"/> at <paramref name="step"/>.</summary>
     private static int?[] With(int?[] reached, int index, int? step)
     {
@@ -124,9 +73,4 @@ internal static class FrameVariationPictures
         copy[index] = step;
         return copy;
     }
-
-    /// <summary>The steps a main sequence and its interlude have reached together.</summary>
-    /// <param name="Main">The main sequence's step, or none.</param>
-    /// <param name="Interlude">The interlude's step, or none.</param>
-    private readonly record struct JointStep(int? Main, int? Interlude);
 }

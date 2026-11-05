@@ -9,16 +9,17 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// The shaders' <c>SpriteDraws</c> buffer (#1408, #1512): one frame's whole-frame sprite draws, each an instanced quad that
 /// Sprites.hlsl draws from its image in the image texture. Word 0 holds the record count, then six words per draw in
 /// front-to-back order (position, extent, flags, the image's place in the texture, the first colour word, the first
-/// rotting-row word), then, for each draw whose shading changes its picture's colours, the colour of each of its
-/// picture's inks under that shading, then, for each rotting corpse's draw (#1531), the image row each of its image's rows
-/// shows, or <see cref="ClearedRow"/> where the rot has cleared it. Which of a sprite's pixels take part in colour math is
-/// the shader's rule, by the pixel's colour group. The GPU buffer grows to fit the largest frame seen.
+/// corpse-column word), then, for each draw whose shading changes its picture's colours, the colour of each of its
+/// picture's inks under that shading, then, for each rotting corpse's draw (#1531), the first word of each of its image's
+/// character columns' table of rows, then each of those tables: the image row each of the image's rows shows in the
+/// column, or <see cref="ClearedRow"/> where the rot has cleared it. Which of a sprite's pixels take part in colour math
+/// is the shader's rule, by the pixel's colour group. The GPU buffer grows to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {
     /// <summary>Words of the header holding the record count.</summary>
     private const int HeaderWords = 1;
-    /// <summary>Words per packed record: position, extent, flags, the image's place, first colour word, first rotting-row word.</summary>
+    /// <summary>Words per packed record: position, extent, flags, the image's place, first colour word, first corpse-column word.</summary>
     private const int RecordWords = 6;
     /// <summary>A rotting-row word naming a row the rot has cleared, which draws nothing.</summary>
     private const uint ClearedRow = uint.MaxValue;
@@ -77,7 +78,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
             // A draw in its picture's standard colours shows the image's pre-coloured pixels and packs no colours.
             RgbColor[]? inks = shading.IsStandard ? null : shading.InkColours(image.Image.Sheet);
             shadedInks.Add(inks);
-            words += (inks?.Length ?? 0) + (RotRowsOf(image)?.Count ?? 0);
+            words += (inks?.Length ?? 0) + CorpseRotWords(image);
         }
         if (words > Upload.Length)
         {
@@ -89,7 +90,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         Count = draws.Length;
         int record = HeaderWords;
         int colourWords = HeaderWords + draws.Length * RecordWords;
-        // Each rotting corpse's rows follow every draw's colours.
+        // Each rotting corpse's columns and tables of rows follow every draw's colours.
         int rowWords = colourWords;
         foreach (RgbColor[]? inks in shadedInks)
             rowWords += inks?.Length ?? 0;
@@ -108,12 +109,18 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
                 colourWords += inks.Length;
             }
             int rows = 0;
-            if (RotRowsOf(image) is { } rotRows)
+            if (CorpseRotOf(image) is { } rot)
             {
                 rows = rowWords;
-                for (int row = 0; row < rotRows.Count; row++)
-                    upload[rowWords + row] = rotRows.Shown(row) is int shown ? (uint)shown : ClearedRow;
-                rowWords += rotRows.Count;
+                int tables = rowWords + rot.Columns;
+                for (int column = 0; column < rot.Columns; column++)
+                    upload[rowWords + column] = (uint)(tables + rot.TableOf(column) * rot.Rows);
+                for (int table = 0; table < rot.Tables; table++)
+                {
+                    for (int row = 0; row < rot.Rows; row++)
+                        upload[tables + table * rot.Rows + row] = rot.Shown(table, row) is int shown ? (uint)shown : ClearedRow;
+                }
+                rowWords += CorpseRotWords(image);
             }
             PackImage(upload.Slice(record, RecordWords), image, atlas.Place(image.Image), colours, rows);
             record += RecordWords;
@@ -122,7 +129,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
 
     /// <summary>
     /// Packs one image draw: its screen rectangle, mirroring and recolouring, its image's place in the texture, for a
-    /// recoloured draw its colours' first word, and for a rotting corpse's draw its rows' first word; zero names none,
+    /// recoloured draw its colours' first word, and for a rotting corpse's draw its columns' first word; zero names none,
     /// since the header holds word zero.
     /// </summary>
     private static void PackImage(Span<uint> record, ImageSpriteDraw draw, uint place, int colourWords, int rowWords)
@@ -139,17 +146,20 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     }
 
     /// <summary>
-    /// The rows a rotting corpse's <paramref name="draw"/> shows (#1531), one row of its image for each of its image's rows;
-    /// none for any other draw.
+    /// How a rotting corpse's <paramref name="draw"/> shows its image (#1531): one table of rows for each of its image's
+    /// character columns, each as tall as its image; none for any other draw.
     /// </summary>
-    /// <exception cref="InvalidDataException">The rows are not as many as the image's.</exception>
-    private static CorpseRotRows? RotRowsOf(ImageSpriteDraw draw)
+    /// <exception cref="InvalidDataException">The columns do not cover the image.</exception>
+    private static CorpseRotPicture? CorpseRotOf(ImageSpriteDraw draw)
     {
-        if (draw.RotRows is not { } rows)
+        if (draw.CorpseRot is not { } rot)
             return null;
-        return rows.Count == draw.Image.Size.Y ? rows
-            : throw new InvalidDataException($"Sprite draw {draw} shows {rows.Count} rotting rows over an image {draw.Image.Size.Y} rows tall.");
+        return rot.Rows == draw.Image.Size.Y && rot.Columns * CorpseRotPicture.ColumnPixels == draw.Image.Size.X ? rot
+            : throw new InvalidDataException($"Sprite draw {draw} shows {rot.Columns} rotting columns of {rot.Rows} rows over an image {draw.Image.Size.X} by {draw.Image.Size.Y}.");
     }
+
+    /// <summary>The words a rotting corpse's <paramref name="draw"/> packs: a word for each column, then each table; none for any other draw.</summary>
+    private static int CorpseRotWords(ImageSpriteDraw draw) => CorpseRotOf(draw) is { } rot ? rot.Columns + rot.Tables * rot.Rows : 0;
 
     /// <summary>Whether a shade of <paramref name="draw"/>'s shading takes part in colour math over the draw's every part.</summary>
     private static bool TakesColourMath(ImageSpriteDraw draw)

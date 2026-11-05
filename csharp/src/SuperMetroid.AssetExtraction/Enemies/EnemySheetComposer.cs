@@ -55,9 +55,9 @@ internal static class EnemySheetComposer
             SetLayouts laid = setLayouts[index];
             laidSets.Add(new LaidGraphicsSet(drawnSets[index].Name,
                 [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
-                    source.Variations, source.RotPictures, source.BlankPictures))],
+                    source.Variations, source.CorpsePictures, source.BlankPictures))],
                 [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], layouts, layoutOf),
-                    source.Variations, source.RotPictures, source.BlankPictures))]));
+                    source.Variations, source.CorpsePictures, source.BlankPictures))]));
         }
         var encoded = new EncodedSpriteSheet[layouts.Count];
         Parallel.For(0, layouts.Count, () => new SpriteSheetEncoder(), (index, _, encoder) =>
@@ -70,15 +70,15 @@ internal static class EnemySheetComposer
         var spawned = new Dictionary<string, Dictionary<string, SpawnedObjectSheetDocument>>(StringComparer.Ordinal);
         var variations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>>(StringComparer.Ordinal);
         var spawnedVariations = new Dictionary<string, Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>>(StringComparer.Ordinal);
-        var rotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
-        var spawnedRotPictures = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>(StringComparer.Ordinal);
+        var corpsePictures = new Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>>(StringComparer.Ordinal);
+        var spawnedCorpsePictures = new Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>>(StringComparer.Ordinal);
         var blankPictures = new Dictionary<string, Dictionary<string, string[]>>(StringComparer.Ordinal);
         var spawnedBlankPictures = new Dictionary<string, Dictionary<string, string[]>>(StringComparer.Ordinal);
         foreach (LaidGraphicsSet set in laidSets)
         {
             var members = new Dictionary<string, string>(StringComparer.Ordinal);
             var memberVariations = new Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>(StringComparer.Ordinal);
-            var memberRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+            var memberCorpsePictures = new Dictionary<string, Dictionary<string, CorpsePictureDocument>>(StringComparer.Ordinal);
             var memberBlank = new Dictionary<string, string[]>(StringComparer.Ordinal);
             foreach (LaidEnemySheet sheet in set.Enemies)
             {
@@ -90,21 +90,21 @@ internal static class EnemySheetComposer
                 members[enemy.ToString()] = name;
                 if (sheet.Variations.Count > 0)
                     memberVariations[enemy.ToString()] = Document(sheet.Variations);
-                if (sheet.RotPictures.Count > 0)
-                    memberRotPictures[enemy.ToString()] = new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
+                if (sheet.CorpsePictures.Count > 0)
+                    memberCorpsePictures[enemy.ToString()] = Document(sheet.CorpsePictures);
                 if (sheet.BlankPictures.Count > 0)
                     memberBlank[enemy.ToString()] = [.. sheet.BlankPictures.Order(StringComparer.Ordinal)];
             }
             sets.Add(set.Name, members);
             if (memberVariations.Count > 0)
                 variations.Add(set.Name, memberVariations);
-            if (memberRotPictures.Count > 0)
-                rotPictures.Add(set.Name, memberRotPictures);
+            if (memberCorpsePictures.Count > 0)
+                corpsePictures.Add(set.Name, memberCorpsePictures);
             if (memberBlank.Count > 0)
                 blankPictures.Add(set.Name, memberBlank);
             var bases = new Dictionary<string, SpawnedObjectSheetDocument>(StringComparer.Ordinal);
             var baseVariations = new Dictionary<string, Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>>>(StringComparer.Ordinal);
-            var baseRotPictures = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+            var baseCorpsePictures = new Dictionary<string, Dictionary<string, CorpsePictureDocument>>(StringComparer.Ordinal);
             var baseBlank = new Dictionary<string, string[]>(StringComparer.Ordinal);
             foreach (LaidSpawnedSheet sheet in set.Spawned)
             {
@@ -124,9 +124,8 @@ internal static class EnemySheetComposer
                     });
                     if (sheet.Variations.Count > 0)
                         baseVariations[owner] = Document(sheet.Variations);
-                    if (sheet.RotPictures.Count > 0)
-                        baseRotPictures[owner] =
-                            new Dictionary<string, string>(sheet.RotPictures, StringComparer.Ordinal);
+                    if (sheet.CorpsePictures.Count > 0)
+                        baseCorpsePictures[owner] = Document(sheet.CorpsePictures);
                     if (sheet.BlankPictures.Count > 0)
                         baseBlank[owner] = [.. sheet.BlankPictures.Order(StringComparer.Ordinal)];
                 }
@@ -134,18 +133,22 @@ internal static class EnemySheetComposer
             spawned.Add(set.Name, bases);
             if (baseVariations.Count > 0)
                 spawnedVariations.Add(set.Name, baseVariations);
-            if (baseRotPictures.Count > 0)
-                spawnedRotPictures.Add(set.Name, baseRotPictures);
+            if (baseCorpsePictures.Count > 0)
+                spawnedCorpsePictures.Add(set.Name, baseCorpsePictures);
             if (baseBlank.Count > 0)
                 spawnedBlankPictures.Add(set.Name, baseBlank);
         }
         return new EnemySheetComposition(names.Sheets, new EnemySheetManifestDocument
         {
             Version = EnemySheetFiles.ManifestVersion, Sets = sets, Spawned = spawned, Variations = variations,
-            SpawnedVariations = spawnedVariations, RotPictures = rotPictures, SpawnedRotPictures = spawnedRotPictures,
+            SpawnedVariations = spawnedVariations, CorpsePictures = corpsePictures, SpawnedCorpsePictures = spawnedCorpsePictures,
             BlankPictures = blankPictures, SpawnedBlankPictures = spawnedBlankPictures,
         });
     }
+
+    /// <summary>Where a rotting corpse lies in each frame that shows one, as the manifest spells it: by frame (#1531).</summary>
+    private static Dictionary<string, CorpsePictureDocument> Document(IReadOnlyDictionary<string, CorpsePictureLayout> frames) =>
+        frames.ToDictionary(frame => frame.Key, frame => CorpsePictureDocument.Of(frame.Value), StringComparer.Ordinal);
 
     /// <summary>How each frame follows the sequences that change it, as the manifest spells it: by frame, then sequence name.</summary>
     private static Dictionary<string, Dictionary<string, FrameArtworkVariationDocument>> Document(IReadOnlyDictionary<string, FrameArtworkVariation[]> frames) =>
@@ -183,19 +186,19 @@ internal static class EnemySheetComposer
     /// <param name="Enemy">The enemy.</param>
     /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
     /// <param name="Variations">How each frame encounter artwork sequences change follows them.</param>
-    /// <param name="RotPictures">The corpse each frame drawn over a corpse's rows shows the rot of.</param>
+    /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     /// <param name="BlankPictures">The frames' pictures that show nothing.</param>
     private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, FrameArtworkVariation[]> Variations,
-        IReadOnlyDictionary<string, string> RotPictures, IReadOnlySet<string> BlankPictures);
+        IReadOnlyDictionary<string, CorpsePictureLayout> CorpsePictures, IReadOnlySet<string> BlankPictures);
 
     /// <summary>One spawned-object sheet under a graphics set.</summary>
     /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
     /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
     /// <param name="Variations">How each frame encounter artwork sequences change follows them.</param>
-    /// <param name="RotPictures">The corpse each frame drawn over a corpse's rows shows the rot of.</param>
+    /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     /// <param name="BlankPictures">The frames' pictures that show nothing.</param>
     private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, FrameArtworkVariation[]> Variations,
-        IReadOnlyDictionary<string, string> RotPictures, IReadOnlySet<string> BlankPictures);
+        IReadOnlyDictionary<string, CorpsePictureLayout> CorpsePictures, IReadOnlySet<string> BlankPictures);
 
     /// <summary>
     /// Names the distinct sheets in the order they are first asked for: a layout whose files are the same as an earlier
@@ -281,11 +284,10 @@ internal static class EnemySheetComposer
             int paletteBits = loaded.Colours.RowOf(enemy);
             (IReadOnlyList<SheetShade> fixedShades, IReadOnlyList<SheetRowShade> rowShades) = loaded.Shades.Fixed(enemy);
             var variations = new Dictionary<string, FrameArtworkVariation[]>(StringComparer.Ordinal);
-            var rots = new Dictionary<string, string>(StringComparer.Ordinal);
+            var corpses = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
             var blank = new HashSet<string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            FramePictures[] pictures = [.. Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters, CorpseRotSimulation.Rots(enemy),
-                CorpseRowPictures.RowsOf(enemy))];
+            FramePictures[] pictures = [.. Frames(inputs.Enemies, enemy, shown, checked((ushort)tileBase), loaded.Characters)];
             // An enemy whose encounter sets its colours is coloured in those its frames first show in, and a frame family
             // always drawn in one colouring in that colouring (#1513).
             RgbColor[] colours = loaded.Shades.WithFrameColourings(loaded.Shades.FirstShownColours([enemy]), pictures, paletteBits,
@@ -295,14 +297,14 @@ internal static class EnemySheetComposer
                 frames.AddRange(framePictures.Sources);
                 if (framePictures.Variations.Length > 0)
                     variations.Add(framePictures.Name, framePictures.Variations);
-                if (framePictures.RotCorpse is { } corpse)
-                    rots.Add(framePictures.Name, corpse);
+                foreach ((string picture, CorpsePictureLayout corpse) in framePictures.Corpses)
+                    corpses.Add(picture, corpse);
                 blank.UnionWith(framePictures.Blank);
             }
             yield return new EnemySheetSource(enemy, new SpriteSheetSources(frames, colours,
                 ObjectSelectionCodec.GameplaySizes, paletteBits,
                 Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],
-                RowShades: [.. loaded.Shades.Shared(), .. rowShades]), variations, rots, blank);
+                RowShades: [.. loaded.Shades.Shared(), .. rowShades]), variations, corpses, blank);
         }
     }
 
@@ -318,9 +320,8 @@ internal static class EnemySheetComposer
         GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(set);
         LoadedSetColours colours = LoadedSetColours.Of(inputs, set);
         EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
-        IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
-        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set, corpses),
-            [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
+        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set), RottingCorpseCells.Of(drawn)),
+            colours, new EnemySheetShades(inputs, colours), drawn);
     }
 
     /// <summary>The common spawners whose objects graphics set <paramref name="set"/>'s shared sheet holds: those its rooms run (#1513).</summary>
@@ -355,16 +356,10 @@ internal static class EnemySheetComposer
 
     /// <summary>
     /// The artwork sequences played under graphics set <paramref name="set"/> (#1513): each its members' encounters play,
-    /// resolved against <paramref name="inputs"/>, then Mother Brain's corpse rot when her corpse rots among
-    /// <paramref name="corpses"/>, whose steps are its simulation's uploads.
+    /// resolved against <paramref name="inputs"/>.
     /// </summary>
-    internal static IReadOnlyList<EncounterArtworkSteps> Sequences(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set,
-        IEnumerable<CorpseRotSimulation> corpses) =>
-        [
-            .. EncounterArtworkUploads.Of(set).Select(sequence => new EncounterArtworkSteps(sequence, EncounterArtworkUploads.Steps(sequence, inputs))),
-            .. Ensure.NotNull(corpses).Where(corpse => corpse.Kind is null).Select(corpse => new EncounterArtworkSteps(EncounterArtworkSequence.MotherBrainCorpseRot,
-                corpse.StepUploads)),
-        ];
+    private static IReadOnlyList<EncounterArtworkSteps> Sequences(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set) =>
+        [.. EncounterArtworkUploads.Of(set).Select(sequence => new EncounterArtworkSteps(sequence, EncounterArtworkUploads.Steps(sequence, inputs)))];
 
     /// <summary>A room graphics set as a room load leaves it.</summary>
     /// <param name="Layout">Where its members' tiles land, which gives each enemy's character index.</param>
@@ -402,23 +397,12 @@ internal static class EnemySheetComposer
     /// Each shown frame's pictures over the set's characters, every frame one whole picture: an extended frame's pieces
     /// are composed into it at their placements (#1513).
     /// </summary>
-    private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown,
-        int tileBase, SetCharacters characters, bool showsRot, int? corpseRows) =>
-        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, CorpseRows(frame.Name, frame.Picture(tileBase), corpseRows),
-            FrameDrawings.Of(frame.Frame), showsRot));
-
-    /// <summary>
-    /// <paramref name="picture"/>, which must be its corpse's <paramref name="corpseRows"/> rows, top to bottom, when its
-    /// enemy is a corpse the game draws through its rows as its rot leaves them (#1531).
-    /// </summary>
-    /// <exception cref="InvalidDataException">The corpse's frame is not its rows.</exception>
-    private static SpriteFrame CorpseRows(string name, SpriteFrame picture, int? corpseRows)
-    {
-        if (corpseRows is int rows)
-            CorpseRowPictures.Require(name, picture, rows);
-        return picture;
-    }
+    private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, EnemyDefinitionId enemy, IReadOnlyList<EnemyFrameId> shown,
+        int tileBase, SetCharacters characters) =>
+        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row. A rotting corpse's
+        // frames name where the corpse lies in them (#1531).
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(tileBase),
+            FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
 
     /// <summary>
     /// Each shown frame's composition by sheet frame name: an ordinary frame as one piece at the frame's origin, an

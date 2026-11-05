@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -1276,7 +1277,7 @@ internal static class LookupStream3Verification
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 8; row++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitionsConstants.TileRowOffset(row),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), row * MotherBrainCorpseStaging.RowBytes,
                 "stream 3 corpse native tile row offset");
         IReadOnlyList<MotherBrainCorpseRotRow> rotRows = MotherBrainCorpseSheet.RotRows;
         AssertEqual(6, rotRows.Count, "stream 3 corpse rot row count");
@@ -1285,9 +1286,9 @@ internal static class LookupStream3Verification
             int entry = 0xa9e1f4 + row * 8;
             MotherBrainCorpseRotRow rotRow = rotRows[row];
             AssertEqual(row, rotRow.Row, "stream 3 corpse rot rows in row order");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), rotRow.ByteCount, "stream 3 native corpse rot row bytes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), MotherBrainCorpseStaging.ByteCount(rotRow), "stream 3 native corpse rot row bytes");
             int nativeStaging = (int)new SnesAddress(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
-            AssertEqual(nativeStaging, EnemySourceDefinitions.CorpseRottingHeap + rotRow.RottingOffset, "stream 3 native corpse rot row source");
+            AssertEqual(nativeStaging, CorpseWorkMemory.CorpseRottingHeap + MotherBrainCorpseStaging.RottingOffset(rotRow), "stream 3 native corpse rot row source");
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 MotherBrainCorpseSheet.RotRowFirstCharacter(rotRow) * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
@@ -1302,20 +1303,20 @@ internal static class LookupStream3Verification
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)
-            AssertEqual(minimumY[column], MotherBrainCorpseSheet.ColumnMinimumY(column), "stream 3 corpse native outline gate");
+            AssertEqual(minimumY[column], MotherBrainCorpseStaging.ColumnMinimumY(column), "stream 3 corpse native outline gate");
         // Confirm the changed row/column geometry through the real pixel-copy path.
         for (ushort y = 0; y < 48; y++)
         foreach (bool move in new[] { false, true })
         {
-            // The extraction stages the corpse from its art and rots it to picture each step (#1392): stage a pattern
+            // The character rot oracle stages the corpse from its art and rots it to picture each step (#1392): stage a pattern
             // through art whose rows hold it.
             byte[] expectedTiles = new byte[0x600];
             for (int offset = 0; offset < expectedTiles.Length; offset++)
                 expectedTiles[offset] = (byte)(offset * 37 + 11);
             byte[] atlas = new byte[MotherBrainCorpseSheet.ByteCount];
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-                expectedTiles.AsSpan(row * MotherBrainCorpseSheet.RowBytes, MotherBrainCorpseSheet.InitialCopyLength(row))
-                    .CopyTo(atlas.AsSpan(MotherBrainCorpseSheet.InitialCopyOffset(row)));
+                expectedTiles.AsSpan(row * MotherBrainCorpseStaging.RowBytes, MotherBrainCorpseStaging.InitialCopyLength(row))
+                    .CopyTo(atlas.AsSpan(MotherBrainCorpseStaging.InitialCopyOffset(row)));
             CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
             int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
@@ -1347,9 +1348,9 @@ internal static class LookupStream3Verification
             // The movers never write below the sixth row, so the staged rows hold every effect.
             for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
             {
-                int first = row * MotherBrainCorpseSheet.RowBytes;
-                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + first,
-                    MotherBrainCorpseSheet.InitialCopyLength(row), 0));
+                int first = row * MotherBrainCorpseStaging.RowBytes;
+                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, CorpseWorkMemory.CorpseRottingHeap + first,
+                    MotherBrainCorpseStaging.InitialCopyLength(row), 0));
                 for (int offset = 0; offset < staged.Length; offset++)
                     AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");
             }

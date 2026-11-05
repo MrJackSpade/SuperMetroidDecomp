@@ -1206,7 +1206,7 @@ internal static class LookupStream5Verification
                     CorpseStagingGeometryDefinitions.SidehopperInitialCopy(variant, row), "Native Sidehopper MVN geometry");
                 ReadSidehopperCorpseRomBytes(rom, 0xb7c000 + source, length).CopyTo(expected, destination);
             }
-            // The extraction stages the corpse as the cartridge does and rots it to picture each step (#1392).
+            // The character rot oracle stages the corpse as the cartridge does and rots it to picture each step (#1392).
             CorpseStaging corpseTiles = CorpseStaging.Sidehopper(atlas.Span, variant);
             for (int row = 0; row < 5; row++)
             {
@@ -1268,7 +1268,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Sidehopper geometry: ten native MVN rows, ten column offsets/clips, installed artwork and actual copy/move boundary rows pass; nonzero variant semantics preserved.");
 
         static byte[] Staged(CorpseStaging staging, int offset, int length) =>
-            staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.EnemyBg2Staging + offset, length, 0));
+            staging.Upload(new CorpseRotRow(0, CorpseWorkMemory.EnemyBg2Staging + offset, length, 0));
     }
 
     /// <summary>Reads the retail Sidehopper corpse character rows for an independent artwork fixture.</summary>
@@ -1433,14 +1433,11 @@ internal static class LookupStream5Verification
             AssertEqual(identity,source.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
         }
     }
-    /// <summary>
-    /// Checks the extraction's dead Sidehopper row upload lists and the corpse geometry bounds. A dead Zoomer, Ripper or
-    /// Skree is drawn through its rows as its rot leaves them (#1531), so the extraction keeps no upload list of theirs.
-    /// </summary>
+    /// <summary>Checks the extraction's corpse row upload lists and the corpse geometry bounds.</summary>
     internal static void VerifyLookupStream5CorpseViews()
     {
         var expected = new List<CorpseRowUpload>();
-        foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a })
+        foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
             var rows = DeadMonsterRowUploadDefinitions.ForKind(CorpseNativeAddresses.TransferTableAt(table));
             int index = 0;
@@ -1453,11 +1450,9 @@ internal static class LookupStream5Verification
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
         }
-        AssertTrue(expected.SequenceEqual(CorpseNativeAddresses.AllTransferTables.Where(kind => kind.Species == RottingCorpseSpecies.Sidehopper)
-                .SelectMany(kind => DeadMonsterRowUploadDefinitions.ForKind(kind))),
-            "every dead Sidehopper kind's row uploads, in native list order");
+        AssertTrue(expected.SequenceEqual(CorpseNativeAddresses.AllTransferTables.SelectMany(kind => DeadMonsterRowUploadDefinitions.ForKind(kind))),
+            "every kind's row uploads, in native list order");
         AssertThrows<InvalidDataException>(() => CorpseNativeAddresses.TransferTableAt(0xe0e1), "unaligned row upload list rejected");
-        AssertThrows<InvalidDataException>(() => DeadMonsterRowUploadDefinitions.ForKind(DeadTorizoCorpseDefinitions.Kind), "the Torizo corpse uploads by halves");
         AssertThrows<InvalidDataException>(() => SuperMetroid.Verification.Enemies.Corpses.CorpseRowLayouts.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Verification.Enemies.Corpses.CorpseRowLayouts.RotationOffset(0xe226, 104), "corpse row past end rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SandSource(16), "sand source past end rejected");

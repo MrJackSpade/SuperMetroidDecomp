@@ -103,10 +103,10 @@ internal static class MotherBrainCorpseArtworkVerification
         StagingByteView expectedTiles = expected.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
-            byte[] staged = actual.Upload(new CorpseRotRow(row, EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseSheet.RowBytes,
-                MotherBrainCorpseSheet.InitialCopyLength(row), 0));
+            byte[] staged = actual.Upload(new CorpseRotRow(row, CorpseWorkMemory.CorpseRottingHeap + row * MotherBrainCorpseStaging.RowBytes,
+                MotherBrainCorpseStaging.InitialCopyLength(row), 0));
             for (int offset = 0; offset < staged.Length; offset++)
-                AssertEqual(expectedTiles[row * MotherBrainCorpseSheet.RowBytes + offset], staged[offset],
+                AssertEqual(expectedTiles[row * MotherBrainCorpseStaging.RowBytes + offset], staged[offset],
                     "installed Mother Brain corpse staging agrees with cartridge");
         }
     }

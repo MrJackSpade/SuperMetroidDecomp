@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>The number of rotation rows of a corpse and the tiles in each.</summary>
 /// <param name="Count">The count.</param>

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
@@ -123,7 +124,7 @@ internal static class RoomBackgroundLibraryParityVerification
     /// ($7E:2000) to VRAM.
     /// </summary>
     private static TestAddressSpace CreateStagedWorkRamBackgroundCartridge(ushort listPointer) =>
-        CreateSingleTransferBackgroundCartridge(listPointer, EnemySourceDefinitions.EnemyBg2Staging, 2);
+        CreateSingleTransferBackgroundCartridge(listPointer, CorpseWorkMemory.EnemyBg2Staging, 2);
 
     /// <summary>
     /// A fully bound installation must never quietly fall back to stock ROM pixels

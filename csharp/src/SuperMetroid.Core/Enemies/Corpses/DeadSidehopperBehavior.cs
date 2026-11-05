@@ -142,7 +142,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        _deadMonsters.BeginRot(state.Flesh);
+        _deadMonsters.BeginRows(state.Flesh, definition.RowCount);
         return state;
     }
 
@@ -410,23 +410,22 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>Runs one rot call and its dust, and selects the step as the rot its kind shows.</summary>
+    /// <summary>Runs one rot call and its dust, moving its kind's rows as the call moves them (#1531).</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
         state.ProcessCallCount++;
-        bool stillRotting = state.Rot.Step(_ => FinishDeadSidehopperCorpseRow(slot, state));
+        bool stillRotting = state.Rot.Step(
+            (row, operation) => _deadMonsters.MoveRow(state.Flesh, row, operation),
+            _ => FinishDeadSidehopperCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
-        _deadMonsters.ShowRotStep(state.Flesh);
     }
 
-
-
-    /// <summary>The rot <paramref name="slot"/>'s frames show: its kind's (#1406).</summary>
-    internal CorpseRotView ShownDeadSidehopperRot(RoomEnemySlot slot) =>
-        _deadMonsters.Shown(RequireDeadSidehopperState(slot).Flesh);
+    /// <summary>The rows <paramref name="slot"/>'s frames show: its kind's, as its corpses' rot calls have left them (#1531).</summary>
+    internal CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) =>
+        _deadMonsters.ShownRows(RequireDeadSidehopperState(slot).Flesh);
 
     /// <summary>Records a completed row, spawns dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(

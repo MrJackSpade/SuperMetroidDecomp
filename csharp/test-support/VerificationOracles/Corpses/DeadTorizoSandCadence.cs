@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// The cadence of the dead Torizo's falling sand: every fifteenth frame of its rot, the next of its sand lines falls, from

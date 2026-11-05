@@ -28,10 +28,11 @@ public sealed record ImageSpriteDraw : SpriteDraw
     public PictureShading? Shading { get; init; }
 
     /// <summary>
-    /// The rows a rotting corpse's frame shows as its rot has left them (#1531): each row of the image draws the image row
-    /// they name, or nothing where the rot has cleared it. Null for every other draw, which shows its image's rows as they are.
+    /// How a rotting corpse's frame shows as its rot has left it (#1531): each pixel row of each character column of the
+    /// image draws the image row it names, or nothing where the rot has cleared it. Null for every other draw, which shows
+    /// its image as it is.
     /// </summary>
-    public CorpseRotRows? RotRows { get; init; }
+    public CorpseRotPicture? CorpseRot { get; init; }
 
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }

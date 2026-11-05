@@ -23,20 +23,19 @@ public interface IEnemySheetSource
     IReadOnlyList<FrameArtworkVariation> SpawnedVariations(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
 
     /// <summary>
-    /// The name of the kind of rotting corpse whose rot frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet
-    /// under graphics set <paramref name="set"/> shows, when the frame is drawn over the corpse's rows: the sheet holds the
-    /// frame's picture of each rot the corpse can show at which the frame shows anything (#1406, #1513). None for a frame
-    /// that shows no rot.
+    /// Where a rotting corpse lies in picture <paramref name="picture"/> of a frame of <paramref name="enemy"/>'s sheet under
+    /// graphics set <paramref name="set"/> (#1531), which the picture is drawn through as the corpse's rot leaves it; none for
+    /// a picture that shows no rotting corpse.
     /// </summary>
-    string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
+    CorpsePictureLayout? CorpseLayout(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
 
-    /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
-    string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
+    /// <summary>The same for picture <paramref name="picture"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
+    CorpsePictureLayout? SpawnedCorpseLayout(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
 
     /// <summary>
     /// Whether <paramref name="picture"/>, a picture of a frame of <paramref name="enemy"/>'s sheet under graphics set
     /// <paramref name="set"/>, shows nothing: every character the frame reads is blank in it, as the room's load, an
-    /// encounter's artwork sequence or a corpse's rot leaves them, so the sheet holds no such picture and the frame draws
+    /// encounter's artwork sequence leaves them, so the sheet holds no such picture and the frame draws
     /// nothing then (#1513).
     /// </summary>
     bool ShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);

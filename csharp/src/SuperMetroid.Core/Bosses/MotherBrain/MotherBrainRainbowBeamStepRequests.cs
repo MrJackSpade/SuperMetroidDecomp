@@ -42,9 +42,6 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The death explosions requested.</summary>
     internal List<MotherBrainDeathExplosionRequest> DeathExplosions { get; } = new(capacity: 4);
 
-    /// <summary>The rot step the call shows every corpse row at, if it shows them.</summary>
-    internal int? CorpseRotStepShown { get; set; }
-
     /// <summary>The corpse dust requested.</summary>
     internal List<MotherBrainCorpseDustRequest> CorpseDustRequests { get; } = new(capacity: 1);
 
@@ -101,7 +98,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
         MotherBrainBodyFunction? phaseBefore, MotherBrainBodyFunction? phaseAfter, bool headAnimationScriptRequested) =>
         new(phaseBefore, phaseAfter, Movement, SoundQueued, PaletteRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
             headAnimationScriptRequested, BodyPostureRequested, SpritePage, BabySpawnRequested, FinalBeamSoundQueued,
-            DeathExplosions, CorpseRotStepShown, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
+            DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeSequencePages, ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,

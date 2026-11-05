@@ -22,12 +22,12 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// Confirms Mother Brain draws from pre-coloured pictures of only the steps each frame is drawn at (#1392, #1513): every
 /// frame of her room's sheets her pages change shows, at each page it is drawn over, a picture painting exactly what the
 /// frame paints over the characters her room's load and every page up to that one leave; and, played in the cartridge's
-/// order (her pages through her corpse's last, the corpse's rot, then the rest), every brain and neck frame drawn while the
-/// catalogue draws it paints as the frame over the characters then, and drawn at any other step fails loudly.
+/// order, every brain and neck frame drawn while the catalogue draws it paints as the frame over the characters then, and
+/// drawn at any other step fails loudly. Her corpse's rot is drawn through its rows (#1531), which a separate check confirms.
 /// </summary>
 internal static class MotherBrainPicturesVerification
 {
-    /// <summary>Checks every frame her pages change at each page, then draws every brain and neck frame at each page and rot step.</summary>
+    /// <summary>Checks every frame her pages change at each page, then draws every brain and neck frame at each page.</summary>
     internal static void VerifyMotherBrainPictures()
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
@@ -38,39 +38,21 @@ internal static class MotherBrainPicturesVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemySlot head = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Mother Brain's room loads her.")).Head;
         EnemyFrameId[] frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Append(MotherBrainVisualDefinitions.NeckJointFrame).Distinct()];
-        CorpseRotSimulation corpse = CorpseRotSimulation.Of(RuntimeArtworkContent.Of(runtime).EnemyTiles,
-            RuntimeArtworkContent.Of(runtime).BossTiles, [EnemyDefinitionId.MotherBrainHead]).Single();
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet.LoadedSet;
         IReadOnlyList<MotherBrainSpritePage> sequence = MotherBrainSpritePageDefinitions.Sequence;
         int followed = UploadedPictureChecks.AssertFramesFollowSequence(set, EncounterArtworkSequence.MotherBrainPages, sequence.Count, "Mother Brain's pages");
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");
         int drawn = 0, undrawn = 0;
         Draw("as her room loads them");
-        // Her death loads her corpse's pages, rots the corpse away, and only then loads the escape's pages (#1513).
-        int lastCorpsePage = sequence.ToList().FindLastIndex(page => page.Sheet == MotherBrainSpritePageSheet.Corpse);
-        AssertTrue(lastCorpsePage >= 0, "Mother Brain's artwork sequence loads her corpse");
-        foreach (MotherBrainSpritePage page in sequence.Take(lastCorpsePage + 1))
+        foreach (MotherBrainSpritePage page in sequence)
         {
             runtime.Enemies.MotherBrainEncounter.ShowSpritePage(page);
             Draw($"after {page}");
         }
-        // The rot's last step uploads nothing, so its rows stay as the step before left them.
-        int steps = corpse.StepUploads.Count - 1;
-        for (int step = 1; step <= steps; step++)
-        {
-            runtime.Enemies.MotherBrainEncounter.ShowCorpseRotStep(step);
-            // As the corpse rots away its frames come to paint nothing; each still paints exactly what its parts do.
-            Draw($"after rot step {step}", requirePixels: false);
-        }
-        foreach (MotherBrainSpritePage page in sequence.Skip(lastCorpsePage + 1))
-        {
-            runtime.Enemies.MotherBrainEncounter.ShowSpritePage(page);
-            Draw($"after {page} once the corpse has rotted away");
-        }
         AssertTrue(undrawn > 0, "Mother Brain's brain is drawn at some page at which it is never drawn, and that draw fails");
-        Console.WriteLine($"Mother Brain pictures: {followed} frames follow the pages they are drawn over; {frames.Length} brain and neck frames drawn after each of {sequence.Count} pages and {steps} rot steps make {drawn} draws painting as the frames over the characters then, and {undrawn} draws at steps they are never drawn at fail.");
+        Console.WriteLine($"Mother Brain pictures: {followed} frames follow the pages they are drawn over; {frames.Length} brain and neck frames drawn after each of {sequence.Count} pages make {drawn} draws painting as the frames over the characters then, and {undrawn} draws at steps they are never drawn at fail.");
 
-        void Draw(string context, bool requirePixels = true)
+        void Draw(string context)
         {
             SpriteArtwork rotted = EnemySheetFixtures.LivePage(set, UploadedPictureChecks.Reached(runtime));
             foreach (EnemyFrameId frame in frames)
@@ -85,7 +67,7 @@ internal static class MotherBrainPicturesVerification
                 ImmutableArray<SpriteDraw> pictures = DrawFrame(frame);
                 UploadedPictureChecks.AssertPaintsLikeParts(pictures,
                     [.. pictures.Select(draw => SheetFrameSources.CharacterDraw(AssertIs<ImageSpriteDraw>(draw, $"Mother Brain {frame} {context}: draws from a sheet"), rotted))],
-                    $"Mother Brain {frame} {context}", requirePixels);
+                    $"Mother Brain {frame} {context}");
                 drawn++;
             }
         }

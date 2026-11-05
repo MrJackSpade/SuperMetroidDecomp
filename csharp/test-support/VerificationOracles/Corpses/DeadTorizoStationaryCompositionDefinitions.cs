@@ -1,4 +1,4 @@
-namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
+namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Stock $A9:D6E2-D760 composition, separate from editable display OAM. Its authored

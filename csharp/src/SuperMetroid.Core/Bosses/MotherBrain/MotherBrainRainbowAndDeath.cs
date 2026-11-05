@@ -104,7 +104,6 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.PaletteRequested)
             state.Colours.LayOverCorpse(MotherBrainShades.CorpseFade(sequence.State.GreyTransitionCounter - 1));
-        if (step.CorpseRotStepShown is int rotStep) _motherBrainEncounter.ShowCorpseRotStep(rotStep);
         foreach (var dust in step.CorpseDustRequests)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);

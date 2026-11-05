@@ -22,11 +22,11 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <summary>The same for each set's spawned-object sheets.</summary>
     internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>> spawnedVariations;
 
-    /// <summary>Each set's enemy sheets' frames drawn over a rotting corpse's rows, and the kind of corpse whose rot each shows.</summary>
-    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>> rotPictures;
+    /// <summary>Each set's enemy sheets' pictures that show a rotting corpse, and where the corpse lies in each (#1531).</summary>
+    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>> corpsePictures;
 
     /// <summary>The same for each set's spawned-object sheets.</summary>
-    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures;
+    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>> spawnedCorpsePictures;
 
     /// <summary>Each set's enemy sheets' frames' pictures that show nothing (#1513).</summary>
     internal readonly Dictionary<EnemySheetKey, IReadOnlySet<string>> blankPictures;
@@ -36,22 +36,22 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
 
     /// <summary>
     /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and owner, with how each of
-    /// their frames an encounter's artwork sequence changes follows it and the kind of corpse whose rot each of their frames
-    /// drawn over a rotting corpse's rows shows.
+    /// their frames an encounter's artwork sequence changes follows it and where a rotting corpse lies in each of their
+    /// pictures that shows one.
     /// </summary>
     public InstalledEnemySheets(EnemySheetGroup<EnemySheetKey, SpriteSheet> enemies,
         EnemySheetGroup<SpawnedObjectSheetKey, SpawnedObjectSheet> spawnedObjects)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(spawnedObjects);
-        var (sheets, variations, rotPictures, blankPictures) = enemies;
-        var (spawned, spawnedVariations, spawnedRotPictures, spawnedBlankPictures) = spawnedObjects;
+        var (sheets, variations, corpsePictures, blankPictures) = enemies;
+        var (spawned, spawnedVariations, spawnedCorpsePictures, spawnedBlankPictures) = spawnedObjects;
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
         this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
         this.variations = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>(Ensure.NotNull(variations));
         this.spawnedVariations = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>(Ensure.NotNull(spawnedVariations));
-        this.rotPictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>>(Ensure.NotNull(rotPictures));
-        this.spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>(Ensure.NotNull(spawnedRotPictures));
+        this.corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>(Ensure.NotNull(corpsePictures));
+        this.spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>(Ensure.NotNull(spawnedCorpsePictures));
         this.blankPictures = new Dictionary<EnemySheetKey, IReadOnlySet<string>>(Ensure.NotNull(blankPictures));
         this.spawnedBlankPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>>(Ensure.NotNull(spawnedBlankPictures));
     }
@@ -67,14 +67,14 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
             && blank.Contains(picture);
 
     /// <inheritdoc/>
-    public string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame) =>
-        rotPictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, string>? frames)
-            && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
+    public CorpsePictureLayout? CorpseLayout(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture) =>
+        corpsePictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, CorpsePictureLayout>? pictures)
+            && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
 
     /// <inheritdoc/>
-    public string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame) =>
-        spawnedRotPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, string>? frames)
-            && frames.TryGetValue(frame, out string? corpse) ? corpse : null;
+    public CorpsePictureLayout? SpawnedCorpseLayout(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture) =>
+        spawnedCorpsePictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, CorpsePictureLayout>? pictures)
+            && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
 
     /// <inheritdoc/>
     public IReadOnlyList<FrameArtworkVariation> Variations(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame) =>

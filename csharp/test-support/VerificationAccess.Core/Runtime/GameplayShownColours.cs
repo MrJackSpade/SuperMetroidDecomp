@@ -30,9 +30,12 @@ internal static class GameplayShownColours
     /// <summary>The first of Samus's beam colours in the native image.</summary>
     internal const int SamusBeamsFirst = BackgroundColours + 6 * RowColours;
 
-    /// <summary>The native colours this image composes: every background colour, Samus's suit row and her beams' row.</summary>
+    /// <summary>
+    /// The native colours this image composes: every background colour, and Samus's suit row and her beams' row but for
+    /// each row's first colour, which a sprite's transparent ink stands for and no draw ever shows.
+    /// </summary>
     internal static IReadOnlyList<int> Compared { get; } =
-        [.. Enumerable.Range(0, BackgroundColours), .. Enumerable.Range(SamusSuitFirst, RowColours), .. Enumerable.Range(SamusBeamsFirst, RowColours)];
+        [.. Enumerable.Range(0, BackgroundColours), .. Enumerable.Range(SamusSuitFirst + 1, RowColours - 1), .. Enumerable.Range(SamusBeamsFirst + 1, RowColours - 1)];
 
     /// <summary>The colours <paramref name="runtime"/>'s published frame shows, with Samus's from <paramref name="sources"/>.</summary>
     /// <exception cref="InvalidOperationException">The published frame names no gameplay shading.</exception>

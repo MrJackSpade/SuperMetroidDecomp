@@ -166,7 +166,10 @@ internal sealed class DebuggerSaveStateStore : IDisposable
             game.GameplayActiveRoom?.Name,
             game.GameplayActiveRoomState?.Name,
             GetSlotPath(slot));
-        using var payload = new MemoryStream();
+        // A capture is about as large as the one before it, so its buffer starts a little past that size instead of doubling
+        // up to it, copying the graph written so far at every doubling (#1532).
+        int previous = Volatile.Read(ref lastPayloadLength);
+        using var payload = new MemoryStream((int)Math.Min(previous + (long)previous / 8, Array.MaxLength));
         // The content may have loaded parts of itself since the last save.
         bound.Value.Refresh();
         DebuggerObjectGraphSerializer.Serialize(payload, new DebuggerSaveStateRoot(addressSpace, game), bound.Value);
@@ -174,8 +177,12 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         ArraySegment<byte> written = payload.TryGetBuffer(out ArraySegment<byte> buffer)
             ? buffer
             : throw new InvalidOperationException("A capture's own payload stream exposes its buffer.");
+        Volatile.Write(ref lastPayloadLength, written.Count);
         return new DebuggerSaveStateCapture(metadata, written);
     }
+
+    /// <summary>The serialized length of the last capture, which the next capture's buffer starts at.</summary>
+    private int lastPayloadLength;
 
     /// <summary>Writes a capture, reporting its outcome instead of letting it escape the writing thread.</summary>
     private void WriteAndReport(DebuggerSaveStateCapture capture, Action<DebuggerSaveStateMetadata> written, Action<Exception> failed)

@@ -113,7 +113,7 @@ internal static class DebuggerObjectGraphSerializer
             writer.Write((byte)ObjectMarker.New);
             int referenceId = tracksReference ? nextReferenceId++ : 0;
             writer.Write(referenceId);
-            writer.Write(DebuggerStateTypeIdentity.GetSerializedName(type));
+            writer.Write(EncodedTypeName(type));
             if (tracksReference)
                 references.Add(value, referenceId);
 
@@ -148,12 +148,13 @@ internal static class DebuggerObjectGraphSerializer
 
             writer.Write((byte)PayloadKind.Fields);
             FieldInfo[] fields = GetSerializableFields(type);
+            byte[][] headers = EncodedFieldHeaders(type);
             writer.Write(fields.Length);
-            foreach (FieldInfo field in fields)
+            for (int index = 0; index < fields.Length; index++)
             {
-                writer.Write(DebuggerStateTypeIdentity.GetSerializedName(ReflectionBoundary.DeclaringType(field)));
-                writer.Write(field.Name);
-                Write(field.GetValue(value));
+                // The field's declaring type and name, as two strings written the way the reader reads them.
+                writer.Write(headers[index]);
+                Write(fields[index].GetValue(value));
             }
         }
 
@@ -576,6 +577,39 @@ internal static class DebuggerObjectGraphSerializer
     /// <summary>Returns the cached ordered instance fields for a concrete type.</summary>
     internal static FieldInfo[] GetSerializableFields(Type type) =>
         serializableFields.GetOrAdd(type, CollectSerializableFields);
+
+    /// <summary>
+    /// Each type's serialized name as <see cref="BinaryWriter.Write(string)"/> writes it, its UTF-8 length then its bytes,
+    /// encoded once: a capture writes the name of every object it defines.
+    /// </summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, byte[]> encodedTypeNames = new();
+
+    /// <summary>
+    /// Each type's serializable fields' headers, each field's declaring type name and then its name as
+    /// <see cref="BinaryWriter.Write(string)"/> writes them, encoded once: a capture writes them before every field value.
+    /// </summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, byte[][]> encodedFieldHeaders = new();
+
+    /// <summary>The encoded serialized name of <paramref name="type"/>.</summary>
+    private static byte[] EncodedTypeName(Type type) =>
+        encodedTypeNames.GetOrAdd(type, static owner => Encoded(DebuggerStateTypeIdentity.GetSerializedName(owner)));
+
+    /// <summary>The encoded headers of <paramref name="type"/>'s serializable fields, in their serialized order.</summary>
+    private static byte[][] EncodedFieldHeaders(Type type) =>
+        encodedFieldHeaders.GetOrAdd(type, static owner => [.. GetSerializableFields(owner).Select(field =>
+            Encoded(DebuggerStateTypeIdentity.GetSerializedName(ReflectionBoundary.DeclaringType(field)), field.Name))]);
+
+    /// <summary>The bytes a UTF-8 <see cref="BinaryWriter"/> writes for <paramref name="names"/>, one string after another.</summary>
+    private static byte[] Encoded(params string[] names)
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            foreach (string name in names)
+                writer.Write(name);
+        }
+        return stream.ToArray();
+    }
 
     /// <summary>Collects inherited instance fields in stable metadata order, excluding transient event state.</summary>
     [ReflectionAudit("debugger state capture serializes every instance field of the object graph by name")]

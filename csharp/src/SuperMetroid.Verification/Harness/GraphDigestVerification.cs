@@ -48,27 +48,63 @@ internal static class GraphDigestVerification
     /// <summary>
     /// The bound objects a capture names by path: <paramref name="content"/>, or the fixture's installed content when
     /// none is given, as a host's store always binds its content. Each list of the same objects in the same order is
-    /// indexed once, so repeated captures do not walk its content again.
+    /// indexed once, so repeated captures do not walk its content again. A list that ends with a list already indexed, or
+    /// with the fixture's installed content, extends that list's index: only what its leading objects reach first is walked,
+    /// and the index is the one the whole list would make.
     /// </summary>
     private static BoundObjectGraph Bound(object[] content)
     {
         if (content.Length == 0)
             content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
         lock (boundGraphs)
-        {
-            foreach ((object[] roots, BoundObjectGraph graph) in boundGraphs)
-                if (roots.Length == content.Length && roots.Zip(content).All(pair => ReferenceEquals(pair.First, pair.Second)))
-                {
-                    // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
-                    // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
-                    // keeps the path it was first indexed under.
-                    graph.Refresh();
-                    return graph;
-                }
-            var indexed = new BoundObjectGraph(content);
-            boundGraphs.Add(([.. content], indexed));
-            return indexed;
-        }
+            return Indexed(content);
+    }
+
+    /// <summary>The graph of <paramref name="content"/>, indexed now unless it was before; callers hold the lock.</summary>
+    private static BoundObjectGraph Indexed(object[] content)
+    {
+        foreach ((object[] roots, BoundObjectGraph graph) in boundGraphs)
+            if (roots.Length == content.Length && EndsWith(content, roots))
+            {
+                // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
+                // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
+                // keeps the path it was first indexed under.
+                graph.Refresh();
+                return graph;
+            }
+        BoundObjectGraph indexed = IndexedSuffix(content) is { } suffix
+            ? new BoundObjectGraph(content[..^suffix.Length], Indexed(suffix))
+            : new BoundObjectGraph(content);
+        boundGraphs.Add(([.. content], indexed));
+        return indexed;
+    }
+
+    /// <summary>
+    /// The longest list already indexed that <paramref name="content"/> ends with and is longer than, or else the fixture's
+    /// installed content when the list ends with it; null when it ends with neither.
+    /// </summary>
+    private static object[]? IndexedSuffix(object[] content)
+    {
+        object[]? longest = null;
+        foreach ((object[] roots, _) in boundGraphs)
+            if (roots.Length < content.Length && roots.Length > (longest?.Length ?? 0) && EndsWith(content, roots))
+                longest = roots;
+        object[] installed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        if (longest is null && installed.Length < content.Length && EndsWith(content, installed))
+            longest = installed;
+        return longest;
+    }
+
+    /// <summary>Whether the last objects of <paramref name="content"/> are <paramref name="suffix"/>'s, the same objects in order.</summary>
+    private static bool EndsWith(object[] content, object[] suffix)
+    {
+        int start = content.Length - suffix.Length;
+        if (start < 0)
+            return false;
+        for (int index = 0; index < suffix.Length; index++)
+            if (!ReferenceEquals(content[start + index], suffix[index]))
+                return false;
+        return true;
     }
 
     /// <summary>Each content list indexed so far, with its graph.</summary>

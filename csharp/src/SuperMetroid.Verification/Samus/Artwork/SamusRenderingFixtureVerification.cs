@@ -43,9 +43,31 @@ internal static class SamusRenderingFixtureVerification
     /// <summary>
     /// Adapts sparse seeded rendering tables to the installed catalog boundary. Unspecified
     /// complete DMA groups retain stock layout; spritemaps use the fixture's own compact
-    /// compositions, including zero pointers.
+    /// compositions, including zero pointers. The body is built from the seeded bytes once for each state of the bus, so
+    /// rebinding over an unchanged bus binds the body already built from it.
     /// </summary>
     internal static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (!syntheticBodies.TryGetValue(bus, out SyntheticBody? built) || built.Version != bus.Version)
+        {
+            built = new SyntheticBody(bus.Version, BuildSyntheticBody(bus));
+            syntheticBodies.AddOrUpdate(bus, built);
+        }
+        samus.Presentation.BodyFrames.BindBodyFixture(built.Artwork);
+    }
+
+    /// <summary>The body last built from each bus, with the bus's version it was built at.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<TestAddressSpace, SyntheticBody> syntheticBodies = new();
+
+    /// <summary>A body built from a bus's seeded bytes.</summary>
+    /// <param name="Version">The bus's version when the body was built.</param>
+    /// <param name="Artwork">The body and the characters it shows.</param>
+    private sealed record SyntheticBody(int Version, SamusBodyCharacterArtwork Artwork);
+
+    /// <summary>The body the bus's seeded tables describe over the installed stock body.</summary>
+    private static SamusBodyCharacterArtwork BuildSyntheticBody(TestAddressSpace bus)
     {
         InstalledSamusBodyArtwork stock = renderingFixtureStock.Value;
         SamusBodyCharacterArtwork stockCharacters = SamusBodySheetFixtures.CharactersOf(stock);
@@ -119,6 +141,6 @@ internal static class SamusRenderingFixtureVerification
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
                 landing[index] = bus.ReadByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index);
-        samus.Presentation.BodyFrames.BindBodyFixture(SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, stock.DrainedYOffsets.ToArray()) }, Groups(true, topPointers), Groups(false, bottomPointers)));
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), GraphicsYOffsets = offsets, Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, stock.DrainedYOffsets.ToArray()) }, Groups(true, topPointers), Groups(false, bottomPointers));
     }
 }

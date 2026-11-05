@@ -20,6 +20,12 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     /// <summary>Distinguishes an explicitly seeded zero from an unwritten fixture address.</summary>
     internal bool HasSeededByte(int address) => _bytes.ContainsKey(address);
 
+    /// <summary>
+    /// Advances with every seeded write, so a fixture built from the seeded bytes is known to be current while it is
+    /// unchanged.
+    /// </summary>
+    internal int Version { get; private set; }
+
     /// <summary>Reads a seeded CPU byte, returning zero for an unwritten 24-bit address.</summary>
     public byte ReadByte(int address)
     {
@@ -49,6 +55,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             throw new ArgumentOutOfRangeException(nameof(address));
 
         _bytes[address] = value;
+        Version++;
     }
 
     /// <summary>Seeds consecutive bytes at their exact CPU addresses.</summary>

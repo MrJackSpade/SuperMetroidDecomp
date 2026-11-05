@@ -243,10 +243,14 @@ internal static class MapPresentationVerification
         {
             Bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             Stock = copy.Installation.MapDirectory;
+            // The shared catalog the reload is compared with is the process's shared fixture, loaded (and timed) as one
+            // before the copy is reloaded, so the reload is charged its own reading alone and not the shared load's first
+            // use of the reading code (#1532).
+            AreaMapPresentation shared = InstalledFixtures.Maps;
             Reopened = copy.Installation.LoadMaps();
             // The copy's files are the shared installation's, so its catalog is the shared one, which the fixture sheets and
             // pictures already compose and register (#1532).
-            Original = Reopened.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.Maps
+            Original = Reopened.ContentIdentity == shared.ContentIdentity ? shared
                 : throw new InvalidDataException("The private copy's map presentation differs from the shared installation's.");
         }
 

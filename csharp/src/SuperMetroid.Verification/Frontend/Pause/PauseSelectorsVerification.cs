@@ -34,17 +34,16 @@ internal static class PauseSelectorsVerification
             var pause = Create(guard, catalog, anchor.Category, anchor.Item);
             AssertEqual(new CursorBeforeRestore(anchor.Category, anchor.Item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
             // Every tick compares the complete render inputs; the pixels are compared once per displayed selector frame,
-            // drawing the two frames only when their descriptions differ (#1532).
+            // drawing the two frames only when their descriptions differ (#1532). The two memory images are compared by what
+            // they show and composed only when that differs, instead of composing both every tick (#1532).
             int renderedFrame = -1;
             for (int tick = 0; tick < 100; tick++)
             {
                 native.Step(0, 0); pause.Step(0, 0);
                 AssertEqual(native.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "real selector phase and timer follow native decrement/advance order");
                 var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
-                var shownNative = native.ShownVram();
-                var shownPause = pause.ShownVram();
                 AssertTrue(nativeInputs.Paint.SpriteParts().SequenceEqual(portInputs.Paint.SpriteParts()) && PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) &&
-                    shownNative.SequenceEqual(shownPause) && nativeInputs.Brightness == portInputs.Brightness,
+                    PauseScreenMemory.SameImage(native, pause) && nativeInputs.Brightness == portInputs.Brightness,
                     "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
                 if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
                 {

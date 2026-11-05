@@ -3,6 +3,8 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Map;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -54,6 +56,47 @@ internal static class PauseScreenMemory
         pause.Bg3Tilemap.Write(BackgroundTileWordBytes.Words(screen.Bg3Tiles));
         return image.CaptureImage();
     }
+
+    /// <summary>
+    /// Whether <paramref name="left"/> and <paramref name="right"/> show the same memory image (#1532). <see cref="Compose"/>
+    /// is a function of what the two menus show alone: the screen's artwork, whose characters and layouts it reads, the
+    /// page shown, the area map, the uploaded equipment page on the equipment page, the area and button highlight the
+    /// frame shows and the retained HUD. Menus that show equal values of each therefore hold the same image without
+    /// composing either; only menus that differ in one are composed and compared byte for byte. The answer is the
+    /// composed comparison's in every case.
+    /// </summary>
+    internal static bool SameImage(PauseMenuState left, PauseMenuState right)
+    {
+        Ensure.NotNull(left);
+        Ensure.NotNull(right);
+        return SameShown(left, right) || Compose(left).AsSpan().SequenceEqual(Compose(right));
+    }
+
+    /// <summary>Whether the two menus show equal values of everything <see cref="Compose"/> reads.</summary>
+    private static bool SameShown(PauseMenuState left, PauseMenuState right) =>
+        ReferenceEquals(left.screen.Artwork, right.screen.Artwork) && left.ScreenMode == right.ScreenMode
+        && left.area == right.area && left.ButtonHighlight == right.ButtonHighlight
+        && SameMap(left.ShownMap, right.ShownMap)
+        && (left.ScreenMode == PauseScreenMode.Map || SameEquipment(left.ShownEquipment, right.ShownEquipment))
+        && SameHud(left.screen.Hud, right.screen.Hud);
+
+    /// <summary>Whether two shown area maps show the same cells, each in the same colour variant.</summary>
+    private static bool SameMap(ShownAreaMap left, ShownAreaMap right) =>
+        ReferenceEquals(left, right) || left.Cells.AsSpan().SequenceEqual(right.Cells.AsSpan());
+
+    /// <summary>
+    /// Whether two uploaded equipment pages show the same labels, overrun, wireframe, reserve display and arrow. A page
+    /// not yet uploaded is never the same as another, so composing it fails as it would alone.
+    /// </summary>
+    private static bool SameEquipment(ShownEquipmentPage? left, ShownEquipmentPage? right) =>
+        left is not null && right is not null
+        && (ReferenceEquals(left, right) || (left.Labels.AsSpan().SequenceEqual(right.Labels.AsSpan())
+            && left.HyperBeam == right.HyperBeam && left.PlasmaTail == right.PlasmaTail && left.Wireframe == right.Wireframe
+            && Equals(left.Reserve, right.Reserve) && left.Arrow == right.Arrow));
+
+    /// <summary>Whether two retained HUDs place the same images at the same cells in the same order.</summary>
+    private static bool SameHud(ShownHud left, ShownHud right) =>
+        ReferenceEquals(left, right) || left.Images.AsSpan().SequenceEqual(right.Images.AsSpan());
 
     /// <summary>Reads a pause screen's memory image.</summary>
     extension(PauseScreen self)

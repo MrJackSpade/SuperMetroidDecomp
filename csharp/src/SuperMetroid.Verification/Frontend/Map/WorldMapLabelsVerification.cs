@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -26,7 +27,8 @@ internal static class WorldMapLabelsVerification
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
             native.SelectArea(area); installed.SelectArea(area);
-            AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
+            // The two scenes' pixels are compared through their descriptions, drawn only when those differ (#1532).
+            AssertTrue(ScenePixels.Same(native.Scene(used), installed.Scene(used)), "stock label pixels with position ROM blocked");
             var nativeWindow = new FileSelectMapWindow(area,
                 ReadCartridgeMapWindowMotion(bus, area), original.Labels);
             var installedWindow = new FileSelectMapWindow(area, original.Labels);

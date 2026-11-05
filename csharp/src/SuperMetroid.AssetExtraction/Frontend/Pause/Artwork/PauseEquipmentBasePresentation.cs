@@ -9,26 +9,27 @@ public sealed class PauseEquipmentBasePresentation
 {
     /// <summary>Only independently edited cells; unchanged tiles come from the composed stock page.</summary>
     internal readonly Dictionary<int, BackgroundTile> remainingCells = [];
+    /// <summary>
+    /// The complete page, each edited cell's tile and the stock composition's elsewhere, composed once when the presentation
+    /// is read (#1532): the presentation never changes, and composing the stock page cell by cell on every request
+    /// re-derived every label's and panel's footprint for each of its 1024 cells.
+    /// </summary>
+    private readonly BackgroundTile[] tilemap = new BackgroundTile[PauseEquipmentBaseDefinitions.Cells];
     /// <summary>Compares every selected cell with the immutable stock composition.</summary>
     private PauseEquipmentBasePresentation(ReadOnlySpan<BackgroundTile> selected)
     {
-        // Compare each supplied tile independently with immutable stock composition.
+        // Compare each supplied tile independently with immutable stock composition. The page shows the supplied tile in
+        // every cell: an edited cell's edit, and elsewhere the stock tile it equals.
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
+        {
             if (selected[cell] != DefaultTile(cell)) remainingCells.Add(cell, selected[cell]);
+            tilemap[cell] = selected[cell];
+        }
     }
 
-    /// <summary>Builds a complete 32-by-32 tilemap from selected edits and calculated stock composition.</summary>
-    /// <returns>A new 1024-tile tilemap in row-major order.</returns>
-    public BackgroundTile[] CreateTilemap()
-    {
-        var result = new BackgroundTile[PauseEquipmentBaseDefinitions.Cells];
-        for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
-            result[cell] = Tile(cell);
-        return result;
-    }
-
-    /// <summary>Uses a supplied visual edit when present and calculates the stock cell otherwise.</summary>
-    private BackgroundTile Tile(int cell) => remainingCells.TryGetValue(cell, out BackgroundTile edited) ? edited : DefaultTile(cell);
+    /// <summary>The complete 32-by-32 tilemap of the selected edits over the calculated stock composition.</summary>
+    /// <returns>A new caller-owned 1024-tile tilemap in row-major order.</returns>
+    public BackgroundTile[] CreateTilemap() => (BackgroundTile[])tilemap.Clone();
 
     /// <summary>Combines the power-suit wireframe with the equipment base outside its footprint.</summary>
     private static BackgroundTile DefaultTile(int cell)

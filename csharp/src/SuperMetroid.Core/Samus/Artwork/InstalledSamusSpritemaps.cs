@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Which pre-coloured body picture each pose's top and bottom halves show at each animation frame.</summary>
 /// <remarks>
 /// The import chooses, once, the composition each pose half shows at every animation frame the body sheets cover; a
-/// frame with none (an animation command's slot, or a half the pose omits) draws nothing. Each composition is one
-/// picture on the body sheets, which shows the top or bottom picture selected for the frame when the picture reads that
-/// half (#1463). The compositions' parts are the import pipeline's, which composes the sheets from them; timing and
-/// collisions remain in the simulation.
+/// frame with none (an animation command's slot, or a half the pose omits) draws nothing. The halves an update shows
+/// are one full-body picture on the body sheet, which shows the top or bottom picture selected for the frame when a
+/// composition reads that half (#1463, #1513). The compositions' parts are the import pipeline's, which composes the
+/// sheet from them; timing and collisions remain in the simulation.
 /// </remarks>
 public abstract class InstalledSamusSpritemaps
 {
@@ -50,23 +50,39 @@ public abstract class InstalledSamusSpritemaps
     }
 
     /// <summary>
-    /// The pre-coloured body picture <paramref name="frame"/> shows with <paramref name="pictures"/> selected: its
-    /// composition with the selected half picture of each half the composition shows. False only for a frame with no
-    /// composition, which draws nothing.
+    /// The pre-coloured full-body picture an update draws with <paramref name="pictures"/> selected (#1513): the
+    /// compositions <paramref name="top"/> and <paramref name="bottom"/> show, with the selected half picture of each
+    /// body half either composition shows, and the chest cover between them. False only when neither half has a
+    /// composition and there is no chest cover, which draws nothing.
     /// </summary>
-    public bool TryGetFrameKey(SamusBodyHalfFrame frame, SamusBodyPictures pictures, out SamusBodyFrameKey key)
+    /// <param name="top">The top half the body shows.</param>
+    /// <param name="bottom">The bottom half the body shows, or null when the frame shows none.</param>
+    /// <param name="chestCover">Where the chest cover sits relative to the body's origin, or null for a body without one.</param>
+    /// <param name="pictures">The half pictures the body shows.</param>
+    /// <param name="key">The full-body frame.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
+    /// <exception cref="InvalidDataException">An animation frame is past every frame installed for its pose half.</exception>
+    public bool TryGetFrameKey(SamusBodyHalfFrame top, SamusBodyHalfFrame? bottom, Offset16<ScreenPixels>? chestCover,
+        SamusBodyPictures pictures, out SamusBodyFrameKey key)
     {
-        if (!TryGetComposition(frame, out SamusSpritemapId composition))
+        SamusSpritemapId? topComposition = TryGetComposition(top, out SamusSpritemapId shownTop) ? shownTop : null;
+        SamusSpritemapId? bottomComposition = bottom is { } lower && TryGetComposition(lower, out SamusSpritemapId shownBottom)
+            ? shownBottom : null;
+        if (topComposition is null && bottomComposition is null && chestCover is null)
         {
             key = default;
             return false;
         }
-        SamusBodyHalvesShown shown = halves[composition.Ordinal];
-        key = new SamusBodyFrameKey(composition,
-            shown is SamusBodyHalvesShown.Top or SamusBodyHalvesShown.Both ? pictures.Top : null,
-            shown is SamusBodyHalvesShown.Bottom or SamusBodyHalvesShown.Both ? pictures.Bottom : null);
+        bool showsTop = Shows(topComposition, SamusBodyHalvesShown.Top) || Shows(bottomComposition, SamusBodyHalvesShown.Top);
+        bool showsBottom = Shows(topComposition, SamusBodyHalvesShown.Bottom) || Shows(bottomComposition, SamusBodyHalvesShown.Bottom);
+        key = new SamusBodyFrameKey(topComposition, bottomComposition, showsTop ? pictures.Top : null,
+            showsBottom ? pictures.Bottom : null, chestCover);
         return true;
     }
+
+    /// <summary>Whether <paramref name="composition"/>'s picture shows <paramref name="half"/>'s record.</summary>
+    private bool Shows(SamusSpritemapId? composition, SamusBodyHalvesShown half) =>
+        composition is { } shown && (halves[shown.Ordinal] == half || halves[shown.Ordinal] == SamusBodyHalvesShown.Both);
 
     /// <summary>The compositions <paramref name="frame"/>'s pose half shows, by animation frame.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>

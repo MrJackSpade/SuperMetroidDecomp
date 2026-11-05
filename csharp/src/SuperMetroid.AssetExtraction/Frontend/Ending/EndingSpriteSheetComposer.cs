@@ -96,8 +96,8 @@ internal static class EndingSpriteSheetComposer
             SpriteSheetId.EndingSuitedRewardSprites => Reward(EndingReward.Armored),
             SpriteSheetId.EndingSuitlessRewardSprites => Reward(EndingReward.Suitless),
             SpriteSheetId.EndingShootingSprites => Shooting,
-            SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
-                SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
+            SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBody or
+                SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
                 SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
                 SpriteSheetId.GameOptions or SpriteSheetId.MapSprites or SpriteSheetId.PauseSprites or
                 SpriteSheetId.Title or SpriteSheetId.IntroSprites or SpriteSheetId.CeresFlightSprites or

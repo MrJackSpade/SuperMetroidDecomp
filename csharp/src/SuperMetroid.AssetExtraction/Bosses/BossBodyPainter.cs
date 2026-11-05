@@ -70,7 +70,9 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     }
 
     /// <summary>
-    /// The sheet of every frame added and of <paramref name="blank"/>, the boss's blank cell. Pictures that paint the same
+    /// The sheet of every frame added and of <paramref name="blank"/>, the boss's blank cell, when the blank shows anything:
+    /// a blank whose character inks only colour zero shows nothing, so it is on no sheet and the cells it clears draw
+    /// nothing (#1513). Pictures that paint the same
     /// cells with the same characters share one place, and the places are laid out in as many full-width columns as the
     /// largest sheet holds.
     /// </summary>
@@ -81,9 +83,14 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     {
         if (room.Rebound.Any(upload => upload.Covers(BgCharacterSet.Tiles, blank.Tile)) || AnimationOf(blank.Tile) is not null)
             throw new InvalidDataException($"{owner}'s blank reads character {blank.Tile}, which its room rebinds or animates.");
-        pictures.Add(new BossBodyPicture(BlankPartName, 1, 1, [new BossBodyPaintedCell(0, 0, blank, Character(blank.Tile, null))]));
-        var blankPart = new ComposedBossBodyPart(BlankPartName, 0, BossBodyFootprint.OfCells(0, 1), null,
-            new Dictionary<string, string>(StringComparer.Ordinal));
+        ReadOnlyMemory<byte> blankCharacter = Character(blank.Tile, null);
+        ComposedBossBodyPart? blankPart = null;
+        if (blankCharacter.Span.IndexOfAnyExcept((byte)0) >= 0)
+        {
+            pictures.Add(new BossBodyPicture(BlankPartName, 1, 1, [new BossBodyPaintedCell(0, 0, blank, blankCharacter)]));
+            blankPart = new ComposedBossBodyPart(BlankPartName, 0, BossBodyFootprint.OfCells(0, 1), null,
+                new Dictionary<string, string>(StringComparer.Ordinal));
+        }
 
         // Pictures that paint the same cells with the same characters share the first one's place.
         var placeOf = new Dictionary<BossBodyPicture, int>(BossBodyPictureContent.Instance);

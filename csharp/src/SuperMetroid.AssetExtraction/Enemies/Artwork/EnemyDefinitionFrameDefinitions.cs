@@ -487,7 +487,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows for <c>PhantoonBody</c>.</summary>
     private static readonly EnemyFrameId[] PhantoonBodyFrames =
     [
-        EnemyFrameId.NorfairLavaJumperPose0,
         EnemyFrameId.PhantoonInvulnerableBody0,
         EnemyFrameId.PhantoonFullHitboxBody0,
         EnemyFrameId.PhantoonEyeHitboxBody0,
@@ -1428,7 +1427,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.NorfairLavaJumperPose6,
         EnemyFrameId.NorfairLavaJumperPose7,
         EnemyFrameId.NorfairLavaJumperPose8,
-        EnemyFrameId.NorfairLavaJumperPose0,
         EnemyFrameId.NorfairLavaJumperPose10,
         EnemyFrameId.NorfairLavaJumperPose9,
     ];
@@ -2055,7 +2053,6 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Sparks/SparkBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Spark =
     [
-        EnemyFrameId.NorfairLavaJumperPose0,
         EnemyFrameId.Spark00,
         EnemyFrameId.Spark01,
         EnemyFrameId.Spark02,

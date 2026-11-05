@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>
 /// One boss's installed body sheet (#1466): every frame it draws on its body layer, pre-assembled and pre-coloured over
-/// the characters its room shows, split into still and animated parts, and the blank it clears its layer with.
+/// the characters its room shows, split into still and animated parts, and the blank it clears its layer with when that
+/// blank shows anything.
 /// </summary>
 public sealed class BossBodySheet
 {
@@ -19,13 +20,15 @@ public sealed class BossBodySheet
     /// <exception cref="InvalidDataException">
     /// A frame or part repeats a name, a frame has no parts, or a part's picture is not on the sheet.
     /// </exception>
-    public BossBodySheet(BossBodyOwner owner, SpriteSheet sheet, BossBodyPart blank, IEnumerable<BossBodyFrame> frames)
+    public BossBodySheet(BossBodyOwner owner, SpriteSheet sheet, BossBodyPart? blank, IEnumerable<BossBodyFrame> frames)
     {
         Owner = owner;
         Sheet = Ensure.NotNull(sheet);
-        Blank = Ensure.NotNull(blank);
+        Blank = blank;
         var named = new Dictionary<string, BossBodyFrame>(StringComparer.Ordinal);
-        var partsByName = new Dictionary<string, BossBodyPart>(StringComparer.Ordinal) { [blank.Name] = blank };
+        var partsByName = new Dictionary<string, BossBodyPart>(StringComparer.Ordinal);
+        if (blank is not null)
+            partsByName.Add(blank.Name, blank);
         foreach (BossBodyFrame frame in Ensure.NotNull(frames))
         {
             if (frame.Parts.IsDefaultOrEmpty)
@@ -50,8 +53,11 @@ public sealed class BossBodySheet
     /// <summary>The installed sheet the parts are cut from.</summary>
     public SpriteSheet Sheet { get; }
 
-    /// <summary>The part the boss clears its layer with: one cell, repeated.</summary>
-    public BossBodyPart Blank { get; }
+    /// <summary>
+    /// The part the boss clears its layer with: one cell, repeated; or null when the boss's blank shows nothing, so the
+    /// cells it clears draw nothing (#1513).
+    /// </summary>
+    public BossBodyPart? Blank { get; }
 
     /// <summary>The part named <paramref name="name"/>, of any frame or the blank.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such part.</exception>

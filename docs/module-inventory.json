@@ -563,15 +563,10 @@
     {
       "module": "csharp/src/SuperMetroid.IntegrationVerification",
       "role": "verification",
-      "files": 11,
+      "files": 10,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Areas",
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Rooms",
@@ -805,7 +800,7 @@
     {
       "module": "csharp/test-support/FrameCapture",
       "role": "verification-support",
-      "files": 14,
+      "files": 15,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -820,7 +815,7 @@
     {
       "module": "csharp/test-support/FrameRendering",
       "role": "verification-support",
-      "files": 3,
+      "files": 2,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Rendering",
@@ -20066,9 +20061,6 @@
       "namespace": "SuperMetroid.AssetExtraction.Rooms",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rooms"
       ]
     },
     {
@@ -83136,32 +83128,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.IntegrationVerification/Installation/InstallationOverrideLifecycleVerification.cs",
-      "module": "csharp/src/SuperMetroid.IntegrationVerification",
-      "role": "verification",
-      "namespace": "SuperMetroid.IntegrationVerification.Installation",
-      "assemblies": [
-        "SuperMetroid.IntegrationVerification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Areas",
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Frontend",
-        "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/RepositoryInstallation",
-        "csharp/test-support/RepositoryInstallation.Verification",
-        "csharp/test-support/VerificationAccess.Core"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.IntegrationVerification/Installation/MapPresentationJsonContractVerification.cs",
       "module": "csharp/src/SuperMetroid.IntegrationVerification",
       "role": "verification",
@@ -111320,7 +111286,6 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
-        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
@@ -111472,6 +111437,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/test-support/Assertions",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
@@ -111493,7 +111459,7 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
@@ -111734,7 +111700,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -111926,7 +111892,7 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
@@ -112125,7 +112091,7 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -113168,7 +113134,6 @@
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/FrameCapture",
-        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -114990,7 +114955,7 @@
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -121966,7 +121931,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -127742,6 +127707,21 @@
       ]
     },
     {
+      "path": "csharp/test-support/FrameCapture/ScenePixels.cs",
+      "module": "csharp/test-support/FrameCapture",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.FrameRendering",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Rendering",
+        "csharp/test-support/FrameRendering"
+      ]
+    },
+    {
       "path": "csharp/test-support/FrameCapture/SuperMetroidGamePixelsAccess.cs",
       "module": "csharp/test-support/FrameCapture",
       "role": "verification-support",
@@ -127809,21 +127789,6 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Rendering.Direct3D11"
-      ]
-    },
-    {
-      "path": "csharp/test-support/FrameRendering/ScenePixels.cs",
-      "module": "csharp/test-support/FrameRendering",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.TestSupport.FrameRendering",
-      "assemblies": [
-        "SuperMetroid.DebugRunner",
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Rendering"
       ]
     },
     {

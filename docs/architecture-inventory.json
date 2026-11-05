@@ -133994,32 +133994,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.IntegrationVerification.Installation.InstallationOverrideLifecycleVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.IntegrationVerification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.IntegrationVerification/Installation/InstallationOverrideLifecycleVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.IntegrationVerification.Installation.InstallationOverrideLifecycleVerification.OverrideExpectations",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.IntegrationVerification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.IntegrationVerification/Installation/InstallationOverrideLifecycleVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.IntegrationVerification.Installation.MapPresentationJsonContractVerification",
       "kind": "static class",
       "scope": "test",
@@ -138379,13 +138353,12 @@
       "kind": "static class",
       "scope": "test",
       "assemblies": [
-        "SuperMetroid.DebugRunner",
         "SuperMetroid.DesktopVerification",
         "SuperMetroid.RenderVerification",
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/FrameRendering/ScenePixels.cs"
+        "csharp/test-support/FrameCapture/ScenePixels.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

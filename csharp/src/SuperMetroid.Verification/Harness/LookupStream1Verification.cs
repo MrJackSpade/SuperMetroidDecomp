@@ -710,7 +710,7 @@ internal static class LookupStream1Verification
             AssertTrue(stock.TryDrainedYOffset(frame, out int offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             // Only the frames the drained crouch can show are drawn; the draw rejects the others (#1513).
-            if (!shown.Shows(SamusPoseId.DrainedCrouchingLeftPose, frame)) continue;
+            if (!shown.TryPictureFrame(SamusPoseId.DrainedCrouchingLeftPose, frame, out _)) continue;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.BodyFrames.BindBodyFixture(stockArt);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
@@ -803,7 +803,7 @@ internal static class LookupStream1Verification
         {
             SamusPoseId landingPose = SamusPoseNumbering.FromNumber(0xa4 + index / 4);
             // Only the landing frames the pose can show are drawn; the draw rejects the others (#1513).
-            if (!shown.Shows(landingPose, index % 4))
+            if (!shown.TryPictureFrame(landingPose, index % 4, out _))
                 continue;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {

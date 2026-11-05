@@ -124,16 +124,18 @@ internal sealed class SamusShownFrames
     /// <summary>Every pose some path of the game gives Samus, in the game's numbering: the poses the body can show.</summary>
     private static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
 
-    /// <summary>Whether <paramref name="pose"/> can show animation frame <paramref name="frame"/>.</summary>
-    internal bool Shows(SamusPoseId pose, int frame) => pictureFrames.ContainsKey(new SamusPoseFrame(pose, frame));
-
     /// <summary>
-    /// The picture frame the body draws for <paramref name="pose"/> at animation frame <paramref name="frame"/>: the frame
-    /// itself when it is one of the pose's picture frames, otherwise the pose's nearest picture frame at or before it.
+    /// The picture frame the body draws for <paramref name="pose"/> at animation frame <paramref name="frame"/>, when some
+    /// path of the game shows that frame: the frame itself when it is one of the pose's picture frames, otherwise the
+    /// pose's nearest picture frame at or before it.
     /// </summary>
+    internal bool TryPictureFrame(SamusPoseId pose, int frame, out int picture) =>
+        pictureFrames.TryGetValue(new SamusPoseFrame(pose, frame), out picture);
+
+    /// <summary>The picture frame the body draws for <paramref name="pose"/> at animation frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidOperationException">No path of the game shows that frame.</exception>
     internal int PictureFrame(SamusPoseId pose, int frame) =>
-        pictureFrames.TryGetValue(new SamusPoseFrame(pose, frame), out int picture)
+        TryPictureFrame(pose, frame, out int picture)
             ? picture
             : throw new InvalidOperationException($"Samus's body cannot show pose {pose} at animation frame {frame}: no path of the game reaches it.");
 

@@ -488,26 +488,28 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ? null
         : EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot).Shaded(screen.Colours.Shading);
 
-    /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
+    /// <summary>
+    /// Captures the explosion's finale (#1514): the glow's picture behind the planet's, then the glow added over the whole
+    /// screen with the debris glowing over it. The debris is drawn only as glow, never over the planet, which would punch
+    /// holes in it. The per-tile priority tiers that interleaved the two pictures, and the single winning subscreen pixel
+    /// the cartridge's colour math added where a sprite overlapped the glow, are presentation quirks the port does not
+    /// keep: the glow and the debris now both add.
+    /// </summary>
     internal LayeredScene CaptureExplosionFinale()
     {
         if (!EscapeScenes.ExplosionFinaleDisplay) return CaptureExplosionBurst();
-        // F2FA: TM=BG1|BG2, TS=BG2|OBJ, CGADSUB=$33. Resolve the two
-        // main backgrounds by priority, then add the single winning subscreen pixel.
-        // OBJ is not independently drawn on main, which would punch holes in the glow.
         DisplayLayer[] layers =
         [
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, TileDepth.Back),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Back),
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, TileDepth.Front),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Front),
-            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
+            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap),
+            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap),
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap),
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
+            EndingCreditsPresentation.Sprites(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this), blend: SpriteBlend.Glows),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, Stage.Brightness);
+        return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
 
-        PicturedPlaneLayer Plane(EndingObjectFragmentId map, TileDepth priority) => new(ExplosionPlane(map),
-            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == TileDepth.Front);
+        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map),
+            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow));
     }
 
     /// <summary>One screen of cells, the size of every whole-screen ending picture.</summary>
@@ -573,22 +575,23 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
     }
 
-    /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>
+    /// <summary>
+    /// Captures the explosion's burst (#1514): the stars behind the planet, the planet, the debris in front of it, and the
+    /// burst's glow added over the planet and the debris that takes part in blends, never over the sky behind them.
+    /// </summary>
     private LayeredScene CaptureExplosionBurst()
     {
-        // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
-        // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
-        var main = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap),
-            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
+        EndingObjectSheet sheet = EndingCreditsPresentation.CurrentEscapeObjectSheet(this);
+        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap),
+            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow));
+        SpritesLayer debris = EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Actors);
         DisplayLayer[] layers =
         [
-            new SpriteDepthLayer(0), new SpriteDepthLayer(1),
-            main with { Priority = false }, new SpriteDepthLayer(2),
-            main with { Priority = true }, new SpriteDepthLayer(3),
-            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
+            EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Stars), planet, debris,
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), planet, debris,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, Stage.Brightness);
+        return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
     }
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>

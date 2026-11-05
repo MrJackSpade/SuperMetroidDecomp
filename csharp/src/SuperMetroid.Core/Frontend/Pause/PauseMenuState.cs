@@ -283,30 +283,22 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             CoordinateAxis.Wrap((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset));
         // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
         // and the frame the area's backdrop and button pictures (#1467).
-        DisplayLayer bg1 = ScreenMode == PauseScreenMode.Map
-            ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll, false)
+        var frameScroll = new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset);
+        var frame = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), frameScroll);
+        // The map scrolls inside the frame's opening, its border framing it (#1514); the equipment page lies within the
+        // frame and is drawn over it whole.
+        DisplayLayer page = ScreenMode == PauseScreenMode.Map
+            ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll) { Window = MapFrameOpening.Window(frameScroll) }
             : new PicturedPlaneLayer(screen.EquipmentPage(ShownEquipment ?? throw new InvalidOperationException(
-                "The equipment page shows before it was uploaded."), ReserveArrowShading), mapScroll, false);
-        var bg2 = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
-        // The retained HUD is its own layer at the HUD's place, drawn from its images in their priority tiers (#1466).
-        var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true, Priority: false);
-        DisplayLayer[] layers =
-        [
-            new SpriteDepthLayer(0), hud,
-            new SpriteDepthLayer(1), bg2, bg1,
-            new SpriteDepthLayer(2), bg2 with { Priority = true }, InFront(bg1),
-            new SpriteDepthLayer(3), hud with { Priority = true },
-        ];
+                "The equipment page shows before it was uploaded."), ReserveArrowShading), mapScroll);
+        // The retained HUD is its own layer at the HUD's place (#1466).
+        var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true);
+        // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
+        // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-tile and
+        // per-sprite-part priority tiers that once interleaved them are a presentation quirk the port does not keep.
+        DisplayLayer[] layers = [frame, page, screen.Sprites(), hud];
         return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? 15 : TransitionBrightness);
     }
-
-    /// <summary><paramref name="layer"/>, the map page's grid or the equipment page, drawing only its front-tier pixels.</summary>
-    private static DisplayLayer InFront(DisplayLayer layer) => layer switch
-    {
-        PictureGridLayer grid => grid with { Priority = true },
-        PicturedPlaneLayer page => page with { Priority = true },
-        _ => throw new InvalidOperationException($"The pause page is no {layer.GetType().Name}."),
-    };
 
     /// <summary>Assembles map markers or equipment sprites in their page-specific order.</summary>
     private void PrepareRenderSprites()

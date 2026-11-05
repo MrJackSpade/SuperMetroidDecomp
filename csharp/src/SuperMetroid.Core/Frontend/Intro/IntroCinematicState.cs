@@ -1289,13 +1289,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
         }
         else if (CurrentObjects is null)
         {
-            sprites = new SpriteFrameBuffer();
-            sprites.BeginFrame();
-            sprites.FinalizeFrame();
-            // The first card is opaque and unscrolled; later text is transparent
+            // The first card is opaque and unscrolled and shows no sprites; later text is transparent
             // and cropped one tile down. Do not conflate those two display setups.
-            return new(new FramePaint(Backdrop, FlashbackDraws(sprites.Draws)),
-                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, paletteFader.SceneShading), default, null) { ShowsColourZero = true } },
+            return new(new FramePaint(Backdrop),
+                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, paletteFader.SceneShading), default) { ShowsColourZero = true } },
                 Brightness.Level);
         }
         else
@@ -1305,13 +1302,12 @@ level, samus, FrameCounterWord(elapsedUpdates));
         }
 
         PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackBg1VerticalScroll));
-        // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
-        // insertion points of text/room priority planes during palette crossfades.
-        return new(new FramePaint(Backdrop, FlashbackDraws(sprites.Draws)), new DisplayLayer[]
+        // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
+        // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
+        // interleaved them are a presentation quirk the port does not keep.
+        return new(new FramePaint(Backdrop), new DisplayLayer[]
         {
-            new SpriteDepthLayer(0), text, new SpriteDepthLayer(1), room,
-            new SpriteDepthLayer(2), room with { Priority = true },
-            new SpriteDepthLayer(3), text with { Priority = true },
+            room, new SpritesLayer(FlashbackDraws(sprites.Draws)), text,
         }, Brightness.Level);
     }
 
@@ -1359,8 +1355,8 @@ level, samus, FrameCounterWord(elapsedUpdates));
         return faded.MoveToImmutable();
     }
 
-    /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll, its back pixels only (#1467).</summary>
-    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<TilePlanePixels> scroll) => new(pictures, scroll, false);
+    /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll (#1467).</summary>
+    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<TilePlanePixels> scroll) => new(pictures, scroll);
 
     /// <summary>The installed sheets the scene pictures are drawn from.</summary>
     private InstalledSpriteSheets SceneSheets =>

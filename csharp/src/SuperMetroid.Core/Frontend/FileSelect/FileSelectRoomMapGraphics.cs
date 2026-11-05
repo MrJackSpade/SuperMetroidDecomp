@@ -105,21 +105,15 @@ public sealed class FileSelectRoomMapGraphics
             : [new PlacedPlanePicture(pictures.Frame(roomFrame), default, PictureShading.Standard)];
         var frame = new PicturedPlane(MenuScreen.PageSize, [.. framePictures]);
         var frameScroll = new Position16<TilePlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
-        if (content == RoomMapContent.FrameOnly)
-            layers.Add(new PicturedPlaneLayer(frame, frameScroll, null));
-        else
-        {
-            PictureGrid map = AreaMapPictures.Grid(AreaMap, pictures);
-            foreach (bool priority in new[] { false, true })
-            {
-                layers.Add(new PicturedPlaneLayer(frame, frameScroll, priority));
-                layers.Add(new PictureGridLayer(map, scroll.AsBgPlaneScroll(), priority));
-            }
-        }
+        // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
+        // whole, and the per-tile priority tiers that once interleaved the two are a presentation quirk the port does not keep.
+        layers.Add(new PicturedPlaneLayer(frame, frameScroll));
+        if (content != RoomMapContent.FrameOnly)
+            layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsBgPlaneScroll()) { Window = MapFrameOpening.Window(frameScroll) });
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);
-            layers.Add(new SpritesLayer());
+            layers.Add(screen.Sprites());
         }
         else
         {

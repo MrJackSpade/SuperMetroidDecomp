@@ -144,6 +144,9 @@ internal sealed class PauseScreen
         Backdrop = artwork.Backdrops.Pause;
     }
 
-    /// <summary>What the screen paints with: its backdrop and sprite entries, each sprite in the shading it names (#1512).</summary>
-    internal FramePaint Paint() => new(Backdrop, Objects.Draws);
+    /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
+    internal FramePaint Paint() => new(Backdrop);
+
+    /// <summary>The screen's sprite entries as one layer of sprites, each in the shading it names (#1512, #1514).</summary>
+    internal SpritesLayer Sprites() => new(Objects.Draws);
 }

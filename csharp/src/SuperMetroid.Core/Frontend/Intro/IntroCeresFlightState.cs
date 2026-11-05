@@ -180,21 +180,27 @@ internal sealed class IntroCeresFlightState
             stars.Step();
     }
 
-    /// <summary>Captures matrix, ordered layers and rear-view fixed-color registers without rasterizing.</summary>
+    /// <summary>
+    /// Captures the flight's ordered layers without rasterizing (#1514): the scene's sprites, then the gunship's turning
+    /// floor in front of them, or, once the caption is typed, the sprites with the caption over them; and the rear view's
+    /// white flash over everything.
+    /// </summary>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        var layers = new List<DisplayLayer> { new SpriteDepthLayer(0) };
+        // The stars, the station, its asteroids and the vortex lie beyond the gunship: they are drawn behind its floor.
+        // The per-sprite-part priority tiers that once interleaved them with the floor are a presentation quirk the port
+        // does not keep.
+        var sprites = new SpritesLayer(objects.Draws);
+        var layers = new List<DisplayLayer> { sprites };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
-            // The caption shows the pictures of the letters typed so far and, once drawn, the katakana caption (#1467).
-            var caption = new PicturedPlaneLayer(CeresCinematicPictures.Caption(
+            // The caption shows the pictures of the letters typed so far and, once drawn, the katakana caption (#1467),
+            // over the station it names.
+            layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(
                 floorSheets ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."),
-                CaptionLettersShown, JapaneseCaptionShown), new Position16<TilePlanePixels>(0, 0), false);
-            layers.Add(caption);
-            layers.Add(new SpriteDepthLayer(1));
-            layers.Add(caption with { Priority = true });
+                CaptionLettersShown, JapaneseCaptionShown), new Position16<TilePlanePixels>(0, 0)));
         }
         else
         {
@@ -204,15 +210,12 @@ internal sealed class IntroCeresFlightState
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront)
                     // The flight shows no colour effect on its floor; it fades with the display's brightness (#1512).
                     .Shaded(PictureShading.Standard)));
-            layers.Add(new SpriteDepthLayer(1));
         }
-        layers.Add(new SpriteDepthLayer(2));
-        layers.Add(new SpriteDepthLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
             layers.Add(new ScreenTintLayer(Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity)));
         }
-        return new(new FramePaint(Backdrop, objects.Draws), layers.ToArray(), brightness);
+        return new(new FramePaint(Backdrop), layers.ToArray(), brightness);
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>

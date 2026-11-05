@@ -80,7 +80,7 @@ internal static class SamusBodySheetComposer
     /// Every distinct full body the game can show, in pose and frame order, as its frame. A body whose halves reach past the
     /// table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
-    private static IEnumerable<(SamusBodyFrameKey Key, SpriteFrame Frame)> Bodies(InstalledSamusBodyArtwork body,
+    private static IEnumerable<KeyValuePair<SamusBodyFrameKey, SpriteFrame>> Bodies(InstalledSamusBodyArtwork body,
         LaidOutProgramContinuation<SamusPoseId> continuation)
     {
         SamusSpritemapSources spritemaps = body.Spritemaps.Source;
@@ -92,7 +92,7 @@ internal static class SamusBodySheetComposer
                 continue;
             if (spritemaps.TryGetFrameKey(drawn.Top, drawn.Bottom, drawn.ChestCover, shown.Pictures, out SamusBodyFrameKey key) &&
                 names.Add(key.Name))
-                yield return (key, Compose(key.Name, spritemaps, drawn));
+                yield return KeyValuePair.Create(key, Compose(key.Name, spritemaps, drawn));
         }
     }
 

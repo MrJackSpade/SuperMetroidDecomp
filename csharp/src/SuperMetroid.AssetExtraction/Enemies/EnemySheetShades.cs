@@ -79,6 +79,7 @@ internal sealed class EnemySheetShades
         Ensure.NotNull(enemies);
         RgbColor[] shown = [.. colours.SpriteColours];
         var recoloured = new Dictionary<int, RgbColor>();
+        var recolouredBy = new Dictionary<int, EnemyDefinitionId>();
         foreach (EnemyDefinitionId enemy in enemies.Distinct())
         {
             if (!EnemyFirstShownColourDefinitions.Shades.TryGetValue(enemy, out PictureShade[]? laid))
@@ -93,8 +94,10 @@ internal sealed class EnemySheetShades
             foreach ((int ink, RgbColor colour) in left)
             {
                 if (recoloured.TryGetValue(ink, out RgbColor other) && other != colour)
-                    throw new InvalidDataException($"A sheet's enemies first show sprite colour {ink} in two colourings, {enemy}'s among them.");
+                    throw new InvalidDataException(
+                        $"A sheet's enemies first show sprite colour {ink} in two colourings: {recolouredBy[ink]}'s and {enemy}'s.");
                 recoloured[ink] = colour;
+                recolouredBy[ink] = enemy;
                 shown[ink] = colour;
             }
         }

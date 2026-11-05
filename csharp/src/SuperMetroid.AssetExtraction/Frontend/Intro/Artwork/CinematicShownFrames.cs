@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -32,9 +33,9 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
     internal static CinematicShownFrames Of(ICinematicSpriteFrames family, IReadOnlySet<CinematicSpritePose> shown,
         Func<CinematicSpritePose, bool> drawsFromFamily)
     {
-        ArgumentNullException.ThrowIfNull(family);
-        ArgumentNullException.ThrowIfNull(shown);
-        ArgumentNullException.ThrowIfNull(drawsFromFamily);
+        Ensure.NotNull(family);
+        Ensure.NotNull(shown);
+        Ensure.NotNull(drawsFromFamily);
         var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
         foreach ((CinematicSpritePose pose, SpriteComposition composition) in family.Frames)
         {

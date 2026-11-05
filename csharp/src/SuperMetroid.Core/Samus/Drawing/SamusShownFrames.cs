@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
@@ -50,13 +49,13 @@ internal sealed class SamusShownFrames
     private readonly Dictionary<SamusPoseId, HashSet<int>> entries = [];
 
     /// <summary>The frames of its own pose each shown frame can follow as the animation advances.</summary>
-    private readonly Dictionary<(SamusPoseId Pose, int Frame), HashSet<int>> predecessors = [];
+    private readonly Dictionary<SamusPoseFrame, HashSet<int>> predecessors = [];
 
     /// <summary>Follows every pose's program and every outside path through it until no further frame shows.</summary>
     private SamusShownFrames(LaidOutProgramContinuation<SamusPoseId> continuation)
     {
         this.continuation = continuation;
-        var pending = new Queue<(SamusPoseId Pose, int Frame)>();
+        var pending = new Queue<SamusPoseFrame>();
         foreach (SamusPoseId pose in Poses)
         {
             shown.Add(pose, []);
@@ -73,10 +72,10 @@ internal sealed class SamusShownFrames
         }
         // A publication can depend on the frames a pose shows, which publications add to, so they are applied until none
         // is new.
-        var published = new HashSet<(SamusPoseId Pose, SamusPublishedFrame Publication)>();
+        var published = new HashSet<PosePublication>();
         do
         {
-            while (pending.TryDequeue(out (SamusPoseId Pose, int Frame) from))
+            while (pending.TryDequeue(out SamusPoseFrame from))
             {
                 foreach (int next in Next(from.Pose, from.Frame))
                 {
@@ -88,7 +87,7 @@ internal sealed class SamusShownFrames
             {
                 foreach (SamusPublishedFrame publication in Publications(pose))
                 {
-                    if (published.Add((pose, publication)))
+                    if (published.Add(new PosePublication(pose, publication)))
                         Publish(pose, publication, pending);
                 }
             }
@@ -128,14 +127,14 @@ internal sealed class SamusShownFrames
     internal IEnumerable<SamusShownBody> Bodies(InstalledSamusBodyArtwork body)
     {
         Ensure.NotNull(body);
-        Dictionary<(SamusPoseId Pose, int Frame), HashSet<SamusBodyPicture?>> bottoms = BottomsShown(body);
+        Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>> bottoms = BottomsShown(body);
         foreach (SamusPoseId pose in Poses)
         {
             foreach (int frame in shown[pose])
             {
                 if (!body.TryFrame(pose, frame, out SamusBodyFramePictures pictures))
                     continue;
-                SamusBodyPicture?[] frameBottoms = [.. bottoms[(pose, frame)].OrderBy(bottom => bottom?.Ordinal ?? -1)];
+                SamusBodyPicture?[] frameBottoms = [.. bottoms[new SamusPoseFrame(pose, frame)].OrderBy(bottom => bottom?.Ordinal ?? -1)];
                 foreach (SamusMovementType movementType in SamusBodyDrawing.MovementTypesDrawnWith(pose))
                 {
                     SamusBodyFrame drawn = SamusBodyDrawing.Frame(movementType, pose, frame, body);
@@ -151,15 +150,15 @@ internal sealed class SamusShownFrames
     /// the bottom picture the frame before it showed, for the frames of its own pose it follows, and for a frame a pose is
     /// started or published on any bottom picture a frame names, or none before any frame has named one.
     /// </summary>
-    private Dictionary<(SamusPoseId Pose, int Frame), HashSet<SamusBodyPicture?>> BottomsShown(InstalledSamusBodyArtwork body)
+    private Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>> BottomsShown(InstalledSamusBodyArtwork body)
     {
-        var pictures = new Dictionary<(SamusPoseId Pose, int Frame), SamusBodyFramePictures>();
+        var pictures = new Dictionary<SamusPoseFrame, SamusBodyFramePictures>();
         foreach (SamusPoseId pose in Poses)
         {
             foreach (int frame in shown[pose])
             {
                 if (body.TryFrame(pose, frame, out SamusBodyFramePictures framePictures))
-                    pictures.Add((pose, frame), framePictures);
+                    pictures.Add(new SamusPoseFrame(pose, frame), framePictures);
             }
         }
         var named = new HashSet<SamusBodyPicture?> { null };
@@ -168,8 +167,8 @@ internal sealed class SamusShownFrames
             if (framePictures.Bottom is { } bottom)
                 named.Add(bottom);
         }
-        var bottoms = new Dictionary<(SamusPoseId Pose, int Frame), HashSet<SamusBodyPicture?>>();
-        foreach (KeyValuePair<(SamusPoseId Pose, int Frame), SamusBodyFramePictures> frame in pictures)
+        var bottoms = new Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>>();
+        foreach (KeyValuePair<SamusPoseFrame, SamusBodyFramePictures> frame in pictures)
         {
             var frameBottoms = new HashSet<SamusBodyPicture?>();
             if (frame.Value.Bottom is { } own)
@@ -183,7 +182,7 @@ internal sealed class SamusShownFrames
         do
         {
             changed = false;
-            foreach (KeyValuePair<(SamusPoseId Pose, int Frame), HashSet<SamusBodyPicture?>> frame in bottoms)
+            foreach (KeyValuePair<SamusPoseFrame, HashSet<SamusBodyPicture?>> frame in bottoms)
             {
                 if (pictures[frame.Key].Bottom is not null || !predecessors.TryGetValue(frame.Key, out HashSet<int>? before))
                     continue;
@@ -191,7 +190,7 @@ internal sealed class SamusShownFrames
                 {
                     // A frame that follows itself keeps what it already shows.
                     if (earlier == frame.Key.Frame ||
-                        !bottoms.TryGetValue((frame.Key.Pose, earlier), out HashSet<SamusBodyPicture?>? earlierBottoms))
+                        !bottoms.TryGetValue(new SamusPoseFrame(frame.Key.Pose, earlier), out HashSet<SamusBodyPicture?>? earlierBottoms))
                         continue;
                     foreach (SamusBodyPicture? bottom in earlierBottoms)
                         changed |= frame.Value.Add(bottom);
@@ -203,19 +202,19 @@ internal sealed class SamusShownFrames
     }
 
     /// <summary>Shows <paramref name="frame"/> of <paramref name="pose"/>, following it on through the program when it is new.</summary>
-    private void Show(SamusPoseId pose, int frame, Queue<(SamusPoseId Pose, int Frame)> pending)
+    private void Show(SamusPoseId pose, int frame, Queue<SamusPoseFrame> pending)
     {
         if (shown[pose].Add(frame))
-            pending.Enqueue((pose, frame));
+            pending.Enqueue(new SamusPoseFrame(pose, frame));
     }
 
     /// <summary>The frames of its own pose <paramref name="frame"/> can follow.</summary>
     private HashSet<int> PredecessorsOf(SamusPoseId pose, int frame)
     {
-        if (!predecessors.TryGetValue((pose, frame), out HashSet<int>? before))
+        if (!predecessors.TryGetValue(new SamusPoseFrame(pose, frame), out HashSet<int>? before))
         {
             before = [];
-            predecessors.Add((pose, frame), before);
+            predecessors.Add(new SamusPoseFrame(pose, frame), before);
         }
         return before;
     }
@@ -224,9 +223,9 @@ internal sealed class SamusShownFrames
     /// Shows a frame an outside path publishes: the frame itself when it is drawn as written, or the frames the animation
     /// advances it to first. Either starts the pose from whatever Samus showed before.
     /// </summary>
-    private void Publish(SamusPoseId pose, SamusPublishedFrame publication, Queue<(SamusPoseId Pose, int Frame)> pending)
+    private void Publish(SamusPoseId pose, SamusPublishedFrame publication, Queue<SamusPoseFrame> pending)
     {
-        int[] started = publication.AdvancedBeforeDrawn ? Next(pose, publication.Frame) : [publication.Frame];
+        int[] started = publication.Drawing == PublishedFrameDrawing.AfterAdvancing ? Next(pose, publication.Frame) : [publication.Frame];
         foreach (int frame in started)
         {
             entries[pose].Add(frame);
@@ -235,36 +234,36 @@ internal sealed class SamusShownFrames
     }
 
     /// <summary>The frames the animation can show after <paramref name="frame"/> of <paramref name="pose"/> when its delay runs out.</summary>
-    private int[] Next(SamusPoseId pose, int frame) => Reach(pose, frame + 1, selected: false);
+    private int[] Next(SamusPoseId pose, int frame) => Reach(pose, frame + 1, FrameReach.Advancing);
 
     /// <summary>
     /// The frames the animation shows on reaching <paramref name="frame"/> of <paramref name="pose"/>: the frame when it is a
     /// delay, or a hold reached by advancing; the delays an instruction there selects; or none where the animation fails or
-    /// the pose ends. <paramref name="selected"/> marks a frame an instruction selected, which must be a delay.
+    /// the pose ends. <paramref name="reach"/> says whether an instruction selected the frame, which must then be a delay.
     /// </summary>
     /// <exception cref="InvalidDataException">A program holds a step the animation has no handler for.</exception>
-    private int[] Reach(SamusPoseId pose, int frame, bool selected)
+    private int[] Reach(SamusPoseId pose, int frame, FrameReach reach)
     {
         SamusAnimationProgramStep? step = SamusAnimationDelays.TryStepFor(pose, frame, continuation);
         if (step is SamusAnimationDelay)
             return [frame];
-        if (selected || step is null)
+        if (reach == FrameReach.Selection || step is null)
             return [];
         return step switch
         {
             SamusAnimationHold => [frame],
-            SamusAnimationRepeat repeat => Reach(pose, repeat.Frame, selected: true),
-            SamusAnimationRestart => Reach(pose, 0, selected: true),
-            SamusAnimationLoopUnlessLowEnergy => [.. Reach(pose, frame + 1, selected: true), .. Reach(pose, 0, selected: true)],
+            SamusAnimationRepeat repeat => Reach(pose, repeat.Frame, FrameReach.Selection),
+            SamusAnimationRestart => Reach(pose, 0, FrameReach.Selection),
+            SamusAnimationLoopUnlessLowEnergy => [.. Reach(pose, frame + 1, FrameReach.Selection), .. Reach(pose, 0, FrameReach.Selection)],
             SamusAnimationWallJumpSelect select =>
             [
-                .. Reach(pose, select.OrdinaryFrame, selected: true),
-                .. Reach(pose, select.SpaceJumpFrame, selected: true),
-                .. Reach(pose, select.ScrewAttackFrame, selected: true),
+                .. Reach(pose, select.OrdinaryFrame, FrameReach.Selection),
+                .. Reach(pose, select.SpaceJumpFrame, FrameReach.Selection),
+                .. Reach(pose, select.ScrewAttackFrame, FrameReach.Selection),
             ],
             // The drained fall's handover fails for any pose but the drained crouch.
             SamusAnimationInstallDrainedFall => pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose
-                ? Reach(pose, frame + 1, selected: true) : [],
+                ? Reach(pose, frame + 1, FrameReach.Selection) : [],
             SamusAnimationTransition or SamusAnimationTurnTransition or SamusAnimationItemTransition or
                 SamusAnimationItemAirborneTransition => [],
             _ => throw new InvalidDataException($"Samus animation step {step} has no handler."),
@@ -281,33 +280,33 @@ internal sealed class SamusShownFrames
         var publications = new List<SamusPublishedFrame>();
         // The able-to-stand handler moves the left-facing drained crouch to its stand-up on Up, just before the animation.
         if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
-            publications.Add(new(SamusDrainedAnimationDefinitions.AbleToStandFrame, AdvancedBeforeDrawn: true));
+            publications.Add(new(SamusDrainedAnimationDefinitions.AbleToStandFrame, PublishedFrameDrawing.AfterAdvancing));
         // The unable-to-stand handler stays installed until Mother Brain dies and checks only the frame, so on Up it moves
         // whatever pose shows one of its frames, just before the animation.
         if (frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
                 SamusDrainedAnimationDefinitions.UnableToStandLastFrame).Count > 0)
-            publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, AdvancedBeforeDrawn: true));
+            publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
         if (SamusPoseMetadata.IsDrainedPose(pose))
         {
             // The Baby Metroid's Hyper Beam and rainbow-stop commands write the drained pose's frame during enemy AI, after
             // the animation, so the draw shows it as written.
-            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, AdvancedBeforeDrawn: false));
-            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, AdvancedBeforeDrawn: false));
+            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
         }
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
             // The drained fall lands on its landing frame for eight ticks; the release moves the crouch on during enemy AI.
-            publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, AdvancedBeforeDrawn: false));
-            publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, AdvancedBeforeDrawn: false));
+            publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, PublishedFrameDrawing.AsWritten));
         }
         if (pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
-            publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseStandingFrame, AdvancedBeforeDrawn: false));
+            publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseStandingFrame, PublishedFrameDrawing.AsWritten));
         // Wall contact rewinds whatever pose holds the spin's movement, during movement and with a timer of one.
         if (SamusBodyDrawing.MovementTypesDrawnWith(pose).Contains(SamusMovementType.SpinJumping))
         {
             publications.Add(new(SamusPoseMetadata.IsScrewAttackPose(pose)
                 ? SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame
-                : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame, AdvancedBeforeDrawn: true));
+                : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame, PublishedFrameDrawing.AfterAdvancing));
         }
         return publications;
     }
@@ -331,7 +330,7 @@ internal sealed class SamusShownFrames
             yield return SamusMovementDefinitions.FastFallAnimationFrame;
         if (pose is SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose)
         {
-            foreach (byte frame in SamusDeathSequenceDefinitions.InitialFrames.Values)
+            foreach (int frame in SamusDeathSequenceDefinitions.InitialFrames.Values)
                 yield return frame;
         }
         // The angle, the Crystal Flash's stages and the Zebes start select these poses' frames directly.
@@ -348,9 +347,34 @@ internal sealed class SamusShownFrames
 
     /// <summary>A frame an outside path publishes for a pose.</summary>
     /// <param name="Frame">The animation frame written.</param>
-    /// <param name="AdvancedBeforeDrawn">
-    /// Whether the animation pass advances the frame before the draw, as it does a frame written with a timer of one just
-    /// before it.
-    /// </param>
-    private readonly record struct SamusPublishedFrame(int Frame, bool AdvancedBeforeDrawn);
+    /// <param name="Drawing">Whether the draw shows the frame as written or after the animation pass advances it.</param>
+    private readonly record struct SamusPublishedFrame(int Frame, PublishedFrameDrawing Drawing);
+
+    /// <summary>A frame an outside path publishes, with the pose it publishes it for.</summary>
+    /// <param name="Pose">The pose.</param>
+    /// <param name="Publication">The frame published.</param>
+    private readonly record struct PosePublication(SamusPoseId Pose, SamusPublishedFrame Publication);
+
+    /// <summary>How the draw shows a frame an outside path publishes.</summary>
+    private enum PublishedFrameDrawing
+    {
+        /// <summary>The frame is drawn as written: the path writes it after the animation pass.</summary>
+        AsWritten,
+
+        /// <summary>
+        /// The animation pass advances the frame before the draw, as it does a frame written with a timer of one just before
+        /// it.
+        /// </summary>
+        AfterAdvancing,
+    }
+
+    /// <summary>How the animation reaches a frame.</summary>
+    private enum FrameReach
+    {
+        /// <summary>A delay ran out and the animation moved on to the next frame.</summary>
+        Advancing,
+
+        /// <summary>An instruction selected the frame, which must be a delay.</summary>
+        Selection,
+    }
 }

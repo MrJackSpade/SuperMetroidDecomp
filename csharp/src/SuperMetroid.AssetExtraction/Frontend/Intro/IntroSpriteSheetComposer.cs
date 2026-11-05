@@ -41,7 +41,7 @@ internal static class IntroSpriteSheetComposer
     /// family keeps only the poses their programs show and the scene's sheet draws from that family.
     /// </summary>
     /// <exception cref="InvalidDataException">The reveal's actors show a pose no Ceres family composes.</exception>
-    private static IEnumerable<ICinematicSpriteFrames> ZebesRevealFamilies(IntroCinematicArtwork intro)
+    private static ICinematicSpriteFrames[] ZebesRevealFamilies(IntroCinematicArtwork intro)
     {
         HashSet<CinematicSpritePose> shown = CinematicShownFrames.PosesOf(Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount)
             .Select(actor => CeresDestructionActors.ZebesActor(actor).Program));

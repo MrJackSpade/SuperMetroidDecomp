@@ -474,13 +474,13 @@ public sealed class SamusState
     /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
     internal SamusAnimationProgramStep AnimationStep => SamusAnimationDelays.StepFor(
         AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
-        _animationContinuation);
+        AnimationContinuation);
 
-    /// <summary>What an animation frame past her pose's program reads, the session's installed service.</summary>
-    private readonly LaidOutProgramContinuation<SamusPoseId> _animationContinuation;
-
-    /// <summary>What an animation frame past her pose's program reads, which decides the frames her body can show.</summary>
-    internal LaidOutProgramContinuation<SamusPoseId> AnimationContinuation => _animationContinuation;
+    /// <summary>
+    /// What an animation frame past her pose's program reads, the session's installed service, which decides the frames her
+    /// body can show.
+    /// </summary>
+    internal LaidOutProgramContinuation<SamusPoseId> AnimationContinuation { get; }
 
     /// <summary>
     /// Operand published by animation command $F8 through the “super-special
@@ -521,7 +521,7 @@ public sealed class SamusState
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     internal SamusState(LaidOutProgramContinuation<SamusPoseId> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence)
     {
-        _animationContinuation = Ensure.NotNull(animationContinuation);
+        AnimationContinuation = Ensure.NotNull(animationContinuation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();

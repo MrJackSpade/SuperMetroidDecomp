@@ -116,7 +116,11 @@ internal sealed record CallRecord(IMethodSymbol Callee, INamedTypeSymbol SiteTyp
 /// <summary>Something code that spawns nothing itself names, waiting to learn whether a caller chain spawns it.</summary>
 /// <param name="Unit">The code naming it.</param>
 /// <param name="Add">Adds it to a collection.</param>
-internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add);
+/// <param name="Family">
+/// The projectile program family it starts, when it starts one (by construction or a typed-start kind); null for a frame or
+/// sprite object named outright.
+/// </param>
+internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add, INamedTypeSymbol? Family);
 
 /// <summary>
 /// One reachability walk over Core's call graph, from a behaviour, a projectile program family, or the code outside
@@ -251,8 +255,10 @@ internal sealed class Walk
                 Reach(target, context, viaDispatch: false, origin: unit);
         }
         RouteDataSpriteObjects();
-        RouteUnspawnedNames();
+        // Helper evidence first, so a family a helper starts on what its callers spawn is on those spawns' collections
+        // when the names no spawning caller reaches look for where the walk spawns their families.
         RouteHelperEvidence();
+        RouteUnspawnedNames();
     }
 
     /// <summary>
@@ -260,15 +266,33 @@ internal sealed class Walk
     /// spawner's own sheet only when no caller chain in the walk spawns it: a helper that starts a family on the object its
     /// callers spawn, as the pickup a drop's spawn starts, draws where those callers' graphics say, which
     /// <see cref="RouteHelperEvidence"/> sends it to; code no spawning caller reaches (a handler switching the program of an
-    /// object the spawner's code spawned) changes an object drawing from the spawner's sheet.
+    /// object the spawner's code spawned) changes an object drawing where a behaviour's code spawns that family, and a
+    /// family it spawns nowhere, or a frame or kind named outright, on the spawner's sheet.
     /// </summary>
     private void RouteUnspawnedNames()
     {
         var sinks = new Dictionary<Unit, HashSet<Collected>>();
+        // What the walk's own spawns hold before any unspawned name joins them.
+        List<(Collected Collected, HashSet<INamedTypeSymbol> Families)> spawned = _behaviour is not null && _family is null
+            ? [.. AllSpawns.Select(collected => (collected, collected.AllFamilies.ToHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)))]
+            : [];
         foreach (UnspawnedName named in _unspawnedNames)
         {
             if (SpawningCallersOf(named.Unit, sinks, []).Count > 0)
                 continue;
+            // A behaviour's handler starting a program on an object of a family its code spawns (a touch, shot, frame
+            // behaviour or step restarting it) changes an object drawing where that code spawned it: Mother Brain's
+            // turrets, onion rings, tubes and drool, spawned with the room's graphics, draw from the shared sheet, never
+            // her own (#1513).
+            Collected[] spawnedThere = named.Family is { } family
+                ? [.. spawned.Where(spawn => spawn.Families.Contains(family)).Select(spawn => spawn.Collected)]
+                : [];
+            if (spawnedThere.Length > 0)
+            {
+                foreach (Collected collected in spawnedThere)
+                    named.Add(collected);
+                continue;
+            }
             foreach (SpawnTarget target in ScanOf(named.Unit).UnitTargets)
             {
                 if (Collect(named.Unit, target) is { } collected)
@@ -420,7 +444,7 @@ internal sealed class Walk
                     if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
                     {
                         Of(_helperEvidence, spawner).AddFamily(family, programs);
-                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs)));
+                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs), family));
                     }
                     else
                     {
@@ -508,6 +532,7 @@ internal sealed class Walk
             return;
         }
         Action<Collected>? add = null;
+        INamedTypeSymbol? startedFamily = null;
         if (SymbolEqualityComparer.Default.Equals(type, _model.EnemyProjectileFrameId))
         {
             if (!ExcludedProjectileFrames.Contains(member.Name))
@@ -531,6 +556,7 @@ internal sealed class Walk
             // A typed start names the program its kind starts the family in, when its construction names one (#1513).
             IReadOnlySet<string>? programs = _model.StartedPrograms(member);
             add = collected => collected.AddFamily(started, programs);
+            startedFamily = started;
             if (context == WalkContext.Own)
                 Own.AddFamily(started, programs);
         }
@@ -541,7 +567,7 @@ internal sealed class Walk
         if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
         {
             add(Of(_helperEvidence, unit));
-            _unspawnedNames.Add(new UnspawnedName(unit, add));
+            _unspawnedNames.Add(new UnspawnedName(unit, add, startedFamily));
             return;
         }
         foreach (SpawnTarget target in scan.TargetsOf(member))

@@ -159,8 +159,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 throw new InvalidDataException($"{family.ToDisplayString()}'s program set lists program {identity.Name} twice.");
         }
         // An object's own cues can start it, or more of its family, in other programs (an afterburn spawning the next), so
-        // whatever its cue handlers start is among the programs every start of the family runs.
-        HashSet<string> entered = NamedOutside(family, programType, initializer);
+        // whatever its cue handlers start is among the programs every start of the family runs. The family's frame table
+        // names programs only as parts of the poses it looks up (Kraid's rocks), which starts nothing.
+        HashSet<string> entered = NamedOutside(family, programType, initializer,
+            InitializerOf(table ?? throw new InvalidOperationException($"{family.ToDisplayString()} is read precisely without a frame table.")));
         entered.UnionWith(CueStarted(family, (INamedTypeSymbol)animation.TypeArguments[2]) ?? programs.Keys.ToHashSet(StringComparer.Ordinal));
         var set = new FamilyProgramSet(entries, tableFrames, programs, entered, Precise: true);
         // The self-check: every frame the table holds is shown by some program, so no step the reader missed leaves a frame
@@ -444,11 +446,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     }
 
     /// <summary>
-    /// The members of <paramref name="programType"/> Core names outside <paramref name="initializer"/> and the families'
-    /// starts: code naming a program can start an object in it. Tests of a program (case labels, patterns, equality) start
-    /// nothing.
+    /// The members of <paramref name="programType"/> Core names outside <paramref name="initializer"/>, the family's frame
+    /// table <paramref name="table"/> and the families' starts: code naming a program can start an object in it. Tests of a
+    /// program (case labels, patterns, equality) start nothing, and neither does a table pose naming the program it belongs
+    /// to: the Kago bug, started in Kraid's rocks' still pose, never shows the spat rock's burst its table's keys name.
     /// </summary>
-    private HashSet<string> NamedOutside(INamedTypeSymbol family, INamedTypeSymbol programType, SyntaxNode initializer)
+    private HashSet<string> NamedOutside(INamedTypeSymbol family, INamedTypeSymbol programType, SyntaxNode initializer, SyntaxNode table)
     {
         var named = new HashSet<string>(StringComparer.Ordinal);
         var members = new HashSet<string>(programType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);
@@ -463,7 +466,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 semantic ??= model.ModelOf(tree);
                 if (semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol field || !SymbolEqualityComparer.Default.Equals(field.ContainingType, programType))
                     continue;
-                if (name.Ancestors().Any(node => node == initializer || IsTest(node, name))
+                if (name.Ancestors().Any(node => node == initializer || node == table || IsTest(node, name))
                     || name.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.Text: "nameof" })
                     || IsStartArgument(semantic, name, family))
                     continue;

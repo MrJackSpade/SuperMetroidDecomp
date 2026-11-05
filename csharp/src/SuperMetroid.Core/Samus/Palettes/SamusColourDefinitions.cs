@@ -19,7 +19,7 @@ internal static class SamusColourDefinitions
     public static ImmutableHashSet<SpriteSourceKind> Sources { get; } =
     [
         SpriteSourceKind.Samus, SpriteSourceKind.SamusArmCannon, SpriteSourceKind.SamusAtmosphere, SpriteSourceKind.SamusBomb,
-        SpriteSourceKind.SamusChargeFlare, SpriteSourceKind.SamusChest, SpriteSourceKind.SamusDeathExplosion,
+        SpriteSourceKind.SamusChargeFlare, SpriteSourceKind.SamusDeathExplosion,
         SpriteSourceKind.SamusEcho, SpriteSourceKind.SamusGrappleEndpoint, SpriteSourceKind.SamusGrappleFlare,
         SpriteSourceKind.SamusGrappleRope, SpriteSourceKind.SamusProjectile, SpriteSourceKind.SamusProjectileTrail,
     ];

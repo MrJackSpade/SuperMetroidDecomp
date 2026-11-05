@@ -108,7 +108,7 @@ public static class SpriteSheetFiles
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     /// <param name="sheet">The sheet.</param>
-    /// <param name="body">Samus's body tables, which name the body sheets' frames.</param>
+    /// <param name="body">Samus's body tables, which name the body sheet's frames.</param>
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
@@ -129,7 +129,7 @@ public static class SpriteSheetFiles
             [EndingFloorDefinitions.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerLayoutDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
         SpriteSheetId.Grapple => GrappleSheetComposer.Frames,
-        SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),
+        SpriteSheetId.SamusBody => SamusBodySheetComposer.FrameNames(body.Value),
         SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetComposer.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetComposer.Frames,

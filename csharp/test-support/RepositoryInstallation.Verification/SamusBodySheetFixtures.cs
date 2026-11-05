@@ -18,7 +18,7 @@ internal static class SamusBodySheetFixtures
 {
     /// <summary>The sheets a body's tables, tiles and arm cannon name.</summary>
     private static readonly SpriteSheetId[] BodySheets =
-        [SpriteSheetId.SamusBodyTop, SpriteSheetId.SamusBodyBottom, SpriteSheetId.SamusOverlays, SpriteSheetId.SamusAtmosphere,
+        [SpriteSheetId.SamusBody, SpriteSheetId.SamusOverlays, SpriteSheetId.SamusAtmosphere,
             SpriteSheetId.SamusDeath];
 
     /// <summary>The installation's stock artwork, which a fixture's body replaces.</summary>

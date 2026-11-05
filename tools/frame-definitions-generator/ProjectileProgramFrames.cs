@@ -65,7 +65,8 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         var room = new HashSet<string>(StringComparer.Ordinal);
         var visited = new HashSet<(string Program, bool Switched)>();
         var pending = new Queue<(string Program, bool Switched)>();
-        foreach (string entry in (programs ?? set.Programs.Keys).Concat(set.NamedOutside))
+        IEnumerable<string> entries = programs ?? (IEnumerable<string>)set.Programs.Keys;
+        foreach (string entry in entries.Concat(set.NamedOutside))
             pending.Enqueue((entry, false));
         while (pending.TryDequeue(out (string Program, bool Switched) next))
         {

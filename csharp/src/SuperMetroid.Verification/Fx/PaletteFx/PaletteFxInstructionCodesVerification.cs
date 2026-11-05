@@ -946,8 +946,17 @@ internal static class PaletteFxInstructionCodesVerification
     /// <summary>
     /// Classifies one palette-FX bus read: the failure message for a compiled mechanic or an
     /// unclassified bank-$8D byte, and how many live presentation color tables the byte belongs to.
+    /// The classification depends on the address alone, so each address is classified once per process
+    /// however many guarded reads reach it.
     /// </summary>
-    private static ClassifyPaletteFxReadResult ClassifyPaletteFxRead(int address)
+    private static ClassifyPaletteFxReadResult ClassifyPaletteFxRead(int address) =>
+        classifiedPaletteFxReads.GetOrAdd(address, ClassifyPaletteFxReadOnce);
+
+    /// <summary>Each bus address's palette-FX read classification, made on its first guarded read.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, ClassifyPaletteFxReadResult> classifiedPaletteFxReads = new();
+
+    /// <summary>Classifies one palette-FX bus read against every compiled mechanic and live presentation table.</summary>
+    private static ClassifyPaletteFxReadResult ClassifyPaletteFxReadOnce(int address)
     {
         int presentationReads = 0;
         int presentationReadsBefore = presentationReads;

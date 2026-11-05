@@ -254,6 +254,8 @@ internal static class RoomPaletteFxPresentationVerification
             original.Add(pointer, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer));
             coordinates.Add(pointer, new Coordinate(frame, color));
         }
+        // The original words keyed by record colour once, for every address the domain sweep asks about.
+        Dictionary<PaletteFxColorKey, RgbColor> originalColors = PaletteFxColorAddressAccess.Keyed(ToColors(original));
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
@@ -266,7 +268,7 @@ internal static class RoomPaletteFxPresentationVerification
                 AssertEqual(expected.Color, color, "glare original color column");
             }
             bool computed = owned && expected.Frame < 13;
-            AssertEqual(computed, LogoGlarePaletteColors.TryCalculatedColor(pointer, ToColors(original), out RgbColor calculated),
+            AssertEqual(computed, LogoGlarePaletteColors.TryCalculatedColor(pointer, originalColors, out RgbColor calculated),
                 "glare intermediate-color calculation domain");
             if (computed) AssertEqual(original[pointer], calculated, "glare calculated word matches original ROM");
         }
@@ -372,7 +374,9 @@ internal static class RoomPaletteFxPresentationVerification
             AssertEqual(tinted.Contains((ushort)address), calculated, "Complete tint-only address domain");
             AssertEqual(calculated ? ReadVerificationWord(bus, 0x8d0000 | address) : (ushort)0, tint, "Original tint word or unowned zero");
         }
-        AssertTrue(aliases.Keys.All(presentation.ColorPointers.Contains), "Auditor includes calculated loading aliases");
+        // The auditor's identities are enumerated once; each alias is then looked up among them.
+        HashSet<ushort> auditedPointers = [.. presentation.ColorPointers];
+        AssertTrue(aliases.Keys.All(auditedPointers.Contains), "Auditor includes calculated loading aliases");
         foreach (SamusLoadingSuitPaletteFxColorDefinition definition in
                  SamusLoadingSuitPaletteFxColorDefinitions.All)
         {
@@ -456,7 +460,9 @@ internal static class RoomPaletteFxPresentationVerification
             AssertEqual(ReadVerificationWord(bus, 0x8d0000 | pointer), calculated, "Every calculated shared-red color matches original");
             AssertTrue(!stored.ContainsKey(pointer), "Calculated shared-red word is not cached");
         }
-        AssertTrue(expectedAliases.Keys.All(presentation.ColorPointers.Contains), "Audit enumeration includes removed aliases");
+        // The audit's identities are enumerated once; each alias is then looked up among them.
+        HashSet<ushort> auditedPointers = [.. presentation.ColorPointers];
+        AssertTrue(expectedAliases.Keys.All(auditedPointers.Contains), "Audit enumeration includes removed aliases");
         foreach (PaletteFxHeatProgramDefinition definition in
                  PaletteFxHeatProgramMechanicsDefinitions.All)
         {

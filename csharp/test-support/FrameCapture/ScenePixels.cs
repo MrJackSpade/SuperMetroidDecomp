@@ -7,8 +7,9 @@ namespace SuperMetroid.TestSupport.FrameRendering;
 /// Whether two published frames show the same pixels (#1532). A frame's pixels are a function of its description alone: the
 /// scene's records, planes, grids and shadings compare by value, as the renderer's own upload caching relies on, and every
 /// other member a scene holds is immutable once published, so an equal reference holds equal content. Two frames whose
-/// descriptions are equal therefore show equal pixels without drawing either; only frames whose descriptions differ are
-/// drawn with the game's renderer and compared pixel by pixel. The answer is the pixel comparison's in every case.
+/// descriptions are equal therefore show equal pixels without drawing either, and so do two frames whose graphs hold the
+/// same values (<see cref="PublishedGraphs"/>); only frames that differ in both are drawn with the game's renderer and
+/// compared pixel by pixel. The answer is the pixel comparison's in every case.
 /// </summary>
 internal static class ScenePixels
 {
@@ -17,8 +18,18 @@ internal static class ScenePixels
     {
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
-        return SameDescription(left, right) || DisplayRendering.Render(left).AsSpan().SequenceEqual(DisplayRendering.Render(right));
+        return SameDescription(left, right) || SameGraph(left, right)
+            || DisplayRendering.Render(left).AsSpan().SequenceEqual(DisplayRendering.Render(right));
     }
+
+    /// <summary>
+    /// Whether two packets reach the same values: twin games' frames hold equal copies of what they show, which
+    /// <see cref="SameDescription"/> compares only by instance for a gameplay room's layers. The frame number names the
+    /// publication, not what it shows, so it is not compared.
+    /// </summary>
+    private static bool SameGraph(DisplayPacket left, DisplayPacket right) =>
+        left.Brightness == right.Brightness && left.Size == right.Size && left.SolidColor == right.SolidColor
+        && PublishedGraphs.Same(left.Layers, right.Layers) && PublishedGraphs.Same(left.Floor, right.Floor);
 
     /// <summary>Whether <paramref name="left"/> and <paramref name="right"/>, each shown alone, show the same pixels.</summary>
     internal static bool Same(LayeredScene left, LayeredScene right) => Same(new DisplayPacket(0, left), new DisplayPacket(0, right));

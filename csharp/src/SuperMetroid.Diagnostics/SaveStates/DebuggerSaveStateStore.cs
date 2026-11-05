@@ -12,6 +12,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <summary>Host-independent debugger states with ten manual slots and one automatic slot with warning-only build identity checks.</summary>
 internal sealed class DebuggerSaveStateStore : IDisposable
 {
+    /// <summary>How many decompressed bytes a restore reads ahead of the graph reader.</summary>
+    private const int DecompressedReadBufferBytes = 128 * 1024;
+
     /// <summary>Guards <see cref="pendingWrites"/>.</summary>
     private readonly Lock writeGate = new();
     /// <summary>The background writes queued so far, run in submission order.</summary>
@@ -167,7 +170,11 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         // The content may have loaded parts of itself since the last save.
         bound.Value.Refresh();
         DebuggerObjectGraphSerializer.Serialize(payload, new DebuggerSaveStateRoot(addressSpace, game), bound.Value);
-        return new DebuggerSaveStateCapture(metadata, payload.ToArray());
+        // The capture keeps the serialized bytes in the array they were written to rather than copying them out.
+        ArraySegment<byte> written = payload.TryGetBuffer(out ArraySegment<byte> buffer)
+            ? buffer
+            : throw new InvalidOperationException("A capture's own payload stream exposes its buffer.");
+        return new DebuggerSaveStateCapture(metadata, written);
     }
 
     /// <summary>Writes a capture, reporting its outcome instead of letting it escape the writing thread.</summary>
@@ -217,7 +224,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
                 writer.Flush();
 
                 using (var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true))
-                    compressed.Write(capture.Payload);
+                    compressed.Write(capture.Payload.Span);
                 stream.Flush(flushToDisk: true);
             }
             if (File.Exists(destination))
@@ -282,10 +289,13 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         string? room = ReadNullableString(reader);
         string? roomState = ReadNullableString(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);
+        // The graph reader asks for a few bytes at a time; decompressing into a buffer serves those reads from memory
+        // instead of entering the inflater for every field.
+        using var decompressed = new BufferedStream(compressed, DecompressedReadBufferBytes);
         DebuggerSaveStateRoot root;
         try
         {
-            root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(compressed, bound.Value);
+            root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(decompressed, bound.Value);
         }
         catch (InvalidDataException exception) when (
             exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))
@@ -429,7 +439,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     /// <summary>A state serialized at one moment and the metadata naming it, ready to be written to its slot.</summary>
     /// <param name="Metadata">The capture's frame, room and destination slot file.</param>
     /// <param name="Payload">The serialized object graph, before compression.</param>
-    private sealed record DebuggerSaveStateCapture(DebuggerSaveStateMetadata Metadata, byte[] Payload);
+    private sealed record DebuggerSaveStateCapture(DebuggerSaveStateMetadata Metadata, ReadOnlyMemory<byte> Payload);
 
     /// <summary>Groups the three runtime owners serialized together as one debugger capture.</summary>
     private sealed class DebuggerSaveStateRoot(

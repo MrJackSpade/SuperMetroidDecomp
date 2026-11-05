@@ -86,6 +86,9 @@ internal static class RightFacingGateGlitchVerification
         RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, original.BackgroundPlane.Blocks));
         RoomLevelData pristine = NewLevel();
         RoomLevelData level = NewLevel();
+        // The authored population is an immutable import record, read from the cartridge once for every position.
+        RoomPlmPopulation population = RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer);
+        RoomPlmSystem unboundPlms = PlmFixtures.Unbound();
         for (int x = gateX - 192; x < gateX; x++)
         for (int y = gateY - 32; y <= gateY + 96; y++)
         {
@@ -99,8 +102,9 @@ internal static class RightFacingGateGlitchVerification
                 SuperMissiles = 10,
                 MaxSuperMissiles = 10,
             };
-            var plms = PlmFixtures.Unbound();
-            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            // Loading binds a new PLM system to this position's level, so every position starts from the same unbound one.
+            RoomPlmSystem plms = unboundPlms;
+            PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(), runtime.Room.LoadedRoom.AreaIndex), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
                 plms.Step(level);
             plms.Gates.TakeDownwardGateProjectileRequests();

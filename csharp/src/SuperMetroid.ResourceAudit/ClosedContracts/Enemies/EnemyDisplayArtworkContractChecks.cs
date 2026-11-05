@@ -58,7 +58,7 @@ internal static class EnemyDisplayArtworkContractChecks
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Enemies.Drawing;
             class EnemyDisplayConsumer {
-                void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFramePlacementCatalog extended, EnemyFrameId frame) {
+                void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFrameDisplayCatalog extended, EnemyFrameId frame) {
                     simple.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
                     simple.TryGetDisplay(EnemyFrameId.Empty, out _);
                     simple.TryGetDisplay(frame, out _);

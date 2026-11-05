@@ -505,7 +505,7 @@ internal static class LookupStream5Verification
             Func<int, RgbColor>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
             // The encounter's first load shows the wall's colours on the spawned objects' sheets (#1512): the import's wall
             // shade holds the initial wall's first sixteen colours in the wall's row.
-            SheetShade wall = BossSheetShades.SpawnedObjects(InstalledFixtures.BossArtwork with { CrocomireColors = result })
+            SheetShade wall = BossSheetShades.SpawnedObjects(InstalledFixtures.BossArtwork with { CrocomireColors = result }, EnemyDefinitionId.Crocomire)
                 .Single(shade => shade.Shade == SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireShades.Wall);
             for (int ink = 0; ink < wall.Colours.Length; ink++)
                 AssertEqual(resolve[1](ink), wall.Colours[ink], "Initial wall load shows the supplied colours");

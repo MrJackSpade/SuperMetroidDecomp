@@ -175,7 +175,7 @@ internal static class ConsumerAudit
     private static string? Domain(string type, string method) => new PresentationMethod(type, method) switch
     {
         ("EnemySpritemapCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemySimple,
-        ("EnemyExtendedFrameCatalog" or "EnemyExtendedFramePlacementCatalog", "TryGetDisplay" or "GetDisplayFrame" or "TryGet") => ResourceDomains.EnemyExtended,
+        ("EnemyExtendedFrameCatalog" or "EnemyExtendedFrameDisplayCatalog", "TryGetDisplay" or "GetDisplayFrame" or "TryGet") => ResourceDomains.EnemyExtended,
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame") => ResourceDomains.EnemyProjectileProgram,
         ("EnemyProjectileSpritemapCatalog", "Get") => ResourceDomains.EnemyProjectileSprite,
         ("IPaletteFxColorSource" or "RoomPaletteFxPresentation", "TryReadColor") => ResourceDomains.PaletteFx,

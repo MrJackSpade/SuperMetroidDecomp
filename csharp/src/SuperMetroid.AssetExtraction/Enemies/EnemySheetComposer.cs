@@ -5,7 +5,9 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 
@@ -110,7 +112,7 @@ internal static class EnemySheetComposer
                         Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                         Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
                         SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],
-                        Anywhere = plan.Anywhere,
+                        Common = [.. plan.Common.Select(common => common.Spawner)],
                     });
                     if (sheet.Variations.Count > 0)
                         baseVariations[owner] = Document(sheet.Variations);
@@ -244,8 +246,10 @@ internal static class EnemySheetComposer
     internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
+        // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
+        IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set);
         return new GraphicsSetSheetSources([.. EnemySources(inputs, loaded)],
-            [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf).Select(plan =>
+            [.. SpawnedObjectSheetComposer.Plans(loaded.Layout, loaded.Drawn, loaded.Colours.RowOf, common).Select(plan =>
                 SpawnedObjectSheetComposer.Sources(inputs.Enemies, plan, loaded.Characters, loaded.Shades, loaded.Colours.RowOf))]);
     }
 
@@ -294,19 +298,41 @@ internal static class EnemySheetComposer
         Ensure.NotNull(set);
         GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(set);
         LoadedSetColours colours = LoadedSetColours.Of(inputs, set);
+        EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
+        IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
+        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set, corpses),
+            [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
+    }
+
+    /// <summary>The common spawners whose objects graphics set <paramref name="set"/>'s shared sheet holds: those its rooms run (#1513).</summary>
+    /// <exception cref="InvalidDataException">A common spawner has no presence.</exception>
+    internal static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set)
+    {
+        Ensure.NotNull(set);
+        return CommonSpawners.RunningIn(StatesOf(set), DrawnUnder(set, GraphicsSetCharacterLayout.Of(set)));
+    }
+
+    /// <summary>
+    /// The enemies drawn under graphics set <paramref name="set"/> laid out as <paramref name="layout"/>: its members in
+    /// record order, then each enemy its rooms place without the set loading it, then the enemies those enemies'
+    /// encounters spawn.
+    /// </summary>
+    private static EnemyDefinitionId[] DrawnUnder(RoomEnemyGraphicsSetDefinition set, GraphicsSetCharacterLayout layout)
+    {
         List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId)];
-        IEnumerable<EnemyDefinitionId> placed = RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)
+        IEnumerable<EnemyDefinitionId> placed = StatesOf(set)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
         EnemyDefinitionId[] loaded = [.. members, .. placed];
         // An encounter's own spawns, such as Mother Brain's tubes and the Baby, draw under the set its spawner loads.
         EnemyDefinitionId[] spawned = [.. loaded.SelectMany(enemy => EncounterSpawnedEnemyDefinitions.BySpawner.GetValueOrDefault(enemy, []))
             .Except(loaded).Distinct().Order()];
-        EnemyDefinitionId[] drawn = [.. loaded, .. spawned];
-        IReadOnlyList<CorpseRotSimulation> corpses = CorpseRotSimulation.Of(inputs.Enemies, inputs.Bosses, drawn);
-        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Sequences(inputs, set, corpses),
-            [.. corpses.Where(corpse => corpse.Kind is not null)]), colours, new EnemySheetShades(inputs, colours), drawn);
+        return [.. loaded, .. spawned];
     }
+
+    /// <summary>The room states that load graphics set <paramref name="set"/>.</summary>
+    private static RoomStateSettings[] StatesOf(RoomEnemyGraphicsSetDefinition set) =>
+        [.. RoomStateDefinitions.All.Where(state => state.EnemyGraphicsSet.Name == set.Name)];
 
     /// <summary>
     /// The artwork sequences played under graphics set <paramref name="set"/> (#1513): each its members' encounters play,
@@ -354,18 +380,19 @@ internal static class EnemySheetComposer
             ? Composed(enemies, shown).Select(frame => frame.Name) : [];
 
     /// <summary>
-    /// Each shown frame's pictures over the set's characters: an ordinary frame whole, an extended frame component by
-    /// component.
+    /// Each shown frame's pictures over the set's characters, every frame one whole picture: an extended frame's pieces
+    /// are composed into it at their placements (#1513).
     /// </summary>
     private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown,
         int tileBase, SetCharacters characters, bool showsRot) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, EnemySpriteFrames.Frame(frame.Parts, tileBase, 0),
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(tileBase),
             FrameDrawings.Of(frame.Frame), showsRot));
 
     /// <summary>
-    /// Each shown frame's composition by sheet frame name: an ordinary frame whole, an extended frame component by
-    /// component. A frame no installed composition shows draws nothing to compose.
+    /// Each shown frame's composition by sheet frame name: an ordinary frame as one piece at the frame's origin, an
+    /// extended frame as its pieces in drawing order. A frame no installed composition shows, and an extended frame with
+    /// no sprite piece, draw nothing to compose.
     /// </summary>
     private static IEnumerable<ComposedFrame> Composed(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown)
     {
@@ -374,18 +401,35 @@ internal static class EnemySheetComposer
         foreach (EnemyFrameId frame in shown)
         {
             if (spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts))
-                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), parts);
-            else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components))
-            {
-                for (int component = 0; component < components.Length; component++)
-                    yield return new ComposedFrame(frame, EnemySheetDefinitions.ComponentFrameName(frame, component), components.Span[component].Parts);
-            }
+                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), (EnemyExtendedDrawComponent[])[new EnemyExtendedDrawComponent(Offset16<SpritePixels>.Zero, parts)]);
+            else if (extended.TryGetDisplay(frame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) && !components.IsEmpty)
+                yield return new ComposedFrame(frame, EnemySheetDefinitions.FrameName(frame), components);
         }
     }
 
     /// <summary>A shown frame's composition, by the sheet frame name it takes.</summary>
-    /// <param name="Frame">The enemy frame it shows, whole or a component of.</param>
+    /// <param name="Frame">The enemy frame it shows.</param>
     /// <param name="Name">The sheet frame's name.</param>
-    /// <param name="Parts">Its parts.</param>
-    private readonly record struct ComposedFrame(EnemyFrameId Frame, string Name, EnemySpritemapParts Parts);
+    /// <param name="Pieces">Its pieces in drawing order, frontmost first, each placed from the frame's origin.</param>
+    private readonly record struct ComposedFrame(EnemyFrameId Frame, string Name, ReadOnlyMemory<EnemyExtendedDrawComponent> Pieces)
+    {
+        /// <summary>
+        /// The frame's one whole picture over characters from <paramref name="tileBase"/>: each piece's parts moved by
+        /// the piece's placement, the earlier pieces' parts in front of the later ones'. A single piece at the origin is
+        /// the piece's own frame.
+        /// </summary>
+        internal SpriteFrame Picture(int tileBase)
+        {
+            ReadOnlySpan<EnemyExtendedDrawComponent> pieces = Pieces.Span;
+            if (pieces.Length == 1 && pieces[0].Offset == Offset16<SpritePixels>.Zero)
+                return EnemySpriteFrames.Frame(pieces[0].Parts, tileBase, 0);
+            var parts = new List<SpriteFramePart>();
+            foreach (EnemyExtendedDrawComponent piece in pieces)
+            {
+                foreach (SpriteFramePart part in EnemySpriteFrames.Frame(piece.Parts, tileBase, 0).Parts)
+                    parts.Add(part with { Offset = Offset16<ScreenPixels>.Of(part.Offset.X + piece.Offset.X, part.Offset.Y + piece.Offset.Y) });
+            }
+            return new SpriteFrame(Name, [.. parts]);
+        }
+    }
 }

@@ -75,8 +75,11 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
-            slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")));
+        ProjectileSpriteId sprite = slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.");
+        // The empty composition an invisible projectile shows draws nothing (#1513).
+        if (sprite.DrawsNothing)
+            return;
+        SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(sprite));
         sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY),
             SpriteMirror.None));
     }

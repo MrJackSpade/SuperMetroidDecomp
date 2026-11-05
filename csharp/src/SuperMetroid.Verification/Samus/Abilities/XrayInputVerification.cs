@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;

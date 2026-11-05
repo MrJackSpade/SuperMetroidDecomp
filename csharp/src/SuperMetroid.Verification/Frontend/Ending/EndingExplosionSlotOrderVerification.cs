@@ -7,7 +7,6 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks ending flyaway OAM priority when the afterglow competes with both starfields.</summary>

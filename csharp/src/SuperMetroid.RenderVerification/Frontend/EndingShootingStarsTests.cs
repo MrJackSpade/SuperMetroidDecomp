@@ -85,14 +85,17 @@ internal static class EndingShootingStarsTests
             scene.Step();
             if (scene.Brightness == 0 || !seen.Add(scene.Stage.Phase)) continue;
             var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            RgbColor[] snapshotColours = EndingShownColours.Of(scene);
             byte[] snapshotVram = scene.ShownVram();
-            Require(snapshot.SpriteDraws.Length > 0, "Post-credits owner emits star OAM");
-            var emptyMemory = FramePaint.FromNative(snapshotColours, []);
-            var withoutStars = new LayeredScene(emptyMemory, snapshot.Layers.ToArray(), snapshot.Brightness);
+            // The text-only screen covers the stars, so it draws none (#1514); every other post-credits screen shows them.
+            bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
+            Require(hidden || snapshot.SpriteDraws.Length > 0, "Post-credits owner emits its stars where they show");
+            // The stars are their own sprite layer behind the waiting backdrop and share the actors' layer otherwise (#1514).
+            SpriteDraw[] starDraws = [.. EndingCreditsPresentation.PrepareSprites(scene, EndingCreditsPresentation.CurrentRewardObjectSheet(scene),
+                EndingSpriteLayer.Stars).Draws];
+            Require(starDraws.Length > 0, "Post-credits owner draws its stars");
+            var withoutStars = snapshot.WithoutDraws(starDraws);
             var pixels = scene.Render();
             var noStars = DisplayRendering.Render(withoutStars);
-            bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(pixels.SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
             var packet = new DisplayPacket((ushort)tick, snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars on this device match the WARP reference device");

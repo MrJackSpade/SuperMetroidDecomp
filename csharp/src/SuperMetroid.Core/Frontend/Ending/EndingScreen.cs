@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -31,13 +32,13 @@ internal sealed class EndingScreen
     internal int PostShotPartsShown { get; private set; }
 
     /// <summary>The text the result and copyright page shows, as of its last showing.</summary>
-    internal ImmutableArray<ShownEndingText> ResultPageText { get; private set; } = [];
+    internal ImmutableArray<WrittenPicture> ResultPageText { get; private set; } = [];
 
     /// <summary>The text the final page's upper screen shows, or null before the white flash first shows it.</summary>
-    internal ImmutableArray<ShownEndingText>? FinalPageText { get; private set; }
+    internal ImmutableArray<WrittenPicture>? FinalPageText { get; private set; }
 
     /// <summary>The text the final page's lower screen shows, a copy of the staging page at the end of the white flash.</summary>
-    internal ImmutableArray<ShownEndingText> FinalPageLowerText { get; private set; } = [];
+    internal ImmutableArray<WrittenPicture> FinalPageLowerText { get; private set; } = [];
 
     /// <summary>Clears every load and every page, as a full display clear does.</summary>
     public void Clear()
@@ -72,7 +73,7 @@ internal sealed class EndingScreen
     internal bool LogoShown => PostShotPartsShown == EndingPostShotParts.Count;
 
     /// <summary>Shows <paramref name="text"/> on the text page <paramref name="page"/>.</summary>
-    internal void ShowText(EndingTextScreen page, ImmutableArray<ShownEndingText> text)
+    internal void ShowText(EndingTextScreen page, ImmutableArray<WrittenPicture> text)
     {
         switch (page)
         {
@@ -88,7 +89,7 @@ internal sealed class EndingScreen
     }
 
     /// <summary>Shows <paramref name="text"/> on the final page's lower screen.</summary>
-    internal void ShowFinalLowerText(ImmutableArray<ShownEndingText> text) => FinalPageLowerText = text;
+    internal void ShowFinalLowerText(ImmutableArray<WrittenPicture> text) => FinalPageLowerText = text;
 
     /// <summary>
     /// The shot whose turning floor is loaded (#1467): the reward icon once it is loaded; nothing once the post-credits

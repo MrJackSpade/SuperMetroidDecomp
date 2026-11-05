@@ -261,7 +261,7 @@ internal static class RoomFxRomDataVerification
                         "Wavy water did not publish a BG2 HDMA scroll table.")
                 : GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(
                     snapshot,
-                    bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
+                    backgroundVerticalScroll: 0x0200) ?? throw new InvalidDataException(
                         $"{type} did not publish its BG2 HDMA scroll table."));
             AssertEqual(DisplayScreen.Height - DisplayScreen.HudHeight,
                 backgroundScroll.Length,

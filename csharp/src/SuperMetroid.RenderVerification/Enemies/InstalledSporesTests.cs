@@ -106,7 +106,7 @@ internal static class InstalledSporesTests
                     "Spore presentation produced audio or earthquake side effects.");
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
-                    var gameplay = new GameplaySceneLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
+                    var gameplay = new GameplaySceneLayer(new(default, default,
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
                             FxOverlay = FxOverlayCellsFixtures.FromWords(baseline.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(stock)),

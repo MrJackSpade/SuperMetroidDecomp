@@ -24,7 +24,6 @@ internal static class PauseSnapshotTestsVerification
     /// <summary>Compares captured packets to direct retail-frame rendering and verifies snapshot ownership.</summary>
     internal static void VerifyPauseRenderSnapshots()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),

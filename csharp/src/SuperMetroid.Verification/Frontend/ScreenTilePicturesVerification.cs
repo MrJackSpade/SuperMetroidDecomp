@@ -221,7 +221,7 @@ internal static class ScreenTilePicturesVerification
     /// <summary>
     /// Asserts <paramref name="pause"/>'s scene draws what its VRAM draws (#1467): each of its map grid, equipment page and
     /// frame layers, drawn alone, shows exactly what the BG1 or BG2 tilemap the cartridge lays out for it shows over the
-    /// scene's own VRAM characters in its colours, at the layer's scroll and in its priority tier, decoded on the CPU;
+    /// scene's own VRAM characters in its colours, at the layer's scroll, every tile drawn, decoded on the CPU;
     /// returns the pictured layers checked.
     /// </summary>
     private static int AssertPauseDrawnFromVram(PauseMenuState pause, string name)
@@ -239,18 +239,18 @@ internal static class ScreenTilePicturesVerification
         {
             ShownTilemap? tilemap = layer switch
             {
-                PictureGridLayer grid => new ShownTilemap(page, pageSize, grid.Scroll, grid.Priority),
-                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, MenuScreen.PageSize, CartridgePageScroll(plane), plane.Priority),
-                PicturedPlaneLayer plane => new ShownTilemap(page, pageSize, CartridgePageScroll(plane), plane.Priority),
+                PictureGridLayer grid => new ShownTilemap(page, pageSize, grid.Scroll),
+                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, MenuScreen.PageSize, CartridgePageScroll(plane)),
+                PicturedPlaneLayer plane => new ShownTilemap(page, pageSize, CartridgePageScroll(plane)),
                 _ => null,
             };
             if (tilemap is null)
                 continue;
             layers++;
-            string named = $"{name} layer {layers} ({layer.GetType().Name}, priority {tilemap.Priority?.ToString() ?? "both"})";
+            string named = $"{name} layer {layers} ({layer.GetType().Name})";
             RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [layer], DisplayBrightness.Full), named);
             RgbaPixel[] characters = VramTilemapImage.Draw(tilemap.Rows, tilemap.Size, vram, PauseVramLayout.MapCharacters.Offset,
-                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, tilemap.Priority, scene.Paint.Backdrop);
+                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, null, scene.Paint.Backdrop);
             AssertSamePixels(pictured, characters, $"{named}: its pictures draw what VRAM's characters draw of the cartridge's tilemap");
         }
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");
@@ -281,8 +281,7 @@ internal static class ScreenTilePicturesVerification
     /// <param name="Rows">The tilemap's cells, row by row from the top-left cell.</param>
     /// <param name="Size">The tilemap's size in cells.</param>
     /// <param name="Scroll">The layer's scroll.</param>
-    /// <param name="Priority">The priority tier the layer draws, or null for both.</param>
-    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Position16<TilePlanePixels> Scroll, bool? Priority);
+    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Position16<TilePlanePixels> Scroll);
 
     /// <summary>Asserts <paramref name="pictured"/> and <paramref name="characters"/> are the same screen, naming the first pixel where they differ.</summary>
     private static void AssertSamePixels(RgbaPixel[] pictured, RgbaPixel[] characters, string property)

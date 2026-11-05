@@ -60,6 +60,22 @@ internal static class LayeredRenderSnapshotAccess
         }
 
         /// <summary>
+        /// This scene with <paramref name="hidden"/> drawn by none of its sprite layers (#1514): each sprite layer keeps its
+        /// other draws in their order, and a glow over a sprite layer glows over that layer's copy.
+        /// </summary>
+        internal LayeredScene WithoutDraws(IReadOnlyCollection<SpriteDraw> hidden)
+        {
+            var layers = new DisplayLayer[self.layers.Length];
+            for (int index = 0; index < layers.Length; index++)
+            {
+                layers[index] = self.layers[index] is SpritesLayer sprites
+                    ? new SpritesLayer([.. sprites.Draws.Where(draw => !hidden.Contains(draw))], sprites.Blend, sprites.Tint)
+                    : self.layers[index];
+            }
+            return new LayeredScene(self.Paint, Reglowed(self.layers, layers), self.Brightness);
+        }
+
+        /// <summary>
         /// The same snapshot without its <typeparamref name="TLayer"/> operations: the other layers keep their order, and the
         /// memory, object selection and brightness are shared. Allocates one layer array, which the result owns.
         /// </summary>

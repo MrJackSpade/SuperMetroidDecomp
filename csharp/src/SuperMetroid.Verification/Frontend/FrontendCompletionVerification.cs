@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.Core.Assets;
@@ -438,7 +439,7 @@ internal static void VerifyEndingCreditsState()
     AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
         "item-percentage object reaches its native scroll handoff");
     // The digits and the percent sign are pictures written left to right from the hundreds digit's cell (#1467).
-    ShownEndingText[] digits = [.. percentagePage.Written.Where(text => text.Cell.Y == EndingResultTextLayout.PercentageHundredsCell.Y)];
+    WrittenPicture[] digits = [.. percentagePage.Written.Where(text => text.Cell.Y == EndingResultTextLayout.PercentageHundredsCell.Y)];
     string[] hundredPercent = [EndingPictureNames.PercentDigit(1), EndingPictureNames.PercentDigit(0), EndingPictureNames.PercentDigit(0),
         EndingPictureNames.PercentSign];
     AssertTrue(digits.Select(text => text.Picture).SequenceEqual(hundredPercent), "100% shows one, zero, zero and the percent sign");

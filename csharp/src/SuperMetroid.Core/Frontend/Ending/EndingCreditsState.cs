@@ -491,9 +491,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>
     /// Captures the explosion's finale (#1514): the glow's picture behind the planet's, then the glow added over the whole
     /// screen with the debris glowing over it. The debris is drawn only as glow, never over the planet, which would punch
-    /// holes in it. The per-tile priority tiers that interleaved the two pictures, and the single winning subscreen pixel
-    /// the cartridge's colour math added where a sprite overlapped the glow, are presentation quirks the port does not
-    /// keep: the glow and the debris now both add.
+    /// holes in it. The per-tile priority tiers that interleaved the two pictures, and the single pixel that blended where
+    /// a sprite overlapped the glow, are presentation quirks the port does not keep: the glow and the debris now both add.
     /// </summary>
     internal LayeredScene CaptureExplosionFinale()
     {
@@ -575,9 +574,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
         return new PicturedPlane(size, placed.ToImmutable());
 
         // Places each piece of text `firstRow` rows down the plane.
-        void Place(ImmutableArray<ShownEndingText> text, int firstRow)
+        void Place(ImmutableArray<WrittenPicture> text, int firstRow)
         {
-            foreach (ShownEndingText shown in text)
+            foreach (WrittenPicture shown in text)
                 placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<TilePlanePixels>(
                     shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
                     (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The ending scene's presentation (#1514): its turning floor, pictures, sprite layers and glows as an ordered layered
 /// scene, drawn from the scene state it belongs to. The ending's stars lie behind the planet, the gunship and the
 /// backdrops they shine through; its other sprites lie in front of the scene's pictures. The per-tile and
-/// per-sprite-part priority tiers the cartridge interleaved them by, and the single winning subscreen pixel its colour
-/// math added, are presentation quirks the port does not keep.
+/// per-sprite-part priority tiers that once interleaved them, and the single pixel that blended where a sprite overlapped
+/// a glow, are presentation quirks the port does not keep.
 /// </summary>
 internal static class EndingCreditsPresentation
 {
@@ -245,6 +245,6 @@ internal static class EndingCreditsPresentation
     }
 
     /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
-    private static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true
+    internal static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true
         ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward;
 }

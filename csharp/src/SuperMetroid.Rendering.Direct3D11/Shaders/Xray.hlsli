@@ -4,32 +4,9 @@
 static const uint BehindLayer3 = 1;
 static const uint BehindLayer2 = 2;
 static const uint BehindLayer2AndLayer3 = 3;
-// A room layer (RoomTile) or the effect overlay's `rows` rows from row `map`; a position the room does not cover is
-// transparent. Pictures written over the background cover it when roomSource carries SourceLayer2Overlay.
-uint2 XrayBackground(uint roomSource, uint map, uint rows, uint2 position)
+// The colour and front flag a shown picture's pixel draws, or nothing where no picture or a transparent pixel lies.
+uint2 XraySample(bool shown, uint picture, uint2 within)
 {
-    uint entry = 0;
-    uint picture = 0;
-    uint2 within = uint2(0, 0);
-    bool shown = true;
-    uint source = roomSource & 255;
-    bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, picture, within);
-    if (!overlaid)
-    {
-        if (source == SourceFxOverlay)
-            shown = Bg3Picture(map, rows, position & 65535, within, picture);
-        else if (source == SourceBossBody)
-        {
-            BossBodyPicture(position, within, picture);
-            shown = picture != 0;
-        }
-        else if (source == SourceXrayReveal)
-            shown = RevealPicture(position & 65535, picture, within);
-        else if (source == SourceLibraryBackground)
-            shown = Bg2ImagePicture(position & 65535, picture, within);
-        else
-            shown = RoomTile(source, position, entry, within, picture);
-    }
     uint2 sample = uint2(0, 0);
     // Every background draws from pictures (#1403); a position without one shows nothing.
     if (picture != 0)
@@ -41,6 +18,40 @@ uint2 XrayBackground(uint roomSource, uint map, uint rows, uint2 position)
         if (shown && index != 0) sample = uint2(colour, high ? 1 : 0);
     }
     return sample;
+}
+// The effect overlay's `rows` rows from row `map`; a position it does not cover is transparent.
+uint2 XrayOverlay(uint map, uint rows, uint2 position)
+{
+    uint picture = 0;
+    uint2 within = uint2(0, 0);
+    bool shown = Bg3Picture(map, rows, position & 65535, within, picture);
+    return XraySample(shown, picture, within);
+}
+// A room layer (RoomTile), boss body, reveal or library background; a position the room does not cover is transparent.
+// Pictures written over the background cover it when roomSource carries SourceLayer2Overlay.
+uint2 XrayBackground(uint roomSource, uint2 position)
+{
+    uint entry = 0;
+    uint picture = 0;
+    uint2 within = uint2(0, 0);
+    bool shown = true;
+    uint source = roomSource & 255;
+    bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, picture, within);
+    if (!overlaid)
+    {
+        if (source == SourceBossBody)
+        {
+            BossBodyPicture(position, within, picture);
+            shown = picture != 0;
+        }
+        else if (source == SourceXrayReveal)
+            shown = RevealPicture(position & 65535, picture, within);
+        else if (source == SourceLibraryBackground)
+            shown = Bg2ImagePicture(position & 65535, picture, within);
+        else
+            shown = RoomTile(source, position, entry, within, picture);
+    }
+    return XraySample(shown, picture, within);
 }
 
 void XrayInsert(uint2 candidate, int candidateRank, uint candidateSource,
@@ -68,12 +79,12 @@ uint XrayGameplay(uint2 screen)
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
-        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, 0, bg2Screen + backgroundScroll);
+        uint2 bg = XrayBackground(RoomSource, bg2Screen + backgroundScroll);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
     {
-        uint2 bg = XrayBackground(SourceLayer1, 0, 0, screen + uint2(HorizontalScroll,VerticalScroll));
+        uint2 bg = XrayBackground(SourceLayer1, screen + uint2(HorizontalScroll,VerticalScroll));
         XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
     }
     if ((mainScreen & 16) != 0)
@@ -87,10 +98,10 @@ uint XrayGameplay(uint2 screen)
     {
         uint sub = 0;
         if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
-            sub = XrayBackground(RoomSource, (uint)MatrixA, 0, bg2Screen + backgroundScroll).x;
+            sub = XrayBackground(RoomSource, bg2Screen + backgroundScroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayBackground(SourceFxOverlay, (uint)MatrixC, (uint)CenterX,
+            uint2 bg3 = XrayOverlay((uint)MatrixC, (uint)CenterX,
                 screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }

@@ -166,5 +166,4 @@ public sealed class FileSelectAreaMapGraphics
         AreaMapBackgroundGlow.ForegroundOnly => foreground,
         _ => throw new ArgumentOutOfRangeException(nameof(glow), glow, "Undefined area map glow."),
     };
-    }
 }

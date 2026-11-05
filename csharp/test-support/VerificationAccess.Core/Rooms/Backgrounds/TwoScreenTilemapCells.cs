@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 

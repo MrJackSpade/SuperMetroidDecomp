@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Samus.Abilities;

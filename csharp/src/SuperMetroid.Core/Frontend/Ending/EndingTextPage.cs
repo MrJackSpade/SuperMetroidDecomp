@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -9,16 +10,16 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingTextPage
 {
     /// <summary>The written text, earliest first.</summary>
-    private readonly List<ShownEndingText> written = [];
+    private readonly List<WrittenPicture> written = [];
 
     /// <summary>The written text, earliest first.</summary>
-    internal ImmutableArray<ShownEndingText> Written => [.. written];
+    internal ImmutableArray<WrittenPicture> Written => [.. written];
 
     /// <summary>Clears the page.</summary>
     internal void Clear() => written.Clear();
 
     /// <summary>Writes the picture <paramref name="picture"/> with its upper-left corner in <paramref name="cell"/>.</summary>
-    internal void Write(string picture, Position16<TilemapCells> cell) => written.Add(new ShownEndingText(Ensure.NotNull(picture), cell));
+    internal void Write(string picture, Position16<TilemapCells> cell) => written.Add(new WrittenPicture(Ensure.NotNull(picture), cell));
 
     /// <summary>Clears the picture <paramref name="picture"/> wherever it is written.</summary>
     /// <exception cref="InvalidOperationException">The picture is not written.</exception>

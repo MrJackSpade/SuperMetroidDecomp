@@ -954,7 +954,7 @@ internal static class LookupStream4Verification
             state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var screen = new EndingScreen();
             state.Step(screen);
-            var subtitle = new ShownEndingText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
+            var subtitle = new WrittenPicture(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             AssertTrue(screen.ResultPageText.Contains(subtitle), "Actual ending state shows the subtitle picture at its cell");
             state.FrameHold = WrappingCountdown.Start(1);
             state.Step(screen);

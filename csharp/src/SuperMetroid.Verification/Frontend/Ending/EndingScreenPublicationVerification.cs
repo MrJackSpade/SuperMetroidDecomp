@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
@@ -23,7 +24,7 @@ internal static class EndingScreenPublicationVerification
     {
         var screen = new EndingScreen();
         screen.LoadFlyawayFloor();
-        screen.ShowText(EndingTextScreen.FinalText, [new ShownEndingText(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
+        screen.ShowText(EndingTextScreen.FinalText, [new WrittenPicture(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
         screen.LoadExplosionMaps();
         AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayFloor(), "the flyaway floor is loaded once per clear");
         AssertEqual(EndingFloorShot.Flyaway, screen.FloorShot, "the loaded flyaway floor shows");

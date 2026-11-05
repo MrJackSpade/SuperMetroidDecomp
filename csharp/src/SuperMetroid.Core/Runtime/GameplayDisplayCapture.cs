@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;

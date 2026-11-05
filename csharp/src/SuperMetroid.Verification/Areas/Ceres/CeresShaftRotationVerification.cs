@@ -33,7 +33,7 @@ internal static class CeresShaftRotationVerification
                 // cosine is the tilt's cosine to within one 256th.
                 int nativeSine = unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2)));
                 int nativeCosine = unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 4)));
-                AssertEqual((double)nativeSine, actual.Transform.Angle * CeresShaftRotationDefinitions.StepsPerRadian,
+                AssertEqual(nativeSine, actual.Transform.Angle * CeresShaftRotationDefinitions.StepsPerRadian,
                     "shaft tilt is the native record's sine in steps every publication");
                 AssertTrue(Math.Abs(nativeCosine - Math.Cos(actual.Transform.Angle) * 256) < 1,
                     "shaft native cosine is the tilt's cosine every publication");

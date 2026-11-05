@@ -547,7 +547,7 @@ internal static class LookupStream5Verification
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source - 1, 1) && !CeresEscapeTileArtworkDefinitionsTooling.Contains(source + page.ByteCount, 1), "Outside page rejected");
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source, 0), "Zero byte page rejected");
         }
-        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", 0x0cb), new("japanese_0", 0x28a), new("japanese_1", 0x2aa), new("japanese_2", 0x2ca), new("japanese_3", 0x2ea)];
+        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x0cb)), new("japanese_0", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x28a)), new("japanese_1", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x2aa)), new("japanese_2", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x2ca)), new("japanese_3", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x2ea))];
         AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayPages.All), "Original named overlay order/cell");
         AssertTrue(overlays.Select(page => page.WordCount).SequenceEqual([9, 12, 12, 11, 11]), "Original overlay extents");
         int[] overlaySources = [0xa6c164, 0xa6c3f4, 0xa6c40c, 0xa6c424, 0xa6c43a];

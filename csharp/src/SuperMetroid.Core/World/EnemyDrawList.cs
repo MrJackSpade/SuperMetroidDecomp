@@ -105,8 +105,9 @@ internal sealed class EnemyDrawList
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");
-                    // The common empty frame is compiled definition data and draws nothing.
-                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, frame, Pictured: frame != EnemyFrameId.Empty));
+                    // The shared empty spritemap, which the common empty frame and the frames catalogued at its record show,
+                    // draws nothing and is on no sheet (#1513).
+                    prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, frame, Pictured: !CommonEnemyEmptyFrames.DrawsNothing(frame)));
                     continue;
                 }
 

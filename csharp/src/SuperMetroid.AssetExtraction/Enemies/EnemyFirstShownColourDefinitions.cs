@@ -24,7 +24,8 @@ internal static class EnemyFirstShownColourDefinitions
     /// lays its arrival colours before its first frame. Both Ridleys' initializations load the door's, container's and Baby's
     /// rows (the Ceres Baby and its container show in them from the room's start) and clear his own row, then the eye fade
     /// ends on its brightest shade and the body fade on its full body colours, over his own row and his shadow's, before
-    /// either encounter shows him; his row's last colour stays cleared. The Tourian statue scene lays its entrance colours
+    /// either encounter shows him; his row's last colour stays cleared. His Norfair breakup's fragments draw in his row
+    /// (<see cref="EnemySheetRowDefinitions.FixedRows"/>) as his fight left it. The Tourian statue scene lays its entrance colours
     /// over the statue and base rows before the scene shows. Each Torizo's initialization loads the orb-and-flame and
     /// statue-shading rows and his first body colouring (Bomb Torizo's statue, Golden Torizo's colours before his first
     /// hurt), which the statue's fragments, his orbs and his frames first show in. Spore Spawn's initialization loads his
@@ -43,6 +44,13 @@ internal static class EnemyFirstShownColourDefinitions
             RidleyShades.BodyFade(CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1),
         ],
         [EnemyDefinitionId.Ridley] =
+        [
+            RidleyShades.NorfairStart,
+            RidleyShades.NorfairHidden,
+            RidleyShades.EyeFade(0),
+            RidleyShades.BodyFade(CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1),
+        ],
+        [EnemyDefinitionId.RidleyExplosion] =
         [
             RidleyShades.NorfairStart,
             RidleyShades.NorfairHidden,

@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -17,24 +16,14 @@ internal static class SoundEffectRendering
     /// <summary>A rendered one-shot effect: its clip through the release, its logical end and its key-ons.</summary>
     /// <param name="Clip">Interleaved stereo PCM from the start, ending at the last nonzero frame; empty for a silent effect.</param>
     /// <param name="ActiveFrames">Frames from the start to the library's logical end.</param>
-    /// <param name="Voices">Every voice the effect keyed.</param>
     /// <param name="KeyOnFrames">Frames at which the effect keyed a note on.</param>
-    internal sealed record OneShot(short[] Clip, long ActiveFrames, int Voices, IReadOnlyList<long> KeyOnFrames)
-    {
-        /// <summary>Every voice the effect keyed, one bit per voice; 0 through 255.</summary>
-        public int Voices { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Voices);
-    }
+    internal sealed record OneShot(short[] Clip, long ActiveFrames, IReadOnlyList<long> KeyOnFrames);
 
     /// <summary>One channel of a never-ending effect: its clip through its second state repeat and its loop.</summary>
     /// <param name="Clip">Interleaved stereo PCM of the channel's voice from the start to its E2.</param>
     /// <param name="LoopStart">The channel's E1: the clip repeats [E1, E2).</param>
-    /// <param name="Voice">The channel's hardware voice.</param>
     /// <param name="KeyOnFrames">Frames before E2 at which the channel keyed a note on.</param>
-    internal sealed record LoopingLayer(short[] Clip, long LoopStart, int Voice, IReadOnlyList<long> KeyOnFrames)
-    {
-        /// <summary>The channel's hardware voice bit; 0 through 255.</summary>
-        public int Voice { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Voice);
-    }
+    internal sealed record LoopingLayer(short[] Clip, long LoopStart, IReadOnlyList<long> KeyOnFrames);
 
     /// <summary>
     /// Creates a renderer, attached to <paramref name="observer"/>, that has uploaded the common and
@@ -129,10 +118,7 @@ internal static class SoundEffectRendering
         int frames = pcm.Count / 2;
         while (frames > 0 && pcm[frames * 2 - 1] == 0 && pcm[frames * 2 - 2] == 0)
             frames--;
-        int voices = 0;
-        foreach ((long _, int keyed) in observer.KeyOns)
-            voices |= keyed;
-        return new OneShot(CollectionsMarshal.AsSpan(pcm)[..(frames * 2)].ToArray(), end - start, voices, [.. observer.KeyOns.Select(keyOn => keyOn.Sample)]);
+        return new OneShot(CollectionsMarshal.AsSpan(pcm)[..(frames * 2)].ToArray(), end - start, [.. observer.KeyOns.Select(keyOn => keyOn.Sample)]);
     }
 
     /// <summary>
@@ -176,7 +162,7 @@ internal static class SoundEffectRendering
             var pcm = new List<short>(length + SpcAudioClipRenderer.NativeSamplesPerFrame);
             RenderFromStart(renderer, observer, pcm, _ => pcm.Count >= length);
             long[] keyOns = [.. observer.KeyOns.Where(keyOn => (keyOn.Voices & voice) != 0 && keyOn.Sample < second).Select(keyOn => keyOn.Sample)];
-            layers.Add(new LoopingLayer(CollectionsMarshal.AsSpan(pcm)[..length].ToArray(), first, voice, keyOns));
+            layers.Add(new LoopingLayer(CollectionsMarshal.AsSpan(pcm)[..length].ToArray(), first, keyOns));
         }
         return layers;
     }

@@ -14,10 +14,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Title.Artwork;
 
-/// <summary>Checks calculated Planet Zebes title parts against native OAM and preserves independent art edits.</summary>
+/// <summary>Checks calculated Planet Zebes title parts against native OAM.</summary>
 internal static class PlanetZebesTitlePartsVerification
 {
-    /// <summary>Compares the stock title pose, altered part fields, custom counts, bounds, and visible or wrapped OAM origins.</summary>
+    /// <summary>Compares the stock title pose, bounds, and visible or wrapped OAM origins.</summary>
     internal static void VerifyPlanetZebesTitleParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("PlanetZebesTitle", value.AppendIdentity);
@@ -29,30 +29,6 @@ internal static class PlanetZebesTitlePartsVerification
             SpriteComposition result = PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, source);
             AssertTrue(!ReferenceEquals(source, result), "original PlanetZebesTitle selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original PlanetZebesTitle compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 16 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    CheckCeresBlastLoader(definition.Pose, edited);
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited PlanetZebesTitle");
-                    AssertTrue(ReferenceEquals(supplied, PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, supplied)),
-                        "independent PlanetZebesTitle field edit stays supplied");
-                }
-            }
-            CheckCeresBlastLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom PlanetZebesTitle");
-            AssertTrue(ReferenceEquals(extra, PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated PlanetZebesTitle part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

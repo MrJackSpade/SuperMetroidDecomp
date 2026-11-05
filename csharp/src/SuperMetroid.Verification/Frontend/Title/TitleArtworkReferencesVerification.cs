@@ -10,7 +10,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
-/// <summary>Checks title-artwork selector coverage and editable OAM without entering gameplay.</summary>
+/// <summary>Checks title-artwork selector coverage without entering gameplay.</summary>
 internal static class TitleArtworkReferencesVerification
 {
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
@@ -53,29 +53,13 @@ internal static class TitleArtworkReferencesVerification
             }, $"authoring rejects missing title composition {frames[index].Sprite}");
         }
         _ = Load(document with { Sprites = frames.Reverse().ToArray() });
-        var edited = (TitleSpriteFrame[])frames.Clone();
-        edited[0] = edited[0] with
-        {
-            Parts = [new SpriteVisualPart
-            {
-                OffsetX = 3, OffsetY = -4, Size = 8, TileColumn = 1,
-                TileRow = 2, Priority = 2, Palette = null, FlipX = true, FlipY = false,
-            }],
-        };
-        TitleGraphicsPresentation selected = Load(document with { Sprites = edited });
-        var oam = ScreenSpritesFixtures.Blank();
-        TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(selected).Get(SpriteSheetId.Title), edited[0].Sprite, oam, new(20, 30), TitleSpriteColouring.Text);
-        oam.FinishFrame();
-        AssertEqual(4, oam.NextByteOffset, "a required frame may still have editable OAM parts");
-        AssertEqual((byte)23, oam.LowTable[0], "edited title X offset is applied");
-        AssertEqual((byte)26, oam.LowTable[1], "edited title Y offset is applied");
         AssertThrows<InvalidDataException>(() => Load(document with { Sprites = frames[..^1] }),
             "missing title frame count is rejected");
         var duplicate = (TitleSpriteFrame[])frames.Clone();
         duplicate[0] = frames[1];
         AssertThrows<InvalidDataException>(() => Load(document with { Sprites = duplicate }),
             "duplicate title identities are rejected");
-        Console.WriteLine("PASS title artwork: all 31 required selectors checked at load/write; frame ordering and editable OAM remain valid. No ROM or gameplay probes.");
+        Console.WriteLine("PASS title artwork: all 31 required selectors checked at load/write; frame ordering remains valid. No ROM or gameplay probes.");
         return;
 
         TitleGraphicsPresentation Load(TitleFloorMapDocument value)

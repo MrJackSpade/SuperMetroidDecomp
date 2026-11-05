@@ -10,9 +10,10 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks pause map-arrow OAM, palette timing, and visibility at scroll boundaries.</summary>
 internal static class PauseMapArrowsVerification
@@ -66,7 +67,7 @@ internal static class PauseMapArrowsVerification
                 for (int offset = 2; offset < expectedBytes; offset += 4)
                     arrowAttributes.Add(LittleEndianBytes.Word(expected.LowTable[offset], expected.LowTable[offset + 1]));
             }
-            var pixels = pause.Render();
+            LayeredScene shown = pause.CaptureRenderSnapshot();
             var actual = pause.screen.Objects;
             AssertTrue(actual.LowTable[..expectedBytes].SequenceEqual(expected.LowTable[..expectedBytes]),
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
@@ -77,22 +78,18 @@ internal static class PauseMapArrowsVerification
             for (int color = 0; color < nativeArrowColors.Length; color++)
                 AssertEqual(nativeArrowColors[color], PauseShownColours.Of(pause)[176 + color],
                     $"pause arrow palette colour {color} follows native $82:A92B timing at scroll {x},{y}");
-            AssertTrue(pixels.SequenceEqual(pause.Render()), "repainting does not advance arrows");
+            AssertTrue(ScenePixels.Same(shown, pause.CaptureRenderSnapshot()), "repainting does not advance arrows");
         }
-        var beforeRestore = pause.Render();
-        using (var stream = new MemoryStream())
-        {
-            DebuggerObjectGraphSerializer.Serialize(stream, pause);
-            stream.Position = 0;
-            pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(stream);
-            pause.BindFixtureArtwork(RetailPresentationFixture());
-        }
-        AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
+        LayeredScene beforeRestore = pause.CaptureRenderSnapshot();
+        // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+        pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
+        pause.BindFixtureArtwork(RetailPresentationFixture());
+        AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "debugger restore/rebind retains the current arrow display");
         pause.MapScrollPosition = new Position16<MapPixels>(100, 70);
-        pause.Step(0, 0); _ = pause.Render(); int stable = pause.LastRenderedSpriteCount;
-        pause.Step(ControllerButton.R, 0); _ = pause.Render();
+        pause.Step(0, 0); _ = pause.CaptureRenderSnapshot(); int stable = pause.LastRenderedSpriteCount;
+        pause.Step(ControllerButton.R, 0); _ = pause.CaptureRenderSnapshot();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");
-        pause.Step(0, 0); _ = pause.Render();
+        pause.Step(0, 0); _ = pause.CaptureRenderSnapshot();
         AssertEqual(stable - allArrowParts, pause.LastRenderedSpriteCount, "page-fade dispatcher does not draw map arrows");
         Console.WriteLine("Pause arrows: native ROM OAM and palette cycle match at all four scroll edges; R/fade visibility and pure repaint pass.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);

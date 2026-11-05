@@ -15,7 +15,7 @@ internal static class AudioMusicProgramsVerification
     internal static void VerifyMusicPrograms()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
+        ExtractedAudioAssetCatalog stock = InstalledFixtures.Audio;
         int trackCount = 0;
         int phraseCount = 0;
         int programCount = 0;

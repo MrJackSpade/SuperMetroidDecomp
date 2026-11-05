@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
@@ -13,9 +14,19 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 internal static class PauseScreenMemory
 {
-    /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>
+    /// <summary>Character images already composed, by artwork (#1532): an artwork's characters never change once read.</summary>
+    private static readonly ConditionalWeakTable<AreaMapPresentation, byte[]> composedCharacters = new();
+
+    /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it: a copy the caller owns.</summary>
     [WholeImageFixture("the pause screen's character image")]
-    internal static byte[] Characters(AreaMapPresentation artwork)
+    internal static byte[] Characters(AreaMapPresentation artwork) => (byte[])ComposedCharacters(artwork).Clone();
+
+    /// <summary>The shared character image of <paramref name="artwork"/>, composed on first use; callers only read it.</summary>
+    private static byte[] ComposedCharacters(AreaMapPresentation artwork) => composedCharacters.GetValue(Ensure.NotNull(artwork), ComposeCharacters);
+
+    /// <summary>Composes the character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>
+    [WholeImageFixture("the pause screen's character image")]
+    private static byte[] ComposeCharacters(AreaMapPresentation artwork)
     {
         var image = new SnesVram();
         var pause = new PauseVram(image);
@@ -36,7 +47,7 @@ internal static class PauseScreenMemory
     {
         PauseScreen screen = menu.screen;
         var image = new SnesVram();
-        image.LoadBytes(0, Characters(screen.Artwork));
+        image.LoadBytes(0, ComposedCharacters(screen.Artwork));
         var pause = new PauseVram(image);
         pause.Bg1Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg1Tiles));
         pause.Bg2Tilemap.Write(BackgroundTileWordBytes.Words(menu.ShownBg2Tiles));

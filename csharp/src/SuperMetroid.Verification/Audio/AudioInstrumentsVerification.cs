@@ -18,7 +18,7 @@ internal static class AudioInstrumentsVerification
     internal static void VerifyAudioInstruments()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
+        ExtractedAudioAssetCatalog stock = InstalledFixtures.Audio;
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.All)
         {
             var rawPlayer = new ManagedSpcPlayer();

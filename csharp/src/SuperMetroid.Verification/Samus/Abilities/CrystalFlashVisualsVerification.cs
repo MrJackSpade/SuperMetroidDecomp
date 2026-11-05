@@ -75,7 +75,6 @@ internal static class CrystalFlashVisualsVerification
     internal static VerifyCrystalFlashVisualFrameResult Visibility(CrystalFlashFrameScenes frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
-        RgbaPixel[] pixels = DisplayRendering.Render(frame.Shown);
         RgbaPixel[] beamsDark = DisplayRendering.Render(frame.BeamsDark);
         RgbaPixel[] beamsLight = DisplayRendering.Render(frame.BeamsLight);
         int centerX = frame.CenterX, centerY = frame.CenterY;
@@ -85,6 +84,8 @@ internal static class CrystalFlashVisualsVerification
         bool windowVisible = false;
         if (frame.WithoutWindow is { } scene)
         {
+            // The shown frame is drawn only to compare it with the frame without the color window, while one shows.
+            RgbaPixel[] pixels = DisplayRendering.Render(frame.Shown);
             RgbaPixel[] withoutWindow = DisplayRendering.Render(scene);
             AssertTrue(pixels.AsSpan(0, 32 * 256).SequenceEqual(withoutWindow.AsSpan(0, 32 * 256)),
                 $"Crystal Flash window preserves HUD pixels at frame {frame.Elapsed}");

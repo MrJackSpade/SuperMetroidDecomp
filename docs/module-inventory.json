@@ -803,6 +803,7 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Frontend",
+        "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Runtime",
@@ -109589,7 +109590,7 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -109738,7 +109739,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -110008,7 +110009,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -110225,7 +110226,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -110312,7 +110313,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -110333,7 +110334,7 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -110539,7 +110540,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/FrameRendering",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -112197,7 +112198,6 @@
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
@@ -112337,9 +112337,9 @@
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/FrameCapture",
@@ -113015,9 +113015,9 @@
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
@@ -113040,9 +113040,9 @@
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
@@ -113328,7 +113328,6 @@
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
@@ -113369,7 +113368,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/FrameCapture",
@@ -113393,7 +113391,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
@@ -113514,7 +113511,6 @@
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/FrameCapture",
@@ -113532,7 +113528,6 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Hud",
@@ -113544,7 +113539,6 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
-        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -113563,8 +113557,8 @@
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
         "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Samus",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
         "csharp/test-support/RepositoryInstallation.Verification",
@@ -113976,6 +113970,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -115869,6 +115864,7 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Diagnostics",
+        "csharp/test-support/FrameCapture",
         "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification"
       ]
@@ -116967,7 +116963,6 @@
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameRendering",
@@ -120741,7 +120736,7 @@
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Saves",
         "csharp/test-support/Assertions",
-        "csharp/test-support/FrameCapture",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -120895,7 +120890,6 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
-        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -122221,6 +122215,7 @@
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationImporters"
@@ -122738,7 +122733,6 @@
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -122974,7 +122968,6 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Compatibility",
@@ -122987,7 +122980,6 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -124565,7 +124557,7 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationAccess.Tooling"
       ]
@@ -124637,7 +124629,6 @@
         "csharp/src/SuperMetroid.Core/World",
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -125046,7 +125037,6 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/CpuBusTestDoubles",
-        "csharp/test-support/RepositoryInstallation",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
         "csharp/test-support/VerificationImporters"
@@ -126470,6 +126460,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/test-support/FrameRendering"
       ]
@@ -139212,6 +139203,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/test-support/RepositoryInstallation.Verification"
       ]
@@ -139386,6 +139378,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Frontend"
       ]
     },

@@ -27,7 +27,7 @@ try
     SharedFixtureTiming.Timer = (name, load) =>
     {
         if (InSuite)
-            Suite(name, load);
+            SharedFixtureLoad(name, load);
         else
             load();
     };

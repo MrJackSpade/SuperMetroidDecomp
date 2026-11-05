@@ -9,8 +9,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks reserve tank visuals across supply, flicker and restore.</summary>
@@ -36,11 +36,11 @@ internal static class PauseReserveTankAssetsVerification
                 native.Step(0, 0, frameCounterByte: phase); installed.Step(0, 0, frameCounterByte: phase);
                 var expected = native.CaptureRenderSnapshot(); var actual = installed.CaptureRenderSnapshot();
                 AssertTrue(expected.Paint.SpriteParts().SequenceEqual(actual.Paint.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
-                AssertTrue(native.Render().SequenceEqual(installed.Render()), "every legal reserve supply/flicker state matches native pixels");
+                AssertTrue(ScenePixels.Same(expected, actual), "every legal reserve supply/flicker state matches native pixels");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
-                    using var state = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(state, installed); state.Position = 0;
-                    var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state); restored.BindFixtureArtwork(catalog);
+                    // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+                    var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed); restored.BindFixtureArtwork(catalog);
                     AssertTrue(actual.Paint.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Paint.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
                 }
                 comparisons++;

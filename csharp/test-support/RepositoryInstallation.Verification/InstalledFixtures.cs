@@ -20,27 +20,35 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures
 {
+    /// <summary>
+    /// A fixture the process loads once, on first use, timed as a shared fixture load of its own under the suite that
+    /// first asks for it rather than charged to that suite (#1532), as the installation's own load is.
+    /// </summary>
+    private static Lazy<T> Shared<T>(string name, Func<T> load) where T : notnull =>
+        new(() => SharedFixtureTiming.Load("Fixture: " + name, load));
+
     /// <summary>The installation's services reproducing Samus's glitch reads, loaded once.</summary>
-    private static readonly Lazy<SamusOverreadServices> samusOverreads = new(() => RepositoryInstallation.Installation.LoadSamusOverreads());
+    private static readonly Lazy<SamusOverreadServices> samusOverreads = Shared<SamusOverreadServices>("Samus overreads", () => RepositoryInstallation.Installation.LoadSamusOverreads());
 
     /// <summary>The installation's services reproducing Samus's glitch reads.</summary>
     internal static SamusOverreadServices SamusOverreads => samusOverreads.Value;
 
     /// <summary>The installation's services reproducing what enemies read past their authored data, loaded once.</summary>
-    private static readonly Lazy<SuperMetroid.Core.Enemies.EnemyOverreadServices> enemyOverreads = new(() => RepositoryInstallation.Installation.LoadEnemyOverreads());
+    private static readonly Lazy<SuperMetroid.Core.Enemies.EnemyOverreadServices> enemyOverreads = Shared<SuperMetroid.Core.Enemies.EnemyOverreadServices>("enemy overreads", () => RepositoryInstallation.Installation.LoadEnemyOverreads());
 
     /// <summary>The installation's services reproducing what enemies read past their authored data.</summary>
     internal static SuperMetroid.Core.Enemies.EnemyOverreadServices EnemyOverreads => enemyOverreads.Value;
 
     /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data, loaded once.</summary>
     private static readonly Lazy<SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices> bossAndIntroOverreads =
-        new(() => RepositoryInstallation.Installation.LoadBossAndIntroOverreads());
+        Shared<SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices>("boss and intro overreads", () => RepositoryInstallation.Installation.LoadBossAndIntroOverreads());
 
     /// <summary>The installation's services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     internal static SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices BossAndIntroOverreads => bossAndIntroOverreads.Value;
@@ -50,7 +58,7 @@ internal static class InstalledFixtures
         SamusOverreads.AnimationContinuation;
 
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>
-    private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
+    private static readonly Lazy<RoomAssetCatalogs> roomAssets = Shared<RoomAssetCatalogs>("room asset catalogs", () => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomVisualLayouts(),
         RepositoryInstallation.Installation.LoadRoomLevelStreams(), RepositoryInstallation.Installation.LoadRoomBlockSheets()));
 
@@ -58,26 +66,26 @@ internal static class InstalledFixtures
     /// Lazy stock room character catalog, which extraction composes the block sheets from and verification composes VRAM
     /// images of rooms from (#1466); gameplay reads none.
     /// </summary>
-    private static readonly Lazy<RoomCharacterAtlases> roomCharacters = new(() => RepositoryInstallation.Installation.LoadRoomCharacters());
+    private static readonly Lazy<RoomCharacterAtlases> roomCharacters = Shared<RoomCharacterAtlases>("room characters", () => RepositoryInstallation.Installation.LoadRoomCharacters());
 
     /// <summary>Lazy stock block compositions, which extraction composes the block sheets from (#1431).</summary>
-    private static readonly Lazy<RoomMetatileCatalog> blockCompositions = new(() =>
+    private static readonly Lazy<RoomMetatileCatalog> blockCompositions = Shared<RoomMetatileCatalog>("block compositions", () =>
         RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
 
     /// <summary>Lazy map and shared presentation resources.</summary>
-    private static readonly Lazy<AreaMapPresentation> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
+    private static readonly Lazy<AreaMapPresentation> maps = Shared<AreaMapPresentation>("maps", () => RepositoryInstallation.Installation.LoadMaps());
 
     /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
-    private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
+    private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = Shared<InstalledEnemyArtwork>("enemy artwork", () => RepositoryInstallation.Installation.LoadEnemyTiles());
 
     /// <summary>Lazy projectile art, bindings, and tiles.</summary>
-    private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => RepositoryInstallation.Installation.LoadProjectiles());
+    private static readonly Lazy<InstalledProjectilePresentation> projectiles = Shared<InstalledProjectilePresentation>("projectiles", () => RepositoryInstallation.Installation.LoadProjectiles());
 
     /// <summary>Lazy Samus body and arm-cannon artwork.</summary>
-    private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
+    private static readonly Lazy<InstalledSamusBodyArtwork> samusBody = Shared<InstalledSamusBodyArtwork>("Samus body", () => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
-    private static readonly Lazy<IntroCinematicArtwork> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
+    private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
@@ -99,6 +107,16 @@ internal static class InstalledFixtures
     internal static BackgroundTile[] StockBlockTiles(TilesetDefinition tileset, bool ceres) =>
         RoomBlockComposition.StockTiles(BlockCompositions, tileset.Blocks, ceres);
 
+    /// <summary>
+    /// The installation's stock extracted audio catalog, which the synthesizer's read-only checks compare with uploaded
+    /// APU memory, loaded once per process (#1532). Checks that mutate audio definitions load a private copy instead.
+    /// </summary>
+    internal static ExtractedAudioAssetCatalog Audio => audio.Value;
+
+    /// <summary>Backing loader for <see cref="Audio"/>.</summary>
+    private static readonly Lazy<ExtractedAudioAssetCatalog> audio = new(() => SharedFixtureTiming.Load("Fixture: extracted audio",
+        () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
+
     /// <summary>The installation's stock map and presentation catalog, loaded once per process.</summary>
     internal static AreaMapPresentation Maps => maps.Value;
 
@@ -106,7 +124,7 @@ internal static class InstalledFixtures
     internal static SuperMetroid.AssetExtraction.Rooms.RoomStaticPalettes RoomPalettes => roomPalettes.Value;
 
     /// <summary>The tilesets' installed colours, loaded on first use.</summary>
-    private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.RoomStaticPalettes> roomPalettes = new(() => RepositoryInstallation.Installation.LoadRoomPalettes());
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.RoomStaticPalettes> roomPalettes = Shared<SuperMetroid.AssetExtraction.Rooms.RoomStaticPalettes>("room palettes", () => RepositoryInstallation.Installation.LoadRoomPalettes());
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileSourceArtwork EnemyTiles => enemyArtwork.Value.Enemies;
@@ -138,10 +156,24 @@ internal static class InstalledFixtures
 
     /// <summary>Backing loader for <see cref="EnemySheets"/>.</summary>
     private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets> enemySheets =
-        new(() => RepositoryInstallation.Installation.LoadEnemySheets());
+        Shared<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>("enemy sheets", () => RepositoryInstallation.Installation.LoadEnemySheets());
+
+    /// <summary>
+    /// The installation's pre-coloured sprite sheets with <paramref name="reloaded"/> loaded again from its installed files:
+    /// a distinct sheet of the same content, so a check that rebinding the sheets reaches a draw can tell the rebound sheet
+    /// from the bound one without loading every sheet again (#1532).
+    /// </summary>
+    internal static InstalledSpriteSheets SpriteSheetsReloading(SpriteSheetId reloaded)
+    {
+        var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, SpriteSheets.Get);
+        sheets[reloaded] = SpriteSheetStore.Open(RepositoryInstallation.Installation.SpriteSheetDirectory,
+                SpriteSheetFiles.ManifestFileName, SpriteSheetDefinitions.Sheets.Count)
+            .Read(SpriteSheetDefinitions.FileNames[reloaded]);
+        return new InstalledSpriteSheets(sheets);
+    }
 
     /// <summary>Backing loader for <see cref="SpriteSheets"/>.</summary>
-    private static readonly Lazy<InstalledSpriteSheets> spriteSheets = new(() => RepositoryInstallation.Installation.LoadSpriteSheets());
+    private static readonly Lazy<InstalledSpriteSheets> spriteSheets = Shared<InstalledSpriteSheets>("sprite sheets", () => RepositoryInstallation.Installation.LoadSpriteSheets());
 
     /// <summary>
     /// The installation's boss body sheets, loaded once per process on their own, so a check drawing a boss body does not
@@ -151,13 +183,13 @@ internal static class InstalledFixtures
 
     /// <summary>Backing loader for <see cref="BossBodySheets"/>.</summary>
     private static readonly Lazy<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets> bossBodySheets =
-        new(() => RepositoryInstallation.Installation.LoadBossBodySheets());
+        Shared<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>("boss body sheets", () => RepositoryInstallation.Installation.LoadBossBodySheets());
 
     /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
     internal static SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
     /// <summary>Backing loader for <see cref="StandardObjects"/>.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
-        new(() => RepositoryInstallation.Installation.LoadStandardObjects());
+        Shared<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>("standard objects", () => RepositoryInstallation.Installation.LoadStandardObjects());
 
     /// <summary>
     /// Binds the sprite sheets a runtime's projectiles draw from; their beam colours are shades pre-coloured on the sheets

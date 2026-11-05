@@ -95,8 +95,7 @@ internal static class CeresDestructionArtworkVerification
                         actualVram.SequenceEqual(expectedVram) &&
                         actual.Paint.Backdrop == expected.Paint.Backdrop &&
                         SceneShownColours.Same(SceneShownColours.Of(actual), SceneShownColours.Of(expected)) &&
-                        DisplayRendering.Render(actual).SequenceEqual(
-                            DisplayRendering.Render(expected)),
+                        ScenePixels.Same(actual, expected),
                     $"installed Ceres/Zebes art preserves native visible pixels at frame {frame}");
             }
             native.Step();

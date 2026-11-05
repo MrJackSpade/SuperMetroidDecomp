@@ -114,16 +114,44 @@ internal static class MenuSheetFixtures
     {
         ArgumentNullException.ThrowIfNull(graphics);
         return ReferenceEquals(graphics, InstalledFixtures.Maps.TitleGraphics) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
-            : titles.GetValue(graphics, key =>
-            {
-                var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-                sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(key, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
-                    $"title-{RuntimeHelpers.GetHashCode(key):X8}");
-                // The title's floor is composed from these graphics (#1392, #1467).
-                sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
-                    FrontendFloorSheetComposer.Title(key, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)), $"title-{RuntimeHelpers.GetHashCode(key):X8}");
-                return new InstalledSpriteSheets(sheets);
-            });
+            : titles.GetValue(graphics, ComposedTitle);
+    }
+
+    /// <summary>
+    /// Title graphics whose sheets were composed, with those sheets (#1532): graphics read again from the same source hold
+    /// the same content, so they draw from the sheets already composed for that content instead of composing them again.
+    /// </summary>
+    private static readonly List<(SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters Graphics, InstalledSpriteSheets Sheets)> composedTitles = [];
+
+    /// <summary>
+    /// The installed sheets with the title and title floor sheets <paramref name="graphics"/> composes: those already composed
+    /// for the same content, or composed now.
+    /// </summary>
+    private static InstalledSpriteSheets ComposedTitle(TitleGraphicsPresentation graphics)
+    {
+        if (graphics is not SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters characters)
+            return ComposeTitle(graphics);
+        lock (composedTitles)
+        {
+            foreach ((SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters composed, InstalledSpriteSheets sheets) in composedTitles)
+                if (SameTitleContent(characters, composed))
+                    return sheets;
+            InstalledSpriteSheets made = ComposeTitle(graphics);
+            composedTitles.Add((characters, made));
+            return made;
+        }
+    }
+
+    /// <summary>Composes the installed sheets with the title and title floor sheets <paramref name="graphics"/> composes.</summary>
+    private static InstalledSpriteSheets ComposeTitle(TitleGraphicsPresentation graphics)
+    {
+        var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
+        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
+            $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
+        // The title's floor is composed from these graphics (#1392, #1467).
+        sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
+            FrontendFloorSheetComposer.Title(graphics, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)), $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
+        return new InstalledSpriteSheets(sheets);
     }
 
     /// <summary>Installed sheets with a title sheet already composed, by title palette.</summary>

@@ -9,8 +9,9 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -36,16 +37,16 @@ internal static class PauseTileAtlasVerification
                 ControllerButton pressed = tick == 2 ? ControllerButton.R : tick == toMap ? ControllerButton.L : 0;
                 AssertEqual(native.Step(pressed, pressed), pause.Step(pressed, pressed), "pause PNG migration preserves unpause result");
                 AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
-                AssertTrue(native.Render().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");
+                AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "pause map/equipment transitions match native pixels with artwork reads blocked");
             }
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause PNG fixture returns to the map page");
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause PNG fixture reaches equipment page");
-            var before = pause.Render();
-            using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, pause); captured.Position = 0;
-            pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
+            LayeredScene before = pause.CaptureRenderSnapshot();
+            // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+            pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
             pause.BindFixtureArtwork(original);
-            AssertTrue(before.SequenceEqual(pause.Render()), "restored pause keeps its pixels and animation phase");
+            AssertTrue(ScenePixels.Same(before, pause.CaptureRenderSnapshot()), "restored pause keeps its pixels and animation phase");
         }
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions and capture/restore pass.");
     }

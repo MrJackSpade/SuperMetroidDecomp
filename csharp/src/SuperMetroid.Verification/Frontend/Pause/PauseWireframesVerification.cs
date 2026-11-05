@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks imported pause equipment wireframes and isolated artwork replacement across menu states.</summary>
@@ -43,8 +44,8 @@ internal static class PauseWireframesVerification
                 var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
                 var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-                // Every tick compares the complete render inputs; identical inputs cannot render
-                // differently, so pixels are rasterized once each page change settles.
+                // Every tick compares the complete render inputs; the pixels are compared once each page change settles,
+                // drawing the two frames only when their descriptions differ (#1532).
                 void StepBoth(ControllerButton input)
                 {
                     native.Step(input, input); pause.Step(input, input);
@@ -54,7 +55,7 @@ internal static class PauseWireframesVerification
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>
-                    AssertTrue(native.Render().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
+                    AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "wireframe migration retains actual native pixels with all artwork reads blocked");
                 // To the equipment page and back, each change run to completion (#1266 cadence).
                 ChangePausePage(pause, ControllerButton.R, StepBoth);
                 AssertPixels();

@@ -23,19 +23,17 @@ public static class RoomPlmEscapeGateVisualFiles
             VisualFileName, "Escape-gate", All,
             VisualId);
 
-    /// <summary>Validates stock escape-gate art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the escape-gate JSON and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose escape-gate JSON replaces stock when present; an absent file retains stock.</param>
-    /// <returns>The selected three-frame gate art; even visually open cells retain their compiled solid collision.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate frame coverage.</exception>
-    public static RoomPlmEscapeGateVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Escape-gate manifest's provenance and loads the installed Escape-gate JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Escape-gate JSON.</param>
+    /// <returns>The three-frame gate art; even visually open cells retain their compiled solid collision.</returns>
+    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate frame coverage.</exception>
+    public static RoomPlmEscapeGateVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
     /// <summary>Validates all three escape-gate frames and builds the visuals from the appearances that differ from the compiled frames, without replacing terrain blocks, animation timing, or door handoff.</summary>
-    /// <remarks>Even the visually open frame retains compiled solid collision; an artwork override cannot change that behavior.</remarks>
+    /// <remarks>Even the visually open frame retains compiled solid collision; an artwork edit cannot change that behavior.</remarks>
     /// <param name="entries">Exactly one four-block, visual-only entry for each compiled gate frame.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>

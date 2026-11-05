@@ -79,10 +79,10 @@ internal static class ElevatorPlatformVisualsVerification
     /// <summary>The first frame's upper edge cell: block $85, unmirrored, solid.</summary>
     private static readonly RoomTerrainBlock PlatformEdge = RoomTerrainBlock.Of(0x85, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
-    /// <summary>Checks extracted stock, override survival, and rejection of manifest corruption.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyElevatorPlatformVisualInstallation()
     {
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmElevatorPlatformVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
@@ -95,29 +95,6 @@ internal static class ElevatorPlatformVisualsVerification
             string stockPath = Path.Combine(
                 installation.RoomPlmElevatorPlatformVisualDirectory,
                 RoomPlmElevatorPlatformVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted elevator JSON is empty.");
-            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "first-frame");
-            first.Required("runs").Required(0)[0] = EditedCell();
-            Directory.CreateDirectory(
-                installation.RoomPlmElevatorPlatformVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmElevatorPlatformVisualOverrideDirectory,
-                RoomPlmElevatorPlatformVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x53),
-                installation.LoadRoomPlmElevatorPlatformVisuals().GetAppearance(
-                    PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
-                "elevator override selects edited frame art");
-
-            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-            AssertEqual(RoomBlockAppearance.Of(0x53),
-                ReExtractElevatorPlatformStock(rom, refreshed,
-                    installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetAppearance(
-                        PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
-                "elevator override survives stock replacement");
-
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmElevatorPlatformVisuals(),
@@ -125,14 +102,4 @@ internal static class ElevatorPlatformVisualsVerification
         }
     }
 
-    /// <summary>The installed JSON of the edited cell: block $53, unmirrored.</summary>
-    private static JsonObject EditedCell() => new() { ["block"] = 0x53, ["mirroring"] = nameof(BlockMirroring.None) };
-
-    /// <summary>Extracts stock elevator platform visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmElevatorPlatformVisualFiles.Extract into a fresh stock directory beside the copy's elevator platform override, to check that a stock replacement keeps the edited first-frame block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomPlmElevatorPlatformVisualCatalog ReExtractElevatorPlatformStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmElevatorPlatformVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmElevatorPlatformVisualFiles.Load(refreshed, overrides);
-    }
 }

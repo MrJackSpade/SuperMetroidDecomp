@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public static class RoomPlmShotBlockVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
+    /// <summary>Family-relative installed JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
     public const string VisualFileName = "shot-blocks.json";
     /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
@@ -61,37 +61,26 @@ public static class RoomPlmShotBlockVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    /// <summary>Validates all stock shot-block draws before selecting an optional complete visual replacement.</summary>
-    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required provenance/hash manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or absent visual JSON uses validated stock.</param>
+    /// <summary>Validates the installed shot-block manifest's provenance and loads the installed shot-block JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed family directory containing the version-one shot-block JSON and its manifest.</param>
     /// <returns>A ROM-independent catalog that copies edited run arrays and preserves native collision, draw placement, timing, and slot effects.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked first. Override JSON needs all nineteen draw pointers exactly once, original run counts/lengths, and twelve-bit appearance, but no manifest.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or appearance are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Manifest provenance, schema, identities, coverage, run shape, or appearance are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or shot-block JSON cannot be read.</exception>
     public static InstalledRoomPlmShotBlockVisuals Load(
-        string stockDirectory, string? overrideDirectory)
+        string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Shot-block visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        VisualDocument stock = ReadJson<VisualDocument>(stockBytes, stockPath);
-        ValidateDocument(stock, stockPath);
-        InstalledRoomPlmShotBlockVisuals stockCatalog = CreateCatalog(stock, stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        if (overridePath is null || !File.Exists(overridePath))
-            return stockCatalog;
-        VisualDocument selected = ReadJson<VisualDocument>(overridePath);
-        ValidateDocument(selected, overridePath);
-        return CreateCatalog(selected, overridePath);
+        string path = Path.Combine(directory, VisualFileName);
+        VisualDocument document = ReadJson<VisualDocument>(path);
+        ValidateDocument(document, path);
+        return CreateCatalog(document, path);
     }
 
     /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists and builds the visuals from the run appearances that differ from the calculated draws; compiled collision and run placement are never replaced.</summary>
@@ -199,7 +188,7 @@ public static class RoomPlmShotBlockVisualFiles
         return result.ToArray();
     }
 
-    /// <summary>Checks the selected document's version and presence of draw entries.</summary>
+    /// <summary>Checks the installed document's version and presence of draw entries.</summary>
     private static void ValidateDocument(VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)

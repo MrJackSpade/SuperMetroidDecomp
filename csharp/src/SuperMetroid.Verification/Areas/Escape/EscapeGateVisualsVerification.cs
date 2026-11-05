@@ -26,10 +26,10 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>Checks Mother Brain escape gate visual overrides against PLM collision and install contracts.</summary>
+/// <summary>Checks Mother Brain escape gate visuals against PLM collision and install contracts.</summary>
 internal static class EscapeGateVisualsVerification
 {
-    /// <summary>Checks cloned closed and half-closed frames, rejected physical bits, and live and installed edits.</summary>
+    /// <summary>Checks cloned closed and half-closed frames, rejected physical bits, live edited catalogs and the installed stock.</summary>
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmVisualEntry[] entries =
@@ -70,7 +70,7 @@ internal static class EscapeGateVisualsVerification
         Suite(nameof(VerifyEscapeGateLiveVisual), () => VerifyEscapeGateLiveVisual(edited));
         Suite(nameof(VerifyEscapeGateVisualInstallation), () => VerifyEscapeGateVisualInstallation(rom));
         Console.WriteLine(
-            "Escape-gate visuals: closed/closing edits preserve physical collision, installed overrides survive refresh, and invalid content fails loudly.");
+            "Escape-gate visuals: closed/closing edits preserve physical collision, the installed stock loads, and invalid content fails loudly.");
     }
 
     /// <summary>Runs resident and door-triggered gates to prove edited tiles leave collision unchanged.</summary>
@@ -135,10 +135,10 @@ internal static class EscapeGateVisualsVerification
             "escape-gate visuals never reread compiled program or draw payloads");
     }
 
-    /// <summary>Checks extraction, override reload after stock refresh, and tampered stock rejection.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmEscapeGateVisualDirectory);
         GameInstallation installation = copy.Installation;
         RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
@@ -147,28 +147,6 @@ internal static class EscapeGateVisualsVerification
         string stockPath = Path.Combine(
             installation.RoomPlmEscapeGateVisualDirectory,
             RoomPlmEscapeGateVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted escape-gate JSON is empty.");
-        JsonNode closed = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "closed");
-        closed.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
-        Directory.CreateDirectory(
-            installation.RoomPlmEscapeGateVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmEscapeGateVisualOverrideDirectory,
-            RoomPlmEscapeGateVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x53),
-            installation.LoadRoomPlmEscapeGateVisuals().GetAppearance(
-                PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
-            "installed escape-gate override changes selected frame");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x53),
-            ReExtractEscapeGateStock(rom, refreshed,
-                installation.RoomPlmEscapeGateVisualOverrideDirectory).GetAppearance(
-                PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
-            "escape-gate override survives stock replacement");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => RoomPlmEscapeGateVisualFilesConstants.ValidateStock(
@@ -176,11 +154,4 @@ internal static class EscapeGateVisualsVerification
             "tampered escape-gate stock fails loudly where it is read");
     }
 
-    /// <summary>Extracts stock escape-gate visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmEscapeGateVisualFiles.Extract into a fresh stock directory beside the copy's escape-gate override, to check that a stock replacement keeps the edited closed-frame block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomPlmEscapeGateVisualCatalog ReExtractEscapeGateStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmEscapeGateVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmEscapeGateVisualFiles.Load(refreshed, overrides);
-    }
 }

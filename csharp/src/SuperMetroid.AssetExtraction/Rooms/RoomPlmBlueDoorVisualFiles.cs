@@ -19,13 +19,11 @@ public static class RoomPlmBlueDoorVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Blue-door", Editable, VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable blue-door override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and blue-door JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose blue-door JSON is selected when present.</param>
-    /// <returns>The immutable selected blue-door visual catalog.</returns>
-    public static InstalledRoomPlmBlueDoorVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Blue-door manifest's provenance and loads the installed Blue-door JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Blue-door JSON.</param>
+    /// <returns>The immutable blue-door visual catalog.</returns>
+    public static InstalledRoomPlmBlueDoorVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmBlueDoorVisuals>(VisualFileName, "Blue-door", Editable, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 

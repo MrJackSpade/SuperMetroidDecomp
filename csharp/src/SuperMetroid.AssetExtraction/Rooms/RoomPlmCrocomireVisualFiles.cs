@@ -39,14 +39,12 @@ public static class RoomPlmCrocomireVisualFiles
             All,
             VisualId);
 
-    /// <summary>Validates stock Crocomire art against its manifest and compiled layouts, then selects a complete optional visual-only override without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the arena JSON and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose arena JSON replaces stock when present; an absent file retains stock.</param>
-    /// <returns>The selected bridge and wall art, independent of compiled solidity, crumble programs, and placement.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate layout coverage.</exception>
-    public static RoomPlmCrocomireVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Crocomire arena manifest's provenance and loads the installed Crocomire arena JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Crocomire arena JSON.</param>
+    /// <returns>The bridge and wall art, independent of compiled solidity, crumble programs, and placement.</returns>
+    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate layout coverage.</exception>
+    public static RoomPlmCrocomireVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

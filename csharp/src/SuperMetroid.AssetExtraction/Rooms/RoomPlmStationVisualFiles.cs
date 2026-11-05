@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public static class RoomPlmStationVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
+    /// <summary>Family-relative installed JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
     public const string VisualFileName = "stations.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
@@ -60,34 +60,24 @@ public static class RoomPlmStationVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    /// <summary>Validates stock station artwork and selects an optional complete twenty-layout replacement without changing station effects or collision.</summary>
-    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or absent visual JSON uses validated stock.</param>
+    /// <summary>Validates the installed station manifest's provenance and loads the installed station JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed family directory containing the version-one station JSON and its manifest.</param>
     /// <returns>A ROM-independent catalog with copied authored runs and compiled station mechanics and draw geometry unchanged.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked before an override. Replacement JSON must contain all named layouts with original run counts/lengths and twelve-bit appearance; no override manifest is needed.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or appearance are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Manifest provenance, schema, identities, coverage, run shape, or appearance are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or station JSON cannot be read.</exception>
     public static InstalledRoomPlmStationVisuals Load(
-        string stockDirectory, string? overrideDirectory)
+        string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Station visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        InstalledRoomPlmStationVisuals stock = CreateCatalog(
-            ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        return overridePath is null || !File.Exists(overridePath)
-            ? stock
-            : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
+        string path = Path.Combine(directory, VisualFileName);
+        return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
     /// <summary>Validates and captures the complete twenty-frame station artwork selection, building the visuals from the run appearances that differ from the compiled layouts.</summary>

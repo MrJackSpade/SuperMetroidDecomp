@@ -22,14 +22,12 @@ public static class RoomPlmDraygonCannonVisualFiles
             VisualFileName, "Draygon cannon", All,
             VisualId);
 
-    /// <summary>Validates stock cannon art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the cannon JSON and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose cannon JSON replaces stock when present; an absent file retains stock.</param>
-    /// <returns>The selected reachable cannon art, leaving hit thresholds, physical collision, and control writes compiled.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate frame coverage.</exception>
-    public static RoomPlmDraygonCannonVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Draygon cannon manifest's provenance and loads the installed Draygon cannon JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Draygon cannon JSON.</param>
+    /// <returns>The reachable cannon art, leaving hit thresholds, physical collision, and control writes compiled.</returns>
+    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate frame coverage.</exception>
+    public static RoomPlmDraygonCannonVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

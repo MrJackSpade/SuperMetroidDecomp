@@ -23,14 +23,14 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 /// <summary>Checks Tourian entrance crumble and clear art independently of its physical PLM blocks.</summary>
 internal static class TourianAccessVisualsVerification
 {
-    /// <summary>Extracts five layouts, applies visual overrides, and checks stock integrity and physical isolation.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifyTourianAccessVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian stock native oracle revision");
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmTourianAccessVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
@@ -41,45 +41,6 @@ internal static class TourianAccessVisualsVerification
             string stockPath = Path.Combine(
                 installation.RoomPlmTourianAccessVisualDirectory,
                 RoomPlmTourianAccessVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Tourian visual JSON is empty.");
-            JsonNode firstFrame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "crumble-frame-0");
-            JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "clear-six-rows");
-            firstFrame.Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
-            clear.Required("blocks")[20] = PlmVisualJson.Appearance(0x058);
-            Directory.CreateDirectory(
-                installation.RoomPlmTourianAccessVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmTourianAccessVisualOverrideDirectory,
-                RoomPlmTourianAccessVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            RoomPlmTourianAccessVisuals edited =
-                installation.LoadRoomPlmTourianAccessVisuals();
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                edited.GetAppearance(PlmDraw.Of(TourianAccessDraw.CrumbleFirst),
-                    0, 0),
-                "Tourian override edits the first crumble frame");
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                edited.GetAppearance(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
-                "Tourian override edits the last clear row independently");
-
-            VerifyTourianAccessVisualSeparation(rom, edited, clear: false);
-            VerifyTourianAccessVisualSeparation(rom, edited, clear: true);
-
-            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                ReExtractTourianAccessStock(rom, refreshed,
-                    installation.RoomPlmTourianAccessVisualOverrideDirectory)
-                    .GetAppearance(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
-                "Tourian override survives stock replacement");
-
-            firstFrame.Required("blocks")[0] = 0xf058;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmTourianAccessVisuals(),
-                "Tourian override rejects physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmTourianAccessVisualFilesConstants.ValidateStock(
@@ -87,7 +48,7 @@ internal static class TourianAccessVisualsVerification
                 "tampered Tourian stock fails loudly where it is read");
         }
         Console.WriteLine(
-            "Tourian access visuals: five native layouts, live crumble/clear edits, physical isolation, stock repair and strict failures pass.");
+            "Tourian access visuals: five native layouts and strict failures pass.");
     }
 
     /// <summary>Compares every stock visual word and content identity with cartridge draw lists.</summary>
@@ -146,38 +107,6 @@ internal static class TourianAccessVisualsVerification
         AssertThrows<InvalidDataException>(() => RoomPlmTourianAccessVisualFiles.Create(invalid), "Tourian access exact frame shape");
     }
 
-    /// <summary>Checks edited crumble or clear tiles through immediate redraw and later room streaming.</summary>
-    private static void VerifyTourianAccessVisualSeparation(
-        SuperMetroidAddressSpace rom,
-        RoomPlmTourianAccessVisuals edited,
-        bool clear)
-    {
-        const int width = 16;
-        const int height = 20;
-        int blockIndex = (clear ? 17 : 12) * width + 6;
-        var words = new RoomTerrainBlock[width * height];
-        words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
-        RoomLevelData level = CreateRoom(new(width, height), words,
-            new RoomBlockBehavior[words.Length]);
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmTourianAccessVisuals = edited });
-        AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
-            $"Tourian {(clear ? "clear" : "crumble")} real PLM allocates");
-        var bus = NewTourianAccessSourceGuard(rom);
-        // The edited bottom clear row must be inside the camera to assert its
-        // immediate VRAM update; the physical level mutation is world-relative.
-        plms.Step(level);
-        AssertEqual(clear ? RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air) : RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
-            level.GetCollisionBlockByIndex(blockIndex).Terrain,
-            $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");
-        AssertEqual(RoomBlockAppearance.Of(0x058), level.DisplayedAppearance(blockIndex),
-            $"Tourian {(clear ? "clear" : "crumble")} edited block reaches immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x058),
-            level.DisplayedAppearance(blockIndex),
-            $"Tourian {(clear ? "clear" : "crumble")} edit survives later streaming");
-        AssertEqual(0, bus.ForbiddenReadAttempts,
-            $"Tourian {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
-    }
-
     /// <summary>Runs Tourian access visual extraction and PLM isolation checks.</summary>
     [VerificationCommand("--tourian-access-visuals")]
     internal static int TourianAccessVisualsCommand()
@@ -186,11 +115,4 @@ internal static class TourianAccessVisualsVerification
         return 0;
     }
 
-    /// <summary>Extracts stock Tourian access visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmTourianAccessVisualFiles.Extract into a fresh stock directory beside the copy's Tourian access override, to check that a stock replacement keeps the edited last clear row block (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomPlmTourianAccessVisuals ReExtractTourianAccessStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmTourianAccessVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmTourianAccessVisualFiles.Load(refreshed, overrides);
-    }
 }

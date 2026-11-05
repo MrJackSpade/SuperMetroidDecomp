@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Installed, replaceable Kraid ceiling and spike visual blocks, and the editable identities that name them.</summary>
 public static class RoomPlmKraidVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for Kraid's ten ceiling and spike layouts, including the fifteen- and twenty-two-block clears.</summary>
+    /// <summary>Family-relative installed JSON filename for Kraid's ten ceiling and spike layouts, including the fifteen- and twenty-two-block clears.</summary>
     public const string VisualFileName = "kraid-room.json";
 
     /// <summary>Checks Kraid's bank-$84 draw runs, terrain, and offsets against compiled definitions, then exports presentation-only block/flip words.</summary>
@@ -26,16 +26,13 @@ public static class RoomPlmKraidVisualFiles
             VisualFileName, "Kraid room",
             All, VisualId);
 
-    /// <summary>Checks the installed stock Kraid layouts and selects a complete optional artwork replacement without changing collision or crumble timing.</summary>
-    /// <param name="stockDirectory">Kraid family directory containing stock JSON and its version-one provenance/hash manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; missing override JSON or null selects validated stock.</param>
+    /// <summary>Validates the installed Kraid room manifest's provenance and loads the installed Kraid room JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Kraid room JSON.</param>
     /// <returns>A ROM-independent catalog of the ten compiled Kraid layouts; the separately installed elevatube appearance is not changed.</returns>
-    /// <remarks>Stock is always checked against supported-cartridge provenance, file hash, and compiled appearance. Overrides replace the whole family and require every identity and original cell count; they need no manifest.</remarks>
-    /// <exception cref="InvalidDataException">Integrity, provenance, document version, identities, coverage, shapes, or appearance are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static InstalledRoomPlmKraidVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <exception cref="InvalidDataException">Manifest provenance, document version, identities, coverage, shapes, or appearance are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or Kraid room JSON cannot be read.</exception>
+    public static InstalledRoomPlmKraidVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

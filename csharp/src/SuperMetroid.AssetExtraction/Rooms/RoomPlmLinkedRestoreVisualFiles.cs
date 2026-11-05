@@ -24,16 +24,13 @@ public static class RoomPlmLinkedRestoreVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Linked restore", All, VisualId);
 
-    /// <summary>Validates the shared stock restoration artwork and selects an optional complete six-layout visual replacement.</summary>
-    /// <param name="stockDirectory">Family directory with required stock JSON and version-one manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; an absent override JSON or null uses validated stock.</param>
+    /// <summary>Validates the installed Linked restore manifest's provenance and loads the installed Linked restore JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Linked restore JSON.</param>
     /// <returns>A ROM-independent appearance catalog; distinct bomb/contact collision classes and restoration programs remain unchanged.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are mandatory before any override is read. Overrides need complete identities/shapes and twelve-bit appearance, not a manifest or terrain.</remarks>
-    /// <exception cref="InvalidDataException">Stock integrity/provenance, JSON version, coverage, identity, shape, or appearance are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static InstalledRoomPlmLinkedRestoreVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <exception cref="InvalidDataException">Manifest provenance, JSON version, coverage, identity, shape, or appearance are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or Linked restore JSON cannot be read.</exception>
+    public static InstalledRoomPlmLinkedRestoreVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

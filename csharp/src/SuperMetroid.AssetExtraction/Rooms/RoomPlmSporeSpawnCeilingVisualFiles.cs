@@ -23,13 +23,11 @@ public static class RoomPlmSporeSpawnCeilingVisualFiles
             All,
             VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Spore Spawn ceiling override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Spore Spawn ceiling JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose Spore Spawn ceiling JSON is selected when present.</param>
-    /// <returns>The immutable selected Spore Spawn ceiling visual catalog.</returns>
-    public static RoomPlmSporeSpawnCeilingVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Spore Spawn ceiling manifest's provenance and loads the installed Spore Spawn ceiling JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Spore Spawn ceiling JSON.</param>
+    /// <returns>The immutable Spore Spawn ceiling visual catalog.</returns>
+    public static RoomPlmSporeSpawnCeilingVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

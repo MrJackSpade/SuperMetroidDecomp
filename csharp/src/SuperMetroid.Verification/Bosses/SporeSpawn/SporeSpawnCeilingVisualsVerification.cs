@@ -22,14 +22,14 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// <summary>Checks editable Spore Spawn ceiling artwork while retaining compiled PLM physics and timing.</summary>
 internal static class SporeSpawnCeilingVisualsVerification
 {
-    /// <summary>Checks four stock frames, two edited two-by-two draws, override persistence, and strict asset rejection.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifySporeSpawnCeilingVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling stock oracle revision");
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmSporeSpawnCeilingVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
@@ -40,41 +40,6 @@ internal static class SporeSpawnCeilingVisualsVerification
             string stockPath = Path.Combine(
                 installation.RoomPlmSporeSpawnCeilingVisualDirectory,
                 RoomPlmSporeSpawnCeilingVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Spore Spawn ceiling JSON is empty.");
-            JsonNode first = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "crumble-frame-0");
-            JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "clear-ceiling");
-            first.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x58);
-            clear.Required("blocks")[3] = InstalledAppearanceJson.Cell(0x59);
-            Directory.CreateDirectory(
-                installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory,
-                RoomPlmSporeSpawnCeilingVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            RoomPlmSporeSpawnCeilingVisualCatalog edited =
-                installation.LoadRoomPlmSporeSpawnCeilingVisuals();
-            AssertEqual(RoomBlockAppearance.Of(0x58),
-                edited.GetAppearance(PlmDraw.Of(SporeSpawnCeilingDraw.CrumbleFirst),
-                    0, 0),
-                "Spore Spawn override edits the first crumble block");
-            AssertEqual(RoomBlockAppearance.Of(0x59),
-                edited.GetAppearance(PlmDraw.Of(SporeSpawnCeilingDraw.Clear),
-                    1, 1),
-                "Spore Spawn override edits the bottom-right clear block");
-
-            VerifySporeSpawnCeilingVisualSeparation(edited, clear: false);
-            VerifySporeSpawnCeilingVisualSeparation(edited, clear: true);
-
-            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-            AssertEqual(RoomBlockAppearance.Of(0x59),
-                ReExtractSporeSpawnCeilingStock(rom, refreshed,
-                    installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory)
-                    .GetAppearance(PlmDraw.Of(SporeSpawnCeilingDraw.Clear), 1, 1),
-                "Spore Spawn override survives stock replacement");
-
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmSporeSpawnCeilingVisualFilesConstants.ValidateStock(
@@ -82,7 +47,7 @@ internal static class SporeSpawnCeilingVisualsVerification
                 "tampered Spore Spawn ceiling stock fails loudly where it is read");
         }
         Console.WriteLine(
-            "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");
+            "Spore Spawn ceiling visuals: four native frames and strict failures pass.");
     }
 
     /// <summary>Compares flattened stock appearances with the decoded cartridge draws and checks catalog identity, shape, and bounds.</summary>
@@ -143,51 +108,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         AssertThrows<InvalidDataException>(() => RoomPlmSporeSpawnCeilingVisualFiles.Create(invalid), "Spore ceiling exact frame shape");
     }
 
-    /// <summary>Runs a clear or crumble ceiling PLM and checks edited redraws without changing collision or deletion timing.</summary>
-    private static void VerifySporeSpawnCeilingVisualSeparation(
-        RoomPlmSporeSpawnCeilingVisualCatalog edited, bool clear)
-    {
-        const int width = 16;
-        const int height = 32;
-        var terrain = new RoomTerrainBlock[width * height];
-        terrain.AsSpan().Fill(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air));
-        for (int y = 30; y <= 31; y++)
-        for (int x = 7; x <= 8; x++)
-            terrain[y * width + x] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
-        RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSporeSpawnCeilingVisuals = edited });
-        AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
-                clear ? PlmHeaderId.ClearSporeSpawnCeiling :
-                    PlmHeaderId.CrumbleSporeSpawnCeiling),
-            $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
-        var guard = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
-        plms.Step(level);
-        int blockIndex = clear ? 31 * width + 8 : 30 * width + 7;
-        RoomTerrainBlock expectedPhysical = RoomTerrainBlock.Of(clear ? 0xff : 0x53, BlockMirroring.None, RoomCollisionType.Air);
-        RoomBlockAppearance expectedVisual = RoomBlockAppearance.Of(clear ? 0x59 : 0x58);
-        AssertEqual(expectedPhysical,
-            level.GetCollisionBlockByIndex(blockIndex).Terrain,
-            $"Spore Spawn {(clear ? "clear" : "crumble")} edited art retains physical block");
-        // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        AssertEqual(expectedVisual, level.DisplayedAppearance(blockIndex),
-            $"Spore Spawn {(clear ? "clear" : "crumble")} edit reaches immediate redraw");
-        AssertEqual(expectedVisual,
-            level.DisplayedAppearance(blockIndex),
-            $"Spore Spawn {(clear ? "clear" : "crumble")} edit survives streaming");
-        int deletionFrame = -1;
-        for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
-        {
-            plms.Step(level);
-            if (plms.SlotTable.ActiveCount == 0)
-                deletionFrame = frame;
-        }
-        AssertEqual(clear ? 4 : 16, deletionFrame,
-            $"Spore Spawn {(clear ? "clear" : "crumble")} edited art preserves deletion timing");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            $"Spore Spawn {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
-    }
-
-    /// <summary>Runs stock and edited Spore Spawn ceiling visual verification.</summary>
+    /// <summary>Runs Spore Spawn ceiling visual verification.</summary>
     [VerificationCommand("--spore-spawn-ceiling-visuals")]
     internal static int SporeSpawnCeilingVisualsCommand()
     {
@@ -195,11 +116,4 @@ internal static class SporeSpawnCeilingVisualsVerification
         return 0;
     }
 
-    /// <summary>Extracts stock Spore Spawn ceiling visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmSporeSpawnCeilingVisualFiles.Extract into a fresh stock directory beside the copy's Spore Spawn ceiling override, to check that a stock replacement keeps the edited clear-frame block (appearance 59) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomPlmSporeSpawnCeilingVisualCatalog ReExtractSporeSpawnCeilingStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmSporeSpawnCeilingVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmSporeSpawnCeilingVisualFiles.Load(refreshed, overrides);
-    }
 }

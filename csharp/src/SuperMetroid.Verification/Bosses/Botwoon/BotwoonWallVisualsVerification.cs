@@ -66,12 +66,12 @@ internal static class BotwoonWallVisualsVerification
                 AssertThrows<InvalidDataException>(() => RoomPlmBotwoonWallVisualFiles.VisualId(NativePlmDraws.At<BotwoonWallDraw>((ushort)pointer)), "Botwoon visual ID accepts only the clear draw");
     }
 
-    /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBotwoonWallVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
@@ -91,36 +91,6 @@ internal static class BotwoonWallVisualsVerification
             string stockPath = Path.Combine(
                 installation.RoomPlmBotwoonWallVisualDirectory,
                 RoomPlmBotwoonWallVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Botwoon wall JSON is empty.");
-            JsonNode clear = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "clear-wall");
-            clear.Required("blocks")[3] = PlmVisualJson.Appearance(0x058);
-            Directory.CreateDirectory(
-                installation.RoomPlmBotwoonWallVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmBotwoonWallVisualOverrideDirectory,
-                RoomPlmBotwoonWallVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            InstalledRoomPlmBotwoonWallVisuals edited =
-                installation.LoadRoomPlmBotwoonWallVisuals();
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                edited.GetAppearance(BotwoonWallPlmDrawDefinitions.Clear, 0, 3),
-                "Botwoon wall override edits the fourth clear block");
-            VerifyBotwoonWallVisualSeparation(edited);
-
-            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-            AssertEqual(RoomBlockAppearance.Of(0x058),
-                ReExtractBotwoonWallStock(rom, refreshed,
-                    installation.RoomPlmBotwoonWallVisualOverrideDirectory)
-                    .GetAppearance(BotwoonWallPlmDrawDefinitions.Clear, 0, 3),
-                "Botwoon wall override survives stock replacement");
-
-            clear.Required("blocks")[3] = 0xf058;
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadRoomPlmBotwoonWallVisuals(),
-                "Botwoon wall override cannot change physical collision bits");
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmBotwoonWallVisualFilesConstants.ValidateStock(
@@ -128,7 +98,7 @@ internal static class BotwoonWallVisualsVerification
                 "tampered Botwoon wall stock fails loudly where it is read");
         }
         Console.WriteLine(
-            "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");
+            "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation and strict failures pass.");
     }
 
     /// <summary>Checks an edited clear tile reaches immediate and later BG1 draws without changing collision or deletion.</summary>
@@ -173,11 +143,4 @@ internal static class BotwoonWallVisualsVerification
         return 0;
     }
 
-    /// <summary>Extracts stock Botwoon wall visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmBotwoonWallVisualFiles.Extract into a fresh stock directory beside the copy's Botwoon wall override, to check that a stock replacement keeps the edited fourth clear block (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmBotwoonWallVisuals ReExtractBotwoonWallStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmBotwoonWallVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmBotwoonWallVisualFiles.Load(refreshed, overrides);
-    }
 }

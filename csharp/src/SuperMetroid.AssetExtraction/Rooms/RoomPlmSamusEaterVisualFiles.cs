@@ -20,13 +20,11 @@ public static class RoomPlmSamusEaterVisualFiles
             All,
             VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Samus Eater override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Samus Eater JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose Samus Eater JSON is selected when present.</param>
-    /// <returns>The immutable selected Samus Eater visual catalog.</returns>
-    public static InstalledRoomPlmSamusEaterVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Samus Eater plant manifest's provenance and loads the installed Samus Eater plant JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Samus Eater plant JSON.</param>
+    /// <returns>The immutable Samus Eater visual catalog.</returns>
+    public static InstalledRoomPlmSamusEaterVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmSamusEaterVisuals>(VisualFileName, "Samus Eater plant", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

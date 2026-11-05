@@ -59,33 +59,24 @@ public static class RoomPlmCollectibleVisualFiles
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    /// <summary>Validates the stock manifest/digest and compiled stock parity, then selects an optional editable override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock collectible directory containing the manifest and visual JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose visual JSON replaces stock when present; its file is schema/coverage validated but is not required to match the stock digest.</param>
-    /// <returns>The immutable selected collectible visual catalog.</returns>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is blank.</exception>
-    /// <exception cref="InvalidDataException">The manifest, stock provenance/digest/parity, or selected JSON is invalid.</exception>
+    /// <summary>Validates the installed collectible manifest's provenance and loads the installed collectible JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed family directory containing the version-one collectible JSON and its manifest.</param>
+    /// <returns>The immutable collectible visual catalog.</returns>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is blank.</exception>
+    /// <exception cref="InvalidDataException">The manifest provenance or the installed JSON is invalid.</exception>
     public static InstalledRoomPlmCollectibleVisuals Load(
-        string stockDirectory, string? overrideDirectory)
+        string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(
                 $"Collectible visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        InstalledRoomPlmCollectibleVisuals stock = CreateCatalog(
-            ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        return overridePath is null || !File.Exists(overridePath)
-            ? stock
-            : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
+        string path = Path.Combine(directory, VisualFileName);
+        return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
     /// <summary>Validates all twenty-four compiled one-cell frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>

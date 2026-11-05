@@ -5,6 +5,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmBlueDoorVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled blue-door visuals.</summary>
-    /// <param name="directory">Stock blue-door directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmBlueDoorVisualFiles.Load(directory, null);
+    /// <param name="directory">Stock blue-door directory.</param>
+    public static void ValidateStock(string directory) => _ = RoomPlmBlueDoorVisualFiles.Load(directory);
 }

@@ -5,10 +5,10 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Cartridge-checked stock and strict visual-only glass overrides.</summary>
+/// <summary>Cartridge-checked, strictly visual-only installed glass artwork.</summary>
 public static class RoomPlmMotherBrainGlassVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for Mother Brain's initial, damaged, shifted, shattering, and cleared glass PLM layouts.</summary>
+    /// <summary>Family-relative installed JSON filename for Mother Brain's initial, damaged, shifted, shattering, and cleared glass PLM layouts.</summary>
     public const string VisualFileName = "mother-brain-glass.json";
 
     /// <summary>Checks native bank-$84 glass draw shapes, decoded terrain blocks, and offsets, then exports their block appearances in flattened run order.</summary>
@@ -26,16 +26,13 @@ public static class RoomPlmMotherBrainGlassVisualFiles
             VisualFileName, "Mother Brain glass", All,
             VisualId);
 
-    /// <summary>Validates installed stock glass appearance and selects an optional complete visual replacement while preserving glass mechanics.</summary>
-    /// <param name="stockDirectory">Family directory containing the required stock JSON and version-one manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or a missing override JSON selects validated stock.</param>
+    /// <summary>Validates the installed Mother Brain glass manifest's provenance and loads the installed Mother Brain glass JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Mother Brain glass JSON.</param>
     /// <returns>A ROM-independent glass metatile catalog; draw geometry, hit thresholds, shards, and event timing remain compiled.</returns>
-    /// <remarks>Supported-cartridge provenance, byte hash, and compiled stock appearances are always checked first. Overrides need all compiled identities, original run/cell counts, and appearances, but no manifest.</remarks>
-    /// <exception cref="InvalidDataException">Integrity, provenance, JSON version, frame coverage/identity, shape, or presentation-only word bits are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static RoomPlmMotherBrainGlassVisualCatalog Load(string stockDirectory,
-        string? overrideDirectory = null) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <exception cref="InvalidDataException">Manifest provenance, JSON version, frame coverage/identity, shape, or presentation-only word bits are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or Mother Brain glass JSON cannot be read.</exception>
+    public static RoomPlmMotherBrainGlassVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

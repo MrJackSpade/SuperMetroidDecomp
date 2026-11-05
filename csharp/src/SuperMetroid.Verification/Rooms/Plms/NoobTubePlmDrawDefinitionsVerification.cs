@@ -60,7 +60,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
                 PlmDrawAddressCodec.Of(list.Draw) == 0x98e3 ? edited : null);
         Suite(nameof(VerifyNoobTubeVisualInstallation), () => VerifyNoobTubeVisualInstallation(rom));
         Console.WriteLine(
-            "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
+            "  N00b-tube PLM: seven guarded native layouts and editable appearance preserve physical blocks.");
     }
 
     /// <summary>Draws one native layout through the guarded PLM path and compares resulting blocks and streamed art.</summary>
@@ -122,7 +122,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         }
     }
 
-    /// <summary>Checks extracted stock, selected override, stock replacement, and invalid visual documents.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyNoobTubeVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmNoobTubeVisualDirectory);
@@ -133,45 +133,10 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         string stockPath = Path.Combine(
             installation.RoomPlmNoobTubeVisualDirectory,
             RoomPlmNoobTubeVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted tube JSON is empty.");
-        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "cleared");
-        frame.Required("blocks")[24] = PlmVisualJson.Appearance(0x059);
-        Directory.CreateDirectory(
-            installation.RoomPlmNoobTubeVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmNoobTubeVisualOverrideDirectory,
-            RoomPlmNoobTubeVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x059),
-            installation.LoadRoomPlmNoobTubeVisuals().GetAppearance(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
-            "installed tube override changes an internal twelve-block row tile");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x059),
-            ReExtractNoobTubeStock(rom, refreshed,
-                installation.RoomPlmNoobTubeVisualOverrideDirectory)
-                .GetAppearance(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
-            "tube override survives stock replacement");
-
-        frame.Required("blocks")[24] = 0xf059;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmNoobTubeVisuals(),
-            "invalid tube override fails loudly");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmNoobTubeVisuals(),
             "tampered tube stock fails loudly where it is read");
-    }
-
-    /// <summary>Extracts stock glass-tube visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmNoobTubeVisualFiles.Extract into a fresh stock directory beside the copy's tube override, to check that a stock replacement keeps the edited internal twelve-block row tile (appearance 059) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmNoobTubeVisuals ReExtractNoobTubeStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmNoobTubeVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmNoobTubeVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Rejects runtime reads of all seven compiled bank 84 draw payload ranges.</summary>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Cartridge-checked stock and strict visual-only eye-door overrides, and the editable identities that name them.</summary>
+/// <summary>Cartridge-checked, strictly visual-only installed eye-door artwork, and the editable identities that name it.</summary>
 public static class RoomPlmEyeDoorVisualFiles
 {
     /// <summary>JSON filename for editable eye-door eye, middle, bottom, and shared clearing frames.</summary>
@@ -21,14 +21,12 @@ public static class RoomPlmEyeDoorVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "eye-door", Editable, VisualId);
 
-    /// <summary>Validates stock eye-door art against its manifest and compiled frames, then selects a complete optional visual-only override without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the eye-door JSON and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose eye-door JSON replaces stock when present; an absent file retains stock.</param>
-    /// <returns>The selected component art, with the opening-clear alias mirrored from the shared clearing frame and native door mechanics unchanged.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate editable coverage or visual-word rules.</exception>
-    public static InstalledRoomPlmEyeDoorVisuals Load(string stockDirectory,
-        string? overrideDirectory = null) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed eye-door manifest's provenance and loads the installed eye-door JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and eye-door JSON.</param>
+    /// <returns>The component art, with the opening-clear alias mirrored from the shared clearing frame and native door mechanics unchanged.</returns>
+    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate editable coverage or visual-word rules.</exception>
+    public static InstalledRoomPlmEyeDoorVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmEyeDoorVisuals>(VisualFileName, "eye-door", Editable, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
@@ -59,7 +57,7 @@ public static class RoomPlmEyeDoorVisualFiles
         }
     }
 
-    /// <summary>The mirrored clear shares one visual identity, preserving existing 23-frame overrides.</summary>
+    /// <summary>The mirrored clear shares one visual identity, keeping the installed file at 23 frames.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
         All.Where(draw => draw.Draw != EyeDoorPlmDrawDefinitions.MirroredOpeningClear);
 

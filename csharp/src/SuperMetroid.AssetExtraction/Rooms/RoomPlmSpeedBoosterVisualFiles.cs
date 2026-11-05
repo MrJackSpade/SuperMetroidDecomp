@@ -19,13 +19,11 @@ public static class RoomPlmSpeedBoosterVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Speed Booster", All, VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Speed Booster override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Speed Booster JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose Speed Booster JSON is selected when present.</param>
-    /// <returns>The immutable selected Speed Booster visual catalog.</returns>
-    public static InstalledRoomPlmSpeedBoosterVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Speed Booster manifest's provenance and loads the installed Speed Booster JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Speed Booster JSON.</param>
+    /// <returns>The immutable Speed Booster visual catalog.</returns>
+    public static InstalledRoomPlmSpeedBoosterVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmSpeedBoosterVisuals>(VisualFileName, "Speed Booster", All, VisualId, entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 

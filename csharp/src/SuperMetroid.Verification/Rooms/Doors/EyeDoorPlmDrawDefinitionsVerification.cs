@@ -63,7 +63,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
                 EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block);
             AssertEqual(shared.WithMirroring(shared.Mirroring ^ BlockMirroring.Horizontal),
                 edited.GetAppearance(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
-                "left opening clear mirrors its authored appearance without changing the override schema");
+                "left opening clear mirrors its authored appearance without changing the installed schema");
         }
         Suite(nameof(VerifyEyeDoorNativeDrawPath), () => VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null));
         Suite(nameof(VerifyEyeDoorNativeDrawPath), () => VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited));
@@ -213,7 +213,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     /// <summary>Reads one retail bank-$84 program byte for the fixture oracle.</summary>
     private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks extracted stock validation, override persistence, and invalid eye-door visual rejection.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmEyeDoorVisualDirectory);
@@ -223,45 +223,10 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         VerifyEyeDoorStockMapping(rom, installation.LoadRoomPlmEyeDoorVisuals());
         string stockPath = Path.Combine(installation.RoomPlmEyeDoorVisualDirectory,
             RoomPlmEyeDoorVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted eye-door JSON is empty.");
-        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "right-eye-frame-0");
-        frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x055);
-        Directory.CreateDirectory(
-            installation.RoomPlmEyeDoorVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmEyeDoorVisualOverrideDirectory,
-            RoomPlmEyeDoorVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x055),
-            installation.LoadRoomPlmEyeDoorVisuals().GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
-            "installed eye-door override changes the selected frame");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x055),
-            ReExtractEyeDoorStock(rom, refreshed,
-                installation.RoomPlmEyeDoorVisualOverrideDirectory)
-                .GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9c5b), 0),
-            "eye-door override survives stock replacement");
-
-        frame.Required("blocks")[0] = 0xf055;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmEyeDoorVisuals(),
-            "invalid eye-door override fails loudly");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmEyeDoorVisuals(),
             "tampered eye-door stock fails loudly where it is read");
-    }
-
-    /// <summary>Extracts stock eye-door visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmEyeDoorVisualFiles.Extract into a fresh stock directory beside the copy's eye-door override, to check that a stock replacement keeps the edited right-eye-frame-0 block (appearance 055) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmEyeDoorVisuals ReExtractEyeDoorStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmEyeDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmEyeDoorVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Rejects runtime reads of compiled eye-door instructions and physical draw payloads.</summary>

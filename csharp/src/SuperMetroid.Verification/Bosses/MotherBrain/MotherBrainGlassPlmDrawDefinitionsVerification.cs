@@ -66,7 +66,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
                 PlmDrawAddressCodec.Of(list.Draw) == 0x978f ? edited : null);
         Suite(nameof(VerifyMotherBrainGlassVisualInstallation), () => VerifyMotherBrainGlassVisualInstallation(rom));
         Console.WriteLine(
-            "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
+            "  Mother Brain glass PLM: 11 guarded native layouts and editable appearance preserve physical blocks.");
     }
 
     /// <summary>Draws one selected glass layout in a synthetic room while denying reads of its original cartridge payload.</summary>
@@ -130,11 +130,11 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         }
     }
 
-    /// <summary>Checks extracted stock validation, override persistence, and rejection of malformed or tampered visual files.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmMotherBrainGlassVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
@@ -144,29 +144,6 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             string stockPath = Path.Combine(
                 installation.RoomPlmMotherBrainGlassVisualDirectory,
                 RoomPlmMotherBrainGlassVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted glass JSON is empty.");
-            JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() == "shatter-1");
-            frame.Required("blocks")[6] = InstalledAppearanceJson.Cell(0x57);
-            Directory.CreateDirectory(
-                installation.RoomPlmMotherBrainGlassVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmMotherBrainGlassVisualOverrideDirectory,
-                RoomPlmMotherBrainGlassVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual(RoomBlockAppearance.Of(0x57),
-                installation.LoadRoomPlmMotherBrainGlassVisuals()
-                    .GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
-                "installed glass override changes the multi-run shatter tile");
-
-            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-            AssertEqual(RoomBlockAppearance.Of(0x57),
-                ReExtractMotherBrainGlassStock(rom, refreshed,
-                    installation.RoomPlmMotherBrainGlassVisualOverrideDirectory)
-                    .GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
-                "glass override survives stock replacement");
-
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmMotherBrainGlassVisuals(),
@@ -186,11 +163,4 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             }),
             address => $"Mother Brain glass reread draw payload ${address:X6}.");
 
-    /// <summary>Extracts stock Mother Brain glass visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmMotherBrainGlassVisualFiles.Extract into a fresh stock directory beside the copy's Mother Brain glass override, to check that a stock replacement keeps the edited multi-run shatter block (appearance 57) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomPlmMotherBrainGlassVisualCatalog ReExtractMotherBrainGlassStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmMotherBrainGlassVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmMotherBrainGlassVisualFiles.Load(refreshed, overrides);
-    }
 }

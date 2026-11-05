@@ -35,8 +35,8 @@ internal static class TitleSnapshotTestsVerification
             // contents are digested whole before and after the run, so neither the packet nor what it names changes (#1532).
             object[] bound = ReferenceEquals(content.Sheets, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets)
                 ? [] : [content.Sheets];
-            object drawnSheets = new object[] { content.Sheets.Get(SuperMetroid.Core.Assets.SpriteSheetId.Title),
-                content.Sheets.Get(SuperMetroid.Core.Assets.SpriteSheetId.TitleFloor) };
+            object drawnSheets = new object[] { content.Sheets.Get(SuperMetroid.Core.Assets.SpriteSheetId.Title).Image,
+                content.Sheets.Get(SuperMetroid.Core.Assets.SpriteSheetId.TitleFloor).Image };
             byte[] sheetsBefore = UnboundGraphDigest(drawnSheets);
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;

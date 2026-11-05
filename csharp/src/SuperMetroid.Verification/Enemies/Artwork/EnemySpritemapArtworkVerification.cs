@@ -492,11 +492,13 @@ internal static class EnemySpritemapArtworkVerification
             if (FrameOwner(RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer)) is not { } owner)
                 continue;
             RoomEnemySlot? drawn = null;
+            RoomEnemySystem? drawnRoom = null;
             int drawnRow = 0;
             int drawnBase = 0;
             var room = DrawEnemy(stock, NewFrameReadGuard(rom, frame.Name), frame.Pointer, owner, inspect: (slot, system) =>
                 {
                     drawn = slot;
+                    drawnRoom = system;
                     drawnRow = slot.PaletteRowIn(system);
                     drawnBase = slot.NativeTileBaseIn(system);
                 },
@@ -508,7 +510,13 @@ internal static class EnemySpritemapArtworkVerification
                 PaletteBits = NativeSpriteGraphicsWords.PaletteBits(drawn is null ? throw new InvalidOperationException("Verification requires the drawn slot.") : drawnRow),
                 BaseTileIndex = checked((ushort)drawnBase),
             });
-            AssertTrue(room.ImageEquals(nativeRoom),
+            // A picture the sheet keeps once for several identical frames stands for any of their OAM (#1513).
+            AssertTrue(room.ImageEquals(nativeRoom) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
+                {
+                    RoomEnemySystem redrawn = drawnRoom ?? throw new InvalidOperationException("Verification requires the drawn room.");
+                    redrawn.Drawing.AdvanceLayers(new(0, 0), 0, 0);
+                    redrawn.Drawing.DrawLayers(sprites, new(0, 0), 0, 0);
+                }, nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
 
@@ -2935,6 +2943,8 @@ internal static class EnemySpritemapArtworkVerification
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank);
             slot.Frame = RoomEnemySlotFrameAccess.FrameAt(frameBank, pointer);
+            if (slot.Frame is { } shown)
+                SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
             slot.FrameHold = WrappingCountdown.Start(7);
             slot.Timer = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
@@ -2952,7 +2962,8 @@ internal static class EnemySpritemapArtworkVerification
         EnemyGraphicsSet headSet = MotherBrainHeadSet();
         int tileBase = headSet.TileBaseOf(EnemyDefinitionId.MotherBrainHead);
         int indexesRow = headSet.DrawRow(EnemyDefinitionId.MotherBrainHead);
-        foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames())
+        // The head's draw hook shows the head's frames; her falling tubes draw from their own sheet through her encounter.
+        foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames().Take(MotherBrainVisualDefinitionsConstants.HeadFrameCount))
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
@@ -3022,6 +3033,8 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         // Draygon's evirs show in Draygon's room, whose graphics set loads her.
         enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.DraygonBody));
+        // Her opening readies the Evirs' artwork at her intro's first update, before any Evir spawns.
+        enemies.Room.Session.ArtworkProgress.Show(EncounterArtworkSequence.DraygonEvirs, 0);
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =

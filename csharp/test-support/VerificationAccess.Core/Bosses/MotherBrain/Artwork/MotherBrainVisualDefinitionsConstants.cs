@@ -12,6 +12,8 @@ internal static class MotherBrainVisualDefinitionsConstants
     }
     /// <summary>Head, mouth, damage, and falling-tube compositions in the installed catalog.</summary>
     internal const int FrameCount = 18;
+    /// <summary>The head's frames, its brain's sheet's: the head, mouth, damaged and high-tile frames before the tubes.</summary>
+    internal const int HeadFrameCount = 13;
     /// <summary>$A9:A586, Spritemaps_MotherBrain_0; eleven-character head frames.</summary>
     internal const ushort HeadStart = 0xa586;
     /// <summary>$A9:A5F8, Spritemaps_MotherBrain_2; ten-character mouth frames then the neck joint.</summary>

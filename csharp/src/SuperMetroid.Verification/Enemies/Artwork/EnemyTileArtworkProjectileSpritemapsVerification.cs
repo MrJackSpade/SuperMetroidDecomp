@@ -146,7 +146,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
         ushort ceresOperand = EnemyProjectileProgramFrameSources.Operand(RidleyFireballVisualDefinitions.ShownProjectileFrames[RidleyFireballVisualDefinitions.ProjectileFrames[0]]);
-        OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,
+        OamBuffer nativeCeres = DrawReferenceProgramFrame(stock, ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,
             NewEnemyProjectileVisualGuard(bus),
@@ -159,15 +159,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
              index++)
         {
             ushort operand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]);
-            OamBuffer nativeAlcoon = DrawReferenceProgramFrame(operand, bus,
+            OamBuffer nativeAlcoon = DrawReferenceProgramFrame(stock, operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball);
             AssertTrue(nativeAlcoon.NextByteOffset > 0 &&
-                nativeAlcoon.NextByteOffset == installedAlcoon.NextByteOffset &&
-                nativeAlcoon.ImageEquals(installedAlcoon),
-                $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads");
+                InstalledStandsFor(nativeAlcoon, installedAlcoon, stock, operand, RoomEnemyProjectileKind.AlcoonFireball),
+                $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(nativeAlcoon)}, installed {OamRecords(installedAlcoon)}");
         }
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in new VerifyInstalledEnemyProjectileSpritemapsCase[]
@@ -185,12 +184,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.ImageEquals(extracted),
-                $"{family} frame {index} draws stock OAM without visual ROM reads");
+                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
         for (int index = 0;
@@ -198,14 +196,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
              index++)
         {
             ushort operand = TorizoFrameKey(TorizoProjectileFamily.Egg)(index);
-            OamBuffer native = DrawReferenceProgramFrame(operand, bus,
+            OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus,
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
             OamBuffer extracted = DrawProgramFrame(stock, operand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
-            AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                native.ImageEquals(extracted),
-                $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads");
+            AssertTrue(InstalledStandsFor(native, extracted, stock, operand, RoomEnemyProjectileKind.GoldenTorizoEgg),
+                $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
         }
         var torizoFamilies = new TorizoFamily[]
         {
@@ -234,12 +231,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.ImageEquals(extracted),
-                $"Torizo {family} frame {index} draws stock OAM without visual ROM reads");
+                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                $"Torizo {family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
         var genericDeathFamilies = new TorizoFamily[]
@@ -257,12 +253,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.ImageEquals(extracted),
-                $"{family} frame {index} draws stock OAM without visual ROM reads");
+                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
         var environmentAndAttackFamilies = new TorizoFamily[]
@@ -307,12 +302,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.ImageEquals(extracted),
-                $"{family} frame {index} draws stock OAM without visual ROM reads");
+                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
         var motherBrainAndStatueFamilies = new TorizoFamily[]
@@ -339,15 +333,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             for (int index = 0; index < count; index++)
             {
                 ushort operand = addressAt(index);
-                OamBuffer native = DrawReferenceProgramFrame(operand, bus, kind);
+                OamBuffer native = DrawReferenceProgramFrame(stock, operand, bus, kind);
                 OamBuffer extracted = DrawProgramFrame(stock, operand, NewEnemyProjectileVisualGuard(bus), kind);
-                AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.ImageEquals(extracted),
-                    $"{family} frame {index} draws stock OAM without visual ROM reads");
+                AssertTrue(InstalledStandsFor(native, extracted, stock, operand, kind),
+                    $"{family} frame {index} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(extracted)}");
             }
         }
         // $86:D5F2 selects the second operand on this even frame; reflected X remains 128.
-        OamBuffer nativeShard = DrawReferenceProgramFrame(0xd485, bus);
+        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, 0xd485, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             NewEnemyProjectileVisualGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
@@ -619,292 +612,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 installed),
             "current projectile compositions cannot silently omit a shared program frame");
 
-        var legacyFrames = document.Frames
-            .Where(entry => entry.Key.StartsWith("ceres_elevator_", StringComparison.Ordinal))
-            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = 1,
-                Frames = legacyFrames,
-            }, CamelCaseJson);
-        AssertThrows<InvalidDataException>(
-            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(legacyJson)),
-            "a partial version-one composition cannot stand alone as stock content");
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), legacyJson);
-        InstalledEnemyArtwork migrated = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawBurst(migrated,
-                SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
-            .LowTable.SequenceEqual(stockBurst.LowTable),
-            "version-one Ceres override inherits stock Skree debris composition");
-        var migratedPad = new OamBuffer();
-        migratedPad.BeginFrame();
-        migratedPad.AddEnemySpritemap((migrated.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires migrated.ProjectileSpritemaps.")).Get(0xb1ba).Span,
-            new Position16<SpritePixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
-        AssertEqual(editedOam.LowTable[0], migratedPad.LowTable[0],
-            "version-one Ceres composition edit survives the version-three catalog upgrade");
-        byte[] versionTwoJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = 2,
-                Frames = document.Frames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionTwoJson);
-        InstalledEnemyArtwork migratedV2 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawBurst(migratedV2,
-                SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
-            .LowTable.SequenceEqual(editedBurst.LowTable),
-            "version-two edits retain the Skree debris frame");
-        AssertTrue(DrawSharedFrame(stock, editableProgramFrame.OperandAddress, bus)
-                .LowTable.SequenceEqual(DrawSharedFrame(migratedV2,
-                    editableProgramFrame.OperandAddress,
-                    NewEnemyProjectileVisualGuard(bus)).LowTable),
-            "version-two edits inherit stock shared-program frames");
-        var versionThreeFrames = EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionThreeJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = 3,
-                Frames = document.Frames,
-                ProgramFrames = versionThreeFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionThreeJson);
-        InstalledEnemyArtwork migratedV3 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawSharedFrame(migratedV3, editableProgramFrame.OperandAddress,
-                NewEnemyProjectileVisualGuard(bus)).LowTable
-            .SequenceEqual(DrawSharedFrame(editedArt, editableProgramFrame.OperandAddress,
-                NewEnemyProjectileVisualGuard(bus)).LowTable),
-            "version-three shared-program edits survive the expanded projectile catalog");
-        AssertTrue(DrawProgramFrame(migratedV3, ceresOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
-            .SequenceEqual(installedCeres.LowTable),
-            "version-three overrides inherit newly extracted Ceres Ridley frames");
-        var alcoonOperands = Enumerable.Range(0,
-                AlcoonFireballFrameToolingDefinitions.PoseCount)
-            .Select(index => EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(index)]))
-            .ToHashSet();
-        var versionFourFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizo
-            
-            .WhereToArray(frame => !alcoonOperands.Contains(frame.OperandAddress))
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionFourJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreAlcoon,
-                Frames = document.Frames,
-                ProgramFrames = versionFourFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
-        InstalledEnemyArtwork migratedV4 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawProgramFrame(migratedV4, ceresOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, ceresOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.CeresRidleyFireball).LowTable),
-            "version-four overrides retain their edited projectile frames");
-        AssertTrue(DrawProgramFrame(migratedV4, alcoonOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.AlcoonFireball).LowTable
-            .SequenceEqual(DrawProgramFrame(stock, alcoonOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.AlcoonFireball).LowTable),
-            "version-four overrides inherit newly extracted Alcoon fireball frames");
-        var versionFiveFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizo
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionFiveJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizo,
-                Frames = document.Frames,
-                ProgramFrames = versionFiveFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
-        InstalledEnemyArtwork migratedV5 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawProgramFrame(migratedV5, alcoonOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.AlcoonFireball).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, alcoonOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.AlcoonFireball).LowTable),
-            "version-five overrides retain their edited Alcoon fireball frames");
-        foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
-                 {
-                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("Super Missile", goldenMissileOperand,
-                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile),
-                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("eye beam", goldenEyeOperand,
-                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam),
-                 })
-        {
-            AssertTrue(DrawProgramFrame(migratedV5, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                .SequenceEqual(DrawProgramFrame(stock, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"version-five overrides inherit extracted Golden Torizo {family} frames");
-        }
-        var versionSixFrames = EnemyProjectilePresentationFrameSets.PreGoldenTorizoEgg
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionSixJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg,
-                Frames = document.Frames,
-                ProgramFrames = versionSixFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
-        InstalledEnemyArtwork migratedV6 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawProgramFrame(migratedV6, goldenMissileOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, goldenMissileOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable),
-            "version-six overrides retain their edited Golden Torizo missile frame");
-        AssertTrue(DrawProgramFrame(migratedV6, goldenEggOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
-            .SequenceEqual(DrawProgramFrame(stock, goldenEggOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
-            "version-six overrides inherit extracted Golden Torizo egg frames");
-        var versionSevenFrames = EnemyProjectilePresentationFrameSets.PreTorizoEffects
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionSevenJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreTorizoEffects,
-                Frames = document.Frames,
-                ProgramFrames = versionSevenFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
-        InstalledEnemyArtwork migratedV7 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        AssertTrue(DrawProgramFrame(migratedV7, goldenEggOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, goldenEggOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
-            "version-seven overrides retain their edited Golden Torizo egg frame");
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in torizoFamilies)
-        {
-            ushort operand = torizoEditableOperands[family];
-            AssertTrue(DrawProgramFrame(migratedV7, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                .SequenceEqual(DrawProgramFrame(stock, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"version-seven overrides inherit Torizo {family} frames");
-        }
-        var versionEightFrames = EnemyProjectilePresentationFrameSets.PreGenericEnemyDeath
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionEightJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreGenericEnemyDeath,
-                Frames = document.Frames,
-                ProgramFrames = versionEightFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionEightJson);
-        InstalledEnemyArtwork migratedV8 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        ushort editedTorizoOperand = torizoEditableOperands["Chozo orb"];
-        AssertTrue(DrawProgramFrame(migratedV8, editedTorizoOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.BombTorizoChozoOrb).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, editedTorizoOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.BombTorizoChozoOrb).LowTable),
-            "version-eight overrides retain their edited Torizo Chozo-orb frame");
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in genericDeathFamilies)
-        {
-            ushort operand = genericDeathEditableOperands[family];
-            AssertTrue(DrawProgramFrame(migratedV8, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                .SequenceEqual(DrawProgramFrame(stock, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"version-eight overrides inherit {family} frames");
-        }
-        var versionNineFrames = EnemyProjectilePresentationFrameSets.PreEnvironmentAndAttack
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionNineJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack,
-                Frames = document.Frames,
-                ProgramFrames = versionNineFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionNineJson);
-        InstalledEnemyArtwork migratedV9 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        ushort editedDeathOperand = genericDeathEditableOperands["enemy death"];
-        AssertTrue(DrawProgramFrame(migratedV9, editedDeathOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.EnemyDeathExplosion).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, editedDeathOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.EnemyDeathExplosion).LowTable),
-            "version-nine overrides retain their edited generic enemy-death frame");
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in environmentAndAttackFamilies)
-        {
-            ushort operand = environmentEditableOperands[family];
-            AssertTrue(DrawProgramFrame(migratedV9, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                .SequenceEqual(DrawProgramFrame(stock, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"version-nine overrides inherit {family} frames");
-        }
-        var versionTenFrames = EnemyProjectilePresentationFrameSets.PreMotherBrainAndStatue
-            .ToDictionary(frame => frame.Name,
-                frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
-        byte[] versionTenJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue,
-                Frames = document.Frames,
-                ProgramFrames = versionTenFrames,
-            }, CamelCaseJson);
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName), versionTenJson);
-        InstalledEnemyArtwork migratedV10 = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        ushort editedEnvironmentOperand = environmentEditableOperands["falling spark"];
-        AssertTrue(DrawProgramFrame(migratedV10, editedEnvironmentOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.FallingSpark).LowTable
-            .SequenceEqual(DrawProgramFrame(editedArt, editedEnvironmentOperand,
-                NewEnemyProjectileVisualGuard(bus),
-                RoomEnemyProjectileKind.FallingSpark).LowTable),
-            "version-ten overrides retain their edited falling-spark frame");
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in motherBrainAndStatueFamilies)
-        {
-            ushort operand = motherBrainEditableOperands[family];
-            AssertTrue(DrawProgramFrame(migratedV10, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                .SequenceEqual(DrawProgramFrame(stock, operand,
-                    NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"version-ten overrides inherit {family} frames");
-        }
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameSets.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws, editable frames, and v1-v10 migrations pass.");
+            "match native OAM; installed draws and editable frames pass.");
 
         void VerifySharedProgramVisuals(InstalledEnemyArtwork artwork)
         {
@@ -940,7 +650,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     EnemyProjectileFrameId shown = EnemyProjectileProgramFrameOperands.Frame(frame.OperandAddress);
                     if (SuperMetroid.AssetExtraction.Enemies.Artwork.SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(shown))
                     {
-                        AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
+                        AssertTrue(DrawReferenceProgramFrame(artwork, frame.OperandAddress, bus)
                                 .LowTable.SequenceEqual(DrawSharedFrame(artwork,
                                     frame.OperandAddress,
                                     NewEnemyProjectileVisualGuard(bus)).LowTable),
@@ -981,20 +691,27 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 AssertTrue(native.NextByteOffset > 0 &&
                     native.NextByteOffset == installedBurst.NextByteOffset &&
                     native.ImageEquals(installedBurst),
-                    $"installed Skree/Metaree burst ${program:X4} draws stock OAM without visual ROM reads");
+                    $"installed Skree/Metaree burst ${program:X4} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(installedBurst)}");
             }
         }
 
         // Expected OAM comes from the cartridge's visual operand and bank-$8D
         // composition, not the installed catalog or production draw callback.
-        static OamBuffer DrawReferenceProgramFrame(ushort operand, ISnesAddressSpace source,
+        // The cartridge's draw of a program frame under the graphics word its spawn writes: the shared sheet's for an object
+        // any room spawns, else its spawner's own sheet's in the set that loads it, with the row its loaded colours select.
+        static OamBuffer DrawReferenceProgramFrame(InstalledEnemyArtwork artwork, ushort operand, ISnesAddressSpace source,
             RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
         {
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            SpriteGraphics graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,
+                EnemyProjectileProgramFrameOperands.Frame(operand), SpawnedGraphics);
+            ushort word = graphics.Owner == SpawnedObjectOwner.Shared
+                ? NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics, SpawnedGraphics.FixedPaletteRow)
+                : NativeSpriteGraphicsWords.GraphicsWord(graphics, enemies, graphics.PaletteRowIn(enemies));
             ushort pointer = ReadNativeEnemyProjectileProgramWord(source, operand);
             var oam = new OamBuffer();
             oam.BeginFrame();
-            DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96),
-                NativeSpriteGraphicsWords.GraphicsWord(SpawnedGraphics, SpawnedGraphics.FixedPaletteRow), originYIsOnScreen: true);
+            DrawImportedEnemyProjectileSpritemap(source, oam, pointer, new(128, 96), word, originYIsOnScreen: true);
             return oam;
         }
 
@@ -1127,12 +844,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             SpawnedObjectFixtures.LoadSetDrawing(enemies, spawner);
-            SuperMetroid.AssetExtraction.Enemies.FrameDrawings drawings = SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame);
-            foreach (EncounterArtworkSequence sequence in Enum.GetValues<EncounterArtworkSequence>())
-            {
-                if (drawings.For(sequence) is { DrawnBeforeFirstStep: false, Steps: [var first, ..] })
-                    enemies.Room.Session.ArtworkProgress.Show(sequence, first.First);
-            }
+            SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(frame));
             return enemies;
         }
 
@@ -1168,20 +880,35 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawPresentedFrame(InstalledEnemyArtwork artwork,
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
-            slot.Kind = kind;
-            slot.Position = slot.Position.WithWhole(new(128, 96));
-            slot.Graphics = SpawnedGraphics;
-            // As the typed runner does when it shows the program frame the key installs.
-            slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
-            // It draws from the sheets a set spawning it composes from this artwork.
-            SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame."));
+            RoomEnemySystem enemies = PresentedSystem(artwork, presentationKey, kind);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
+
+        // A room whose first projectile shows the program frame the key installs, drawn from the sheets of a set spawning it.
+        static RoomEnemySystem PresentedSystem(InstalledEnemyArtwork artwork, ushort presentationKey, RoomEnemyProjectileKind kind)
+        {
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
+            slot.Kind = kind;
+            slot.Position = slot.Position.WithWhole(new(128, 96));
+            // As the typed runner does when it shows the program frame the key installs.
+            slot.Frame = EnemyProjectileProgramFrameOperands.Frame(presentationKey);
+            // It draws from the sheets a set spawning it composes from this artwork, under the graphics that spawn gives it.
+            EnemyProjectileFrameId shown = slot.Frame ?? throw new InvalidOperationException($"Key ${presentationKey:X4} shows a frame.");
+            slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, shown, SpawnedGraphics);
+            SpawnedObjectFixtures.ShowDrawnSteps(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
+            return enemies;
+        }
+
+        // Whether the installed draw of a program frame stands for the native OAM: the same image, or the OAM of another
+        // composition the frame's shared picture stands for (#1513).
+        static bool InstalledStandsFor(OamBuffer native, OamBuffer installed, InstalledEnemyArtwork artwork, ushort operand,
+            RoomEnemyProjectileKind kind) =>
+            native.NextByteOffset == installed.NextByteOffset &&
+            (native.ImageEquals(installed) || SharedPictureStandsFor(PresentedSystem(artwork, operand, kind), native));
 
         static OamBuffer DrawNoobTubeShard(InstalledEnemyArtwork artwork,
             ISnesAddressSpace source)
@@ -1196,7 +923,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0Loop));
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
             // It draws from the sheets a set spawning it composes from this artwork.
-            SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException("The shard shows a frame."));
+            slot.Graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies,
+                slot.Frame ?? throw new InvalidOperationException("The shard shows a frame."), SpawnedGraphics);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);

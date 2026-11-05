@@ -35,20 +35,46 @@ internal static class SpawnedObjectFixtures
         || RoomStateDefinitions.All.Any(state => state.EnemyPopulation.Records.ToArray().Any(record => record.DefinitionId == enemy));
 
     /// <summary>
-    /// Loads into <paramref name="enemies"/> a retail graphics set whose character-zero sheet holds projectile
-    /// <paramref name="frame"/>: the first set loading an enemy that spawns it, or, for an object any room spawns, the
-    /// first set.
+    /// Loads into <paramref name="enemies"/> a retail graphics set whose sheets hold projectile <paramref name="frame"/>:
+    /// the first set loading an enemy that spawns it onto its own sheet, else onto its sets' shared sheet, or, for an
+    /// object any room spawns, the first set; and returns the graphics the spawn draws with there: the spawner's own sheet
+    /// in its loaded colours, or <paramref name="shared"/> for an object drawn from the shared sheet.
     /// </summary>
     /// <exception cref="InvalidOperationException">No enemy a set loads spawns the frame and no room spawns it anywhere.</exception>
-    internal static void LoadSetSpawning(RoomEnemySystem enemies, EnemyProjectileFrameId frame)
+    internal static SpriteGraphics LoadSetSpawning(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics shared)
     {
         ArgumentNullException.ThrowIfNull(enemies);
-        RoomEnemyGraphicsSetDefinition set = SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(frame)
-            ? RoomEnemyGraphicsSetLists.All[0]
-            : RoomEnemyGraphicsSetLists.All.FirstOrDefault(candidate => candidate.Records.ToArray().Any(record =>
-                SpawnedObjectFrameDefinitions.ByEnemy.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame)))
-            ?? throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");
-        enemies.GraphicsSet.LoadGraphicsSet(set);
+        if (SpawnedObjectFrameDefinitions.Anywhere.Projectiles.Contains(frame))
+        {
+            enemies.GraphicsSet.LoadGraphicsSet(RoomEnemyGraphicsSetLists.All[0]);
+            return shared;
+        }
+        if (SetLoadingSpawner(SpawnedObjectFrameDefinitions.ByEnemy, frame) is ({ } ownSet, { } owner))
+        {
+            enemies.GraphicsSet.LoadGraphicsSet(ownSet);
+            return new SpriteGraphics(SpawnedObjectOwner.Of(owner), PictureShading.Standard);
+        }
+        if (SetLoadingSpawner(SpawnedObjectFrameDefinitions.SharedByEnemy, frame) is ({ } sharedSet, _))
+        {
+            enemies.GraphicsSet.LoadGraphicsSet(sharedSet);
+            return shared;
+        }
+        throw new InvalidOperationException($"No retail graphics set spawns projectile frame {frame}.");
+    }
+
+    /// <summary>The first retail graphics set loading an enemy <paramref name="spawns"/> says spawns <paramref name="frame"/>, with that enemy.</summary>
+    private static (RoomEnemyGraphicsSetDefinition? Set, EnemyDefinitionId? Spawner) SetLoadingSpawner(
+        IReadOnlyDictionary<EnemyDefinitionId, SpawnedObjects> spawns, EnemyProjectileFrameId frame)
+    {
+        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.All)
+        {
+            foreach (var record in set.Records.ToArray())
+            {
+                if (spawns.TryGetValue(record.DefinitionId, out SpawnedObjects? spawned) && spawned.Projectiles.Contains(frame))
+                    return (set, record.DefinitionId);
+            }
+        }
+        return (null, null);
     }
 
     /// <summary>
@@ -62,6 +88,22 @@ internal static class SpawnedObjectFixtures
         if (slot is null)
             return;
         slot.Shading = PictureShading.Standard;
+    }
+
+    /// <summary>
+    /// Shows in <paramref name="enemies"/>' session the first step each encounter artwork sequence <paramref name="drawings"/>
+    /// draws its frame at, for a sequence that never draws it before its first step: the sheet holds that frame's picture
+    /// only from the steps it is drawn at (#1513), so a fixture draws it there, as the encounter does.
+    /// </summary>
+    internal static void ShowDrawnSteps(RoomEnemySystem enemies, FrameDrawings drawings)
+    {
+        ArgumentNullException.ThrowIfNull(enemies);
+        ArgumentNullException.ThrowIfNull(drawings);
+        foreach (EncounterArtworkSequence sequence in Enum.GetValues<EncounterArtworkSequence>())
+        {
+            if (drawings.For(sequence) is { DrawnBeforeFirstStep: false, Steps: [var first, ..] })
+                enemies.Room.Session.ArtworkProgress.Show(sequence, first.First);
+        }
     }
 
     /// <summary>The installed enemy artwork with <paramref name="spritemaps"/> in place of its compositions.</summary>

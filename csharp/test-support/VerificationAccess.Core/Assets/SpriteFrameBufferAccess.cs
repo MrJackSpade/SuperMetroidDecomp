@@ -48,6 +48,43 @@ internal static class SpriteFrameBufferAccess
     }
 
     /// <summary>
+    /// Whether what <paramref name="draw"/> publishes into a fresh frame stands for <paramref name="native"/>'s records:
+    /// each image draw, in emission order, as one of the compositions its picture stands for (#1513). A sheet lays out the
+    /// identical pictures of several frames once, so a draw of that picture can stand for any of those frames' OAM.
+    /// </summary>
+    internal static bool DrawnStandsFor(Action<SpriteFrameBuffer> draw, OamBuffer native)
+    {
+        Ensure.NotNull(draw);
+        Ensure.NotNull(native);
+        var frame = new SpriteFrameBuffer();
+        frame.BeginFrame();
+        draw(frame);
+        frame.FinalizeFrame();
+        var chosen = new List<CharacterSpriteDraw>();
+        int parts = 0;
+        foreach (SpriteDraw drawn in frame.Draws)
+        {
+            if (drawn is not ImageSpriteDraw image)
+                return false;
+            CharacterSpriteDraw? match = null;
+            foreach (CharacterSpriteDraw candidate in SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDrawCandidates(image))
+            {
+                int bytes = (parts + candidate.Frame.Parts.Length) * 4;
+                if (Assemble([.. chosen, candidate], parkUnused: false).LowTable[..bytes].SequenceEqual(native.LowTable[..bytes]))
+                {
+                    match = candidate;
+                    break;
+                }
+            }
+            if (match is null)
+                return false;
+            chosen.Add(match);
+            parts += match.Frame.Parts.Length;
+        }
+        return Assemble(chosen, parkUnused: false).LowTable.SequenceEqual(native.LowTable);
+    }
+
+    /// <summary>
     /// The OAM image <paramref name="compositions"/> stand for: their parts in order, each naming OBJ character artwork-base
     /// + character, its coordinates wrapped to OAM's nine-bit X and eight-bit Y, 16-pixel parts large. Unused records
     /// stay zero, or are parked at Y=$F0 as `$80:896E` leaves them.

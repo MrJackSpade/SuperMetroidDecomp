@@ -97,17 +97,12 @@ internal static class SpriteColouringAccess
         internal int DrawRow(EnemyDefinitionId enemy) => new GraphicsSetRows(self.LoadedSet).RowOf(enemy);
 
         /// <summary>
-        /// The row the objects of <paramref name="owner"/> are coloured in under the set: the common row for the shared sheet
-        /// and for a spawner the cartridge draws from character zero, otherwise their spawner's.
+        /// The row the objects of <paramref name="owner"/> are coloured in under the set: the common row for the shared sheet,
+        /// otherwise their spawner's, since a spawn takes its graphics from its spawner's palette ORed with its character
+        /// offset (<c>$86:8030</c>), whatever that offset is.
         /// </summary>
-        internal int RowOf(SpawnedObjectOwner owner)
-        {
-            if (owner.Spawner is not { } spawner)
-                return EnemySheetRowDefinitions.Common;
-            if (!owner.IsMotherBrainTankGlass && self.TileBaseOf(spawner) == 0)
-                return EnemySheetRowDefinitions.Common;
-            return self.DrawRow(spawner);
-        }
+        internal int RowOf(SpawnedObjectOwner owner) =>
+            owner.Spawner is { } spawner ? self.DrawRow(spawner) : EnemySheetRowDefinitions.Common;
 
         /// <summary>The shading native row <paramref name="row"/> denotes for a sprite drawn by <paramref name="owner"/> under the set.</summary>
         internal PictureShading ShadingInRow(int row, EnemyDefinitionId owner) => SpriteColouringAccess.ShadingInRow(row, self.DrawRow(owner));

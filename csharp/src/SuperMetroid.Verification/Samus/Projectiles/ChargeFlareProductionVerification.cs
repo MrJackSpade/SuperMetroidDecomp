@@ -45,7 +45,7 @@ internal static class ChargeFlareProductionVerification
                 OamBuffer b = compiled.ChargeFlareOam(samus, new(0, 0), placement);
                 AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
-                AssertTrue(GraphDigest(native, InstalledFixtures.BoundContent).SequenceEqual(GraphDigest(compiled, InstalledFixtures.BoundContent)), "Drawing leaves projectile, flare-counter and animation state identical");
+                AssertTrue(SameGraph(native, compiled, InstalledFixtures.BoundContent), "Drawing leaves projectile, flare-counter and animation state identical");
                 ticks++;
             }
         }

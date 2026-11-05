@@ -87,8 +87,8 @@ internal static class GrappleFlarePlacementVerification
                 return samus;
             }
             void Compare() =>
-                AssertTrue(GraphDigest(native, [stock, .. InstalledFixtures.BoundContent]).SequenceEqual(GraphDigest(selected, [InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement
-                    ?? throw new InvalidOperationException("The installation places the grapple flare."), .. InstalledFixtures.BoundContent])), "Stock extracted flare preserves complete Samus graph");
+                AssertTrue(SameGraph(native, [stock, .. InstalledFixtures.BoundContent], selected, [InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement
+                    ?? throw new InvalidOperationException("The installation places the grapple flare."), .. InstalledFixtures.BoundContent]), "Stock extracted flare preserves complete Samus graph");
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture();

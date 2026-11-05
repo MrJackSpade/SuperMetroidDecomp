@@ -144,6 +144,13 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
     internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
 
+    /// <summary>
+    /// Whether <paramref name="tiles"/> is the shared installed enemy artwork's own catalog, which holds the stock content
+    /// as loaded; asking does not load it.
+    /// </summary>
+    internal static bool IsSharedEnemyTiles(EnemyTileSourceArtwork tiles) =>
+        enemyArtwork.IsValueCreated && ReferenceEquals(enemyArtwork.Value.Enemies, tiles);
+
     /// <summary>The installation's stock boss artwork, loaded once per process with the enemy artwork.</summary>
     internal static BossSourceArtwork BossArtwork => enemyArtwork.Value.Bosses;
 

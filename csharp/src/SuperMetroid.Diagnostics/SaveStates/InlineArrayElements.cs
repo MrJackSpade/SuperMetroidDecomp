@@ -11,9 +11,23 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// </summary>
 internal static class InlineArrayElements
 {
-    /// <summary>The element count of an inline-array struct, or null for any other type.</summary>
+    /// <summary>
+    /// The element count of an inline-array struct, or null for any other type. A capture asks this of every struct it
+    /// writes, so each type's answer is read from its attributes once.
+    /// </summary>
     internal static int? Length(Type type) =>
-        type.IsValueType && type.GetCustomAttribute<InlineArrayAttribute>() is { } inline ? inline.Length : null;
+        type.IsValueType ? lengths.GetOrAdd(type, ReadLength) : null;
+
+    /// <summary>The element count <paramref name="type"/>'s inline-array attribute declares, or null without one.</summary>
+    [ReflectionAudit("debugger state capture recognises an inline-array struct by its attribute")]
+    private static int? ReadLength(Type type) =>
+        type.GetCustomAttribute<InlineArrayAttribute>() is { } inline ? inline.Length : null;
+
+    /// <summary>Each struct type's inline-array length, or null for a struct that is not one, read once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, int?> lengths = new();
+
+    /// <summary>Each typed helper bound to a buffer type and its element type, by helper and buffer type, bound once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string Helper, Type Type), MethodInfo> helpers = new();
 
     /// <summary>Every element of the boxed inline array <paramref name="buffer"/>, in order.</summary>
     [ReflectionAudit("debugger state capture reads every element of an inline-array struct through its element type")]
@@ -35,13 +49,18 @@ internal static class InlineArrayElements
 
     /// <summary>Runs a typed helper for <paramref name="type"/> and its element type.</summary>
     [ReflectionAudit("debugger state binds the typed inline-array helpers to the buffer's own element type")]
-    private static object Invoke(string helper, Type type, object argument, int length)
+    private static object Invoke(string helper, Type type, object argument, int length) =>
+        helpers.GetOrAdd((helper, type), static key => Bind(key.Helper, key.Type)).Invoke(null, [argument, length])
+            ?? throw new InvalidOperationException($"{helper} returned nothing for {type.FullName}.");
+
+    /// <summary>The typed helper <paramref name="helper"/> bound to <paramref name="type"/> and its element type.</summary>
+    [ReflectionAudit("debugger state binds the typed inline-array helpers to the buffer's own element type")]
+    private static MethodInfo Bind(string helper, Type type)
     {
         Type element = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Single().FieldType;
         MethodInfo method = typeof(InlineArrayElements).GetMethod(helper, BindingFlags.NonPublic | BindingFlags.Static)
             ?? throw new MissingMethodException(nameof(InlineArrayElements), helper);
-        return method.MakeGenericMethod(type, element).Invoke(null, [argument, length])
-            ?? throw new InvalidOperationException($"{helper} returned nothing for {type.FullName}.");
+        return method.MakeGenericMethod(type, element);
     }
 
     /// <summary>Copies each element of a boxed buffer out as an object.</summary>

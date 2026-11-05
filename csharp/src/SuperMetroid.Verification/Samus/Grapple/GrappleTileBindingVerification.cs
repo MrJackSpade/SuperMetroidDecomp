@@ -43,7 +43,9 @@ internal static class GrappleTileBindingVerification
         AssertBoundTo(runtime, stock, "Actual actor pass draws the installed grapple sheet");
 
         // A saved state names the sheets it is bound to; a restore draws from them, and from whichever the host binds next.
-        var restored = RoundTrip(game, [game.Artwork, stock, .. InstalledFixtures.BoundContent]);
+        // The fixture's installed content holds the sheets and every catalog of the game's artwork, so the capture names
+        // them all by path through the content every check already indexed.
+        var restored = RoundTrip(game, InstalledFixtures.BoundContent);
         var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(ReferenceEquals(stock, restoredRuntime.Artwork.SpriteSheets), "Restored state names the bound sheets");
         restored.BindArtwork(restored.Artwork with { SpriteSheets = rebound });

@@ -24,6 +24,81 @@ internal static class GraphDigestVerification
     }
 
     /// <summary>
+    /// Whether <paramref name="left"/> and <paramref name="right"/> have the same complete debugger-state graph, both naming
+    /// what they reach of <paramref name="content"/> by path: the comparison two equal <see cref="GraphDigest"/>s make,
+    /// made on the serialized bytes themselves, so neither graph is hashed.
+    /// </summary>
+    internal static bool SameGraph(object left, object right, params object[] content) =>
+        SameGraph(left, content, right, content);
+
+    /// <summary>
+    /// Whether <paramref name="left"/>, naming what it reaches of <paramref name="leftContent"/> by path, and
+    /// <paramref name="right"/>, naming what it reaches of <paramref name="rightContent"/>, have the same complete
+    /// debugger-state graph: the comparison their two <see cref="GraphDigest"/>s make, made on the serialized bytes. The left
+    /// graph is written into this thread's reused buffer and the right one is compared with it as it is written.
+    /// </summary>
+    internal static bool SameGraph(object left, object[] leftContent, object right, object[] rightContent)
+    {
+        MemoryStream written = leftGraph ??= new MemoryStream();
+        written.SetLength(0);
+        BoundObjectGraph leftBound = Bound(leftContent);
+        DebuggerObjectGraphSerializer.Serialize(written, left, leftBound);
+        if (!written.TryGetBuffer(out ArraySegment<byte> expected))
+            throw new InvalidOperationException("The reused graph buffer exposes its bytes.");
+        using var comparing = new ComparingStream(expected);
+        // Both graphs bound to one list name its content through the one index, refreshed once for the pair.
+        DebuggerObjectGraphSerializer.Serialize(comparing, right, ReferenceEquals(leftContent, rightContent) ? leftBound : Bound(rightContent));
+        return comparing.Same;
+    }
+
+    /// <summary>This thread's buffer for the left graph of a <see cref="SameGraph(object, object[], object, object[])"/>, kept between comparisons.</summary>
+    [ThreadStatic] private static MemoryStream? leftGraph;
+
+    /// <summary>Write-only stream that compares the bytes written with an expected graph as they arrive.</summary>
+    private sealed class ComparingStream(ArraySegment<byte> expected) : Stream
+    {
+        /// <summary>How many bytes have been written.</summary>
+        private long written;
+
+        /// <summary>Whether a written byte differed from the expected byte at its position, or ran past the expected bytes.</summary>
+        private bool differs;
+
+        /// <summary>Whether the bytes written are exactly the expected bytes.</summary>
+        internal bool Same => !differs && written == expected.Count;
+
+        /// <summary>Comparing accepts writes only.</summary>
+        public override bool CanRead => false;
+        /// <summary>Written bytes cannot be repositioned.</summary>
+        public override bool CanSeek => false;
+        /// <summary>Written bytes are compared in order.</summary>
+        public override bool CanWrite => true;
+        /// <summary>A comparing stream has no retrievable length.</summary>
+        public override long Length => throw new NotSupportedException();
+        /// <summary>A comparing stream has no seekable position.</summary>
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Comparisons are immediate and need no flush.</summary>
+        public override void Flush() { }
+        /// <summary>Rejects reads from the write-only stream.</summary>
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        /// <summary>Rejects repositioning written bytes.</summary>
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        /// <summary>Rejects changing the stream's length.</summary>
+        public override void SetLength(long value) => throw new NotSupportedException();
+        /// <summary>Compares an array segment with the expected bytes at the current position.</summary>
+        public override void Write(byte[] buffer, int offset, int count) => Write(new ReadOnlySpan<byte>(buffer, offset, count));
+        /// <summary>Compares one byte with the expected byte at the current position.</summary>
+        public override void WriteByte(byte value) => Write(new ReadOnlySpan<byte>(in value));
+        /// <summary>Compares a span with the expected bytes at the current position.</summary>
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            if (!differs)
+                differs = written + buffer.Length > expected.Count ||
+                    !buffer.SequenceEqual(expected.AsSpan((int)written, buffer.Length));
+            written += buffer.Length;
+        }
+    }
+
+    /// <summary>
     /// SHA-256 of everything <paramref name="value"/> reaches, content included: no object is named by path, so a change
     /// to content itself, such as a part it loads on first use, changes the digest (#1532).
     /// </summary>
@@ -60,35 +135,86 @@ internal static class GraphDigestVerification
     /// <summary>
     /// The bound objects a capture names by path: <paramref name="content"/>, or the fixture's installed content when
     /// none is given, as a host's store always binds its content. Each list of the same objects in the same order is
-    /// indexed once, so repeated captures do not walk its content again.
+    /// indexed once, so repeated captures do not walk its content again. A list that ends with a list already indexed, or
+    /// with the fixture's installed content, extends that list's index: only what its leading objects reach first is walked,
+    /// and the index is the one the whole list would make.
     /// </summary>
     private static BoundObjectGraph Bound(object[] content)
     {
-        bool installed = content.Length == 0;
-        if (installed)
+        if (content.Length == 0)
             content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
         lock (boundGraphs)
-        {
-            foreach ((object[] roots, BoundObjectGraph graph) in boundGraphs)
-                if (roots.Length == content.Length && roots.Zip(content).All(pair => ReferenceEquals(pair.First, pair.Second)))
-                {
-                    // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
-                    // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
-                    // keeps the path it was first indexed under.
-                    if (installed && SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent != installedCatalogsIndexed)
-                        IndexInstalledContent(() =>
-                        {
-                            graph.Refresh();
-                            return graph;
-                        });
-                    else
+            return Indexed(content);
+    }
+
+    /// <summary>
+    /// The graph of <paramref name="content"/>, indexed now unless it was before; callers hold the lock. The fixture's
+    /// installed content is indexed, and re-indexed after another of its catalogs loads, as a shared fixture
+    /// (<see cref="IndexInstalledContent"/>), whether a capture names it alone or as the list a longer list extends.
+    /// </summary>
+    private static BoundObjectGraph Indexed(object[] content)
+    {
+        bool installed = IsInstalledContent(content);
+        foreach ((object[] roots, BoundObjectGraph graph, object[]? extends) in boundGraphs)
+            if (roots.Length == content.Length && EndsWith(content, roots))
+            {
+                // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
+                // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
+                // keeps the path it was first indexed under. The list a graph extends is refreshed first, as its own
+                // list is, so installed content's refresh is timed as the shared fixture's.
+                if (extends is not null)
+                    Indexed(extends);
+                if (installed && SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent != installedCatalogsIndexed)
+                    IndexInstalledContent(() =>
+                    {
                         graph.Refresh();
-                    return graph;
-                }
-            BoundObjectGraph indexed = installed ? IndexInstalledContent(() => new BoundObjectGraph(content)) : new BoundObjectGraph(content);
-            boundGraphs.Add(([.. content], indexed));
-            return indexed;
-        }
+                        return graph;
+                    });
+                else
+                    graph.Refresh();
+                return graph;
+            }
+        object[]? suffix = installed ? null : IndexedSuffix(content);
+        BoundObjectGraph indexed = installed ? IndexInstalledContent(() => new BoundObjectGraph(content))
+            : suffix is not null ? new BoundObjectGraph(content[..^suffix.Length], Indexed(suffix))
+            : new BoundObjectGraph(content);
+        boundGraphs.Add(([.. content], indexed, suffix));
+        return indexed;
+    }
+
+    /// <summary>Whether <paramref name="content"/> is the fixture's installed content, the same objects in order.</summary>
+    private static bool IsInstalledContent(object[] content)
+    {
+        object[] installed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        return content.Length == installed.Length && EndsWith(content, installed);
+    }
+
+    /// <summary>
+    /// The longest list already indexed that <paramref name="content"/> ends with and is longer than, or else the fixture's
+    /// installed content when the list ends with it; null when it ends with neither.
+    /// </summary>
+    private static object[]? IndexedSuffix(object[] content)
+    {
+        object[]? longest = null;
+        foreach ((object[] roots, _, _) in boundGraphs)
+            if (roots.Length < content.Length && roots.Length > (longest?.Length ?? 0) && EndsWith(content, roots))
+                longest = roots;
+        object[] installed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        if (longest is null && installed.Length < content.Length && EndsWith(content, installed))
+            longest = installed;
+        return longest;
+    }
+
+    /// <summary>Whether the last objects of <paramref name="content"/> are <paramref name="suffix"/>'s, the same objects in order.</summary>
+    private static bool EndsWith(object[] content, object[] suffix)
+    {
+        int start = content.Length - suffix.Length;
+        if (start < 0)
+            return false;
+        for (int index = 0; index < suffix.Length; index++)
+            if (!ReferenceEquals(content[start + index], suffix[index]))
+                return false;
+        return true;
     }
 
     /// <summary>
@@ -106,7 +232,8 @@ internal static class GraphDigestVerification
     private static int installedCatalogsIndexed = -1;
 
     /// <summary>Each content list indexed so far, with its graph.</summary>
-    private static readonly List<(object[] Roots, BoundObjectGraph Graph)> boundGraphs = [];
+    /// <remarks>An extending graph keeps the list it extends, which is refreshed before it.</remarks>
+    private static readonly List<(object[] Roots, BoundObjectGraph Graph, object[]? Extends)> boundGraphs = [];
 
     /// <summary>
     /// Write-only stream that feeds serialized graph bytes into an incremental SHA-256 hash. The serializer writes a graph

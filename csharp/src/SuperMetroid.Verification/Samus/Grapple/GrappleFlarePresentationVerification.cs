@@ -30,8 +30,10 @@ internal static class GrappleFlarePresentationVerification
     {
         var flarePlacement = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
-        // The cases bind Samus to this body and flare placement: content a capture names, never copies.
-        object[] content = [body, flarePlacement, .. InstalledFixtures.BoundContent];
+        // The cases bind Samus to this body and flare placement: content a capture names, never copies. The body is the
+        // shared installed one the fixture content already names; the extracted placement leads the installed content, whose
+        // index the list extends rather than walks again.
+        object[] content = [flarePlacement, .. InstalledFixtures.BoundContent];
         foreach (int address in new[] { GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets })
             AssertEqual(ReadNativeGrappleFlareSpritemapOffset(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;
@@ -129,7 +131,7 @@ internal static class GrappleFlarePresentationVerification
 
             AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
-            AssertTrue(GraphDigest(native, content).SequenceEqual(GraphDigest(actual, content)), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
+            AssertTrue(SameGraph(native, actual, content), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
             cases++;
         }
         SamusState Clone(SamusState source) => RoundTrip(source, content);

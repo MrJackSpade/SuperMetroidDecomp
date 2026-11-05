@@ -14,8 +14,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <item>the explosions projectiles turn into and the bombs' fast lists;</item>
 /// <item>every list those continue into.</item>
 /// </list>
-/// The Chainsaw and SpaceTime combinations' shots run callbacks that move their animations into whichever list lies at
-/// the place they land, so every list is theirs.
+/// The glitched Chainsaw and SpaceTime combinations select their shots the same way, reading past the beam rows into the
+/// charged rows and the missiles' rows, and have no special attack: the combo tables hold only the retail combinations.
+/// Their shots' callbacks move no animation. SpaceTime's copies the beam palette on over saved progress. Chainsaw's runs the Power Bomb
+/// fuse over the shot from a stopped fuse, which the fuse leaves stopped, so the shot never reaches the fast stage whose
+/// move would land its animation in another list (<see cref="SuperMetroid.Core.Compatibility.ChainsawFuseAnimationShift{TCursor}"/>).
 /// </summary>
 internal static class LoadedBeamProjectilePrograms
 {
@@ -47,14 +50,14 @@ internal static class LoadedBeamProjectilePrograms
     /// <summary>Every program a projectile can run while <paramref name="beams"/> is the loaded combination.</summary>
     internal static IReadOnlySet<SamusProjectileProgram> Of(SamusBeamCombination beams)
     {
-        if (beams is ChainsawBeamGraphicsDefinitions.Selection or SpacetimeBeamGraphicsDefinitions.Selection)
-            return Enum.GetValues<SamusProjectileProgram>().ToHashSet();
         var starts = new List<SamusProjectileProgram>();
         AddEveryDirection(starts, SamusProjectileSelectorTable.UnchargedBeam, beams.TableIndex);
         AddEveryDirection(starts, SamusProjectileSelectorTable.ChargedBeam, beams.TableIndex);
         if (beams == HyperBeamLoaded)
             AddEveryDirection(starts, SamusProjectileSelectorTable.ChargedBeam, HyperBeamFired.TableIndex);
-        AddFirst(starts, SamusProjectileSelectorTable.SpecialAttack, beams.TableIndex);
+        // Only a retail combination has a special attack.
+        if (beams.IsRetail)
+            AddFirst(starts, SamusProjectileSelectorTable.SpecialAttack, beams.TableIndex);
         foreach (int entry in MissileEntries)
             AddEveryDirection(starts, SamusProjectileSelectorTable.NonBeam, entry);
         foreach (int entry in BombEntries)

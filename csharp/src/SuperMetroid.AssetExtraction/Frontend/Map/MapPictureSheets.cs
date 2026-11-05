@@ -58,9 +58,12 @@ internal static class MapPictureSheets
         return new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, MapCharacterArtwork.Of(Ensure.NotNull(maps)).Map.Characters[..bytes].ToArray());
     }
 
-    /// <summary>The room maps' sheet under the file-select palette: every map cell and each Zebes area's room frame.</summary>
+    /// <summary>
+    /// The room maps' sheet under the file-select palette: every map cell and each Zebes area's room frame, a picture
+    /// painting no pixel, such as a map cell's empty shape, held without a picture as showing nothing (#1513).
+    /// </summary>
     internal static ComposedSpriteSheet ComposeRoomMap(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose([.. RoomMapSubjects(maps)], MapCharacters(maps), InstalledAreaMapPresentation.PalettesOf(maps).FileSelect);
+        ScreenPictureSheetComposer.ComposeHoldingBlanks([.. RoomMapSubjects(maps)], MapCharacters(maps), InstalledAreaMapPresentation.PalettesOf(maps).FileSelect);
 
     /// <summary>The room maps' pictures: every map cell, then each Zebes area's room frame.</summary>
     internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(AreaMapPresentation maps)

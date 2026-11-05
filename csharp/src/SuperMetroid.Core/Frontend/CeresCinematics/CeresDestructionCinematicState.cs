@@ -48,7 +48,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>What the turning floor shows (#1467), or null before the station is set up and the floor shows nothing.</summary>
+    /// <summary>
+    /// What the turning floor shows (#1467), or null while it shows nothing: before the station is set up, and once the
+    /// final explosion with Samus still aboard has cleared the whole floor (#1513).
+    /// </summary>
     internal CeresFloorShot? FloorShot { get; private set; }
     /// <summary>Whether the Zebes reveal has loaded its characters and planet map over the station's (#1467).</summary>
     internal bool ZebesRevealed { get; private set; }
@@ -613,14 +616,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The final blast queues these two Mode-7 loads on the same dispatcher call that creates
-    /// the final explosion. In state $22 the upper 24 rows become the gunship viewed from the
-    /// front; state $25 has no gunship and clears them too. The lower 24 rows are always
-    /// cleared. Leaving the original Ceres screens in either half makes the station itself
-    /// flee the explosion and later attaches those stale tiles to the Zebes approach.
+    /// The final blast replaces the floor on the same dispatcher call that creates the final explosion. With Samus gone
+    /// the upper half becomes the gunship viewed from the front over a cleared lower half; with Samus still aboard no
+    /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). Leaving the station on either half
+    /// would make the station itself flee the explosion and later carry it into the Zebes approach.
     /// </summary>
     private void LoadFinalExplosionMaps() =>
-        FloorShot = WithSamus ? CeresFloorShot.ExplosionWithoutGunship : CeresFloorShot.Explosion;
+        FloorShot = WithSamus ? null : CeresFloorShot.Explosion;
 
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
@@ -843,7 +845,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
                 Background.Whole.AsSignedWord());
-            // Before the station is set up nothing is loaded, and the floor shows nothing.
+            // Before the station is set up, and after the explosion with Samus aboard clears it, the floor shows nothing.
             layers = FloorShot is { } shot
                 ? [new SpriteDepthLayer(0), new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot).Shaded(EngineShading)),
                     new SpriteDepthLayer(1), new SpriteDepthLayer(2), new SpriteDepthLayer(3)]

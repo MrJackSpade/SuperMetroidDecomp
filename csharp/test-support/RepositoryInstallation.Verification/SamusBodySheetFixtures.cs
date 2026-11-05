@@ -46,6 +46,13 @@ internal static class SamusBodySheetFixtures
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> atmospheres =
         new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// Body sheets already painted, by sheet and layout identity: a layout's identity covers everything painting reads,
+    /// so fixture bodies whose tables lay a sheet out alike share its painted sheet and its registered frames.
+    /// </summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<SpriteSheet>> paintedLayouts =
+        new(StringComparer.Ordinal);
+
     /// <summary>Sheets already composed, by the body's and then the arm cannon's content identities.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Lazy<InstalledSpriteSheets>> cannons =
         new(StringComparer.Ordinal);
@@ -157,19 +164,28 @@ internal static class SamusBodySheetFixtures
         SpriteSheetId[] replaced = [.. ids];
         var composedSheets = new SpriteSheet[replaced.Length];
         var composedSources = new SpriteSheetSources[replaced.Length];
+        var painted = new bool[replaced.Length];
         // Each sheet composes from the fixture's inputs alone, so the sheets compose at once, each on its own worker; an
-        // exception from any of them fails the composition. Their frames are registered afterwards on this thread.
+        // exception from any of them fails the composition. A sheet whose layout an earlier fixture painted is that
+        // fixture's sheet: a fixture body that changes only some of the tables leaves the sheets the others compose alike.
+        // The frames of each newly painted sheet are registered afterwards on this thread.
         System.Threading.Tasks.Parallel.For(0, replaced.Length, index =>
         {
             SpriteSheetId id = replaced[index];
             composedSources[index] = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon.Source)
                 : SamusSheetSources.For(fixture, id);
-            composedSheets[index] = Load(id, composedSources[index], suffix);
+            var layout = new SpriteSheetLayout(composedSources[index], 0, 0);
+            composedSheets[index] = paintedLayouts.GetOrAdd($"{id}-{layout.Identity}", _ => new(() =>
+            {
+                painted[index] = true;
+                return Load(id, layout, suffix);
+            })).Value;
         });
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
         for (int index = 0; index < replaced.Length; index++)
         {
-            SheetFrameSources.Register(composedSheets[index], composedSources[index]);
+            if (painted[index])
+                SheetFrameSources.Register(composedSheets[index], composedSources[index]);
             sheets[replaced[index]] = composedSheets[index];
         }
         return new InstalledSpriteSheets(sheets);
@@ -186,9 +202,13 @@ internal static class SamusBodySheetFixtures
     }
 
     /// <summary>Composes and loads the fixture sheet <paramref name="id"/> from <paramref name="sources"/>.</summary>
-    private static SpriteSheet Load(SpriteSheetId id, SpriteSheetSources sources, string suffix)
+    private static SpriteSheet Load(SpriteSheetId id, SpriteSheetSources sources, string suffix) =>
+        Load(id, new SpriteSheetLayout(sources, 0, 0), suffix);
+
+    /// <summary>Paints and loads the fixture sheet <paramref name="id"/> laid out as <paramref name="layout"/>.</summary>
+    private static SpriteSheet Load(SpriteSheetId id, SpriteSheetLayout layout, string suffix)
     {
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(layout);
         return SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities);
     }

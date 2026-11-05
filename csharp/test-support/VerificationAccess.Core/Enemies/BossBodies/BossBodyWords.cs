@@ -23,7 +23,9 @@ internal static class BossBodyWords
     {
         Dictionary<string, BossBodyFrameSource> frames = FramesOf(bosses.Sources, owner);
         ushort blank = blankWord ?? BossBodySheetComposer.BlankOf(owner).PackedWord;
+        // A cell no part shows holds the blank, which the layer leaves undrawn when the blank shows nothing.
         var words = new ushort[layer.Rows * BossBodyDefinitions.ColumnCount];
+        Array.Fill(words, blank);
         foreach (BossBodyPlacement placement in layer.Placements)
         {
             string frameName = placement.Part.Name.Split('~')[0];

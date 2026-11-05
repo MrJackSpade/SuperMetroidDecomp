@@ -11,10 +11,11 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Composes Samus's body sheet (#1392, #1513): one full-body frame for every body the game can draw, and nothing else.
-/// The bodies are the ones <see cref="SamusShownFrames"/> gives: each frame each pose can show, with the movement types it
-/// is drawn with and the bottom pictures it can show. Each picture is the frame's top half, the chest cover the
-/// forward-facing Power Suit body shows, and its bottom half unless the top half is the complete body, in that drawing
-/// order; which halves and cover a frame shows is decided by the draw's own <see cref="SamusBodyDrawing"/>. A body whose
+/// The bodies are the ones <see cref="SamusShownFrames"/> gives: each picture frame of each pose, the frames its own
+/// animation shows a picture on, which every frame the body shows draws, with the bottom pictures it can show. Each
+/// picture is the frame's top half, the chest cover the forward-facing Power Suit body shows, and its bottom half unless
+/// the pose's own movement type makes the top half the complete body, in that drawing order; which halves and cover a
+/// frame shows is decided by the draw's own <see cref="SamusBodyDrawing"/>, so every frame is a whole Samus. A body whose
 /// selected characters are blank wherever its compositions read them shows nothing: the sheet holds it as a frame without
 /// a picture. Bodies that show the same picture share it on the sheet. Frames are coloured in the Power Suit; the other
 /// suits, like palette effects, draw through the sheet's palette map.

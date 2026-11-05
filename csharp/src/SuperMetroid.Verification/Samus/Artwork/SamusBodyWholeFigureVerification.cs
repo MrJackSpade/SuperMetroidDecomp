@@ -1,0 +1,182 @@
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Assets;
+using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+
+namespace SuperMetroid.Verification.Samus.Artwork;
+
+/// <summary>
+/// Holds every frame of the installed Samus body sheet to the whole-Samus rule (owner rulings on #1513: no sprite sheet
+/// frame shows half a Samus, and sheets are checked automatically), read from the sheet's installed ink plane.
+/// <list type="bullet">
+/// <item><b>One figure.</b> A frame's opaque pixels form exactly one figure of meaningful size: grouping pixels that lie
+/// within <see cref="FigureReach"/> pixels of each other horizontally and vertically, exactly one group holds at least
+/// <see cref="MeaningfulPixels"/> pixels. A frame of scattered bodies, a Screw Attack outline without Samus, a pair of
+/// legs beside a torso or a frame showing nothing fails.</item>
+/// <item><b>Both halves.</b> Each picture frame the body shows is drawn by its pose's own halves rule, and each half the
+/// rule draws whose pose-half table holds a composition there must ink a pixel inside that composition's parts on the
+/// frame: a frame drawn without the legs or the top its rule shows fails. A half whose table holds no composition at the
+/// frame is drawn empty by the game too (the right-facing drained crouch's third frame is its curled top alone), and the
+/// one-figure rule vouches for such a frame.</item>
+/// </list>
+/// </summary>
+/// <remarks>
+/// Calibration, from the stock sheet the derivation composes: grouping by adjacent pixels alone splits real frames,
+/// since the running pose aiming forward has a one-pixel seam between its torso and legs on its seventh frame, so pixels
+/// two apart (one transparent pixel between) belong to one figure. At that reach the largest stray piece of any stock
+/// frame is eleven pixels, the sparks of the Screw Attack's aura, and the smallest whole figure, the morph ball, is 208
+/// pixels; sixteen pixels separates them. The frames the drawing used to show and no longer does, scattered halves of
+/// other poses past a program and the Screw Attack outline alone, hold two or more groups of sixteen or more pixels, or
+/// none.
+/// </remarks>
+internal static class SamusBodyWholeFigureVerification
+{
+    /// <summary>How far apart, in pixels along each axis, two opaque pixels can lie and still belong to one figure.</summary>
+    private const int FigureReach = 2;
+
+    /// <summary>The fewest opaque pixels a group needs to count as a figure rather than a stray spark.</summary>
+    private const int MeaningfulPixels = 16;
+
+    /// <summary>The distinct inks a pixel's palette-index byte can hold.</summary>
+    private const int InkValues = byte.MaxValue + 1;
+
+    /// <summary>Checks every installed Samus body sheet frame against the whole-Samus rule.</summary>
+    internal static void VerifySamusBodyWholeFigures()
+    {
+        SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
+        SpriteImage image = sheet.Image;
+        byte[] inks = SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image);
+        var colourZero = new bool[InkValues];
+        for (int ink = 0; ink < InkValues; ink++)
+            colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, 0));
+        var opaque = new OpaquePixels(inks, image.Size.X, colourZero);
+
+        InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
+        SamusSpritemapSources spritemaps = body.Spritemaps.Source;
+        var drawers = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var findings = new List<string>();
+        foreach (SamusShownBody shown in SamusShownFrames.Of(InstalledFixtures.AnimationContinuation).Bodies(body))
+        {
+            SamusBodyFrame drawn = shown.Frame;
+            if (!spritemaps.TryGetFrameKey(drawn.Top, drawn.Bottom, drawn.ChestCover, shown.Pictures, out SamusBodyFrameKey key))
+                continue;
+            string drawer = $"{drawn.Top.Pose} frame {drawn.Top.AnimationFrame}";
+            if (!drawers.TryGetValue(key.Name, out List<string>? named))
+            {
+                named = [];
+                drawers.Add(key.Name, named);
+            }
+            named.Add(drawer);
+            if (sheet.ShowsNothing(key.Name))
+                continue;
+            SpriteSheetFrame frame = sheet.Frame(key.Name);
+            SamusBodyHalfFrame[] halves = drawn.Bottom is { } lower ? [drawn.Top, lower] : [drawn.Top];
+            foreach (SamusBodyHalfFrame half in halves)
+            {
+                if (spritemaps.TryGetFrame(half, out SpriteFrame? composition) && !opaque.InksWithin(frame, composition))
+                    findings.Add($"frame {key.Name} ({drawer}) lacks its {half.Half} half, which its pose's own rule draws");
+            }
+        }
+        foreach (KeyValuePair<string, List<string>> named in drawers.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            string who = string.Join(", ", named.Value);
+            if (sheet.ShowsNothing(named.Key))
+            {
+                findings.Add($"frame {named.Key} ({who}) shows nothing");
+                continue;
+            }
+            int[] figures = opaque.FigureSizes(sheet.Frame(named.Key));
+            int meaningful = figures.Count(size => size >= MeaningfulPixels);
+            if (meaningful != 1)
+                findings.Add($"frame {named.Key} ({who}) holds {meaningful} figures of {MeaningfulPixels} or more pixels, not one: pixel groups {string.Join(", ", figures)}");
+        }
+        AssertTrue(findings.Count == 0,
+            $"{findings.Count} Samus body sheet frames are not one whole Samus:{Environment.NewLine}{string.Join(Environment.NewLine, findings)}");
+        Console.WriteLine($"Samus body whole figures: {drawers.Count} frames each show one whole Samus with every half their pose's own rule draws.");
+    }
+
+    /// <summary>Runs the Samus body sheet's whole-Samus rule.</summary>
+    [VerificationCommand("--samus-body-whole-figures")]
+    internal static int SamusBodyWholeFiguresCommand()
+    {
+        Suite(nameof(VerifySamusBodyWholeFigures), VerifySamusBodyWholeFigures);
+        return 0;
+    }
+
+    /// <summary>Which pixels of the body sheet's image ink a colour other than colour zero.</summary>
+    /// <param name="inks">The ink of each pixel of the image, row by row from the top.</param>
+    /// <param name="width">The image's width.</param>
+    /// <param name="colourZero">Whether each ink is a colour zero, which draws nothing.</param>
+    private sealed class OpaquePixels(byte[] inks, int width, bool[] colourZero)
+    {
+        /// <summary>Whether the frame-local pixel at (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="frame"/> is opaque.</summary>
+        private bool IsOpaque(SpriteSheetFrame frame, int x, int y) =>
+            !colourZero[inks[(frame.Corner.Y + y) * width + frame.Corner.X + x]];
+
+        /// <summary>
+        /// Whether <paramref name="frame"/> inks a pixel inside any part of <paramref name="composition"/>, placed from the
+        /// frame's origin.
+        /// </summary>
+        internal bool InksWithin(SpriteSheetFrame frame, SpriteFrame composition)
+        {
+            foreach (SpriteFramePart part in composition.Parts)
+            {
+                int left = frame.Origin.X + part.Offset.X, top = frame.Origin.Y + part.Offset.Y;
+                for (int y = Math.Max(0, top); y < Math.Min(frame.Size.Y, top + part.Size.Y); y++)
+                {
+                    for (int x = Math.Max(0, left); x < Math.Min(frame.Size.X, left + part.Size.X); x++)
+                    {
+                        if (IsOpaque(frame, x, y))
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// The sizes of the groups <paramref name="frame"/>'s opaque pixels form, joining pixels at most
+        /// <see cref="FigureReach"/> apart along each axis, largest first.
+        /// </summary>
+        internal int[] FigureSizes(SpriteSheetFrame frame)
+        {
+            int frameWidth = frame.Size.X, frameHeight = frame.Size.Y;
+            var grouped = new bool[frameWidth * frameHeight];
+            var sizes = new List<int>();
+            var pending = new Stack<int>();
+            for (int start = 0; start < grouped.Length; start++)
+            {
+                if (grouped[start] || !IsOpaque(frame, start % frameWidth, start / frameWidth))
+                    continue;
+                grouped[start] = true;
+                pending.Push(start);
+                int size = 0;
+                while (pending.TryPop(out int pixel))
+                {
+                    size++;
+                    int px = pixel % frameWidth, py = pixel / frameWidth;
+                    for (int y = Math.Max(0, py - FigureReach); y <= Math.Min(frameHeight - 1, py + FigureReach); y++)
+                    {
+                        for (int x = Math.Max(0, px - FigureReach); x <= Math.Min(frameWidth - 1, px + FigureReach); x++)
+                        {
+                            int neighbour = y * frameWidth + x;
+                            if (!grouped[neighbour] && IsOpaque(frame, x, y))
+                            {
+                                grouped[neighbour] = true;
+                                pending.Push(neighbour);
+                            }
+                        }
+                    }
+                }
+                sizes.Add(size);
+            }
+            return [.. sizes.OrderDescending()];
+        }
+    }
+}

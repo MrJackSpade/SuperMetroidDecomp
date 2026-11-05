@@ -60,7 +60,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
-/// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live edit checks.</summary>
+/// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live consumers.</summary>
 internal static class EnemyTileArtworkVerification
 {
     /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>

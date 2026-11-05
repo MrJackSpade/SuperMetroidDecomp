@@ -31,7 +31,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>Creates and binds a third-form body with installed artwork and the enemy BG2 image it owns since phase two.</summary>
         internal MotherBrainPresentationFixture(InstalledEnemyArtwork artwork)
         {
-            Inner = new EnemyAnimationFixture(artwork, golden: false);
+            Inner = new EnemyAnimationFixture(artwork);
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
             Body.Bind(bodyId, Body.Definition);
             Body.Bind(Body.DefinitionId, RoomEnemyHeaders.Get(bodyId));

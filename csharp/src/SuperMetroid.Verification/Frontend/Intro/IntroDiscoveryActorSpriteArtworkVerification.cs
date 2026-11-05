@@ -19,8 +19,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
-/// <summary>Checks intro discovery actor OAM against native spritemaps and
-/// verifies an edited egg composition reaches the rendered scene.</summary>
+/// <summary>Checks intro discovery actor OAM against native spritemaps and the rendered scene.</summary>
 internal static class IntroDiscoveryActorSpriteArtworkVerification
 {
     /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production

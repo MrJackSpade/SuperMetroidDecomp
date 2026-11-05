@@ -26,8 +26,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     /// <summary>The colour the Zebetites' pulse starts at: the second enemy row's colour twelve.</summary>
     private const int PulseFirstColour = 0xac;
 
-    /// <summary>Compares live pulse frames with cartridge colors, then checks
-    /// one edited channel, override persistence, and malformed asset rejection.</summary>
+    /// <summary>Compares live pulse frames with cartridge colors, then checks the engine gates and malformed asset rejection.</summary>
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {

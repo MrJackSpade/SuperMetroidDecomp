@@ -20,8 +20,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
-/// <summary>Checks intro egg effect OAM against native spritemaps and verifies
-/// an edited fragment palette reaches the rendered discovery scene.</summary>
+/// <summary>Checks intro egg effect OAM against native spritemaps and the live discovery scene.</summary>
 internal static class IntroEggEffectSpriteArtworkVerification
 {
     /// <summary>Compares stock frames at visible and wrapped origins, then

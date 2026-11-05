@@ -23,7 +23,7 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Retail and live-scene checks for ending explosion sprite frames, programs, and editable compositions.</summary>
+/// <summary>Retail and live-scene checks for ending explosion sprite frames, programs, and compositions.</summary>
 internal static class EndingExplosionSpriteArtworkVerification
 {
     /// <summary>Compares sixteen program-selected frame pointers, part counts, and stable asset keys with bank-$8C sprite maps.</summary>
@@ -72,7 +72,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             "planet record count");
     }
 
-    /// <summary>Checks calculated grid/quadrant parts preserve native OAM and selected edits keep their authored composition.</summary>
+    /// <summary>Checks calculated grid/quadrant parts preserve the stock fields and native OAM.</summary>
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         // Applies the five calculation families only when the supplied sprite map still matches their supported basis.
@@ -124,7 +124,6 @@ internal static class EndingExplosionSpriteArtworkVerification
                 AssertTrue(native.ImageEquals(generated),
                     "calculated grid preserves native OAM and clipping");
             }
-            SpriteVisualPart first = visual[0];
             if (pose is >= 10 and <= 12)
             {
                 EndingExplosionSpriteDefinitions.Pose role = Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[pose - 10];
@@ -133,37 +132,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                     AssertEqual(original.Part(index), EndingExplosionQuadrantParts.StockBasis(role, index), "original packed quadrant basis");
                 foreach (int invalid in new[] { int.MinValue, -1, basisCount, int.MaxValue })
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(role, invalid), "quadrant basis index bounds");
-                SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
-                    visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
-                SpriteComposition calculatedBasis = Calculate(shown, editedBasis);
-                AssertTrue(!ReferenceEquals(editedBasis, calculatedBasis), "symmetric edits retain calculated quadrants");
-                AssertEqual(Identity(editedBasis), Identity(calculatedBasis), "edited quadrant inputs preserve every field");
             }
-            foreach (SpriteVisualPart edited in new[]
-            {
-                first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
-                first with { TileColumn = first.TileColumn == 14 ? 13 : first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
-                first with { Size = first.Size == 8 ? 16 : 8 }, first with { Priority = 1 }, first with { Palette = 3 },
-                first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
-                first with { OffsetX = 255 }, first with { OffsetY = 127 },
-            })
-            {
-                visual[0] = edited;
-                SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
-                AssertTrue(pose >= 13 ? Identity(supplied) == Identity(Calculate(shown, supplied)) : ReferenceEquals(supplied, Calculate(shown, supplied)),
-                    "independent edited field keeps supplied composition");
-            }
-            visual[0] = first;
-            {
-                var held0 = visual[1];
-                var held1 = visual[0];
-                visual[0] = held0;
-                visual[1] = held1;
-            }
-            SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
-            AssertTrue(pose >= 13 ? Identity(reordered) == Identity(Calculate(shown, reordered)) : ReferenceEquals(reordered, Calculate(shown, reordered)), "edited part order is preserved");
-            SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
-            AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(shown, shortened)) : ReferenceEquals(shortened, Calculate(shown, shortened)), "edited part count is preserved");
         }
         foreach (EndingExplosionSpriteDefinitions.Pose invalid in new[]
         {

@@ -16,7 +16,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Mother Brain death palettes against retail data and verifies editable colors reach CGRAM without cartridge reads.</summary>
+/// <summary>Checks installed Mother Brain death palettes against retail data and checks their live use without cartridge reads.</summary>
 internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 {
     /// <summary>$AD:E9E8, the body fade pointers the cartridge selects through, followed by a null word.</summary>
@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares all fade selectors and RGB5 words, edits a palette channel, and checks live body, corpse, and door destinations.</summary>
+    /// <summary>Compares all fade selectors and RGB5 words and checks live body, corpse, and door destinations.</summary>
     internal static void VerifyInstalledMotherBrainDeathColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

@@ -16,7 +16,7 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Botwoon palette art, live health transitions, and override validation.</summary>
+/// <summary>Checks installed Botwoon palette art, live health transitions, and document validation.</summary>
 internal static class EnemyTileArtworkBotwoonColorsVerification
 {
     /// <summary>JSON options: Case-insensitive property matching.</summary>

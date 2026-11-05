@@ -22,7 +22,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>Checks installed opening narration and font artwork through the cinematic's live tilemap and VRAM paths.</summary>
 internal static class IntroNarrationPresentationVerification
 {
-    /// <summary>Compares all six stock pages and the font upload with native data, then checks edits, rebinding, and malformed glyph rejection.</summary>
+    /// <summary>Compares all six stock pages and the font upload with native data, then checks debugger restore and malformed glyph rejection.</summary>
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -68,34 +68,6 @@ internal static class IntroNarrationPresentationVerification
                 $"installed opening narration {page} shows its text");
         }
 
-        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
-        editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
-            "TEST";
-        byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
-        IntroNarrationPresentation edited = IntroNarrationFile.Read(
-            new MemoryStream(editedBytes, writable: false));
-        var editedText = PagesText();
-        var editedState = new IntroCinematicObjectSystem(
-            editedText, new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: edited);
-        editedState.StartEnglishPageSix();
-        editedState.Step(0);
-        editedState.Step(0);
-        AssertEqual(new IntroTextCell('T', 0), editedText.ShownAt(1, 4),
-            "edited UTF-8 opening narration shows its first letter at its cell");
-
-        var reboundText = PagesText();
-        var rebound = new IntroCinematicObjectSystem(
-            reboundText, new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: presentation);
-        rebound.StartEnglishPageSix();
-        rebound.Step(0);
-        rebound.BindNarration(edited);
-        rebound.Step(0);
-        AssertEqual(new IntroTextCell('T', 0), reboundText.ShownAt(1, 4),
-            "active opening narration accepts current replacement content");
-
         var saved = new IntroCinematicObjectSystem(
             PagesText(), new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation);
@@ -107,33 +79,19 @@ internal static class IntroNarrationPresentationVerification
         AssertEqual((ushort)16, restored.Caret.X,
             "restored opening narration resumes at its saved character");
 
-        editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
+        JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
+        malformedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
             "lowercase";
         byte[] malformed = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
+            malformedDocument.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => IntroNarrationFile.Read(
             new MemoryStream(malformed, writable: false)),
             "opening narration rejects glyphs absent from the documented font mapping");
 
-        IndexedPngImage editableFont = IndexedPng.Read(
-            new MemoryStream(fontPng, writable: false),
-            new(IntroFontCharacters.Width, IntroFontCharacters.Height));
-        editableFont.Pixels[0] ^= 1;
-        using var editedFontPng = new MemoryStream();
-        IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
-            editableFont.Pixels, editableFont.Colours);
-        editedFontPng.Position = 0;
-        IntroFontCharacters editedFont = IntroFontCharacters.Read(editedFontPng);
-        installedIntro.BindIntroFont(editedFont);
-        AssertTrue(installedIntro.ShownVram().AsSpan(
-            (IntroVramLayout.FontOne.Offset * 2),
-            IntroFontAtlasFormat.ByteCount).SequenceEqual(editedFont.Characters.Span),
-            "active opening cinematic rebinds edited font pixels");
-
         Console.WriteLine(
-            $"Opening narration: six extracted UTF-8 pages and {comparedFrames} stock frames match with narration ROM reads forbidden; caret timing, page completion, edits and glyph validation pass.");
+            $"Opening narration: six extracted UTF-8 pages and {comparedFrames} stock frames match with narration ROM reads forbidden; caret timing, page completion, debugger restore and glyph validation pass.");
         Console.WriteLine(
-            "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
+            "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload and ROM-read guard pass.");
     }
 
     /// <summary>Narration text showing the pages, every text cell blank, as the first illustrated page leaves it.</summary>

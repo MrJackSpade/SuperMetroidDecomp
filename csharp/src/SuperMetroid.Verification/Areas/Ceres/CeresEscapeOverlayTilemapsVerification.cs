@@ -87,7 +87,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.
         Console.WriteLine(
-            "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +
+            "Ceres escape overlays: five installed tilemaps match native bytes and guarded " +
             "VRAM pass.");
     }
 }

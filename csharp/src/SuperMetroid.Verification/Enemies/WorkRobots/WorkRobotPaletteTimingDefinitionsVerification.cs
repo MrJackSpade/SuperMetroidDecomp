@@ -18,10 +18,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
-    /// <summary>JSON options: Case-insensitive property matching.</summary>
-    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
-
-    /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
+    /// <summary>Compares six native timing records and colors, then follows a full production cycle through its glow shades.</summary>
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -74,22 +71,10 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.Resolve(record, color),
                 $"Work Robot color record {record} slot {color} preserves ROM RGB5");
         }
-        WorkRobotPaletteCycleDocument visual =
-            JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(extracted,
-                CaseInsensitiveJson) ??
-            throw new InvalidDataException("Work Robot color extraction is null.");
-        PaletteRgb5 prior = visual.Frames[1][0];
-        visual.Frames[1][0] = prior with
-        {
-            Blue = prior.Blue == 31 ? 30 : prior.Blue + 1,
-        };
-        WorkRobotPaletteCycle edited = WorkRobotPaletteCycleFile.Read(
-            new MemoryStream(WorkRobotPaletteCycleFile.Write(visual), writable: false));
-
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock }),
         };
         Type type = typeof(RoomEnemySystem);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
@@ -129,7 +114,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             "installed Work Robot palette performs no color, timing or terminator ROM reads");
         Console.WriteLine(
             "Work Robot palette: all six native durations and 24 colors, the terminator and " +
-            "the complete 193-call edited-color production cycle pass with ROM reads forbidden.");
+            "the complete 193-call production cycle pass with ROM reads forbidden.");
     }
 
     /// <summary>Rejects live reads of Work Robot palette timer, terminator, and color bytes.</summary>

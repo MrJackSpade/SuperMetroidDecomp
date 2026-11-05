@@ -24,7 +24,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// <summary>Verifies installed Dead Torizo sheet, sand, spritemap, and VRAM transfer behavior against retail data.</summary>
 internal static class DeadTorizoArtworkVerification
 {
-    /// <summary>Checks installed corpse staging, native OAM, and the visible effect of an edited sheet pixel.</summary>
+    /// <summary>Checks installed corpse staging and native OAM.</summary>
     internal static void VerifyInstalledDeadTorizoArtwork(InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyDeadTorizoRowUploads), () => VerifyDeadTorizoRowUploads(stock));

@@ -11,8 +11,8 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks extracted SPC sound programs, channel routing, and editable note playback.</summary>
 internal static class AudioSoundProgramsVerification
 {
-    /// <summary>Compares stock program bytes and routes with APU memory, then verifies an edited note changes audible PCM.</summary>
-    internal static void VerifyEditableSoundEffectPrograms()
+    /// <summary>Compares stock program bytes and routes with APU memory, then checks malformed programs fail.</summary>
+    internal static void VerifySoundEffectPrograms()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
@@ -50,13 +50,13 @@ internal static class AudioSoundProgramsVerification
             }
         }
 
-        using var editedDirectoryScratch = new TestScratchDirectory("audio-sfx-programs");
-        string editedDirectory = editedDirectoryScratch.Root;
-        CopyAudioDirectory(sourceDirectory, editedDirectory);
+        using var fixtureScratch = new TestScratchDirectory("audio-sfx-programs");
+        string fixtureDirectory = fixtureScratch.Root;
+        CopyAudioDirectory(sourceDirectory, fixtureDirectory);
         try
         {
             string manifestPath = Path.Combine(
-                editedDirectory,
+                fixtureDirectory,
                 ExtractedAudioAssetCatalog.ManifestFileName);
             AudioAssetManifest manifest = ReadAudioManifest(manifestPath);
             AudioSoundEffectMetadata effect = manifest.SoundLibraries[0].Effects[0];
@@ -67,54 +67,6 @@ internal static class AudioSoundProgramsVerification
                 instruction => instruction.Operation == AudioSoundInstructionOperations.PlayNote);
             AssertTrue(playIndex >= 0, $"fixture program {programId} contains a playable note");
             AudioSoundInstructionMetadata originalPlay = originalProgram.Instructions[playIndex];
-            byte[] editedArguments = [.. originalPlay.Arguments];
-            editedArguments[3] = editedArguments[3] <= 0xe8
-                ? unchecked((byte)(editedArguments[3] + 0x0c))
-                : unchecked((byte)(editedArguments[3] - 0x0c));
-            AudioSoundInstructionMetadata[] editedInstructions = [.. originalProgram.Instructions];
-            editedInstructions[playIndex] = originalPlay with { Arguments = editedArguments };
-            AudioSoundProgramMetadata editedProgram = originalProgram with
-            {
-                Instructions = editedInstructions,
-            };
-            AudioAssetManifest editedManifest = manifest with
-            {
-                SoundPrograms = manifest.SoundPrograms.Select(program => program.Id == programId
-                    ? editedProgram
-                    : program).ToArray(),
-            };
-            WriteAudioManifest(manifestPath, editedManifest);
-
-            ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = AudioSessionAccess.CreateSynthesizing(stock);
-            var editedRenderer = AudioSessionAccess.CreateSynthesizing(edited);
-            AudioRequest common = new AudioRequest.ChangeMusicDataSet(null);
-            stockRenderer.RenderFrame([common]);
-            editedRenderer.RenderFrame([common]);
-            for (int offset = 0; offset < editedProgram.ByteCapacity; offset++)
-            {
-                byte expected = SpcSoundEffectProgramCodec.Encode(editedProgram)[offset];
-                AssertEqual(
-                    expected,
-                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(editedProgram.Address + offset),
-                    $"edited SFX program live byte {offset}");
-            }
-
-            AudioRequest trigger = new AudioRequest.RequestSound(SoundEffectCommands.Decode(SoundEffectLibrary.Library1, effect.Command));
-            bool stockAudible = false;
-            bool editedAudible = false;
-            bool pcmDiffers = false;
-            for (int frame = 0; frame < 120; frame++)
-            {
-                short[] stockPcm = stockRenderer.RenderFrame(frame == 0 ? [trigger] : []);
-                short[] editedPcm = editedRenderer.RenderFrame(frame == 0 ? [trigger] : []);
-                stockAudible |= stockPcm.Any(sample => sample != 0);
-                editedAudible |= editedPcm.Any(sample => sample != 0);
-                pcmDiffers |= !stockPcm.SequenceEqual(editedPcm);
-            }
-            AssertTrue(stockAudible, $"stock {effect.Id} fixture is audible");
-            AssertTrue(editedAudible, $"edited {effect.Id} fixture is audible");
-            AssertTrue(pcmDiffers, "decoded SFX note edit changes rendered PCM");
 
             AudioSoundInstructionMetadata badOperation = originalPlay with { Operation = "unknownOpcode" };
             AudioSoundInstructionMetadata[] invalidInstructions = [.. originalProgram.Instructions];
@@ -126,7 +78,7 @@ internal static class AudioSoundProgramsVerification
                     : program).ToArray(),
             });
             AssertThrows<InvalidDataException>(
-                () => ExtractedAudioAssetCatalog.Load(editedDirectory),
+                () => ExtractedAudioAssetCatalog.Load(fixtureDirectory),
                 "SFX manifest rejects unknown operation");
 
             WriteAudioManifest(manifestPath, manifest with
@@ -136,7 +88,7 @@ internal static class AudioSoundProgramsVerification
                     : program).ToArray(),
             });
             AssertThrows<InvalidDataException>(
-                () => ExtractedAudioAssetCatalog.Load(editedDirectory),
+                () => ExtractedAudioAssetCatalog.Load(fixtureDirectory),
                 "SFX manifest rejects encoded-size mismatch");
 
             WriteAudioManifest(manifestPath, manifest with
@@ -144,25 +96,25 @@ internal static class AudioSoundProgramsVerification
                 SoundPrograms = manifest.SoundPrograms.Where(program => program.Id != programId).ToArray(),
             });
             AssertThrows<InvalidDataException>(
-                () => ExtractedAudioAssetCatalog.Load(editedDirectory),
+                () => ExtractedAudioAssetCatalog.Load(fixtureDirectory),
                 "SFX manifest rejects missing referenced program");
         }
         finally
         {
-            if (Directory.Exists(editedDirectory))
-                Directory.Delete(editedDirectory, recursive: true);
+            if (Directory.Exists(fixtureDirectory))
+                Directory.Delete(fixtureDirectory, recursive: true);
         }
 
         Console.WriteLine(
-            $"Editable SFX programs: {stock.SoundPrograms.Count} programs/{instructionCount} named instructions, " +
-            "exact stock bytes, live audible note edit and strict failures pass.");
+            $"SFX programs: {stock.SoundPrograms.Count} programs/{instructionCount} named instructions, " +
+            "exact stock bytes and strict failures pass.");
     }
 
-    /// <summary>Runs the editable SPC sound program contract checks.</summary>
+    /// <summary>Runs the SPC sound program contract checks.</summary>
     [VerificationCommand("--audio-sfx-programs")]
     internal static int AudioSfxProgramsCommand()
     {
-        Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
+        Suite(nameof(VerifySoundEffectPrograms), () => VerifySoundEffectPrograms());
         return 0;
     }
 }

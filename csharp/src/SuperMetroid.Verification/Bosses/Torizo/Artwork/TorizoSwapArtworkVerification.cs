@@ -15,10 +15,10 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 
-/// <summary>Checks Torizo instruction-triggered VRAM transfers against cartridge bytes and installed artwork edits.</summary>
+/// <summary>Checks Torizo instruction-triggered VRAM transfers against cartridge bytes and the installed artwork.</summary>
 internal static class TorizoSwapArtworkVerification
 {
-    /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks live PNG edits and rejection.</summary>
+    /// <summary>Matches all Torizo transfer descriptors and bytes to cartridge data, then checks malformed artwork rejection.</summary>
     internal static void VerifyTorizoSwapArtwork(
         ISnesAddressSpace rom, InstalledEnemyArtwork stock)
     {

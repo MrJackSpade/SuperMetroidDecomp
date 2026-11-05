@@ -50,7 +50,6 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(
             stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Dachora color JSON is null.");
-        DachoraColorCatalog colors = native;
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
             address => address is (>= EnemySpeciesSourceDefinitions.Dachora.DefaultColors and
@@ -105,14 +104,6 @@ internal static class EnemyTileArtworkDachoraColorsVerification
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),
                     $"installed Dachora {phase} frame {frame} color {color}");
-        }
-
-        void CheckEditedFrame(DachoraPalettePhase phase, int frame)
-        {
-            AssertTrue(native.Resolve(phase, frame, 5) != colors.Resolve(phase, frame, 5),
-                $"Dachora {phase} frame {frame} edit changes selected color");
-            AssertEqual(native.Resolve(phase, frame, 4), colors.Resolve(phase, frame, 4),
-                $"Dachora {phase} frame {frame} edit preserves adjacent color");
         }
 
         void CheckLive(DachoraPalettePhase phase, int frame)

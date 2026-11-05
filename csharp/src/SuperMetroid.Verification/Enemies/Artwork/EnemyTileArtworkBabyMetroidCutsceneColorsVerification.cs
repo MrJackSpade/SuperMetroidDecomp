@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares native colors and selectors, edits one channel, and checks strict override failures.</summary>
+    /// <summary>Compares native colors and selectors, the live palette loads, and strict document failures.</summary>
     internal static void VerifyInstalledBabyMetroidCutsceneColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

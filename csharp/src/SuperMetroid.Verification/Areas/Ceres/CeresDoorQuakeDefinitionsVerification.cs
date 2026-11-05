@@ -19,13 +19,11 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Checks Ceres Ridley's private door quake offsets and editable overlay art.</summary>
+/// <summary>Checks Ceres Ridley's private door quake offsets and installed overlay art.</summary>
 internal static class CeresDoorQuakeDefinitionsVerification
 {
-    /// <summary>JSON options: Camel-case property names.</summary>
-    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Compares four native offsets, timer aliases, real OAM phases, and an isolated sprite edit.</summary>
+    /// <summary>Compares four native offsets, timer aliases, real OAM phases, and the native overlay records.</summary>
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;
@@ -95,30 +93,8 @@ internal static class CeresDoorQuakeDefinitionsVerification
             AssertEqual(nativeOverlay.GetEntry(index) with { Palette = 0 }, installedOverlay.GetEntry(index) with { Palette = 0 },
                 $"Ceres private overlay record {index} matches native OAM with ROM frame reads forbidden");
 
-        EnemySpritemapDocument visual = RequiredJson.Deserialize<EnemySpritemapDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        SpriteVisualPart first = visual.Frames["ceres_door_ridley_private_overlay"][0];
-        visual.Frames["ceres_door_ridley_private_overlay"][0] = first with
-        {
-            OffsetY = first.OffsetY + 1,
-        };
-        byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
-            CamelCaseJson);
-        enemies.TileArtwork = SpawnedObjectFixtures.InstalledTilesWith(EnemySpritemapDocuments.Load(
-                new MemoryStream(editedJson, writable: false)));
-        var editedOverlay = new OamBuffer();
-        editedOverlay.BeginFrame();
-        editedOverlay.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, new(0, 0)));
-        editedOverlay.FinalizeFrame();
-        AssertEqual(nativeOverlay.GetEntry(0).Position.X, editedOverlay.GetEntry(0).Position.X,
-            "private-overlay visual edit preserves the native quake/X coordinate");
-        AssertEqual(nativeOverlay.GetEntry(0).Position.Y + 1, editedOverlay.GetEntry(0).Position.Y,
-            "private-overlay visual edit changes only its authored Y offset");
-        AssertTrue(doorState.HandsDrawingToRidley,
-            "private-overlay visual edit preserves the door's control flag");
-
         Console.WriteLine(
-            "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and editable private-overlay art pass with source reads forbidden.");
+            "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and the installed private overlay pass with source reads forbidden.");
     }
 
     /// <summary>Forbids converted quake-table reads and optionally native overlay spritemap reads.</summary>

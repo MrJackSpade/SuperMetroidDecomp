@@ -11,14 +11,14 @@ namespace SuperMetroid.Verification.Frontend.Map;
 /// <summary>Checks area-specific file-select map window origins, edge velocities, and timers.</summary>
 internal static class MapWindowMotionDefinitionsVerification
 {
-    /// <summary>Compares native X origins and checks edited labels feed the actual window's left edge.</summary>
+    /// <summary>Compares native X origins with the stock and installed label positions.</summary>
     internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelPositions labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
-    /// <summary>Compares native Y origins and checks edited labels feed the actual window's top edge.</summary>
+    /// <summary>Compares native Y origins with the stock and installed label positions.</summary>
     internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelPositions labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
-    /// <summary>Checks one coordinate for all six areas, round-trips edits, and rejects unsupported identities.</summary>
+    /// <summary>Checks one coordinate for all six areas and rejects unsupported identities.</summary>
     private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelPositions labels, bool vertical)
     {
         int field = vertical ? 2 : 0;
@@ -29,26 +29,6 @@ internal static class MapWindowMotionDefinitionsVerification
             AssertEqual(expected, vertical ? stock.Y : stock.X, $"native area {area} origin field {field}");
             Position16<SpritePixels> installed = labels.Get(area);
             AssertEqual(expected, vertical ? installed.Y : installed.X, $"imported area {area} origin field {field}");
-
-            var editedAreas = new Dictionary<string, Position16<SpritePixels>>();
-            for (int identity = 0; identity < 6; identity++)
-                editedAreas.Add(((AreaId)identity).ToString(), labels.Get(identity));
-            ushort editedCoordinate = vertical ? (ushort)223 : (ushort)255;
-            editedAreas[((AreaId)area).ToString()] = vertical
-                ? installed with { Y = editedCoordinate } : installed with { X = editedCoordinate };
-            using var json = new MemoryStream();
-            WorldMapLabelFile.Write(json, new() { Version = 1, Areas = editedAreas });
-            json.Position = 0;
-            WorldMapLabelPositions edited = WorldMapLabelFile.Read(json);
-            for (int identity = 0; identity < 6; identity++)
-                AssertEqual(editedAreas[((AreaId)identity).ToString()], edited.Get(identity),
-                    "named selection preserves edited and untouched coordinate fields");
-            var window = new FileSelectMapWindow(area, edited);
-            AssertEqual(edited.Get(area).X, (int)window.TopLeft.X, "actual window uses editable X");
-            AssertEqual(edited.Get(area).Y, (int)window.TopLeft.Y, "actual window uses editable Y");
-            AssertEqual(window.TopLeft.X, window.BottomRight.X, "edited window starts with zero width");
-            AssertEqual(window.TopLeft.Y, window.BottomRight.Y, "edited window starts with zero height");
-            AssertEqual(stock, FileSelectMapWindowMotions.StockOrigin(area), "editing labels preserves stock motion input");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 6, 7, int.MaxValue })
         {

@@ -24,7 +24,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Native colour-write and guarded-source checks for editable Tourian entrance statue colors (#1512).</summary>
+/// <summary>Native colour-write and guarded-source checks for installed Tourian entrance statue colors (#1512).</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     /// <summary>Checks entrance, eye, and grey-room palette writes and out-of-range channel rejection.</summary>

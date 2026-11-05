@@ -23,7 +23,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Checks three editable color bands, and real initializers while preserving native instructions and PLM requests.</summary>
+    /// <summary>Checks three installed color bands, and real initializers while preserving native instructions and PLM requests.</summary>
     internal static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

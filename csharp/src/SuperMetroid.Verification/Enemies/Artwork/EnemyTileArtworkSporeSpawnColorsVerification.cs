@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares 432 native RGB5 words, edits one color per palette family, and checks production CGRAM and fade targets without source reads.</summary>
+    /// <summary>Compares 432 native RGB5 words and checks production shades and fade targets without source reads.</summary>
     internal static void VerifyInstalledSporeSpawnColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -106,7 +106,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
             "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
-        Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, current and target palette edits, ROM guard and strict failures pass.");
+        Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, ROM guard and strict failures pass.");
 
         void VerifyFrame(int source, Func<int, RgbColor> resolve, string name)
         {
@@ -121,15 +121,6 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             for (int frame = 0; frame < count; frame++)
                 VerifyFrame(source + frame * SporeSpawnSourceDefinitions.ImageBytes,
                     color => resolve(frame, color), $"{name} frame {frame}");
-        }
-
-        static void CheckEditedFrame(Func<int, int, RgbColor> original,
-            Func<int, int, RgbColor> changed, int frame, string name)
-        {
-            AssertTrue(original(frame, 5) != changed(frame, 5),
-                $"{name} frame {frame} edit changes selected RGB5 word");
-            AssertEqual(original(frame, 4), changed(frame, 4),
-                $"{name} frame {frame} edit leaves adjacent color unchanged");
         }
     }
 

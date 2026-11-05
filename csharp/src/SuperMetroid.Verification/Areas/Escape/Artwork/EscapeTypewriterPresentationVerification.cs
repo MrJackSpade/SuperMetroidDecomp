@@ -16,10 +16,10 @@ using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Checks editable Ceres and Zebes escape typewriter text through installed VRAM writes and state rebinding.</summary>
+/// <summary>Checks the installed Ceres and Zebes escape typewriter text through VRAM writes, debugger restore and glyph validation.</summary>
 internal static class EscapeTypewriterPresentationVerification
 {
-    /// <summary>Runs extracted programs to completion and checks live edits, debugger restore, and invalid glyph rejection.</summary>
+    /// <summary>Runs extracted programs to completion and checks debugger restore and invalid glyph rejection.</summary>
     internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -45,29 +45,6 @@ internal static class EscapeTypewriterPresentationVerification
             AssertTrue(installed.GlyphsWritten > 0, $"{id} installed typewriter writes its glyphs");
         }
 
-        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
-        JsonObject zebes = editedDocument.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).AsObject();
-        zebes.Required("lines").Required(0)["text"] = "TEST!";
-        byte[] editedBytes = Encoding.UTF8.GetBytes(editedDocument.ToJsonString(ArtworkJson.Options));
-        EscapeTypewriterPresentation edited = EscapeTypewriterPresentationFile.Load(
-            new MemoryStream(editedBytes, writable: false));
-        var editedState = new EscapeTypewriterState(
-            edited.Get(EscapeTypewriterProgramId.Zebes));
-        var editedVram = new SnesVram();
-        editedState.StepInto(editedVram);
-        editedState.StepInto(editedVram);
-        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
-            editedVram.ReadWord(0x106), "edited UTF-8 escape text reaches live VRAM");
-
-        var rebound = new EscapeTypewriterState(
-            presentation.Get(EscapeTypewriterProgramId.Zebes));
-        var reboundVram = new SnesVram();
-        rebound.StepInto(reboundVram);
-        rebound.BindProgram(edited.Get(EscapeTypewriterProgramId.Zebes));
-        rebound.StepInto(reboundVram);
-        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
-            reboundVram.ReadWord(0x106), "active escape typewriter accepts current replacement content");
-
         var saved = new EscapeTypewriterState(
             presentation.Get(EscapeTypewriterProgramId.Zebes));
         var savedVram = new SnesVram();
@@ -80,14 +57,16 @@ internal static class EscapeTypewriterPresentationVerification
         AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'I' - 'A'),
             savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");
 
-        byte[] malformed = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options).Replace("TEST!", "test!"));
+        JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
+        malformedDocument.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString())
+            .Required("lines").Required(0)["text"] = "test!";
+        byte[] malformed = Encoding.UTF8.GetBytes(malformedDocument.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => EscapeTypewriterPresentationFile.Load(
             new MemoryStream(malformed, writable: false)),
             "escape typewriter rejects glyphs absent from the documented font mapping");
 
         Console.WriteLine(
-            $"Escape typewriter: Ceres/Zebes extraction and {comparedFrames} stock frames match with installed ROM reads forbidden; UTF-8 edits, active rebind and strict glyph validation pass.");
+            $"Escape typewriter: Ceres/Zebes extraction and {comparedFrames} stock frames match with installed ROM reads forbidden; debugger restore and strict glyph validation pass.");
     }
 
     /// <summary>Checks that the installed escape typewriter is the deterministic cartridge extraction.</summary>

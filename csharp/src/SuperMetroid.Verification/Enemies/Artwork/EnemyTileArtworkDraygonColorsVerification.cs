@@ -26,7 +26,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares 105 RGB5 words with ROM, edits selected palette cells, and checks production Draygon color writes under a source-read guard.</summary>
+    /// <summary>Compares 105 RGB5 words with ROM and checks production Draygon color writes under a source-read guard.</summary>
     internal static void VerifyInstalledDraygonColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {

@@ -32,7 +32,7 @@ using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
-/// <summary>Checks installed extended enemy OAM compositions, editable frame migration, and guarded visual reads against native data.</summary>
+/// <summary>Checks installed extended enemy OAM compositions and guarded visual reads against native data.</summary>
 internal static class EnemyExtendedFrameArtworkVerification
 {
     /// <summary>

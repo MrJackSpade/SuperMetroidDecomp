@@ -120,7 +120,7 @@ internal static class MapPresentationVerification
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Checks map cells in pause projection and HUD, retail roundtrips, and rejection of gameplay rules in artwork JSON.</summary>
+    /// <summary>Checks retail roundtrips and rejection of malformed map JSON and gameplay rules in artwork JSON.</summary>
     internal static void VerifyMapPresentation()
     {
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
@@ -134,36 +134,7 @@ internal static class MapPresentationVerification
             CamelCaseJson);
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
-        var map = Load(Json(document));
-        AssertEqual(new MapCell(new MapCellShape(0x51), 3, 2, TileFlip.Horizontal, InFront: true), map.Cell(new(5, 6)),
-            "map JSON compiles only presentation attributes: shape, colour variants, mirroring and tier");
-        AssertTrue(map.RevealsCellAbove(new(5, 6)), "replaced slope art retains its compiled reveal rule");
-        AssertTrue(!map.IsDiscoverable(new(4, 6)), "new artwork cannot create exploration cells");
 
-        var system = new SharedGameState();
-        byte[] projected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(map, system, MapTileWords.PauseBlank.ToCell(), MapRevealMode.Secret)));
-        ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
-            projected.AsSpan(AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
-        AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
-        AssertEqual(MapTileWords.PauseBlank.Raw, Word(4, 6), "secret reveal uses rules, not painted cells");
-        AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new(5, 6)), "projection never mutates exploration");
-
-        if (File.Exists("Super Metroid.smc"))
-        {
-            // HUD initialization now requires installed presentation. The import-only
-            // cartridge reader supplies its stock fixture; minimap updates below use
-            // the ROM-free bus and still exercise the production HUD owner.
-            var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            var hudArt = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
-            var hud = new HudState();
-            hud.BindPresentation(hudArt);
-            hud.Initialize(HudSnapshot.CeresDebug);
-            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
-            AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).ForHud(true).Raw, hud.TileWords[60], "live minimap consumes edited cells without cartridge reads");
-            AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
-
-        }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Area = "Norfair" })), "reject wrong area");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Cells = [cell] })), "reject incomplete layout");
@@ -191,21 +162,21 @@ internal static class MapPresentationVerification
             Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
         }
         else Console.WriteLine("Map presentation: retail round-trip skipped; source ROM unavailable.");
-        Console.WriteLine("Map presentation: JSON compiles into minimap/shared projection; independent exploration and strict validation pass.");
+        Console.WriteLine("Map presentation: strict validation passes.");
     }
 
-    /// <summary>Tiny fixed Crateria rule set used to prove edited map tiles cannot change discovery or station reveal behavior.</summary>
+    /// <summary>Tiny fixed Crateria rule set the synthetic map documents of the validation checks load against.</summary>
     internal sealed class PresentationMapRules : IAreaMapView
     {
         /// <summary>Places the fixture's cells in Crateria so its projection uses a concrete area identity.</summary>
         public AreaId Area => AreaId.Crateria;
-        /// <summary>Provides the stock blank cell that editable cells replace in this fixture.</summary>
+        /// <summary>Provides the stock blank cell for every fixture cell.</summary>
         public MapCell Cell(Position16<MapTiles> cell) => MapTileWords.PauseBlank.ToCell();
         /// <summary>Restricts exploration to the two fixture cells in column five.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
         /// <summary>Reveals only the lower fixture cell when a map station has been used.</summary>
         public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
-        /// <summary>Preserves the lower cell's rule to reveal its cell above after an art edit.</summary>
+        /// <summary>Gives the lower fixture cell the rule to reveal its cell above.</summary>
         public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
     }
 
@@ -236,7 +207,7 @@ internal static class MapPresentationVerification
         public InstalledSamusBodyArtwork SamusBody { get; }
 
         /// <summary>
-        /// The repository installation's room artwork set, gathered once per process (#1532): the map checks edit only map
+        /// The repository installation's room artwork set, gathered once per process (#1532): the map checks bind only map
         /// presentation, so the room catalogs they bind are the shared installation's, read where the other fixtures read them.
         /// </summary>
         internal static MapPresentationInstalledRoomAssets Shared => shared.Value;

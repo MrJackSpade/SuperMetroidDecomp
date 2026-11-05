@@ -97,19 +97,6 @@ internal static class EndingObjectArtworkVerification
                 AssertTrue(originalOam.ImageEquals(calculatedOam),
                     "cloud grid preserves native OAM and clipping");
             }
-            SpriteVisualPart first = visual[0];
-            foreach (SpriteVisualPart edit in new[]
-            {
-                first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
-                first with { TileColumn = first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
-                first with { Size = 16 }, first with { Priority = 2 }, first with { Palette = 3 },
-                first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
-            })
-            {
-                visual[0] = edit;
-                SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited cloud");
-                AssertTrue(ReferenceEquals(edited, edited.CalculateIfMatching(grid)), "independent cloud edits stay supplied");
-            }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
         }

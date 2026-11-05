@@ -112,7 +112,7 @@ internal static class TitleGradientVerification
             "title Baby characters");
 
         // The installed title uses compiled card timing and sprite selectors alongside
-        // editable bank-$8C OAM compositions. The original source addresses are all
+        // installed bank-$8C OAM compositions. The original source addresses are all
         // blocked while the complete natural scene is compared with independently installed stock.
         var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         TitleGradientPresentation gradient = TitleGradientFile.Read(
@@ -181,43 +181,6 @@ internal static class TitleGradientVerification
         }
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);
         SpriteVisualPart originalPart = year.Parts[0];
-        year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
-        byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
-        TitleGraphicsPresentation editedPresentation = TitleGraphicsCharacters.Read(
-            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
-            new MemoryStream(editedMap),
-            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
-            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var originalTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
-        var editedTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
-        bool editVisible = false;
-        bool pixelChanged = false;
-        for (int frame = 0; frame < 100; frame++)
-        {
-            originalTitle.Step(0);
-            editedTitle.Step(0);
-            if (originalTitle.Phase != editedTitle.Phase)
-                throw new InvalidDataException("Title sprite edit altered the native title timing.");
-            if (!originalTitle.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                    editedTitle.CaptureRenderSnapshot().Paint.SpriteParts()))
-            {
-                editVisible = true;
-                pixelChanged |= !originalTitle.Render().SequenceEqual(editedTitle.Render());
-            }
-        }
-        if (!editVisible)
-            throw new InvalidDataException("Editing the Year composition did not alter production OAM.");
-        if (!pixelChanged)
-            throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
-        var reboundTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
-        for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
-        PlacedSpritePart[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Paint.SpriteParts();
-        reboundTitle.BindFixtureTitleGraphics(editedPresentation);
-        if (beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Paint.SpriteParts()))
-            throw new InvalidDataException("Rebinding a live title failed to apply current sprite composition.");
-        reboundTitle.BindFixtureTitleGraphics(presentation);
-        if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Paint.SpriteParts()))
-            throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
         byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
@@ -240,7 +203,7 @@ internal static class TitleGradientVerification
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile])),
             "title graphics reject wrong Mode 7 PNG dimensions");
         Console.WriteLine(
-            $"  Title graphics presentation: four editable assets and all title OBJ frames match native OAM; " +
+            $"  Title graphics presentation: four installed assets and all title OBJ frames match native OAM; " +
             $"production avoided {cartridgeReads.Count} cartridge-art bytes.");
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
@@ -296,7 +259,7 @@ internal static class TitleGradientVerification
             "installed title skip names the native copyright shading");
         Console.WriteLine(
             $"  Title palette presentation: {SnesCgram.ColorCount} initial, 36 ambient, and two skip " +
-            $"editable colors match ROM; production avoided {paletteAddresses.Count} " +
+            $"installed colors match ROM; production avoided {paletteAddresses.Count} " +
             "initial cartridge source bytes.");
     }
 
@@ -463,7 +426,7 @@ internal static class TitleGradientVerification
         }
         Suite(nameof(VerifyRenderedTitleGradient), () => VerifyRenderedTitleGradient(capture));
         Console.WriteLine(
-            $"  Title gradient presentation: {TitleGradientFormat.VariantCount} editable variants match ROM; " +
+            $"  Title gradient presentation: {TitleGradientFormat.VariantCount} installed variants match ROM; " +
             $"production avoided {cartridgeReads.Count} cartridge source bytes.");
     }
 

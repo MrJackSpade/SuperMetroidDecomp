@@ -8,13 +8,13 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Work Robot palette-cycle colors and author override handling.</summary>
+/// <summary>Checks installed Work Robot palette-cycle colors and malformed-channel rejection.</summary>
 internal static class EnemyTileArtworkWorkRobotPaletteVerification
 {
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares 24 retail RGB5 words, persistent single-color override, and invalid document rejection.</summary>
+    /// <summary>Compares 24 retail RGB5 words and invalid document rejection.</summary>
     internal static void VerifyInstalledWorkRobotPaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileSourceArtwork stock)
     {

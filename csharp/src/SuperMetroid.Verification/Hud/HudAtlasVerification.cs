@@ -26,9 +26,7 @@ internal static class HudAtlasVerification
     private const int NativeHudCharacters = 0x9ab200;
 
     /// <summary>
-    /// Checks that the selected HUD characters show at the next accepted NMI, that visible PNG edits reach the HUD, and
-    /// that rebinding artwork shows the new characters from the next accepted NMI whether or not one has passed since the
-    /// HUD was set up.
+    /// Checks that the selected stock HUD characters show at the next accepted NMI and render the native pixels.
     /// </summary>
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus,
         AreaMapPresentation original, ImportedAreaMap[] rules,

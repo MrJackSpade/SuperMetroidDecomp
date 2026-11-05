@@ -31,9 +31,9 @@ internal static class ManagedAudioVerification
         Suite(nameof(VerifyManagedSpcUsesAddressedFirCoefficients), () => VerifyManagedSpcUsesAddressedFirCoefficients());
         Suite(nameof(VerifyManagedSpcSoundOwnershipPreservesPhase), () => VerifyManagedSpcSoundOwnershipPreservesPhase());
         Suite(nameof(VerifyBrrLoopExtractionRetainsPredictorHistory), () => VerifyBrrLoopExtractionRetainsPredictorHistory());
-        Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
-        Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
-        Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
+        Suite(nameof(VerifyAudioInstruments), () => VerifyAudioInstruments());
+        Suite(nameof(VerifySoundEffectPrograms), () => VerifySoundEffectPrograms());
+        Suite(nameof(VerifyMusicPrograms), () => VerifyMusicPrograms());
     }
 
     /// <summary>Checks that a source-number write affects the next live loop without restarting a voice.</summary>

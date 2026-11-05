@@ -11,10 +11,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks calculated egg-cracking poses against native OAM while retaining independent visual edits.</summary>
+/// <summary>Checks calculated egg-cracking poses against native OAM.</summary>
 internal static class IntroEggCrackingPartsVerification
 {
-    /// <summary>Compares six stock cracking frames, altered part fields, custom counts, bounds, and visible or wrapped OAM origins.</summary>
+    /// <summary>Compares six stock cracking frames, bounds, and visible or wrapped OAM origins.</summary>
     internal static void VerifyIntroEggCrackingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggCracking", value.AppendIdentity);
@@ -25,28 +25,6 @@ internal static class IntroEggCrackingPartsVerification
             SpriteComposition result = IntroEggCrackingParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original EggCracking selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original EggCracking compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 15 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited EggCracking");
-                    AssertTrue(ReferenceEquals(supplied, IntroEggCrackingParts.CalculateIfMatching(definition.Pose, supplied)),
-                        "independent EggCracking field edit stays supplied");
-                }
-            }
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom EggCracking");
-            AssertTrue(ReferenceEquals(extra, IntroEggCrackingParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated EggCracking part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

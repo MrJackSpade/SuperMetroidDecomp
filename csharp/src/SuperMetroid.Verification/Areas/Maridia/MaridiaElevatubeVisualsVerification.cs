@@ -17,7 +17,7 @@ namespace SuperMetroid.Verification.Areas.Maridia;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks editable Maridia elevatube tile art through stock extraction, installation, and live PLM drawing.</summary>
+/// <summary>Checks installed Maridia elevatube tile art through stock extraction, installation, and live PLM drawing.</summary>
 internal static class MaridiaElevatubeVisualsVerification
 {
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>

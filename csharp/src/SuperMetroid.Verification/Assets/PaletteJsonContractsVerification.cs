@@ -3,12 +3,11 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;
-using static SuperMetroid.Verification.Assets.PaletteJsonContractsVisibleVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks strict JSON schemas, RGB5 bounds, and override isolation for installed palette formats.</summary>
+/// <summary>Checks strict JSON schemas and RGB5 bounds for installed palette formats.</summary>
 internal static class PaletteJsonContractsVerification
 {
     /// <summary>JSON options: Camel-case property names.</summary>
@@ -89,9 +88,7 @@ internal static class PaletteJsonContractsVerification
             }
         }
         AssertEqual(0, accepted.Count, "palette compilers must reject ambiguous/corrupt data:\n" + string.Join('\n', accepted));
-        Suite(nameof(VerifyPaletteContractVisibleIsolation), () => VerifyPaletteContractVisibleIsolation());
-        Console.WriteLine($"PASS palette JSON contracts: 12 formats / 18 selections, {rejected} invalid documents " +
-            "and exact visible palette/animation isolation.");
+        Console.WriteLine($"PASS palette JSON contracts: 12 formats / 18 selections, {rejected} invalid documents.");
     }
 
     /// <summary>Names one palette schema, its valid document, loader, and historical casing rule.</summary>

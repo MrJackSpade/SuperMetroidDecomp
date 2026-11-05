@@ -20,10 +20,10 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed and edited Kraid RGB5 rows through the palette consumers that write CGRAM.</summary>
+/// <summary>Checks installed Kraid RGB5 rows through the palette consumers that write CGRAM.</summary>
 internal static class EnemyTileArtworkKraidColorsVerification
 {
-    /// <summary>Compares every stock color with ROM, checks guarded production writes, and confirms edited colors survive reload.</summary>
+    /// <summary>Compares every stock color with ROM, checks guarded production writes, and rejects out-of-range channels.</summary>
     internal static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
@@ -76,64 +76,12 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 $"installed Kraid {consumer} preserves full native CGRAM state");
         }
 
-        string stockPath = Path.Combine(directory, KraidColorFormat.FileName);
-        byte[] original = File.ReadAllBytes(stockPath);
         KraidColorDocument document = RequiredJson.Deserialize<KraidColorDocument>(
-            original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        static PaletteRgb5[] EditFirst(PaletteRgb5[] source, int index)
-        {
-            PaletteRgb5[] colors = (PaletteRgb5[])source.Clone();
-            colors[index] = colors[index] with { Red = colors[index].Red ^ 1 };
-            return colors;
-        }
-        var editedDocument = document with
-        {
-            RoomBackdrop = EditFirst(document.RoomBackdrop, 0),
-            InitialTarget = EditFirst(document.InitialTarget, 0),
-            Health = EditFirst(document.Health, 128),
-            Secondary = EditFirst(document.Secondary, 128),
-            DeathArm = EditFirst(document.DeathArm, 0),
-        };
-        string overrides = Path.Combine(directory, "kraid-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, KraidColorFormat.FileName);
-        File.WriteAllBytes(overridePath, KraidColorFile.Write(editedDocument));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidColors = EnemyTileArtworkFiles.Open(directory, overrides).KraidColors() } };
-        foreach ((KraidPaletteConsumer consumer, int cgramIndex) in new[]
-        {
-            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.BackdropLoad, 96),
-            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.InitialTargetLoad, 176),
-            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.BackdropFade, 96),
-            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.HealthNormal, 112),
-            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.HealthNormal, 240),
-            new VerifyInstalledKraidColorsCase(KraidPaletteConsumer.DeathArm, 112),
-        })
-        {
-            ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);
-            var guard = NewKraidPaletteSourceGuard(rom);
-            RgbColor[] changed = CaptureKraidPaletteConsumer(edited, consumer);
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                $"edited Kraid {consumer} avoids palette ROM reads");
-            AssertEqual((ushort)(baseline[cgramIndex] ^ 1), changed[cgramIndex],
-                $"edited Kraid {consumer} changes CGRAM {cgramIndex}");
-        }
-        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { KraidColors = EnemyTileArtworkFiles.Open(directory, overrides).KraidColors() } };
-        AssertTrue(CaptureKraidPaletteConsumer(reloaded,
-                KraidPaletteConsumer.HealthNormal)
-            .SequenceEqual(CaptureKraidPaletteConsumer(edited, KraidPaletteConsumer.HealthNormal)),
-            "Kraid RGB5 override survives catalog reload");
-
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidColors(),
-            "tampered stock Kraid color file fails loudly where it is read");
-        File.WriteAllBytes(stockPath, original);
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidColors(),
-            "malformed Kraid color override fails at load");
-        PaletteRgb5[] invalidHealth = (PaletteRgb5[])editedDocument.Health.Clone();
+            File.ReadAllBytes(Path.Combine(directory, KraidColorFormat.FileName)), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        PaletteRgb5[] invalidHealth = (PaletteRgb5[])document.Health.Clone();
         invalidHealth[0] = invalidHealth[0] with { Red = 32 };
         AssertThrows<InvalidDataException>(() => KraidColorFile.Read(new MemoryStream(KraidColorFile.Write(
-                editedDocument with { Health = invalidHealth }), writable: false)),
+                document with { Health = invalidHealth }), writable: false)),
             "reading Kraid colors rejects RGB5 channels outside native precision");
     }
 
@@ -485,7 +433,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
         for (int index = 0; index < found.Inks.Length; index++)
             colours[offset + found.Inks[index]] = found.Colours[index];
     }
-
 
     /// <summary>Production paths that load or animate Kraid's installed palette rows.</summary>
     internal enum KraidPaletteConsumer

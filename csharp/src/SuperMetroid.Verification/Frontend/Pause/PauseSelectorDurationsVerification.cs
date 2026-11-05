@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
-/// <summary>Checks pause selector timing against native bytecode and editable phase durations.</summary>
+/// <summary>Checks pause selector timing against native bytecode and rejection of invalid durations.</summary>
 internal static class PauseSelectorDurationsVerification
 {
-    /// <summary>Checks stock timing, per-phase edits, custom cycle lengths, and invalid durations.</summary>
+    /// <summary>Checks stock timing and invalid durations.</summary>
     internal static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
@@ -21,27 +21,6 @@ internal static class PauseSelectorDurationsVerification
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
         AssertEqual(0, stock.StoredDurationCount, "selector stock timing stores no phase values");
-        for (int editedPhase = 0; editedPhase < stock.PhaseCount; editedPhase++)
-        foreach (int delay in new[] { 1, 254 })
-        {
-            var phases = (PauseSelectorPhase[])document.Animation.Clone();
-            phases[editedPhase] = phases[editedPhase] with { DurationTicks = delay };
-            var edited = Load(document with { Animation = phases });
-            AssertEqual(1, edited.StoredDurationCount, "only authored selector duration is stored");
-            for (int phase = 0; phase < phases.Length * 2; phase++)
-                AssertEqual(phases[phase % phases.Length].DurationTicks, edited.Duration(phase), "edited selector cyclic duration");
-            AssertEqual(phases[int.MaxValue % phases.Length].DurationTicks, edited.Duration(int.MaxValue), "maximum cyclic phase");
-            AssertEqual(stock.InitialDurationTicks, edited.InitialDurationTicks, "phase edit leaves initial timer intact");
-        }
-        foreach (int length in new[] { 1, 255 })
-        {
-            var phases = Enumerable.Range(0, length).Select(_ => document.Animation[0] with { DurationTicks = 254 }).ToArray();
-            var edited = Load(document with { Animation = phases, InitialDurationTicks = 1 });
-            AssertEqual(length, edited.PhaseCount, "custom selector cycle length");
-            AssertEqual(length, edited.StoredDurationCount, "fully custom timing captured");
-            AssertEqual(1, edited.InitialDurationTicks, "initial duration independently editable");
-            for (int phase = 0; phase <= length; phase++) AssertEqual(254, edited.Duration(phase), "custom selector timing and wrap");
-        }
         foreach (int invalid in new[] { -1, int.MinValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(invalid), "negative selector phase rejected");
         foreach (int invalid in new[] { 0, -1, 255 })

@@ -11,7 +11,6 @@ internal static class OrdinaryEnemyResourceChecks
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;
-        int previousVersion = EnemySpritemapSchema.PreAuditOrdinary.Revision;
         // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
         OrdinaryEnemyResourceFamily[] families =
         [
@@ -29,10 +28,10 @@ internal static class OrdinaryEnemyResourceChecks
             {
                 if (definition.Spritemaps is { } spritemaps)
                     EnemyCompositionResourceChecks.RunSpritemaps(family, definition.Bank, spritemaps,
-                        definition.Count, previousVersion, previousCount, previousCount + offset);
+                        definition.Count, previousCount, previousCount + offset);
                 else
                     EnemyCompositionResourceChecks.Run(family, definition.Bank, definition.Operands,
-                        definition.Count, previousVersion, previousCount, previousCount + offset);
+                        definition.Count, previousCount, previousCount + offset);
                 return;
             }
             offset += definition.Count;

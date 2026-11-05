@@ -19,8 +19,8 @@ using SuperMetroid.Core.World.RoomStates;
 internal static class RoomMetatilesVerification
 {
     /// <summary>
-    /// Roundtrips distinct CRE and area metatiles, checks the installed compositions are the cartridge's, and checks an edited
-    /// composition document changes exactly its edited tile.
+    /// Roundtrips distinct CRE and area metatiles, checks the installed compositions are the cartridge's, and checks a
+    /// composition document with an invalid palette selector is rejected.
     /// </summary>
     internal static void VerifyRoomMetatileExtraction()
     {
@@ -79,22 +79,10 @@ internal static class RoomMetatilesVerification
 
         byte[] cre = RomDataReader.Decompress(bus,
             (int)RoomTilesetSourceDefinitions.CreBlocks);
-        JsonNode edited = JsonNode.Parse(files[RoomMetatileFormat.CreFileName])
+        JsonNode malformed = JsonNode.Parse(files[RoomMetatileFormat.CreFileName])
             ?? throw new InvalidDataException("CRE metatile JSON is empty.");
-        JsonNode topLeft = edited.Required("blocks").Required(0).Required("topLeft");
-        int originalColumn = topLeft.Required("tileColumn").GetValue<int>();
-        topLeft["tileColumn"] = (originalColumn + 1) % RoomMetatileFormat.TileColumns;
-        RoomMetatileAtlas modified = RoomMetatileAtlas.Load(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)), cre.Length);
-        ExpandedBlockTiles before = LevelBlockTilemapExpander.Expand(RoomBlockAppearance.Of(0), stockCre.BlockTiles.Span);
-        ExpandedBlockTiles after = LevelBlockTilemapExpander.Expand(RoomBlockAppearance.Of(0), modified.BlockTiles.Span);
-        AssertTrue(before.TopLeft != after.TopLeft && before.TopRight == after.TopRight &&
-            before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight &&
-            stockCre.BlockTiles.Span[4..].SequenceEqual(modified.BlockTiles.Span[4..]),
-            "an edited composition document changes only its edited 8x8 tile");
-
-        topLeft["palette"] = RoomMetatileFormat.PaletteCount;
-        byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited);
+        malformed.Required("blocks").Required(0).Required("topLeft")["palette"] = RoomMetatileFormat.PaletteCount;
+        byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed);
         AssertThrows<InvalidDataException>(() => RoomMetatileAtlas.Load(
                 new MemoryStream(invalid, writable: false), cre.Length),
             "metatile JSON rejects an invalid palette selector");

@@ -711,23 +711,11 @@ internal static class LookupStream4Verification
                 AssertEqual(0x2345, cgram[100], "alarm following CGRAM unchanged");
             }
         }
-        CeresBabyShadeColorsDocument alarmBabyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
-        // Version two stored the Baby's colours as the cartridge's ordered steps; version one predates them.
-        PaletteRgb5[][] alarmBabySteps = [alarmBabyShades.Resting, alarmBabyShades.HorizontalSquish, alarmBabyShades.Round, alarmBabyShades.VerticalSquish];
-        foreach (int version in new[] { 1, 2 })
-        {
-            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
-                document with { Version = version, Alarm = null, BabyShades = null, Baby = version == 1 ? null : alarmBabySteps }, ArtworkJson.Options);
-            var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
-            for (int row = 0; row < 16; row++)
-            for (int color = 0; color < 3; color++)
-                AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
-        }
         foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
         foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
-        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls, legacy fallback and bounds pass.");
+        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls and bounds pass.");
     }
 
     /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
@@ -3218,10 +3206,6 @@ internal static class LookupStream4Verification
         }
         foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, BabyShades = null }, ArtworkJson.Options);
-        var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
-        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), legacy.ResolveBaby(shadeOfRow[row], color), "Legacy document preserves the independently installed Baby owner");
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
             AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 native Baby colors calculate");
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 63; edit++)

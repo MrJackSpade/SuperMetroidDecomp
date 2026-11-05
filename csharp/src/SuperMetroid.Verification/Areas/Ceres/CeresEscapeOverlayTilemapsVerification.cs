@@ -1,13 +1,10 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using System.Text.Json;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -21,12 +18,8 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 /// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against the cartridge's BG1 transfers.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification
 {
-    /// <summary>JSON options: Web defaults: camel-case names, case-insensitive matching, quoted numbers.</summary>
-    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
-
-    /// <summary>Compares five native overlays, then checks live override, reload, and missing-resource behavior.</summary>
-    internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
-        string stockDirectory, InstalledEnemyArtwork stock)
+    /// <summary>Compares five native overlays and the title the getaway shows over BG1.</summary>
+    internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom, InstalledEnemyArtwork stock)
     {
         CeresEscapeOverlays stockOverlay =
             stock.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
@@ -43,7 +36,6 @@ internal static class CeresEscapeOverlayTilemapsVerification
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
 
-        var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installedOverlay = new RecordedBg1Overlay();
         var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
@@ -80,48 +72,18 @@ internal static class CeresEscapeOverlayTilemapsVerification
                 native[first + index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
         }
 
-        string overrideDirectory = Path.Combine(stockDirectory,
-            "ceres-escape-overlay-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        string fileName = CeresWarningGlyphDefinitions.FileName;
-        CeresEscapeOverlayTilemapDocument document =
-            JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(
-                File.ReadAllBytes(Path.Combine(stockDirectory, fileName)),
-                WebJson)
-            ?? throw new InvalidDataException("Stock Ceres overlay JSON is null.");
-        document.Pages[title.Name][0] = BackgroundTileWordBytes.Tile(document.Pages[title.Name][0].PackedWord ^ 1);
-        File.WriteAllBytes(Path.Combine(overrideDirectory, fileName),
-            CeresEscapeOverlays.Write(document));
-        InstalledEnemyArtwork edited = stock with { Areas = stock.Areas with { CeresEscapeOverlayTilemaps = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeOverlayTilemaps() } };
-        AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> stockTiles),
+        AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> _),
             "stock English Ceres title resolves");
-        AssertTrue((edited.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title, out ReadOnlyMemory<BackgroundTile> editedTiles),
-            "edited English Ceres title resolves");
-        byte[] stockWords = BackgroundTileWordBytes.Of(stockTiles.Span), editedWords = BackgroundTileWordBytes.Of(editedTiles.Span);
-        AssertEqual((byte)(stockWords[0] ^ 1), editedWords[0],
-            "edited Ceres title changes exactly its first tile word");
-        AssertTrue(stockWords.AsSpan(1).SequenceEqual(editedWords.AsSpan(1)),
-            "edited Ceres title leaves other tilemap bytes unchanged");
-        var editedOverlay = new RecordedBg1Overlay();
-        var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: editedOverlay.Services()) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
-        editedEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
+        var shownOverlay = new RecordedBg1Overlay();
+        var shownEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: shownOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        shownEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         int titleWord = CeresEscapeOverlayTilemapDefinitions.Emergency.Cell;
-        AssertEqual(native[titleWord] ^ 1, editedOverlay.Overlay.WordsIn(edited.Areas.CeresEscapeOverlayTilemaps)[titleWord],
-            "edited Ceres title changes the word shown over BG1");
-        AssertTrue(EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeOverlayTilemaps().TryResolve(title,
-                    out ReadOnlyMemory<BackgroundTile> reloaded) &&
-                   BackgroundTileWordBytes.Of(reloaded.Span).AsSpan().SequenceEqual(editedWords),
-            "Ceres title tilemap edit survives catalog reload");
-
-        File.WriteAllBytes(Path.Combine(overrideDirectory, fileName), [1, 2, 3]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeOverlayTilemaps(),
-            "corrupt Ceres overlay JSON fails loudly");
+        AssertEqual(native[titleWord], shownOverlay.Overlay.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
+            "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.
         Console.WriteLine(
-            "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +
-            "VRAM; live edit, reload, and corrupt resource rejection pass.");
+            "Ceres escape overlays: five installed tilemaps match native bytes and guarded " +
+            "VRAM pass.");
     }
-
 }

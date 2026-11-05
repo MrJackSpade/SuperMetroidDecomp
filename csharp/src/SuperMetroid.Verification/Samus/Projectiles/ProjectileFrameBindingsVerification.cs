@@ -1,10 +1,9 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -16,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed projectile sprite bindings independently of timed mechanics.</summary>
 internal static class ProjectileFrameBindingsVerification
 {
-    /// <summary>Checks 805 native sprite references, both projectile handlers, and rejection of malformed bindings.</summary>
+    /// <summary>Checks 805 native sprite references, both projectile handlers, the installed bindings and malformed binding documents.</summary>
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
@@ -84,14 +83,18 @@ internal static class ProjectileFrameBindingsVerification
 
         var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        string frameName = ProjectileFrameBindingFormat.FrameNameAt(SamusProjectileRecordDefinitions.TimedRecordAddresses[0]);
+        ushort firstTimedRecord = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
+        string frameName = ProjectileFrameBindingFormat.FrameNameAt(firstTimedRecord);
+        AssertEqual(stock.Resolve(firstTimedRecord),
+            RepositoryInstallation.Installation.LoadProjectiles().FrameBindings.Resolve(firstTimedRecord),
+            "installed stock frame binding selects the native sprite");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");
         document.Frames[frameName] = "sprite_0000";
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");
-        Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers and malformed resources pass.");
+        Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, installed bindings and malformed documents pass.");
     }
 
     /// <summary>Runs the projectile frame binding checks.</summary>

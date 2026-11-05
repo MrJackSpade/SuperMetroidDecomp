@@ -13,8 +13,9 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Installs what each room level's blocks initially show (#1469), without terrain, collision or behaviours. A user's JSON
-/// override may alter only those appearances; gameplay keeps the installed terrain and all later room-object writes.
+/// Installs what each room level's blocks initially show (#1469), without terrain, collision or behaviours. A player's
+/// in-place edit of a level's JSON may alter only those appearances; gameplay keeps the installed terrain and all later
+/// room-object writes.
 /// </summary>
 /// <remarks>
 /// A level document holds each plane as its blocks' numbers, row by row, and its blocks' mirroring as one character per
@@ -26,10 +27,6 @@ public static class RoomVisualLayoutFiles
     public const string ManifestFileName = "room-layouts.json";
     /// <summary>Schema revision shared by the manifest and per-level layout documents; version 3 holds block numbers and mirroring instead of level words.</summary>
     private const int FormatVersion = 3;
-    /// <summary>The schema revision from #1414 to #1469, whose documents carried twelve-bit level words.</summary>
-    private const int WordFormatVersion = 2;
-    /// <summary>The schema revision before #1414, whose documents carried the level's cartridge source address.</summary>
-    private const int LegacyFormatVersion = 1;
 
     /// <summary>The character a document writes for each mirroring.</summary>
     private static readonly Dictionary<BlockMirroring, char> MirroringCodes = new()
@@ -57,7 +54,7 @@ public static class RoomVisualLayoutFiles
     /// <summary>Distinct levels selected by retail room states and their row strides.</summary>
     public static IReadOnlyDictionary<RoomLevelId, int> RetailLevels { get; } = BuildRetailLevels();
 
-    /// <summary>Formats the stable per-level stock/override JSON filename without validating the level.</summary>
+    /// <summary>Formats the stable per-level installed JSON filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it; membership validation occurs during loading.</param>
     /// <returns><c>level-</c> followed by the level's name and <c>.json</c>.</returns>
     public static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.json";
@@ -96,18 +93,17 @@ public static class RoomVisualLayoutFiles
             new LayoutFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
     }
 
-    /// <summary>Checks the complete retail-level manifest and stock hashes, then selects independently replaceable initial room visual layouts.</summary>
-    /// <param name="stockDirectory">Family directory containing all per-level stock JSON files and the required provenance/dimension manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; each absent level JSON independently falls back to stock.</param>
-    /// <returns>A ROM-independent catalog of selected initial foreground and background appearances, leaving terrain, behaviours and later room-object writes alone.</returns>
-    /// <remarks>Stock provenance and every byte hash remain mandatory with overrides. Strict selected JSON must retain the level, original block dimensions, array extents, valid block numbers and mirroring codes; no override manifest is needed. An overridden stock document is hash-checked but not separately deserialized or compared with cartridge bytes.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, coverage, integrity, strict JSON, level identity, dimensions, block numbers or mirroring codes are invalid.</exception>
-    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static RoomLevelArtworks Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks the complete retail-level manifest, then loads every level's installed initial room visual layout as the player left it.</summary>
+    /// <param name="directory">Family directory containing every per-level JSON file and the required provenance/dimension manifest.</param>
+    /// <returns>A ROM-independent catalog of the installed initial foreground and background appearances, leaving terrain, behaviours and later room-object writes alone.</returns>
+    /// <remarks>Strict JSON must retain the level, original block dimensions, array extents, valid block numbers and mirroring codes; the documents are not compared with cartridge bytes.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Provenance, coverage, strict JSON, level identity, dimensions, block numbers or mirroring codes are invalid.</exception>
+    /// <exception cref="IOException">The manifest or a level file cannot be read.</exception>
+    public static RoomLevelArtworks Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         using var manifestStream = File.OpenRead(manifestPath);
         LayoutFileManifest manifest = JsonAssetDocument.Read<LayoutFileManifest>(
             manifestStream, JsonOptions, $"room-layout manifest {manifestPath}");
@@ -118,7 +114,7 @@ public static class RoomVisualLayoutFiles
             throw new InvalidDataException(
                 $"Room-layout manifest {manifestPath} does not cover the pinned retail levels.");
 
-        var selected = new Dictionary<RoomLevelId, RoomLevelArtwork>();
+        var layouts = new Dictionary<RoomLevelId, RoomLevelArtwork>();
         foreach ((string name, LayoutFileEntry entry) in manifest.Entries)
         {
             if (entry?.Level is null || name != LevelFileName(entry.Id) ||
@@ -126,22 +122,17 @@ public static class RoomVisualLayoutFiles
                 entry.Size.X != width || entry.Size.Y <= 0)
                 throw new InvalidDataException(
                     $"Room-layout manifest {manifestPath} has an invalid level entry.");
-            string stockPath = Path.Combine(stockDirectory, name);
-            using PooledFileBytes stock = PooledFileBytes.Read(stockPath);
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
-            using PooledFileBytes? edited = selectedPath == stockPath ? null : PooledFileBytes.Read(selectedPath);
-            PooledFileBytes json = edited ?? stock;
+            string path = Path.Combine(directory, name);
+            using PooledFileBytes json = PooledFileBytes.Read(path);
             using MemoryStream jsonStream = json.OpenRead();
             RoomVisualLayoutDocument document = JsonAssetDocument.Read<RoomVisualLayoutDocument>(
-                jsonStream, JsonOptions, $"room layout {selectedPath}");
+                jsonStream, JsonOptions, $"room layout {path}");
             if (document.FormatVersion != FormatVersion ||
                 document.Level != entry.Level ||
                 document.Size != entry.Size ||
                 document.Foreground is null ||
                 document.Background is null)
-                throw new InvalidDataException($"Room layout {selectedPath} has incompatible dimensions or identity.");
+                throw new InvalidDataException($"Room layout {path} has incompatible dimensions or identity.");
             RoomLevelArtwork layout;
             try
             {
@@ -150,96 +141,12 @@ public static class RoomVisualLayoutFiles
             }
             catch (Exception error) when (error is InvalidDataException or ArgumentException)
             {
-                throw new InvalidDataException($"Invalid room layout {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid room layout {path}: {error.Message}", error);
             }
-            if (!selected.TryAdd(entry.Id, layout))
+            if (!layouts.TryAdd(entry.Id, layout))
                 throw new InvalidDataException($"Room-layout manifest {manifestPath} repeats a level.");
         }
-        return new RoomLevelArtworks(selected, RoomVisualLayoutSourceDefinitions.All);
-    }
-
-    /// <summary>
-    /// Moves each layout override still under its name from before #1414, which carried its level's cartridge source, to
-    /// its level's name, and rewrites every override that still holds level words (versions one and two, before #1469)
-    /// as block numbers and mirroring; a player who holds an override under both names must choose.
-    /// </summary>
-    /// <param name="overrideDirectory">The room-layout override directory, which need not exist.</param>
-    /// <exception cref="IOException">An override exists under both its old and its new name.</exception>
-    /// <exception cref="InvalidDataException">An old override is not a document of the level its name gives, or holds a word with collision bits.</exception>
-    internal static void MigrateLegacyOverrides(string overrideDirectory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(overrideDirectory);
-        foreach ((RoomLevelId level, int source) in RoomLevelSourceDefinitions.Addresses)
-        {
-            string current = Path.Combine(overrideDirectory, LevelFileName(level));
-            string legacy = Path.Combine(overrideDirectory, $"level-{source:X6}.json");
-            if (File.Exists(legacy))
-            {
-                if (File.Exists(current))
-                    throw new IOException($"Room layout override {LevelFileName(level)} also exists under its old name {Path.GetFileName(legacy)}; keep one of them.");
-                LegacyRoomVisualLayoutDocument old;
-                using (FileStream stream = File.OpenRead(legacy))
-                    old = JsonAssetDocument.Read<LegacyRoomVisualLayoutDocument>(stream, JsonOptions, $"room layout {legacy}");
-                if (old.FormatVersion != LegacyFormatVersion || old.SourceAddress != source)
-                    throw new InvalidDataException($"Room layout override {legacy} is not the version-{LegacyFormatVersion} layout of the level its name gives.");
-                WriteFromWords(current, level, old.Size, old.ForegroundVisualWords,
-                    old.BackgroundVisualWords, legacy);
-                File.Delete(legacy);
-                continue;
-            }
-            if (!File.Exists(current) || ReadVersion(current) != WordFormatVersion)
-                continue;
-            WordRoomVisualLayoutDocument words;
-            using (FileStream stream = File.OpenRead(current))
-                words = JsonAssetDocument.Read<WordRoomVisualLayoutDocument>(stream, JsonOptions, $"room layout {current}");
-            if (words.FormatVersion != WordFormatVersion || words.Level != level.Name)
-                throw new InvalidDataException($"Room layout override {current} is not the version-{WordFormatVersion} layout of the level its name gives.");
-            byte[] json = Serialize(level, words.Size, words.ForegroundVisualWords,
-                words.BackgroundVisualWords, current);
-            File.WriteAllBytes(current, json);
-        }
-    }
-
-    /// <summary>Writes a version-three override converted from level words to a new file.</summary>
-    private static void WriteFromWords(string path, RoomLevelId level, Extent16<RoomBlocks> size, ushort[] foreground,
-        ushort[] background, string source)
-    {
-        byte[] json = Serialize(level, size, foreground, background, source);
-        using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
-        file.Write(json);
-    }
-
-    /// <summary>Converts a word layout's planes, which must hold no collision bits, to a version-three document.</summary>
-    /// <exception cref="InvalidDataException">A plane is missing or a word holds collision bits.</exception>
-    private static byte[] Serialize(RoomLevelId level, Extent16<RoomBlocks> size, ushort[]? foreground,
-        ushort[]? background, string source)
-    {
-        if (foreground is null || background is null ||
-            foreground.Any(word => !RoomLevelWordCodec.IsAppearanceWord(word)) ||
-            background.Any(word => !RoomLevelWordCodec.IsAppearanceWord(word)))
-            throw new InvalidDataException($"Room layout override {source} lacks a plane or holds a collision bit in its artwork.");
-        return JsonSerializer.SerializeToUtf8Bytes(new RoomVisualLayoutDocument(FormatVersion, level.Name, size.X, size.Y,
-            WritePlane([.. foreground.Select(RoomLevelWordCodec.DecodeAppearance)]),
-            WritePlane([.. background.Select(RoomLevelWordCodec.DecodeAppearance)])), JsonOptions);
-    }
-
-    /// <summary>Reads only a layout document's format version.</summary>
-    /// <exception cref="InvalidDataException">The document is not JSON or has no numeric format version.</exception>
-    private static int ReadVersion(string path)
-    {
-        try
-        {
-            using FileStream stream = File.OpenRead(path);
-            using JsonDocument document = JsonDocument.Parse(stream);
-            foreach (JsonProperty property in document.RootElement.EnumerateObject())
-                if (string.Equals(property.Name, nameof(RoomVisualLayoutDocument.FormatVersion), StringComparison.OrdinalIgnoreCase))
-                    return property.Value.GetInt32();
-        }
-        catch (Exception error) when (error is JsonException or InvalidOperationException or FormatException)
-        {
-            throw new InvalidDataException($"Room layout override {path} is not a layout document: {error.Message}", error);
-        }
-        throw new InvalidDataException($"Room layout override {path} has no format version.");
+        return new RoomLevelArtworks(layouts, RoomVisualLayoutSourceDefinitions.All);
     }
 
     /// <summary>A plane of appearances as a document writes it.</summary>
@@ -319,24 +226,4 @@ public static class RoomVisualLayoutFiles
     }
     /// <summary>One plane of a layout document: each block's number, row by row, and one mirroring code per block.</summary>
     private sealed record RoomLayoutPlaneDocument(int[] Blocks, string Mirroring);
-    /// <summary>A version-two layout override, which held twelve-bit level words.</summary>
-    [SpatialComponents("External format: version-two room-layout JSON stores widthInBlocks/heightInBlocks.")]
-    private sealed record WordRoomVisualLayoutDocument(int FormatVersion, string Level,
-        int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
-        ushort[] BackgroundVisualWords)
-    {
-        /// <summary>Converts document dimensions into the room-block extent the converted document keeps.</summary>
-        [JsonIgnore]
-        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
-    }
-    /// <summary>A version-one layout override, which named its level by the level's cartridge source.</summary>
-    [SpatialComponents("External format: version-one room-layout JSON stores widthInBlocks/heightInBlocks.")]
-    private sealed record LegacyRoomVisualLayoutDocument(int FormatVersion, int SourceAddress,
-        int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
-        ushort[] BackgroundVisualWords)
-    {
-        /// <summary>Converts document dimensions into the room-block extent the converted document keeps.</summary>
-        [JsonIgnore]
-        public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
-    }
 }

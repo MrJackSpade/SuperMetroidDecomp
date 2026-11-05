@@ -12,11 +12,9 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction;
@@ -26,9 +24,9 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
 internal static class CeresRidleyColorsVerification
 {
-    /// <summary>Verifies extracted colors, edited palette effects, legacy override migration, and guarded ROM access.</summary>
-    internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom,
+    /// <summary>Verifies extracted colors, installed palette effects, and guarded ROM access.</summary>
+    internal static void VerifyCeresRidleyColors(string stockDirectory,
+        AreaMapPresentation original, ISnesAddressSpace rom,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(rom);
@@ -71,23 +69,7 @@ internal static class CeresRidleyColorsVerification
             File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Ridley colors are null.");
-        Paint(document.Start);
-        Paint(document.EyeFade[15]);
-        Paint(document.BodyFade[0]);
-        Paint(document.Health[0]);
-        Paint(document.Health[1]);
-        Paint(document.Health[2]);
-        Paint((document.Alarm ?? throw new InvalidOperationException("Verification requires document.Alarm."))[7]);
-        Paint(document.RetreatBg);
-        Paint(document.RetreatShared);
-        Paint((document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.")).HorizontalSquish);
-        string replacement = Path.Combine(overrideDirectory, CeresRidleyColorFormat.FileName);
-        File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "Ceres Ridley palette edit changes installed identity");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
-        runtime.Artwork.MapPresentation = edited;
         runtime.Artwork.MapPresentation = original;
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
@@ -101,7 +83,7 @@ internal static class CeresRidleyColorsVerification
         initialize(slot);
         CheckCgram(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyPaletteDefinitionsConstants.StartCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveStart, "Ceres Ridley initialization");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEnemyState> eyeTick = CeresRidleyFades.TickCeresRidleyEyeFade;
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
@@ -114,10 +96,10 @@ internal static class CeresRidleyColorsVerification
             eyeTick(state);
             int row = CeresRidleyEyeFade.Get(step).Shade;
             AssertEqual(unchecked((ushort)(step + 1)), state.FadeStep,
-                $"edited eye fade step {step} advances");
+                $"installed eye fade step {step} advances");
             CheckCgram(state, CeresRidleyPaletteDefinitions.EyeFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.EyeFadeCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveEyeFade(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
         state.Function = RidleyAiFunction.FadeInBody;
@@ -127,14 +109,14 @@ internal static class CeresRidleyColorsVerification
             state.FunctionTimer = WrappingCountdown.Start(1);
             bodyTick(slot, state);
             AssertEqual(row == CeresRidleyPaletteDefinitions.BodyFadeShadeCount - 1 ? 0 : row + 1,
-                state.FadeStep, $"edited body fade row {row} advances to the next row, or resets after the last");
+                state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(state, CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeBgCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBodyFade(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
                 $"Ceres Ridley body BG fade row {row}");
             CheckCgram(state, CeresRidleyPaletteDefinitions.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeObjCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBodyFade(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
         }
         state.FightMode = RidleyFightMode.Fighting;
@@ -146,7 +128,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyPaletteDefinitions.HealthLateBand;
             CheckCgram(state, CeresRidleyPaletteDefinitions.HealthColorCount,
                 CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveHealth(row, color),
+                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
@@ -162,121 +144,42 @@ internal static class CeresRidleyColorsVerification
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatBgColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatBgCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveRetreatBg, "Ceres Ridley retreat BG");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatBg, "Ceres Ridley retreat BG");
         CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedBgCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
         CheckCgram(activeRidley, CeresRidleyPaletteDefinitions.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedObjCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
+            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");
-
-        // A version-one override predates the Baby rows. Preserve the user's
-        // Ridley edits and supply only the new Baby colors from verified stock.
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
-            document with { Version = (int)CeresRidleyColorVersion.PreBaby,
-                BabyShades = null, Alarm = null },
-            ArtworkJson.Options);
-        File.WriteAllBytes(replacement, legacyJson);
-        AreaMapPresentation migrated =
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveStart(1),
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(migrated).ResolveStart(1),
-            "version-one Ceres Ridley override retains an edited color");
-        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(migrated).ResolveBaby(CeresBabyShade.HorizontalSquish, 0),
-            "version-one Ceres Ridley override inherits stock Baby colors");
-        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveAlarm(7, 1),
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(migrated).ResolveAlarm(7, 1),
-            "version-one Ceres Ridley override inherits stock alarm colors");
-        // Versions two and three stored the Baby's colours as the cartridge's ordered steps, the order of the native
-        // draw lists' palette operands.
-        CeresBabyShadeColorsDocument editedShades = document.BabyShades
-            ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
-        PaletteRgb5[][] babySteps = [.. CeresBabyNativeListAddresses.ShadeOperands
-            .OrderBy(shadeOperand => shadeOperand.Operand).Select(shadeOperand => editedShades.Of(shadeOperand.Shade))];
-        byte[] preAlarmJson = JsonSerializer.SerializeToUtf8Bytes(
-            document with { Version = (int)CeresRidleyColorVersion.PreAlarm, Alarm = null, Baby = babySteps, BabyShades = null },
-            ArtworkJson.Options);
-        File.WriteAllBytes(replacement, preAlarmJson);
-        AreaMapPresentation preAlarm =
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(preAlarm).ResolveBaby(CeresBabyShade.HorizontalSquish, 1),
-            "version-two Ridley override retains its edited Baby colors");
-        byte[] babyStepsJson = JsonSerializer.SerializeToUtf8Bytes(
-            document with { Version = (int)CeresRidleyColorVersion.BabySteps, Baby = babySteps, BabyShades = null },
-            ArtworkJson.Options);
-        File.WriteAllBytes(replacement, babyStepsJson);
-        AreaMapPresentation babyStepsOverride =
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        foreach (CeresBabyShade shade in Enum.GetValues<CeresBabyShade>())
-            for (int color = 0; color < CeresRidleyPaletteDefinitions.BabyColorCount; color++)
-                AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveBaby(shade, color),
-                    InstalledAreaMapPresentation.CeresRidleyColorsOf(babyStepsOverride).ResolveBaby(shade, color),
-                    "version-three Ridley override names its ordered Baby steps by shade");
-        AssertEqual(InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveAlarm(7, 1),
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(preAlarm).ResolveAlarm(7, 1),
-            "version-two Ridley override inherits stock alarm colors");
-        File.WriteAllBytes(replacement, CeresRidleyColorFile.Write(document));
 
         document.EyeFade[0][0] = document.EyeFade[0][0] with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CeresRidleyColorFile.Read(new MemoryStream(CeresRidleyColorFile.Write(document), writable: false)),
             "reading Ceres Ridley colors rejects an invalid RGB5 channel");
-        string replacementStock = Path.Combine(
-            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
-            "ceres-ridley-reextract");
-        byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        AreaMapPresentation repaired = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(rom, replacementStock, overrideDirectory);
-        AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
-            "Ceres Ridley stock repair preserves override identity");
-        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
-            "Ceres Ridley stock repair does not rewrite override");
-        File.Delete(replacement);
-        AssertEqual(original.ContentIdentity,
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory).ContentIdentity,
-            "removing Ceres Ridley override restores stock identity");
-        Console.WriteLine("Ceres/Ridley colors: 429 native words, Ceres initialization/fades/alarm/retreat/Baby, Norfair health thresholds, ROM guard and stock repair pass.");
+        Console.WriteLine("Ceres/Ridley colors: 429 native words, Ceres initialization/fades/alarm/retreat/Baby, Norfair health thresholds and ROM guard pass.");
 
         void VerifyCeresAlarmPalette()
         {
             // Compare every callback, including the three skipped frame counters
-            // between each alarm color upload. Only the authored RGB5 row is editable.
+            // between each alarm color upload.
             var nativeTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
             var stockTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
-            var editedTick = new Action<RidleyEnemyState, int>(CeresRidleyGetaway.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
-            var editedState = new RidleyEnemyState();
             for (ushort frame = 0; frame < CeresRidleyPaletteDefinitions.AlarmStepCount * 4; frame++)
             {
                 nativeTick(nativeState, frame);
                 stockTick(stockState, frame);
-                editedTick(editedState, frame);
                 RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, original);
                 RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, original);
-                RgbColor[] editedCgram = RidleyLaidColours.Ceres(editedState, edited);
                 AssertEqual(nativeState.CeresEscapePaletteFrame, stockState.CeresEscapePaletteFrame,
                     $"stock Ceres alarm frame {frame} selection");
-                AssertEqual(nativeState.CeresEscapePaletteFrame, editedState.CeresEscapePaletteFrame,
-                    $"edited Ceres alarm frame {frame} selection");
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
-                {
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
-                    RgbColor expected = editedState.CeresEscapePaletteFrame == 7 &&
-                        color >= CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex &&
-                        color < CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex +
-                            CeresRidleyPaletteDefinitions.AlarmColorCount
-                        ? InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveAlarm(7,
-                            color - CeresRidleyPaletteDefinitionsConstants.AlarmCgramIndex)
-                        : nativeCgram[color];
-                    AssertEqual(expected, editedCgram[color],
-                        $"edited Ceres alarm frame {frame} CGRAM {color}");
-                }
             }
-            AssertEqual(0, editedState.CeresEscapePaletteFrame,
+            AssertEqual(0, stockState.CeresEscapePaletteFrame,
                 "Ceres alarm frame sixteen wraps to zero");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres alarm never reads its source color rows");
@@ -289,26 +192,19 @@ internal static class CeresRidleyColorsVerification
             // parity; the guarded installed path proves no copied ROM colors are read.
             var nativeEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             var stockEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var editedEnemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
             var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
-            var editedTick = new Action<RoomEnemySlot, RidleyEnemyState>(RidleyInteractions.UpdateNorfairRidleyHealthPalette);
             RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];
             RoomEnemySlot stockSlot = stockEnemy.SlotTable.Slots[0];
-            RoomEnemySlot editedSlot = editedEnemy.SlotTable.Slots[0];
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
-            var editedState = new RidleyEnemyState();
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799, 0 })
             {
-                nativeSlot.Health = stockSlot.Health = editedSlot.Health = health;
-                RgbColor[] before = RidleyLaidColours.Ceres(editedState, edited);
+                nativeSlot.Health = stockSlot.Health = health;
                 nativeTick(nativeSlot, nativeState);
                 stockTick(stockSlot, stockState);
-                editedTick(editedSlot, editedState);
                 RgbColor[] nativeCgram = RidleyLaidColours.Ceres(nativeState, original);
                 RgbColor[] stockCgram = RidleyLaidColours.Ceres(stockState, original);
-                RgbColor[] editedCgram = RidleyLaidColours.Ceres(editedState, edited);
                 ushort stage = health switch
                 {
                     < 1800 => 3,
@@ -320,22 +216,9 @@ internal static class CeresRidleyColorsVerification
                     $"native Norfair Ridley health {health} stage");
                 AssertEqual(stage, stockState.HealthStage,
                     $"stock Norfair Ridley health {health} stage");
-                AssertEqual(stage, editedState.HealthStage,
-                    $"edited Norfair Ridley health {health} stage");
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
-                {
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Norfair Ridley health {health} CGRAM {color}");
-                    RgbColor expected = stage != 0 &&
-                        color >= CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex &&
-                        color < CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex +
-                            CeresRidleyPaletteDefinitions.HealthColorCount
-                        ? InstalledAreaMapPresentation.CeresRidleyColorsOf(edited).ResolveHealth(
-                            stage - 1, color - CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex)
-                        : before[color];
-                    AssertEqual(expected, editedCgram[color],
-                        $"edited Norfair Ridley health {health} CGRAM {color}");
-                }
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Norfair Ridley installed health colors avoid their original ROM rows");
@@ -354,16 +237,11 @@ internal static class CeresRidleyColorsVerification
         }
         void CheckCgram(RidleyEnemyState shown, int count, int destination, Func<int, RgbColor> resolve, string context)
         {
-            // The colours the encounter shows are the import's shades of the edited colours, laid as its AI laid them (#1512).
-            RgbColor[] cgram = RidleyLaidColours.Ceres(shown, edited);
+            // The colours the encounter shows are the import's shades of the installed colours, laid as its AI laid them (#1512).
+            RgbColor[] cgram = RidleyLaidColours.Ceres(shown, original);
             for (int color = 0; color < count; color++)
                 AssertEqual(resolve(color), cgram[destination + color],
                     $"{context} color {color}");
-        }
-        static void Paint(PaletteRgb5[] colors)
-        {
-            PaletteRgb5 previous = colors[1];
-            colors[1] = previous with { Blue = previous.Blue == 31 ? 30 : previous.Blue + 1 };
         }
     }
 

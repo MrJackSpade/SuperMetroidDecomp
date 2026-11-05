@@ -4,6 +4,6 @@
 internal static class RoomPlmCollectibleVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled collectible visuals.</summary>
-    /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmCollectibleVisualFiles.Load(directory, null);
+    /// <param name="directory">Stock collectible directory.</param>
+    public static void ValidateStock(string directory) => _ = RoomPlmCollectibleVisualFiles.Load(directory);
 }

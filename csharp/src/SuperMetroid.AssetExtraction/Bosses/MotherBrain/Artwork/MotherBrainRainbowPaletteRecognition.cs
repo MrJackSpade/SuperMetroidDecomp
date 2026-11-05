@@ -17,9 +17,8 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainRainbowPaletteRecognition
 {
     /// <summary>Builds the selected rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>
-    /// <param name="colours">The selected colours; a null fake-death fade is inherited from <paramref name="currentStock"/>.</param>
-    /// <param name="currentStock">The current stock presentation a missing fake-death fade is inherited from.</param>
-    internal static Presentation Create(MotherBrainRainbowPaletteColours colours, Presentation? currentStock)
+    /// <param name="colours">The selected colours.</param>
+    internal static Presentation Create(MotherBrainRainbowPaletteColours colours)
     {
         Ensure.NotNull(colours);
         Presentation.PaletteFrame[] rainbow = ShareRainbow(Frames(colours.Rainbow));
@@ -29,9 +28,7 @@ internal static class MotherBrainRainbowPaletteRecognition
         Presentation.PaletteFrame[] fromGrey = Frames(colours.FromGrey);
         fromGrey[0] = ShareDrainEnd(fromGrey[0]);
         fromGrey[^1] = ShareNormalRearEndpoint(fromGrey[^1]);
-        Presentation.PaletteFade fakeDeathToGrey = colours.FakeDeathToGrey is null
-            ? Ensure.NotNull(currentStock).fakeDeathToGrey
-            : Fade(colours.FakeDeathToGrey.Select(brain => Frame(brain, [], null)).ToArray());
+        Presentation.PaletteFade fakeDeathToGrey = Fade(colours.FakeDeathToGrey.Select(brain => Frame(brain, [], null)).ToArray());
         return new(rainbow, Fade(toGrey), Revival(fromGrey), fakeDeathToGrey, Frame(colours.Normal),
             colours.BeamInitial, Beam(colours.BeamCycle));
     }

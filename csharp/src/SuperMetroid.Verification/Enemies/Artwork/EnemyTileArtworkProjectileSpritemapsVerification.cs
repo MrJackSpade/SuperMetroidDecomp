@@ -43,7 +43,6 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.EyeDoor.Artwork;
 using SuperMetroid.Core.Enemies.SaveStation.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -368,253 +367,43 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 $"Ceres elevator arrival frame {frame} draws from installed $8D compositions");
         }
 
-        string overrides = Path.Combine(directory, "eproj-overrides");
-        Directory.CreateDirectory(overrides);
         EnemyProjectileSpritemapDocument document =
             RequiredJson.Deserialize<EnemyProjectileSpritemapDocument>(
                 File.ReadAllBytes(Path.Combine(directory,
                     EnemyProjectileSpritemapDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        SpriteVisualPart[] pad = document.Frames["ceres_elevator_pad_0"];
-        pad[0] = pad[0] with { OffsetX = pad[0].OffsetX + 1 };
-        SpriteVisualPart[] skree = document.Frames["skree_debris"];
-        skree[0] = skree[0] with { OffsetX = skree[0].OffsetX + 1 };
-        EnemyProjectilePresentationFrameDefinition editableProgramFrame =
+        EnemyProjectilePresentationFrameDefinition omittedProgramFrame =
             EnemyProjectilePresentationFrameDefinitions.FirstProgramFrames[0];
-        SpriteVisualPart[] shared = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))[editableProgramFrame.Name];
-        shared[0] = shared[0] with { OffsetX = shared[0].OffsetX + 1 };
-        string ceresFrameName = EnemyProjectilePresentationFrameSets.All
-            .Single(frame => frame.OperandAddress == ceresOperand).Name;
-        SpriteVisualPart[] ceres = document.ProgramFrames[ceresFrameName];
-        ceres[0] = ceres[0] with { OffsetX = ceres[0].OffsetX + 1 };
-        ushort alcoonOperand = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[new(0)]);
-        string alcoonFrameName = EnemyProjectilePresentationFrameSets.All
-            .Single(frame => frame.OperandAddress == alcoonOperand).Name;
-        SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
-        alcoon[0] = alcoon[0] with { OffsetX = alcoon[0].OffsetX + 1 };
-        ushort goldenMissileOperand = TorizoFrameKey(TorizoProjectileFamily.SuperMissile)(0);
-        string goldenMissileFrameName = EnemyProjectilePresentationFrameSets.All
-            .Single(frame => frame.OperandAddress == goldenMissileOperand).Name;
-        SpriteVisualPart[] goldenMissile = document.ProgramFrames[goldenMissileFrameName];
-        goldenMissile[0] = goldenMissile[0] with { OffsetX = goldenMissile[0].OffsetX + 1 };
-        ushort goldenEyeOperand = TorizoFrameKey(TorizoProjectileFamily.EyeBeam)(0);
-        string goldenEyeFrameName = EnemyProjectilePresentationFrameSets.All
-            .Single(frame => frame.OperandAddress == goldenEyeOperand).Name;
-        SpriteVisualPart[] goldenEye = document.ProgramFrames[goldenEyeFrameName];
-        goldenEye[0] = goldenEye[0] with { OffsetX = goldenEye[0].OffsetX + 1 };
-        ushort goldenEggOperand = TorizoFrameKey(TorizoProjectileFamily.Egg)(0);
-        string goldenEggFrameName = EnemyProjectilePresentationFrameSets.All
-            .Single(frame => frame.OperandAddress == goldenEggOperand).Name;
-        SpriteVisualPart[] goldenEgg = document.ProgramFrames[goldenEggFrameName];
-        goldenEgg[0] = goldenEgg[0] with { OffsetX = goldenEgg[0].OffsetX + 1 };
-        var torizoEditableOperands = new Dictionary<string, ushort>(StringComparer.Ordinal);
-        foreach ((string family, RoomEnemyProjectileKind _, int count,
-                     Func<int, ushort> addressAt) in
-                 torizoFamilies)
-        {
-            for (int index = 0; index < count; index++)
-            {
-                ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameSets.All
-                    .Single(frame => frame.OperandAddress == operand).Name;
-                SpriteVisualPart[] frame = document.ProgramFrames[frameName];
-                if (frame.Length == 0)
-                    continue;
-                frame[0] = frame[0] with { OffsetX = frame[0].OffsetX + 1 };
-                torizoEditableOperands.Add(family, operand);
-                break;
-            }
-            AssertTrue(torizoEditableOperands.ContainsKey(family),
-                $"Torizo {family} has an editable OAM part in at least one frame");
-        }
-        var genericDeathEditableOperands = new Dictionary<string, ushort>(StringComparer.Ordinal);
-        foreach ((string family, RoomEnemyProjectileKind _, int count,
-                     Func<int, ushort> addressAt) in genericDeathFamilies)
-        {
-            for (int index = 0; index < count; index++)
-            {
-                ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameSets.All
-                    .Single(frame => frame.OperandAddress == operand).Name;
-                SpriteVisualPart[] frame = document.ProgramFrames[frameName];
-                if (frame.Length == 0)
-                    continue;
-                frame[0] = frame[0] with { OffsetX = frame[0].OffsetX + 1 };
-                genericDeathEditableOperands.Add(family, operand);
-                break;
-            }
-            AssertTrue(genericDeathEditableOperands.ContainsKey(family),
-                $"{family} has an editable OAM part in at least one frame");
-        }
-        var environmentEditableOperands = new Dictionary<string, ushort>(StringComparer.Ordinal);
-        foreach ((string family, RoomEnemyProjectileKind _, int count,
-                     Func<int, ushort> addressAt) in environmentAndAttackFamilies)
-        {
-            for (int index = 0; index < count; index++)
-            {
-                ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameSets.All
-                    .Single(frame => frame.OperandAddress == operand).Name;
-                SpriteVisualPart[] frame = document.ProgramFrames[frameName];
-                if (frame.Length == 0)
-                    continue;
-                frame[0] = frame[0] with { OffsetX = frame[0].OffsetX + 1 };
-                environmentEditableOperands.Add(family, operand);
-                break;
-            }
-            AssertTrue(environmentEditableOperands.ContainsKey(family),
-                $"{family} has an editable OAM part in at least one frame");
-        }
-        var motherBrainEditableOperands = new Dictionary<string, ushort>(StringComparer.Ordinal);
-        foreach ((string family, RoomEnemyProjectileKind _, int count,
-                     Func<int, ushort> addressAt) in motherBrainAndStatueFamilies)
-        {
-            for (int index = 0; index < count; index++)
-            {
-                ushort operand = addressAt(index);
-                string frameName = EnemyProjectilePresentationFrameSets.All
-                    .Single(frame => frame.OperandAddress == operand).Name;
-                SpriteVisualPart[] frame = document.ProgramFrames[frameName];
-                if (frame.Length == 0)
-                    continue;
-                frame[0] = frame[0] with { OffsetX = frame[0].OffsetX + 1 };
-                motherBrainEditableOperands.Add(family, operand);
-                break;
-            }
-            AssertTrue(motherBrainEditableOperands.ContainsKey(family),
-                $"{family} has an editable OAM part in at least one frame");
-        }
-        File.WriteAllBytes(Path.Combine(overrides,
-            EnemyProjectileSpritemapDefinitions.FileName),
-            EnemyProjectileSpritemapDocuments.Write(document));
-        InstalledEnemyArtwork editedArt = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ProjectileSpritemaps = EnemyTileArtworkFiles.Open(directory, overrides).ProjectileSpritemaps() });
-        EnemyProjectileSpritemapCatalog edited = (editedArt.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires editedArt.ProjectileSpritemaps."));
-        var originalOam = new OamBuffer();
-        var editedOam = new OamBuffer();
-        originalOam.BeginFrame();
-        editedOam.BeginFrame();
-        originalOam.AddEnemySpritemap(installed.Get(0xb1ba).Span,
-            new Position16<SpritePixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
-        editedOam.AddEnemySpritemap(edited.Get(0xb1ba).Span,
-            new Position16<SpritePixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
-        AssertEqual((byte)(originalOam.LowTable[0] + 1), editedOam.LowTable[0],
-            "enemy-projectile composition override moves the live Ceres pad OAM part");
-        OamBuffer stockBurst = DrawBurst(stock,
-            SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus);
-        OamBuffer editedBurst = DrawBurst(editedArt,
-            SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus);
-        AssertTrue(!stockBurst.LowTable.SequenceEqual(editedBurst.LowTable),
-            "edited Skree debris composition changes production burst OAM");
-        AssertTrue(!DrawSharedFrame(stock, editableProgramFrame.OperandAddress, bus)
-                .LowTable.SequenceEqual(DrawSharedFrame(editedArt,
-                    editableProgramFrame.OperandAddress,
-                    NewEnemyProjectileVisualGuard(bus)).LowTable),
-            "edited shared projectile frame changes production OAM without a ROM visual read");
-        AssertTrue(!installedCeres.LowTable.SequenceEqual(
-                DrawProgramFrame(editedArt, ceresOperand,
-                    NewEnemyProjectileVisualGuard(bus),
-                    RoomEnemyProjectileKind.CeresRidleyFireball).LowTable),
-            "edited Ceres Ridley frame changes production OAM without a ROM visual read");
-        AssertTrue(!DrawProgramFrame(stock, alcoonOperand,
-                    NewEnemyProjectileVisualGuard(bus),
-                    RoomEnemyProjectileKind.AlcoonFireball).LowTable
-                .SequenceEqual(DrawProgramFrame(editedArt, alcoonOperand,
-                    NewEnemyProjectileVisualGuard(bus),
-                    RoomEnemyProjectileKind.AlcoonFireball).LowTable),
-            "edited Alcoon fireball frame changes production OAM without a ROM visual read");
-        foreach ((string family, ushort operand, RoomEnemyProjectileKind kind) in new[]
-                 {
-                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("Super Missile", goldenMissileOperand,
-                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile),
-                     new EnemyTileArtworkProjectileSpritemapsVerifyInstalledEnemyProjectileSpritemapsCase("eye beam", goldenEyeOperand,
-                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam),
-                 })
-        {
-            AssertTrue(!DrawProgramFrame(stock, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"edited Golden Torizo {family} frame changes production OAM");
-        }
-        AssertTrue(!DrawProgramFrame(stock, goldenEggOperand,
-                    NewEnemyProjectileVisualGuard(bus),
-                    RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
-                .SequenceEqual(DrawProgramFrame(editedArt, goldenEggOperand,
-                    NewEnemyProjectileVisualGuard(bus),
-                    RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable),
-            "edited Golden Torizo egg frame changes production OAM");
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in torizoFamilies)
-        {
-            ushort operand = torizoEditableOperands[family];
-            AssertTrue(!DrawProgramFrame(stock, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"edited Torizo {family} frame changes production OAM");
-        }
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in genericDeathFamilies)
-        {
-            ushort operand = genericDeathEditableOperands[family];
-            AssertTrue(!DrawProgramFrame(stock, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"edited {family} frame changes production OAM");
-        }
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in environmentAndAttackFamilies)
-        {
-            ushort operand = environmentEditableOperands[family];
-            AssertTrue(!DrawProgramFrame(stock, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"edited {family} frame changes production OAM");
-        }
-        foreach ((string family, RoomEnemyProjectileKind kind, int _,
-                     Func<int, ushort> _) in motherBrainAndStatueFamilies)
-        {
-            ushort operand = motherBrainEditableOperands[family];
-            AssertTrue(!DrawProgramFrame(stock, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable
-                    .SequenceEqual(DrawProgramFrame(editedArt, operand,
-                        NewEnemyProjectileVisualGuard(bus), kind).LowTable),
-                $"edited {family} frame changes production OAM");
-        }
         var incompleteCurrent = document.Frames
             .Where(entry => entry.Key != "skree_debris")
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         byte[] invalidCurrentJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = (int)EnemyProjectileSpritemapVersion.Current,
+                Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = incompleteCurrent,
                 ProgramFrames = document.ProgramFrames,
             }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidCurrentJson),
-                installed),
+            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidCurrentJson)),
             "current projectile compositions cannot silently omit Skree debris");
-        var incompleteProgramFrames = document.ProgramFrames
-            .Where(entry => entry.Key != editableProgramFrame.Name)
+        var incompleteProgramFrames = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))
+            .Where(entry => entry.Key != omittedProgramFrame.Name)
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         byte[] invalidProgramJson = JsonSerializer.SerializeToUtf8Bytes(
             new EnemyProjectileSpritemapDocument
             {
-                Version = (int)EnemyProjectileSpritemapVersion.Current,
+                Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = document.Frames,
                 ProgramFrames = incompleteProgramFrames,
             }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidProgramJson),
-                installed),
+            () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidProgramJson)),
             "current projectile compositions cannot silently omit a shared program frame");
 
         Console.WriteLine($"  Enemy projectile visuals: " +
             $"{EnemyProjectilePresentationFrameSets.All.Length} catalogued timed/flicker frames " +
-            "match native OAM; installed draws and editable frames pass.");
+            "match native OAM; installed draws and incomplete-document rejection pass.");
 
         void VerifySharedProgramVisuals(InstalledEnemyArtwork artwork)
         {

@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using static SuperMetroid.Verification.Audio.AudioBankTransitionVerification;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using static SuperMetroid.Verification.Audio.AudioMusicProgramsVerification;
-using static SuperMetroid.Verification.Audio.AudioOverridesVerification;
 using static SuperMetroid.Verification.Audio.AudioSoundProgramsVerification;
 using static SuperMetroid.Verification.Audio.BrrLoopExtractionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -32,10 +31,9 @@ internal static class ManagedAudioVerification
         Suite(nameof(VerifyManagedSpcUsesAddressedFirCoefficients), () => VerifyManagedSpcUsesAddressedFirCoefficients());
         Suite(nameof(VerifyManagedSpcSoundOwnershipPreservesPhase), () => VerifyManagedSpcSoundOwnershipPreservesPhase());
         Suite(nameof(VerifyBrrLoopExtractionRetainsPredictorHistory), () => VerifyBrrLoopExtractionRetainsPredictorHistory());
-        Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
-        Suite(nameof(VerifyPersistentAudioOverrides), () => VerifyPersistentAudioOverrides());
-        Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
-        Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
+        Suite(nameof(VerifyAudioInstruments), () => VerifyAudioInstruments());
+        Suite(nameof(VerifySoundEffectPrograms), () => VerifySoundEffectPrograms());
+        Suite(nameof(VerifyMusicPrograms), () => VerifyMusicPrograms());
     }
 
     /// <summary>Checks that a source-number write affects the next live loop without restarting a voice.</summary>

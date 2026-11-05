@@ -29,9 +29,8 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// An installation's enemy-art files, read one component at a time: a stock directory whose manifest has been checked,
-/// and the player's override directory, if any. Each component is read from its own files, its stock checked against
-/// the manifest's hash and its override, when present, selected over the stock, so the whole catalog
+/// An installation's enemy-art files, read one component at a time from an installed directory whose manifest has been
+/// checked. Each component is read from its own installed files, as the player may have edited them, so the whole catalog
 /// (<see cref="LoadAll"/>) is its components read in turn, and a reader of one component reads only that component's files.
 /// </summary>
 internal sealed class EnemyTileArtworkReader
@@ -39,26 +38,22 @@ internal sealed class EnemyTileArtworkReader
     /// <summary>The checked manifest of the stock directory.</summary>
     private readonly EnemyTileArtworkFiles.EnemyTileManifest manifest;
 
-    /// <summary>The stock enemy-art directory.</summary>
-    private readonly string stockDirectory;
+    /// <summary>The installed enemy-art directory.</summary>
+    private readonly string directory;
 
-    /// <summary>The player's override directory, or null for stock content alone.</summary>
-    private readonly string? overrideDirectory;
-
-    /// <summary>A reader of <paramref name="stockDirectory"/>, whose manifest is <paramref name="manifest"/>, under <paramref name="overrideDirectory"/>.</summary>
-    private EnemyTileArtworkReader(EnemyTileArtworkFiles.EnemyTileManifest manifest, string stockDirectory, string? overrideDirectory)
+    /// <summary>A reader of <paramref name="directory"/>, whose manifest is <paramref name="manifest"/>.</summary>
+    private EnemyTileArtworkReader(EnemyTileArtworkFiles.EnemyTileManifest manifest, string directory)
     {
         this.manifest = manifest;
-        this.stockDirectory = stockDirectory;
-        this.overrideDirectory = overrideDirectory;
+        this.directory = directory;
     }
 
-    /// <summary>Reads and checks the manifest of <paramref name="stockDirectory"/>, whose components are then read under <paramref name="overrideDirectory"/>.</summary>
+    /// <summary>Reads and checks the manifest of <paramref name="directory"/>, whose components are then read from it.</summary>
     /// <exception cref="InvalidDataException">The manifest is missing, malformed, or does not describe this installation.</exception>
-    internal static EnemyTileArtworkReader Open(string stockDirectory, string? overrideDirectory)
+    internal static EnemyTileArtworkReader Open(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, EnemyTileArtworkFormat.ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, EnemyTileArtworkFormat.ManifestFileName);
         EnemyTileArtworkFiles.EnemyTileManifest manifest;
         try
         {
@@ -140,11 +135,11 @@ internal sealed class EnemyTileArtworkReader
                     .Select(page => page.FileName).Order(StringComparer.Ordinal)))
             throw new InvalidDataException(
                 "Enemy tile manifest omits or substitutes a Ceres escape tile page.");
-        return new EnemyTileArtworkReader(manifest, stockDirectory, overrideDirectory);
+        return new EnemyTileArtworkReader(manifest, directory);
     }
 
     /// <summary>Reads every component and compiles the enemy, boss and area catalogs without reading a cartridge.</summary>
-    /// <exception cref="InvalidDataException">A stock file fails its manifest hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
     internal InstalledEnemyArtwork LoadAll()
     {
         EnemyTileArtworkParts enemySheets = EnemySheets();
@@ -216,7 +211,7 @@ internal sealed class EnemyTileArtworkReader
     /// Every retail enemy's characters and colours, read from its character PNG and colour document, each stock file
     /// checked against its manifest hash: the parts of the enemy catalog that hold no frames or colour cycles.
     /// </summary>
-    /// <exception cref="InvalidDataException">A stock file fails its manifest hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
     internal EnemyTileArtworkParts EnemySheets()
     {
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
@@ -228,51 +223,39 @@ internal sealed class EnemyTileArtworkReader
                 throw new InvalidDataException(
                     $"Enemy ${manifestKey:X4} manifest tile size differs from retail.");
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
-            string fileName = EnemyTileArtworkFiles.FileName(definitionPointer);
-            string stockPath = Path.Combine(stockDirectory, fileName);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, fileName);
-            string selectedPath = overridePath is not null && File.Exists(overridePath) ? overridePath : stockPath;
+            string tilePath = Path.Combine(directory, EnemyTileArtworkFiles.FileName(definitionPointer));
             try
             {
-                byte[] selected = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
                 sheets.Add(definitionPointer, RoomCharacterAtlasPng.Read(
-                    new MemoryStream(selected, writable: false), entry.NativeByteCount));
+                    new MemoryStream(File.ReadAllBytes(tilePath), writable: false), entry.NativeByteCount));
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid enemy tile PNG {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid enemy tile PNG {tilePath}: {error.Message}", error);
             }
-            string paletteName = EnemyTileArtworkFiles.PaletteFileName(definitionPointer);
-            string stockPalettePath = Path.Combine(stockDirectory, paletteName);
-            byte[] stockPalette = File.ReadAllBytes(stockPalettePath);
-            string? paletteOverridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, paletteName);
-            string selectedPalettePath = paletteOverridePath is not null && File.Exists(paletteOverridePath)
-                ? paletteOverridePath : stockPalettePath;
+            string palettePath = Path.Combine(directory, EnemyTileArtworkFiles.PaletteFileName(definitionPointer));
             try
             {
-                byte[] selected = selectedPalettePath == stockPalettePath
-                    ? stockPalette : File.ReadAllBytes(selectedPalettePath);
                 palettes.Add(definitionPointer, EnemyPaletteSheetFile.Read(
-                    new MemoryStream(selected, writable: false)));
+                    new MemoryStream(File.ReadAllBytes(palettePath), writable: false)));
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid enemy palette {selectedPalettePath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid enemy palette {palettePath}: {error.Message}", error);
             }
         }
         return new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes };
     }
 
     /// <summary>Crocomire's two melt images and their tilemaps.</summary>
-    /// <exception cref="InvalidDataException">A stock file fails its manifest hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting()
     {
-        byte[] first = ReadStockOrOverride(CrocomireMeltingArtworkFormat.FirstFileName);
-        byte[] second = ReadStockOrOverride(CrocomireMeltingArtworkFormat.SecondFileName);
-        byte[] firstTilemap = ReadStockOrOverride(
+        byte[] first = Read(CrocomireMeltingArtworkFormat.FirstFileName);
+        byte[] second = Read(CrocomireMeltingArtworkFormat.SecondFileName);
+        byte[] firstTilemap = Read(
             CrocomireMeltingArtworkFormat.FirstTilemapFileName);
-        byte[] secondTilemap = ReadStockOrOverride(
+        byte[] secondTilemap = Read(
             CrocomireMeltingArtworkFormat.SecondTilemapFileName);
         try
         {
@@ -285,15 +268,15 @@ internal sealed class EnemyTileArtworkReader
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Crocomire melt artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
+                $"Invalid Crocomire melt artwork in {directory}: {error.Message}", error);
         }
     }
 
     /// <summary>Crocomire's skeleton characters.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal CrocomireSkeletonArtwork CrocomireSkeleton()
     {
-        byte[] skeletonPng = ReadStockOrOverride(
+        byte[] skeletonPng = Read(
             CrocomireSkeletonCharacterDefinitions.FileName);
         try
         {
@@ -303,52 +286,36 @@ internal sealed class EnemyTileArtworkReader
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Crocomire skeleton artwork in {overrideDirectory ?? stockDirectory}: " +
+                $"Invalid Crocomire skeleton artwork in {directory}: " +
                 error.Message, error);
         }
     }
 
-    /// <summary>The enemies' compositions, an override's frames merged over the verified stock.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or a composition is invalid.</exception>
+    /// <summary>The enemies' compositions.</summary>
+    /// <exception cref="InvalidDataException">A composition is invalid.</exception>
     internal EnemySpritemapCatalog Spritemaps()
     {
         try
         {
-            // Older overrides cannot know the later Skultera, Waver, and
-            // Skree/Metaree/Zoa, Pipe Bug, Fake Kraid, Kraid nail, Owtch, Stoke, and Ripper identities.
-            // Merge only their validated frames onto verified current stock content,
-            // preserving existing user edits through an extraction upgrade. Stock is
-            // compiled once; without an override that compiled stock is the selection.
-            byte[] stockComposition = ReadVerifiedStock(
-                EnemySpritemapDefinitions.FileName);
-            EnemySpritemapCatalog stockSpritemaps = EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(
-                EnemySpritemapDocuments.Load(new MemoryStream(stockComposition, writable: false)));
-            return OverridePath(EnemySpritemapDefinitions.FileName) is { } compositionOverride
-                ? EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemySpritemapDocuments.Load(
-                    new MemoryStream(File.ReadAllBytes(compositionOverride), writable: false), stockSpritemaps))
-                : stockSpritemaps;
+            return EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemySpritemapDocuments.Load(
+                new MemoryStream(Read(EnemySpritemapDefinitions.FileName), writable: false)));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                $"Invalid enemy compositions in {directory}: {error.Message}",
                 error);
         }
     }
 
-    /// <summary>The enemy projectiles' compositions, an override's frames merged over the verified stock.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or a composition is invalid.</exception>
+    /// <summary>The enemy projectiles' compositions.</summary>
+    /// <exception cref="InvalidDataException">A composition is invalid.</exception>
     internal EnemyProjectileSpritemapCatalog ProjectileSpritemaps()
     {
         try
         {
-            EnemyProjectileSpritemapCatalog stockProjectiles =
-                EnemyProjectileSpritemapDocuments.Load(new MemoryStream(ReadVerifiedStock(
-                    EnemyProjectileSpritemapDefinitions.FileName), writable: false));
-            return OverridePath(EnemyProjectileSpritemapDefinitions.FileName) is { } projectileOverride
-                ? EnemyProjectileSpritemapDocuments.Load(
-                    new MemoryStream(File.ReadAllBytes(projectileOverride), writable: false), stockProjectiles)
-                : stockProjectiles;
+            return EnemyProjectileSpritemapDocuments.Load(new MemoryStream(
+                Read(EnemyProjectileSpritemapDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
@@ -357,39 +324,30 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The enemies' extended frames, an override's frames overlaid on the verified stock.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or a frame is invalid.</exception>
+    /// <summary>The enemies' extended frames.</summary>
+    /// <exception cref="InvalidDataException">A frame is invalid.</exception>
     internal EnemyExtendedFrameCatalog ExtendedFrames()
     {
         try
         {
-            // V1 has walking frames and v2 adds wall frames. Overlay either
-            // validated legacy file onto complete, hash-checked v3 stock so
-            // newly added Ninja art cannot discard the user's existing edits.
-            byte[] stockExtendedJson = ReadVerifiedStock(
-                EnemyExtendedFrameDefinitions.FileName);
-            EnemyExtendedFrameCatalog stockExtended = EnemyExtendedFrameDocuments.Load(
-                new MemoryStream(stockExtendedJson, writable: false));
-            return OverridePath(EnemyExtendedFrameDefinitions.FileName) is { } extendedOverride
-                ? EnemyExtendedFrameDocuments.Load(
-                    new MemoryStream(File.ReadAllBytes(extendedOverride), writable: false), stockExtended)
-                : stockExtended;
+            return EnemyExtendedFrameDocuments.Load(new MemoryStream(
+                Read(EnemyExtendedFrameDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid extended enemy compositions in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                $"Invalid extended enemy compositions in {directory}: {error.Message}",
                 error);
         }
     }
 
     /// <summary>Phantoon's BG2 frames.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal PhantoonBg2FrameCatalog PhantoonBg2Frames()
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(
+            byte[] selected = Read(
                 PhantoonBg2FrameDefinitions.FileName);
             return PhantoonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
@@ -397,71 +355,65 @@ internal sealed class EnemyTileArtworkReader
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Phantoon BG2 frames in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                $"Invalid Phantoon BG2 frames in {directory}: {error.Message}",
                 error);
         }
     }
 
-    /// <summary>Draygon's BG2 frames, an override written before they were named for their poses upgraded.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <summary>Draygon's BG2 frames.</summary>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal DraygonBg2FrameCatalog DraygonBg2Frames()
     {
         try
         {
-            // A player's override written before Draygon's frames were named for their poses keeps loading (#1465).
-            byte[] selected = EnemyBg2FrameDocumentUpgrade.Upgrade(ReadStockOrOverride(
-                DraygonBg2FrameDefinitions.FileName), DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version,
-                EnemyFrameLegacyNameDefinitions.ExtendedCompositions, "Draygon");
+            byte[] selected = Read(DraygonBg2FrameDefinitions.FileName);
             return DraygonBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Draygon BG2 frames in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                $"Invalid Draygon BG2 frames in {directory}: {error.Message}",
                 error);
         }
     }
 
-    /// <summary>Crocomire's BG2 frames, an override written before they were named for their poses upgraded.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <summary>Crocomire's BG2 frames.</summary>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal CrocomireBg2FrameCatalog CrocomireBg2Frames()
     {
         try
         {
-            // A player's override written before Crocomire's frames were named for their poses keeps loading (#1465).
-            byte[] selected = EnemyBg2FrameDocumentUpgrade.Upgrade(ReadStockOrOverride(
-                CrocomireBg2FrameDefinitions.FileName), CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version,
-                EnemyFrameLegacyNameDefinitions.CrocomireBg2Frames, "Crocomire");
+            byte[] selected = Read(CrocomireBg2FrameDefinitions.FileName);
             return CrocomireBg2FrameCatalog.Load(
                 new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Crocomire BG2 frames in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                $"Invalid Crocomire BG2 frames in {directory}: {error.Message}",
                 error);
         }
     }
 
     /// <summary>Mother Brain's body BG2 frames.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal MotherBrainBodyBg2FrameCatalog MotherBrainBodyBg2Frames()
     {
         try
         {
             return MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
-                ReadStockOrOverride(MotherBrainBodyBg2FrameDefinitions.FileName), writable: false));
+                Read(MotherBrainBodyBg2FrameDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid Mother Brain body BG2 frames in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
+                $"Invalid Mother Brain body BG2 frames in {directory}: {error.Message}", error);
         }
     }
 
     /// <summary>The gunship's takeoff frames.</summary>
-    /// <exception cref="InvalidDataException">The manifest omits a frame, a stock file fails its hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The manifest omits a frame, or an installed file is invalid.</exception>
     internal GunshipLiftoffArtworkCatalog GunshipLiftoff()
     {
         var gunshipFrames = new RoomCharacterAtlas[
@@ -473,7 +425,7 @@ internal sealed class EnemyTileArtworkReader
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits gunship takeoff frame {index}.");
             string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(index);
-            byte[] selected = ReadStockOrOverride(fileName);
+            byte[] selected = Read(fileName);
             try
             {
                 gunshipFrames[index] = RoomCharacterAtlasPng.Read(
@@ -490,7 +442,7 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>The Torizos' instruction tile pages.</summary>
-    /// <exception cref="InvalidDataException">The manifest omits a page, a stock file fails its hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
     internal TorizoSwapArtwork TorizoSwaps()
     {
         var torizoPages = new RoomCharacterAtlas[
@@ -503,7 +455,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Torizo page {page.FileName}.");
-            byte[] selected = ReadStockOrOverride(page.FileName);
+            byte[] selected = Read(page.FileName);
             try
             {
                 torizoPages[index] = RoomCharacterAtlasPng.Read(
@@ -520,7 +472,7 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>The Ceres escape's tile pages.</summary>
-    /// <exception cref="InvalidDataException">The manifest omits a page, a stock file fails its hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
     internal CeresEscapeTileArtwork CeresEscapeTiles()
     {
         var ceresEscapePages = new RoomCharacterAtlas[
@@ -533,7 +485,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Ceres escape page {page.FileName}.");
-            byte[] selected = ReadStockOrOverride(page.FileName);
+            byte[] selected = Read(page.FileName);
             try
             {
                 ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
@@ -550,12 +502,12 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>The Ceres escape's overlay tilemaps.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal CeresEscapeOverlays CeresEscapeOverlayTilemaps()
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(
+            byte[] selected = Read(
                 CeresWarningGlyphDefinitions.FileName);
             return CeresEscapeOverlays.Load(
                 new MemoryStream(selected, writable: false));
@@ -568,12 +520,12 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>Mother Brain's corpse characters.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal RoomCharacterAtlas MotherBrainCorpse()
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(
+            byte[] selected = Read(
                 MotherBrainCorpseSheet.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
@@ -588,12 +540,12 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>Mother Brain's escape-text characters.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal RoomCharacterAtlas MotherBrainEscapeText()
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(
+            byte[] selected = Read(
                 EscapeTextSheetFormat.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
@@ -608,7 +560,7 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>Mother Brain's special sprite sheets.</summary>
-    /// <exception cref="InvalidDataException">The manifest omits a sheet, a stock file fails its hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The manifest omits a sheet, or an installed file is invalid.</exception>
     internal MotherBrainSpecialSpriteArtworkCatalog MotherBrainSpecialSprites()
     {
         var motherBrainSpecialSheets = new Dictionary<MotherBrainSpritePageSheet, RoomCharacterAtlas>();
@@ -622,7 +574,7 @@ internal sealed class EnemyTileArtworkReader
                     $"Enemy tile manifest omits {sheet.FileName}.");
             try
             {
-                byte[] selected = ReadStockOrOverride(sheet.FileName);
+                byte[] selected = Read(sheet.FileName);
                 motherBrainSpecialSheets.Add(sheet.Sheet,
                     RoomCharacterAtlasPng.Read(
                         new MemoryStream(selected, writable: false), sheet.ByteCount));
@@ -639,7 +591,7 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>Kraid's BG2 pages, heads and room background.</summary>
-    /// <exception cref="InvalidDataException">A stock file fails its manifest hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
     internal KraidBackgroundArtwork KraidBackground()
     {
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(
@@ -650,7 +602,7 @@ internal sealed class EnemyTileArtworkReader
         foreach (int mouthStage in manifest.KraidHeadsSha256.Keys)
         {
             string fileName = KraidBackgroundArtworkFormat.HeadFileName(mouthStage);
-            byte[] selected = ReadStockOrOverride(fileName);
+            byte[] selected = Read(fileName);
             try
             {
                 kraidHeads.Add(mouthStage, KraidHeadTilemapAtlas.Load(
@@ -663,7 +615,7 @@ internal sealed class EnemyTileArtworkReader
             }
         }
         string roomBackgroundName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
-        byte[] roomBackgroundPng = ReadStockOrOverride(
+        byte[] roomBackgroundPng = Read(
             roomBackgroundName);
         RoomCharacterAtlas roomBackground;
         try
@@ -681,12 +633,12 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>Kraid's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal KraidColorCatalog KraidColors()
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(KraidColorFormat.FileName);
+            byte[] selected = Read(KraidColorFormat.FileName);
             return KraidColorFile.Read(new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -697,14 +649,14 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>The Ceres door's characters and colours.</summary>
-    /// <exception cref="InvalidDataException">A stock file fails its manifest hash, or a selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
     internal CeresDoorSourceArtwork CeresDoor()
     {
         try
         {
             return CeresDoorVisualFiles.Load(
-                ReadStockOrOverride(CeresDoorVisualFormat.TilesFileName),
-                ReadStockOrOverride(CeresDoorVisualFormat.ColorsFileName));
+                Read(CeresDoorVisualFormat.TilesFileName),
+                Read(CeresDoorVisualFormat.ColorsFileName));
         }
         catch (InvalidDataException error)
         {
@@ -713,100 +665,100 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>The Magdollite's palette cycle.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal MagdollitePaletteCycle MagdollitePaletteCycle() =>
         ReadColors(MagdollitePaletteCycleFormat.FileName, "Magdollite palette cycle",
             stream => MagdollitePaletteCycleFile.Read(stream));
 
     /// <summary>The Work Robot's palette cycle.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal WorkRobotPaletteCycle WorkRobotPaletteCycle() =>
         ReadColors(WorkRobotPaletteCycleFormat.FileName, "Work Robot palette cycle",
             stream => WorkRobotPaletteCycleFile.Read(stream));
 
     /// <summary>Crocomire's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal CrocomireColorCatalog CrocomireColors() =>
         ReadColors(CrocomireColorFormat.FileName, "Crocomire colors",
             stream => CrocomireColorFile.Read(stream));
 
     /// <summary>Draygon's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal DraygonColorCatalog DraygonColors() =>
         ReadColors(DraygonColorFormat.FileName, "Draygon colors",
             stream => DraygonColorFile.Read(stream));
 
     /// <summary>Phantoon's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal PhantoonColorCatalog PhantoonColors() =>
         ReadColors(PhantoonColorFormat.FileName, "Phantoon colors",
             stream => PhantoonColorFile.Read(stream));
 
     /// <summary>The Chozo statues' and glass tube's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal ChozoAndTubeColorCatalog ChozoAndTubeColors() =>
         ReadColors(ChozoAndTubeColorFormat.FileName, "Chozo/tube colors",
             stream => ChozoAndTubeColorFile.Read(stream));
 
     /// <summary>Spore Spawn's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal SporeSpawnColorCatalog SporeSpawnColors() =>
         ReadColors(SporeSpawnColorFormat.FileName, "Spore Spawn colors",
             stream => SporeSpawnColorFile.Read(stream));
 
     /// <summary>The Dachora's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal DachoraColorCatalog DachoraColors() =>
         ReadColors(DachoraColorFormat.FileName, "Dachora colors",
             stream => DachoraColorFile.Read(stream));
 
     /// <summary>The Shitroid's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal ShitroidColorCatalog ShitroidColors() =>
         ReadColors(ShitroidColorFormat.FileName, "Shitroid colors",
             stream => ShitroidColorFile.Read(stream));
 
     /// <summary>The cutscene Baby Metroid's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal BabyMetroidCutsceneColorCatalog BabyMetroidCutsceneColors() =>
         ReadColors(BabyMetroidCutsceneColorFormat.FileName, "cutscene Baby colors",
             stream => BabyMetroidCutsceneColorFile.Read(stream));
 
     /// <summary>Botwoon's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal BotwoonColorCatalog BotwoonColors() =>
         ReadColors(BotwoonColorFormat.FileName, "Botwoon colors",
             stream => BotwoonColorFile.Read(stream));
 
     /// <summary>Mother Brain's death colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal MotherBrainDeathColorCatalog MotherBrainDeathColors() =>
         ReadColors(MotherBrainDeathColorFormat.FileName, "Mother Brain death colors",
             stream => MotherBrainDeathColorFile.Read(stream));
 
     /// <summary>The Zebetites' colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal ZebetiteColorCatalog ZebetiteColors() =>
         ReadColors(ZebetiteColorFile.FileName, "Zebetite colors",
             stream => ZebetiteColorFile.Read(stream));
 
     /// <summary>Norfair Ridley's colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal NorfairRidleyColorCatalog NorfairRidleyColors() =>
         ReadColors(NorfairRidleyColorFormat.FileName, "Norfair Ridley colors",
             stream => NorfairRidleyColorFile.Read(stream));
 
     /// <summary>The Tourian statues' colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal TourianStatuePalettes TourianStatueColors() =>
         ReadColors(TourianStatueColorFormat.FileName, "Tourian statue colors",
             stream => TourianStatueColorFile.Read(stream));
 
     /// <summary>The enemies' auxiliary colours.</summary>
-    /// <exception cref="InvalidDataException">The stock file fails its manifest hash, or the selected file is invalid.</exception>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal EnemyAuxiliaryColorCatalog AuxiliaryColors() =>
         EnemyAuxiliaryColorFiles.Read(new MemoryStream(
-            ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName), writable: false));
+            Read(EnemyAuxiliaryColorFormat.FileName), writable: false));
 
     /// <summary>
     /// Reads the colour document <paramref name="fileName"/> with <paramref name="read"/>; a document that does not read is
@@ -816,13 +768,13 @@ internal sealed class EnemyTileArtworkReader
     {
         try
         {
-            byte[] selected = ReadStockOrOverride(fileName);
+            byte[] selected = Read(fileName);
             return read(new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid {colors} in {overrideDirectory ?? stockDirectory}: {error.Message}",
+                $"Invalid {colors} in {directory}: {error.Message}",
                 error);
         }
     }
@@ -830,7 +782,7 @@ internal sealed class EnemyTileArtworkReader
     /// <summary>Reads one of Kraid's BG2 tilemaps.</summary>
     private RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName)
     {
-        byte[] selected = ReadStockOrOverride(fileName);
+        byte[] selected = Read(fileName);
         try
         {
             return RoomBackgroundTilemapAtlas.Load(
@@ -844,18 +796,6 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The override of <paramref name="fileName"/> when one exists, else its stock.</summary>
-    private byte[] ReadStockOrOverride(string fileName) =>
-        File.ReadAllBytes(OverridePath(fileName) ?? Path.Combine(stockDirectory, fileName));
-
-    /// <summary>The stock <paramref name="fileName"/>, as the installation holds it.</summary>
-    private byte[] ReadVerifiedStock(string fileName) => File.ReadAllBytes(Path.Combine(stockDirectory, fileName));
-
-    /// <summary>The override of <paramref name="fileName"/>, or null when there is none.</summary>
-    private string? OverridePath(string fileName)
-    {
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, fileName);
-        return overridePath is not null && File.Exists(overridePath) ? overridePath : null;
-    }
+    /// <summary>The installed <paramref name="fileName"/>, as the installation holds it.</summary>
+    private byte[] Read(string fileName) => File.ReadAllBytes(Path.Combine(directory, fileName));
 }

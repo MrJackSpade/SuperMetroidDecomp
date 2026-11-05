@@ -1,9 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveAnchorsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveFramesVerification;
@@ -12,26 +7,18 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
-/// <summary>Checks reserve tank visuals across supply, flicker, edits, restore, and health transfer.</summary>
+/// <summary>Checks reserve tank visuals across supply, flicker and restore.</summary>
 internal static class PauseReserveTankAssetsVerification
 {
-    /// <summary>Compares native menu OAM and pixels with installed reserve art, then checks edits and state isolation.</summary>
-    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation catalog)
+    /// <summary>Compares native menu OAM and pixels with installed reserve art.</summary>
+    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, AreaMapPresentation catalog)
     {
-        Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseReserveTankFormat.FileName), path = Path.Combine(overrides, PauseReserveTankFormat.FileName);
-        byte[] bytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var guard = NewReserveTankAssetReadGuard(bus);
         Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
         int comparisons = 0;
@@ -59,64 +46,7 @@ internal static class PauseReserveTankAssetsVerification
                 comparisons++;
             }
         }
-        var anchors = document.Anchors.ToArray(); anchors[0] = new(120, 140);
-        var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames)
-        {
-            ["Full"] = [new() { OffsetX = 12, OffsetY = -4, TileColumn = 2, TileRow = 3, Size = 16,
-                Palette = null, Priority = 3, FlipX = true, FlipY = true }], ["EndCap"] = [],
-        };
-        var custom = document with { Anchors = anchors, Palette = 5, Frames = frames };
-        using (var output = File.Create(path)) PauseReserveTankSourcePresentation.Write(output, custom);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "reserve-only edit changes content identity");
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
-        var menu = Create(guard, samus, edited);
-        var snapshot = menu.CaptureRenderSnapshot();
-        // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, priority 3, both flips. The screen
-        // shows the strip under the highlight cycle, whose row a part naming no palette of its own takes; the authored
-        // palette shows in the strip's standard-shaded draws, which the reserve frame checks compare.
-        int highlighted = SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
-        var tankParts = new OamBuffer();
-        tankParts.BeginFrame();
-        tankParts.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
-            SnesObjAttributeWord.Create(50, highlighted, 3, TileFlip.Horizontal | TileFlip.Vertical), new Position16<SpritePixels>(132, 136));
-        tankParts.FinalizeFrame();
-        PlacedSpritePart[] tank = PlacedSpritePart.OfOamObjects(tankParts, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection, MapSpriteArtwork.Of(InstalledAreaMapPresentation.SpritesOf(edited)).Page.Id);
-        PlacedSpritePart[] drawnTank = snapshot.Paint.SpriteParts()[^tank.Length..];
-        AssertTrue(drawnTank.SequenceEqual(tank),
-            $"actual menu draws the custom tank's position, size, tile, palette, priority and flips: expected {string.Join("; ", tank)}, drew {string.Join("; ", drawnTank)}");
-        var editedPixels = menu.Render();
-        AssertTrue(editedPixels.SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
-        using (var state = new MemoryStream())
-        {
-            DebuggerObjectGraphSerializer.Serialize(state, new object[] { menu, samus }); state.Position = 0;
-            var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(state); menu = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
-        }
-        menu.BindFixtureArtwork(catalog);
-        AssertTrue(!editedPixels.SequenceEqual(menu.Render()), "restore binds current stock artwork instead of frozen edited content");
-        menu.BindFixtureArtwork(edited);
-        AssertTrue(editedPixels.SequenceEqual(menu.Render()), "restoring current edited content preserves exact pixels and phase");
-        menu.Step(0, ControllerButton.Down); menu.Step(0, ControllerButton.A);
-        AssertEqual(51, samus.Health, "custom reserve art cannot change transfer amount");
-        AssertEqual(99, samus.ReserveEnergy, "custom reserve art cannot change reserve consumption");
-        void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            PauseReserveTankSourcePresentation.Write(written, invalid);
-            _ = PauseReserveTankSourcePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "invalid reserve presentation rejected on read");
-        Reject(document with { Version = 2 }); Reject(document with { Palette = 8 }); Reject(document with { Anchors = [] }); Reject(document with { Frames = [] });
-        var badAnchors = anchors.ToArray(); badAnchors[0] = new(256, 0); Reject(document with { Anchors = badAnchors });
-        Reject(custom with { Frames = new(frames) { ["Full"] = [frames["Full"][0] with { TileColumn = 15 }] } });
-        File.WriteAllText(path, "bad JSON"); AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad reserve override never falls back");
-        File.WriteAllBytes(path, bytes);
-        try
-        {
-            File.Delete(stockPath); AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides), "override cannot hide missing reserve stock");
-            File.WriteAllText(stockPath, "corrupt stock"); AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "override cannot hide corrupt reserve provenance");
-        }
-        finally { File.WriteAllBytes(stockPath, bytes); }
-        Console.WriteLine($"Reserve presentation: 180 native composition/capacity cases and {comparisons} fill-step boundary supply/flicker menu frames; edits, restore, transfer and strict failures pass.");
+        Console.WriteLine($"Reserve presentation: 180 native composition/capacity cases and {comparisons} fill-step boundary supply/flicker menu frames pass.");
         // $82:B2AA draws full tanks from supply / 100, then one partial tank from the remainder's
         // 14-unit fill step, flickering when the remainder is between steps. Each tank's empty,
         // step-start, step-start+1 and step-end supplies cover every distinct drawing case.

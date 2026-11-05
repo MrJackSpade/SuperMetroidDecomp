@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
 /// blocks depend on, and each library background's image, each as an image, palette map and pictures, the tilemap words
 /// each background pictures with the inputs its changing cells depend on, the written picture sheets with the inputs each
-/// picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of their hashes. A player override of a sheet's or image's file replaces the stock one.
+/// picture depends on, each Ceres tileset's turning floor (#1467), and the provenance of their hashes. A player edits a sheet's or image's installed file in place.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
@@ -74,37 +74,37 @@ public static class RoomBlockSheetFiles
     }
 
     /// <summary>
-    /// Loads the block sheet of every tileset a retail room loads and every background image the manifest names,
-    /// preferring a player override of each file.
+    /// Loads the installed block sheet of every tileset a retail room loads and every background image the manifest names,
+    /// as the player left each file.
     /// </summary>
-    /// <exception cref="InvalidDataException">The manifest, a stock hash, an image or a picture manifest is invalid, or a sheet is not of blocks.</exception>
-    public static InstalledRoomArtwork Load(string stockDirectory, string? overrideDirectory)
+    /// <exception cref="InvalidDataException">The manifest, an image or a picture manifest is invalid, or a sheet is not of blocks.</exception>
+    public static InstalledRoomArtwork Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, BackgroundManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, BackgroundManifestFileName);
         BackgroundManifest manifest = JsonSerializer.Deserialize<BackgroundManifest>(File.ReadAllBytes(manifestPath), JsonOptions)
             ?? throw new InvalidDataException($"Room background manifest {manifestPath} is empty.");
         if (manifest.Version != BackgroundManifestVersion || manifest.Words is null || manifest.Cells is null)
             throw new InvalidDataException($"Room background manifest {manifestPath} is not revision {BackgroundManifestVersion}.");
-        string writtenPath = Path.Combine(stockDirectory, WrittenManifestFileName);
+        string writtenPath = Path.Combine(directory, WrittenManifestFileName);
         WrittenManifest written = JsonSerializer.Deserialize<WrittenManifest>(File.ReadAllBytes(writtenPath), JsonOptions)
             ?? throw new InvalidDataException($"Written picture manifest {writtenPath} is empty.");
         if (written.Version != WrittenManifestVersion || written.Sheets is null)
             throw new InvalidDataException($"Written picture manifest {writtenPath} is not revision {WrittenManifestVersion}.");
-        string floorPath = Path.Combine(stockDirectory, FloorManifestFileName);
+        string floorPath = Path.Combine(directory, FloorManifestFileName);
         FloorManifest floors = JsonSerializer.Deserialize<FloorManifest>(File.ReadAllBytes(floorPath), JsonOptions)
             ?? throw new InvalidDataException($"Floor manifest {floorPath} is empty.");
         if (floors.Version != FloorManifestVersion || floors.Tilesets is null)
             throw new InvalidDataException($"Floor manifest {floorPath} is not revision {FloorManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
-        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
+        SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName,
             2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + floors.Tilesets.Length);
-        // The inputs each block depends on are the stock record's: an override repaints a block's pictures, not what they
+        // The inputs each block depends on are the extraction's record: an edit repaints a block's pictures, not what they
         // depend on.
         return new InstalledRoomArtwork(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
-                RoomBlockAppearanceFiles.Read(stockDirectory, tileset))),
+                RoomBlockAppearanceFiles.Read(directory, tileset))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key),
                     (manifest.Cells.TryGetValue(entry.Key, out CellDocument[]? cells) && cells is not null ? cells
                         : throw new InvalidDataException($"Room background manifest {manifestPath} records no cells of {entry.Key}."))
@@ -119,7 +119,7 @@ public static class RoomBlockSheetFiles
                 .ToDictionary(floor => floor.Tileset));
 
         // The installed sheets of one layer's written pictures, each under its tileset. The inputs each picture depends on
-        // are the stock record's: an override repaints a sheet's pictures, not what they depend on.
+        // are the extraction's record: an edit repaints a sheet's pictures, not what they depend on.
         Dictionary<TilesetDefinition, WrittenPictureSheet> Sheets(WrittenPictureLayer layer) => written.Sheets.Where(sheet => sheet.Layer == layer)
             .Select(sheet => Written(sheet, byName.TryGetValue(sheet.Tileset, out TilesetDefinition tileset) ? tileset
                 : throw new InvalidDataException($"Written picture manifest {writtenPath} names unknown tileset {sheet.Tileset}."), store))

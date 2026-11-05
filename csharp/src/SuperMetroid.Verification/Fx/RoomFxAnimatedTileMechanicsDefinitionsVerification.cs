@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Fx.LookupAnimatedArtworkSourcesVerificati
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedHeadersVerification;
 using static SuperMetroid.Verification.Fx.LookupFxAtlasSegmentsVerification;
-using static SuperMetroid.Verification.Fx.LookupFxLegacySheetsVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
@@ -40,7 +39,6 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         Suite(nameof(VerifyRoomFxAtlasSegmentSources), () => VerifyRoomFxAtlasSegmentSources(bus));
         Suite(nameof(VerifyRoomFxAtlasSegmentSizes), () => VerifyRoomFxAtlasSegmentSizes());
         Suite(nameof(VerifyRoomFxAtlasSegmentRoles), () => VerifyRoomFxAtlasSegmentRoles());
-        Suite(nameof(VerifyRoomFxLegacySheetSelection), () => VerifyRoomFxLegacySheetSelection());
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxAnimatedTileLoop definition in

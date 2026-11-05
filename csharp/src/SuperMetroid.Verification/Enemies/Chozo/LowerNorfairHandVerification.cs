@@ -1,6 +1,4 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
@@ -9,7 +7,6 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -29,14 +26,6 @@ internal static class LowerNorfairHandVerification
             Path.GetFullPath("Super Metroid.smc"));
         var bus = NewChozoProgramAndDrawReadGuard(source);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-        var handEntries = RoomPlmChozoStatueVisualFiles.All.Select(draw =>
-            new RoomPlmVisualEntry(
-                RoomPlmChozoStatueVisualFiles.VisualId(draw.Draw),
-                draw.Appearances())).ToArray();
-        handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
-            .Blocks[0] = RoomBlockAppearance.Of(0x53);
-        runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals =
-            RoomPlmChozoStatueVisualFiles.Create(handEntries);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -121,10 +110,6 @@ internal static class LowerNorfairHandVerification
         AssertTrue(level != runtime.Room.LevelData, "re-entry uses newly loaded room terrain");
         AssertTrue(runtime.Room.LoadedLevelData.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
-        RoomLevelData reentered = runtime.Room.LoadedLevelData;
-        AssertEqual(RoomBlockAppearance.Of(0x53),
-            reentered.DisplayedAppearance(0x1d * reentered.Size.X + 0x0c),
-            "event-completed hand re-entry streams the installed visual override");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             "complete Lower Norfair hand sequence did not reread compiled PLM data");
         Console.WriteLine($"Lower Norfair hand: collision/admission, live FX writes, {displayedHeights.Count} displayed drain heights, control release and re-entry pass.");

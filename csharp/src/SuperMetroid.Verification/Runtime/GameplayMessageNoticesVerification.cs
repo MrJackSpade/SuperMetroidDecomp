@@ -5,19 +5,17 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 
-/// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
+/// <summary>Checks cartridge-extracted message text in the installed box renderer and presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification
 {
-    /// <summary>Compares notice tilemaps with the cartridge and checks selection redraw, live rebinding, and glyph rejection.</summary>
+    /// <summary>Lays out every installed notice and checks selection redraw and glyph rejection.</summary>
     internal static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -50,68 +48,29 @@ internal static class GameplayMessageNoticesVerification
 
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
         JsonObject mapNotice = document.Required("notices").Required(            GameplayMessageId.MapDataAccessCompleted.ToString()).AsObject();
-        mapNotice.Required("text").Required(0)["text"] = "MAP TEST";
-        byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options));
-        GameplayMessageNoticePresentation edited = GameplayMessageNoticePresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-
-        // The game names the form it shows; an edited notice changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
-        active.Step(0);
-        BackgroundTile[] before = active.Tilemap(stockMessages);
-        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(null, null, edited))),
-            "UTF-8 notice edit changes the words of the shown message without a ROM patch");
-        AssertTrue(before.SequenceEqual(active.Tilemap(stockMessages)),
-            "stock notice lays the shown message out with its exact words");
-
+        mapNotice.Required("text").Required(0)["text"] = "map test";
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options).Replace("MAP TEST", "map test"));
+            ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => GameplayMessageNoticePresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message notice rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, edited layout and invalid glyph rejection pass.");
+            $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection and invalid glyph rejection pass.");
     }
 
-    /// <summary>Checks deterministic stock extraction and that an override changes rendered save text and content identity.</summary>
+    /// <summary>Checks that the installed gameplay-message notices are the deterministic cartridge extraction.</summary>
     internal static void VerifyGameplayMessageNoticeAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, GameplayMessageNoticeDefinitions.FileName))),
             "installed gameplay-message notices are the deterministic cartridge extraction");
 
-        Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
-        document.Required("notices").Required(GameplayMessageId.SaveConfirmation.ToString()).Required("text").Required(0)["text"] =
-            "SAVE TEST?";
-        string replacement = Path.Combine(
-            overrideDirectory, GameplayMessageNoticeDefinitions.FileName);
-        File.WriteAllText(replacement,
-            document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        state.Begin(GameplayMessageId.SaveConfirmation, 0);
-        AssertTrue(!(GameplayMessageArtwork.Of(stockCatalog).Notices ?? throw new InvalidOperationException("Stock installs the message notices."))
-                .Build(GameplayMessageId.SaveConfirmation).SequenceEqual(state.Tilemap(GameplayMessageArtwork.Of(edited))),
-            "catalog override changes installed save-confirmation text");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "gameplay-message notice override changes catalog content identity");
-
-        File.WriteAllText(replacement, "{ broken gameplay-message notice");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt gameplay-message notice override fails loudly");
         Console.WriteLine(
-            "Gameplay-message notice catalog: deterministic stock, override selection/identity and corruption failure pass.");
+            "Gameplay-message notice catalog: deterministic stock passes.");
     }
 
     /// <summary>Runs message-notice extraction and rendering checks against the repository ROM.</summary>

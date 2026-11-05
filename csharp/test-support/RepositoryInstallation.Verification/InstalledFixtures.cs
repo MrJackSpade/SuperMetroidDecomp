@@ -260,7 +260,7 @@ internal static class InstalledFixtures
 
     /// <summary>
     /// A private installation holding copies of only the installation's <paramref name="directories"/>, for a check that
-    /// writes overrides into or corrupts the stock files of those content families alone; copying a family or two costs
+    /// corrupts the installed files of those content families alone; copying a family or two costs
     /// a sliver of copying the whole installation. Disposal deletes it.
     /// </summary>
     /// <param name="directories">Selects each directory to copy, such as <c>installation =&gt; installation.MapDirectory</c>.</param>

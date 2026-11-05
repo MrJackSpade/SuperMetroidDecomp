@@ -1,11 +1,10 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text;
-using SuperMetroid.Tooling;
+using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -13,8 +12,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks fixed RGB5 colors through Power Bomb and Crystal Flash lifecycles against retail data.</summary>
 internal static class PowerBombFixedColorsVerification
@@ -60,12 +57,6 @@ internal static class PowerBombFixedColorsVerification
         AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Power Bomb color field fails loudly");
-        PowerBombFixedColorDocument document = RequiredJson.Deserialize<PowerBombFixedColorDocument>(
-            PowerBombFixedColorExtractor.Extract(rom), ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document with
-        {
-            PreExplosion = [document.PreExplosion[0] with { Red = 32 }, .. document.PreExplosion.Skip(1)],
-        }))), "out-of-range Power Bomb color fails loudly");
         Console.WriteLine($"  Power Bomb fixed colors: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
     }
 
@@ -112,6 +103,19 @@ internal static class PowerBombFixedColorsVerification
         } while (native.IsActive);
         AssertTrue(!installed.IsActive, "installed explosion completes with native state");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed explosion never rereads fixed-color ROM tables");
+    }
+
+    /// <summary>Checks that the Power Bomb colour codec rejects out-of-range colours.</summary>
+    internal static void VerifyPowerBombFixedColorsRejectMalformedDocuments(string stock)
+    {
+        PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
+            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFile.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
+        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document with
+        {
+            PreExplosion = [document.PreExplosion[0] with { Red = 32 }, .. document.PreExplosion.Skip(1)],
+        }))), "out-of-range Power Bomb color fails loudly");
     }
 
     /// <summary>Forbids all authored fixed-color source ranges during installed explosion updates.</summary>

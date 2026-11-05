@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
@@ -12,25 +10,19 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks imported pause equipment wireframes and isolated artwork replacement across menu states.</summary>
 internal static class PauseWireframesVerification
 {
     /// <summary>Compares all four native patches, page transitions, equipment toggles, and restored-content rebinding.</summary>
-    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, AreaMapPresentation original)
     {
-        Directory.CreateDirectory(overrides);
-        string stockPath = Path.Combine(stock, PauseWireframeDefinitions.FileName), path = Path.Combine(overrides, PauseWireframeDefinitions.FileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseWireframeDocument>(stockBytes, ArtworkJson.Options);
         var guard = NewPauseWireframeReadGuard(bus);
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
@@ -44,19 +36,6 @@ internal static class PauseWireframesVerification
             BackgroundTile[] actual = Enumerable.Repeat(sentinel, PauseWireframeDefinitions.PageTiles).ToArray();
             InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(actual, kind);
             AssertTrue(expected.SequenceEqual(actual), "all 136 native wireframe tiles and untouched surrounding cells match");
-            // One replacement at a time proves semantic variants do not alias.
-            var frames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
-            frames[kind.ToString()] = frames[kind.ToString()].Select(cell => cell with
-                { Atlas = PauseAtlas.Map, TileColumn = 4, TileRow = 0, Palette = 3, Priority = true, FlipX = true, FlipY = true }).ToArray();
-            using (var output = File.Create(path)) PauseWireframePresentation.Write(output, document with { Frames = frames });
-            var edited = MapPresentationFiles.Load(stock, overrides);
-            AssertTrue(original.ContentIdentity != edited.ContentIdentity, "independent wireframe edit changes selected identity");
-            foreach (PauseWireframeKind other in Enum.GetValues<PauseWireframeKind>())
-            {
-                var baseline = new BackgroundTile[PauseWireframeDefinitions.PageTiles]; var changed = new BackgroundTile[PauseWireframeDefinitions.PageTiles];
-                InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(baseline, other); InstalledAreaMapPresentation.PauseOf(edited).Wireframes.ApplyTo(changed, other);
-                AssertEqual(kind != other, baseline.SequenceEqual(changed), "wireframe override affects only its named variant");
-            }
             ushort items = (ushort)(((int)kind & 1) * 0x100 | ((int)kind >> 1));
             foreach (bool gravity in new[] { false, true })
             {
@@ -82,28 +61,8 @@ internal static class PauseWireframesVerification
                 ChangePausePage(pause, ControllerButton.L, StepBoth);
                 AssertPixels();
                 AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "wireframe fixture returns to the map page");
-                var shownPause = pause.ShownVram();
-                // Rebind on the map must not replace the map's shared BG1 page.
-                byte[] map = shownPause.AsSpan(0x6000, 0x1000).ToArray();
-                pause.BindFixtureArtwork(edited);
-                var shownPause2 = pause.ShownVram();
-                AssertTrue(map.SequenceEqual(shownPause2.AsSpan(0x6000, 0x1000)), "wireframe edit while viewing map does not overwrite BG1 map");
                 EnterEquipment(pause);
-                AssertPage(pause, edited, kind);
-                var editedPixels = pause.Render();
-                AssertTrue(editedPixels.SequenceEqual(RenderForComparison(pause.CaptureRenderSnapshot())), "edited wireframe agrees between direct and captured rendering");
-                var inventory = new Inventory(samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams);
-                var cursor = new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem);
-                using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, new object[] { pause, samus }); captured.Position = 0;
-                var restored = DebuggerObjectGraphSerializer.Deserialize<object[]>(captured);
-                pause = (PauseMenuState)restored[0]; samus = (SamusState)restored[1];
-                pause.BindFixtureArtwork(original);
                 AssertPage(pause, original, kind);
-                AssertTrue(!editedPixels.SequenceEqual(pause.Render()), "restored current wireframe changes visible equipment pixels");
-                AssertEqual(cursor, new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "wireframe replacement preserves cursor");
-                AssertEqual(inventory, new Inventory(samus.EquippedItems, samus.CollectedItems, samus.EquippedBeams, samus.CollectedBeams), "wireframe replacement cannot equip or collect upgrades");
-                pause.BindFixtureArtwork(edited);
-                AssertTrue(editedPixels.SequenceEqual(pause.Render()), "repeated restored-content rebind preserves exact animation phase");
             }
         }
         // Exercise selection through real menu actions, not only a direct bit fixture.
@@ -119,34 +78,9 @@ internal static class PauseWireframesVerification
         AssertEqual(new CursorBeforeRestore(PauseEquipmentCategory.Suits, 0), new CursorBeforeRestore(toggles.SelectedCategory, toggles.SelectedItem), "actual navigation returns to Varia");
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, PauseWireframeKind.VariaSuit);
 
-        void Reject(PauseWireframeDocument invalid) => AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            PauseWireframePresentation.Write(written, invalid);
-            _ = PauseWireframePresentation.Load(new MemoryStream(written.ToArray(), writable: false));
-        }, "invalid wireframe schema/shape/atlas reference rejected on read");
-        Reject(document with { Version = 2 }); Reject(document with { Frames = [] });
-        var invalidFrames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
-        invalidFrames[nameof(PauseWireframeKind.PowerSuit)] = []; Reject(document with { Frames = invalidFrames });
-        invalidFrames[nameof(PauseWireframeKind.PowerSuit)] = document.Frames[nameof(PauseWireframeKind.PowerSuit)].ToArray();
-        foreach (var invalid in new[] { document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { Atlas = (PauseAtlas)byte.MaxValue },
-            document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { TileRow = 8 },
-            document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { Palette = 8 } })
-        { invalidFrames[nameof(PauseWireframeKind.PowerSuit)][0] = invalid; Reject(document with { Frames = invalidFrames }); }
         AssertThrows<ArgumentOutOfRangeException>(() => InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "invalid compiled selector rejected");
         AssertThrows<ArgumentException>(() => InstalledAreaMapPresentation.PauseOf(original).Wireframes.ApplyTo(new BackgroundTile[16], PauseWireframeKind.PowerSuit), "short patch target rejected before partial write");
-        File.WriteAllText(path, "broken JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid wireframe override never silently replaced");
-        File.WriteAllBytes(path, stockBytes);
-        try
-        {
-            File.Delete(stockPath);
-            AssertThrows<IOException>(() => MapPresentationFiles.Load(stock, overrides), "wireframe override cannot conceal missing stock");
-            File.WriteAllText(stockPath, "corrupt stock");
-            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "wireframe override cannot conceal failed provenance");
-        }
-        finally { File.WriteAllBytes(stockPath, stockBytes); }
-        Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames, isolated visual edits, actual equipment toggles, current-content restore and strict failures pass.");
+        Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames and actual equipment toggles pass.");
 
         static void EnterEquipment(PauseMenuState pause)
         { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }

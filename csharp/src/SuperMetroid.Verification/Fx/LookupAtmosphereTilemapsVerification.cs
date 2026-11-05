@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Checks calculated rain and fog tilemap attributes against native pages and editable fields.</summary>
+/// <summary>Checks calculated rain and fog tilemap attributes against native pages.</summary>
 internal static class LookupAtmosphereTilemapsVerification
 {
     /// <summary>Compares rain palette bits with the original atmosphere page.</summary>
@@ -39,8 +39,8 @@ internal static class LookupAtmosphereTilemapsVerification
         }
     }
 
-    /// <summary>Checks rain/fog domain, the stock page, an edit at every cell, and exact page bounds.</summary>
-    private static void VerifyAtmosphereTilemapDomainAndEdits(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
+    /// <summary>Checks rain/fog domain, the stock page, and exact page bounds.</summary>
+    private static void VerifyAtmosphereTilemapDomain(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
@@ -55,7 +55,7 @@ internal static class LookupAtmosphereTilemapsVerification
             AssertEqual(mask, (int)RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type), "Exact converted field mask");
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));
             var original = new byte[0x840];
-            for (int offset = 0; offset < original.Length; offset++) original[offset] = AtmosphereTilemapDomainAndEditsRomByte(rom, source + offset);
+            for (int offset = 0; offset < original.Length; offset++) original[offset] = AtmosphereTilemapDomainRomByte(rom, source + offset);
             byte[] stockPage = stock.ResolveBytes(type);
             for (int index = 0; index < 1056; index++)
             {
@@ -63,12 +63,6 @@ internal static class LookupAtmosphereTilemapsVerification
                 AssertEqual((word & ~mask) | RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index),
                     (int)BinaryPrimitives.ReadUInt16LittleEndian(stockPage.AsSpan(index * 2)), "The stock page keeps the cartridge's other fields under the calculated ones");
             }
-            byte[] changed = stockPage.ToArray();
-            for (int index = 0; index < 1056; index++)
-                changed[index * 2 + 1] ^= (byte)(type == RoomFxType.Fog && (index & 1) != 0 ? 32 : 4);
-            RoomFxLayer3Pages edited = RoomFxLayer3TilemapFixtures.WithPage(stock, type, BackgroundTileWordBytes.Tiles(changed));
-            AssertTrue(changed.AsSpan().SequenceEqual(edited.ResolveBytes(type)), "A custom field edit at every cell survives");
-            AssertTrue(stockPage.AsSpan().SequenceEqual(stock.ResolveBytes(type)), "An edited catalog leaves the stock catalog's page");
             foreach (int invalid in new[] { int.MinValue, -1, 1056, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, invalid),
                     "Exact33-row cell bounds");
@@ -78,15 +72,15 @@ internal static class LookupAtmosphereTilemapsVerification
         }
     }
 
-    /// <summary>Reads a native atmosphere page byte for editable-field comparisons.</summary>
-    private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Reads a native atmosphere page byte for stock-page comparisons.</summary>
+    private static byte AtmosphereTilemapDomainRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Runs rain and fog palette, priority, and edit ownership checks.</summary>
+    /// <summary>Runs rain and fog palette, priority, and page-domain checks.</summary>
     internal static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));
         Suite(nameof(VerifyFogTilePalette), () => VerifyFogTilePalette(rom, stock));
         Suite(nameof(VerifyFogTilePriority), () => VerifyFogTilePriority(rom, stock));
-        Suite(nameof(VerifyAtmosphereTilemapDomainAndEdits), () => VerifyAtmosphereTilemapDomainAndEdits(rom, stock));
+        Suite(nameof(VerifyAtmosphereTilemapDomain), () => VerifyAtmosphereTilemapDomain(rom, stock));
     }
 }

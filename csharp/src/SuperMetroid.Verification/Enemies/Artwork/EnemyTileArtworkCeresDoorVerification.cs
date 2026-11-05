@@ -1,8 +1,5 @@
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
@@ -13,16 +10,14 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Ceres door tiles, color rows, and Mode 7 transfer frames.</summary>
 internal static class EnemyTileArtworkCeresDoorVerification
 {
-    /// <summary>Compares native VRAM and CGRAM, then checks independent PNG, palette, and Mode 7 edits.</summary>
-    internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
-        string directory, InstalledEnemyArtwork stock)
+    /// <summary>Compares native VRAM and CGRAM with the installed door art.</summary>
+    internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus, InstalledEnemyArtwork stock)
     {
         CeresDoorSourceArtwork door = stock.Areas.CeresDoor
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
@@ -81,41 +76,6 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertTrue(nativeFrame.Select((tile, cell) => pictured[stripFirstCell + cell] == tile).All(same => same),
                 $"the import pictures Ceres-door floor strip {frame} from the native transfer");
         }
-
-        string overrides = Path.Combine(directory, "ceres-door-overrides");
-        Directory.CreateDirectory(overrides);
-        string pngPath = Path.Combine(directory, CeresDoorVisualFormat.TilesFileName);
-        byte[] png = File.ReadAllBytes(pngPath);
-        IndexedPngImage image = IndexedPng.Read(new MemoryStream(png),
-            new(RoomCharacterAtlasFormat.TileColumns * 8, 8));
-        image.Pixels[0] ^= 1;
-        using (var output = File.Create(Path.Combine(overrides,
-                   CeresDoorVisualFormat.TilesFileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels,
-                image.Colours);
-        string colorsPath = Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName);
-        CeresDoorVisualDocument document = RequiredJson.Deserialize<CeresDoorVisualDocument>(
-            File.ReadAllBytes(colorsPath),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        document.Normal[0] = document.Normal[0] with
-        {
-            Red = (document.Normal[0].Red + 1) & 31,
-        };
-        document.Animation[0][0] = document.Animation[0][0] with
-        {
-            Blue = (document.Animation[0][0].Blue + 1) & 31,
-        };
-        File.WriteAllBytes(Path.Combine(overrides,
-            CeresDoorVisualFormat.ColorsFileName),
-            CeresDoorVisualFiles.Write(document));
-        CeresDoorSourceArtwork editedDoor = EnemyTileArtworkFiles.Open(directory, overrides).CeresDoor();
-        CeresDoorVisuals edited = editedDoor.Visuals;
-        AssertEqual((byte)(nativeTiles[0] ^ 0x80), editedDoor.Characters.Span[0],
-            "Ceres-door PNG override changes the live first tile pixel");
-        AssertTrue(edited.NormalColor(0) != visual.NormalColor(0),
-            "Ceres-door palette override changes the installed normal colour");
-        AssertTrue(edited.AnimationColor(0, 0) != visual.AnimationColor(0, 0),
-            "Ceres-door animation override changes the installed first glow step");
     }
 
     /// <summary>The colour the cartridge's colour word at <paramref name="address"/> holds: five bits each of red, green and blue.</summary>

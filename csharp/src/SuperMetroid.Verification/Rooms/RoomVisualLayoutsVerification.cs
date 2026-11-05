@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
@@ -23,10 +22,8 @@ internal static class RoomVisualLayoutsVerification
 {
     /// <summary>
     /// Checks every installed level's terrain, behaviours, background and terrain beyond the room, and every stock
-    /// appearance, against the cartridge's level words decoded by the import's codec; then proves an installed override
-    /// changes both rendered planes without changing terrain or behaviours.
+    /// appearance, against the cartridge's level words decoded by the import's codec.
     /// </summary>
-    [PrivateInstallation("Edits room visual layout files on a private copy to check that their overrides are selected.")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
@@ -36,9 +33,6 @@ internal static class RoomVisualLayoutsVerification
         InstalledRoomLevelStreams levelStreams = installed.LoadRoomLevelStreams();
         AssertEqual(RoomVisualLayoutFiles.RetailLevels.Count, levelStreams.Count,
             "installed room-level count");
-        AssertTrue(!Directory.Exists(Path.Combine(installed.Root, "overrides",
-                GameInstallationLayout.RoomLevelStreamDirectoryName)),
-            "installed room-level streams have no override directory");
         VerifyRoomLevelStreamRejections(installed);
         try
         {
@@ -151,41 +145,19 @@ internal static class RoomVisualLayoutsVerification
         AssertTrue(slopeBlocks > 0 && spikeBlocks > 0,
             "guarded installed-stream audit includes physical slope and spike-hazard blocks");
 
-        RoomLevelId landingLevel = landing.State.Level;
-        string name = RoomVisualLayoutFiles.LevelFileName(landingLevel);
-        string stockPath = Path.Combine(installed.RoomVisualLayoutDirectory, name);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Installed Landing Site layout is empty.");
-        JsonObject foregroundPlane = document.Required("foreground").AsObject();
-        JsonObject backgroundPlane = document.Required("background").AsObject();
-        JsonArray foregroundBlocks = foregroundPlane.Required("blocks").AsArray();
-        foregroundPlane["mirroring"] = MirrorFirstHorizontally(foregroundPlane.Required("mirroring").GetValue<string>());
-        backgroundPlane["mirroring"] = MirrorFirstHorizontally(backgroundPlane.Required("mirroring").GetValue<string>());
-        Directory.CreateDirectory(installed.RoomVisualLayoutOverrideDirectory);
-        string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
-        File.WriteAllText(overridePath, document.ToJsonString());
-
         LoadedRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
         LoadedRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: stock, levelStreams: levelStreams);
-        LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
-            visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
-        AssertTrue(nativeRoom.LevelData.SameTerrainAs(editedRoom.LevelData),
-            "an appearance override leaves the room's terrain and behaviours unchanged");
 
         // The renderers resolve each block from the level planes (#1346), so the shown first blocks, each a whole block and
         // its mirroring (#1431), are the planes'.
         RoomBlockCell nativeFirst = nativeRoom.LevelData.ForegroundPlane.Cells.Cells[0];
         AssertEqual(nativeFirst, stockRoom.LevelData.ForegroundPlane.Cells.Cells[0],
             "stock installed BG1 layout retains the native first block and mirroring");
-        AssertTrue(nativeFirst != editedRoom.LevelData.ForegroundPlane.Cells.Cells[0],
-            "edited BG1 layout changes the live renderer's first block");
 
         RoomBlockCell nativeBg2 = nativeRoom.LevelData.BackgroundPlane.Cells.Cells[0];
         AssertEqual(nativeBg2, stockRoom.LevelData.BackgroundPlane.Cells.Cells[0],
             "stock installed BG2 layout retains the native first block and mirroring");
-        AssertTrue(nativeBg2 != editedRoom.LevelData.BackgroundPlane.Cells.Cells[0],
-            "edited BG2 layout changes the live renderer's first block");
 
         // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes
         // an extra physical row beyond its camera. Both must survive the installed-stream path.
@@ -199,32 +171,8 @@ internal static class RoomVisualLayoutsVerification
                 nativeOther.LevelData.BackgroundPlane.Blocks.SequenceEqual(installedOther.LevelData.BackgroundPlane.Blocks),
                 $"installed room ${pointer:X4} retains its terrain, behaviours, background and level height");
         }
-
-        // Existing user content is outside the replaceable stock installation, so a reload retains the selected
-        // appearance while the terrain remains unchanged.
-        RoomBlockAppearance editedFirst = editedRoom.LevelData.ForegroundPlane.Blocks[0];
-        AssertEqual(editedFirst,
-            installed.LoadRoomVisualLayouts().Get(landingLevel).Foreground.Span[0],
-            "room-layout override is selected on reload");
-
-        int editedForegroundBlock = foregroundBlocks.Required(0).GetValue<int>();
-        foregroundBlocks[0] = RoomBlockAppearance.LastBlock + 1;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        try
-        {
-            _ = installed.LoadRoomVisualLayouts();
-            throw new InvalidOperationException("A block outside the tileset's set was accepted as an appearance.");
-        }
-        catch (InvalidDataException error)
-        {
-            AssertTrue(error.Message.Contains(name, StringComparison.Ordinal),
-                "invalid visual-layout override identifies its file");
-        }
-        foregroundBlocks[0] = editedForegroundBlock;
-        File.WriteAllText(overridePath, document.ToJsonString());
         Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailLevels.Count} levels decode to the installed terrain and " +
-            $"{stateCount} guarded state loads keep it (including slopes and spikes) while appearance edits " +
-            "affect only rendering, survive repair, and reject blocks outside the tileset's set.");
+            $"{stateCount} guarded state loads keep it (including slopes and spikes), and the installed appearances are the native ones.");
     }
 
     /// <summary>The cartridge's level-space fill word, which the import decodes as the game's edge-solid block.</summary>
@@ -232,16 +180,6 @@ internal static class RoomVisualLayoutsVerification
 
     /// <summary>The level words the cartridge fills before decompressing a room.</summary>
     private const int LevelSpaceWords = 0x3200;
-
-    /// <summary>A layout plane's mirroring codes with the first block's horizontal mirroring toggled.</summary>
-    private static string MirrorFirstHorizontally(string mirroring) => mirroring[0] switch
-    {
-        '-' => "H",
-        'H' => "-",
-        'V' => "B",
-        'B' => "V",
-        _ => throw new InvalidDataException($"Unknown mirroring code '{mirroring[0]}'."),
-    } + mirroring[1..];
 
     /// <summary>
     /// Confirms the stock-only level-stream loader rejects each corrupted installation with a

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
-/// <summary>Checks the 48 colored-door draw frames, editable overlays, and stock isolation.</summary>
+/// <summary>Checks the 48 colored-door draw frames, and their validation.</summary>
 internal static class LookupColoredDoorStockVerification
 {
     /// <summary>Compares each four-row colored-door frame with ROM and validates lookup, hashing, and malformed edits.</summary>
@@ -49,17 +49,6 @@ internal static class LookupColoredDoorStockVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>((ushort)raw),0), "Colored door unknown stock pointer");
-        entries[47].Blocks[1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[16].Blocks[3] = RoomBlockAppearance.Of(0x059);
-        var mixed = RoomPlmColoredDoorVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer,
-            frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Colored door custom/stock hash");
-        entries[47].Blocks[1] = RoomBlockAppearance.Of(0x05a);
-        entries[0].Blocks[0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(frame.Pointer),row), "Colored door custom clone and stock isolation");
         AssertThrows<InvalidDataException>(() => RoomPlmColoredDoorVisualFiles.Create(entries[..47]), "Colored door missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmColoredDoorVisualFiles.Create(entries.Append(entries[0])), "Colored door duplicate frame");
         var invalid = entries.ToArray();

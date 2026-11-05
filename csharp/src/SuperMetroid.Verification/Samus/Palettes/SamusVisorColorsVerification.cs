@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using System.Text;
-using SuperMetroid.Tooling;
+using System.Text.Json;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
@@ -12,7 +12,6 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -23,7 +22,6 @@ namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks installed Samus visor RGB5 colors through room and X-ray palette cycles.</summary>
@@ -56,12 +54,6 @@ internal static class SamusVisorColorsVerification
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate visor color property fails loudly");
-        SamusVisorColorDocument document = RequiredJson.Deserialize<SamusVisorColorDocument>(
-            SamusVisorColorExtractor.Extract(rom), ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
-        {
-            Colors = [.. document.Colors.Take(3), document.Colors[3] with { Red = 32 }, .. document.Colors.Skip(4)],
-        }))), "out-of-range visor color fails loudly");
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
     }
 
@@ -178,6 +170,19 @@ internal static class SamusVisorColorsVerification
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "stock X-ray setup is accepted");
         return samus;
+    }
+
+    /// <summary>Checks that the visor colour codec rejects out-of-range colours.</summary>
+    internal static void VerifySamusVisorColorsRejectMalformedDocuments(string stock)
+    {
+        SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
+            File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFile.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock Samus visor color document is null.");
+        AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
+        {
+            Colors = [.. document.Colors.Take(3), document.Colors[3] with { Red = 32 }, .. document.Colors.Skip(4)],
+        }))), "out-of-range visor color fails loudly");
     }
 
     /// <summary>Forbids installed room or X-ray palette updates from reading the native six-color source table.</summary>

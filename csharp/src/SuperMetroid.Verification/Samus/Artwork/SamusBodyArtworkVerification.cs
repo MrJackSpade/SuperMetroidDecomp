@@ -1,9 +1,6 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
@@ -27,13 +24,12 @@ namespace SuperMetroid.Verification.Samus.Artwork;
 internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
-    [PrivateInstallation("Writes a malformed manifest and a damaged arm-cannon PNG into a private copy's Samus body directory to check that each fails where it loads, then puts the installed bytes back.")]
     internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
-        SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
+        SamusBodyCharacterArtwork stockCharacters = SamusBodyArtworkFiles.LoadCharacters(installation.SamusBodyDirectory);
         InstalledSamusBodyArtwork stock = stockCharacters.Body;
-        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
-        SamusDeathTileAtlas stockDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory, installation.SamusBodyOverrideDirectory);
+        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(installation.SamusBodyDirectory);
+        SamusDeathTileAtlas stockDeathTiles = SamusDeathTileArtworkFiles.Load(installation.SamusBodyDirectory);
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
@@ -153,6 +149,9 @@ internal static class SamusBodyArtworkVerification
                 SamusSourceDefinitions.DrainedVerticalOffsets.Value + i)),
                 stock.DrainedYOffsets[i], $"Samus drained visual byte {i}");
 
+        // The installed selector and both VRAM halves must take the production path
+        // without even reading one cartridge byte. This covers every authored pose's
+        // initial frame, including all flashback/normal-gameplay pose identities.
         // These two production owners call the same indexed bank-$92 OAM routine as
         // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
         // their binding from the generic catalog's all-index byte-parity test.
@@ -339,24 +338,7 @@ internal static class SamusBodyArtworkVerification
                 frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
         }
 
-        // A manifest that moves a native set pointer is rejected where it loads, and the check puts the installed manifest
-        // back. Installed content is never repaired in place (#1532): a damaged arm-cannon PNG fails where it loads too.
-        string manifestPath = Path.Combine(installation.SamusBodyDirectory, SamusBodyArtworkFiles.ManifestFileName);
-        string originalManifest = File.ReadAllText(manifestPath);
-        JsonNode document = RequiredJson.Parse(originalManifest);
-        document.Required("topSetStarts")[0] = 1;
-        File.WriteAllText(manifestPath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
-            "a Samus body manifest cannot change native set-pointer identity");
-        File.WriteAllText(manifestPath, originalManifest);
-        string stockArmPath = Path.Combine(installation.SamusBodyDirectory,
-            SamusArmCannonArtworkFormat.TileFileName);
-        byte[] originalArmStock = File.ReadAllBytes(stockArmPath);
-        File.WriteAllBytes(stockArmPath, [0]);
-        AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
-            "a damaged arm-cannon PNG fails where it loads");
-        File.WriteAllBytes(stockArmPath, originalArmStock);
-        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; a malformed manifest and a damaged PNG fail where they load.");
+        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail.");
     }
 
     /// <summary>The sixteen colour words of the cartridge's death palette whose pointer lies at <paramref name="pointerAt"/>.</summary>

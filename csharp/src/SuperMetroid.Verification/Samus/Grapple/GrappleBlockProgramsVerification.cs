@@ -1,8 +1,5 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -11,7 +8,6 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
@@ -96,11 +92,6 @@ internal static class GrappleBlockProgramsVerification
     private static string GrappleId(int pointer) =>
         RoomPlmGrappleBlockVisualFiles.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
 
-    /// <summary>The Grapple-block draw whose artwork identity is <paramref name="id"/>.</summary>
-    private static PlmFrameDraw<GrappleBlockDraw> GrappleById(string id) =>
-        RoomPlmGrappleBlockVisualFiles.TryGetByVisualId(id, out var list) ? PlmDraw.Of(list.Frame)
-            : throw new InvalidOperationException($"No Grapple-block draw has artwork identity {id}.");
-
     /// <summary>Reads native draw-list terminal offsets as the physical-geometry oracle.</summary>
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -130,7 +121,7 @@ internal static class GrappleBlockProgramsVerification
         AssertThrows<InvalidDataException>(() => RoomPlmGrappleBlockVisualFiles.Create(entries.Append(entries[0])),"Grapple rejects duplicate selection");
     }
 
-    /// <summary>Runs both BTS programs under read guards for 300 frames and checks the stock visuals.</summary>
+    /// <summary>Runs both BTS programs under read guards for 300 frames.</summary>
     internal static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -185,7 +176,7 @@ internal static class GrappleBlockProgramsVerification
         Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
     }
 
-    /// <summary>Confirms the first stock frame installs the native grapple collision word and reaches the immediate tile upload.</summary>
+    /// <summary>Confirms the stock first frame's Grapple collision word and immediate tile, and catalog rejection of missing draws.</summary>
     private static void VerifyGrappleBlockVisualSeparation(
 )
     {
@@ -222,7 +213,7 @@ internal static class GrappleBlockProgramsVerification
             "Grapple catalog rejects incomplete draw-list coverage");
     }
 
-    /// <summary>Checks the extracted stock frame and that a corrupt stock file is rejected.</summary>
+    /// <summary>Checks the extracted stock art and that a corrupt installed visual file fails loudly where it is read.</summary>
     private static void VerifyGrappleBlockVisualInstallation()
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmGrappleBlockVisualDirectory);
@@ -239,7 +230,7 @@ internal static class GrappleBlockProgramsVerification
         File.WriteAllText(stockPath, "corrupt stock");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmGrappleBlockVisuals(),
-            "Grapple stock manifest hash rejects corruption");
+            "corrupt installed Grapple visuals fail loudly where they are read");
     }
 
     /// <summary>Constructed room collision and PLM system for one grapple BTS program.</summary>

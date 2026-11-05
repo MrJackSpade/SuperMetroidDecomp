@@ -428,8 +428,8 @@ drawing, prefer an import-time compositor that produces complete frames, packed
 atlases if useful, and explicit metadata. Resolve the original graphics selection
 before assembling parts. Preserve part offsets, dimensions, flips, transparency,
 overlap order, and palette bindings; a tile index alone does not identify the
-pixels when graphics slots are reused. Consume installed artwork and selected
-overrides through their existing boundaries without adding gameplay ROM reads.
+pixels when graphics slots are reused. Consume installed artwork, as the player
+may have edited it, through its existing boundaries without adding gameplay ROM reads.
 
 Keep the actor origin stable across frames. Either use a common canvas around
 that origin or retain each cropped frame's offset from it. Independently centering
@@ -575,9 +575,9 @@ conversion. Reject ambiguous mappings with useful diagnostics.
 
 The existing
 [`RoomVisualLayoutFiles`](../csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs)
-overrides intentionally affect visuals while collision types and BTS behavior
+edits intentionally affect visuals while collision types and BTS behavior
 metadata retain their original ownership. Editable gameplay layout therefore needs
-a new definition boundary; relabeling those overrides as full scene editing is
+a new definition boundary; relabeling those edits as full scene editing is
 insufficient. An unedited imported scene should preserve its original definition
 semantics. A deliberate edit may change outcomes while using the same mechanics.
 

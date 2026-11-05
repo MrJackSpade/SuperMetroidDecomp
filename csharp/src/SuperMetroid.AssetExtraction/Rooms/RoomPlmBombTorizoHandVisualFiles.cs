@@ -41,13 +41,11 @@ public static class RoomPlmBombTorizoHandVisualFiles
             VisualFileName, "Bomb Torizo hand", All,
             VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Bomb Torizo hand override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Bomb Torizo hand JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose Bomb Torizo hand JSON is selected when present.</param>
-    /// <returns>The immutable selected Bomb Torizo hand visual catalog.</returns>
-    public static RoomPlmBombTorizoHandVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Bomb Torizo hand manifest's provenance and loads the installed Bomb Torizo hand JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Bomb Torizo hand JSON.</param>
+    /// <returns>The immutable Bomb Torizo hand visual catalog.</returns>
+    public static RoomPlmBombTorizoHandVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

@@ -71,7 +71,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
 }
 
-/// <summary>Confirms installed Kraid HUD pixels reproduce the native upload and that an edit reaches VRAM.</summary>
+/// <summary>Confirms installed Kraid HUD pixels reproduce the native upload.</summary>
 static void VerifyKraidLibraryHudArtwork(
     ISnesAddressSpace bus, IReadOnlyList<LibraryBackgroundNativeOperand> romTransfers)
 {
@@ -112,13 +112,7 @@ static void VerifyKraidLibraryHudArtwork(
         AssertEqual(stockVram.ReadByte(destinationByte + index),
             installedVram.ReadByte(destinationByte + index),
             $"Kraid installed HUD VRAM byte {index}");
-
-    pixels[0] = (byte)((pixels[0] + 1) & 3);
-    SnesVram editedVram = Replay(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
-        new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), HudArt = Compile(pixels) });
-    if (editedVram.ReadByte(destinationByte) == stockVram.ReadByte(destinationByte))
-        throw new InvalidDataException("Edited HUD pixel did not reach Kraid's native VRAM destination.");
-    Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
+    Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM.");
 }
 
 /// <summary>Exercises Ceres BG2 transfers, typed ROM/WRAM reads, command wrapping, and native clearing.</summary>

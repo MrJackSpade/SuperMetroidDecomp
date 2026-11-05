@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -41,8 +40,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
 
     /// <summary>Compares installed legs, Baby, attack and exploded-door sheets with native records and guarded VRAM uploads.</summary>
-    internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
-        string directory, InstalledEnemyArtwork stock)
+    internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(InstalledEnemyArtwork stock)
     {
         MotherBrainSpecialSpriteArtworkCatalog installed =
             stock.Bosses.MotherBrainSpecialSprites ?? throw new InvalidDataException(
@@ -71,41 +69,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                     .SequenceEqual(cartridgeVram.Bytes.Slice(destinationOffset, count)),
                     $"installed {sheet.FileName} page {page} matches the independent cartridge transfer");
             }
-
-            string filePath = Path.Combine(directory, sheet.FileName);
-            int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(sheet.ByteCount);
-            int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-            int rows = (tileCount + columns - 1) / columns;
-            using var input = new MemoryStream(File.ReadAllBytes(filePath));
-            IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-            image.Pixels[0] ^= 1;
-            string overrideDirectory = Path.Combine(directory,
-                "mother-brain-special-" + sheet.Sheet);
-            Directory.CreateDirectory(overrideDirectory);
-            string overridePath = Path.Combine(overrideDirectory, sheet.FileName);
-            using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainSpecialSprites = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainSpecialSprites() } };
-            SnesVram editedVram = ShowMotherBrainSpecialPages(edited,
-                sheet);
-            int firstDestination = ShownByte(sheet.FirstCharacter);
-            AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
-                editedVram.ReadByte(firstDestination),
-                $"{sheet.FileName} PNG edit changes live OBJ VRAM");
-            AssertTrue(installedVram.Bytes.Slice(firstDestination + 1,
-                    MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)
-                .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
-                    MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)),
-                $"{sheet.FileName} edit leaves neighboring bytes unchanged");
-            RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainSpecialSprites().Get(sheet.Sheet);
-            AssertTrue(reloaded.Characters.Span.SequenceEqual(
-                    (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.Sheet).Characters.Span),
-                $"{sheet.FileName} override survives catalog reload");
-
-            File.WriteAllBytes(overridePath, [0]);
-            AssertThrows<InvalidDataException>(
-                () => EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainSpecialSprites(),
-                $"malformed {sheet.FileName} override fails explicitly");
         }
 
         // Unlike the other two lists, Baby loading reads its four native records
@@ -141,7 +104,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         Suite(nameof(VerifyMotherBrainLegLoadPages), () => VerifyMotherBrainLegLoadPages(stock, rom));
         Suite(nameof(VerifyMotherBrainEscapeTimerPages), () => VerifyMotherBrainEscapeTimerPages(stock, rom));
         Console.WriteLine(
-            "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
+            "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads and strict installed-source boundary pass.");
     }
 
     /// <summary>
@@ -267,7 +230,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             $"the encounter reaches the last {sheet.Sheet} page's step");
         return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, resolver), resolver);
     }
-
 
     /// <summary>Runs the Mother Brain sprite page bounds check from the verification command.</summary>
     [VerificationCommand("--mother-brain-transfer-sources")]

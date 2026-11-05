@@ -39,7 +39,7 @@ internal sealed class AndroidSessionData : IDisposable
     private ControllerInputRecorder recorder;
 
     /// <summary>Opens installed assets and RAM state, binds art and audio, and begins a reset-seeded recording.</summary>
-    public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
+    public AndroidSessionData(string root, string? cartridgePath = null)
     {
         this.root = root;
         // A caller-provided cartridge is an import input only. The session always
@@ -61,10 +61,8 @@ internal sealed class AndroidSessionData : IDisposable
         projectiles = installation.LoadProjectiles();
         var enemyArtwork = installation.LoadEnemyTiles();
         GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
-        Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
-        InstalledClipAudioLibrary assets = audioDirectory is null
-            ? installation.LoadAudioClips()
-            : InstalledAudioClips.Load(audioDirectory);
+        Console.WriteLine($"Projectile compositions: {projectiles.ContentSha256} ({root}).");
+        InstalledClipAudioLibrary assets = installation.LoadAudioClips();
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
             assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects(), installation.LoadRoomPalettes(), installation.LoadGameplayBasePalettes()));
         Console.WriteLine(

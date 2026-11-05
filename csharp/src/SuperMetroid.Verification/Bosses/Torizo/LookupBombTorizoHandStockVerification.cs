@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>Checks the intact and cleared Bomb Torizo hand draw lists against native PLM words.</summary>
 internal static class LookupBombTorizoHandStockVerification
 {
-    /// <summary>Checks stock words, mixed edits, identity hashes, copy isolation, and invalid shapes.</summary>
+    /// <summary>Checks stock words, identity hashes, and invalid shapes.</summary>
     internal static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBombTorizoHandVisualCatalog installed)
     {
@@ -63,19 +63,6 @@ internal static class LookupBombTorizoHandStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<BombTorizoHandDraw>((ushort)pointer),0,0), "Hand stock unknown pointer");
-        entries[0].Blocks[7] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmBombTorizoHandVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Hand mixed custom/stock identity");
-        entries[0].Blocks[7] = RoomBlockAppearance.Of(0x5a);
-        entries[1].Blocks[15] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<BombTorizoHandDraw>(frame.Pointer),run,word), "Hand cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.Create(entries[..1]), "Hand missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmBombTorizoHandVisualFiles.Create(entries.Append(entries[0])), "Hand duplicate frame");
         var invalid = entries.ToArray();

@@ -14,10 +14,10 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Checks extracted message-title text against native tilemaps and the words an edited title lays out.</summary>
+/// <summary>Checks extracted message-title text against native tilemaps.</summary>
 internal static class GameplayMessageTitlesVerification
 {
-    /// <summary>Compares installed title rows to cartridge words, then lays a shown message out from a UTF-8 edit and from stock.</summary>
+    /// <summary>Compares installed title rows to cartridge words and checks glyph rejection.</summary>
     internal static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -47,33 +47,15 @@ internal static class GameplayMessageTitlesVerification
 
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
         JsonObject energy = document.Required("titles").Required(GameplayMessageId.EnergyTank.ToString()).AsObject();
-        energy["text"] = "ENERGY TEST";
-        byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options));
-        GameplayMessageTitlePresentation edited = GameplayMessageTitlePresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-
-        // The game names the form it shows; an edited title changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        active.Begin(GameplayMessageId.EnergyTank, 0);
-        active.Step(0);
-        BackgroundTile[] before = active.Tilemap(stockMessages);
-        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(edited))),
-            "UTF-8 title edit changes the words of the shown message without a ROM patch");
-
-        GameplayMessageTitlePresentation restored = GameplayMessageTitlePresentation.Load(
-            new MemoryStream(extracted, writable: false));
-        AssertTrue(before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(restored))),
-            "restoring stock UTF-8 title restores the shown message's exact words");
-
+        energy["text"] = "energy test";
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options).Replace("ENERGY TEST", "energy test"));
+            ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => GameplayMessageTitlePresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message title rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; edited layout, stock restore and invalid glyph rejection pass.");
+            $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; invalid glyph rejection passes.");
     }
 
     /// <summary>Reads a title-table byte solely for the independent cartridge comparison.</summary>

@@ -5,6 +5,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmSpeedBoosterVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with the compiled Speed Booster visual.</summary>
-    /// <param name="directory">Stock Speed Booster directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmSpeedBoosterVisualFiles.Load(directory, null);
+    /// <param name="directory">Stock Speed Booster directory.</param>
+    public static void ValidateStock(string directory) => _ = RoomPlmSpeedBoosterVisualFiles.Load(directory);
 }

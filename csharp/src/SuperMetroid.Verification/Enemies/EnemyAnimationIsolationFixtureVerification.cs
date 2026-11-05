@@ -1,14 +1,10 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
-using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -36,7 +32,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
-        /// <summary>The Boyon or Golden Torizo placed in the first enemy slot.</summary>
+        /// <summary>The Boyon placed in the first enemy slot.</summary>
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
         /// <summary>Samus position used for the actor's proximity and hit interactions.</summary>
         internal SamusState Samus { get; } = new(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
@@ -46,21 +42,16 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal SnesVram Vram { get; } = new();
         /// <summary>Current deterministic RNG word supplied to enemy behavior.</summary>
         internal ushort RandomWord { get; private set; } = 1;
-        /// <summary>Number of RNG steps consumed by the running actor.</summary>
-        internal int RandomCalls { get; private set; }
         /// <summary>Number of boss-defeated event publications.</summary>
         internal int BossBitCalls { get; private set; }
-        /// <summary>Golden Torizo's state when this fixture contains the boss.</summary>
-        internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
 
-        /// <summary>Creates matching terrain and services, then initializes either Boyon or a fixed Torizo attack phase.</summary>
+        /// <summary>Creates matching terrain and services, then initializes Boyon.</summary>
         /// <param name="artwork">The enemy artwork the fixture draws.</param>
-        /// <param name="golden">Whether the actor is Golden Torizo rather than Boyon.</param>
         /// <param name="graphicsSet">
         /// The graphics set the actor's room loads, which gives it its tile base and palette before it initializes; none
         /// leaves the session's start, for an actor that draws from characters at index zero.
         /// </param>
-        internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, bool golden, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
+        internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, RoomEnemyGraphicsSetDefinition? graphicsSet = null)
         {
             const int roomBlocks = 32;
             const int floorRow = FloorY / 16;
@@ -73,7 +64,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().IsAreaTorizoDefeated = () => BossBitCalls != 0;
             Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
-            Actor.Bind(golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon, Actor.Definition);
+            Actor.Bind(EnemyDefinitionId.Boyon, Actor.Definition);
             Actor.Bind(Actor.DefinitionId, RoomEnemyHeaders.Get(Actor.DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
@@ -86,27 +77,11 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 Enemies.GraphicsSet.LoadGraphicsSet(graphicsSet);
                 Actor.Shading = PictureShading.Standard;
             }
-            if (golden)
-            {
-                Actor.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.DecodeExtra((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
-                Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
-                Enemies.BombTorizoBehavior.Access.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
-                {
-                    Function = TorizoFunction.GoldenFrameBehavior,
-                    FrameBehavior = TorizoFrameBehavior.Idle,
-                    BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
-                    ReturnCursor = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
-                    Velocity = new EightEightVector<RoomPixels>(0, 256),
-                };
-            }
-            else
-            {
-                // Choose valid nonzero bounce-height and multiplier indexes; these are
-                // fixture inputs, not authored animation/gameplay tuning.
-                Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
-                Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
-                new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
-            }
+            // Choose valid nonzero bounce-height and multiplier indexes; these are
+            // fixture inputs, not authored animation/gameplay tuning.
+            Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
+            Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
+            new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
         }
 
         /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>
@@ -125,44 +100,12 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
-
-        /// <summary>Starts Golden Torizo's compiled death sequence after its orb attack.</summary>
-        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(Enemies.BombTorizoBehavior.Combat.BeginBombTorizoDeath)(Actor, (Torizo ?? throw new InvalidOperationException("Verification requires Torizo.")));
-
-        /// <summary>Advances the fixture's deterministic RNG and records each consumption.</summary>
+        /// <summary>Advances the fixture's deterministic RNG.</summary>
         private ushort NextRandom()
         {
-            RandomCalls++;
             RandomWord = unchecked((ushort)(RandomWord * 5 + 1));
             return RandomWord;
         }
-    }
-
-    /// <summary>Compares per-frame enemy, projectile, Samus, memory, audio, RNG, and boss-event state.</summary>
-    internal static void AssertEnemyAnimationMechanics(EnemyAnimationFixture baseline,
-        EnemyAnimationFixture edited, int frame)
-    {
-        string context = $"enemy animation replacement at frame {frame}";
-        for (int index = 0; index < baseline.Enemies.SlotTable.Slots.Count; index++)
-            AssertAnimationValues(baseline.Enemies.SlotTable.Slots[index], edited.Enemies.SlotTable.Slots[index], context);
-        for (int index = 0; index < baseline.Enemies.Projectiles.EnemyProjectiles.Count; index++)
-            AssertAnimationValues(baseline.Enemies.Projectiles.EnemyProjectiles[index], edited.Enemies.Projectiles.EnemyProjectiles[index], context);
-        AssertAnimationValues(baseline.Samus, edited.Samus, context);
-        AssertAnimationValues(baseline.Samus.Kinematics, edited.Samus.Kinematics, context);
-        AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
-        // EnemyBG2Tilemap is the cartridge's staging image for the visible BG2 frame, so an
-        // edited BG2 presentation legitimately changes it; every other WRAM byte must not.
-        int bg2Start = SnesAddressMath.OffsetInBank(MotherBrainBg2DefinitionsConstants.WorkAddress);
-        int bg2End = bg2Start + MotherBrainBg2DefinitionsConstants.ClearCellCount * sizeof(ushort);
-        AssertSameBytes(baseline.Memory.WorkRam[..bg2Start], edited.Memory.WorkRam[..bg2Start],
-            context + " preserves WRAM below the enemy BG2 staging image");
-        AssertSameBytes(baseline.Memory.WorkRam[bg2End..], edited.Memory.WorkRam[bg2End..],
-            context + " preserves WRAM above the enemy BG2 staging image");
-        AssertTrue(baseline.Enemies.Audio.SoundRequests.SequenceEqual(edited.Enemies.Audio.SoundRequests), context + " preserves audio calls");
-        AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music calls");
-        AssertEqual(baseline.RandomWord, edited.RandomWord, context + " preserves RNG state");
-        AssertEqual(baseline.RandomCalls, edited.RandomCalls, context + " preserves RNG consumption");
-        AssertEqual(baseline.BossBitCalls, edited.BossBitCalls, context + " preserves boss-event publication");
     }
 
     /// <summary>

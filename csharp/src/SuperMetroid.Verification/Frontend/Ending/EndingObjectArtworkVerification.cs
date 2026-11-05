@@ -1,5 +1,3 @@
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core.Frontend;
@@ -97,19 +95,6 @@ internal static class EndingObjectArtworkVerification
                 AssertTrue(originalOam.ImageEquals(calculatedOam),
                     "cloud grid preserves native OAM and clipping");
             }
-            SpriteVisualPart first = visual[0];
-            foreach (SpriteVisualPart edit in new[]
-            {
-                first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
-                first with { TileColumn = first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
-                first with { Size = 16 }, first with { Priority = 2 }, first with { Palette = 3 },
-                first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
-            })
-            {
-                visual[0] = edit;
-                SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited cloud");
-                AssertTrue(ReferenceEquals(edited, edited.CalculateIfMatching(grid)), "independent cloud edits stay supplied");
-            }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
         }
@@ -121,8 +106,7 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
-    /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
-    [PrivateInstallation("Edits ending object files on a private copy to check that their overrides apply.")]
+    /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, and guarded runtime reads.</summary>
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectSourceArtwork stock = installation.LoadEndingObjectArt();
@@ -249,59 +233,10 @@ internal static class EndingObjectArtworkVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
 
-        Suite(nameof(VerifyEndingExplosionVisualOverride), () => VerifyEndingExplosionVisualOverride(installation, stock, guard));
-        Suite(nameof(VerifyEndingCompletionTextVisualOverride), () => VerifyEndingCompletionTextVisualOverride(installation, stock, guard));
-        Suite(nameof(VerifyEndingRewardVisualOverride), () => VerifyEndingRewardVisualOverride(installation, stock, guard));
-
-        string cloudSpriteName = EndingCloudSpriteFormat.FileName;
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
-        string cloudSpritePath = Path.Combine(installation.EndingObjectDirectory, cloudSpriteName);
-        string cloudSpriteOverride = Path.Combine(
-            installation.EndingObjectOverrideDirectory, cloudSpriteName);
         EndingCloudSpriteDocument cloudDocument =
             JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
-                File.ReadAllBytes(cloudSpritePath), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
-        cloudDocument.Frames["scene-a-right"] = cloudDocument.Frames["scene-a-right"]
-            .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();
-        using (var output = File.Create(cloudSpriteOverride))
-            EndingCloudSpritePresentation.Write(output, cloudDocument);
-        byte[] editedCloudSpriteBytes = File.ReadAllBytes(cloudSpriteOverride);
-        EndingObjectArtwork editedCloudSprites = installation.LoadEndingObjectArt();
-        var cloudAudio = new AudioQueues();
-        var cloudScene = CreateRetailEndingFixture(cloudAudio, 0, 0);
-        cloudScene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-        for (int frame = 0; frame < 2000 &&
-            cloudScene.Stage.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
-        {
-            cloudScene.Step();
-            cloudAudio.AdvanceFrame(default);
-        }
-        AssertEqual(EndingCreditsPhase.EscapeSceneA, cloudScene.Stage.Phase,
-            "ending cloud edit reaches visible first atmospheric scene");
-        bool visibleCloudEdit = false;
-        for (int frame = 0; frame < 700 &&
-            cloudScene.Stage.Phase < EndingCreditsPhase.FadeInEscapeSceneB &&
-            !visibleCloudEdit; frame++)
-        {
-            cloudScene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            LayeredScene beforeCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
-            cloudScene.InstalledArtwork.BindFixtureObjectArtwork(editedCloudSprites);
-            LayeredScene afterCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
-            visibleCloudEdit = !beforeCloudEdit.Paint.SpriteParts().SequenceEqual(
-                    afterCloudEdit.Paint.SpriteParts()) &&
-                !DisplayRendering.Render(beforeCloudEdit).SequenceEqual(
-                    DisplayRendering.Render(afterCloudEdit));
-            if (!visibleCloudEdit)
-            {
-                cloudScene.Step();
-                cloudAudio.AdvanceFrame(default);
-            }
-        }
-        AssertTrue(visibleCloudEdit,
-            "edited cloud composition changes live OAM and visible ending pixels");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "cloud art rebind never rereads installed bank-$8C sprite maps");
         cloudDocument.Frames.Remove("scene-a-right");
         AssertThrows<InvalidDataException>(() =>
         {
@@ -309,154 +244,12 @@ internal static class EndingObjectArtworkVerification
             EndingCloudSpritePresentation.Write(invalid, cloudDocument);
             _ = EndingCloudSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
         }, "ending cloud sprites reject missing named art on read");
-        File.Delete(cloudSpriteOverride);
-
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
-        string[] names =
-        [
-            EndingObjectArtworkFormat.CloudFileName,
-            EndingObjectArtworkFormat.ExplosionFileName,
-            .. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-                .Select(EndingObjectArtworkFormat.FragmentFileName),
-        ];
-        for (int resource = 0; resource < names.Length; resource++)
-        {
-            string name = names[resource];
-            int byteCount = resource switch
-            {
-                0 => EndingObjectArtworkFormat.CloudByteCount,
-                1 => EndingObjectArtworkFormat.ExplosionByteCount,
-                _ => EndingObjectArtworkFormat.FragmentByteCount,
-            };
-            var sceneBus = NewEndingObjectSourceReadGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-            var audio = new AudioQueues();
-            var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            EndingCreditsPhase target = resource == 0
-                ? EndingCreditsPhase.WaitForEscapeMusic :
-                EndingCreditsPhase.FadeInZebesExplosion;
-            for (int frame = 0; frame < 10000 && scene.Stage.Phase != target; frame++)
-            {
-                scene.Step();
-                audio.AdvanceFrame(default);
-            }
-            AssertEqual(target, scene.Stage.Phase, $"ending {name} reaches its actual scene");
-            for (int frame = 0; frame < 1200 && scene.Stage.Brightness == 0; frame++)
-            {
-                scene.Step();
-                audio.AdvanceFrame(default);
-            }
-            LayeredScene baseline = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            RgbColor[] baselineColours = EndingShownColours.Of(scene);
-            byte[] baselineVram = scene.ShownVram();
-            EndingCreditsPhase baselinePhase = scene.Stage.Phase;
-            AssertTrue(baseline.Brightness > 0,
-                $"ending {name} reaches a visible override frame");
-
-            string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-            if (resource < 2)
-            {
-                int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
-                int rows = tiles / RoomCharacterAtlasFormat.TileColumns;
-                IndexedPngImage image;
-                using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory, name)))
-                    image = IndexedPng.Read(input,
-                        new(RoomCharacterAtlasFormat.TileColumns * 8, checked((ushort)(rows * 8))));
-                Array.Fill(image.Pixels, (byte)0);
-                using (var output = File.Create(overridePath))
-                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            }
-            else
-            {
-                // An explosion map's override places tile zero in every cell, as a zeroed transfer would.
-                File.WriteAllBytes(overridePath, SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapExtractor.Encode(new byte[byteCount]));
-            }
-            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
-            scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
-            LayeredScene changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-            RgbColor[] changedColours = EndingShownColours.Of(scene);
-            byte[] changedVram = scene.ShownVram();
-            // The edited art reaches the sheet it composes and the shown memory image, while the turning floor, a picture
-            // the import composes from the floor art, and the colours stay as they were (#1467).
-            SpriteSheetId editedSheet = resource switch
-            {
-                0 => SpriteSheetId.EndingCloudSprites,
-                1 => SpriteSheetId.EndingExplosionSprites,
-                _ => SpriteSheetId.EndingExplosionPictures,
-            };
-            AssertTrue(!EndingSheetFixtures.WithEnding(stock).Get(editedSheet).Image.Pixels.ToArray()
-                    .SequenceEqual(EndingSheetFixtures.WithEnding(edited).Get(editedSheet).Image.Pixels.ToArray()),
-                $"edited {name} recomposes its {editedSheet} sheet");
-            // The clouds are sprites drawn from their sheet and load nothing into the memory image; the loop below asserts
-            // that their edit reaches the rendered frame. The explosion's characters and maps are loaded into it.
-            if (editedSheet != SpriteSheetId.EndingCloudSprites)
-                AssertTrue(!baselineVram.SequenceEqual(changedVram), $"edited {name} changes the shown memory image");
-            AssertTrue(ShownFloors(baseline).SequenceEqual(ShownFloors(changed)), $"edited {name} leaves the turning floor's picture as it was");
-            AssertTrue(baselineColours.SequenceEqual(changedColours), $"edited {name} leaves the colours as they were");
-            AssertEqual(baselinePhase, scene.Stage.Phase, $"rebinding edited {name} leaves the ending's phase as it was");
-            bool visibleEdit = false;
-            for (int frame = 0; frame < 2400 && !visibleEdit &&
-                scene.Stage.Phase < (resource == 0
-                    ? EndingCreditsPhase.FadeInZebesExplosion :
-                    EndingCreditsPhase.PlanetEscapeFast); frame++)
-            {
-                if (frame % 6 == 0)
-                {
-                    scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-                    LayeredScene nativeArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
-                    LayeredScene editedArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                    visibleEdit = !DisplayRendering.Render(nativeArt)
-                        .SequenceEqual(
-                            DisplayRendering.Render(editedArt));
-                }
-                scene.Step();
-                audio.AdvanceFrame(default);
-            }
-            AssertTrue(visibleEdit, $"edited {name} changes visible ending pixels");
-            File.Delete(overridePath);
-            AssertEqual(0, sceneBus.ForbiddenReadAttempts,
-                $"edited/rebound {name} does not reread cartridge OBJ sources");
-        }
-
-        string invalidPath = Path.Combine(installation.EndingObjectOverrideDirectory,
-            EndingObjectArtworkFormat.CloudFileName);
-        File.WriteAllBytes(invalidPath, [0]);
-        AssertThrows<InvalidDataException>(() => installation.LoadEndingObjectArt(),
-            "malformed ending OBJ override fails loudly");
-        File.Delete(invalidPath);
-        IndexedPngImage persistentClouds;
-        using (var input = File.OpenRead(Path.Combine(installation.EndingObjectDirectory,
-                   EndingObjectArtworkFormat.CloudFileName)))
-            persistentClouds = IndexedPng.Read(input, new(256, 128));
-        persistentClouds.Pixels[0] = (byte)((persistentClouds.Pixels[0] + 1) & 15);
-        using (var output = File.Create(invalidPath))
-            IndexedPng.Write(output, new(persistentClouds.Size.X, persistentClouds.Size.Y),
-                persistentClouds.Pixels, persistentClouds.Colours);
-        byte[] editedClouds = installation.LoadEndingObjectArt().Clouds.Characters.ToArray();
-        File.WriteAllBytes(cloudSpriteOverride, editedCloudSpriteBytes);
-        GameInstallation repaired = installation;
-        AssertTrue(repaired.LoadEndingObjectArt().Clouds.Characters.Span.SequenceEqual(editedClouds) &&
-                repaired.LoadEndingObjectArt().Explosion.Characters.Span.SequenceEqual(
-                    stock.Explosion.Characters.Span),
-            "the restored stock OBJ art shows native pixels and the player's cloud override still applies");
-        var preservedCloudOam = ScreenSpritesFixtures.Blank();
-        preservedCloudOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(repaired.LoadEndingObjectArt().CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, preservedCloudOam,
-            new(120, 72), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), originIsOnScreen: true);
-        preservedCloudOam.FinalizeFrame();
-        var editedCloudOam = ScreenSpritesFixtures.Blank();
-        editedCloudOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(EndingObjectSourceArtwork.Of(editedCloudSprites).CloudSprites).Draw(EndingCloudSpriteDefinitions.Frames[(int)EndingCloudSpriteDefinitions.Role.Right].Pose, editedCloudOam,
-            new(120, 72), EndingShades.Drawn(EndingSpriteColouring.ShootingStars), originIsOnScreen: true);
-        editedCloudOam.FinalizeFrame();
-        AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),
-            "ending cloud sprite override still applies over the restored stock with edited OAM");
-        File.Delete(invalidPath);
-        File.Delete(cloudSpriteOverride);
-        Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork(repaired));
-        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, editable cloud/explosion/text/reward/logo OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and damaged-stock rejection pass.");
+        Suite(nameof(VerifyEndingExplosionSpritesRejectMissingFrame), () => VerifyEndingExplosionSpritesRejectMissingFrame(installation));
+        Suite(nameof(VerifyEndingCompletionTextSpritesRejectMissingFrame), () => VerifyEndingCompletionTextSpritesRejectMissingFrame(installation));
+        Suite(nameof(VerifyEndingRewardSpritesRejectMissingFrame), () => VerifyEndingRewardSpritesRejectMissingFrame(installation));
+        Suite(nameof(VerifyEndingLogoSpritesRejectMissingFrame), () => VerifyEndingLogoSpritesRejectMissingFrame(installation));
+        Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork(installation));
+        Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, twelve native sheets and two BG maps, codec rejections and guarded runtime pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)
         {
@@ -535,7 +328,4 @@ internal static class EndingObjectArtworkVerification
         return guard;
     }
 
-    /// <summary>The turning floors <paramref name="scene"/> shows, in layer order.</summary>
-    private static AffineFloor[] ShownFloors(LayeredScene scene) =>
-        [.. scene.Layers.ToArray().OfType<TurningFloorLayer>().Select(static layer => layer.Floor)];
 }

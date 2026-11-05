@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// Installs the typed terrain of every retail room level (#1469): each level's grid of terrain blocks, behaviours and
 /// background appearances, and the terrain past its grid, decoded once from the cartridge by
-/// <see cref="RoomLevelStreamDecoder"/>. The family is stock-only. It has no override directory, so artwork edits cannot
+/// <see cref="RoomLevelStreamDecoder"/>. The family is not artwork: editing the installed artwork cannot
 /// alter terrain, behaviours, slopes, hazards or the terrain beyond a room.
 /// </summary>
 /// <remarks>

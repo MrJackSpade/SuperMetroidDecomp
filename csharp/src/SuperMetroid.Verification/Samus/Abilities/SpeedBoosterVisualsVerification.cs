@@ -1,24 +1,16 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Verification.Rooms.Plms;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
-using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
-using SuperMetroid.Core.Progression;
 
-/// <summary>Checks the bomb-revealed Speed Booster block's installed image against the cartridge.</summary>
+/// <summary>Checks the bomb-revealed Speed Booster block's installed image.</summary>
 internal static class SpeedBoosterVisualsVerification
 {
     /// <summary>Checks native visual identity, exact pointer membership, and authored shape.</summary>
@@ -48,7 +40,7 @@ internal static class SpeedBoosterVisualsVerification
         AssertThrows<InvalidDataException>(() => RoomPlmSpeedBoosterVisualFiles.Create([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
-    /// <summary>Checks the extracted stock visual and that a tampered stock file fails validation.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifySpeedBoosterVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(

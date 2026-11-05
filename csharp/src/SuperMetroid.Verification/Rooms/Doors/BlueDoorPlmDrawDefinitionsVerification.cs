@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueDoorStockVerification;
 using SuperMetroid.Verification.Rooms.Plms;
@@ -14,7 +12,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
@@ -36,16 +33,8 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmBlueDoorVisuals stock = InstalledRoomPlmBlueDoorVisuals.Stock();
-        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
-            entry.Id == "left-frame-1");
-        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmBlueDoorVisualFiles.Create(entries);
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[ColoredDoorOrientation.Left]) + 5)));
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
-            "blue-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
+        AssertEqual(entries.Single(entry => entry.Id == "left-frame-1").Blocks[0], stock.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
         Suite(nameof(VerifyBlueCapCollision), () => VerifyBlueCapCollision(rom));
@@ -61,7 +50,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             const int width = 16;
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBlueDoorVisuals = orientation == ColoredDoorOrientation.Left ? edited : stock });
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBlueDoorVisuals = stock });
             RoomBlockBehavior behavior = new(unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)orientation)));
             AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin, behavior,
@@ -77,12 +66,6 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                     $"{orientation} native draw writes physical block {block} without ROM payload reads");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} opening avoids compiled program and draw ROM bytes");
-            if (orientation == ColoredDoorOrientation.Left)
-            {
-                AssertEqual(RoomBlockAppearance.Of(0x053),
-                    level.DisplayedAppearance(origin),
-                    "edited blue-door tile survives later camera streaming");
-            }
 
             // Continue through every opening draw, the long air-cap hold and Delete.
             for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
@@ -108,8 +91,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 $"{orientation} complete blue-door lists avoid all compiled ROM sources");
         }
 
-        editedFrame.Blocks[0] = originalVisual;
-        Suite(nameof(VerifyBlueDoorVisualInstallation), () => VerifyBlueDoorVisualInstallation(rom, leftFirstDraw));
+        Suite(nameof(VerifyBlueDoorVisualInstallation), () => VerifyBlueDoorVisualInstallation(rom));
 
         Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
@@ -122,58 +104,21 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
     private static ushort BlueEntry(BlueDoorProgram program) =>
         DoorPlmNativeListAddresses.BlueEntries.Single(entry => entry.Program == program).Entry;
 
-    /// <summary>Checks installed stock and persistent visual override loading, including invalid artwork and stock tampering.</summary>
-    private static void VerifyBlueDoorVisualInstallation(
-        SuperMetroidAddressSpace rom, ushort firstDraw)
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
+    private static void VerifyBlueDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmBlueDoorVisualDirectory);
         GameInstallation installation = copy.Installation;
         RoomPlmBlueDoorVisualFilesConstants.ValidateStock(
             installation.RoomPlmBlueDoorVisualDirectory);
-        var installed = installation.LoadRoomPlmBlueDoorVisuals();
-        VerifyBlueDoorStockMapping(rom, installed);
-        RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0);
+        VerifyBlueDoorStockMapping(rom, installation.LoadRoomPlmBlueDoorVisuals());
 
         string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
             RoomPlmBlueDoorVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted blue-door JSON is empty.");
-        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "left-frame-1");
-        frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
-        Directory.CreateDirectory(installation.RoomPlmBlueDoorVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmBlueDoorVisualOverrideDirectory,
-            RoomPlmBlueDoorVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            installation.LoadRoomPlmBlueDoorVisuals().GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
-            "installed blue-door override changes the selected frame");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            ReExtractBlueDoorStock(rom, refreshed,
-                installation.RoomPlmBlueDoorVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
-            "blue-door override survives stock replacement");
-
-        frame.Required("blocks")[0] = 0xf053;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmBlueDoorVisuals(),
-            "invalid blue-door override fails loudly");
-        frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmBlueDoorVisuals(),
             "tampered blue-door stock fails loudly where it is read");
-    }
-
-    /// <summary>Extracts stock blue-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmBlueDoorVisualFiles.Extract into a fresh stock directory beside the copy's blue-door override, to check that a stock replacement keeps the edited left-frame-1 block (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmBlueDoorVisuals ReExtractBlueDoorStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmBlueDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmBlueDoorVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Forbids production reads from compiled blue-door instructions and all selected draw-list payloads.</summary>

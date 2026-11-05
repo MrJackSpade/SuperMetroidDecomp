@@ -2,20 +2,17 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
-using SuperMetroid.Tooling;
+using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks installed Samus hurt and intro flash palettes against native CGRAM behavior.</summary>
@@ -54,12 +51,6 @@ internal static class SamusHurtColorsVerification
             "duplicate Samus hurt JSON property fails loudly");
         AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Samus hurt JSON fails loudly");
-        SamusHurtColorDocument document = RequiredJson.Deserialize<SamusHurtColorDocument>(
-            SamusHurtColorExtractor.Extract(rom), ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(document with
-        {
-            Hurt = [.. document.Hurt.Take(5), document.Hurt[5] with { Red = 32 }, .. document.Hurt.Skip(6)],
-        }))), "out-of-range Samus hurt RGB5 fails loudly");
         Console.WriteLine("  Samus hurt colors: both native palettes and guarded ordinary/cinematic cycles pass.");
     }
 
@@ -105,6 +96,19 @@ internal static class SamusHurtColorsVerification
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
+    }
+
+    /// <summary>Checks that the hurt colour codec rejects out-of-range colours.</summary>
+    internal static void VerifySamusHurtColorsRejectMalformedDocuments(string stock)
+    {
+        SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(
+            File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFile.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock Samus hurt color document is null.");
+        AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(document with
+        {
+            Hurt = [.. document.Hurt.Take(5), document.Hurt[5] with { Red = 32 }, .. document.Hurt.Skip(6)],
+        }))), "out-of-range Samus hurt RGB5 fails loudly");
     }
 
     /// <summary>Rejects reads of native hurt and intro color tables after installed artwork binding.</summary>

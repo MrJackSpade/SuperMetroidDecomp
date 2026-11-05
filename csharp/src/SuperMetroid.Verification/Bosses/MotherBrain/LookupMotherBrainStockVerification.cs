@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Checks Mother Brain fake-death PLM visuals against native draw runs and editable catalog rules.</summary>
 internal static class LookupMotherBrainStockVerification
 {
-    /// <summary>Compares twenty-two frames and 230 visual cells, then checks custom copies and invalid input.</summary>
+    /// <summary>Compares twenty-two frames and 230 visual cells, then checks invalid input.</summary>
     internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainFakeDeathVisualCatalog installed)
     {
@@ -72,20 +72,6 @@ internal static class LookupMotherBrainStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)pointer),0,0), "MotherBrainFakeDeath unknown pointer");
-        entries[21].Blocks[5] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[2].Blocks[0] = RoomBlockAppearance.Of(0x59);
-        var mixed = RoomPlmMotherBrainFakeDeathVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "MotherBrainFakeDeath mixed custom stock hash");
-        entries[21].Blocks[5] = RoomBlockAppearance.Of(0x5a);
-        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        {
-            int flat = 0;
-            for (int run = 0; run < widths[frame.Pointer].Length; run++)
-            for (int block = 0; block < widths[frame.Pointer][run]; block++)
-                AssertEqual(expected[frame.Pointer][flat++], mixed.GetAppearance(NativePlmDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),run,block), "Mother Brain cloned custom data and stock fallback");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainFakeDeathVisualFiles.Create(entries[..21]), "MotherBrainFakeDeath missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainFakeDeathVisualFiles.Create(entries.Append(entries[0])), "MotherBrainFakeDeath duplicate frame");
         var invalid = entries.ToArray();

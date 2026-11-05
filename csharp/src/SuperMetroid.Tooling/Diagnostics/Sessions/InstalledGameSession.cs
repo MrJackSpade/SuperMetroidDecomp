@@ -58,7 +58,7 @@ internal sealed class InstalledGameSession : IDisposable
         projectiles = installation.LoadProjectiles();
         var enemyArtwork = installation.LoadEnemyTiles();
         GameArtwork artwork = installation.LoadGameArtwork(maps, projectiles, enemyArtwork);
-        Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
+        Console.WriteLine($"Projectile compositions: {projectiles.ContentSha256} ({root}).");
         InstalledClipAudioLibrary assets = audioDirectory is null
             ? installation.LoadAudioClips()
             : InstalledAudioClips.Load(audioDirectory);

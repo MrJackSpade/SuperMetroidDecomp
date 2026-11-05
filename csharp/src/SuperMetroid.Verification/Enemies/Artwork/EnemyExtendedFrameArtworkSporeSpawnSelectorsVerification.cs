@@ -155,46 +155,4 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         ushort Properties, ushort ExtraProperties,
         SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);
-
-    /// <summary>Checks that replacing compatible display frames leaves all five programs' timing and gameplay state intact.</summary>
-    internal static void VerifySporeSpawnVisualRemapKeepsMechanics(
-        SuperMetroidAddressSpace rom,
-        InstalledEnemyArtwork stock,
-        InstalledEnemyArtwork remapped)
-    {
-        EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram[] programs =
-        [
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialDead, 4),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.InitialAlive, 260),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.FightStarted, 2200),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.CloseAndMove, 1600),
-            new EnemyExtendedFrameArtworkSporeSpawnSelectorsProgram(SporeSpawnBodyProgram.Death, 500),
-        ];
-        var steps = BodyStepAddresses(CartridgeImportSource.Require(rom));
-        foreach ((SporeSpawnBodyProgram program, int frames) in programs)
-        {
-            ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
-            var stockBus = NewSporeSpawnInstructionReadGuard(rom);
-            var remappedBus = NewSporeSpawnInstructionReadGuard(rom);
-            var stockTrace = new List<SporeSpawnProgramFrame>(frames);
-            var remappedTrace = new List<SporeSpawnProgramFrame>(frames);
-            RunSporeSpawnProgram(program, frames, stock,
-                afterFrame: (system, slot) =>
-                    stockTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
-            RunSporeSpawnProgram(program, frames, remapped,
-                afterFrame: (system, slot) =>
-                    remappedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
-            AssertEqual(stockTrace.Count, remappedTrace.Count,
-                $"Spore Spawn visual remap program {pointer:X4} tick count");
-            for (int frame = 0; frame < frames; frame++)
-                AssertEqual(stockTrace[frame], remappedTrace[frame],
-                    $"Spore Spawn visual remap leaves program {pointer:X4} " +
-                    $"timing, hit frame and movement unchanged at tick {frame}");
-            AssertEqual(0, stockBus.ForbiddenReadAttempts,
-                $"stock Spore Spawn program {pointer:X4} avoids ROM selectors");
-            AssertEqual(0, remappedBus.ForbiddenReadAttempts,
-                $"remapped Spore Spawn program {pointer:X4} avoids ROM selectors");
-        }
-        Console.WriteLine("  Spore Spawn animation override: a same-family visual remap changes live OAM while all five programs retain their native timing, pose, movement and hit-frame sequence.");
-    }
 }

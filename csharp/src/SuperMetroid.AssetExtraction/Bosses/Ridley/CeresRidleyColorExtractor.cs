@@ -18,7 +18,7 @@ public static class CeresRidleyColorExtractor
         Ensure.NotNull(bus);
         return CeresRidleyColorFile.Write(new CeresRidleyColorDocument
         {
-            Version = (int)CeresRidleyColorVersion.Current,
+            Version = CeresRidleyColorFormat.Version,
             Start = ReadColors(RidleySourceDefinitions.Ceres.StartColors,
                 CeresRidleyPaletteDefinitions.StartColorCount),
             EyeFade = ReadRows(EnemySourceDefinitions.CeresRidleyEyeFadeRows,

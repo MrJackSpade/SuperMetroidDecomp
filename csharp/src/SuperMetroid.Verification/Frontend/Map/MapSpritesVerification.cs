@@ -4,15 +4,12 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpriteCasesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -25,7 +22,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks imported map sprites and editable overrides in file-select and pause presentation.</summary>
+/// <summary>Checks imported map sprites in file-select and pause presentation.</summary>
 internal static class MapSpritesVerification
 {
     /// <summary>
@@ -46,12 +43,11 @@ internal static class MapSpritesVerification
     /// <summary>The shading of every colouring the map draws its sprites in.</summary>
     internal static IReadOnlyList<PictureShading> MapSpriteShadings { get; } = [.. MapSpriteSets.Keys];
 
-    /// <summary>Compares native sprite bytes and clipping, then checks composition and PNG edits through rendered maps.</summary>
-    internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    /// <summary>Compares native sprite bytes and clipping, and the installed sprites through rendered maps.</summary>
+    internal static void VerifyMapSprites(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
-        var authored = ScreenSpritesFixtures.Blank();
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, InstalledAreaMapPresentation.SpritesOf(original)));
         // Independent coordinate oracle: the native carry/sign test parks wrapped
         // Y at $180/$E0, rather than letting it reappear on the opposite screen edge.
@@ -72,76 +68,10 @@ internal static class MapSpritesVerification
         AssertTrue(vram.Bytes.Slice(MenuVramLayout.MapSpriteByteAddress, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
+        Suite(nameof(VerifyRenderedSprites), () => VerifyRenderedSprites());
+        Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity, guarded file-select lifecycle and guarded file-select/pause sprite pixels pass.");
 
-        Directory.CreateDirectory(overrides);
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        byte[] json = File.ReadAllBytes(Path.Combine(stock, MapSpriteFormat.JsonFile));
-        var document = RequiredJson.Deserialize<MapSpriteDocument>(json, options);
-        string path = Path.Combine(overrides, MapSpriteFormat.JsonFile);
-        var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames);
-        frames["Marker.Boss"] = [new SpriteVisualPart { OffsetX = 12, OffsetY = -4, TileColumn = 2, TileRow = 3,
-            Size = 16, Priority = 3, Palette = 5, FlipX = true, FlipY = true }];
-        File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity, "composition changes catalog identity");
-        Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
-        // A sheet frame is one image the import assembles (#1513): the edited part's explicit palette is baked into that image,
-        // every painted pixel of it inked from row five, and the caller's blink shading recolours the rest of the frame.
-        SpriteSheetFrame boss = MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(edited)).Frame("Marker.Boss");
-        ReadOnlySpan<SpriteImageInk> bossInks = boss.Sheet.Inks;
-        int paintedInks = 0;
-        for (int y = boss.Corner.Y; y < boss.Corner.Y + boss.Size.Y; y++)
-        for (int x = boss.Corner.X; x < boss.Corner.X + boss.Size.X; x++)
-        {
-            SpriteImageInk ink = bossInks[y * boss.Sheet.Size.X + x];
-            if (boss.Sheet.IsColourZero(ink)) continue;
-            paintedInks++;
-            AssertEqual(5, ink.PaletteIndex / 16, "the edited part's explicit palette row is baked into the composed frame image");
-        }
-        AssertTrue(paintedInks > 0, "the edited part paints the composed frame image");
-        // Every colouring the map draws in.
-        foreach (PictureShading colouring in MapSpriteShadings)
-        {
-            authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(edited)), MapSpriteId.MarkerBoss, authored, new(100, 100), colouring); authored.FinishFrame();
-            AssertEqual((byte)112, authored.LowTable[0], "authored horizontal offset reaches OAM");
-            AssertEqual((byte)96, authored.LowTable[1], "authored vertical offset reaches OAM");
-            var attributes = new SnesObjAttributeWord(LittleEndianBytes.Word(authored.LowTable[2], authored.LowTable[3]));
-            AssertEqual(50, attributes.TileNumber, "authored tile region reaches OAM");
-            AssertEqual(3, attributes.Priority, "authored priority reaches OAM");
-            AssertTrue(attributes.FlipHorizontally && attributes.FlipVertically && (authored.HighTable[0] & 2) != 0,
-                "authored flips and large size reach OAM");
-        }
-        frames["Marker.Boss"] = [];
-        File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        authored.BeginFrame(); MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(MapPresentationFiles.Load(stock, overrides))), MapSpriteId.MarkerBoss, authored, new(0, 0), MapSpriteScreen.FileSelect, MapSpriteColouring.Labels); authored.FinishFrame();
-        AssertEqual(0, authored.LastFinalizedSpriteCount, "authored empty visual frame is valid");
-        frames.Remove("Marker.Boss");
-        File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "missing semantic sprite frame rejected");
-        foreach (var invalid in new[] { document.Frames["Marker.Boss"][0] with { OffsetX = 256 },
-            document.Frames["Marker.Boss"][0] with { Size = 16, TileColumn = 15 },
-            document.Frames["Marker.Boss"][0] with { Palette = 8 } })
-        {
-            frames["Marker.Boss"] = [invalid];
-            File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
-            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "invalid sprite visual fields rejected");
-        }
-        File.WriteAllBytes(path, json);
-        string pngPath = Path.Combine(overrides, MapSpriteFormat.PngFile);
-        IndexedPngImage image;
-        using (var input = File.OpenRead(Path.Combine(stock, MapSpriteFormat.PngFile)))
-            image = IndexedPng.Read(input, new(MapSpriteFormat.Width, MapSpriteFormat.Height));
-        for (int pixel = 0; pixel < image.Pixels.Length; pixel++) image.Pixels[pixel] = (byte)((image.Pixels[pixel] + 1) % 16);
-        using (var output = File.Create(pngPath)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var pngEdit = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(pngEdit.ContentIdentity != original.ContentIdentity, "PNG alone changes selected content identity");
-        Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(pngEdit));
-        File.WriteAllText(pngPath, "invalid PNG");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt sprite PNG override rejected");
-        File.WriteAllBytes(pngPath, File.ReadAllBytes(Path.Combine(stock, MapSpriteFormat.PngFile)));
-        Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity, guarded file-select lifecycle and authored visual fields verified.");
-
-        void VerifyRenderedEdit(AreaMapPresentation replacement)
+        void VerifyRenderedSprites()
         {
             var guard = NewMapSpriteGuard(bus);
             var system = new SharedGameState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
@@ -153,20 +83,14 @@ internal static class MapSpritesVerification
                 AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var before = nativeRoom.Render(new(0, 0), marker);
             AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
-            room.BindFixtureArtwork(replacement);
-            AssertTrue(!before.SequenceEqual(room.Render(new(0, 0), marker)), "independent sprite resource edit changes file-select pixels");
             using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindFixtureArtwork(original);
-            AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources bind current content");
+            AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources keep the installed pixels");
             var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
-            pause.BindFixtureArtwork(replacement);
-            AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "independent sprite resource edit changes pause pixels");
-            pause.BindFixtureArtwork(original);
-            AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause sprite rebind restores stock pixels");
         }
     }
 

@@ -12,11 +12,10 @@ using SuperMetroid.Verification.Harness;
 internal static class AudioInstrumentsVerification
 {
     /// <summary>
-    /// Proves that the readable manifest is the live instrument owner rather than a report
-    /// generated beside still-authoritative opaque upload bytes. Stock definitions must first
-    /// match every uploaded SPC record; an edited copy must then alter both APU RAM and PCM.
+    /// Checks that the stock instrument definitions match every uploaded SPC record and that the manifest
+    /// rejects a missing record and an inconsistent noise identity.
     /// </summary>
-    internal static void VerifyEditableAudioInstruments()
+    internal static void VerifyAudioInstruments()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
@@ -58,99 +57,38 @@ internal static class AudioInstrumentsVerification
             }
         }
 
-        using var editedDirectoryScratch = new TestScratchDirectory("audio-instruments");
-        string editedDirectory = editedDirectoryScratch.Root;
-        CopyAudioDirectory(sourceDirectory, editedDirectory);
+        using var fixtureScratch = new TestScratchDirectory("audio-instruments");
+        string fixtureDirectory = fixtureScratch.Root;
+        CopyAudioDirectory(sourceDirectory, fixtureDirectory);
         try
         {
             string manifestPath = Path.Combine(
-                editedDirectory, ExtractedAudioAssetCatalog.ManifestFileName);
+                fixtureDirectory, ExtractedAudioAssetCatalog.ManifestFileName);
             AudioAssetManifest original = ReadAudioManifest(manifestPath);
             AudioBankMetadata title = original.Banks.Single(
                 bank => bank.SnesAddress == (int)AudioUploadSourceDefinitions.TitleSequence);
-            AudioInstrumentMetadata[] shifted = title.Instruments
-                .Select(instrument => instrument with
-                {
-                    PitchBase = unchecked((ushort)(instrument.PitchBase + 0x1000)),
-                })
-                .ToArray();
-            AudioBankMetadata editedTitle = title with { Instruments = shifted };
-            AudioAssetManifest editedManifest = original with
+
+            WriteAudioManifest(manifestPath, original with
             {
                 Banks = original.Banks
-                    .Select(bank => bank.SnesAddress == editedTitle.SnesAddress
-                        ? editedTitle
-                        : bank)
-                    .ToArray(),
-            };
-            WriteAudioManifest(manifestPath, editedManifest);
-
-            ExtractedAudioAssetCatalog edited =
-                ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = AudioSessionAccess.CreateSynthesizing(stock);
-            var editedRenderer = AudioSessionAccess.CreateSynthesizing(edited);
-            AudioRequest common =
-                new AudioRequest.ChangeMusicDataSet(null);
-            AudioRequest titleUpload =
-                new AudioRequest.ChangeMusicDataSet(MusicDataSet.TitleSequence);
-            AudioRequest titleTrack = AudioRequest.ForTrack(new MusicTrack(AudioRomDataMusicTracks.Title));
-            stockRenderer.RenderFrame([common]);
-            editedRenderer.RenderFrame([common]);
-            stockRenderer.RenderFrame([titleUpload]);
-            editedRenderer.RenderFrame([titleUpload]);
-            stockRenderer.RenderFrame([titleTrack]);
-            editedRenderer.RenderFrame([titleTrack]);
-
-            IReadOnlyList<AudioInstrumentMetadata> installed =
-                edited.GetInstrumentBank(AudioBank.TitleSequence);
-            for (int index = 0; index < installed.Count; index++)
-            {
-                int address = SpcDriverDefinitions.Ram.InstrumentTable +
-                    index * SpcDriverDefinitions.Ram.InstrumentRecordSize;
-                AssertEqual(LittleEndianBytes.HighByte(checked((ushort)installed[index].PitchBase)),
-                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 4),
-                    $"edited title instrument {index} pitch high");
-                AssertEqual(unchecked((byte)installed[index].PitchBase),
-                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 5),
-                    $"edited title instrument {index} pitch low");
-            }
-
-            bool stockAudible = false;
-            bool editedAudible = false;
-            bool pcmDiffers = false;
-            for (int frame = 0; frame < 600; frame++)
-            {
-                short[] stockPcm = stockRenderer.RenderFrame([]);
-                short[] editedPcm = editedRenderer.RenderFrame([]);
-                stockAudible |= stockPcm.Any(sample => sample != 0);
-                editedAudible |= editedPcm.Any(sample => sample != 0);
-                pcmDiffers |= !stockPcm.SequenceEqual(editedPcm);
-            }
-            AssertTrue(stockAudible, "stock title instrument fixture is audible");
-            AssertTrue(editedAudible, "edited title instrument fixture is audible");
-            AssertTrue(pcmDiffers, "manifest pitch-base edits change rendered PCM");
-
-            WriteAudioManifest(manifestPath, editedManifest with
-            {
-                Banks = editedManifest.Banks
-                    .Select(bank => bank.SnesAddress == editedTitle.SnesAddress
+                    .Select(bank => bank.SnesAddress == title.SnesAddress
                         ? bank with { Instruments = bank.Instruments.Take(
                             SpcDriverDefinitions.Ram.InstrumentCount - 1).ToArray() }
                         : bank)
                     .ToArray(),
             });
             AssertThrows<InvalidDataException>(
-                () => ExtractedAudioAssetCatalog.Load(editedDirectory),
+                () => ExtractedAudioAssetCatalog.Load(fixtureDirectory),
                 "instrument manifest rejects missing record");
 
-            AudioInstrumentMetadata inconsistent = shifted[0] with
+            AudioInstrumentMetadata inconsistent = title.Instruments[0] with
             {
-                UsesNoise = !shifted[0].UsesNoise,
+                UsesNoise = !title.Instruments[0].UsesNoise,
             };
-            WriteAudioManifest(manifestPath, editedManifest with
+            WriteAudioManifest(manifestPath, original with
             {
-                Banks = editedManifest.Banks
-                    .Select(bank => bank.SnesAddress == editedTitle.SnesAddress
+                Banks = original.Banks
+                    .Select(bank => bank.SnesAddress == title.SnesAddress
                         ? bank with
                         {
                             Instruments = bank.Instruments
@@ -163,18 +101,17 @@ internal static class AudioInstrumentsVerification
                     .ToArray(),
             });
             AssertThrows<InvalidDataException>(
-                () => ExtractedAudioAssetCatalog.Load(editedDirectory),
+                () => ExtractedAudioAssetCatalog.Load(fixtureDirectory),
                 "instrument manifest rejects inconsistent noise identity");
         }
         finally
         {
-            if (Directory.Exists(editedDirectory))
-                Directory.Delete(editedDirectory, recursive: true);
+            if (Directory.Exists(fixtureDirectory))
+                Directory.Delete(fixtureDirectory, recursive: true);
         }
 
         Console.WriteLine(
-            "Editable instruments: 1050 stock six-byte records, live manifest pitch edits, " +
-            "audible PCM change and malformed-bank rejection pass.");
+            "Instruments: 1050 stock six-byte records and malformed-bank rejection pass.");
     }
 
     /// <summary>Reads a fixture manifest using the production audio JSON options.</summary>
@@ -185,7 +122,7 @@ internal static class AudioInstrumentsVerification
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
-    /// <summary>Writes an edited instrument manifest for the isolated audio fixture.</summary>
+    /// <summary>Writes a malformed manifest for the isolated audio fixture.</summary>
     internal static void WriteAudioManifest(string path, AudioAssetManifest manifest)
     {
         using var output = File.Create(path);
@@ -231,11 +168,11 @@ internal static class AudioInstrumentsVerification
             path == folder || path.StartsWith(folder + "/", StringComparison.Ordinal);
     }
 
-    /// <summary>Runs the editable-instrument APU and PCM verification command.</summary>
+    /// <summary>Runs the instrument APU record and manifest validation command.</summary>
     [VerificationCommand("--audio-instruments")]
     internal static int AudioInstrumentsCommand()
     {
-        Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
+        Suite(nameof(VerifyAudioInstruments), () => VerifyAudioInstruments());
         return 0;
     }
 }

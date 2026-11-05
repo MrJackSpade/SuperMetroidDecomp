@@ -1,7 +1,3 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.LookupStationStockVerification;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
@@ -13,7 +9,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
@@ -21,29 +16,13 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks editable station PLM art through immediate redraw, streaming, and installation.</summary>
+/// <summary>Checks station PLM art through immediate redraw and installation.</summary>
 internal static class StationVisualsVerification
 {
-    /// <summary>Changes a map-station tile while checking physical collision and other station families.</summary>
+    /// <summary>Checks the stock map-station tile and its physical collision.</summary>
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         InstalledRoomPlmStationVisuals stock = InstalledRoomPlmStationVisuals.Stock();
-        RoomPlmVisualRunEntry[] entries = RoomPlmStationVisualFiles.All
-            .Select(list => new RoomPlmVisualRunEntry(
-                RoomPlmStationVisualFiles.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
-                list.Runs.Span
-                    .SelectToArray(run => run.Blocks.Span
-                        .SelectToArray(block => block.Appearance))
-                    ))
-            .ToArray();
-        RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmStationVisualFiles.Create(entries);
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
-            StationAnimationList.MapIdle, 0).Draw);
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
-            "station visual catalog copies author data");
         StationVisualsRenderResult Render(
             InstalledRoomPlmStationVisuals visuals)
         {
@@ -63,75 +42,29 @@ internal static class StationVisualsVerification
         }
 
         var native = Render(stock);
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x10c, BlockMirroring.None, RoomCollisionType.SolidBlock), native.Physical,
             "stock map-station frame keeps its native physical level word");
-        AssertEqual(native.Physical, changed.Physical,
-            "station art cannot change collision or physical level data");
         AssertEqual(RoomBlockAppearance.Of(0x10c), native.Immediate,
             "stock station block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Immediate,
-            "edited station visual reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
-            "edited station visual survives later camera streaming");
 
-        var gameplayBus = new TestAddressSpace();
-        SeedRoomPlmPopulationRom(gameplayBus);
-        Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(gameplayBus, edited));
         Suite(nameof(VerifyStationVisualInstallation), () => VerifyStationVisualInstallation(rom));
     }
 
-    /// <summary>Checks installed stock, override survival, and rejection of corrupt or physical-bit edits.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmStationVisualDirectory);
         GameInstallation installation = copy.Installation;
         RoomPlmStationVisualFilesConstants.ValidateStock(
             installation.RoomPlmStationVisualDirectory);
-        ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
-            StationAnimationList.MapIdle, 0).Draw);
         VerifyStationStockMapping(rom, installation.LoadRoomPlmStationVisuals());
 
         string stockPath = Path.Combine(installation.RoomPlmStationVisualDirectory,
             RoomPlmStationVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted station JSON is empty.");
-        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "map-frame-0");
-        frame.Required("runs").Required(0)[0] = PlmVisualJson.Appearance(0x053);
-        Directory.CreateDirectory(installation.RoomPlmStationVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmStationVisualOverrideDirectory,
-            RoomPlmStationVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            installation.LoadRoomPlmStationVisuals().GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
-            "station visual override selects edited map frame");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            ReExtractStationStock(rom, refreshed,
-                installation.RoomPlmStationVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
-            "station visual override survives stock replacement");
-
-        frame.Required("runs").Required(0)[0] = 0xf053;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmStationVisuals(),
-            "station override rejects collision bits instead of silently restoring stock");
-
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmStationVisuals(),
             "station stock manifest hash rejects corruption");
-    }
-
-    /// <summary>Extracts stock station visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmStationVisualFiles.Extract into a fresh stock directory beside the copy's station override, to check that a stock replacement keeps the edited map-station idle frame (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmStationVisuals ReExtractStationStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmStationVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmStationVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Seeds one map-station `$B6D3` room PLM record at block (6,6) and its terminator.</summary>

@@ -5,9 +5,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -61,24 +59,7 @@ internal static class RidleyBreakupProgramsVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
-        var previous = EnemySpritemapDefinitions.Frames.Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
-        // Schema 68 named frames as they were named before frames were named for their meaning (#1465).
-        var legacy = document with
-        {
-            Version = EnemySpritemapSchema.PreRidleyBreakup.Revision,
-            Frames = previous.ToDictionary(frame => frame.LegacyName, frame => document.Frames[frame.Name]),
-            DisplayFrames = previous.ToDictionary(frame => frame.LegacyName, frame => frame.LegacyName),
-        };
-        string edited = previous[0].LegacyName;
-        legacy.Frames[edited] = [legacy.Frames[edited][0] with { OffsetX = -11 }];
-        byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);
-        var merged = EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes), stock);
-        AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var parts), "schema-68 override retains existing frame");
-        AssertEqual(-11, parts[0].Offset.X, "schema-68 edit survives stock refresh");
-        AssertThrows<InvalidDataException>(() => EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged });
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = stock });
         // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
         foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
         {

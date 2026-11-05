@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Installs stock room-character PNGs separately from persistent user overrides.
+/// Installs the room-character PNGs: the import pipeline's input to the room block sheets, which a player edits instead.
 /// The manifest records native transfer lengths; it does not expose room mechanics.
 /// </summary>
 public static class RoomCharacterArtworkFiles
@@ -22,7 +22,7 @@ public static class RoomCharacterArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost span.</param>
     /// <param name="directory">Output directory, created if needed; every PNG and manifest filename must be new.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with each PNG's hash and native byte count.</param>
-    /// <remarks>Deduplicates shared sources. PNG palettes are diagnostic, not runtime colors; player overrides are not accessed.</remarks>
+    /// <remarks>Deduplicates shared sources. PNG palettes are diagnostic, not runtime colors.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -57,11 +57,11 @@ public static class RoomCharacterArtworkFiles
         JsonSerializer.Serialize(stream, manifest, JsonOptions);
     }
 
-    /// <summary>Checks every stock file's hash and decodes every selected PNG without any ROM access.</summary>
-    public static RoomCharacterAtlases Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks every installed file's hash and decodes every PNG without any ROM access.</summary>
+    public static RoomCharacterAtlases Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         RoomCharacterFileManifest manifest;
         try
         {
@@ -88,25 +88,20 @@ public static class RoomCharacterArtworkFiles
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string stockHash = Convert.ToHexString(SHA256.HashData(stock));
-            if (!string.Equals(stockHash, entry.Sha256, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock room character PNG {stockPath} failed its manifest hash.");
-
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
-            byte[] selected = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
+            string path = Path.Combine(directory, name);
+            byte[] png = File.ReadAllBytes(path);
+            string hash = Convert.ToHexString(SHA256.HashData(png));
+            if (!string.Equals(hash, entry.Sha256, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Room character PNG {path} failed its manifest hash.");
             RoomCharacterAtlas atlas;
             try
             {
-                atlas = RoomCharacterAtlasPng.Read(new MemoryStream(selected, writable: false),
+                atlas = RoomCharacterAtlasPng.Read(new MemoryStream(png, writable: false),
                     entry.NativeByteCount);
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid room character PNG {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid room character PNG {path}: {error.Message}", error);
             }
             if (source.Set is { } set) sheets.Add(set, atlas);
             else cre = atlas;

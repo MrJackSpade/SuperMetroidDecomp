@@ -4,14 +4,12 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
+using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -22,9 +20,7 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>
@@ -166,7 +162,6 @@ internal static class SamusHyperBeamColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(invalid, 0), "Hyper Beam frame bounds");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(0, invalid), "Hyper Beam color bounds");
-        byte[] originalJson = SamusHyperBeamColorExtractor.Extract(rom);
         for (int rgb = 0; rgb < 32768; rgb++)
         {
             int green = rgb / 32 % 32, blue = rgb / 1024;
@@ -312,14 +307,22 @@ internal static class SamusHyperBeamColorsVerification
             "duplicate Hyper Beam JSON property fails loudly");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(
             new MemoryStream([1, 2, 3])), "corrupt Hyper Beam JSON fails loudly");
-        SamusHyperBeamColorDocument document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
+        Console.WriteLine("  Hyper Beam: both native palette views and guarded runtime cycles pass.");
+    }
+
+    /// <summary>Checks that the Hyper Beam colour codec rejects out-of-range colours.</summary>
+    internal static void VerifySamusHyperBeamColorsRejectMalformedDocuments(string stock)
+    {
+        SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(
+            File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock Hyper Beam color document is null.");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document with
         {
             Frames = [.. document.Frames.Take(4),
                 [.. document.Frames[4].Take(7), document.Frames[4][7] with { Red = 32 },
                  .. document.Frames[4].Skip(8)], .. document.Frames.Skip(5)],
         }))), "out-of-range Hyper Beam RGB5 fails loudly");
-        Console.WriteLine("  Hyper Beam: both native palette views and guarded runtime cycles pass.");
     }
 
     /// <summary>Blocks native Hyper Beam pointer and palette tables while installed colors update Samus.</summary>

@@ -23,9 +23,6 @@ public static class RoomLevelWordCodec
     /// <summary>The bit mirroring the block top to bottom.</summary>
     internal const int VerticalBit = 1 << 11;
 
-    /// <summary>The bits of an appearance: the block and its mirroring.</summary>
-    private const int AppearanceMask = BlockMask | HorizontalBit | VerticalBit;
-
     /// <summary>Distance from the low bit to the collision nibble.</summary>
     internal const int CollisionShift = 12;
 
@@ -50,8 +47,4 @@ public static class RoomLevelWordCodec
         new(word & BlockMask,
             ((word & HorizontalBit) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
             ((word & VerticalBit) != 0 ? BlockMirroring.Vertical : BlockMirroring.None));
-
-    /// <summary>Whether a word holds only an appearance: no collision bits.</summary>
-    /// <param name="word">The word, 0 through 65535 when valid.</param>
-    public static bool IsAppearanceWord(int word) => (word & ~AppearanceMask) == 0;
 }

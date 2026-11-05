@@ -5,6 +5,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmSporeSpawnCeilingVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Spore Spawn ceiling visuals.</summary>
-    /// <param name="directory">Stock Spore Spawn ceiling directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmSporeSpawnCeilingVisualFiles.Load(directory, null);
+    /// <param name="directory">Stock Spore Spawn ceiling directory.</param>
+    public static void ValidateStock(string directory) => _ = RoomPlmSporeSpawnCeilingVisualFiles.Load(directory);
 }

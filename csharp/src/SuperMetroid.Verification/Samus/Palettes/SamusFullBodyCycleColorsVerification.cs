@@ -280,17 +280,26 @@ internal static class SamusFullBodyCycleColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.StoredShineColor(RgbColor.FromWord(checked(value)), 0), "Stored-shine RGB5 bounds");
         }
     }
-
-    /// <summary>Drives the four cycle families' production owners for each suit and rejects invalid RGB5.</summary>
-    internal static void VerifySamusFullBodyCycleOwners(ISnesAddressSpace rom)
+    /// <summary>Drives the four installed cycle families' production owners for each suit and checks CGRAM without source rereads.</summary>
+    internal static void VerifySamusFullBodyCycleColors(
+        string stockDirectory,
+        AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom);
         Suite(nameof(VerifyFullBodyPaletteColorData), () => VerifyFullBodyPaletteColorData(rom, extracted));
 
+        SamusFullBodyCycleColorDocument document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(
+            File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock full-body cycle color JSON is null.");
+        var installedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledAreaMapPresentation.SamusColoursOf(original).FullBodyCycles };
+        var guard = NewFullBodyColorReadGuard(rom);
         SamusEquipmentFlags[] equipment = [0, SamusEquipmentFlags.VariaSuit,
             SamusEquipmentFlags.GravitySuit];
         foreach (SamusEquipmentFlags items in equipment)
         {
+            int suit = items.HasAny(SamusEquipmentFlags.GravitySuit) ? 2 :
+                items.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 0;
             for (int phase = 0; phase < 4; phase++)
             {
                 var speed = new SamusHorizontalSpeedState
@@ -302,6 +311,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 var cgram = new SamusColours();
                 AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }),
                     "Speed Booster reaches installed color source");
+                AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
 
             for (int phase = 0; phase < 6; phase++)
@@ -310,6 +320,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 var cgram = new SamusColours();
                 AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack) }),
                     "Screw Attack reaches installed color source");
+                AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
+                    Math.Min(phase, 6 - phase));
             }
 
             var stored = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = items };
@@ -319,6 +331,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 var cgram = new SamusColours();
                 AssertTrue(stored.Shinespark.UpdatePalette(cgram, items),
                     "stored shine reaches installed color source");
+                AssertColors(cgram, SamusFullBodyCycleFamily.StoredShine, suit,
+                    Math.Min(phase, 6 - phase));
             }
 
             var active = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = items };
@@ -329,6 +343,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 var cgram = new SamusColours();
                 AssertTrue(active.Shinespark.UpdatePalette(cgram, items),
                     "active shinespark reaches installed color source");
+                AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);
             }
 
             var attached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -339,8 +354,14 @@ internal static class SamusFullBodyCycleColorsVerification
             var attachmentColors = new SamusColours();
             AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),
                 "Metroid attachment reaches installed Speed Booster color source");
+            AssertColors(attachmentColors, SamusFullBodyCycleFamily.SpeedBooster, suit, 3);
         }
-        SamusFullBodyCycleColorDocument document = RequiredJson.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "installed full-body cycles do not reread any of the 768 source color words");
+
+        // Samus binds no colour table (#1512): the installed cycles reach her only through the import's shades, which the
+        // checks above resolve.
+
         PaletteRgb5 originalColor = document.SpeedBooster[0][0][1];
         document.SpeedBooster[0][0][1] = originalColor with { Blue = 32 };
         byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
@@ -348,6 +369,35 @@ internal static class SamusFullBodyCycleColorsVerification
             new MemoryStream(malformed, writable: false)),
             "full-body cycle colors reject out-of-range RGB5 values");
 
-        Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash and strict values pass.");
+        Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard and strict values pass.");
+
+        void AssertColors(SamusColours cgram, SamusFullBodyCycleFamily family, int suit, int shade)
+        {
+            ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
+            for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).FullBodyCycles.Resolve(pointer, color),
+                    cgram.ShownSuit(installedSources)[color],
+                    $"{family} suit {suit}, shade {shade}, color {color} reaches live CGRAM");
+        }
+    }
+
+    /// <summary>Forbids production access to every installed full-body palette row across families, suits, and shades.</summary>
+    private static MutableCartridgeReadGuard NewFullBodyColorReadGuard(ISnesAddressSpace source)
+    {
+        var forbidden = new HashSet<int>();
+        foreach (SamusFullBodyCycleFamily family in Enum.GetValues<SamusFullBodyCycleFamily>())
+        for (int suit = 0; suit < SamusFullBodyCycleColorFormat.SuitCount; suit++)
+        for (int shade = 0; shade < SamusFullBodyCycleColorFormat.ShadesPerSuit; shade++)
+        {
+            int address = SamusSourceDefinitions.PaletteBank.Value |
+                SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
+            for (int offset = 0;
+                 offset < SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort);
+                 offset++)
+                forbidden.Add(address + offset);
+        }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(forbidden.Contains, address => $"Production reread full-body color ${address:X6}.");
+        return guard;
     }
 }

@@ -1,7 +1,5 @@
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoStockVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Chozo;
@@ -10,66 +8,43 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
-/// <summary>Checks extracted Chozo statue draw data, editable visual overrides, and compiled PLM execution.</summary>
+/// <summary>Checks extracted Chozo statue draw data and compiled PLM execution with the installed art.</summary>
 internal static class ChozoStatueVisualsVerification
 {
-    /// <summary>Verifies stock words against the cartridge, then exercises edited slope art through the room tilemap.</summary>
+    /// <summary>
+    /// Verifies the installed stock words against the cartridge, runs the compiled Chozo PLMs with the installed art and
+    /// checks that a malformed installed visual file fails loudly where it is read.
+    /// </summary>
     internal static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        // A private installation copy, whose override is written and whose stock file is tampered below.
+        // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmChozoStatueVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
             RoomPlmChozoStatueVisualFilesConstants.ValidateStock(
                 installation.RoomPlmChozoStatueVisualDirectory);
-            VerifyChozoStatueStockMapping(rom, installation.LoadRoomPlmChozoStatueVisuals());
+            RoomPlmChozoStatueVisualCatalog installed = installation.LoadRoomPlmChozoStatueVisuals();
+            VerifyChozoStatueStockMapping(rom, installed);
 
-            string stockPath = Path.Combine(
-                installation.RoomPlmChozoStatueVisualDirectory,
-                RoomPlmChozoStatueVisualFiles.VisualFileName);
-            JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-                ?? throw new InvalidDataException("Extracted Chozo JSON is empty.");
-            JsonNode clearSlope = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() ==
-                "wrecked-ship-clear-slope-access");
-            clearSlope.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x53);
-            JsonNode blockSlope = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-                entry.Required("id").GetValue<string>() ==
-                "wrecked-ship-block-slope-access");
-            blockSlope.Required("blocks")[0] = InstalledAppearanceJson.Cell(0x54);
-            Directory.CreateDirectory(
-                installation.RoomPlmChozoStatueVisualOverrideDirectory);
-            string overridePath = Path.Combine(
-                installation.RoomPlmChozoStatueVisualOverrideDirectory,
-                RoomPlmChozoStatueVisualFiles.VisualFileName);
-            File.WriteAllText(overridePath, document.ToJsonString());
-            var selected = installation.LoadRoomPlmChozoStatueVisuals();
-            AssertEqual(RoomBlockAppearance.Of(0x53), selected.GetAppearance(
-                PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
-                "Chozo art override selects its edited first block");
-
-            // Run both real Chozo PLM instruction lists. The bus refuses reads
-            // of compiled draw bytes, so the production dispatcher must reach
-            // each extracted override without falling back to ROM data.
+            // Run both real Chozo PLM instruction lists. The bus refuses reads of compiled draw bytes, so the
+            // production dispatcher must reach the installed art without falling back to ROM data.
             const int width = 32;
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
-            foreach ((PlmHeaderId header, RoomTerrainBlock physical, RoomBlockAppearance visual) in new[]
+            foreach ((PlmHeaderId header, RoomTerrainBlock physical) in new[]
             {
-                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x53)),
-                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.SpikeBlock), RoomBlockAppearance.Of(0x54)),
+                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.Air)),
+                new VerifyChozoStatueVisualInstallationCase(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, RoomTerrainBlock.Of(0x12b, BlockMirroring.None, RoomCollisionType.SpikeBlock)),
             })
             {
                 var level = CreateEmptyRoom(new(width, 16));
-                var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmChozoStatueVisuals = selected });
+                var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmChozoStatueVisuals = installed });
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                     $"Chozo actor {header} spawns in a bounded test room");
@@ -77,10 +52,7 @@ internal static class ChozoStatueVisualsVerification
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
                     level.GetCollisionBlockByIndex(origin).Terrain,
-                    $"edited Chozo art retains native physical block for {header}");
-                AssertEqual(visual,
-                    level.DisplayedAppearance(origin),
-                    $"edited Chozo art reaches streamed tilemap for {header}");
+                    $"Chozo art retains native physical block for {header}");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo slope PLMs did not reread compiled program or draw bytes");
@@ -115,13 +87,9 @@ internal static class ChozoStatueVisualsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "shared delete list did not reread its bank-$84 bytes");
 
-            string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-            AssertEqual(RoomBlockAppearance.Of(0x53),
-                ReExtractChozoStatueStock(rom, refreshed,
-                    installation.RoomPlmChozoStatueVisualOverrideDirectory)
-                    .GetAppearance(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
-                "Chozo override survives stock replacement");
-
+            string stockPath = Path.Combine(
+                installation.RoomPlmChozoStatueVisualDirectory,
+                RoomPlmChozoStatueVisualFiles.VisualFileName);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => RoomPlmChozoStatueVisualFilesConstants.ValidateStock(
@@ -153,11 +121,4 @@ internal static class ChozoStatueVisualsVerification
                     }),
                 address => $"Chozo PLM reread compiled program or draw byte ${address:X6}.");
 
-    /// <summary>Extracts stock Chozo statue visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmChozoStatueVisualFiles.Extract into a fresh stock directory beside the copy's Chozo statue override, to check that a stock replacement keeps the edited slope-access clear block (appearance 53) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static RoomPlmChozoStatueVisualCatalog ReExtractChozoStatueStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmChozoStatueVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmChozoStatueVisualFiles.Load(refreshed, overrides);
-    }
 }

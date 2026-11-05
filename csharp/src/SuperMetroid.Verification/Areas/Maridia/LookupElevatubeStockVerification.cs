@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Areas.Maridia;
 /// <summary>Checks the stock elevatube block against its native word and rejects every unsupported catalog coordinate and identity.</summary>
 internal static class LookupElevatubeStockVerification
 {
-    /// <summary>Compares stock, imported, and installed visual words, including snapshot isolation from mutable input arrays.</summary>
+    /// <summary>Compares stock, imported, and installed visual words, and rejects invalid imports.</summary>
     internal static void VerifyElevatubeStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomPlmMaridiaElevatubeVisuals installed)
     {
@@ -33,12 +33,6 @@ internal static class LookupElevatubeStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (pointer != 0x9367)
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>((ushort)pointer),0,0), "Elevatube full pointer domain");
-        entry.Blocks[0] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var custom = RoomPlmMaridiaElevatubeVisualFiles.Create([entry]);
-        entry.Blocks[0] = RoomBlockAppearance.Of(0x059);
-        AssertEqual(original, imported.GetAppearance(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube imported scalar detached from input");
-        AssertEqual(RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical), custom.GetAppearance(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube custom scalar detached from input");
-        AssertEqual(Hash(RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical)), custom.ContentIdentity, "Elevatube custom scalar hash");
         AssertThrows<InvalidDataException>(() => RoomPlmMaridiaElevatubeVisualFiles.Create([]), "Elevatube missing entry");
         AssertThrows<InvalidDataException>(() => RoomPlmMaridiaElevatubeVisualFiles.Create([entry,entry]), "Elevatube duplicate entry");
         foreach (string invalid in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed record of the appearance inputs each block of a tileset's rooms depends on (#1466), one file per tileset
 /// beside the block sheets: for every block, by its index in what a room of the tileset loads, the inputs its picture
 /// changes with over the tileset's artwork and, where a room of the tileset shows them, over the sprites' artwork. It holds
-/// no characters, tile positions or colours; those are drawn into the block sheet, which a player override replaces.
+/// no characters, tile positions or colours; those are drawn into the block sheet, which a player edits in place.
 /// </summary>
 public static class RoomBlockAppearanceFiles
 {

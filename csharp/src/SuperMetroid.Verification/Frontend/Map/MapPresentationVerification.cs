@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -9,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyColorsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyMode7ColorsVerification;
-using static SuperMetroid.Verification.Frontend.Ending.Artwork.CreditsPresentationVerification;
 using static SuperMetroid.Verification.Samus.Abilities.CrystalFlashColorsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
@@ -50,7 +47,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseTileAtlasVerification
 using static SuperMetroid.Verification.Frontend.Pause.PauseWireframesVerification;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
 using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using static SuperMetroid.Verification.Fx.RoomFxLayer3TilemapsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxPaletteBlendsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusChargeColorsVerification;
@@ -62,21 +58,17 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerificati
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
-using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
-using SuperMetroid.Verification.Frontend.Title;
 using static SuperMetroid.Verification.Frontend.Map.WorldMapLabelsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -99,28 +91,19 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Frontend.Title;
-using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Fx.PaletteFx;
-using SuperMetroid.AssetExtraction.Map.Artwork;
-using SuperMetroid.AssetExtraction.Progression;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
-/// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
+/// <summary>Checks the installed map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
 {
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Checks edited map cells in pause projection and HUD, retail roundtrips, and rejection of gameplay rules in artwork JSON.</summary>
+    /// <summary>Checks retail roundtrips and rejection of malformed map JSON and gameplay rules in artwork JSON.</summary>
     internal static void VerifyMapPresentation()
     {
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
@@ -134,40 +117,7 @@ internal static class MapPresentationVerification
             CamelCaseJson);
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
-        var map = Load(Json(document));
-        AssertEqual(new MapCell(new MapCellShape(0x51), 3, 2, TileFlip.Horizontal, InFront: true), map.Cell(new(5, 6)),
-            "map JSON compiles only presentation attributes: shape, colour variants, mirroring and tier");
-        AssertTrue(map.RevealsCellAbove(new(5, 6)), "replaced slope art retains its compiled reveal rule");
-        AssertTrue(!map.IsDiscoverable(new(4, 6)), "new artwork cannot create exploration cells");
 
-        var system = new SharedGameState();
-        byte[] projected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(map, system, MapTileWords.PauseBlank.ToCell(), MapRevealMode.Secret)));
-        ushort Word(int x, int y) => System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
-            projected.AsSpan(AreaMapPages.GetTilemapWordIndex(new(checked((ushort)x), checked((ushort)y))) * 2));
-        AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).Raw, Word(5, 6), "shared pause/file-select projection uses editable art");
-        AssertEqual(MapTileWords.PauseBlank.Raw, Word(4, 6), "secret reveal uses rules, not painted cells");
-        AssertTrue(!system.IsMapTileExplored(AreaId.Crateria, new(5, 6)), "projection never mutates exploration");
-
-        if (File.Exists("Super Metroid.smc"))
-        {
-            // HUD initialization now requires installed presentation. The import-only
-            // cartridge reader supplies its stock fixture; minimap updates below use
-            // the ROM-free bus and still exercise the production HUD owner.
-            var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            var hudArt = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(new MemoryStream(
-                SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
-            var hud = new HudState();
-            hud.BindPresentation(hudArt);
-            hud.Initialize(HudSnapshot.CeresDebug);
-            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
-            AssertEqual(MapTileWord.Of(map.Cell(new(5, 6))).ForHud(true).Raw, hud.TileWords[60], "live minimap consumes edited cells without cartridge reads");
-            AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
-
-            var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
-            var reloaded = Load(Json(edited));
-            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
-            AssertEqual(MapTileWord.Of(reloaded.Cell(new(5, 6))).ForHud(true).Raw, hud.TileWords[60], "reloaded edit changes live minimap without ROM patch");
-        }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Area = "Norfair" })), "reject wrong area");
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Cells = [cell] })), "reject incomplete layout");
@@ -195,26 +145,26 @@ internal static class MapPresentationVerification
             Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
         }
         else Console.WriteLine("Map presentation: retail round-trip skipped; source ROM unavailable.");
-        Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
+        Console.WriteLine("Map presentation: strict validation passes.");
     }
 
-    /// <summary>Tiny fixed Crateria rule set used to prove edited map tiles cannot change discovery or station reveal behavior.</summary>
+    /// <summary>Tiny fixed Crateria rule set the synthetic map documents of the validation checks load against.</summary>
     internal sealed class PresentationMapRules : IAreaMapView
     {
         /// <summary>Places the fixture's cells in Crateria so its projection uses a concrete area identity.</summary>
         public AreaId Area => AreaId.Crateria;
-        /// <summary>Provides the stock blank cell that editable cells replace in this fixture.</summary>
+        /// <summary>Provides the stock blank cell for every fixture cell.</summary>
         public MapCell Cell(Position16<MapTiles> cell) => MapTileWords.PauseBlank.ToCell();
         /// <summary>Restricts exploration to the two fixture cells in column five.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
         /// <summary>Reveals only the lower fixture cell when a map station has been used.</summary>
         public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
-        /// <summary>Preserves the lower cell's rule to reveal its cell above after an art edit.</summary>
+        /// <summary>Gives the lower fixture cell the rule to reveal its cell above.</summary>
         public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
     }
 
     /// <summary>
-    /// Full installed presentation required by real-room override checks. This is loaded
+    /// Full installed presentation required by real-room checks. This is loaded
     /// once from the same installation as the maps, rather than silently allowing test
     /// runtimes to fall back to cartridge graphics when a room is initialized.
     /// </summary>
@@ -240,7 +190,7 @@ internal static class MapPresentationVerification
         public InstalledSamusBodyArtwork SamusBody { get; }
 
         /// <summary>
-        /// The repository installation's room artwork set, gathered once per process (#1532): the map checks edit only map
+        /// The repository installation's room artwork set, gathered once per process (#1532): the map checks bind only map
         /// presentation, so the room catalogs they bind are the shared installation's, read where the other fixtures read them.
         /// </summary>
         internal static MapPresentationInstalledRoomAssets Shared => shared.Value;
@@ -248,7 +198,7 @@ internal static class MapPresentationVerification
         /// <summary>Backing loader for <see cref="Shared"/>.</summary>
         private static readonly Lazy<MapPresentationInstalledRoomAssets> shared = new(() => new MapPresentationInstalledRoomAssets());
 
-        /// <summary>Gathers the shared installation's room artwork set for live-map override checks.</summary>
+        /// <summary>Gathers the shared installation's room artwork set for the live-map checks.</summary>
         private MapPresentationInstalledRoomAssets()
         {
             roomCharacters = InstalledFixtures.RoomCharacters;
@@ -280,65 +230,47 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>
-    /// The repository installation's map catalog on a private copy, with its stock and override
-    /// directories and the installed room fixtures the presentation checks bind. Each map
-    /// presentation suite edits, corrupts and repairs its own copy, so the suites run independently.
-    /// The copy holds the map presentation alone, the one content family these suites edit (#1532); the room
-    /// fixtures they bind are read from the shared installation.
+    /// The repository installation's map presentation on a private copy, which the catalog check corrupts and restores. The
+    /// copy holds the map presentation alone (#1532); the room fixtures the checks bind are read from the shared installation.
     /// </summary>
     private sealed class MapCatalogFixture : IDisposable
     {
-        /// <summary>Private copy of the installation's map presentation the suite may edit.</summary>
+        /// <summary>Private copy of the installation's map presentation the check may corrupt.</summary>
         private readonly PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(installation => installation.MapDirectory);
 
-        /// <summary>Loads the stock catalog from the copy, binds the shared room fixtures and creates its empty map override directory.</summary>
+        /// <summary>Loads the catalog from the copy, which is the shared installation's byte for byte.</summary>
         internal MapCatalogFixture()
         {
             Bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            SuperMetroid.AssetExtraction.Installation.GameInstallation installation = copy.Installation;
-            Stock = installation.MapDirectory;
-            Overrides = installation.MapOverrideDirectory;
-            // The copy's stock is the shared installation's byte for byte, so its catalog is the shared one, which the fixture
-            // sheets and pictures already compose and register (#1532); only the suites' edits load catalogs of their own.
-            Original = installation.LoadMaps().ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.Maps
+            Stock = copy.Installation.MapDirectory;
+            // The copy's files are the shared installation's, so its catalog is the shared one, which the fixture sheets and
+            // pictures already compose and register (#1532).
+            Original = copy.Installation.LoadMaps().ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.Maps
                 : throw new InvalidDataException("The private copy's map presentation differs from the shared installation's.");
-            Directory.CreateDirectory(Overrides);
         }
 
         /// <summary>Retail cartridge oracle for native comparisons.</summary>
         internal SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace Bus { get; }
-        /// <summary>Installed stock map presentation directory.</summary>
+        /// <summary>The copy's installed map presentation directory.</summary>
         internal string Stock { get; }
-        /// <summary>Map override directory the color checks share.</summary>
-        internal string Overrides { get; }
-        /// <summary>Stock map catalog loaded before any edit.</summary>
+        /// <summary>Map catalog loaded before any corruption.</summary>
         internal AreaMapPresentation Original { get; }
         /// <summary>Installed room fixtures bound by real-room checks, gathered when a check first binds them.</summary>
         internal static MapPresentationInstalledRoomAssets FixtureAssets => MapPresentationInstalledRoomAssets.Shared;
-
-        /// <summary>Supplies the catalog checks' shared arguments.</summary>
-        internal void Deconstruct(out SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, out string root,
-            out string stock, out string overrides, out AreaMapPresentation original)
-        {
-            bus = Bus;
-            root = copy.Root;
-            stock = Stock;
-            overrides = Overrides;
-            original = Original;
-        }
 
         /// <summary>Deletes the private installation copy.</summary>
         public void Dispose() => copy.Dispose();
     }
 
-    /// <summary>Checks map catalog reload, override precedence and identity, stock replacement, and live runtime rebinding.</summary>
+    /// <summary>Checks map catalog reload against the cartridge's exploration rules, live runtime consumers, the installed resources, and corrupt-file failures.</summary>
     private static void VerifyMapPresentationCatalog()
     {
         using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, overrides, original) = fixture;
-        string repaired = Path.Combine(root, "replacement-stock");
+        var bus = fixture.Bus;
+        string stock = fixture.Stock;
+        AreaMapPresentation original = fixture.Original;
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
-        var reopened = MapPresentationFiles.Load(stock, overrides);
+        var reopened = MapPresentationFiles.Load(stock);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
@@ -350,50 +282,29 @@ internal static class MapPresentationVerification
             AssertEqual(rules[area].RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), actual.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock slope parity");
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
-        string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options);
-        document.Cells[0] = document.Cells[0] with { TileColumn = (document.Cells[0].TileColumn + 1) % MapPresentationFormat.AtlasColumns };
-        int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(new(checked((ushort)(i % 64)), checked((ushort)(i / 64)))));
-        document.Cells[visibleCell] = document.Cells[visibleCell] with { Palette = (document.Cells[visibleCell].Palette + 1) % 8 };
-        string replacement = Path.Combine(overrides, name);
-        File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
-        byte[] editedBytes = File.ReadAllBytes(replacement);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        foreach (AreaId area in Enum.GetValues<AreaId>())
-        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-        for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
-        {
-            AssertEqual(original.Get(area).IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsDiscoverable(new(checked((ushort)x), checked((ushort)y))), "override cannot alter discovery");
-            AssertEqual(original.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))), "override cannot alter station reveal");
-            AssertEqual(original.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), edited.Get(area).RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "override cannot alter slope exploration");
-        }
-        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(),
+        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, rules.Values.ToArray(), MapCatalogFixture.FixtureAssets));
+        Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, original));
+        Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, original,
             MapCatalogFixture.FixtureAssets));
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
-        AssertTrue(edited.Get(AreaId.Crateria).Cell(new(0, 0)) != original.Get(AreaId.Crateria).Cell(new(0, 0)), "catalog prefers valid override");
-        var afterRepair = MapStockReExtraction.ReExtractStock(bus, repaired, overrides);
-        AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
-        AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
-        Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(repaired));
-        Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray()));
-        Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original,
-            rules.Values.ToArray(), MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray()));
-        Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray()));
-        Suite(nameof(VerifyWorldMapLabels), () => VerifyWorldMapLabels(bus, stock, Path.Combine(root, "label-overrides"), original));
-        Suite(nameof(VerifyMapStationLayout), () => VerifyMapStationLayout(bus, stock, Path.Combine(root, "station-overrides"), original));
-        Suite(nameof(VerifyMapLandmarks), () => VerifyMapLandmarks(bus, stock, Path.Combine(root, "landmark-overrides"), original));
-        Suite(nameof(VerifyMapSaveMarkers), () => VerifyMapSaveMarkers(bus, stock, Path.Combine(root, "save-marker-overrides"), original));
-        Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original));
+        Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, original, rules.Values.ToArray()));
+        Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, original));
+        Suite(nameof(VerifyWorldMapLabels), () => VerifyWorldMapLabels(bus, original));
+        Suite(nameof(VerifyMapStationLayout), () => VerifyMapStationLayout(original));
+        Suite(nameof(VerifyMapLandmarks), () => VerifyMapLandmarks(bus, original));
+        Suite(nameof(VerifyMapSaveMarkers), () => VerifyMapSaveMarkers(bus, original));
+        Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, original));
         VerifyStockMapImporterRefusesOverwrite(bus, stock);
-        File.WriteAllText(replacement, "{ broken JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "corrupt override fails instead of selecting stock");
-        AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
-        File.WriteAllBytes(replacement, editedBytes);
-        File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "stock integrity failure remains visible with override present");
-        Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+        Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(stock));
+        string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
+        string mapPath = Path.Combine(stock, name);
+        byte[] installedMap = File.ReadAllBytes(mapPath);
+        try
+        {
+            File.WriteAllText(mapPath, "corrupt map");
+            AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock), "a corrupt installed map fails where it is decoded");
+        }
+        finally { File.WriteAllBytes(mapPath, installedMap); }
+        Console.WriteLine("Map catalog: deterministic reload, ROM-free exploration parity, live consumers and corruption errors pass.");
     }
 
     /// <summary>Checks that the stock map importer refuses to extract into a directory that already holds a stock catalog.</summary>
@@ -401,84 +312,74 @@ internal static class MapPresentationVerification
     private static void VerifyStockMapImporterRefusesOverwrite(ISnesAddressSpace bus, string stock) =>
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
 
-    /// <summary>Checks title, room FX, Samus, Ceres Ridley and Mother Brain color overrides against native output; they share one override directory in order.</summary>
-    private static void VerifyMapPresentationColorOverrides()
+    /// <summary>Checks the installed title, room FX, Samus, Ceres Ridley and Mother Brain colours against native output.</summary>
+    private static void VerifyMapPresentationColors()
     {
-        using var fixture = new MapCatalogFixture();
-        var (bus, _, stock, overrides, original) = fixture;
-        Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(stock, overrides, original));
-        Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(stock, overrides, original));
-        Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(stock, overrides, original));
-        Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(stock, overrides, original));
-        Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
-        Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
-        Suite(nameof(VerifySamusSuitPaletteRestoration), () => VerifySamusSuitPaletteRestoration(bus));
-        Suite(nameof(VerifySamusFullBodyCycleOwners), () => VerifySamusFullBodyCycleOwners(bus));
-        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(bus));
-        Suite(nameof(VerifySamusChargeColorCadence), () => VerifySamusChargeColorCadence(bus));
-        Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus,
+        var bus = RetailBus();
+        string stock = RepositoryInstallation.Installation.MapDirectory;
+        AreaMapPresentation original = InstalledFixtures.Maps;
+        Suite(nameof(VerifyTitleSpriteSources), () => VerifyTitleSpriteSources(bus));
+        Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifyPowerBombFixedColorsRejectMalformedDocuments), () => VerifyPowerBombFixedColorsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifySamusHurtColorsRejectMalformedDocuments), () => VerifySamusHurtColorsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifySamusSuitColors), () => VerifySamusSuitColors(stock, original, bus, MapCatalogFixture.FixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColors), () => VerifySamusFullBodyCycleColors(stock, original, bus));
+        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(stock, original, bus));
+        Suite(nameof(VerifySamusChargeColors), () => VerifySamusChargeColors(stock, original, bus));
+        Suite(nameof(VerifyCeresRidleyColors), () => VerifyCeresRidleyColors(stock, original, bus,
             MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifyMotherBrainHealthPaletteOverride), () => VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original));
+        Suite(nameof(VerifyCeresRidleyMode7Colors), () => VerifyCeresRidleyMode7Colors(stock, original, bus));
+        Suite(nameof(VerifySamusHyperBeamColorsRejectMalformedDocuments), () => VerifySamusHyperBeamColorsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifyMotherBrainHealthPalette), () => VerifyMotherBrainHealthPalette(bus, stock, original));
+        Suite(nameof(VerifyMotherBrainRainbowPalette), () => VerifyMotherBrainRainbowPalette(bus, stock, original));
+        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, original));
     }
 
     /// <summary>Checks the installed pause backdrops and buttons, in a run of their own.</summary>
-    private static void VerifyPauseBackdropAssets()
-    {
-        using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, _, original) = fixture;
-        VerifyPauseBackdrops(bus, stock, Path.Combine(root, "pause-backdrop-overrides"), original);
-    }
+    private static void VerifyPauseBackdropAssets() =>
+        VerifyPauseBackdrops(RetailBus(), InstalledFixtures.Maps);
 
     /// <summary>Checks the installed pause wireframes, in a run of their own.</summary>
-    private static void VerifyPauseWireframeAssets()
-    {
-        using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, _, original) = fixture;
-        VerifyPauseWireframes(bus, stock, Path.Combine(root, "pause-wireframe-overrides"), original);
-    }
+    private static void VerifyPauseWireframeAssets() =>
+        VerifyPauseWireframes(RetailBus(), InstalledFixtures.Maps);
 
     /// <summary>Checks installed pause-screen map, sprite, selector, reserve and equipment assets.</summary>
     private static void VerifyPausePresentationAssets()
     {
-        using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, _, original) = fixture;
-        Suite(nameof(VerifyMapScreens), () => VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original));
-        Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original));
-        Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original));
+        var bus = RetailBus();
+        AreaMapPresentation original = InstalledFixtures.Maps;
+        Suite(nameof(VerifyMapScreens), () => VerifyMapScreens(bus, original));
+        Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, original));
+        Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, original));
         Suite(nameof(VerifyCompiledPauseEquipmentRules), () => VerifyCompiledPauseEquipmentRules(bus, original));
-        Suite(nameof(VerifyPauseSelectors), () => VerifyPauseSelectors(bus, stock, Path.Combine(root, "pause-selector-overrides"), original));
-        Suite(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(bus, stock, Path.Combine(root, "pause-reserve-tank-overrides"), original));
-        Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, stock, Path.Combine(root, "pause-reserve-ui-overrides"), original));
-        Suite(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(bus, stock, Path.Combine(root, "pause-equipment-base-overrides"), original));
-        Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(bus, stock, Path.Combine(root, "pause-equipment-label-overrides"), original));
+        Suite(nameof(VerifyPauseSelectors), () => VerifyPauseSelectors(bus, original));
+        Suite(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(bus, original));
+        Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, original));
+        Suite(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(bus, original));
+        Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(original));
     }
 
-    /// <summary>Checks installed HUD, menu, message, typewriter, narration, ending, credits and file-select presentation assets.</summary>
+    /// <summary>Checks installed HUD, menu, message, typewriter, narration, ending and file-select presentation assets.</summary>
     private static void VerifyFrontendPresentationAssets()
     {
-        using var fixture = new MapCatalogFixture();
-        var (bus, root, stock, _, original) = fixture;
-        Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus, stock,
-            Path.Combine(root, "escape-timer-overrides"), original));
-        Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
-            Path.Combine(root, "gameplay-hud-overrides"), original));
-        Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original));
+        var bus = RetailBus();
+        string stock = RepositoryInstallation.Installation.MapDirectory;
+        AreaMapPresentation original = InstalledFixtures.Maps;
+        Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus, stock));
+        Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock, original));
+        Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, original));
         Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(original));
-        Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original));
-        Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original));
-        Suite(nameof(VerifyGameplayMessagePanelAssets), () => VerifyGameplayMessagePanelAssets(bus, stock, Path.Combine(root, "gameplay-message-panel-overrides"), original));
-        Suite(nameof(VerifyGameplayMessageNoticeAssets), () => VerifyGameplayMessageNoticeAssets(bus, stock, Path.Combine(root, "gameplay-message-notice-overrides"), original));
-        Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock, Path.Combine(root, "escape-typewriter-overrides"), original));
-        Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock, Path.Combine(root, "intro-narration-overrides"), original));
-        Suite(nameof(VerifyIntroFontAssets), () => VerifyIntroFontAssets(bus, stock, Path.Combine(root, "intro-font-overrides"), original));
-        Suite(nameof(VerifyEndingTextAssets), () => VerifyEndingTextAssets(bus, stock, Path.Combine(root, "ending-text-overrides"), original));
-        Suite(nameof(VerifyEndingFontAssets), () => VerifyEndingFontAssets(bus, stock, Path.Combine(root, "ending-font-overrides"), original));
-        Suite(nameof(VerifyStaffCreditsAssets), () => VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original));
+        Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, original));
+        Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, stock, original));
+        Suite(nameof(VerifyGameplayMessagePanelAssets), () => VerifyGameplayMessagePanelAssets(bus, stock));
+        Suite(nameof(VerifyGameplayMessageNoticeAssets), () => VerifyGameplayMessageNoticeAssets(bus, stock));
+        Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock));
+        Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock));
+        Suite(nameof(VerifyIntroFontAssets), () => VerifyIntroFontAssets(bus, stock));
+        Suite(nameof(VerifyEndingTextAssets), () => VerifyEndingTextAssets(bus, stock));
+        Suite(nameof(VerifyEndingFontAssets), () => VerifyEndingFontAssets(bus, stock));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));
@@ -486,11 +387,14 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
     }
 
-    /// <summary>Checks Mother Brain rainbow, beam, drain, and fake-death palette overrides against native CGRAM output.</summary>
-    private static void VerifyMotherBrainRainbowPaletteOverride(
+    /// <summary>The retail cartridge oracle for native comparisons.</summary>
+    private static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace RetailBus() =>
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+
+    /// <summary>Checks the installed Mother Brain rainbow, beam, drain, and fake-death palettes against native CGRAM output, and malformed documents.</summary>
+    private static void VerifyMotherBrainRainbowPalette(
         ISnesAddressSpace bus,
         string stock,
-        string overrides,
         AreaMapPresentation original)
     {
         string source = Path.Combine(stock, MotherBrainRainbowPaletteFile.FileName);
@@ -593,109 +497,6 @@ internal static class MapPresentationVerification
                 $"installed beam frame {frame} matches native color, cursor, and geometry through loop reset");
         }
 
-        PaletteRgb5 beam = document.Rainbow[0].Body[0];
-        document.Rainbow[0].Body[0] = beam with { Red = beam.Red == 31 ? 30 : beam.Red + 1 };
-        PaletteRgb5 drain = document.ToGrey[0].Body[0];
-        document.ToGrey[0].Body[0] = drain with { Blue = drain.Blue == 31 ? 30 : drain.Blue + 1 };
-        PaletteRgb5 authoredTail = (document.ToGrey[0].TrailingColor ?? throw new InvalidOperationException("Verification requires document.ToGrey[0].TrailingColor."));
-        document.ToGrey[0] = document.ToGrey[0] with
-        {
-            TrailingColor = authoredTail with
-            {
-                Green = authoredTail.Green == 31 ? 30 : authoredTail.Green + 1,
-            },
-        };
-        PaletteRgb5 revive = document.FromGrey[0].BackLegs[0];
-        document.FromGrey[0].BackLegs[0] = revive with { Green = revive.Green == 31 ? 30 : revive.Green + 1 };
-        PaletteRgb5 fakeDeath = (document.FakeDeathToGrey ?? throw new InvalidOperationException("Verification requires document.FakeDeathToGrey."))[0][0];
-        document.FakeDeathToGrey[0][0] = fakeDeath with
-        {
-            Red = fakeDeath.Red == 31 ? 30 : fakeDeath.Red + 1,
-        };
-        PaletteRgb5 fakeDeathRevival = document.FromGrey[0].Body[0];
-        document.FromGrey[0].Body[0] = fakeDeathRevival with
-        {
-            Blue = fakeDeathRevival.Blue == 31 ? 30 : fakeDeathRevival.Blue + 1,
-        };
-        PaletteRgb5 normal = document.Normal.Body[0];
-        document.Normal.Body[0] = normal with { Red = normal.Red == 31 ? 30 : normal.Red + 1 };
-        document = document with
-        {
-            BeamInitial = document.BeamInitial with
-            {
-                Blue = document.BeamInitial.Blue == 31 ? 30 : document.BeamInitial.Blue + 1,
-            },
-        };
-        PaletteRgb5 hdmaColor = document.BeamCycle[0];
-        document.BeamCycle[0] = hdmaColor with
-        {
-            Red = hdmaColor.Red == 31 ? 30 : hdmaColor.Red + 1,
-        };
-        string replacement = Path.Combine(overrides, MotherBrainRainbowPaletteFile.FileName);
-        using (var stream = File.Create(replacement))
-            MotherBrainRainbowPaletteFile.Write(stream, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "Mother Brain rainbow edit changes installed-content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
-        runtime.Artwork.MapPresentation = edited;
-        MotherBrainRainbowPalettePresentation editedRainbow = runtime.BossArtwork.MotherBrainRainbowColors
-            ?? throw new InvalidOperationException("Verification requires runtime.BossArtwork.MotherBrainRainbowColors.");
-        SnesCgram stockOutput = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Rainbow(0));
-        SnesCgram editedOutput = MotherBrainLook.OfRainbow(editedRainbow, MotherBrainShades.Rainbow(0));
-        AssertTrue(stockOutput.Colors[MotherBrainColorDestinations.BodyColor] !=
-            editedOutput.Colors[MotherBrainColorDestinations.BodyColor],
-            "installed rainbow override reaches the room-enemy binding");
-        stockOutput = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.ToGrey(0));
-        editedOutput = MotherBrainLook.OfRainbow(editedRainbow, MotherBrainShades.ToGrey(0));
-        AssertTrue(stockOutput.Colors[MotherBrainColorDestinations.BodyColor] !=
-            editedOutput.Colors[MotherBrainColorDestinations.BodyColor],
-            "drain override reaches the native body destination");
-        stockOutput = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.FromGrey(0));
-        editedOutput = MotherBrainLook.OfRainbow(editedRainbow, MotherBrainShades.FromGrey(0));
-        AssertTrue(stockOutput.Colors[MotherBrainColorDestinations.DrainedRearLegColor] !=
-            editedOutput.Colors[MotherBrainColorDestinations.DrainedRearLegColor],
-            "revival override reaches the native rear-leg destination");
-        foreach (bool toGrey in new[] { true, false })
-        {
-            var stockFade = CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette, toGrey);
-            var editedFade = CaptureFakeDeathPaletteFrame(editedRainbow, toGrey);
-            AssertTrue(stockFade.Colors[MotherBrainColorDestinations.BrainColor] !=
-                editedFade.Colors[MotherBrainColorDestinations.BrainColor],
-                "fake-death edited color reaches the production fade path");
-            AssertEqual(1, stockFade.Colors.Zip(editedFade.Colors, (first, second) =>
-                first != second).Count(differs => differs),
-                "fake-death edit changes only one CGRAM word");
-            AssertEqual(stockFade.FunctionTimer, editedFade.FunctionTimer,
-                "fake-death edit preserves native frame timer");
-            AssertEqual(stockFade.Function, editedFade.Function,
-                "fake-death edit preserves native phase selection");
-        }
-        stockOutput = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Restored);
-        editedOutput = MotherBrainLook.OfRainbow(editedRainbow, MotherBrainShades.Restored);
-        AssertTrue(stockOutput.Colors[MotherBrainColorDestinations.BodyColor] !=
-            editedOutput.Colors[MotherBrainColorDestinations.BodyColor],
-            "normal-restoration override reaches the native body destination");
-        var stockBeam = new MotherBrainRainbowBeamEffect
-        {
-            PresentationColors = original.MotherBrainRainbowPalette,
-        };
-        var editedBeam = new MotherBrainRainbowBeamEffect
-        {
-            PresentationColors = editedRainbow,
-        };
-        stockBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
-        AssertTrue(stockBeam.Color != editedBeam.Color &&
-            stockBeam.Geometry == editedBeam.Geometry,
-            "beam initial-color edit changes only color, not HDMA geometry");
-        stockBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(true, new(100, 95), RotationAngle.QuarterTurn, 0x4000);
-        AssertTrue(stockBeam.Color != editedBeam.Color &&
-            stockBeam.ColorIndex == editedBeam.ColorIndex &&
-            stockBeam.Geometry == editedBeam.Geometry,
-            "beam cycle edit reaches the live HDMA frame without a ROM read or timing change");
-
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
@@ -720,35 +521,15 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                FakeDeathToGrey = document.FakeDeathToGrey.Take(7).ToArray(),
+                FakeDeathToGrey = (document.FakeDeathToGrey ?? throw new InvalidOperationException("Verification requires document.FakeDeathToGrey.")).Take(7).ToArray(),
             }, ArtworkJson.Options))), "reject truncated Mother Brain fake-death grey fade");
-        // Older override documents remain loadable after stock regeneration, with only
-        // the newly introduced fake-death colors supplied by the current stock file.
-        byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
-        {
-            Version = (int)MotherBrainRainbowPaletteVersion.PreFakeDeath,
-            FakeDeathToGrey = null,
-        }, ArtworkJson.Options);
-        File.WriteAllBytes(replacement, legacy);
-        AreaMapPresentation migrated = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(migrated.MotherBrainRainbowPalette.BeamInitialColor !=
-            original.MotherBrainRainbowPalette.BeamInitialColor,
-            "version-two Mother Brain override preserves the existing edited beam color");
-        AssertTrue(CaptureFakeDeathPaletteFrame(migrated.MotherBrainRainbowPalette, toGrey: true)
-            .Colors.SequenceEqual(CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette,
-                toGrey: true).Colors),
-            "version-two override inherits the new fake-death colors from verified stock");
-        File.Delete(replacement);
-        AssertEqual(original.ContentIdentity, MapPresentationFiles.Load(stock, overrides).ContentIdentity,
-            "removing Mother Brain rainbow override restores installed-content identity");
-        Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
+        Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades and strict validation pass.");
     }
 
-    /// <summary>Checks Mother Brain health-threshold palette edits, stock copies, schema validation, and identity restoration.</summary>
-    private static void VerifyMotherBrainHealthPaletteOverride(
+    /// <summary>Checks the installed Mother Brain health-threshold palettes against the native copies, and schema validation.</summary>
+    private static void VerifyMotherBrainHealthPalette(
         ISnesAddressSpace bus,
         string stock,
-        string overrides,
         AreaMapPresentation original)
     {
         string source = Path.Combine(stock, MotherBrainHealthPaletteFile.FileName);
@@ -760,8 +541,8 @@ internal static class MapPresentationVerification
             MotherBrainHealthPaletteFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(bus),
                 writable: false));
-        foreach (var (health, state) in new VerifyMotherBrainHealthPaletteOverrideCase[]
-            { new VerifyMotherBrainHealthPaletteOverrideCase(36000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(9000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(8999, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5400, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5399, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1800, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1799, 3), new VerifyMotherBrainHealthPaletteOverrideCase(0, 3) })
+        foreach (var (health, state) in new VerifyMotherBrainHealthPaletteCase[]
+            { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
             int band = MotherBrainHealthPalette.Band(health);
             SnesCgram native = MotherBrainLook.OfHealth(extracted, band);
@@ -778,28 +559,6 @@ internal static class MapPresentationVerification
                 health >= MotherBrainHealthPaletteDefinitions.FinalThreshold ? 2 : 3,
                 "native health thresholds still choose the four damage states");
         }
-
-        PaletteRgb5 body = document.Body[2][0];
-        document.Body[2][0] = body with { Red = body.Red == 31 ? 30 : body.Red + 1 };
-        PaletteRgb5 leg = document.BackLegs[2][0];
-        document.BackLegs[2][0] = leg with { Blue = leg.Blue == 31 ? 30 : leg.Blue + 1 };
-        string replacement = Path.Combine(overrides, MotherBrainHealthPaletteFile.FileName);
-        using (var stream = File.Create(replacement))
-            MotherBrainHealthPaletteFile.Write(stream, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "Mother Brain health palette override changes installed-content identity");
-        SnesCgram stockOutput = MotherBrainLook.OfHealth(original.MotherBrainHealthPalette, MotherBrainHealthPalette.Band(5399));
-        SnesCgram output = MotherBrainLook.OfHealth(edited.MotherBrainHealthPalette, MotherBrainHealthPalette.Band(5399));
-        AssertTrue(output.Colors[MotherBrainColorDestinations.BodyColor] !=
-            stockOutput.Colors[MotherBrainColorDestinations.BodyColor],
-            "installed Mother Brain body edit reaches the import's health shade");
-        AssertTrue(output.Colors[MotherBrainColorDestinations.RearLegColor] !=
-            stockOutput.Colors[MotherBrainColorDestinations.RearLegColor],
-            "installed Mother Brain leg edit reaches the import's health shade");
-        AssertEqual(output.Colors[MotherBrainColorDestinations.BodyColor],
-            output.Colors[MotherBrainColorDestinations.BrainColor],
-            "body and brain still share the native palette");
 
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
@@ -818,483 +577,21 @@ internal static class MapPresentationVerification
                     colors.Take(14).ToArray() : colors).ToArray(),
             }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
 
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing Mother Brain health palette override restores installed-content identity");
-        Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
+        Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies and schema checks pass.");
     }
 
-    /// <summary>Checks edited room palette-FX colors in a bound runtime while preserving program timing and stock provenance.</summary>
-    private static void VerifyRoomPaletteFxOverride(
-        string stock,
-        string overrides,
-        AreaMapPresentation original)
+    /// <summary>Checks that the year card's first letter is the first spritemap its native text list names.</summary>
+    private static void VerifyTitleSpriteSources(ISnesAddressSpace bus)
     {
-        string source = Path.Combine(stock, RoomPaletteFxPresentationFormat.FileName);
-        RoomPaletteFxPresentationDocument document =
-            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
-                File.ReadAllBytes(source),
-                ArtworkJson.Options)
-            ?? throw new InvalidDataException("Extracted room palette-FX document is null.");
-        PaletteRgb5 color = document.NorfairForegroundAndHeatPhase[0][0];
-        document.NorfairForegroundAndHeatPhase[0][0] = color with
-        {
-            Red = color.Red == 31 ? 30 : color.Red + 1,
-        };
-        PaletteRgb5 waterfall = document.MaridiaBackgroundWaterfalls[0][0];
-        document.MaridiaBackgroundWaterfalls[0][0] = waterfall with
-        {
-            Blue = waterfall.Blue == 31 ? 30 : waterfall.Blue + 1,
-        };
-        PaletteRgb5 greenLight = document.WreckedShipGreenLights[0][0];
-        document.WreckedShipGreenLights[0][0] = greenLight with
-        {
-            Green = greenLight.Green == 31 ? 30 : greenLight.Green + 1,
-        };
-        PaletteRgb5 redBrinstar = document.RedBrinstarBackgroundGlow[0][0];
-        document.RedBrinstarBackgroundGlow[0][0] = redBrinstar with
-        {
-            Red = redBrinstar.Red == 31 ? 30 : redBrinstar.Red + 1,
-        };
-        PaletteRgb5 tourian = document.TourianGlow[0][0];
-        document.TourianGlow[0][0] = tourian with
-        {
-            Blue = tourian.Blue == 31 ? 30 : tourian.Blue + 1,
-        };
-        PaletteRgb5 blueSpore = document.BrinstarBlueSpores[0][0];
-        document.BrinstarBlueSpores[0][0] = blueSpore with
-        {
-            Green = blueSpore.Green == 31 ? 30 : blueSpore.Green + 1,
-        };
-        PaletteRgb5 bombTorizo = document.BombTorizoBelly[0][0];
-        document.BombTorizoBelly[0][0] = bombTorizo with
-        {
-            Red = bombTorizo.Red == 31 ? 30 : bombTorizo.Red + 1,
-        };
-        PaletteRgb5 goldenTorizo = document.GoldenTorizoBelly[0][0];
-        document.GoldenTorizoBelly[0][0] = goldenTorizo with
-        {
-            Blue = goldenTorizo.Blue == 31 ? 30 : goldenTorizo.Blue + 1,
-        };
-        PaletteRgb5 statueGrey = document.TourianStatueGrey[0][0];
-        document.TourianStatueGrey[0][0] = statueGrey with
-        {
-            Green = statueGrey.Green == 31 ? 30 : statueGrey.Green + 1,
-        };
-        PaletteRgb5 surfaceLightning = document.CrateriaSurfaceLightning[0][0];
-        document.CrateriaSurfaceLightning[0][0] = surfaceLightning with
-        {
-            Blue = surfaceLightning.Blue == 31 ? 30 : surfaceLightning.Blue + 1,
-        };
-        PaletteRgb5 darkLightning = document.CrateriaUnusedDarkLightning[0][0];
-        document.CrateriaUnusedDarkLightning[0][0] = darkLightning with
-        {
-            Red = darkLightning.Red == 31 ? 30 : darkLightning.Red + 1,
-        };
-        PaletteRgb5 gunshipLight = document.CeresGunshipEngineLights[0][0];
-        document.CeresGunshipEngineLights[0][0] = gunshipLight with
-        {
-            Green = gunshipLight.Green == 31 ? 30 : gunshipLight.Green + 1,
-        };
-        PaletteRgb5 navigationLight = document.CeresNavigationLights[0][0];
-        document.CeresNavigationLights[0][0] = navigationLight with
-        {
-            Blue = navigationLight.Blue == 31 ? 30 : navigationLight.Blue + 1,
-        };
-        PaletteRgb5 fadeInColor = document.PlanetZebesTextFadeIn[0][0];
-        document.PlanetZebesTextFadeIn[0][0] = fadeInColor with
-        {
-            Red = fadeInColor.Red == 31 ? 30 : fadeInColor.Red + 1,
-        };
-        PaletteRgb5 fadeOutColor = document.PlanetZebesTextFadeOut[0][0];
-        document.PlanetZebesTextFadeOut[0][0] = fadeOutColor with
-        {
-            Green = fadeOutColor.Green == 31 ? 30 : fadeOutColor.Green + 1,
-        };
-        PaletteRgb5 motherBrainLight = document.OldMotherBrainBackgroundLights[0][0];
-        document.OldMotherBrainBackgroundLights[0][0] = motherBrainLight with
-        {
-            Blue = motherBrainLight.Blue == 31 ? 30 : motherBrainLight.Blue + 1,
-        };
-        PaletteRgb5 gunshipGlow = document.CinematicGunshipGlow[0][0];
-        document.CinematicGunshipGlow[0][0] = gunshipGlow with
-        {
-            Red = gunshipGlow.Red == 31 ? 30 : gunshipGlow.Red + 1,
-        };
-        PaletteRgb5 zebesFade = document.ExplodingZebesFade[0][0];
-        document.ExplodingZebesFade[0][0] = zebesFade with
-        {
-            Green = zebesFade.Green == 31 ? 30 : zebesFade.Green + 1,
-        };
-        PaletteRgb5 unusedFade = document.UnusedCinematicFade[0][0];
-        document.UnusedCinematicFade[0][0] = unusedFade with
-        {
-            Blue = unusedFade.Blue == 31 ? 30 : unusedFade.Blue + 1,
-        };
-        PaletteRgb5 titleLogo = document.TitleLogoFade[0][0];
-        document.TitleLogoFade[0][0] = titleLogo with
-        {
-            Red = titleLogo.Red == 31 ? 30 : titleLogo.Red + 1,
-        };
-        PaletteRgb5 nintendoFade = document.NintendoSharedFade[0][0];
-        document.NintendoSharedFade[0][0] = nintendoFade with
-        {
-            Green = nintendoFade.Green == 31 ? 30 : nintendoFade.Green + 1,
-        };
-        ChangeRed(document.ZebesExplosionForeground);
-        ChangeRed(document.ZebesExplosionFinale);
-        ChangeRed(document.ZebesExplosionWhiteout);
-        ChangeRed(document.ZebesExplosionAfterglow);
-        ChangeRed(document.ZebesExplosionLava);
-        ChangeRed(document.ZebesExplosionCrust);
-        ChangeRed(document.ZebesExplosionGreyClouds);
-        ChangeRed(document.ZebesExplosionGunship);
-        ChangeRed(document.SamusLoadingPowerSuit);
-        ChangeRed(document.SamusLoadingVariaSuit);
-        ChangeRed(document.SamusLoadingGravitySuit);
-        ChangeRed(document.PostCreditsIconGlare);
-        ChangeRed(document.TourianEscapeShutter);
-        ChangeRed(document.TourianEscapeBackground);
-        ChangeRed(document.TourianEscapeSharedRedFlash);
-        ChangeRed(document.OldTourianEscapeRedFlash);
-        ChangeRed(document.OldTourianEscapeOrangeRailings);
-        ChangeRed(document.OldTourianEscapeYellowPanels);
-        ChangeRed(document.UpperCrateriaEscapeRedFlash);
-        ChangeRed(document.CrateriaEscapeYellowLightning);
-        ChangeRed(document.CrateriaEscapeCreBlockPixel);
-        ChangeRed(document.BeaconFlashing);
-
-        string replacement = Path.Combine(overrides, RoomPaletteFxPresentationFormat.FileName);
-        using (var stream = File.Create(replacement))
-            RoomPaletteFxPresentationFile.Write(stream, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "room palette-FX override changes installed-content identity");
-
-        // Each override is checked on the colours its palette-FX object animates, read where that colour group is held.
-        AssertOverride(NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(item =>
-                item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase).DefinitionPointer,
-            "selected Norfair");
-        AssertOverride(MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(item =>
-                item.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls).DefinitionPointer,
-            "selected Maridia");
-        AssertOverride(WreckedShipGreenLightPaletteFxColorDefinitions.PoweredDefinition, "Wrecked Ship");
-        AssertOverride(RedBrinstarGlowPaletteFxColorDefinitions.DefinitionPointer, "Red Brinstar");
-        AssertOverride(TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer, "Tourian");
-        AssertOverride(BrinstarBlueSporePaletteFxColorDefinitions.All.Single(item =>
-                item.Owner == BrinstarBlueSporePaletteOwner.StandardRooms).DefinitionPointer,
-            "Brinstar blue-spore");
-        foreach (TorizoBellyPaletteFxColorDefinition torizoDefinition in TorizoBellyPaletteFxColorDefinitions.All)
-            AssertOverride(torizoDefinition.DefinitionPointer, $"{torizoDefinition.Owner} belly");
-        AssertOverride(TourianStatueGreyPaletteFxColorToolingDefinitions.All[0].DefinitionPointer, "Tourian statue grey-out");
-        foreach (CrateriaLightningPaletteFxColorDefinition lightningDefinition in CrateriaLightningPaletteFxColorDefinitions.All)
-            AssertOverride(lightningDefinition.DefinitionPointer, $"Crateria {lightningDefinition.Owner}");
-        AssertOverride(CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer, "Ceres gunship engine");
-        AssertOverride(CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer,
-            "sprite Ceres navigation lights");
-        AssertOverride(CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer,
-            "background Ceres navigation lights");
-        foreach (PlanetZebesTextPaletteFxColorDefinition fadeDefinition in PlanetZebesTextPaletteFxColorDefinitions.All)
-            AssertOverride(fadeDefinition.DefinitionPointer, $"PLANET ZEBES {fadeDefinition.Owner}");
-        foreach (CinematicGlowPaletteFxColorDefinition glowDefinition in CinematicGlowPaletteFxColorDefinitions.All)
-            AssertOverride(glowDefinition.DefinitionPointer, $"cinematic glow {glowDefinition.Owner}");
-        AssertOverride(ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer, "exploding Zebes fade");
-        AssertOverride(UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer, "unused cinematic fade");
-        AssertOverride(TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer, "title-logo fade");
-        AssertOverride(NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer, "Nintendo shared fade BootLogo");
-        AssertOverride(NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer, "Nintendo shared fade Copyright");
-        AssertOverride(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, "Zebes explosion foreground");
-        AssertOverride(ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer, "Zebes explosion finale");
-        AssertOverride(ZebesExplosionWhiteoutPaletteFxColorDefinitions.WideExplosionBackgroundDefinitionPointer,
-            "Zebes explosion whiteout WideExplosionBackground");
-        AssertOverride(ZebesExplosionWhiteoutPaletteFxColorDefinitions.SpaceWhiteoutDefinitionPointer,
-            "Zebes explosion whiteout SpaceWhiteout");
-        foreach (ZebesExplosionAmbientPaletteFxColorDefinition ambientDefinition in ZebesExplosionAmbientPaletteFxColorDefinitions.All)
-            AssertOverride(ambientDefinition.DefinitionPointer, $"Zebes explosion ambient {ambientDefinition.Owner}");
-        foreach (ZebesExplosionLayerFadePaletteFxColorDefinition layerDefinition in ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
-            AssertOverride(layerDefinition.DefinitionPointer, $"Zebes explosion layer fade {layerDefinition.Owner}");
-        AssertOverride(ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer, "Zebes explosion gunship");
-        foreach (SamusLoadingSuitPaletteFxColorDefinition suitDefinition in SamusLoadingSuitPaletteFxColorDefinitions.All)
-            AssertOverride(suitDefinition.DefinitionPointer, $"Samus loading {suitDefinition.Owner}");
-        AssertOverride(PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer, "post-credits icon glare");
-        foreach (TourianEscapeRedFlashPaletteFxColorDefinition flashDefinition in TourianEscapeRedFlashPaletteFxColorDefinitions.All)
-            AssertOverride(flashDefinition.DefinitionPointer, $"Tourian escape {flashDefinition.Owner}");
-        foreach (TourianEscapeSharedRedFlashPaletteFxColorDefinition sharedDefinition in
-                 TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All)
-            AssertOverride(sharedDefinition.DefinitionPointer, $"Tourian escape shared {sharedDefinition.Owner}");
-        AssertOverride(OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, "old Tourian escape red flash");
-        foreach (OldTourianEscapeAccentPaletteFxColorDefinition accentDefinition in OldTourianEscapeAccentPaletteFxColorDefinitions.All)
-            AssertOverride(accentDefinition.DefinitionPointer, $"old Tourian escape {accentDefinition.Owner}");
-        AssertOverride(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, "upper Crateria escape red flash");
-        foreach (CrateriaEscapeLightningPaletteFxColorDefinition lightningDefinition in CrateriaEscapeLightningPaletteFxColorDefinitions.All)
-            AssertOverride(lightningDefinition.DefinitionPointer, $"Crateria escape {lightningDefinition.Owner}");
-        AssertOverride(BeaconPaletteFxColorDefinitions.DefinitionPointer, "Crateria and Brinstar beacon flash");
-
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing room palette-FX override restores installed-content identity");
-        Console.WriteLine(
-            "Room palette-FX override: content identity and forty-seven live palette " +
-            "CGRAM outputs " +
-            "change immediately, then restore exactly.");
-
-        static void ChangeRed(PaletteRgb5[][] frames)
-        {
-            PaletteRgb5 color = frames[0][0];
-            frames[0][0] = color with
-            {
-                Red = color.Red == 31 ? 30 : color.Red + 1,
-            };
-        }
-
-        void AssertOverride(ushort definitionPointer, string description)
-        {
-            PaletteFxColours animated = PaletteFxObjectAccess.FromNative(definitionPointer).AnimatedColours;
-            string context = $"runtime catalog binding consumes {description} palette-FX override in its {animated}";
-            // A title or cinematic effect animates a frontend screen's colours (#1464); every other one animates gameplay's.
-            if (PaletteFxScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
-            {
-                // A frontend screen's step shows the record without writing colours (#1512); the import pre-colours its shade
-                // from the installed colours, so the override reaches the shade the screen names.
-                var screenFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-                screenFx.SpawnDefinition(definitionPointer, 0);
-                var shown = new List<PaletteFxFrame>();
-                screenFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
-                    (colours, record) => { if (colours == animated) shown.Add(record); });
-                AssertTrue(shown.Count == 1, $"{context}: the first screen step shows one record");
-                AssertTrue(!PaletteFxRecordShades.Shade(animated, shown[0], new InkRange(0, int.MaxValue), original.RoomPaletteFx).Colours
-                    .SequenceEqual(PaletteFxRecordShades.Shade(animated, shown[0], new InkRange(0, int.MaxValue), edited.RoomPaletteFx).Colours), context);
-                return;
-            }
-            // A gameplay step shows the record without writing colours (#1512): the import pre-colours its shade from the
-            // installed colours over the pictures that show the group, so the override reaches the shade's colours.
-            var paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-            paletteFx.SpawnDefinition(definitionPointer, 0);
-            paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            PaletteFxFrame record = paletteFx.RecordOf(animated) ?? throw new InvalidOperationException($"{context}: the first step shows no record");
-            AssertTrue(!PaletteFxRecordShades.Shade(animated, record, new InkRange(0, int.MaxValue), original.RoomPaletteFx).Colours
-                .SequenceEqual(PaletteFxRecordShades.Shade(animated, record, new InkRange(0, int.MaxValue), edited.RoomPaletteFx).Colours), context);
-        }
-    }
-
-    /// <summary>Checks that title gradient edits alter production output and installed identity, then restore on removal.</summary>
-    private static void VerifyTitleGradientOverride(
-        string stock,
-        string overrides,
-        AreaMapPresentation original)
-    {
-        string source = Path.Combine(stock, TitleGradientFile.FileName);
-        TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
-            File.ReadAllBytes(source),
-            ArtworkJson.Options)
-            ?? throw new InvalidDataException("Extracted title gradient document is null.");
-        foreach (TitleGradientVariant variant in document.Variants)
-        {
-            TitleGradientStop stop = variant.Stops[0];
-            variant.Stops[0] = stop with { Red = stop.Red == 31 ? 30 : stop.Red + 1 };
-        }
-
-        string replacement = Path.Combine(overrides, TitleGradientFile.FileName);
-        using (var stream = File.Create(replacement))
-            TitleGradientFile.Write(stream, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "title gradient override changes installed-content identity");
-        CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(
-            edited.TitleGradient, edited.TitleBackdrop, edited.TitleGraphics);
-        AssertTrue(capture.Gradient.Equals(edited.TitleGradient.Resolve(capture.Zoom)),
-            "production title consumes selected gradient override");
-        AssertTrue(!capture.Gradient.Equals(original.TitleGradient.Resolve(capture.Zoom)),
-            "gradient override visibly changes production title output");
-
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing title gradient override restores installed-content identity");
-        Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
-    }
-
-    /// <summary>Checks that title palette edits alter production output and installed identity, then restore on removal.</summary>
-    private static void VerifyTitlePaletteOverride(
-        string stock,
-        string overrides,
-        AreaMapPresentation original)
-    {
-        string source = Path.Combine(stock, TitlePaletteFormat.FileName);
-        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
-            File.ReadAllBytes(source),
-            ArtworkJson.Options)
-            ?? throw new InvalidDataException("Extracted title palette document is null.");
-        for (int index = 0; index < document.Colors.Length; index++)
-        {
-            PaletteRgb5 color = document.Colors[index];
-            document.Colors[index] = color with { Red = color.Red == 31 ? 30 : color.Red + 1 };
-        }
-        PaletteRgb5 ambient = document.BabyMetroidTubeLight[0][0];
-        document.BabyMetroidTubeLight[0][0] = ambient with
-        {
-            Blue = ambient.Blue == 31 ? 30 : ambient.Blue + 1,
-        };
-        document = document with
-        {
-            SkipCopyrightWhite = document.SkipCopyrightWhite with { Red = 0, Green = 31, Blue = 0 },
-            SkipCopyrightRed = document.SkipCopyrightRed with { Red = 0, Green = 0, Blue = 31 },
-        };
-
-        string replacement = Path.Combine(overrides, TitlePaletteFormat.FileName);
-        using (var stream = File.Create(replacement))
-            TitlePaletteFile.Write(stream, document);
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "title palette override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titleBackdrop: original.TitleBackdrop,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(original)));
-        var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titleBackdrop: edited.TitleBackdrop,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)));
-        AssertEqual(edited.TitleBackdrop, editedTitle.CaptureRenderSnapshot().Paint.Backdrop,
-            "production title shows the selected palette override's backdrop");
-        stockTitle.Step(0);
-        editedTitle.Step(0);
-        // Both titles name the same console-light records; the override reaches the floor through the shades the import
-        // pre-colours the edited title's floor sheet in (#1512).
-        AssertEqual(stockTitle.FloorShading, editedTitle.FloorShading, "the floor's shading names the lights' records, not their colours");
-        PictureShade tubeShade = editedTitle.FloorShading.Shades.Single(shade =>
-            shade.Effect == PaletteFxShades.Of(PaletteFxColours.BabyMetroidTubeLight, new PaletteFxFrame(0)).Effect);
-        AssertTrue(!MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(original)).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours
-                .SequenceEqual(MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)).Get(SpriteSheetId.TitleFloor).Image.Shade(tubeShade).Colours),
-            "the import pre-colours the selected ambient palette override's tube light");
-        AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
-            "palette override visibly changes production title output");
-
-        var stockSkip = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titleBackdrop: original.TitleBackdrop,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(original)));
-        var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titleBackdrop: edited.TitleBackdrop,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)));
-        stockSkip.Step(ControllerButton.Start);
-        editedSkip.Step(ControllerButton.Start);
-        for (int frame = 0; frame < 18; frame++)
-        {
-            stockSkip.Step(0);
-            editedSkip.Step(0);
-        }
-        AssertEqual(stockSkip.Phase, editedSkip.Phase,
-            "skip copyright palette override preserves title phase");
-        AssertTrue(editedSkip.CopyrightRestored && editedSkip.CopyrightShading.Shades.Contains(TitleShades.RestoredCopyright),
-            "skip route restores the copyright's glyph colours");
-        AssertTrue(MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitlePaletteOf(edited)).Get(SpriteSheetId.Title).Image.Shade(TitleShades.RestoredCopyright).Colours
-                .SequenceEqual([InstalledAreaMapPresentation.TitlePaletteOf(edited).SkipCopyrightWhite, InstalledAreaMapPresentation.TitlePaletteOf(edited).SkipCopyrightRed]),
-            "skip route's restored copyright shows the edited copyright white and red");
-        AssertTrue(!stockSkip.Render().SequenceEqual(editedSkip.Render()),
-            "skip copyright palette override changes rendered title output");
-        // The restored copyright is a shade of the installed sheet (#1512): rebinding the palette keeps the skip's state.
-        editedSkip.BindTitleBackdrop(original.TitleBackdrop);
-        AssertTrue(editedSkip.CopyrightRestored, "a rebound title keeps its restored copyright");
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing title palette override restores installed-content identity");
-        Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
-    }
-
-    /// <summary>Checks that edited title tiles reach production rendering and revert when the override is removed.</summary>
-    private static void VerifyTitleGraphicsOverride(
-        string stock,
-        string overrides,
-        AreaMapPresentation original)
-    {
-        string name = TitleGraphicsFormat.FloorTilesFile;
-        IndexedPngImage image;
-        using (var input = File.OpenRead(Path.Combine(stock, name)))
-            image = IndexedPng.Read(input, new(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight));
-        byte[] pixels = image.Pixels.Select(value => unchecked((byte)(value + 1))).ToArray();
-        string replacement = Path.Combine(overrides, name);
-        using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), pixels, image.Colours);
-
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "title graphics override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titleBackdrop: original.TitleBackdrop,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
-        var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titleBackdrop: edited.TitleBackdrop,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        stockTitle.Step(ControllerButton.Start);
-        editedTitle.Step(ControllerButton.Start);
-        for (int frame = 0; frame < 16; frame++)
-        {
-            stockTitle.Step(0);
-            editedTitle.Step(0);
-        }
-        AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
-            "Mode 7 PNG override visibly changes production title output");
-
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing title graphics override restores installed-content identity");
-        Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
-    }
-
-    /// <summary>Checks title sprite composition edits against native pointer selection and live OAM while preserving animation timing.</summary>
-    private static void VerifyTitleSpriteCompositionOverride(
-        ISnesAddressSpace bus,
-        string stock,
-        string overrides,
-        AreaMapPresentation original)
-    {
-        string name = TitleGraphicsFormat.FloorMapFile;
-        TitleFloorMapDocument document = JsonSerializer.Deserialize<TitleFloorMapDocument>(
-            File.ReadAllBytes(Path.Combine(stock, name)), ArtworkJson.Options)
-            ?? throw new InvalidDataException("Extracted title layout is null.");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus)[TitleSprite.YearReveal1],
             "the year's first letter is the year card's first listed spritemap");
-        TitleSpriteFrame year = document.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);
-        year.Parts[0] = year.Parts[0] with { OffsetX = year.Parts[0].OffsetX + 8 };
-        string replacement = Path.Combine(overrides, name);
-        using (var output = File.Create(replacement))
-            TitleGraphicsCharacters.WriteMap(output, document);
-
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "title sprite override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
-            titleBackdrop: original.TitleBackdrop,
-            titleGraphicsPresentation: original.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(original.TitleGraphics));
-        var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
-            titleBackdrop: edited.TitleBackdrop,
-            titleGraphicsPresentation: edited.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(edited.TitleGraphics));
-        bool changedOam = false;
-        for (int frame = 0; frame < 100; frame++)
-        {
-            stockTitle.Step(0);
-            editedTitle.Step(0);
-            AssertEqual(stockTitle.Phase, editedTitle.Phase,
-                "title sprite override preserves the native sequence phase");
-            changedOam |= !stockTitle.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                editedTitle.CaptureRenderSnapshot().Paint.SpriteParts());
-        }
-        AssertTrue(changedOam, "title sprite override changes live title OAM");
-
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing title sprite override restores installed-content identity");
-        Console.WriteLine("Title sprite override: installed JSON changes live OAM without changing timing, then restores exactly.");
     }
 
     /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentation original,
-        AreaMapPresentation edited, ImportedAreaMap[] rules, MapPresentationInstalledRoomAssets fixtureAssets)
+        ImportedAreaMap[] rules, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
@@ -1303,34 +600,29 @@ internal static class MapPresentationVerification
         });
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
-        restored.BindArtwork(restored.Artwork with
-        {
-            MapPresentation = edited,
-        });
-        AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
 
         var guard = NewMapDataGuard(bus, rules);
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
-        runtime.Artwork.MapPresentation = edited;
+        runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertEqual(edited.Get(AreaId.Ceres).Cell(runtime.Hud.MinimapCenter).Shape.Picture,
+        AssertEqual(original.Get(AreaId.Ceres).Cell(runtime.Hud.MinimapCenter).Shape.Picture,
             runtime.Hud.TileWords[60] & 0x3ff, "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.Room.LoadedRoom;
-        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited, SpriteSheets = MenuSheetFixtures.For(edited) });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         Position16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
         _ = pause.Render();
-        Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(original, edited));
+        Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(original));
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
-        Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
+        Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind preserves scroll.");
     }
 
-    /// <summary>Checks stock file-select map pixels, edited BG1 words, and restoration without stale override art.</summary>
-    private static void VerifyFileSelectMapCatalog(AreaMapPresentation original, AreaMapPresentation edited)
+    /// <summary>Checks stock file-select map pixels, the projected BG1 words, and restoration of the graphics state.</summary>
+    private static void VerifyFileSelectMapCatalog(AreaMapPresentation original)
     {
         var system = new SharedGameState();
         system.Progress.ExploreEveryCell();
@@ -1340,22 +632,19 @@ internal static class MapPresentationVerification
             mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
-        installed.BindFixtureArtwork(edited);
-        byte[] expected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
-        byte[] unchanged = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
-        AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
-        var shownInstalled = MenuScreenFixtures.Vram(installed, edited);
+        byte[] expected = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank.ToCell())));
+        var shownInstalled = MenuScreenFixtures.Vram(installed, original);
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
-                shownInstalled.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
+                shownInstalled.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select writes the exact projected tilemap");
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
         snapshot.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics>(snapshot);
         restored.BindFixtureArtwork(original);
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
-            "restored file-select graphics accept current stock without stale override pixels");
-        Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
+            "restored file-select graphics keep the installed pixels");
+        Console.WriteLine("File-select map: exact stock pixels, projected BG1 words, and graphics-state rebind pass.");
     }
 
     /// <summary>Provides an unbacked bus that rejects every read and write during installed map projection.</summary>
@@ -1393,21 +682,21 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>
-    /// The editable map and installed presentation family. Every catalog suite edits its own private
-    /// installation copy, so the full run schedules them independently.
+    /// The map and installed presentation family. Only the catalog suite writes, into a private copy of the map
+    /// presentation; the full run schedules every suite independently.
     /// </summary>
     internal static RegisteredSuite[] MapPresentationSuites() =>
     [
         new(nameof(VerifyMapPresentation), () => VerifyMapPresentation()),
         new(nameof(VerifyMapPresentationCatalog), () => VerifyMapPresentationCatalog()),
-        new(nameof(VerifyMapPresentationColorOverrides), () => VerifyMapPresentationColorOverrides()),
+        new(nameof(VerifyMapPresentationColors), () => VerifyMapPresentationColors()),
         new(nameof(VerifyPausePresentationAssets), () => VerifyPausePresentationAssets()),
         new(nameof(VerifyPauseBackdropAssets), () => VerifyPauseBackdropAssets()),
         new(nameof(VerifyPauseWireframeAssets), () => VerifyPauseWireframeAssets()),
         new(nameof(VerifyFrontendPresentationAssets), () => VerifyFrontendPresentationAssets()),
     ];
 
-    /// <summary>Runs every suite of the editable map presentation and installed-content family in this process.</summary>
+    /// <summary>Runs every suite of the map presentation and installed-content family in this process.</summary>
     [VerificationCommand("--map-presentation")]
     internal static int MapPresentationCommand()
     {

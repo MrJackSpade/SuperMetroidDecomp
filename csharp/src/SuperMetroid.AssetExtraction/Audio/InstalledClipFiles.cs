@@ -4,13 +4,12 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// The installed clip files (#1305): reads a clip's WAV beneath the audio root, or an override's replacement from its
-/// own path, verifying the file's SHA-256 against the manifest and its rate against the clips' rate.
+/// The installed clip files (#1305): reads a clip's WAV beneath the audio root, checking its rate against the clips'
+/// rate.
 /// </summary>
 /// <param name="root">The audio root the manifest's paths are relative to.</param>
 /// <param name="sampleRate">The manifest's clip rate.</param>
-/// <param name="overrideFiles">Each override replacement clip's absolute path; every other clip lives beneath <paramref name="root"/>.</param>
-internal sealed class InstalledClipFiles(string root, int sampleRate, IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
+internal sealed class InstalledClipFiles(string root, int sampleRate)
     : IAudioClipSource
 {
     /// <summary>Bytes of the minimal RIFF/WAVE header the exporter writes before the samples.</summary>
@@ -25,7 +24,7 @@ internal sealed class InstalledClipFiles(string root, int sampleRate, IReadOnlyD
     {
         Ensure.NotNull(clip);
         // An installed clip is used as installed (#1532): a player may edit it in place.
-        string path = overrideFiles.TryGetValue(clip, out string? replacement) ? replacement : ResolveContainedPath(root, clip.Path);
+        string path = ResolveContainedPath(root, clip.Path);
         byte[] bytes = File.ReadAllBytes(path);
         (int rate, short[] samples) = PcmWaveFile.ReadStereoPcm16(bytes, path);
         if (rate != sampleRate)

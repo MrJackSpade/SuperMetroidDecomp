@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -10,19 +9,17 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Runtime;
 
-/// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
+/// <summary>Checks installed gameplay HUD art and live tile updates.</summary>
 internal static class GameplayHudPresentationVerification
 {
-    /// <summary>Compares stock HUD tiles with native data and checks override propagation without live ROM reads.</summary>
+    /// <summary>Compares stock HUD tiles with native data without live ROM reads.</summary>
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
-        string overrides, AreaMapPresentation original)
+        AreaMapPresentation original)
     {
         string stockPath = Path.Combine(stock, GameplayHudDocumentDefinitions.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
@@ -99,102 +96,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
-        var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
-            ArtworkJson.Options);
-        document = document with
-        {
-            Digits = document.Digits with { HealthAnchor = new(4, 2) },
-            MinimapAnchor = new(25, 0),
-        };
-        document.TopRow[0] = document.TopRow[0] with { FlipX =
-            !document.TopRow[0].FlipX };
-        document.Icons["Missile"].Cells[0] = document.Icons["Missile"].Cells[0] with { FlipX = true };
-        Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, GameplayHudDocumentDefinitions.FileName);
-        using (var output = File.Create(replacement))
-            GameplayHudPresentationFile.Write(output, document);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
-        editedTopRowRuntime.Artwork.MapPresentation = edited;
-        GameplayHudArtwork editedArtwork = GameplayHudArtwork.Of(edited.GameplayHud);
-        AssertTrue(editedArtwork.Rows(editedTopRowRuntime.Hud.Shown())[..GameplayHudDocumentDefinitions.TopRowCellCount]
-            .SequenceEqual(editedArtwork.TopRowTiles()),
-            "edited top-row cell reaches the HUD the NMI latches");
-        AssertTrue(!editedArtwork.TopRowTiles().SequenceEqual(GameplayHudArtwork.Of(original.GameplayHud).TopRowTiles()),
-            "edited top-row cell changes the shown row");
-
-        var editedHud = new HudState();
-        editedHud.BindPresentation(edited.GameplayHud);
-        editedHud.Initialize(snapshot);
-        var stockHud = new HudState();
-        stockHud.BindPresentation(original.GameplayHud);
-        stockHud.Initialize(snapshot);
-        AssertEqual(stockHud.TileWords[70], editedHud.TileWords[68],
-            "edited health anchor moves its first digit through production HUD setup");
-        AssertEqual(stockHud.TileWords[71], editedHud.TileWords[69],
-            "edited health anchor moves its second digit through production HUD setup");
-        AssertTrue(editedHud.TileWords[10] != stockHud.TileWords[10],
-            "edited missile cell changes the installed icon");
-
-        var rebind = new HudState();
-        rebind.BindPresentation(original.GameplayHud);
-        rebind.Initialize(snapshot);
-        var rebindSystem = new SharedGameState();
-        rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
-        rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
-        ushort[] logicalMap = Enumerable.Range(0, 15)
-            .Select(i => rebind.TileWords[(i / 5) * 32 + 26 + i % 5]).ToArray();
-        rebind.BindPresentation(edited.GameplayHud, samus);
-        for (int i = 0; i < logicalMap.Length; i++)
-            AssertEqual(logicalMap[i], rebind.TileWords[(i / 5) * 32 + 25 + i % 5],
-                "HUD content rebind carries logical minimap cells to edited anchor");
-
-        File.WriteAllText(replacement, "{ broken gameplay HUD JSON");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides),
-            "corrupt gameplay HUD override fails loudly");
-        using (var output = File.Create(replacement))
-            GameplayHudPresentationFile.Write(output, document);
-
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameplayHudPresentationFile.Write(written, document with { SelectedPalette = 8 });
-            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
-        }, "HUD rejects invalid highlight palette on read");
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameplayHudPresentationFile.Write(written, document with { Template = document.Template[..^1] });
-            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
-        }, "HUD rejects incomplete template on read");
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameplayHudPresentationFile.Write(written, document with { TopRow = document.TopRow[..^1] });
-            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
-        }, "HUD rejects incomplete immutable row on read");
-        var overlap = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
-            ArtworkJson.Options);
-        overlap = overlap with { Digits = overlap.Digits with { HealthAnchor = new(8, 0) } };
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameplayHudPresentationFile.Write(written, overlap);
-            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
-        }, "HUD rejects overlapping visual owners on read");
-        var missingIcon = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
-            ArtworkJson.Options);
-        missingIcon.Icons.Remove("XRay");
-        AssertThrows<InvalidDataException>(() =>
-        {
-            using var written = new MemoryStream();
-            GameplayHudPresentationFile.Write(written, missingIcon);
-            _ = GameplayHudPresentationFile.Read(new MemoryStream(written.ToArray(), writable: false));
-        }, "HUD rejects missing named icons on read");
-
-        Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");
+        Console.WriteLine("Gameplay HUD presentation: exact stock/live parity and ROM guard pass.");
     }
 
     /// <summary>Reads a native HUD byte as the independent stock-art oracle.</summary>

@@ -20,7 +20,7 @@ internal static class BossDisplayBindingsDocumentsVerification
     {
         /// <summary>Serializes fixture documents through the same loader path as installed artwork.</summary>
         private readonly EnemyIdentityFixture json = new();
-        /// <summary>Authored extended OAM frames, optionally redirected to a different pose.</summary>
+        /// <summary>Authored extended OAM frames.</summary>
         internal EnemyExtendedFrameDocument Oam { get; }
         /// <summary>Crocomire body BG2 writes used by the binding fixture.</summary>
         internal EnemyBg2FrameDocument Crocomire { get; }
@@ -30,23 +30,22 @@ internal static class BossDisplayBindingsDocumentsVerification
         internal EnemyBg2FrameDocument Draygon { get; }
 
         /// <summary>Creates distinct poses and tile writes so wrong physical-frame selection is observable.</summary>
-        internal BossDisplayDocuments(bool edited)
+        internal BossDisplayDocuments()
         {
             Oam = json.ExtendedDocument();
             foreach ((_, EnemySpritemapDefinition[] family) in Families())
             for (int index = 0; index < family.Length; index++)
             {
                 EnemySpritemapDefinition frame = family[index];
-                Oam.Frames[frame.Name] = !edited && EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
-                [ new() { OffsetX = edited ? 6 : 0, OffsetY = edited ? -3 : 0,
+                Oam.Frames[frame.Name] = EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
+                [ new() { OffsetX = 0, OffsetY = 0,
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
                         TileColumn = index % 16, TileRow = index / 16, Palette = 1, Priority = 2,
-                        FlipX = edited, FlipY = edited }] } ];
-                if (edited) (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[frame.Name] = family[(index + 1) % family.Length].Name;
+                        FlipX = false, FlipY = false }] } ];
             }
-            Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version, edited);
-            Phantoon = Bg2(PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version, edited);
-            Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version, edited);
+            Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version);
+            Phantoon = Bg2(PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version);
+            Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version);
         }
 
         /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
@@ -60,10 +59,6 @@ internal static class BossDisplayBindingsDocumentsVerification
                 new BossSourceArtwork { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
                 new AreaSourceArtwork());
         }
-
-        /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>
-        internal EnemySpritemapDefinition Selected(EnemySpritemapDefinition native) =>
-            EnemyExtendedFrameDefinitions.Frames.Single(frame => frame.Name == (Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires Oam.DisplayFrames."))[native.Name]);
 
         /// <summary>Locates authored BG2 writes by bank and native frame pointer.</summary>
         internal EnemyBg2WriteDocument[] Writes(byte bank, ushort pointer)
@@ -92,16 +87,16 @@ internal static class BossDisplayBindingsDocumentsVerification
                 frame.Name.StartsWith("draygon_", StringComparison.Ordinal)).ToArray());
         }
 
-        /// <summary>Gives each BG2 frame distinctive tiles, authored by their tilemap entries, and relocates one write when edited.</summary>
-        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, int version, bool edited) => new()
+        /// <summary>Gives each BG2 frame distinctive tiles, authored by their tilemap entries.</summary>
+        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, int version) => new()
         {
             Version = version,
             // Each write names characters every boss room loads, which a body's sheet is composed over (#1466).
             Frames = definitions.SelectToArray((frame, index) => KeyValuePair.Create(frame.Name,
                 new EnemyBg2WriteDocument[]
                 { new() { X = 3, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 160 + index) },
-                  new() { X = 4, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(edited ? 340 + index : 220 + index, 280 + index) },
-                  new() { X = 1, Y = edited ? 4 : 3, Tiles = RoomBackgroundTilemapCellWords.Cells(400 + index) } })).ToDictionary(),
+                  new() { X = 4, Y = 2, Tiles = RoomBackgroundTilemapCellWords.Cells(220 + index, 280 + index) },
+                  new() { X = 1, Y = 3, Tiles = RoomBackgroundTilemapCellWords.Cells(400 + index) } })).ToDictionary(),
         };
     }
 }

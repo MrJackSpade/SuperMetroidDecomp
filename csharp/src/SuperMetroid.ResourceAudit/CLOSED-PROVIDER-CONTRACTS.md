@@ -63,8 +63,8 @@ The rule does not assume that every string accepted by a method signature is aut
 ## Mother Brain room colors v3 — five original consumer boundaries
 
 `MotherBrainRoomColorPresentation.Load` requires fourteen complete flash rows, seven
-complete recovery-light rows, and all fixed final/phase-two/room-entry arrays. Legacy
-documents can omit newer fields only when inheriting them from validated current stock.
+complete recovery-light rows, and all fixed final/phase-two/room-entry arrays. Only the
+current document version loads.
 Private construction prevents partially validated providers.
 
 - `ApplyFlash`: aligned timed-entry offsets select only the fourteen installed rows.
@@ -144,7 +144,7 @@ argument; these rules prove complete supported resource domains, not caller corr
 | Provider | Original sites | Required domain and reviewed operations |
 | --- | ---: | --- |
 | Beam palette | 5 | All twelve sixteen-color selections; `LoadTo` guards selection 0..11. |
-| Ceres/shared Ridley | 8 | Complete start/retreat arrays; sixteen eye/body/alarm rows, three health rows, four baby rows. Seven `Apply` methods select fixed or range-guarded loaded arrays. Legacy fields inherit only validated stock. |
+| Ceres/shared Ridley | 8 | Complete start/retreat arrays; sixteen eye/body/alarm rows, three health rows, four baby rows. Seven `Apply` methods select fixed or range-guarded loaded arrays. |
 | Crocomire | 4 | Complete fight-body, wall, projectile, skeleton-arm and spike arrays. The four `Apply` methods transfer fixed loaded arrays. Raw resolver methods are not included. |
 | Spore Spawn | 3 | Complete spore row, four health rows, eight death-sprite rows and seven level/background rows, sixteen colors each. `ResolveSpore/Health/Death` guard color/frame/layer domains. Known level/background constants use the narrower seven-row frame constraint. |
 | Draygon | 3 | Complete intro/background/sprite/white-flash arrays and eight four-color health bands. Health indices must be even byte offsets 0..14. `ApplyHurt` does not select a health band on a white-flash frame, so a known ignored index is not falsely reported. |
@@ -668,9 +668,7 @@ or gameplay ran. Caller selection, destinations, clocks and pixels are not certi
 
 The private constructor is reached only through Load. Current loading requires
 each direct frame and each current compiled program-operand identity, then copies
-compiled nonnull visual parts into private dictionaries. Older override formats
-start with complete private stock dictionaries; every route to that stock type
-has the same inductive completeness invariant. Get's native blank ID is an empty
+compiled nonnull visual parts into private dictionaries. Get's native blank ID is an empty
 composition, not missing external artwork. Known unowned IDs remain audit findings.
 
 The source-guarded rule covers Get/GetProgramFrame valid resource domains. It
@@ -680,8 +678,8 @@ loader's required set and static identity set; the separate definition inventory
 continues checking compiled program presentation dependencies. This does not prove
 arbitrary slot identities, producer selection, projectile motion, timing or pixels.
 
-Constructed empty visual parts confirm current admission, null/substitution
-rejection, legacy inheritance and incomplete legacy stock rejection. Seven source
+Constructed empty visual parts confirm current admission and null/substitution
+rejection. Seven source
 calls first expose five missing and two unresolved boundaries; five qualify and
 two known unowned IDs remain findings. Changed admission or external definition
 array access revokes the rule. Audit Release build and auditor checks pass; no
@@ -691,8 +689,7 @@ production behavior, ROM, save, installed artwork or gameplay changed.
 
 Both private constructors are reached through complete loaders: every current
 frame and display binding is required, and each target must be an installed
-identity in the same bank (ordinary) or family (extended). Historical overrides
-inherit complete private stock and replace only validated earlier members.
+identity in the same bank (ordinary) or family (extended).
 TryGetDisplay therefore has its own valid-domain resource rule. Extended fallback
 includes the compiled empty extended frame. Known unowned bank/pointer pairs
 remain findings. The total GetDisplayPointer ID projection retains its independent

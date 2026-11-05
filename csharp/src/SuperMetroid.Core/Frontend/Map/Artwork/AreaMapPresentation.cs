@@ -122,9 +122,9 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public RoomPaletteFxPresentation RoomPaletteFx { get; }
     /// <summary>Mother Brain health-selected palette artwork, separate from rainbow and room-color families.</summary>
     public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }
-    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors; older overrides inherit newly introduced colour tables from stock.</summary>
+    /// <summary>Mother Brain rainbow, drain, revival, normal-restoration, and fake-death colors.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
-    /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes; older overrides inherit new color families from verified stock.</summary>
+    /// <summary>Mother Brain arena color presentation, separate from boss health and rainbow palettes.</summary>
     public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; }
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }

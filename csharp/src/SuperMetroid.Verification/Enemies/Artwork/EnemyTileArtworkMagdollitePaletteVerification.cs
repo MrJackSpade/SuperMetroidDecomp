@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
-/// Checks that Magdollite's extracted color cycle can be edited without changing its draw-hook cadence or reading cartridge data at runtime.
+/// Checks Magdollite's extracted color cycle, its draw-hook cadence and that runtime reads no cartridge data.
 /// </summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
@@ -21,7 +21,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>
-    /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
+    /// Compares installed RGB5 colors with the cartridge, then exercises the room enemy draw hook.
     /// </summary>
     internal static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
@@ -46,31 +46,9 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
                 CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Magdollite palette JSON is null.");
         PaletteRgb5 original = document.Frames[1][0];
-        document.Frames[1][0] = original with
-        {
-            Blue = original.Blue == 31 ? 30 : original.Blue + 1,
-        };
-        string overrides = Path.Combine(stockDirectory, "magdollite-cycle-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides, MagdollitePaletteCycleFormat.FileName);
-        File.WriteAllBytes(overrideFile, MagdollitePaletteCycleFile.Write(document));
-        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { MagdollitePaletteCycle = EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle() });
-        MagdollitePaletteCycle cycle = edited.Enemies.MagdollitePaletteCycle ??
-            throw new InvalidDataException("Edited enemy art has no Magdollite palette cycle.");
-        AssertTrue(cycle.Resolve(1, 0) != native.Resolve(1, 0),
-            "Magdollite color override changes the selected RGB5 word");
-        AssertEqual(cycle.Resolve(1, 0),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle().Resolve(1, 0),
-            "Magdollite color override persists across catalog reload");
-        for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
-        for (int color = 0; color < MagdollitePaletteCycle.AnimatedColorCount; color++)
-            if (frame != 1 || color != 0)
-                AssertEqual(native.Resolve(frame, color), cycle.Resolve(frame, color),
-                    $"Magdollite color edit leaves frame {frame} color {color} unchanged");
-
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         // The hook names the glow frame every Magdollite shows (#1512); the frame's colours are the import's shade.
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
@@ -96,32 +74,16 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             }
         }
         AssertEqual(healthBefore, untouched.Health,
-            "Magdollite visual-cycle edit does not change enemy health");
+            "the Magdollite glow cycle does not change enemy health");
         AssertEqual(xBefore, untouched.Position.X.Whole,
-            "Magdollite visual-cycle edit does not change enemy position");
+            "the Magdollite glow cycle does not change enemy position");
         AssertEqual((ushort)8,
             enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer.RawValue,
-            "Magdollite color edits preserve the eight-tick cadence");
+            "the Magdollite glow keeps the eight-tick cadence");
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle(),
-            "invalid Magdollite color override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1,\"frames\":[]}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).MagdollitePaletteCycle(),
-            "duplicate Magdollite color property fails loudly");
         document.Frames[1][0] = original with { Red = 32 };
         AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(document))),
             "Magdollite RGB5 channel outside five-bit precision is rejected");
-        File.Delete(overrideFile);
-
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, null).MagdollitePaletteCycle(),
-            "corrupt stock Magdollite colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, edited CGRAM, persistent override, strict failures and no runtime ROM reads pass.");
+        Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, channel rejection and no runtime ROM reads pass.");
     }
 }

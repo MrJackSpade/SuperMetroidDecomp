@@ -22,14 +22,12 @@ public static class RoomPlmChozoStatueVisualFiles
             VisualFileName, "Chozo statue", All,
             VisualId);
 
-    /// <summary>Validates stock Chozo art against its manifest and compiled layouts, then selects a complete optional visual-only override without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the Chozo JSON and its provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory whose Chozo JSON replaces stock when present; an absent file retains stock.</param>
-    /// <returns>The selected hand and slope-access catalog, with native run geometry and collision unchanged.</returns>
-    /// <exception cref="InvalidDataException">Stock provenance, digest, format, or compiled equality fails, or selected entries violate layout coverage.</exception>
-    public static RoomPlmChozoStatueVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Chozo statue manifest's provenance and loads the installed Chozo statue JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Chozo statue JSON.</param>
+    /// <returns>The hand and slope-access catalog, with native run geometry and collision unchanged.</returns>
+    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate layout coverage.</exception>
+    public static RoomPlmChozoStatueVisualCatalog Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

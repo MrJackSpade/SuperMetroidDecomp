@@ -1,9 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.LevelData.LinkedRestoreVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -136,7 +134,7 @@ internal static class ContactCrumbleProgramsVerification
         }
     }
 
-    /// <summary>Runs all eight BTS timelines against retail behavior with compiled source bytes blocked, then checks edited visual isolation.</summary>
+    /// <summary>Runs all eight BTS timelines against retail behavior with compiled source bytes blocked, then checks the stock breakup and restored art.</summary>
     internal static void VerifyContactCrumblePrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -204,25 +202,14 @@ internal static class ContactCrumbleProgramsVerification
         }
 
         Suite(nameof(VerifyContactCrumbleVisualSeparation), () => VerifyContactCrumbleVisualSeparation(rom, forbidden));
-        Suite(nameof(VerifyLinkedRestoreVisualSeparation), () => VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: false));
 
         Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and 3 restoration lists match ROM; all eight programs run with source reads forbidden.");
     }
 
-    /// <summary>Confirms an edited breakup tile changes the immediate and streamed visual while physical block behavior stays native.</summary>
+    /// <summary>Confirms the stock breakup frame's physical word and tile, and the native restored parent.</summary>
     private static void VerifyContactCrumbleVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockVisualFiles.All
-            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockVisualFiles.VisualId(list.Draw),
-                list.Runs.Span.SelectToArray(run =>
-                    run.Blocks.Span.SelectToArray(block => block.Appearance))))
-            .ToArray();
-        RoomPlmVisualRunEntry first = entries.Single(entry =>
-            entry.Id == "single-breakup-0");
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        var edited = RoomPlmShotBlockVisualFiles.Create(entries);
-
         RenderBreakResult RenderBreak(
             InstalledRoomPlmShotBlockVisuals visuals)
         {
@@ -246,18 +233,11 @@ internal static class ContactCrumbleProgramsVerification
         }
 
         var stock = RenderBreak(InstalledRoomPlmShotBlockVisuals.Stock());
-        var changed = RenderBreak(edited);
         AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), stock.Physical,
             "contact-crumble first frame installs native air collision");
-        AssertEqual(stock.Physical, changed.Physical,
-            "shared breakup-art edit leaves contact-crumble collision unchanged");
-        // The block BG1 shows names its picture (#1431): the stock breakup frame's block, or the edited frame's.
+        // The block BG1 shows names its picture (#1431): the stock breakup frame's block.
         AssertEqual(RoomBlockAppearance.Of(0x053), stock.Immediate,
             "stock contact breakup's block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Immediate,
-            "edited contact breakup's block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Streamed,
-            "edited contact breakup's block persists through camera streaming");
 
         ContactCrumbleProgramsRenderRestoredParentResult RenderRestoredParent()
         {
@@ -280,7 +260,7 @@ internal static class ContactCrumbleProgramsVerification
         }
 
         // A block's look is its picture in the block sheet (#1431), so the restored parent is checked as the block it
-        // shows: block $0BC unmirrored, whose picture a block sheet override repaints.
+        // shows: block $0BC unmirrored, whose picture an edit of the block sheet repaints.
         var restoredParent = RenderRestoredParent();
         AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock), restoredParent.Physical,
             "linked contact block restores its native special parent word");

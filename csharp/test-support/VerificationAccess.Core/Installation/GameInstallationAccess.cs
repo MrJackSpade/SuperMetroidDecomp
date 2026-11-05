@@ -16,24 +16,24 @@ internal static class GameInstallationAccess
 
         /// <summary>
         /// Loads the validated stock room character atlases: the import pipeline's input to the rooms' pictures, which no
-        /// host binds and no player overrides (#1466); rooms take their overrides as composed sheets.
+        /// host binds (#1466); a player edits the rooms' composed sheets instead.
         /// </summary>
         public RoomCharacterAtlases LoadRoomCharacters() =>
-            RoomCharacterArtworkFiles.Load(self.RoomCharacterDirectory, null);
+            RoomCharacterArtworkFiles.Load(self.RoomCharacterDirectory);
 
         /// <summary>
-        /// Loads validated room background tilemaps and compatible replacements from the persistent override tree: the
-        /// import pipeline's input to the room backgrounds' images, which no host binds (#1466).
+        /// Loads the installed room background tilemaps: the import pipeline's input to the room backgrounds' images, which
+        /// no host binds (#1466).
         /// </summary>
         public RoomBackgroundTilemaps LoadRoomBackgroundTilemaps() =>
-            RoomBackgroundTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory, self.RoomBackgroundTilemapOverrideDirectory);
+            RoomBackgroundTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory);
 
         /// <summary>
-        /// Loads validated sky tilemaps from the shared room-background directory and its compatible user replacements: the
-        /// import pipeline's input to the sky's images, which no host binds (#1466).
+        /// Loads the installed sky tilemaps from the shared room-background directory: the import pipeline's input to the
+        /// sky's images, which no host binds (#1466).
         /// </summary>
         public RoomSkyTilemaps LoadRoomSkyTilemaps() =>
-            RoomSkyTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory, self.RoomBackgroundTilemapOverrideDirectory);
+            RoomSkyTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory);
         /// <summary>Stock room character-tile atlases and their source manifests.</summary>
         public string RoomCharacterDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
         /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>

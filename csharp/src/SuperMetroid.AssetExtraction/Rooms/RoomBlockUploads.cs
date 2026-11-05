@@ -348,7 +348,7 @@ internal static class RoomBlockUploads
 
     /// <summary>
     /// Each collectible's cartridge graphics in each slot, with the tiles of the blocks it shows there (#1453): the stock
-    /// pictures of the blocks named for the collectible in the slot, which the room block sheet's override restyles.
+    /// pictures of the blocks named for the collectible in the slot, which an edit of the installed room block sheet restyles.
     /// </summary>
     private static IEnumerable<CollectibleSlotCharacters> Collectibles()
     {

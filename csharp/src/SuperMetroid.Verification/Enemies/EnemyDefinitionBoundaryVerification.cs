@@ -94,7 +94,7 @@ internal static class EnemyDefinitionBoundaryVerification
         }
         AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, TorizoFrameDefinitionsConstants.Bank, 0x87d0, new(128, 96)),
             "missing enemy artwork cannot recover an address decoder");
-        Console.WriteLine($"Enemy definitions: all 106 Torizo physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
+        Console.WriteLine($"Enemy definitions: all 106 Torizo physical frames, corpse metadata, 50 Crocomire reactions, 393 installed palette colors and {drawCases} composed OAM cases pass.");
     }
 
     /// <summary>
@@ -232,7 +232,7 @@ internal static class EnemyDefinitionBoundaryVerification
             new CrocomireBodyFrame(CrocomireBodyFrameSet.Skeleton, 0)), "a skeleton frame takes no power-bomb reaction");
     }
 
-    /// <summary>Checks extracted RGB5 colors, editable override compilation, and invalid color and JSON rejection.</summary>
+    /// <summary>Checks extracted RGB5 colors and invalid color and JSON rejection.</summary>
     private static void VerifyEnemyAuxiliaryColors(ISnesAddressSpace source)
     {
         byte[] json = EnemyAuxiliaryColorFiles.Extract(source);
@@ -243,14 +243,10 @@ internal static class EnemyDefinitionBoundaryVerification
                     AssertEqual((ushort)(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((
                         EnemySourceDefinitions.AuxiliaryPalettes[definition.Id].FirstRow.Value +
                         (frame * EnemySourceDefinitions.AuxiliaryPalettes[definition.Id].RowStrideColors + color) * 2)) & 0x7fff),
-                        catalog.Resolve(definition.Id, frame, color), "editable auxiliary RGB5 color");
+                        catalog.Resolve(definition.Id, frame, color), "installed auxiliary RGB5 color");
         var document = RequiredJson.Deserialize<EnemyAuxiliaryColorDocument>(json,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter<EnemyAuxiliaryPalette>() } });
-        document.Palettes[EnemyAuxiliaryPalette.FaceBlock][0][0] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
-        EnemyAuxiliaryColorCatalog edited = EnemyAuxiliaryColorFiles.Read(
-            new MemoryStream(EnemyAuxiliaryColorFiles.Write(document), writable: false));
-        AssertEqual(31, edited.Resolve(EnemyAuxiliaryPalette.FaceBlock, 0, 0), "auxiliary art override survives compilation");
         document.Palettes[EnemyAuxiliaryPalette.FaceBlock][0][0] = new PaletteRgb5 { Red = 32, Green = 0, Blue = 0 };
         AssertThrows<InvalidDataException>(() => EnemyAuxiliaryColorFiles.Read(new MemoryStream(EnemyAuxiliaryColorFiles.Write(document))), "out-of-range RGB5 rejected");
         string text = Encoding.UTF8.GetString(json);

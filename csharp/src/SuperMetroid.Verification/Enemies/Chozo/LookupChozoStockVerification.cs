@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 /// <summary>Checks editable Chozo statue visuals against native draw runs and catalog constraints.</summary>
 internal static class LookupChozoStockVerification
 {
-    /// <summary>Compares three native statue frames, decoded to appearances, then checks custom copies and completeness.</summary>
+    /// <summary>Compares three native statue frames, decoded to appearances, then checks completeness.</summary>
     internal static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmChozoStatueVisualCatalog installed)
     {
@@ -62,19 +62,6 @@ internal static class LookupChozoStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<ChozoStatueDraw>((ushort)pointer),0,0), "Chozo stock unknown pointer");
-        entries[1].Blocks[20] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmChozoStatueVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Chozo mixed custom/stock identity");
-        entries[1].Blocks[20] = RoomBlockAppearance.Of(0x5a);
-        entries[2].Blocks[26] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int cell = 0; cell < native[frame.Pointer][run].Length; cell++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<ChozoStatueDraw>(frame.Pointer),run,cell), "Chozo cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.Create(entries[..1]), "Chozo missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmChozoStatueVisualFiles.Create(entries.Append(entries[0])), "Chozo duplicate frame");
         var invalid = entries.ToArray();

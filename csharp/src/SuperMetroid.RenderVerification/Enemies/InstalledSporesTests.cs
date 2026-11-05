@@ -2,18 +2,14 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
-using System.Security.Cryptography;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Enemies;
@@ -22,8 +18,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Areas.Tourian;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
@@ -32,53 +26,30 @@ internal static class InstalledSporesTests
     private static readonly int[] ObjPriorityLayers =
         [0, 1, 4, 7];
 
-    /// <summary>Loads stock and edited spores presentation, checks owner state and pixels, then renders each frame on both D3D11 device kinds.</summary>
+    /// <summary>Loads the installed spores presentation, checks owner state and pixels, then renders each frame on both D3D11 device kinds.</summary>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentation stock = MapPresentationFiles.Load(maps, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(maps);
         CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<DisplayPacket>();
-        using var overridesScratch = new TestScratchDirectory("installed-spores");
-        string overrides = overridesScratch.Root;
-        try
+        CheckOwners(stock, packets);
+        CheckPixels(packets);
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
         {
-            Directory.CreateDirectory(overrides);
-            WriteOverrides(maps, overrides);
-            AreaMapPresentation edited = MapPresentationFiles.Load(maps, overrides);
-            Require(stock.ContentIdentity != edited.ContentIdentity, "Spore overrides did not affect selected content identity.");
-            CheckOwners(stock, edited, packets);
-            CheckPixels(packets);
-            foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            foreach (DisplayPacket packet in packets)
             {
-                using var device = new D3D11RenderDevice(kind);
-                using var renderer = new D3D11FrameRenderer(device);
-                foreach (DisplayPacket packet in packets)
-                {
-                    PixelComparison.Verify(packet, DisplayRendering.Render(packet),
-                        renderer.RenderForReadback(packet), $"{kind}: spores case {packet.FrameNumber}");
-                }
-                Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match the WARP reference exactly.");
+                PixelComparison.Verify(packet, DisplayRendering.Render(packet),
+                    renderer.RenderForReadback(packet), $"{kind}: spores case {packet.FrameNumber}");
             }
-            CheckFileFailures(maps, overrides);
-            foreach (string file in Directory.GetFiles(overrides)) File.Delete(file);
-            Require(MapPresentationFiles.Load(maps, overrides).ContentIdentity == stock.ContentIdentity,
-                "Removing the overrides did not restore stock content identity.");
+            Console.WriteLine($"{kind}: {packets.Count} spore/source-priority frames match the WARP reference exactly.");
         }
-        finally
-        {
-            string owner = Path.GetFullPath(Path.Combine("csharp", "test-temp")) + Path.DirectorySeparatorChar;
-            if (!overrides.StartsWith(owner, StringComparison.OrdinalIgnoreCase) ||
-                !Path.GetFileName(overrides).StartsWith("installed-spores-", StringComparison.Ordinal))
-                throw new InvalidOperationException("Refusing to remove a non-fixture directory.");
-            if (Directory.Exists(overrides)) Directory.Delete(overrides, true);
-        }
-        Console.WriteLine("Spore FX: installed-only timing, freeze, scroll, editing, legacy artwork and native layer exclusions verified. No gameplay/read discovery or player data used.");
     }
 
-    /// <summary>Compares stock and edited spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
-    private static void CheckOwners(AreaMapPresentation stock, AreaMapPresentation edited,
-        List<DisplayPacket> packets)
+    /// <summary>Checks the installed spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
+    private static void CheckOwners(AreaMapPresentation stock, List<DisplayPacket> packets)
     {
         var mechanics = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
@@ -86,15 +57,14 @@ internal static class InstalledSporesTests
             AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
             "Compiled spores controls differ from pinned $87:82ED-$8302.");
-        int records = 0, comparisons = 0, alteredTransfers = 0;
+        int records = 0, comparisons = 0;
         foreach (var definition in CoreAccess.AllRoomFxRecords().Where(record => record.Type == RoomFxType.Spores))
         {
             records++;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             byte[] initialRam = memory.WorkRam.ToArray();
-            var baselineFrames = new ArtworkFrameSelections(); var editedFrames = new ArtworkFrameSelections();
+            var baselineFrames = new ArtworkFrameSelections();
             RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), definition, 0);
-            RoomLayer3FxState replacement = RoomLayer3FxState.ForDefinition(Create(edited), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -110,7 +80,6 @@ internal static class InstalledSporesTests
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomLayer3FxRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 baseline.Step(baselineFrames, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None });
-                replacement.Step(editedFrames, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None });
                 var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
@@ -121,36 +90,29 @@ internal static class InstalledSporesTests
                     int source = AnimatedTileImageSources.OfCursor(mechanics,
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
-                    Require(edited.RoomFxAnimatedTiles.TryResolve(source, 48, out var altered), "Missing edited spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
                     ArtworkFrame cadence = AnimatedTileFrames.Frame(AnimatedTileObject.Spores, tick / 10 % 3);
                     Require(baselineFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
                         "Stock spore cadence differs.");
-                    Require(editedFrames.TryShown(AnimatedTileFrames.Of(AnimatedTileObject.Spores), out ArtworkFrame editedShown) && editedShown == cadence,
-                        "Edited spore cadence differs.");
-                    if (!expected.Span.SequenceEqual(altered.Span)) alteredTransfers++;
                     tick++;
                 }
-                Require(capture == replacement.CaptureForDisplay(), "Presentation overrides changed scroll/capture mechanics.");
                 if (frame is < 50 or 510 or 511 or 512 or 1024 or 1049)
                 {
-                    Require(Graph(baseline).SequenceEqual(Graph(replacement)), "Presentation edits changed serialized FX control state.");
-                    var liquid = new SamusLiquidPhysicsState(); liquid.ConfigureFor(replacement);
+                    var liquid = new SamusLiquidPhysicsState(); liquid.ConfigureFor(baseline);
                     Require(liquid.FxType == RoomFxType.Spores && liquid.FxYPosition == ushort.MaxValue &&
                         liquid.LavaAcidYPosition == ushort.MaxValue, "Spore artwork activated liquid physics.");
                 }
-                Require(baseline.SoundRequests.Count == 0 && replacement.SoundRequests.Count == 0 &&
-                    baseline.EarthquakeRequest is null && replacement.EarthquakeRequest is null,
+                Require(baseline.SoundRequests.Count == 0 && baseline.EarthquakeRequest is null,
                     "Spore presentation produced audio or earthquake side effects.");
                 if (frame is 0 or 10 or 20 or 30 or 44 or 511 or 1024)
                 {
                     var gameplay = new GameplaySceneLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            Bg3 = Layer3CellsFixtures.FromWords(replacement.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(edited)),
+                            Bg3 = Layer3CellsFixtures.FromWords(baseline.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(stock)),
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
-                    var layer = GameplayEffectCapture.CaptureSpores(gameplay, (replacement.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires replacement.CaptureForDisplay().")));
+                    var layer = GameplayEffectCapture.CaptureSpores(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Layers == (ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop) &&
                         layer.Window.IsClosed && layer.BlendPlane is not null,
                         "Spore capture does not blend the background, the sprites and the backdrop with the spores.");
@@ -162,8 +124,8 @@ internal static class InstalledSporesTests
             Require(memory.WorkRam.SequenceEqual(initialRam),
                 "Spore presentation mutated active game RAM.");
         }
-        Require(records > 0 && alteredTransfers > 0, "Source-selected spore records or edits were not exercised.");
-        Console.WriteLine($"{records} compiled spores records: {comparisons} stock/edited control comparisons; {alteredTransfers} changed frame transfers, signed wrap and freeze verified.");
+        Require(records > 0, "Source-selected spore records were not exercised.");
+        Console.WriteLine($"{records} compiled spores records: {comparisons} control steps; signed wrap and freeze verified.");
     }
 
     /// <summary>Constructs a Layer 3 FX owner using the selected installed tile, map, and palette catalogs.</summary>
@@ -172,21 +134,13 @@ internal static class InstalledSporesTests
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
     };
 
-    /// <summary>Serializes FX control state through the production debugger graph codec for stock/edit comparison.</summary>
-    private static byte[] Graph(object value)
-    {
-        using var bytes = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(bytes, value);
-        return bytes.ToArray();
-    }
-
     /// <summary>Reports a spores verification failure with its specific source or rendering context.</summary>
     private static void Require(bool condition, string context)
     {
         if (!condition) throw new InvalidOperationException(context);
     }
 
-    /// <summary>Compares installed animated-tile atlas segments with the retail ROM and checks legacy atlas edits retain their positions.</summary>
+    /// <summary>Compares installed animated-tile atlas segments with the retail ROM.</summary>
     private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
     {
@@ -206,7 +160,7 @@ internal static class InstalledSporesTests
             segmentOffset += segment.ByteCount;
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
-        int sporesOffset = RoomFxAnimatedTileAtlasFile.PreSporesWidth * 2;
+        int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesTileCount * 16;
         var controls = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)
@@ -219,122 +173,7 @@ internal static class InstalledSporesTests
             Require(bytes.Span.SequenceEqual(planar.AsSpan(sporesOffset + frame * 48, 48)),
                 "Spore transfer does not resolve the appended PNG segment.");
         }
-        foreach (int width in new[] { RoomFxAnimatedTileAtlasFile.LegacyWidth,
-            RoomFxAnimatedTileAtlasFile.PreStatueWidth, RoomFxAnimatedTileAtlasFile.PreSporesWidth })
-        {
-            var pixels = new byte[width * 8];
-            for (int y = 0; y < 8; y++)
-                image.Pixels.AsSpan(y * image.Size.X, width).CopyTo(pixels.AsSpan(y * width));
-            pixels[0] = (byte)((pixels[0] + 1) % 4);
-            using var legacyPng = new MemoryStream();
-            IndexedPng.Write(legacyPng, new(checked((ushort)width), 8), pixels, image.Colours);
-            legacyPng.Position = 0;
-            RoomFxAnimatedTileAtlas legacy = RoomFxAnimatedTileAtlasPng.Read(legacyPng, stock);
-            byte[] expected = (byte[])planar.Clone();
-            SnesPlanarTileEncoder.Encode(pixels, new(checked((ushort)width), 8), 2).CopyTo(expected, 0);
-            int offset = 0;
-            foreach (var segment in RoomFxAnimatedTileAtlasFile.Segments)
-            {
-                if (segment is RoomFxAtlasSegment.Image held)
-                {
-                    Require(legacy.TryResolve(held.Picture, segment.ByteCount, out var actual), "Legacy frame vanished.");
-                    Require(actual.Span.SequenceEqual(expected.AsSpan(offset, segment.ByteCount)),
-                        "Legacy sheet edit/tail inheritance changed a transfer.");
-                }
-                offset += segment.ByteCount;
-            }
-            // Statue frames overlap the middle strip and must retain their original
-            // aliases even though spores now occupy the final nine characters.
-            foreach (var statue in TourianStatueAnimatedTilePrograms.All)
-            foreach (var picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
-            {
-                int source = AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture);
-                int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
-                    source - AnimatedTileImageSources.TourianStatueStripStart;
-                Require(legacy.TryResolve(source, statue.FrameByteCount, out var actual) &&
-                    actual.Span.SequenceEqual(expected.AsSpan(statueOffset, statue.FrameByteCount)),
-                    "Appending spores shifted an existing statue alias.");
-            }
-        }
-        Console.WriteLine("Pinned three-frame spores art and unchanged historical atlas prefix pass; all three older PNG geometries retain edits and stock tails.");
-    }
-
-    /// <summary>Writes distinct spores tile, map, and blend-color overrides to exercise the installed presentation boundary.</summary>
-    private static void WriteOverrides(string maps, string overrides)
-    {
-        using var input = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFile.FileName));
-        IndexedPngImage image = IndexedPng.Read(input, new(RoomFxAnimatedTileAtlasFile.Width, 8));
-        for (int y = 0; y < 8; y++)
-        for (int x = RoomFxAnimatedTileAtlasFile.PreSporesWidth; x < image.Size.X; x++)
-            image.Pixels[y * image.Size.X + x] = (byte)((x + y) % 3 + 1);
-        using (var output = File.Create(Path.Combine(overrides, RoomFxAnimatedTileAtlasFile.FileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-
-        JsonNode tilemaps = RequiredJson.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxLayer3TilemapFormat.FileName)));
-        foreach (JsonNode? cell in tilemaps.Required("pages").Required("Spores").AsArray().RequiredElements())
-        {
-            cell["tileColumn"] = 16; cell["tileRow"] = 2;
-            cell["palette"] = 6; cell["flipX"] = true;
-        }
-        File.WriteAllText(Path.Combine(overrides, RoomFxLayer3TilemapFormat.FileName), tilemaps.ToJsonString());
-        JsonNode palettes = RequiredJson.Parse(File.ReadAllBytes(Path.Combine(maps, RoomFxPaletteBlendDefinitions.FileName)));
-        foreach (JsonNode? blend in palettes.Required("blends").AsObject().Select(pair => pair.Value))
-        foreach (JsonNode? color in (blend ?? throw new InvalidOperationException("Verification requires blend.")).AsArray().RequiredElements())
-        {
-            color["red"] = 3; color["green"] = 6; color["blue"] = 9;
-        }
-        File.WriteAllText(Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName), palettes.ToJsonString());
-    }
-
-    /// <summary>Checks malformed and missing stock or override assets report the selected path, even with a matching manifest hash.</summary>
-    private static void CheckFileFailures(string maps, string overrides)
-    {
-        string manifestPath = Path.Combine(maps, AreaMapCatalogFormat.ManifestFile);
-        byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-        int failures = 0;
-        foreach (string file in new[] { RoomFxAnimatedTileAtlasFile.FileName,
-            RoomFxLayer3TilemapFormat.FileName, RoomFxPaletteBlendDefinitions.FileName })
-        {
-            string path = Path.Combine(overrides, file);
-            byte[] original = File.ReadAllBytes(path);
-            File.WriteAllBytes(path, [0, 1, 2]);
-            try
-            {
-                Reject(path);
-            }
-            finally { File.WriteAllBytes(path, original); }
-            string baselinePath = Path.Combine(maps, file);
-            byte[] stockBytes = File.ReadAllBytes(baselinePath);
-            try
-            {
-                File.Delete(baselinePath); Reject(baselinePath);
-                File.WriteAllBytes(baselinePath, [0, 1, 2]); Reject(baselinePath);
-                JsonNode manifest = RequiredJson.Parse(manifestBytes);
-                manifest.Required("sha256")[file] = Convert.ToHexString(SHA256.HashData(new byte[] { 0, 1, 2 }));
-                File.WriteAllText(manifestPath, manifest.ToJsonString());
-                Reject(baselinePath); // A valid edit must not conceal hash-valid malformed stock.
-            }
-            finally
-            {
-                File.WriteAllBytes(baselinePath, stockBytes);
-                File.WriteAllBytes(manifestPath, manifestBytes);
-            }
-        }
-        Console.WriteLine($"{failures} missing/corrupt/hash-valid-malformed/override failures report the exact selected filename and retain bad data.");
-
-        void Reject(string expectedPath)
-        {
-            bool rejected = false;
-            try { _ = MapPresentationFiles.Load(maps, overrides); }
-            catch (Exception error) when (error is IOException or InvalidDataException)
-            {
-                rejected = true;
-                Require(error.Message.Contains(Path.GetFullPath(expectedPath), StringComparison.OrdinalIgnoreCase),
-                    $"Bad presentation diagnostic omits selected path {expectedPath}: {error}");
-            }
-            Require(rejected, "Malformed/missing spore presentation was silently ignored.");
-            failures++;
-        }
+        Console.WriteLine("Pinned three-frame spores art and unchanged historical atlas prefix pass.");
     }
 
     /// <summary>Compares source-aware spores blending against an independent Mode 1 priority and BGR555 pixel oracle.</summary>

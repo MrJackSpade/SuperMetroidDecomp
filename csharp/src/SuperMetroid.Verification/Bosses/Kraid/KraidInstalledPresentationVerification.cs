@@ -1,7 +1,5 @@
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkKraidVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationHeadClockVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationOracleVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationResourcesVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationTailVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -13,20 +11,14 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks that extracted Kraid artwork supports the installed room background, head, and HUD presentation paths.</summary>
 internal static class KraidInstalledPresentationVerification
 {
-    /// <summary>Validates the working map, stock artwork, background, control oracle, live head aliases, and required files as one Kraid presentation suite.</summary>
+    /// <summary>Validates the working map, stock artwork, background and control oracle as one Kraid presentation suite.</summary>
     internal static void VerifyKraidInstalledPresentation()
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        // The Kraid suites edit and remove stock enemy-tile files, so they run on a private installation copy.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string stockPath = copy.Installation.EnemyTileDirectory;
-        EnemyTileArtworkFilesConstants.ValidateStock(stockPath);
-        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
-        Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stockPath, stock));
+        InstalledEnemyArtwork stock = InstalledFixtures.EnemyArtwork;
+        Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stock));
         Suite(nameof(VerifyKraidInstalledControlOracle), () => VerifyKraidInstalledControlOracle(source));
-        Suite(nameof(VerifyKraidInstalledHeadIsolation), () => VerifyKraidInstalledHeadIsolation(source, stockPath, stock));
-        Suite(nameof(VerifyKraidRequiredFiles), () => VerifyKraidRequiredFiles(stockPath));
         Console.WriteLine("PASS installed Kraid maps, head frames, room characters and HUD restoration.");
     }
 

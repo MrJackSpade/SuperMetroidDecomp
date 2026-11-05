@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// <summary>Checks Crocomire bridge and wall PLM visuals against native draw words.</summary>
 internal static class LookupCrocomireStockVerification
 {
-    /// <summary>Compares five frame shapes, stock and imported identity, edit ownership, and invalid entries.</summary>
+    /// <summary>Compares five frame shapes, stock and imported identity, and invalid entries.</summary>
     internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCrocomireVisualCatalog installed)
     {
@@ -59,16 +59,6 @@ internal static class LookupCrocomireStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>((ushort)pointer),0,0), "Crocomire unknown pointer");
-        entries[4].Blocks[23] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[2].Blocks[0] = RoomBlockAppearance.Of(0x59);
-        var mixed = RoomPlmCrocomireVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Crocomire mixed custom stock hash");
-        entries[4].Blocks[23] = RoomBlockAppearance.Of(0x5a);
-        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        for (int index = 0; index < native[frame.Pointer].Length; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetAppearance(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(entries[..4]), "Crocomire missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmCrocomireVisualFiles.Create(entries.Append(entries[0])), "Crocomire duplicate frame");
         var invalid = entries.ToArray();

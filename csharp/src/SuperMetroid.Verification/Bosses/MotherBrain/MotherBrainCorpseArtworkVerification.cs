@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Assets;
@@ -22,15 +21,11 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks Mother Brain corpse PNG import, VRAM transfers, and rotting buffer setup against native graphics.</summary>
 internal static class MotherBrainCorpseArtworkVerification
 {
-    /// <summary>Extracts the retail corpse sheet and runs its installation and edit checks from a validated stock catalog.</summary>
+    /// <summary>Runs the corpse sheet's installation checks from a validated stock catalog.</summary>
     internal static void VerifyMotherBrainCorpseStockArtwork()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        // The corpse suite writes overrides beside the stock files, so it runs on a private installation copy.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string stock = copy.Installation.EnemyTileDirectory;
-        EnemyTileArtworkFilesConstants.ValidateStock(stock);
-        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(stock, EnemyTileArtworkFiles.Load(stock, null)));
+        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(InstalledFixtures.EnemyArtwork));
     }
 
     /// <summary>Reads the banked native corpse character sheet solely as a verification oracle.</summary>
@@ -39,9 +34,8 @@ internal static class MotherBrainCorpseArtworkVerification
             MotherBrainSourceDefinitions.Corpse.Characters,
             MotherBrainCorpseSheet.ByteCount);
 
-    /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
-    internal static void VerifyInstalledMotherBrainCorpseArtwork(
-        string directory, InstalledEnemyArtwork stock)
+    /// <summary>Compares six installed VRAM pages and corpse staging with native bytes.</summary>
+    internal static void VerifyInstalledMotherBrainCorpseArtwork(InstalledEnemyArtwork stock)
     {
         RoomCharacterAtlas artwork = stock.Bosses.MotherBrainCorpse ??
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
@@ -83,48 +77,7 @@ internal static class MotherBrainCorpseArtworkVerification
         CorpseRotScheduleChecks.AssertFreshSchedule(MotherBrainCorpseRottingState.EntryCount,
             new MotherBrainRainbowBeamAttackSequence().ThirdPhaseDeath.CorpseRotting.Schedule, "Mother Brain's final-death corpse");
 
-        string fileName = MotherBrainCorpseSheet.FileName;
-        using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
-        int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(
-            MotherBrainCorpseSheet.ByteCount);
-        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-        int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-        // The first native copy starts $C0 bytes into this sheet: tile six,
-        // first pixel. That pixel becomes the high bit of $7E:9000.
-        image.Pixels[6 * 8] ^= 1;
-        string overrideDirectory = Path.Combine(directory, "mother-brain-corpse-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        string overridePath = Path.Combine(overrideDirectory, fileName);
-        using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainCorpse = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainCorpse() } };
-        byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
-        int editedVramOffset = MotherBrainCorpseSheet.PageFirstCharacter(0) * RoomCharacterAtlasFormat.BytesPerTile +
-            6 * RoomCharacterAtlasFormat.BytesPerTile;
-        AssertEqual((byte)(stockCharacters[editedVramOffset] ^ 0x80),
-            editedCharacters[editedVramOffset],
-            "Mother Brain corpse PNG edit changes live sprite VRAM");
-        byte[] installedTiles = StagedCorpseRows(installedCorpse);
-        byte[] editedTiles = StagedCorpseRows(CorpseStaging.MotherBrain((edited.Bosses.MotherBrainCorpse
-            ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")).Characters.Span));
-        AssertEqual((byte)(installedTiles[0] ^ 0x80),
-            editedTiles[0],
-            "Mother Brain corpse PNG pixel edit changes the corpse staging");
-        for (int offset = 1; offset < installedTiles.Length; offset++)
-            AssertEqual(installedTiles[offset],
-                editedTiles[offset],
-                "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
-        RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainCorpse();
-        AssertEqual(editedTiles[0], StagedCorpseRows(CorpseStaging.MotherBrain(reloaded.Characters.Span))[0],
-            "Mother Brain corpse override survives catalog reload");
-
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainCorpse(),
-            "malformed Mother Brain corpse override is rejected explicitly");
-
-        Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging, edit/reload and invalid override pass.");
+        Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging pass.");
     }
 
     /// <summary>Shows every corpse page through the production encounter and returns the sprite characters they show.</summary>
@@ -143,12 +96,6 @@ internal static class MotherBrainCorpseArtworkVerification
                 new EnemyTileTransfers(artwork))
             .Characters[..SpriteArtworkPlacements.TableByteCount].ToArray();
     }
-
-    /// <summary>The six staged rows of the corpse frame, as the extraction stages them, in heap order.</summary>
-    private static byte[] StagedCorpseRows(CorpseStaging staged) =>
-        [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.RowCount).SelectMany(row => staged.Upload(new CorpseRotRow(row,
-            EnemySourceDefinitions.CorpseRottingHeap + row * MotherBrainCorpseSheet.RowBytes,
-            MotherBrainCorpseSheet.InitialCopyLength(row), 0)))];
 
     /// <summary>Compares the extraction's staged corpse rows with an independent native copy.</summary>
     private static void AssertMotherBrainCorpseStagingParity(NativeEnemyStaging expected, CorpseStaging actual)

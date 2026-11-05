@@ -18,7 +18,6 @@ using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.CreditsPresentationVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyLegacyOverridesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainContactHitboxesVerification;
@@ -653,7 +652,6 @@ internal static class LookupStream3Verification
         AssertTrue(all.Skip(472).Take(expectedAdditional.Length).Select(frame => frame.Native).SequenceEqual(expectedAdditional),
             "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => new FrameAddressKey(frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
-        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
 
     /// <summary>Checks file-select patch cells and terminators against ROM, then verifies edited placement and order.</summary>
@@ -1500,11 +1498,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpritePage.Of(MotherBrainSpritePageSheet.ExplodedDoor, invalid), "stream 3 door page bounds");
-        // The escape-text suite edits stock enemy-tile files, so it runs on a private installation copy.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string stock = copy.Installation.EnemyTileDirectory;
-        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(stock,
-            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(stock, null)));
+        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(InstalledFixtures.EnemyArtwork));
     }
 
     /// <summary>The installation's enemy, boss and area artwork with its escape timer, which Mother Brain's pages copy (#1513).</summary>
@@ -1767,9 +1761,8 @@ internal static class LookupStream3Verification
             FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0x3ce0),
             BeamCycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
         };
-        MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
-            MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPaletteFile.Read(
-                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)), stock);
+        MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
         void Check(MotherBrainRainbowPalettePresentation palette)
         {
             var cgram = new SnesCgram();
@@ -1949,7 +1942,6 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidDataException>(() => stock.ApplyRainbow(new SnesCgram(), invalid), "stream 3 rainbow bounds");
         foreach (var fade in new[] { stock.toGrey, stock.fakeDeathToGrey })
             AssertTrue(fade.supplied is null, "stream 3 drain stock intermediate rows discarded");
-        Check(Load(document with { Version = 2, FakeDeathToGrey = null }, stock));
         // Independently edited channels must still be delivered exactly, including endpoints and WRAM.
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 24; color++)
@@ -2450,19 +2442,6 @@ internal static class LookupStream3Verification
                     }
                 }
             }
-        var legacy = node.DeepClone();
-        legacy["version"] = MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion;
-        legacy.AsObject().Remove("recoveryLights");
-        var oldOverride = MotherBrainRoomColorFile.Read(new MemoryStream(
-            System.Text.Encoding.UTF8.GetBytes(legacy.ToJsonString())), stock);
-        for (int frame = 0; frame < 7; frame++)
-        {
-            var expected = new SnesCgram();
-            var actual = new SnesCgram();
-            stock.ApplyRecoveryLights(expected, frame);
-            oldOverride.ApplyRecoveryLights(actual, frame);
-            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "stream 3 legacy room override reuses calculated stock recovery");
-        }
     }
 
     /// <summary>Checks timed room-flash colors and mirrors without storing native output rows.</summary>
@@ -2725,7 +2704,7 @@ internal static class LookupStream3Verification
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
-            Version = EnemySpritemapSchema.Current.Revision,
+            Version = EnemySpritemapSchema.Revision,
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
@@ -2832,7 +2811,6 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
         }
-        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
     /// <summary>Checks the phase-two attack palette's live colors and rear-leg routing without stored stock rows.</summary>
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
@@ -2949,15 +2927,15 @@ internal static class LookupStream3Verification
         }
     }
 
-    /// <summary>Checks room-entry glass and tube colors, recovery independence, and legacy palette inheritance.</summary>
+    /// <summary>Checks room-entry glass and tube colors and recovery independence.</summary>
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
             imported, ArtworkJson.Options);
-        MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document, MotherBrainRoomColorPresentation? current = null) =>
+        MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document) =>
             MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-                document, ArtworkJson.Options)), current);
+                document, ArtworkJson.Options)));
         var document = Read();
         var stock = Load(document);
         for (int color = 0; color < MotherBrainRoomColorDefinitions.InitialColors; color++)
@@ -3010,13 +2988,6 @@ internal static class LookupStream3Verification
             document.RecoveryLights[6][14] = Change(original, component);
             Confirm(Load(document), document);
             document.RecoveryLights[6][14] = original;
-        }
-        foreach (int version in new[] { MotherBrainRoomColorFormatConstants.PreRoomEntryVersion, MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion })
-        {
-            var legacy = document with { Version = version, RecoveryLights = null };
-            if (version == MotherBrainRoomColorFormatConstants.PreRoomEntryVersion)
-                legacy = legacy with { InitialGlassShard = null, InitialTubeProjectile = null };
-            Confirm(Load(legacy, stock), document);
         }
 
         static PaletteRgb5 Change(PaletteRgb5 rgb, int component) => component switch
@@ -3483,7 +3454,7 @@ BranchesToSharedBody:true),
     internal static int LookupStream3RoomEntryPalettesCommand()
     {
         Suite(nameof(VerifyStream3RoomEntryPalettes), () => VerifyStream3RoomEntryPalettes(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        Console.WriteLine("Glass/tube:30native colors,90edits,room/recovery independence and legacy inheritance pass.");
+        Console.WriteLine("Glass/tube:30native colors,90edits,room/recovery independence pass.");
         return 0;
     }
 
@@ -3492,7 +3463,7 @@ BranchesToSharedBody:true),
     internal static int LookupStream3RecoveryLightsCommand()
     {
         Suite(nameof(VerifyStream3RecoveryLights), () => VerifyStream3RecoveryLights(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        Console.WriteLine("Recovery lights:196native colors,588channel edits,72room edits,routing and legacy inheritance pass.");
+        Console.WriteLine("Recovery lights:196native colors,588channel edits,72room edits and routing pass.");
         return 0;
     }
 
@@ -3561,7 +3532,7 @@ BranchesToSharedBody:true),
     internal static int LookupStream3BabySpriteReflectionCommand()
     {
         Suite(nameof(VerifyStream3BabySpriteReflection), () => VerifyStream3BabySpriteReflection(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        Console.WriteLine("Baby sprite reflection:90 native parts/OAM,90 isolated X edits,27 field edits,order/count/empty layouts,hashes/bounds and64 legacy schemas pass.");
+        Console.WriteLine("Baby sprite reflection:90 native parts/OAM,90 isolated X edits,27 field edits,order/count/empty layouts and hashes/bounds pass.");
         return 0;
     }
 

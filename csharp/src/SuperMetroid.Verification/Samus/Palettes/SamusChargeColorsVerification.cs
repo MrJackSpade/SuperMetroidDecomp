@@ -26,15 +26,17 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
-/// <summary>Checks extracted Samus charge palettes, native phase selection, and runtime color updates.</summary>
+/// <summary>Checks extracted Samus charge palettes, native phase selection, and guarded runtime color updates.</summary>
 internal static class SamusChargeColorsVerification
 {
-    /// <summary>Checks the extracted Hyper-shot colours against the cartridge, the charge and Hyper-shot palette cadence, and invalid RGB5 rejection.</summary>
-    internal static void VerifySamusChargeColorCadence(ISnesAddressSpace rom)
+    /// <summary>Checks the installed charge and Hyper colors' CGRAM output without rereading native palette words.</summary>
+    internal static void VerifySamusChargeColors(string stockDirectory,
+        AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false)).ToColours();
-        VerifySamusChargeColorPhases(rom);
+        var forbidden = new HashSet<int>();
+        forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
         {
             ushort offset = (ushort)((SamusChargePaletteDefinitions.HyperShotSteps - frame) * sizeof(ushort));
@@ -51,11 +53,18 @@ internal static class SamusChargeColorsVerification
             }
         }
 
+        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(
+            File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock charge colors are null.");
+        var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge,
         };
+        // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
+        var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledAreaMapPresentation.SamusColoursOf(original).Charge };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         var samusColours = new SamusColours();
@@ -75,6 +84,10 @@ internal static class SamusChargeColorsVerification
                     $"installed family {family} suit {suit} phase {phase}");
                 AssertEqual(phase, appliedPhase,
                     $"installed charge phase {family}/{suit}/{phase}");
+                for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+                    AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Charge.ResolveCharge(family != 0, suit, phase, color),
+                        samusColours.ShownSuit(installedSources)[color],
+                        $"installed charge CGRAM {family}/{suit}/{phase}/{color}");
             }
         }
         AssertEqual(0, projectiles.Charge.ChargePaletteStep, "six charge phases wrap");
@@ -98,25 +111,36 @@ internal static class SamusChargeColorsVerification
                 $"Hyper-shot call {call} paints");
             // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
             AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
+            for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Charge.ResolveHyper(frame, color),
+                    samusColours.ShownSuit(installedSources)[color],
+                    $"installed Hyper-shot colour {frame}/{color}");
         }
-        SamusChargeColorDocument document = RequiredJson.Deserialize<SamusChargeColorDocument>(extracted, ArtworkJson.Options);
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed charge and Hyper-shot avoid extracted source reads");
         PaletteRgb5 previous = document.HyperShot[0][1];
         document.HyperShot[0][1] = previous with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => SamusChargeColorFile.Read(new MemoryStream(SamusChargeColorFile.Write(document))),
             "charge colors reject invalid RGB5 channels");
 
-        Console.WriteLine("Samus charge colors: native Hyper-shot ROM words, 36 charge phases, 20 Hyper calls and invalid RGB5 rejection pass.");
+        Console.WriteLine("Samus charge colors: 736 ROM words, 36 charge phases, 20 Hyper calls reach CGRAM and source-read guard pass.");
 
-        ushort BlockWord(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        ushort BlockWord(int address)
+        {
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        }
     }
 
     /// <summary>Checks all suit and charge phases against ROM, including canonical shared pointers and the runtime six-step palette cadence.</summary>
-    internal static void VerifySamusChargeColorPhases(ISnesAddressSpace rom)
+    internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var catalog = SamusChargeColorFile.Read(new MemoryStream(extracted));
         SamusChargeColours colours = catalog.ToColours();
         var catalogSources = InstalledFixtures.SamusShadeSources with { Charge = colours };
+        var forbidden = new HashSet<int>();
         var expected = new ushort[2, 3, 6, 16];
         var samusColours = new SamusColours();
         for (int family = 0; family < 2; family++)
@@ -385,6 +409,7 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, invalid, 0, 0), "Invalid suit rejected");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
+        var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
@@ -403,12 +428,23 @@ internal static class SamusChargeColorsVerification
                 AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle : SamusBeamChargePaletteAction.PseudoScrewCycle,
                     step.Action, "Native charge family action");
                 for (int color = 0; color < 16; color++)
-                    AssertEqual(expected[family, suit, phase, color], samusColours.ShownSuit(catalogSources)[color], "Runtime charge color");
+                    AssertEqual(expected[family, suit, phase, color], samusColours.ShownSuit(catalogSources)[color], "Guarded runtime charge color");
             }
         }
         AssertEqual(0, projectiles.Charge.ChargePaletteStep, "Charge phase wraps after six calls");
-        Console.WriteLine("Charge/death palettes: 1216 original colors, shared fade arithmetic, identity, bounds and 36 runtime charge calls pass.");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "Runtime charge uses no palette ROM reads");
+        Console.WriteLine("Charge/death palettes: 1216 original colors, shared fade arithmetic, identity, bounds and 36 guarded charge calls pass.");
+        return forbidden;
 
-        ushort Word(int address) => ReadVerificationWord(rom, address);
+        ushort Word(int address)
+        {
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            return ReadVerificationWord(rom, address);
+        }
     }
+    /// <summary>Rejects runtime reads from the native palette bytes already checked against extracted charge colors.</summary>
+    private static CartridgeReadGuard NewChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(inner).Forbid(forbidden.Contains,
+            address => $"Charge palette reread ${address:X6}.");
 }

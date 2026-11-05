@@ -54,34 +54,22 @@ internal static class RoomPlmDoorVisualFileCodec
             new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
-    /// <summary>Validates stock provenance, then selects an optional edited visual catalog.</summary>
-    internal static TCatalog Load<TCatalog>(string stockDirectory, string? overrideDirectory,
-        RoomPlmVisualFamily<TCatalog> visuals)
+    /// <summary>Validates the installed manifest's provenance, then loads the installed visual catalog as the player left it.</summary>
+    internal static TCatalog Load<TCatalog>(string directory, RoomPlmVisualFamily<TCatalog> visuals)
     {
         Ensure.NotNull(visuals);
-        string visualFileName = visuals.FileName;
         string family = visuals.Name;
-        Func<Entry[], TCatalog> createCatalog = visuals.CreateCatalog;
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath, family);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(
                 $"{family} visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, visualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        TCatalog stock = CreateCatalog(
-            ReadJson<VisualDocument>(stockBytes, stockPath, family), stockPath,
-            family, createCatalog);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, visualFileName);
-        return overridePath is null || !File.Exists(overridePath)
-            ? stock
-            : CreateCatalog(ReadJson<VisualDocument>(overridePath, family),
-                overridePath, family, createCatalog);
+        string path = Path.Combine(directory, visuals.FileName);
+        return CreateCatalog(ReadJson<VisualDocument>(path, family), path, family,
+            visuals.CreateCatalog);
     }
 
     /// <summary>Checks bounded bank-$84 run counts, directions, offsets, and decoded blocks while extracting only their appearances.</summary>
@@ -135,7 +123,7 @@ internal static class RoomPlmDoorVisualFileCodec
         return entries.ToArray();
     }
 
-    /// <summary>Rejects incompatible JSON and wraps catalog validation with the selected file path.</summary>
+    /// <summary>Rejects incompatible JSON and wraps catalog validation with the installed file path.</summary>
     private static TCatalog CreateCatalog<TCatalog>(VisualDocument document,
         string path, string family, Func<Entry[], TCatalog> createCatalog)
     {
@@ -150,7 +138,7 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
-    /// <summary>Reads a selected PLM visual file before applying the shared JSON error boundary.</summary>
+    /// <summary>Reads an installed PLM visual file before applying the shared JSON error boundary.</summary>
     private static T ReadJson<T>(string path, string family) =>
         ReadJson<T>(File.ReadAllBytes(path), path, family);
 

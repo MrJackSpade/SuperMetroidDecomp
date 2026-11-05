@@ -114,7 +114,7 @@ internal static class EndingLogoVerification
         }
     }
 
-    /// <summary>Checks calculated logo sprite relationships while preserving supplied edits and native OAM placement.</summary>
+    /// <summary>Checks calculated stock logo sprite relationships and native OAM placement.</summary>
     private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
         CinematicSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
     {
@@ -141,23 +141,6 @@ internal static class EndingLogoVerification
         AssertTrue(!ReferenceEquals(supplied, calculated), "logo calculated relationship selection");
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("logo-related", value.AppendIdentity);
         AssertEqual(Identity(supplied), Identity(calculated), "all original logo related fields and ordering");
-        if (frame == 4)
-        {
-            SpriteVisualPart[] reordered = (SpriteVisualPart[])visual.Clone();
-            {
-                var held0 = reordered[1];
-                var held1 = reordered[0];
-                reordered[0] = held0;
-                reordered[1] = held1;
-            }
-            foreach (SpriteVisualPart[] editedParts in new[] { reordered, visual[..^1] })
-            {
-                SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(editedParts, "edited wrap selection");
-                SpriteComposition editedCalculation = Calculate(edited);
-                AssertTrue(!ReferenceEquals(edited, editedCalculation), "edited tile sequence retains calculated placement");
-                AssertEqual(Identity(edited), Identity(editedCalculation), "edited tile order and count stay supplied");
-            }
-        }
         foreach (ushort y in new ushort[] { 72, 0xfff8 })
         {
             var originalOam = new OamBuffer();
@@ -169,20 +152,6 @@ internal static class EndingLogoVerification
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
             AssertTrue(originalOam.ImageEquals(calculatedOam),
                 "logo relationship preserves native OAM and clipping");
-        }
-        SpriteVisualPart first = visual[0];
-        foreach (SpriteVisualPart edit in new[]
-        {
-            first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
-            first with { TileColumn = (first.TileColumn + 1) % 14 }, first with { TileRow = first.TileRow + 1 },
-            first with { Size = first.Size == 16 ? 8 : 16, TileColumn = Math.Min(14, first.TileColumn) },
-            first with { Priority = 2 }, first with { Palette = 3 },
-            first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
-        })
-        {
-            visual[0] = edit;
-            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited logo");
-            AssertTrue(ReferenceEquals(edited, Calculate(edited)), "independent logo artwork edits stay supplied");
         }
         foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "logo part bounds");

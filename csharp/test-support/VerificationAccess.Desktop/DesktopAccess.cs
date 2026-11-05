@@ -87,9 +87,8 @@ internal static class DesktopAccess
         HostOptions hostOptions,
         IHostFrameDriver? driver = null,
         GitHubErrorReporter? errorReporter = null,
-        string? audioDirectory = null,
         string? dataDirectory = null) =>
-        new(InstallationFor(romPath, dataDirectory), hostOptions, driver, errorReporter, audioDirectory);
+        new(InstallationFor(romPath, dataDirectory), hostOptions, driver, errorReporter);
 
     /// <summary>Directory beside a ROM where <see cref="InstallationFor"/> opens the installation a check placed there.</summary>
     internal const string InstallationDirectoryName = "SuperMetroid-installed";

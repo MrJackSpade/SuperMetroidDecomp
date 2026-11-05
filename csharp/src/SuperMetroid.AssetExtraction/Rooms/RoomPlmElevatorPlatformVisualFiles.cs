@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public static class RoomPlmElevatorPlatformVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for the elevator platform's three six-cell artwork frames.</summary>
+    /// <summary>Family-relative installed JSON filename for the elevator platform's three six-cell artwork frames.</summary>
     public const string VisualFileName = "elevator-platforms.json";
     /// <summary>Stock manifest filename containing version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
@@ -60,34 +60,24 @@ public static class RoomPlmElevatorPlatformVisualFiles
             new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
-    /// <summary>Validates stock platform artwork before selecting an optional complete three-frame visual replacement.</summary>
-    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required provenance/hash manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or missing visual JSON uses validated stock.</param>
+    /// <summary>Validates the installed elevator-platform manifest's provenance and loads the installed elevator-platform JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed family directory containing the version-one elevator-platform JSON and its manifest.</param>
     /// <returns>A ROM-independent catalog with copied authored appearances; solid geometry and the four-update first/second/third/second loop stay compiled.</returns>
-    /// <remarks>Stock must match supported provenance, its byte hash, and compiled visuals even when overridden. Replacement JSON needs all three identities with original run lengths and valid appearances, but no manifest.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, shapes, or appearances are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Manifest provenance, schema, identities, coverage, shapes, or appearances are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or elevator-platform JSON cannot be read.</exception>
     public static RoomPlmElevatorPlatformVisualCatalog Load(
-        string stockDirectory, string? overrideDirectory)
+        string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Elevator-platform visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        RoomPlmElevatorPlatformVisualCatalog stock = CreateCatalog(
-            ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        return overridePath is null || !File.Exists(overridePath)
-            ? stock
-            : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
+        string path = Path.Combine(directory, VisualFileName);
+        return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
     /// <summary>Validates all three elevator-platform draw layouts and builds the visuals from the run appearances that differ from the compiled frames, retaining run geometry, terrain blocks, and animation cadence.</summary>
@@ -177,7 +167,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         return entries.ToArray();
     }
 
-    /// <summary>Checks document version and entries while including the selected file path in validation errors.</summary>
+    /// <summary>Checks document version and entries while including the installed file path in validation errors.</summary>
     private static RoomPlmElevatorPlatformVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -193,7 +183,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
 
     /// <summary>Reads a manifest or visual document and carries its source path into parse diagnostics.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
-    /// <summary>Deserializes JSON bytes and identifies the selected file when content is empty or malformed.</summary>
+    /// <summary>Deserializes JSON bytes and identifies the installed file when content is empty or malformed.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try

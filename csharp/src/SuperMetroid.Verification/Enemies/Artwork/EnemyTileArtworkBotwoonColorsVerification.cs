@@ -9,20 +9,19 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
-/// <summary>Checks installed Botwoon palette art, live health transitions, and override validation.</summary>
+/// <summary>Checks installed Botwoon palette art, live health transitions, and document validation.</summary>
 internal static class EnemyTileArtworkBotwoonColorsVerification
 {
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares 128 stock colors with the ROM and checks edited colors flow through live health-band updates.</summary>
+    /// <summary>Compares 128 stock colors with the ROM and checks installed colors flow through live health-band updates.</summary>
     internal static void VerifyInstalledBotwoonColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -41,31 +40,13 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         BotwoonColorDocument visual = JsonSerializer.Deserialize<BotwoonColorDocument>(
             stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Botwoon color JSON is null.");
-        foreach (PaletteRgb5[] band in visual.Health)
-            band[5] = ChangeRed(band[5]);
-        string overrides = Path.Combine(stockDirectory, "botwoon-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides, BotwoonColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, BotwoonColorFile.Write(visual));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { BotwoonColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors() } };
-        BotwoonColorCatalog colors = edited.Bosses.BotwoonColors ??
-            throw new InvalidDataException("Edited enemy art has no Botwoon colors.");
-        for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
-        {
-            AssertTrue(native.HealthColor(band, 5) != colors.HealthColor(band, 5),
-                $"Botwoon health band {band} edit takes effect");
-            AssertEqual(native.HealthColor(band, 4), colors.HealthColor(band, 4),
-                $"Botwoon health band {band} adjacent color remains native");
-        }
-        AssertEqual(colors.HealthColor(7, 5),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors().HealthColor(7, 5),
-            "Botwoon color override survives catalog reload");
+        BotwoonColorCatalog colors = native;
 
         var guard = NewBotwoonColorReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades =
-            SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(edited.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);
+            SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(stock.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);
         Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
@@ -92,29 +73,10 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Botwoon health palette avoids migrated RGB5 ROM reads");
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors(),
-            "invalid Botwoon color override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).BotwoonColors(),
-            "duplicate Botwoon color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => BotwoonColorFile.Read(new MemoryStream(BotwoonColorFile.Write(visual), writable: false)),
             "reading Botwoon colors rejects an RGB5 channel outside five-bit precision");
-        File.Delete(overrideFile);
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).BotwoonColors(),
-            "corrupt stock Botwoon colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Botwoon colors: 128 native RGB5 words, eight live health bands, preserved threshold progression, persistent override, ROM guard and strict failures pass.");
-
-        static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
-        {
-            Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
-        };
+        Console.WriteLine("  Botwoon colors: 128 native RGB5 words, eight live health bands, preserved threshold progression, ROM guard and strict failures pass.");
     }
 
     /// <summary>Guards the migrated Botwoon palette range against live cartridge reads.</summary>

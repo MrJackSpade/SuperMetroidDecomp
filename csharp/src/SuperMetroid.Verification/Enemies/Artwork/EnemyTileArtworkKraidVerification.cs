@@ -1,7 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationOracleVerification;
@@ -18,18 +15,14 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Checks installed Kraid BG2, head, and room-background artwork against native transfers.</summary>
 internal static class EnemyTileArtworkKraidVerification
 {
-    /// <summary>JSON options: Camel-case property names, indented output.</summary>
-    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
-
-    /// <summary>Matches Kraid's working BG2 map and both shown body pages, then checks an edited tile.</summary>
+    /// <summary>Matches Kraid's working BG2 map and both shown body pages.</summary>
     internal static void VerifyInstalledKraidBackground(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, InstalledEnemyArtwork stock)
     {
         KraidBackgroundArtwork art = stock.Bosses.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid maps.");
@@ -54,44 +47,12 @@ internal static class EnemyTileArtworkKraidVerification
         AssertTrue(ShowKraidVisiblePages(stock).SequenceEqual(nativeShown),
             "installed Kraid BG2 sources preserve both shown body pages");
 
-        string upperPath = Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName);
-        byte[] original = File.ReadAllBytes(upperPath);
-        string overrides = Path.Combine(directory, "kraid-override");
-        Directory.CreateDirectory(overrides);
-        RoomBackgroundTilemapDocument document =
-            RequiredJson.Deserialize<RoomBackgroundTilemapDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        RoomBackgroundTilemapPage[] pages = (RoomBackgroundTilemapPage[])document.Pages.Clone();
-        RoomBackgroundTilemapCell[] cells = (RoomBackgroundTilemapCell[])pages[0].Cells.Clone();
-        cells[0] = cells[0] with { TileColumn = cells[0].TileColumn ^ 1 };
-        pages[0] = pages[0] with { Cells = cells };
-        string overridePath = Path.Combine(overrides, KraidBackgroundArtworkFormat.UpperFileName);
-        using (var output = File.Create(overridePath))
-            RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages });
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } };
-        ushort[] changed = BuildKraidWorkingMap(edited);
-        AssertEqual((ushort)(native[0] ^ 1), changed[0],
-            "edited Kraid BG2 reference changes the visible working-map cell");
-        AssertTrue(changed.AsSpan(1).SequenceEqual(native.AsSpan(1)),
-            "edited Kraid BG2 cell leaves the remaining live map unchanged");
-        AssertEqual((ushort)(nativeShown[0] ^ 1), ShowKraidVisiblePages(edited)[0],
-            "edited Kraid BG2 reference changes the shown tile word");
-        AssertTrue(BuildKraidWorkingMap(stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } }).SequenceEqual(changed),
-            "Kraid BG2 override survives catalog reload");
-
-        File.WriteAllBytes(upperPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
-            "tampered stock Kraid BG2 map fails loudly where it is read");
-        File.WriteAllBytes(upperPath, original);
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
-            "malformed Kraid BG2 override fails at load");
-        Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
+        Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, stock));
     }
 
-    /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches the shown body.</summary>
+    /// <summary>Checks each authored Kraid head frame against the head the cartridge shows.</summary>
     private static void VerifyInstalledKraidHeadFrames(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, InstalledEnemyArtwork stock)
     {
         ushort[] pointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         AssertEqual(4, pointers.Length, "four distinct Kraid head art frames");
@@ -113,45 +74,12 @@ internal static class EnemyTileArtworkKraidVerification
                 $"Kraid head ${pointer:X4} preserves the shown head");
         }
 
-        ushort editedPointer = pointers[0];
-        string fileName = KraidBackgroundArtworkFormat.HeadFileNameAt(editedPointer);
-        string stockPath = Path.Combine(directory, fileName);
-        byte[] original = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(directory, "kraid-head-override");
-        Directory.CreateDirectory(overrides);
-        KraidHeadTilemapDocument document =
-            RequiredJson.Deserialize<KraidHeadTilemapDocument>(original,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        RoomBackgroundTilemapCell[] cells = (RoomBackgroundTilemapCell[])document.Cells.Clone();
-        cells[0] = cells[0] with { TileColumn = cells[0].TileColumn ^ 1 };
-        string overridePath = Path.Combine(overrides, fileName);
-        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
-            document with { Cells = cells }, CamelCaseIndentedJson));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } };
-        (_, ushort[] changedShown) = RunKraidHeadFrame(edited, editedPointer);
-        (_, ushort[] stockShown) = ReadImportedKraidHeadFrame(rom, editedPointer);
-        AssertEqual((ushort)(stockShown[0] ^ 1), changedShown[0],
-            "edited Kraid head tile changes the first shown reference");
-        AssertTrue(stockShown.AsSpan(1).SequenceEqual(changedShown.AsSpan(1)),
-            "Kraid head edit leaves every later shown word unchanged");
-        (_, ushort[] reloadedShown) = RunKraidHeadFrame(
-            stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } }, editedPointer);
-        AssertTrue(reloadedShown.SequenceEqual(changedShown),
-            "Kraid head tilemap edit survives a catalog reload");
-
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
-            "tampered Kraid head stock map fails loudly where it is read");
-        File.WriteAllBytes(stockPath, original);
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
-            "malformed Kraid head override fails at load");
-        Suite(nameof(VerifyInstalledKraidRoomBackground), () => VerifyInstalledKraidRoomBackground(rom, directory, stock));
+        Suite(nameof(VerifyInstalledKraidRoomBackground), () => VerifyInstalledKraidRoomBackground(rom, stock));
     }
 
-    /// <summary>Checks the Kraid room-background character upload and a selected PNG pixel edit.</summary>
+    /// <summary>Checks the Kraid room-background character upload against the cartridge's VRAM.</summary>
     private static void VerifyInstalledKraidRoomBackground(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, InstalledEnemyArtwork stock)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidSourceDefinitions.RoomBackgroundTiles,
@@ -163,39 +91,6 @@ internal static class EnemyTileArtworkKraidVerification
         SnesVram installed = UploadKraidRoomBackground(stock);
         AssertTrue(installed.ImageEquals(baseline),
             "installed Kraid room-background upload preserves full native VRAM");
-
-        string fileName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
-        string stockPath = Path.Combine(directory, fileName);
-        byte[] original = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(directory, "kraid-room-background-override");
-        Directory.CreateDirectory(overrides);
-        using var input = new MemoryStream(original, writable: false);
-        IndexedPngImage image = IndexedPng.Read(input, new(16 * 8, 8));
-        image.Pixels[0] ^= 1;
-        string overridePath = Path.Combine(overrides, fileName);
-        using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Colours);
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } };
-        SnesVram changed = UploadKraidRoomBackground(edited);
-        int destination = KraidBackgroundDefinitions.RoomBackgroundTileVramWord * sizeof(ushort);
-        AssertEqual((byte)(baseline.ReadByte(destination) ^ 0x80),
-            changed.ReadByte(destination),
-            "edited Kraid background pixel changes native VRAM destination");
-        AssertTrue(baseline.Bytes[(destination + 1)..]
-                .SequenceEqual(changed.Bytes[(destination + 1)..]),
-            "Kraid backdrop PNG edit leaves later VRAM bytes unchanged");
-        SnesVram reloaded = UploadKraidRoomBackground(stock with { Bosses = stock.Bosses with { KraidBackground = EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground() } });
-        AssertTrue(reloaded.ImageEquals(changed),
-            "Kraid room-background PNG override survives catalog reload");
-
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, null).KraidBackground(),
-            "tampered Kraid room-background stock PNG fails loudly where it is read");
-        File.WriteAllBytes(stockPath, original);
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(directory, overrides).KraidBackground(),
-            "malformed Kraid room-background PNG override fails at load");
     }
 
     /// <summary>The image a capture shows after the room-background characters bind, using a cartridge-free Kraid owner.</summary>

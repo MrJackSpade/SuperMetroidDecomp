@@ -28,7 +28,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Checks extracted suit palettes through Samus's normal palette paths.</summary>
+/// <summary>Checks extracted suit palettes and installed colors through Samus's normal palette paths.</summary>
 internal static class SamusSuitColorsVerification
 {
     /// <summary>Compares all three suit palettes to retail colors and checks catalog bounds and CGRAM installation.</summary>
@@ -92,8 +92,12 @@ internal static class SamusSuitColorsVerification
         Console.WriteLine("Normal suit catalog boundary: all 48 stock colors, native pointers and the Power shade pass without a runtime bus.");
     }
 
-    /// <summary>Checks the extracted suit colors against the cartridge, the normal-suit restoration paths, and invalid RGB5 rejection.</summary>
-    internal static void VerifySamusSuitPaletteRestoration(ISnesAddressSpace bus)
+    /// <summary>Checks installed suit colors through live loading, restoration, hurt recovery, and Ceres entry.</summary>
+    internal static void VerifySamusSuitColors(
+        string stockDirectory,
+        AreaMapPresentation original,
+        ISnesAddressSpace bus,
+        MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus);
         InstalledSamusSuitColors decoded = SamusSuitColorFile.Read(
@@ -111,8 +115,15 @@ internal static class SamusSuitColorsVerification
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 
+        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(
+            File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
+        var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        // The installed catalog reaches Samus through the shades the import makes from it (#1512).
+        var installedSources = InstalledFixtures.SamusShadeSources with { Suits = InstalledAreaMapPresentation.SamusColoursOf(original).Suits };
         ushort[] equipment =
         [
             0,
@@ -123,6 +134,9 @@ internal static class SamusSuitColorsVerification
         {
             samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[suit]);
             SamusNormalSuitPalette.Load(samusColours, samus.EquippedItems);
+            AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(offsets[suit], 1),
+                samusColours.ShownSuit(installedSources)[1],
+                $"installed suit {suit} reaches live Samus CGRAM");
         }
 
         samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment[1]);
@@ -130,6 +144,9 @@ internal static class SamusSuitColorsVerification
         AssertTrue(samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
                 samusColours, samus.EquippedItems),
             "momentum cancellation admits installed normal suit restoration");
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(SamusSuit.Varia, 1),
+            samusColours.ShownSuit(installedSources)[1],
+            "momentum cancellation restores the installed Varia color");
 
         samus.HurtFlashCounter = 2;
         // Show another shade first so only a real normal-suit reload passes.
@@ -138,12 +155,29 @@ internal static class SamusSuitColorsVerification
             samusColours, samus, controllerInput: 0);
         AssertEqual(SamusShades.Suit(SamusSuit.Varia), samusColours.Suit,
             "even hurt-flash frame restores the normal suit's shade");
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(SamusSuit.Varia, 1),
+            samusColours.ShownSuit(installedSources)[1],
+            "hurt-flash recovery restores the installed Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
         AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(samusColours, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }),
             "Screw Attack recovery frame restores the normal suit");
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(SamusSuit.Varia, 1),
+            samusColours.ShownSuit(installedSources)[1],
+            "Screw Attack recovery restores the installed Varia color");
 
-        SamusSuitColorDocument document = RequiredJson.Deserialize<SamusSuitColorDocument>(extracted, ArtworkJson.Options);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
+        runtime.Artwork.MapPresentation = original;
+        fixtureAssets.Bind(runtime);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).Suits.Resolve(SamusSuit.Power, 1),
+            runtime.Player.Colours.ShownSuit(installedSources)[1],
+            "installed production Ceres entry uses the installed Power Suit color");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "installed normal suit paths do not reread the three cartridge palettes");
+
         PaletteRgb5 originalColor = document.Varia[1];
         document.Varia[1] = originalColor with { Red = 32 };
         byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
@@ -151,7 +185,25 @@ internal static class SamusSuitColorsVerification
             new MemoryStream(malformed, writable: false)),
             "Samus suit colors reject out-of-range RGB5 channels");
 
-        Console.WriteLine("Samus suit colors: three stock palettes, normal restoration branches and invalid data pass.");
+        Console.WriteLine("Samus suit colors: three stock palettes reach live CGRAM, production entry, normal restoration branches, ROM guard and invalid data pass.");
+    }
+
+    /// <summary>Native addresses of Power, Varia, and Gravity palette words guarded during runtime checks.</summary>
+    private static readonly int[] SuitColorSources =
+    [
+        SamusSourceDefinitions.PowerSuitPalette.Value,
+        SamusSourceDefinitions.VariaSuitPalette.Value,
+        SamusSourceDefinitions.GravitySuitPalette.Value,
+    ];
+
+    /// <summary>Rejects runtime reads from the three cartridge suit color tables.</summary>
+    private static MutableCartridgeReadGuard NewSuitColorReadGuard(ISnesAddressSpace source)
+    {
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => SuitColorSources.Any(sourceAddress => address >= sourceAddress &&
+                address < sourceAddress + SamusSuitColorFormat.ColorsPerSuit * sizeof(ushort)),
+            address => $"Production reread suit color ${address:X6}.");
+        return guard;
     }
 
     /// <summary>Reads a native suit palette word solely for comparison with extracted colors.</summary>

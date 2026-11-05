@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
@@ -31,7 +30,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     /// <summary>JSON options: Camel-case property names.</summary>
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering and editable overrides.</summary>
+    /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering.</summary>
     internal static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         InstalledEnemyArtwork stock)
@@ -95,78 +94,20 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         Suite(nameof(VerifyCompiledDraygonOamCollision), () => VerifyCompiledDraygonOamCollision(rom));
         Suite(nameof(VerifyCompiledSporeSpawnCollision), () => VerifyCompiledSporeSpawnCollision(rom));
 
-        string stockPath = Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName);
-        byte[] original = File.ReadAllBytes(stockPath);
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, null).DraygonBg2Frames(),
-            "stock Draygon BG2 frames are manifest-hash checked");
-        File.WriteAllBytes(stockPath, original);
-
         EnemyBg2FrameDocument document =
-            RequiredJson.Deserialize<EnemyBg2FrameDocument>(original,
+            RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        EnemySpritemapDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
-        EnemyBg2WriteDocument first = document.Frames[editedIdentity.Name][0];
-        int changedTile = first.Tiles[0].PackedWord ^ 1;
-        var editedTiles = (RoomBackgroundTilemapCell[])first.Tiles.Clone();
-        editedTiles[0] = RoomBackgroundTilemapCellWords.Cell(changedTile);
-        document.Frames[editedIdentity.Name][0] = first with { Tiles = editedTiles };
-        string overrideDirectory = Path.Combine(stockDirectory, "draygon-bg2-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        string overridePath = Path.Combine(overrideDirectory,
-            DraygonBg2FrameDefinitions.FileName);
-        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
-            CamelCaseJson));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { DraygonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).DraygonBg2Frames() } };
-        AssertTrue((edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
-            "edited Draygon BG2 frame is installed");
-        int vramByte = (EnemyBg2FrameLayoutConstants.VramBase +
-            editedFrame.Span[0].FirstCell) * 2;
-        AssertEqual((ushort)changedTile,
-            BitConverter.ToUInt16(DrawDraygonBg2(edited, editedIdentity.Pointer, true), vramByte),
-            "Draygon visual override changes the live BG2 tile word");
-        AssertTrue(DrawDraygonBg2(edited, editedIdentity.Pointer, false).All(value => value == 0),
-            "Draygon override preserves the native new-frame producer gate");
-        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { DraygonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).DraygonBg2Frames() } };
-        AssertTrue((reloaded.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
-            reloadedFrame.Span[0].Words[0] == (ushort)changedTile,
-            "Draygon BG2 override survives reload");
-        // A player's override written at revision 2 named each frame by where the cartridge stores it; the import carries
-        // it onto the frames' semantic names, so its edit keeps showing (#1465).
-        var legacyOverride = document with
-        {
-            Version = EnemyFrameLegacyNameDefinitions.LastBg2FrameRevision,
-            Frames = DraygonBg2FrameDefinitions.Frames.ToDictionary(frame => frame.LegacyName,
-                frame => document.Frames[frame.Name], StringComparer.Ordinal),
-        };
-        AssertTrue(DraygonBg2FrameDefinitions.Frames.All(frame => !legacyOverride.Frames.ContainsKey(frame.Name)),
-            "the revision-2 Draygon BG2 fixture names no frame by its semantic name");
-        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(legacyOverride, CamelCaseJson));
-        InstalledEnemyArtwork legacyEdited = stock with { Bosses = stock.Bosses with { DraygonBg2Frames = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).DraygonBg2Frames() } };
-        foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
-        {
-            bool legacyInstalled = (legacyEdited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires legacyEdited.DraygonBg2Frames.")).TryGet(frame.Frame,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> legacyFrame);
-            bool currentInstalled = (edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(frame.Frame,
-                out ReadOnlyMemory<EnemyBg2TilemapWrite> currentFrame);
-            AssertTrue(legacyInstalled && currentInstalled && legacyFrame.Length == currentFrame.Length,
-                $"revision-2 Draygon BG2 override installs {frame.Name} as its current-revision equal does");
-            for (int index = 0; index < legacyFrame.Length; index++)
-                AssertTrue(legacyFrame.Span[index].FirstCell == currentFrame.Span[index].FirstCell &&
-                    legacyFrame.Span[index].Words.SequenceEqual(currentFrame.Span[index].Words),
-                    $"revision-2 Draygon BG2 override keeps {frame.Name} write {index}");
-        }
-        File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document, CamelCaseJson));
-        document.Frames[editedIdentity.Name][0] = first with { X = 32 };
+        EnemySpritemapDefinition firstIdentity = DraygonBg2FrameDefinitions.Frames[0];
+        EnemyBg2WriteDocument first = document.Frames[firstIdentity.Name][0];
+        AssertTrue(DrawDraygonBg2(stock, firstIdentity.Pointer, false).All(value => value == 0),
+            "Draygon BG2 drawing keeps the native new-frame producer gate");
+        document.Frames[firstIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");
-        Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; live edit, producer gate, ROM guard, reload, hash and strict validation pass.");
+        Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; producer gate, ROM guard and strict validation pass.");
     }
 
     /// <summary>Compares native frame roots and hitbox lists, then runs the production overlap walker with cartridge reads denied.</summary>

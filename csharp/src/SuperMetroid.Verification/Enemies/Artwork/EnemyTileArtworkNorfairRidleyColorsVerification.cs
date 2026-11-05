@@ -22,7 +22,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 /// <summary>Checks installed Norfair Ridley palette rows against native CGRAM writes and reveal cadence.</summary>
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
-    /// <summary>Compares all initial and reveal colors, guarded production updates, isolated edits, and override validation.</summary>
+    /// <summary>Compares all initial and reveal colors and guarded production updates, and rejects out-of-range channels.</summary>
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -76,69 +76,13 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Installed Norfair Ridley reveal never rereads color or pointer ROM data");
 
-        string stockPath = Path.Combine(stockDirectory, NorfairRidleyColorFormat.FileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(stockDirectory, "norfair-ridley-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, NorfairRidleyColorFormat.FileName);
-        JsonNode changed = RequiredJson.Parse(stockBytes);
-        int initialRed = changed.Required("initial").Required(1).Required("red").GetValue<int>();
-        int revealBlue = changed.Required("reveal").Required(7).Required(3).Required("blue").GetValue<int>();
-        changed.Required("initial").Required(1)["red"] = initialRed ^ 1;
-        changed.Required("reveal").Required(7).Required(3)["blue"] = revealBlue ^ 1;
-        byte[] editedBytes = Encoding.UTF8.GetBytes(changed.ToJsonString());
-        File.WriteAllBytes(overridePath, editedBytes);
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { NorfairRidleyColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).NorfairRidleyColors() } };
-        (RoomEnemySystem editedEnemy, RoomEnemySlot editedSlot,
-            RidleyEnemyState editedState) = Create(guard, edited);
-        (SnesCgram controlCgram, RidleyEnemyState controlState) = CreateReference();
-        CheckEditedCgram("Norfair Ridley edited initial colors", revealRowVisible: false);
-        for (int call = 0; call <= 7 * 3; call++)
-        {
-            Tick(editedEnemy, editedSlot, editedState);
-            TickReference(controlCgram, controlState);
-            AssertEqual(controlState.FadeStep, editedState.FadeStep,
-                $"Norfair Ridley edited reveal call {call} preserves row selection");
-            AssertEqual(controlState.FunctionTimer.RawValue, editedState.FunctionTimer.RawValue,
-                $"Norfair Ridley edited reveal call {call} preserves cadence");
-        }
-        AssertEqual(8, editedState.FadeStep,
-            "Norfair Ridley edited reveal row seven is selected");
-        CheckEditedCgram("Norfair Ridley edited reveal row seven", revealRowVisible: true);
-        Tick(editedEnemy, editedSlot, editedState);
-        TickReference(controlCgram, controlState);
-        Tick(editedEnemy, editedSlot, editedState);
-        TickReference(controlCgram, controlState);
-        Tick(editedEnemy, editedSlot, editedState);
-        TickReference(controlCgram, controlState);
-        AssertEqual(9, editedState.FadeStep,
-            "Norfair Ridley reveal advances after three calls");
-        CheckEditedCgram("Norfair Ridley next row replaces edit", revealRowVisible: false);
-
-        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
-        AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
-            "Stock re-extraction leaves Norfair Ridley override untouched");
-        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { NorfairRidleyColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).NorfairRidleyColors() } };
-        AssertEqual((edited.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires edited.NorfairRidleyColors.")).ResolveReveal(7, 3),
-            (reloaded.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires reloaded.NorfairRidleyColors.")).ResolveReveal(7, 3),
-            "Norfair Ridley reveal edit survives restart/re-extraction");
-        File.WriteAllText(overridePath, "broken");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).NorfairRidleyColors(),
-            "Corrupt Norfair Ridley override fails loudly");
-        File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).NorfairRidleyColors(),
-            "Duplicate Norfair Ridley JSON property fails loudly");
+        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockDirectory, NorfairRidleyColorFormat.FileName));
         JsonNode invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("reveal").Required(0).Required(0)["green"] = 32;
         AssertThrows<InvalidDataException>(() => NorfairRidleyColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Norfair Ridley RGB5 component rejected");
-        File.Delete(overridePath);
-        File.WriteAllText(stockPath, "broken stock");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).NorfairRidleyColors(),
-            "Corrupt Norfair Ridley stock colors fail loudly where it is read");
-        File.WriteAllBytes(stockPath, stockBytes);
-        Console.WriteLine("  Norfair Ridley colors: 242 native RGB5 words, initial/reveal full-CGRAM parity, three-call cadence and terminator, ROM guard, isolated edits, override persistence and strict failures pass.");
+        Console.WriteLine("  Norfair Ridley colors: 242 native RGB5 words, initial/reveal full-CGRAM parity, three-call cadence and terminator, ROM guard, and channel rejection pass.");
 
         // Matches one installed RGB5 word to its native address and marks both source bytes forbidden.
         void CheckSource(int address, ushort expected)
@@ -147,21 +91,6 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             forbidden.Add(address + 1);
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), expected,
                 $"Norfair Ridley color source ${address:X6}");
-        }
-
-        // Checks full CGRAM while allowing only the selected initial red or current reveal blue edit.
-        void CheckEditedCgram(string context, bool revealRowVisible)
-        {
-            SnesCgram editedCgram = Shown(editedState, edited);
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
-            {
-                RgbColor expected = controlCgram.Colors[color];
-                if (color == NorfairRidleyPaletteDefinitionsConstants.InitialCgramIndex + 1)
-                    expected = RgbColor.FromWord((ushort)(expected.ToWord() ^ (1)));
-                if (revealRowVisible && color == NorfairRidleyPaletteDefinitionsConstants.RevealCgramIndex + 3)
-                    expected = RgbColor.FromWord((ushort)(expected.ToWord() ^ (1 << 10)));
-                AssertEqual(expected, editedCgram.Colors[color], $"{context} CGRAM {color}");
-            }
         }
 
         // Seeds the independent native initial CGRAM image and Ridley reveal state using

@@ -54,6 +54,6 @@ internal static class BossBodySheetFixtures
         IReadOnlyList<ComposedBossBodySheet> sheets = BossBodySheetComposer.Compose(inputs.Value with { Bosses = frames });
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "boss-bodies-" + Guid.NewGuid().ToString("N"));
         BossBodySheetFiles.Write(sheets, directory, SupportedCartridge.Sha256);
-        return new BossBodyArtworkFixture(frames, BossBodySheetFiles.Load(directory, null));
+        return new BossBodyArtworkFixture(frames, BossBodySheetFiles.Load(directory));
     }
 }

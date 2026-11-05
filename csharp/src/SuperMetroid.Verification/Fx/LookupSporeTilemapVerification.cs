@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 
-/// <summary>Checks stock and edited Spore Spawn layer-three tile attributes.</summary>
+/// <summary>Checks stock Spore Spawn layer-three tile attributes.</summary>
 internal static class LookupSporeTilemapVerification
 {
     /// <summary>Compares palette bits throughout the 1056-cell page.</summary>
@@ -39,21 +39,12 @@ internal static class LookupSporeTilemapVerification
         }
     }
 
-    /// <summary>Confirms the stock page is the cartridge's page and an edit at every cell survives a reload.</summary>
-    private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
+    /// <summary>Confirms the stock page is the cartridge's page, with exact cell and page bounds.</summary>
+    private static void VerifySporeAttributeStorage(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         var original = new byte[0x840];
-        for (int offset = 0; offset < original.Length; offset++) original[offset] = SporeAttributeStorageAndEditsRomByte(rom, 0x8a98c0 + offset);
+        for (int offset = 0; offset < original.Length; offset++) original[offset] = SporeAttributeStorageRomByte(rom, 0x8a98c0 + offset);
         AssertTrue(original.AsSpan().SequenceEqual(stock.ResolveBytes(RoomFxType.Spores)), "The stock spore page is the cartridge's page");
-        byte[] changed = original.ToArray();
-        for (int index = 0; index < 1056; index++)
-        {
-            byte bit = (index % 4) switch { 0 => 4, 1 => 32, 2 => 64, _ => 128 };
-            changed[index * 2 + 1] ^= bit;
-        }
-        RoomFxLayer3Pages edited = RoomFxLayer3TilemapFixtures.WithPage(stock, RoomFxType.Spores, BackgroundTileWordBytes.Tiles(changed));
-        AssertTrue(changed.AsSpan().SequenceEqual(edited.ResolveBytes(RoomFxType.Spores)), "An attribute edit at every cell survives exactly");
-        AssertTrue(original.AsSpan().SequenceEqual(stock.ResolveBytes(RoomFxType.Spores)), "An edited catalog leaves the stock catalog's page");
         foreach (int index in new[] { int.MinValue, -1, 1056, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxSporeTilemapDefinitions.Attributes(index),
                 "Attribute function preserves its exact cell domain");
@@ -62,8 +53,8 @@ internal static class LookupSporeTilemapVerification
                 "Incomplete spore page rejects");
     }
 
-    /// <summary>Reads a retail tilemap byte when constructing the independent edit source.</summary>
-    private static byte SporeAttributeStorageAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Reads a retail tilemap byte for the stock-page comparison.</summary>
+    private static byte SporeAttributeStorageRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs all four attribute-bit comparisons and storage ownership checks.</summary>
     internal static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
@@ -72,6 +63,6 @@ internal static class LookupSporeTilemapVerification
         Suite(nameof(VerifySporeTilePriority), () => VerifySporeTilePriority(rom, stock));
         Suite(nameof(VerifySporeTileHorizontalFlip), () => VerifySporeTileHorizontalFlip(rom, stock));
         Suite(nameof(VerifySporeTileVerticalFlip), () => VerifySporeTileVerticalFlip(rom, stock));
-        Suite(nameof(VerifySporeAttributeStorageAndEdits), () => VerifySporeAttributeStorageAndEdits(rom, stock));
+        Suite(nameof(VerifySporeAttributeStorage), () => VerifySporeAttributeStorage(rom, stock));
     }
 }

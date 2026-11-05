@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Cartridge values and helpers of <see cref="RoomPlmDraygonCannonVisualFiles"/> that only verification reads.</summary>
 internal static class RoomPlmDraygonCannonVisualFilesConstants
 {
-    /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled appearances; ignores overrides.</summary>
+    /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled appearances.</summary>
     /// <param name="directory">Installed stock Draygon cannon directory.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmDraygonCannonVisualFiles.Load(directory, null);
+    public static void ValidateStock(string directory) => _ = RoomPlmDraygonCannonVisualFiles.Load(directory);
 }

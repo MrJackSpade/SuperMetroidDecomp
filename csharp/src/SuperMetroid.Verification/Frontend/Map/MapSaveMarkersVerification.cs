@@ -1,28 +1,21 @@
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json;
-using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
-using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks file-select save marker eligibility, animation, and editable map positions.</summary>
+/// <summary>Checks file-select save marker eligibility, animation, and installed map positions.</summary>
 internal static class MapSaveMarkersVerification
 {
     /// <summary>Compares all area slots with native marker presence and used-station label rules.</summary>
@@ -87,8 +80,8 @@ internal static class MapSaveMarkersVerification
         }
     }
 
-    /// <summary>Checks marker OAM, edited Maridia position, snapshot rebind, and load handoff timing.</summary>
-    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    /// <summary>Checks marker OAM and load handoff timing against native output.</summary>
+    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var guard = NewSaveMarkerGuard(bus);
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
@@ -118,67 +111,7 @@ internal static class MapSaveMarkersVerification
         foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
             AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options);
-        var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
-        points["Maridia.Save.0"] = points["Maridia.Save.0"] with { X = (ushort)(points["Maridia.Save.0"].X + 8) };
-        Directory.CreateDirectory(overrides);
-        string path = Path.Combine(overrides, MapSaveMarkerFormat.FileName);
-        using (var output = File.Create(path)) MapSaveMarkerFile.Write(output, document with { Markers = points });
-        byte[] bytes = File.ReadAllBytes(path);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
-        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        snapshot.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
-        snapshot.Progress.UsedStations(AreaId.Maridia).Add(0);
-        saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
-        var menu = new FileSelectMapMenuState(new AudioQueues(), slot, 0, edited, MenuSheetFixtures.For(edited));
-        for (int frame = 0; frame < 104; frame++)
-        {
-            ControllerButton input = frame == 48 ? ControllerButton.Start : 0;
-            control.Step(input); menu.Step(input);
-            AssertEqual(control.Phase, menu.Phase, "cosmetic marker edit preserves entry/navigation timing");
-        }
-        AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "edited marker fixture reaches room map");
-        AssertTrue(!control.Render().SequenceEqual(menu.Render()), "selected save marker edit changes actual room-map pixels");
-        using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, menu); captured.Position = 0;
-        menu = DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(captured);
-        menu.BindFixtureArtwork(original);
-        AssertTrue(control.Render().SequenceEqual(menu.Render()), "restored marker rebind preserves scroll/animation and restores current stock position");
-        for (int frame = 0; frame < 80; frame++)
-        {
-            ControllerButton input = frame == 0 ? ControllerButton.Start : 0;
-            control.Step(input); menu.Step(input);
-            AssertEqual(control.Phase, menu.Phase, "marker rebind preserves load phase");
-            AssertEqual(control.LoadRequested, menu.LoadRequested, "marker rebind preserves load handoff timing");
-            AssertTrue(control.Render().SequenceEqual(menu.Render()), "marker rebind preserves animation through load fade");
-        }
-        AssertTrue(menu.LoadRequested, "fixture actually requests loading");
-        AssertEqual((ushort)AreaId.Maridia, slot.Area, "layout does not alter selected save area");
-        AssertEqual(0, slot.SaveStation, "layout does not alter selected load station");
-        string rebuilt = Path.Combine(overrides, "rebuilt");
-        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");
-        AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "save marker override bytes preserved");
-        foreach (var bad in new[] { document with { Version = 2 }, document with { Markers = new() },
-            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var written = new MemoryStream();
-                MapSaveMarkerFile.Write(written, bad);
-                _ = MapSaveMarkerFile.Read(new MemoryStream(written.ToArray(), writable: false));
-            }, "invalid save marker layout rejected on read");
-        File.WriteAllText(path, "{bad save markers");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad save marker override cannot fall back");
-        AssertEqual("{bad save markers", File.ReadAllText(path), "bad save marker override preserved");
-        string rebuiltPath = Path.Combine(rebuilt, MapSaveMarkerFormat.FileName);
-        File.Delete(rebuiltPath);
-        AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(rebuilt, null), "missing stock save markers rejected");
-        File.WriteAllText(rebuiltPath, "bad stock");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(rebuilt, null), "corrupt stock save markers rejected");
-        Console.WriteLine($"Save markers: {valid} coordinates/128-tick animations, unused indices, transitions with save-coordinate ROM reads blocked, edited pixels and restored load timing pass.");
+        Console.WriteLine($"Save markers: {valid} coordinates/128-tick animations, unused indices and transitions with save-coordinate ROM reads blocked pass.");
 
         byte[] Draw(FileSelectStationMarker marker)
         {

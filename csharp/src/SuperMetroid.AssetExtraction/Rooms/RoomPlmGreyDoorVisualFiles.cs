@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Installed, replaceable grey-door and shared clear-cap visual references, and the editable identities that name them.</summary>
 public static class RoomPlmGreyDoorVisualFiles
 {
-    /// <summary>Family-relative JSON filename for twenty grey-door and shared clear-cap layouts, used in both stock and override directories.</summary>
+    /// <summary>Family-relative JSON filename for twenty grey-door and shared clear-cap layouts.</summary>
     public const string VisualFileName = "grey-doors.json";
 
     /// <summary>Checks the bank-$84 grey-door/clear-cap draw shapes, terrain, and offsets, then exports their twelve-bit appearance in native run order.</summary>
@@ -24,16 +24,13 @@ public static class RoomPlmGreyDoorVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Grey-door", All, VisualId);
 
-    /// <summary>Validates stock grey-door and shared clear-cap artwork before selecting an optional complete visual replacement.</summary>
-    /// <param name="stockDirectory">Family directory containing the required version-one manifest and stock JSON.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or an absent <see cref="VisualFileName"/> uses validated stock.</param>
+    /// <summary>Validates the installed Grey-door manifest's provenance and loads the installed Grey-door JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Grey-door JSON.</param>
     /// <returns>A ROM-independent catalog for all twenty layouts, preserving compiled door mechanics and geometry.</returns>
-    /// <remarks>Stock must match its byte hash, supported-cartridge provenance, and compiled appearance even when an override exists. Override JSON needs all frame identities/shapes and appearance, but no manifest.</remarks>
-    /// <exception cref="InvalidDataException">Stock integrity, provenance, JSON format, frame coverage, shapes, or appearance bits are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static InstalledRoomPlmGreyDoorVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <exception cref="InvalidDataException">Manifest provenance, JSON format, frame coverage, shapes, or appearance bits are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or Grey-door JSON cannot be read.</exception>
+    public static InstalledRoomPlmGreyDoorVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmGreyDoorVisuals>(VisualFileName, "Grey-door", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

@@ -5,16 +5,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
@@ -23,7 +19,7 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
-/// <summary>Retail and live-scene checks for ending explosion sprite frames, programs, and editable compositions.</summary>
+/// <summary>Retail and live-scene checks for ending explosion sprite frames, programs, and compositions.</summary>
 internal static class EndingExplosionSpriteArtworkVerification
 {
     /// <summary>Compares sixteen program-selected frame pointers, part counts, and stable asset keys with bank-$8C sprite maps.</summary>
@@ -72,7 +68,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             "planet record count");
     }
 
-    /// <summary>Checks calculated grid/quadrant parts preserve native OAM and selected edits keep their authored composition.</summary>
+    /// <summary>Checks calculated grid/quadrant parts preserve the stock fields and native OAM.</summary>
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         // Applies the five calculation families only when the supplied sprite map still matches their supported basis.
@@ -124,7 +120,6 @@ internal static class EndingExplosionSpriteArtworkVerification
                 AssertTrue(native.ImageEquals(generated),
                     "calculated grid preserves native OAM and clipping");
             }
-            SpriteVisualPart first = visual[0];
             if (pose is >= 10 and <= 12)
             {
                 EndingExplosionSpriteDefinitions.Pose role = Enum.GetValues<EndingExplosionSpriteDefinitions.Pose>()[pose - 10];
@@ -133,37 +128,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                     AssertEqual(original.Part(index), EndingExplosionQuadrantParts.StockBasis(role, index), "original packed quadrant basis");
                 foreach (int invalid in new[] { int.MinValue, -1, basisCount, int.MaxValue })
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(role, invalid), "quadrant basis index bounds");
-                SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
-                    visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
-                SpriteComposition calculatedBasis = Calculate(shown, editedBasis);
-                AssertTrue(!ReferenceEquals(editedBasis, calculatedBasis), "symmetric edits retain calculated quadrants");
-                AssertEqual(Identity(editedBasis), Identity(calculatedBasis), "edited quadrant inputs preserve every field");
             }
-            foreach (SpriteVisualPart edited in new[]
-            {
-                first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
-                first with { TileColumn = first.TileColumn == 14 ? 13 : first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
-                first with { Size = first.Size == 8 ? 16 : 8 }, first with { Priority = 1 }, first with { Palette = 3 },
-                first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
-                first with { OffsetX = 255 }, first with { OffsetY = 127 },
-            })
-            {
-                visual[0] = edited;
-                SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
-                AssertTrue(pose >= 13 ? Identity(supplied) == Identity(Calculate(shown, supplied)) : ReferenceEquals(supplied, Calculate(shown, supplied)),
-                    "independent edited field keeps supplied composition");
-            }
-            visual[0] = first;
-            {
-                var held0 = visual[1];
-                var held1 = visual[0];
-                visual[0] = held0;
-                visual[1] = held1;
-            }
-            SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
-            AssertTrue(pose >= 13 ? Identity(reordered) == Identity(Calculate(shown, reordered)) : ReferenceEquals(reordered, Calculate(shown, reordered)), "edited part order is preserved");
-            SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
-            AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(shown, shortened)) : ReferenceEquals(shortened, Calculate(shown, shortened)), "edited part count is preserved");
         }
         foreach (EndingExplosionSpriteDefinitions.Pose invalid in new[]
         {
@@ -207,70 +172,19 @@ internal static class EndingExplosionSpriteArtworkVerification
         }
     }
 
-    /// <summary>Flips the starfield art and confirms a live explosion scene changes OAM and pixels without bank-$8C reads, then rejects a missing frame.</summary>
-    internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
-        EndingObjectArtwork stock, MutableCartridgeReadGuard guard)
+    /// <summary>Checks that an explosion sprite document missing a named frame is rejected on read.</summary>
+    internal static void VerifyEndingExplosionSpritesRejectMissingFrame(GameInstallation installation)
     {
-        string name = EndingExplosionSpriteFormat.FileName;
-        string stockPath = Path.Combine(installation.EndingObjectDirectory, name);
-        string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
-        Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingExplosionSpriteDocument document =
             JsonSerializer.Deserialize<EndingExplosionSpriteDocument>(
-                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingExplosionSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending explosion sprite JSON is empty.");
-        // The starfield remains visible through the explosion, giving the edit a
-        // reliable live-frame assertion instead of merely checking an isolated OAM map.
-        document.Frames["starfield"] = document.Frames["starfield"]
-            .Select(part => part with { FlipX = !part.FlipX }).ToArray();
-        try
+        document.Frames.Remove("starfield");
+        AssertThrows<InvalidDataException>(() =>
         {
-            using (var output = File.Create(overridePath))
-                EndingExplosionSpritePresentation.Write(output, document);
-            EndingObjectArtwork edited = installation.LoadEndingObjectArt();
-            var audio = new AudioQueues();
-            var scene = CreateRetailEndingFixture(audio, 0, 0);
-            scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            for (int frame = 0; frame < 10000 &&
-                scene.Stage.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
-            {
-                scene.Step();
-                audio.AdvanceFrame(default);
-            }
-            AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, scene.Stage.Phase,
-                "ending explosion edit reaches its actual scene");
-            bool visible = false;
-            for (int frame = 0; frame < 2400 &&
-                scene.Stage.Phase != EndingCreditsPhase.PlanetEscapeFast && !visible; frame++)
-            {
-                scene.InstalledArtwork.BindFixtureObjectArtwork(stock);
-                LayeredScene before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                scene.InstalledArtwork.BindFixtureObjectArtwork(edited);
-                LayeredScene after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
-                visible = !before.Paint.SpriteParts().SequenceEqual(after.Paint.SpriteParts()) &&
-                    !DisplayRendering.Render(before).SequenceEqual(
-                        DisplayRendering.Render(after));
-                if (!visible)
-                {
-                    scene.Step();
-                    audio.AdvanceFrame(default);
-                }
-            }
-            AssertTrue(visible,
-                "edited explosion starfield changes live OAM and visible ending pixels");
-            AssertEqual(0, guard.ForbiddenReadAttempts,
-                "explosion art rebind never rereads installed bank-$8C sprite maps");
-            document.Frames.Remove("starfield");
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var invalid = new MemoryStream();
-                EndingExplosionSpritePresentation.Write(invalid, document);
-                _ = EndingExplosionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
-            }, "ending explosion sprites reject missing named art on read");
-        }
-        finally
-        {
-            File.Delete(overridePath);
-        }
+            using var invalid = new MemoryStream();
+            EndingExplosionSpritePresentation.Write(invalid, document);
+            _ = EndingExplosionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
+        }, "ending explosion sprites reject missing named art on read");
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +14,6 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
 
 namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
@@ -23,9 +21,8 @@ namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
 /// <summary>Checks installed Ceres warning and door tiles through production VRAM transfers.</summary>
 internal static class CeresEscapeTileArtworkVerification
 {
-    /// <summary>Compares native transfer bytes, then checks a PNG edit reaches VRAM without cartridge reads.</summary>
-    internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
-        string stockDirectory, InstalledEnemyArtwork stock)
+    /// <summary>Compares native transfer bytes and the installed pages without cartridge reads.</summary>
+    internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom, InstalledEnemyArtwork stock)
     {
         AssertTrue(stock.Areas.CeresEscapeTiles is not null,
             "installed Ceres escape warning and door PNGs exist");
@@ -89,71 +86,34 @@ internal static class CeresEscapeTileArtworkVerification
 
         TileSheetDefinition warning =
             CeresEscapeTileArtworkDefinitions.WarningText;
-        string overrideDirectory = Path.Combine(stockDirectory,
-            "ceres-escape-tile-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        int tileCount = warning.ByteCount / RoomCharacterAtlasFormat.BytesPerTile;
-        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-        int rows = (tileCount + columns - 1) / columns;
-        using (var input = new MemoryStream(File.ReadAllBytes(
-                   Path.Combine(stockDirectory, warning.FileName)), writable: false))
-        {
-            IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-            image.Pixels[0] ^= 1;
-            using var output = File.Create(Path.Combine(overrideDirectory,
-                warning.FileName));
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Colours);
-        }
-        InstalledEnemyArtwork edited = stock with { Areas = stock.Areas with { CeresEscapeTiles = EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeTiles() } };
         CeresEscapeTileArtwork stockArt = stock.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
-        CeresEscapeTileArtwork editedArt = edited.Areas.CeresEscapeTiles
-            ?? throw new InvalidOperationException("Edited Ceres escape art was not installed.");
         AssertTrue(stockArt.TryResolve(0, 0,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
             "Ceres warning transfer resolves in stock artwork");
-        AssertTrue(editedArt.TryResolve(0, 0,
-                0x0200, out ReadOnlyMemory<byte> editedChunk),
-            "Ceres warning transfer resolves in edited artwork");
-        AssertEqual((byte)(stockChunk.Span[0] ^ 0x80), editedChunk.Span[0],
-            "Ceres warning PNG edit changes the first tile-plane byte");
-        AssertTrue(stockChunk.Span[1..].SequenceEqual(editedChunk.Span[1..]),
-            "Ceres warning PNG edit leaves other transfer bytes unchanged");
-        var editedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var warningEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = edited.Enemies,
-            
+            TileArtwork = stock.Enemies,
         };
         // The cursor starts at the first warning-text page, part-way through the timer-sprite list.
         int firstWarningPage = CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
                 record.Pointer == CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer) -
             CeresEscapeVramTransferDefinitions.Records.ToList().FindIndex(record =>
                 record.Pointer == CeresEscapeVramTransferDefinitions.TimerSprites);
-        var editedState = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage } };
-        _ = editedEnemies.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(editedState);
-        AssertEqual<int?>(firstWarningPage, editedEnemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
+        var warningState = new RidleyEnemyState { CeresEscapePages = CeresEscapePageCursor.Objects with { Shown = firstWarningPage } };
+        _ = warningEnemies.CeresRidleyBehavior.Getaway.ShowNextCeresEscapePage(warningState);
+        AssertEqual<int?>(firstWarningPage, warningEnemies.Presentation.ArtworkProgress.StepOf(EncounterArtworkSequence.CeresEscapePages),
             "the getaway reaches the warning text's first page");
-        EncounterArtworkUpload editedWarning = EncounterArtworkUploads.Steps(EncounterArtworkSequence.CeresEscapePages,
-            new EnemyTileTransfers(edited, timer: timer))[firstWarningPage].Single();
+        EncounterArtworkUpload shownWarning = EncounterArtworkUploads.Steps(EncounterArtworkSequence.CeresEscapePages,
+            new EnemyTileTransfers(stock, timer: timer))[firstWarningPage].Single();
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
                 out TileTransferDefinition warningTransfer),
             "first warning transfer is compiled");
-        AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord)), editedWarning.FirstByte,
+        AssertEqual(SpriteArtworkPlacements.TableByte(VramDmaDestination.FromNative(warningTransfer.DestinationWord)), shownWarning.FirstByte,
             "the warning text's first page lands where the cartridge copies it");
-        AssertEqual(editedChunk.Span[0], editedWarning.Characters.Span[0],
-            "edited Ceres warning PNG changes the page production pictures");
-        AssertTrue(EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeTiles().TryResolve(0, 0, 0x0200,
-                    out ReadOnlyMemory<byte> reloaded) &&
-                   reloaded.Span.SequenceEqual(editedChunk.Span),
-            "Ceres warning tile override survives catalog reload");
-
-        File.WriteAllBytes(Path.Combine(overrideDirectory, warning.FileName),
-            [1, 2, 3]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrideDirectory).CeresEscapeTiles(),
-            "invalid Ceres warning PNG fails loudly");
+        AssertTrue(shownWarning.Characters.Span.SequenceEqual(stockChunk.Span[..shownWarning.Characters.Length]),
+            "the warning text's first page pictures the installed characters");
 
         // The pictures of the warning pages are composed from the installed characters; composing them without those
         // characters fails rather than falling back to cartridge bytes.
@@ -162,7 +122,7 @@ internal static class CeresEscapeTileArtworkVerification
             "Ceres warning pictures reject missing installed character artwork");
         Console.WriteLine(
             "Ceres escape tiles: both indexed PNGs match native bytes; the seven OBJ " +
-            "pages match the cartridge without ROM art reads; edit, reload, and rejection pass.");
+            "pages match the cartridge without ROM art reads.");
     }
 
     /// <summary>Rejects live descriptor, overlay, warning-tile, and timer-tile source reads.</summary>

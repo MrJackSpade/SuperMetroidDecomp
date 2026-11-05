@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 /// <summary>Checks the reflected vortex stars against source stars and paired artwork edits.</summary>
 internal static class CeresReflectedStarPartsVerification
 {
-    /// <summary>Verifies stock reflection, bounds, independent edits, and OAM after presentation reload.</summary>
+    /// <summary>Verifies stock reflection, bounds, and OAM after presentation reload.</summary>
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");
@@ -28,21 +28,6 @@ internal static class CeresReflectedStarPartsVerification
         foreach (int index in new[] { -1, 23, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[index], "reflected star bounds");
         Check(original, vortex);
-        for (int index = 0; index < 23; index++)
-        {
-            var editedSource = (SpriteVisualPart[])original.Clone();
-            editedSource[index + 2] = editedSource[index + 2] with { OffsetX = editedSource[index + 2].OffsetX + 1 };
-            var compiledSource = IntroCinematicSpriteCompiler.Compile(editedSource, "edited source");
-            AssertTrue(ReferenceEquals(stars, CeresReflectedStarParts.CalculateIfMatching(compiledSource, stars)), "independent source edit does not change target");
-            Check(editedSource, vortex);
-            int targetIndex = index < 16 ? index + 2 : index + 13;
-            var editedTarget = (SpriteVisualPart[])vortex.Clone();
-            editedTarget[targetIndex] = editedTarget[targetIndex] with { OffsetX = editedTarget[targetIndex].OffsetX - 1 };
-            var compiledTarget = IntroCinematicSpriteCompiler.Compile(editedTarget, "edited target");
-            var editedStars = Enumerable.Range(2, 16).Concat(Enumerable.Range(29, 7)).Select(compiledTarget.Part).ToArray();
-            AssertTrue(!ReferenceEquals(editedStars, CeresReflectedStarParts.CalculateIfMatching(compiledSource, editedStars)), "matching paired edits retain reflection");
-            Check(editedSource, editedTarget);
-        }
         void Check(SpriteVisualPart[] sourceVisual, SpriteVisualPart[] targetVisual)
         {
             var frames = CeresFlightSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
@@ -61,7 +46,7 @@ internal static class CeresReflectedStarPartsVerification
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
                 CinematicSheetFixtures.Drawer(loaded).Draw(CeresFlightSpritePoses.VortexPose(CeresVortexFrame.Even), actual, new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects), y == 72); actual.FinalizeFrame();
                 AssertTrue(expectedOam.ImageEquals(actual)
-                    && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader preserves independent and paired edits");
+                    && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader draws the stock vortex stars");
             }
         }
     }

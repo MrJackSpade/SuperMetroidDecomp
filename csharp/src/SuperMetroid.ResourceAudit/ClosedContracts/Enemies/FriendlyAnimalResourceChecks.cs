@@ -11,30 +11,29 @@ internal static class FriendlyAnimalResourceChecks
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;
-        int previousVersion = EnemySpritemapSchema.PreFriendlyAnimal.Revision;
         int escapeStart = previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount + FriendlyAnimalVisualDefinitions.DachoraFrameCount;
         switch (family)
         {
             case "Etecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
                     EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonProgram>()),
-                    FriendlyAnimalVisualDefinitions.EtecoonFrameCount, previousVersion, previousCount, previousCount);
+                    FriendlyAnimalVisualDefinitions.EtecoonFrameCount, previousCount, previousCount);
                 return;
             case "Dachora":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
                     DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraProgram>()),
-                    FriendlyAnimalVisualDefinitions.DachoraFrameCount, previousVersion, previousCount,
+                    FriendlyAnimalVisualDefinitions.DachoraFrameCount, previousCount,
                     previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount);
                 return;
             case "EscapeEtecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
                     EscapeEtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()),
-                    FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount, previousVersion, previousCount, escapeStart);
+                    FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount, previousCount, escapeStart);
                 return;
             case "EscapeDachora":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
                     EscapeDachoraAnimationsTooling.Spritemaps(Enum.GetValues<EscapeDachoraProgram>()),
-                    FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount, previousVersion, previousCount,
+                    FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount, previousCount,
                     escapeStart + FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount);
                 return;
             default:

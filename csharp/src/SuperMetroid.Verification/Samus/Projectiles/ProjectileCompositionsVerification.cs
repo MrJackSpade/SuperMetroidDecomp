@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -15,7 +14,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -28,12 +26,11 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Checks imported projectile OAM against native records and production draw owners.</summary>
 internal static class ProjectileCompositionsVerification
 {
-    /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and rejects malformed compositions without draw-time ROM access.</summary>
+    /// <summary>Compares extracted bank-$93 sprites across coordinate wraps without draw-time ROM access, and rejects malformed compositions.</summary>
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false)
     {
@@ -50,22 +47,21 @@ internal static class ProjectileCompositionsVerification
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
         foreach (int preceding in new[] { 0, 127 })
         {
-            var native = new OamBuffer(); var extracted = new OamBuffer();
+            var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
                 native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
-                extracted.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
+                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, new(origin, origin));
-            content.Draw(id, extracted, new(origin, origin));
-            AssertTrue(native.LowTable.SequenceEqual(extracted.LowTable), "Extracted composition retains all low OAM bytes");
-            AssertTrue(native.HighTable.SequenceEqual(extracted.HighTable), "Extracted composition retains all high OAM bits");
-            AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Extracted composition retains native capacity wrapping");
+            content.Draw(id, authored, new(origin, origin));
+            AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), "Extracted composition retains all low OAM bytes");
+            AssertTrue(native.HighTable.SequenceEqual(authored.HighTable), "Extracted composition retains all high OAM bits");
+            AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Extracted composition retains native capacity wrapping");
             draws++;
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<ProjectileSpriteDocument>(json, options);
-        // The first stock sprite with parts: the runtime and intro sheet checks draw it, and the rejection checks malform it.
         ushort drawnId = ProjectileSpriteDefinitions.NativePointers.First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
         string name = ProjectileSpriteDefinitions.Name(drawnId);
         var original = document.Frames[name][0];

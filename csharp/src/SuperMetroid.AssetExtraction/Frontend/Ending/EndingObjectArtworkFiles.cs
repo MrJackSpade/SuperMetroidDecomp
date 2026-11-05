@@ -202,16 +202,14 @@ public static class EndingObjectArtworkFiles
         }
     }
 
-    /// <summary>Checks the complete stock manifest and file digests, then compiles per-file ending artwork and sprite-composition selections without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the ending/reward sheets, raw-fragment PNG transports, BG2 maps, sprite JSON, and provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory with independently selected replacement files; every absent file falls back to verified stock.</param>
-    /// <returns>The selected artwork and OAM-composition catalog, retaining fixed transfer sizes while actor instructions, timing, and palette selection remain engine-owned.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected sheet, map, or sprite composition is invalid.</exception>
-    public static EndingObjectSourceArtwork Load(string stockDirectory,
-        string? overrideDirectory)
+    /// <summary>Checks the manifest's provenance and coverage, then compiles the installed ending artwork and sprite compositions without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the ending/reward sheets, raw-fragment PNG transports, BG2 maps, sprite JSON, and provenance/digest manifest.</param>
+    /// <returns>The artwork and OAM-composition catalog, retaining fixed transfer sizes while actor instructions, timing, and palette selection remain engine-owned.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed sheet, map, or sprite composition is invalid.</exception>
+    public static EndingObjectSourceArtwork Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory,
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory,
             EndingObjectArtworkFormat.ManifestFileName);
         Manifest manifest;
         try
@@ -268,150 +266,115 @@ public static class EndingObjectArtworkFiles
         EndingCloudSpritePresentation LoadCloudSprites()
         {
             string name = EndingCloudSpriteFormat.FileName;
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return EndingCloudSpritePresentation.Load(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid ending cloud sprites {selectedPath}: {error.Message}", error);
+                    $"Invalid ending cloud sprites {installedPath}: {error.Message}", error);
             }
         }
 
         EndingExplosionSpritePresentation LoadExplosionSprites()
         {
             string name = EndingExplosionSpriteFormat.FileName;
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return EndingExplosionSpritePresentation.Load(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid ending explosion sprites {selectedPath}: {error.Message}", error);
+                    $"Invalid ending explosion sprites {installedPath}: {error.Message}", error);
             }
         }
 
         EndingCompletionTextSpritePresentation LoadCompletionTextSprites()
         {
             string name = EndingCompletionTextSpriteFormat.FileName;
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return EndingCompletionTextSpritePresentation.Load(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid ending completion text sprites {selectedPath}: {error.Message}", error);
+                    $"Invalid ending completion text sprites {installedPath}: {error.Message}", error);
             }
         }
 
         EndingRewardSpritePresentation LoadRewardSprites()
         {
             string name = EndingRewardSpriteFormat.FileName;
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return EndingRewardSpritePresentation.Load(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid ending reward sprites {selectedPath}: {error.Message}", error);
+                    $"Invalid ending reward sprites {installedPath}: {error.Message}", error);
             }
         }
 
         EndingLogoSpritePresentation LoadLogoSprites()
         {
             string name = EndingLogoSpriteFormat.FileName;
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return EndingLogoSpritePresentation.Load(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid ending logo sprites {selectedPath}: {error.Message}", error);
+                    $"Invalid ending logo sprites {installedPath}: {error.Message}", error);
             }
         }
 
         RoomCharacterAtlas LoadSheet(string name, int expectedBytes)
         {
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return RoomCharacterAtlasPng.Read(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false), expectedBytes);
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid ending OBJ PNG {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid ending OBJ PNG {installedPath}: {error.Message}", error);
             }
         }
 
         RoomBackgroundTilemapAtlas LoadMap(string name, int expectedBytes)
         {
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
                 return RoomBackgroundTilemapAtlas.Load(new MemoryStream(
-                    selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath),
+                    File.ReadAllBytes(installedPath),
                     writable: false), expectedBytes);
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid ending map {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid ending map {installedPath}: {error.Message}", error);
             }
         }
     }

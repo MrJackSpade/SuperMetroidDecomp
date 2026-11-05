@@ -85,24 +85,4 @@ internal static class MotherBrainFakeDeathPaletteVerification
             cgram.SetColor(colour, SuperMetroid.Core.Assets.RgbColor.FromWord(words[colour]));
         return cgram;
     }
-
-    /// <summary>Captures one production fake-death fade update for palette and state comparisons.</summary>
-    internal static CaptureFakeDeathPaletteFrameResult
-        CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
-    {
-        var enemies = CreateFakeDeathPaletteEnemy(colors);
-        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
-        {
-            Function = toGrey
-                ? MotherBrainBodyFunction.FakeDeathDescentFadeToGray
-                : MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray,
-            TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished,
-            FakeDeathExplosionTimer = WrappingCountdown.Start(100),
-        };
-        Action<MotherBrainEnemyState> step = toGrey
-            ? enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray
-            : MotherBrainFakeDeath.TransitionMotherBrainFromGray;
-        step(state);
-        return new CaptureFakeDeathPaletteFrameResult(Shown(state, colors).Colors.ToArray(), state.FunctionTimer.RawValue, state.Function);
-    }
 }

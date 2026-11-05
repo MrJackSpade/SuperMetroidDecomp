@@ -30,8 +30,10 @@ internal static class GrappleFlarePresentationVerification
     {
         var flarePlacement = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
             GrappleFlarePlacementExtractor.Extract(bus)));
-        // The cases bind Samus to this body and flare placement: content a capture names, never copies.
-        object[] content = [body, flarePlacement, .. InstalledFixtures.BoundContent];
+        // The cases bind Samus to this body and flare placement: content a capture names, never copies. The body is the
+        // shared installed one the fixture content already names; the extracted placement leads the installed content, whose
+        // index the list extends rather than walks again.
+        object[] content = [flarePlacement, .. InstalledFixtures.BoundContent];
         foreach (int address in new[] { GrappleBeamDefinitions.Firing.RightFlareSpritemapOffsets, GrappleBeamDefinitions.Firing.LeftFlareSpritemapOffsets })
             AssertEqual(ReadNativeGrappleFlareSpritemapOffset(bus, address), ChargeFlareSpriteDefinitions.MainFlareSelectorOffset, "Both native Grapple-facing rows select the same main flare");
         int cases = 0;

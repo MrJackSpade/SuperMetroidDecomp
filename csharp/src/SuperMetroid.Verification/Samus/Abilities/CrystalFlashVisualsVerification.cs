@@ -75,14 +75,13 @@ internal static class CrystalFlashVisualsVerification
     internal static VerifyCrystalFlashVisualFrameResult Visibility(CrystalFlashFrameScenes frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
-        RgbaPixel[] beamsDark = DisplayRendering.Render(frame.BeamsDark);
-        RgbaPixel[] beamsLight = DisplayRendering.Render(frame.BeamsLight);
-        int centerX = frame.CenterX, centerY = frame.CenterY;
-        bool bodyVisible = Enumerable.Range(centerY - 32, 64)
-            .Any(y => Enumerable.Range(centerX - 32, 64)
-                .Any(x => beamsDark[y * 256 + x] != beamsLight[y * 256 + x]));
+        // Two scenes that describe the same frame show the same pixels, so they are drawn only when their descriptions
+        // differ: a frame whose Samus draws carry no shading her beam inks take shows no body without drawing either.
+        bool bodyVisible = !ScenePixels.SameDescription(new DisplayPacket(0, frame.BeamsDark), new DisplayPacket(0, frame.BeamsLight))
+            && BodyRegionDiffers(frame);
         bool windowVisible = false;
-        if (frame.WithoutWindow is { } scene)
+        if (frame.WithoutWindow is { } scene &&
+            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, scene)))
         {
             // The shown frame is drawn only to compare it with the frame without the color window, while one shows.
             RgbaPixel[] pixels = DisplayRendering.Render(frame.Shown);
@@ -92,6 +91,17 @@ internal static class CrystalFlashVisualsVerification
             windowVisible = !pixels.SequenceEqual(withoutWindow);
         }
         return new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible);
+    }
+
+    /// <summary>Whether any pixel of the region around Samus differs between her beam inks in the two whiteout shades.</summary>
+    private static bool BodyRegionDiffers(CrystalFlashFrameScenes frame)
+    {
+        RgbaPixel[] beamsDark = DisplayRendering.Render(frame.BeamsDark);
+        RgbaPixel[] beamsLight = DisplayRendering.Render(frame.BeamsLight);
+        int centerX = frame.CenterX, centerY = frame.CenterY;
+        return Enumerable.Range(centerY - 32, 64)
+            .Any(y => Enumerable.Range(centerX - 32, 64)
+                .Any(x => beamsDark[y * 256 + x] != beamsLight[y * 256 + x]));
     }
 
     /// <summary>The whiteout ramp's first step, whose single colour the dark scene lays over her beam inks.</summary>

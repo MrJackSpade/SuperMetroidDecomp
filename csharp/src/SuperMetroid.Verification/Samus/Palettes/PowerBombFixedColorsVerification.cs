@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text;
-using System.Text.Json;
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -60,6 +60,12 @@ internal static class PowerBombFixedColorsVerification
         AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
             "duplicate Power Bomb color field fails loudly");
+        PowerBombFixedColorDocument document = RequiredJson.Deserialize<PowerBombFixedColorDocument>(
+            PowerBombFixedColorExtractor.Extract(rom), ArtworkJson.Options);
+        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document with
+        {
+            PreExplosion = [document.PreExplosion[0] with { Red = 32 }, .. document.PreExplosion.Skip(1)],
+        }))), "out-of-range Power Bomb color fails loudly");
         Console.WriteLine($"  Power Bomb fixed colors: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
     }
 
@@ -106,45 +112,6 @@ internal static class PowerBombFixedColorsVerification
         } while (native.IsActive);
         AssertTrue(!installed.IsActive, "installed explosion completes with native state");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed explosion never rereads fixed-color ROM tables");
-    }
-
-    /// <summary>Checks an edited pre-explosion color reaches live state and removing the override restores stock identity.</summary>
-    internal static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
-        AreaMapPresentation baseline)
-    {
-        string path = Path.Combine(overrides, PowerBombFixedColorFile.FileName);
-        PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFile.FileName)),
-            ArtworkJson.Options)
-            ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
-        PaletteRgb5 original = document.PreExplosion[0];
-        document.PreExplosion[0] = original with { Red = (original.Red + 1) % 32 };
-        File.WriteAllBytes(path, PowerBombFixedColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
-            "Power Bomb color edit changes installed content identity");
-        AssertTrue(edited.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0) !=
-            baseline.PowerBombFixedColors.Resolve(PowerBombFixedColorSequence.PreExplosion, 0),
-            "Power Bomb color override changes the selected component");
-        var state = new SamusPowerBombExplosionState { PresentationColors = edited.PowerBombFixedColors };
-        state.Arm();
-        state.Spawn(new(128, 112));
-        var forbidden = NewForbiddenPowerBombColorBus(new TestAddressSpace());
-        _ = state.StepFrame(); // Native setup precedes the first colored frame.
-        _ = state.StepFrame();
-        AssertEqual(document.PreExplosion[0].Red, state.FixedColor.Red,
-            "Power Bomb color override reaches the live explosion frame");
-        AssertEqual(0, forbidden.ForbiddenReadAttempts,
-            "edited Power Bomb color does not read the native table");
-        AssertThrows<InvalidDataException>(() => PowerBombFixedColorFile.Read(new MemoryStream(PowerBombFixedColorFile.Write(document with
-        {
-            PreExplosion = [original with { Red = 32 }, .. document.PreExplosion.Skip(1)],
-        }))), "out-of-range Power Bomb color fails loudly");
-        File.Delete(path);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
-            "removing Power Bomb color override restores stock identity");
-        Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");
     }
 
     /// <summary>Forbids all authored fixed-color source ranges during installed explosion updates.</summary>

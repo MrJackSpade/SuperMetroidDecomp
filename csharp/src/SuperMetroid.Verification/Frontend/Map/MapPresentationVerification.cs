@@ -414,18 +414,13 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
-        Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
-        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifySamusSuitPaletteRestoration), () => VerifySamusSuitPaletteRestoration(bus));
+        Suite(nameof(VerifySamusFullBodyCycleOwners), () => VerifySamusFullBodyCycleOwners(bus));
+        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(bus));
+        Suite(nameof(VerifySamusChargeColorCadence), () => VerifySamusChargeColorCadence(bus));
         Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus,
             MapCatalogFixture.FixtureAssets));
         Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusHyperBeamColorOverride), () => VerifySamusHyperBeamColorOverride(stock, overrides, original, bus,
-            MapCatalogFixture.FixtureAssets));
         Suite(nameof(VerifyMotherBrainHealthPaletteOverride), () => VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original));
         Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original));

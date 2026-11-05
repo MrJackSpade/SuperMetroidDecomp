@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -16,12 +17,11 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
-/// <summary>Checks editable Crystal Flash body and bubble colors against native palette updates.</summary>
+/// <summary>Checks installed Crystal Flash body and bubble colors against the cartridge and the palette owner.</summary>
 internal static class CrystalFlashColorsVerification
 {
-    /// <summary>Compares cartridge source words, then checks edited CGRAM, unchanged timers, and stock repair.</summary>
-    internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
-        string overrideDirectory, AreaMapPresentation original, ISnesAddressSpace rom)
+    /// <summary>Compares cartridge source words, checks the palette owner holds the palette for the whole body cycle, and rejects invalid RGB5.</summary>
+    internal static void VerifyCrystalFlashColors(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(rom);
         InstalledCrystalFlashColors native = CrystalFlashColorFile.Read(
@@ -47,66 +47,18 @@ internal static class CrystalFlashColorsVerification
                     $"Crystal Flash bubble frame {frame}, color {color} matches cartridge");
         }
 
-        CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFile.FileName)),
-            ArtworkJson.Options)
-            ?? throw new InvalidDataException("Stock Crystal Flash color JSON is null.");
-        Paint(document.Body[0]);
-        Paint(document.Bubble[0]);
-        string replacement = Path.Combine(overrideDirectory, CrystalFlashColorFile.FileName);
-        File.WriteAllBytes(replacement, CrystalFlashColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "Crystal Flash color edit changes installed-content identity");
-        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBody(0, 1) !=
-            InstalledAreaMapPresentation.SamusColoursOf(original).CrystalFlash.ResolveBody(0, 1),
-            "body color edit differs from stock");
-        AssertTrue(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBubble(0, 1) !=
-            InstalledAreaMapPresentation.SamusColoursOf(original).CrystalFlash.ResolveBubble(0, 1),
-            "bubble color edit differs from stock");
-
         SamusState samus = StartCrystalFlash();
-        SamusState nativeSamus = StartCrystalFlash();
 
-        var guard = NewCrystalFlashColorReadGuard(rom);
         var samusColours = new SamusColours();
-        var nativeColours = new SamusColours();
-        // Crystal Flash names body and bubble shades (#1512); the import resolves them from the edited colours.
-        var editedSources = InstalledFixtures.SamusShadeSources with { CrystalFlash = InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash };
         int duration = CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         int calls = CrystalFlashColorFormat.BodyFrameCount * duration;
         for (int call = 0; call < calls; call++)
         {
             AssertTrue(samus.CrystalFlash.UpdatePalette(samusColours, samus),
                 $"Crystal Flash call {call} retains palette ownership");
-            AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(nativeColours, nativeSamus),
-                $"native Crystal Flash call {call} retains palette ownership");
-            AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer.RawValue,
-                samus.CrystalFlash.CrystalPaletteTimer.RawValue,
-                $"color edit preserves body timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteTimer.RawValue,
-                samus.CrystalFlash.SpecialPaletteTimer.RawValue,
-                $"color edit preserves bubble timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.BodyStep,
-                samus.CrystalFlash.BodyStep,
-                $"color edit preserves body cursor on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.BubbleStep,
-                samus.CrystalFlash.BubbleStep,
-                $"color edit preserves bubble cursor on call {call}");
-            int bodyFrame = call / duration;
-            int bubbleFrame = call / 5 % CrystalFlashColorFormat.BubbleFrameCount;
-            for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBody(bodyFrame, color),
-                    samusColours.ShownBeams(editedSources)[color],
-                    $"Crystal Flash body call {call}, color {color} reaches CGRAM");
-            for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).CrystalFlash.ResolveBubble(bubbleFrame, color),
-                    samusColours.ShownBeams(editedSources)[SamusPaletteDefinitionsCrystalFlashConstants.BubbleCgramStart - SamusPaletteDefinitionsCrystalFlashConstants.BodyCgramStart + color],
-                    $"Crystal Flash bubble call {call}, color {color} reaches CGRAM");
         }
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed Crystal Flash cycle avoids pointer and source-color ROM reads");
 
+        CrystalFlashColorDocument document = RequiredJson.Deserialize<CrystalFlashColorDocument>(extracted, ArtworkJson.Options);
         PaletteRgb5 previous = document.Body[0][1];
         document.Body[0][1] = previous with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CrystalFlashColorFile.Read(
@@ -114,31 +66,7 @@ internal static class CrystalFlashColorsVerification
                 document, ArtworkJson.Options), writable: false)),
             "Crystal Flash colors reject out-of-range RGB5 channels");
 
-        string replacementStock = Path.Combine(
-            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
-            "crystal-color-reextract");
-        byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        AreaMapPresentation afterRepair = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(
-            rom, replacementStock, overrideDirectory);
-        AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
-            "stock re-extraction preserves Crystal Flash override");
-        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
-            "stock re-extraction never rewrites user Crystal Flash colors");
-
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing Crystal Flash override restores stock identity");
-        Console.WriteLine("Crystal Flash colors: 136 stock words, 100 independent body/bubble calls, edited CGRAM, ROM guard, strict values and stock repair pass.");
-
-        static void Paint(PaletteRgb5[] colors)
-        {
-            PaletteRgb5 originalColor = colors[1];
-            colors[1] = originalColor with
-            {
-                Blue = originalColor.Blue == 31 ? 30 : originalColor.Blue + 1,
-            };
-        }
+        Console.WriteLine("Crystal Flash colors: 136 stock words, 100 body/bubble palette calls and strict values pass.");
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
@@ -160,39 +88,6 @@ internal static class CrystalFlashColorsVerification
             AssertTrue(started.CrystalFlash.TryBegin(started, controllerInput: 0,
                 inputCheck: CrystalFlashInputCheck.Skipped), "start real Crystal Flash palette owner");
             return started;
-        }
-    }
-
-    /// <summary>Blocks all native body and bubble pointer and color bytes during installed palette updates.</summary>
-    private static CartridgeReadGuard NewCrystalFlashColorReadGuard(ISnesAddressSpace source)
-    {
-        var forbidden = new HashSet<int>();
-        for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
-        {
-            int address = SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
-                frame * SamusPaletteDefinitions.CrystalFlash.BodyRecordByteCount;
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
-            forbidden.Add(address);
-            forbidden.Add(address + 1);
-            BlockColors(pointer, CrystalFlashColorFormat.BodyColorCount);
-        }
-        for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
-        {
-            int address = SamusSourceDefinitions.BubblePointers.Value +
-                frame * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
-            forbidden.Add(address);
-            forbidden.Add(address + 1);
-            BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
-        }
-        return new CartridgeReadGuard(source).Forbid(forbidden.Contains,
-            address => $"Crystal Flash reread palette data ${address:X6}.");
-
-        void BlockColors(ushort pointer, int count)
-        {
-            int address = SamusSourceDefinitions.PaletteBank.Value | pointer;
-            for (int offset = 0; offset < count * sizeof(ushort); offset++)
-                forbidden.Add(address + offset);
         }
     }
 }

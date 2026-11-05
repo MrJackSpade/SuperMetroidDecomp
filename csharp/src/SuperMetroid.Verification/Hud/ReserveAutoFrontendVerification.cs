@@ -11,7 +11,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hud;
 
 using SuperMetroid.Verification.Harness;

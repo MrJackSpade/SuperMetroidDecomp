@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PausePaletteSoundVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveArrowRebindVerification;
@@ -7,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveHudVerificatio
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveManualVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

@@ -17,7 +17,6 @@ namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Compares captured render packets with legacy frames during Ceres startup and a room pause cycle.</summary>
 internal static class GameplayCaptureIntegrationTestsVerification

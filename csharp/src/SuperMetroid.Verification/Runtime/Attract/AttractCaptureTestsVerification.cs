@@ -8,7 +8,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 

@@ -587,8 +587,8 @@ internal static class MapPresentationVerification
             MotherBrainHealthPaletteFile.Read(new MemoryStream(
                 SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(bus),
                 writable: false));
-        foreach (var (health, state) in new VerifyMotherBrainHealthPaletteOverrideCase[]
-            { new VerifyMotherBrainHealthPaletteOverrideCase(36000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(9000, 0), new VerifyMotherBrainHealthPaletteOverrideCase(8999, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5400, 1), new VerifyMotherBrainHealthPaletteOverrideCase(5399, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1800, 2), new VerifyMotherBrainHealthPaletteOverrideCase(1799, 3), new VerifyMotherBrainHealthPaletteOverrideCase(0, 3) })
+        foreach (var (health, state) in new VerifyMotherBrainHealthPaletteCase[]
+            { new VerifyMotherBrainHealthPaletteCase(36000, 0), new VerifyMotherBrainHealthPaletteCase(9000, 0), new VerifyMotherBrainHealthPaletteCase(8999, 1), new VerifyMotherBrainHealthPaletteCase(5400, 1), new VerifyMotherBrainHealthPaletteCase(5399, 2), new VerifyMotherBrainHealthPaletteCase(1800, 2), new VerifyMotherBrainHealthPaletteCase(1799, 3), new VerifyMotherBrainHealthPaletteCase(0, 3) })
         {
             int band = MotherBrainHealthPalette.Band(health);
             SnesCgram native = MotherBrainLook.OfHealth(extracted, band);

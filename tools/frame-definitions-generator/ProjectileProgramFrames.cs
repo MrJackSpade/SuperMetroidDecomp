@@ -130,30 +130,34 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         INamedTypeSymbol animation = ProgramAnimationOf(family);
         var programType = (INamedTypeSymbol)animation.TypeArguments[0];
         var frameType = (INamedTypeSymbol)animation.TypeArguments[1];
-        (ISymbol table, bool precise) = TableOf(family);
-        Dictionary<string, string> entries = TableEntries(family, table, frameType);
+        (ISymbol? table, bool indexedByPose) = TableOf(family);
+        ISymbol programSet = ProgramSetOf(family);
+        ExpressionSyntax initializer = InitializerOf(programSet);
+        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
+        AssignmentExpressionSyntax[] programEntries = [.. ProgramEntries(initializer, semantic, programType)];
+        // The programs choose the frames only when each is an authored [Program] = steps entry of a named program and each
+        // step constructs the pose it shows (#1513). A family whose poses are plain values (a number, a program or pose
+        // member, a single pose), whose programs are not named members (Botwoon's segments, Mother Brain's turret), or whose
+        // program set is computed from its members (Mother Brain's glass, Fake Kraid's projectiles) shows every frame its
+        // table holds, as every family did before.
+        bool precise = table is not null && indexedByPose && IsConstructedPose(frameType) && programType.TypeKind == TypeKind.Enum && programEntries.Length > 0;
+        // A family whose Present names its frame outright, with no table, shows only the frames its code names.
+        Dictionary<string, string> entries = table is null ? new Dictionary<string, string>(StringComparer.Ordinal)
+            : TableEntries(family, table, frameType, precise);
         var tableFrames = new HashSet<string>(entries.Values, StringComparer.Ordinal);
         if (!precise)
             return new FamilyProgramSet(entries, tableFrames, new Dictionary<string, List<ProgramItem>>(StringComparer.Ordinal),
                 new HashSet<string>(StringComparer.Ordinal), Precise: false);
-        ISymbol programSet = ProgramSetOf(family);
-        ExpressionSyntax initializer = InitializerOf(programSet);
         var programs = new Dictionary<string, List<ProgramItem>>(StringComparer.Ordinal);
-        SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
         INamedTypeSymbol helpers = programSet.ContainingType;
-        foreach (AssignmentExpressionSyntax entry in initializer.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+        foreach (AssignmentExpressionSyntax entry in programEntries)
         {
-            if (entry is not { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var name] } }
-                || semantic.GetSymbolInfo(name.Expression).Symbol is not IFieldSymbol identity
-                || !SymbolEqualityComparer.Default.Equals(identity.ContainingType, programType))
-                continue;
+            var identity = (IFieldSymbol)semantic.GetSymbolInfo(((ImplicitElementAccessSyntax)entry.Left).ArgumentList.Arguments[0].Expression).Symbol!;
             var items = new List<ProgramItem>();
             Visit(entry.Right, semantic, new Dictionary<string, string>(StringComparer.Ordinal), items, programType, frameType, helpers, depth: 0);
             if (!programs.TryAdd(identity.Name, items))
                 throw new InvalidDataException($"{family.ToDisplayString()}'s program set lists program {identity.Name} twice.");
         }
-        if (programs.Count == 0)
-            throw new InvalidDataException($"{family.ToDisplayString()}'s program set {programSet.ToDisplayString()} has no [Program] = steps entries this generator can read.");
         // An object's own cues can start it, or more of its family, in other programs (an afterburn spawning the next), so
         // whatever its cue handlers start is among the programs every start of the family runs.
         HashSet<string> entered = NamedOutside(family, programType, initializer);
@@ -167,6 +171,18 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             throw new InvalidDataException($"{family.ToDisplayString()}'s frame table holds frames none of its programs shows as this generator reads them: {string.Join(", ", unshown)}");
         return set;
     }
+
+    /// <summary>The program set's authored <c>[Program] = steps</c> entries, each naming a member of <paramref name="programType"/>.</summary>
+    private static IEnumerable<AssignmentExpressionSyntax> ProgramEntries(ExpressionSyntax initializer, SemanticModel semantic, INamedTypeSymbol programType) =>
+        initializer.DescendantNodes().OfType<AssignmentExpressionSyntax>().Where(entry =>
+            entry is { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var name] } }
+            && semantic.GetSymbolInfo(name.Expression).Symbol is IFieldSymbol identity
+            && SymbolEqualityComparer.Default.Equals(identity.ContainingType, programType));
+
+    /// <summary>Whether <paramref name="frameType"/> is a pose its programs construct from arguments: neither a plain value nor a lone pose.</summary>
+    private static bool IsConstructedPose(INamedTypeSymbol frameType) =>
+        frameType.SpecialType == SpecialType.None && frameType.TypeKind != TypeKind.Enum
+        && frameType.InstanceConstructors.Any(constructor => constructor.Parameters.Length > 0);
 
     /// <summary>
     /// Records, in source order, what <paramref name="node"/> contributes to a program: the poses its key constructions
@@ -270,8 +286,11 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             : semantic.GetConstantValue(expression) is { HasValue: true, Value: { } value }
                 ? Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture) : null;
 
-    /// <summary>The table's entries, by the constant pose key each is keyed by.</summary>
-    private Dictionary<string, string> TableEntries(INamedTypeSymbol family, ISymbol table, INamedTypeSymbol frameType)
+    /// <summary>
+    /// The table's entries, by the constant pose key each is keyed by when <paramref name="byPose"/>, else by their order:
+    /// a family whose programs do not choose its frames needs only the frames.
+    /// </summary>
+    private Dictionary<string, string> TableEntries(INamedTypeSymbol family, ISymbol table, INamedTypeSymbol frameType, bool byPose)
     {
         ExpressionSyntax initializer = InitializerOf(table);
         SemanticModel semantic = model.ModelOf(initializer.SyntaxTree);
@@ -288,7 +307,12 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             if (key is null || value is null || semantic.GetSymbolInfo(value).Symbol is not IFieldSymbol frame
                 || !SymbolEqualityComparer.Default.Equals(frame.ContainingType, model.EnemyProjectileFrameId))
                 continue;
-            // A pose is a construction of the family's pose type, or for a plain-valued pose its constant.
+            if (!byPose)
+            {
+                entries.Add(entries.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), frame.Name);
+                continue;
+            }
+            // A pose is a construction of the family's pose type.
             string? pose = key is BaseObjectCreationExpressionSyntax creation
                 && semantic.GetSymbolInfo(creation).Symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
                 && SymbolEqualityComparer.Default.Equals(constructor.ContainingType.OriginalDefinition, frameType)
@@ -306,9 +330,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
 
     /// <summary>
     /// The frame table <paramref name="family"/>'s <c>Present</c> indexes, and whether it indexes it with the pose it is
-    /// handed, so that each pose a program shows is a table key.
+    /// handed, so that each pose a program shows is a table key; no table when its <c>Present</c> indexes none and names
+    /// its frame outright (the pre-Phantoon room's blank).
     /// </summary>
-    private (ISymbol Table, bool Precise) TableOf(INamedTypeSymbol family)
+    private (ISymbol? Table, bool Precise) TableOf(INamedTypeSymbol family)
     {
         IMethodSymbol present = DeclaredIn(family, "Present").OfType<IMethodSymbol>().FirstOrDefault()
             ?? throw new InvalidDataException($"{family.ToDisplayString()} declares no Present this generator can read.");
@@ -329,7 +354,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 return (table.OriginalDefinition, precise);
             }
         }
-        throw new InvalidDataException($"{family.ToDisplayString()}'s Present indexes no ShownProjectileFrames table.");
+        return (null, false);
     }
 
     /// <summary>The program set <paramref name="family"/>'s <c>Programs</c> names.</summary>

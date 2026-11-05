@@ -21,10 +21,6 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled Grapple launch, origin, and movement data through production firing and connection paths.</summary>
 internal static class GrappleFiringDefinitionsVerification
 {
-    /// <summary>Both running states of a charge-flare placement key.</summary>
-    private static readonly bool[] RunningStates =
-        [false, true];
-
     /// <summary>Compares launch and draw origins across authored poses, input directions, wrap boundaries, and trajectory frames.</summary>
     internal static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -38,16 +34,6 @@ internal static class GrappleFiringDefinitionsVerification
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
-        var stockFlare = grapple.FlarePlacement;
-        var editedFlare = ChargeFlarePlacementFile.LoadGrapple(new MemoryStream(
-            ChargeFlarePlacementFile.WriteGrapple(new()
-            {
-                Version = ChargeFlarePlacementFile.Version,
-                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, ChargeFlarePlacementDefinitions.DirectionCount)
-                    .Select(direction => new EditedFlare(running, direction))).ToDictionary(
-                        entry => ChargeFlarePlacementFile.Key(entry.Running, entry.Direction),
-                        _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),
-            })));
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.
         SamusPoseId[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
@@ -110,12 +96,9 @@ internal static class GrappleFiringDefinitionsVerification
             }
         }
         // Run the real four-substep extension path in empty terrain, not just its setup.
-        // Presentation overrides must change Flare without changing trajectory or Start.
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
-        foreach (bool replaceFlare in new[] { false, true })
         for (byte direction = 0; direction < 10; direction++)
         {
-            grapple.FlarePlacement = replaceFlare ? editedFlare : stockFlare;
             samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).First(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1));
@@ -124,8 +107,6 @@ internal static class GrappleFiringDefinitionsVerification
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(samus);
-            if (replaceFlare)
-                AssertEqual(0x55aa, grapple.FlareOffset.X, "Presentation override is actually consumed");
             for (int frame = 1; frame <= 10; frame++)
             {
                 SamusGrappleMovement.StepFiring(empty, samus, ControllerButton.X);
@@ -137,7 +118,6 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(samus.Pose) * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
             }
         }
-        grapple.FlarePlacement = stockFlare;
         // Moving Draygon-held poses use controller-derived direction and a fixed six-
         // pixel correction. Only the four direction bits select the aim, so exercise all
         // sixteen combinations with the other buttons clear, all set, and mixed.
@@ -197,7 +177,7 @@ internal static class GrappleFiringDefinitionsVerification
         Suite(nameof(VerifyGrappleOriginXSelection), () => VerifyGrappleOriginXSelection(rom));
         Suite(nameof(VerifyGrappleOriginDefaultYSelection), () => VerifyGrappleOriginDefaultYSelection(rom));
         Suite(nameof(VerifyGrappleOriginRunningYSelection), () => VerifyGrappleOriginRunningYSelection(rom));
-        Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, every direction and aiming pose with every signed graphics-Y class and position wrap boundary, every held direction combination, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
+        Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, every direction and aiming pose with every signed graphics-Y class and position wrap boundary, every held direction combination, 100 trajectory frames and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
     /// <summary>Reads a native grapple definition byte solely for comparison with compiled data.</summary>

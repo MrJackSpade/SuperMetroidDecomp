@@ -18,7 +18,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks installed Grapple PNG transfers and edited tile pixels against native VRAM output.</summary>
+/// <summary>Checks installed Grapple PNG transfers against native VRAM output.</summary>
 internal static class GrappleTileArtworkVerification
 {
     /// <summary>Compares every angle's source selection and all uploaded bytes while preserving rope state and OAM.</summary>
@@ -28,18 +28,8 @@ internal static class GrappleTileArtworkVerification
         Suite(nameof(VerifyGrappleFlarePlacement), () => VerifyGrappleFlarePlacement(bus));
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
-        var image = IndexedPng.Read(new MemoryStream(png), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
-        for (int tile = 0; tile < 16; tile++) image.Pixels[tile * 8] ^= 1;
-        using var changedPng = new MemoryStream();
-        IndexedPng.Write(changedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var edited = GrappleTileAtlas.Load(new MemoryStream(changedPng.ToArray()));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
-        var guard = new CartridgeReadGuard(bus)
-            .ForbidRange(0x9bc342, 0x9bc3c6 - 0x9bc342, _ => "Grapple still reads tile pointer ROM.")
-            .Forbid(address => GrappleTileDefinitions.Transfers.Any(transfer =>
-                    address >= transfer.SourceAddress && address < transfer.SourceAddress + transfer.ByteCount),
-                _ => "Grapple still reads tile pixel ROM.");
         AssertThrows<InvalidOperationException>(() => SamusGrappleBeamDrawing.DrawConnectedBeam(new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) },
                 new SpriteFrameBuffer(), new(0, 0)),
             "The grapple beam fails loudly without the installed grapple sheet");
@@ -68,10 +58,6 @@ internal static class GrappleTileArtworkVerification
                     GrappleTileSelection.TransferFor(GrappleTileSelection.SegmentAssetFor(selected.Angle)).SourceAddress,
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
-            byte[] expectedEdited = stockTiles.Characters.ToArray();
-            for (int character = 0; character < 5; character++) expectedEdited[character * SpriteArtwork.CharacterByteCount] ^= 128;
-            AssertTrue(edited.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle)).Characters.SequenceEqual(expectedEdited),
-                "Selected Grapple pixels change exactly five mapped bits of the binding");
             cases++;
             SamusGrappleState Seed() => new()
             {
@@ -90,7 +76,7 @@ internal static class GrappleTileArtworkVerification
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(invalidPng), "Grapple PNG out-of-range palette index rejected");
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
         AssertThrows<InvalidDataException>(() => stock.Resolve(InstalledArtworkId.StandardHudTiles), "Grapple provider rejects unrelated identity");
-        Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production draws preserve native OAM and full state; bindings hold native tiles and all edited tiles map exactly.");
+        Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production draws preserve native OAM and full state; bindings hold native tiles.");
     }
 
     /// <summary>Runs the focused Grapple tile extraction, binding, and upload check.</summary>

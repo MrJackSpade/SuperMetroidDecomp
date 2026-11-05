@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 
@@ -15,9 +16,13 @@ internal static class SpriteSheetComposer
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
     /// <param name="priority">The priority of parts that do not choose their own.</param>
-    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority)
+    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority) =>
+        Compose(new SpriteSheetLayout(sources, palette, priority));
+
+    /// <summary>Paints <paramref name="layout"/>'s distinct frame images onto one sheet.</summary>
+    internal static ComposedSpriteSheet Compose(SpriteSheetLayout layout)
     {
-        var layout = new SpriteSheetLayout(sources, palette, priority);
+        Ensure.NotNull(layout);
         Extent16<ImagePixels> size = layout.Size;
         int area = size.X * size.Y;
         var pixels = new RgbaPixel[area];

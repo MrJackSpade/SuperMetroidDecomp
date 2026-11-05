@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <remarks>Each jagged array is ordered by native timed record, then by that record's emitted colors. RGB channels range from zero through thirty-one; record durations, skipped palette entries, destinations, and control side effects are compiled mechanics.</remarks>
 public sealed record RoomPaletteFxPresentationDocument
 {
-    /// <summary>Gets the schema version; current documents use eighteen, while seventeen requires a current-stock fallback for the absent heat rows.</summary>
+    /// <summary>Gets the schema version; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentationFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>Sixteen native phases of Samus's Power Suit palette in heat.</summary>
     public PaletteRgb5[][]? SamusHeatPowerSuit { get; init; }

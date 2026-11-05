@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <summary>Reads and writes the installed room-FX blend colour document.</summary>
 public static class RoomFxPaletteBlendFile
 {
-    /// <summary>Loads all eight three-color room-FX blends and optional Ceres haze tints, rejecting duplicate or unknown JSON properties, incomplete selections, and RGB components outside 0..31.</summary>
+    /// <summary>Loads all eight three-color room-FX blends and both Ceres haze tints, rejecting duplicate or unknown JSON properties, incomplete selections, and RGB components outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the supported blend-palette JSON document.</param>
     /// <returns>Installed BG3 inks plus fixed-color haze tints; native selectors, CGRAM destinations, and fade timing remain compiled mechanics.</returns>
     /// <exception cref="InvalidDataException">The JSON, schema version, blend identities, color count, or RGB5 values are invalid.</exception>
@@ -23,8 +23,8 @@ public static class RoomFxPaletteBlendFile
             document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDocumentRules.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
 
-        return new(new RoomFxPaletteBlendParts { Lava = Compile(RoomFxPaletteBlend.Lava), LandingSiteRain = Compile(RoomFxPaletteBlend.LandingSiteRain), MaridiaWaterA = Compile(RoomFxPaletteBlend.MaridiaWaterA), WaterAndAcid = Compile(RoomFxPaletteBlend.WaterAndAcid), Fog = Compile(RoomFxPaletteBlend.Fog), MaridiaWaterB = Compile(RoomFxPaletteBlend.MaridiaWaterB), MaridiaWaterC = Compile(RoomFxPaletteBlend.MaridiaWaterC), MaridiaWaterD = Compile(RoomFxPaletteBlend.MaridiaWaterD), CeresHazeBlue = HazeTint(document.CeresHazeBlue, RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue,
-                nameof(document.CeresHazeBlue)), CeresHazeRed = HazeTint(document.CeresHazeRed, RoomFxPaletteBlendDocumentRules.StockCeresHazeRed,
+        return new(new RoomFxPaletteBlendParts { Lava = Compile(RoomFxPaletteBlend.Lava), LandingSiteRain = Compile(RoomFxPaletteBlend.LandingSiteRain), MaridiaWaterA = Compile(RoomFxPaletteBlend.MaridiaWaterA), WaterAndAcid = Compile(RoomFxPaletteBlend.WaterAndAcid), Fog = Compile(RoomFxPaletteBlend.Fog), MaridiaWaterB = Compile(RoomFxPaletteBlend.MaridiaWaterB), MaridiaWaterC = Compile(RoomFxPaletteBlend.MaridiaWaterC), MaridiaWaterD = Compile(RoomFxPaletteBlend.MaridiaWaterD), CeresHazeBlue = HazeTint(document.CeresHazeBlue,
+                nameof(document.CeresHazeBlue)), CeresHazeRed = HazeTint(document.CeresHazeRed,
                 nameof(document.CeresHazeRed)) });
 
         RoomFxBlendColors Compile(RoomFxPaletteBlend id)
@@ -46,15 +46,16 @@ public static class RoomFxPaletteBlendFile
     }
 
     /// <summary>Serializes a complete blend-palette document as UTF-8 JSON.</summary>
-    /// <param name="document">Eight named blend selections and optional haze tint overrides.</param>
+    /// <param name="document">Eight named blend selections and the two haze tints.</param>
     /// <returns>The UTF-8 JSON payload; this method does not write an external resource.</returns>
     public static byte[] Write(RoomFxPaletteBlendDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
-    /// <summary>The authored Ceres fixed-color tint, or the cartridge tint an older document omits; rejects a component outside RGB5 range.</summary>
-    private static RgbColor HazeTint(PaletteRgb5? color, RgbColor stock, string name)
+    /// <summary>The authored Ceres fixed-color tint; rejects a missing tint or a component outside RGB5 range.</summary>
+    private static RgbColor HazeTint(PaletteRgb5? color, string name)
     {
-        if (color is null) return stock;
+        if (color is null)
+            throw new InvalidDataException($"{name} is required.");
         if ((uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
             throw new InvalidDataException($"{name} requires RGB components from zero through 31.");
         return color.ToRgbColor();

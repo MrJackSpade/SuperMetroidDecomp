@@ -148,7 +148,7 @@ Room background/sky and metatile manifests, room visual layouts and X-ray reveal
 documents reject unknown fields, duplicate names and missing required fields.
 This includes nested entries and X-ray coordinates: omitting `x`, `y` or a visual
 operand is an error, not an implicit zero. A supplied zero remains valid where
-the format permits it. Errors identify the selected file; invalid overrides are
+the format permits it. Errors identify the installed file; an invalid edit is
 not replaced or erased.
 
 Metatile compositions, room-FX BG3 pages, intro eye rectangles, the intro divider
@@ -614,15 +614,12 @@ silently rereading cartridge art.
 The Evir character sheet is the ordinary extracted enemy PNG; the boss-room
 intro reuses that sheet for its VRAM upload rather than reading raw cartridge bytes.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
-`game/maps/ceres-ridley-colors.json`; copy that file to
-`overrides/maps/ceres-ridley-colors.json` to edit colors. Its `baby` rows
-are separate from the Ridley start/fade/health/alarm/retreat colors. The draw
+`game/maps/ceres-ridley-colors.json`; edit that file in place to change colors. Its
+`babyShades` rows are separate from the Ridley start/fade/health/alarm/retreat colors. The draw
 program still chooses rows using the cartridge's animation cadence; palette
-edits do not change movement, collisions, or timing. Existing version-one
-Ceres Ridley color overrides retain their edits and inherit the Baby and
-alarm rows from verified stock. Version-two overrides retain their Baby edits
-and inherit the alarm rows. Copy a current version-three file to edit the
-sixteen `alarm` rows; their cadence and wrap remain engine behavior.
+edits do not change movement, collisions, or timing. The sixteen `alarm` rows
+are edited the same way; their cadence and wrap remain engine behavior. Only the
+current document version loads; re-run the extractor to restore the original file.
 The separate `enemy-projectile-compositions.json` contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
 translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon,
@@ -792,7 +789,7 @@ door-to-sky choices, are compiled engine definitions; only the referenced
 tilemaps and character sheets are replaceable artwork.
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
 engine behavior. Kraid's direct HUD-character upload also uses the existing
-`game/maps/hud-tiles.png` and `overrides/maps/hud-tiles.png` artwork instead of
+`game/maps/hud-tiles.png` artwork instead of
 rereading those characters from the ROM. Kraid's four-frame death restoration
 reads the same indexed HUD sheet in four ordered quarters; editing that PNG
 changes those BG3 characters too, without changing the native transfer cadence.
@@ -937,7 +934,7 @@ bank-$8F scroll programs. The 17 dynamically uploaded permanent-item kinds
 also use compiled character bytes and palette offsets rather than reading
 bank $89 and their initial bank-$84 instruction lists during retail loads.
 Constructed rooms can still supply their own item graphics on the bus. These
-tile uploads are compiled definitions with installed PNG/palette overrides;
+tile uploads are compiled definitions with installed, editable PNGs and palettes;
 other PLM instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as

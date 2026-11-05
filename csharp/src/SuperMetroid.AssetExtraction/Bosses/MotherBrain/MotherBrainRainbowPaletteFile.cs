@@ -13,18 +13,17 @@ public static class MotherBrainRainbowPaletteFile
     /// <summary>Installed editable JSON filename for rainbow, drain/revival, fake-death, restoration, and beam-backdrop colors.</summary>
     public const string FileName = "mother-brain-rainbow-palette.json";
 
+    /// <summary>Supported schema version, requiring the brain-only fake-death sequence alongside every other color family.</summary>
+    public const int Version = 3;
+
     /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>
     /// <param name="json">Caller-owned <c>mother-brain-rainbow-palette.json</c> stream, read from its current position and left open.</param>
-    /// <param name="currentStock">Verified current presentation supplying only the missing fake-death fade when loading legacy version 2; without it, version 3 is required.</param>
     /// <returns>Compiled colors retaining independent edits while sharing calculated native color relationships when their supplied values agree.</returns>
-    public static MotherBrainRainbowPalettePresentation Read(Stream json,
-        MotherBrainRainbowPalettePresentation? currentStock = null)
+    public static MotherBrainRainbowPalettePresentation Read(Stream json)
     {
         MotherBrainRainbowPaletteDocument document = JsonAssetDocument.Read<MotherBrainRainbowPaletteDocument>(
             json, ArtworkJson.Options, "Mother Brain rainbow palette");
-        var version = (MotherBrainRainbowPaletteVersion)document.Version;
-        if (version != MotherBrainRainbowPaletteVersion.Current &&
-            !(version == MotherBrainRainbowPaletteVersion.PreFakeDeath && currentStock is not null))
+        if (document.Version != Version)
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
         return MotherBrainRainbowPaletteRecognition.Create(new MotherBrainRainbowPaletteColours
         {
@@ -37,16 +36,13 @@ public static class MotherBrainRainbowPaletteFile
             FromGrey = CompileFrames(document.FromGrey, MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.RevivalColors,
                 MotherBrainRainbowPaletteGeometry.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
-            // A pre-fake-death override inherits that fade from the current stock the version check required.
-            FakeDeathToGrey = version == MotherBrainRainbowPaletteVersion.PreFakeDeath
-                ? null
-                : CompileFakeDeathFrames(document.FakeDeathToGrey),
+            FakeDeathToGrey = CompileFakeDeathFrames(document.FakeDeathToGrey),
             Normal = CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteDefinitions.ColorCount,
                 MotherBrainRainbowPaletteDefinitions.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
             BeamInitial = CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
             BeamCycle = CompileColors(document.BeamCycle, MotherBrainRainbowPaletteGeometry.BeamCycleColorCount,
                 nameof(document.BeamCycle)),
-        }, currentStock);
+        });
     }
 
     /// <summary>Requires eight three-ink brain frames, with no rear-leg or trailing color.</summary>

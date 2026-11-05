@@ -166,7 +166,7 @@ internal static class InstalledSporesTests
             segmentOffset += segment.ByteCount;
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
-        int sporesOffset = RoomFxAnimatedTileAtlasFile.PreSporesWidth * 2;
+        int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesTileCount * 16;
         var controls = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)

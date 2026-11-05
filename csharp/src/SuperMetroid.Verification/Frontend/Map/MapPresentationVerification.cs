@@ -181,7 +181,7 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>
-    /// Full installed presentation required by real-room override checks. This is loaded
+    /// Full installed presentation required by real-room checks. This is loaded
     /// once from the same installation as the maps, rather than silently allowing test
     /// runtimes to fall back to cartridge graphics when a room is initialized.
     /// </summary>

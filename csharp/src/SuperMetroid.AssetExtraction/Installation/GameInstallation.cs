@@ -37,12 +37,11 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>App-owned immutable cartridge/audio content, separate from persistent player data.</summary>
-/// <param name="Root">Installation root containing replaceable <c>game</c> content and persistent <c>overrides</c>; constructing this record does not create or validate it.</param>
+/// <param name="Root">Installation root containing the replaceable <c>game</c> content and persistent player data; constructing this record does not create or validate it.</param>
 /// <remarks>
-/// Directory properties compute paths without accessing the filesystem. Stock loaders validate
-/// the installed formats and source manifests before applying compatible replacements from
-/// the override tree. Missing files, unreadable paths, and malformed stock or selected override
-/// content propagate the corresponding I/O or invalid-data exception to the caller.
+/// Directory properties compute paths without accessing the filesystem. Loaders validate the
+/// installed formats. Missing files, unreadable paths, and malformed installed content
+/// propagate the corresponding I/O or invalid-data exception to the caller.
 /// </remarks>
 public sealed record GameInstallation(string Root)
 {
@@ -73,15 +72,15 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the installed initial CGRAM and room-entry sprite colors.</summary>
     public GameplayBasePalette LoadGameplayBasePalettes() =>
         GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory);
-    /// <summary>Stock decoded results of Samus's glitch reads; not editable, so there is no override directory.</summary>
+    /// <summary>Stock decoded results of Samus's glitch reads, which are not presentation the player edits.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
     public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
-    /// <summary>Stock decoded results of what enemies read past their authored data; not editable, so there is no override directory.</summary>
+    /// <summary>Stock decoded results of what enemies read past their authored data, which are not presentation the player edits.</summary>
     public string EnemyOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing what enemies read past their authored data.</summary>
     public EnemyOverreadServices LoadEnemyOverreads() => EnemyOverreadFiles.Load(EnemyOverreadDirectory);
-    /// <summary>Stock decoded results of Kraid's, Crocomire's and the intro egg shell's reads past their data; not editable, so there is no override directory.</summary>
+    /// <summary>Stock decoded results of Kraid's, Crocomire's and the intro egg shell's reads past their data, which are not presentation the player edits.</summary>
     public string BossAndIntroOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossAndIntroOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     public SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices LoadBossAndIntroOverreads() => BossAndIntroOverreadFiles.Load(BossAndIntroOverreadDirectory);

@@ -103,7 +103,7 @@ internal static class CrocomirePresentation1193Verification
         }
         if (spikes)
         {
-            VerifyCrocomireSpikeCompatibility(runtime, maps.RoomFxAnimatedTiles);
+            VerifyCrocomireSpikeGraphRestoration(runtime);
             // A room load builds the room's spikes afresh, with their first frame pending.
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Crocomire);
             PlaceSamusInArena();
@@ -149,39 +149,9 @@ internal static class CrocomirePresentation1193Verification
         return 0;
     }
 
-    /// <summary>Checks that a pre-spike PNG inherits every new stock spike tile byte-for-byte from the cartridge.</summary>
-    private static void AssertInheritedSpikeArtworkMatchesCartridge(ISnesAddressSpace rom, RoomFxAnimatedTileAtlas migrated)
+    /// <summary>Checks that the debugger graph restores the room's animated spike cadence.</summary>
+    private static void VerifyCrocomireSpikeGraphRestoration(SuperMetroidRuntime runtime)
     {
-        foreach (int source in new[] { 0x879d84, 0x879e04, 0x879e84 })
-        {
-            AssertTrue(migrated.TryResolve(source, 0x80, out var bytes), "Legacy PNG inherits new stock spike art");
-            for (int i = 0; i < bytes.Length; i++)
-                AssertEqual(rom.ReadCartridgeByte(source + i), bytes.Span[i], "Inherited spike bytes match the pinned cartridge");
-        }
-    }
-
-    /// <summary>Checks legacy PNG inheritance and debugger graph restoration for the room's animated spike tiles.</summary>
-    private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
-        RoomFxAnimatedTileAtlas stock)
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        using var png = new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom));
-        var image = IndexedPng.Read(png, new(RoomFxAnimatedTileAtlasFile.Width, 8));
-        int oldWidth = RoomFxAnimatedTileAtlasFile.PreSpikesWidth;
-        var pixels = new byte[oldWidth * 8];
-        for (int row = 0; row < 8; row++)
-            image.Pixels.AsSpan(row * image.Size.X, oldWidth).CopyTo(pixels.AsSpan(row * oldWidth));
-        pixels[0] ^= 1;
-        using var legacyPng = new MemoryStream();
-        IndexedPng.Write(legacyPng, new(checked((ushort)oldWidth), 8), pixels, SnesGraphics.DiagnosticPalette(4));
-        legacyPng.Position = 0;
-        var migrated = RoomFxAnimatedTileAtlasPng.Read(legacyPng, stock);
-        int oldSource = AnimatedTileImageSources.Of(new AnimatedTileImage(AnimatedTileObject.MaridiaSandCeiling, 0));
-        AssertTrue(stock.TryResolve(oldSource, 0x40, out var original) &&
-            migrated.TryResolve(oldSource, 0x40, out var edited) && !original.Span.SequenceEqual(edited.Span),
-            "Pre-spike PNG retains the user's existing edited prefix");
-        AssertInheritedSpikeArtworkMatchesCartridge(rom, migrated);
-
         using var graph = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(graph, runtime.RoomSpikes);
         graph.Position = 0;

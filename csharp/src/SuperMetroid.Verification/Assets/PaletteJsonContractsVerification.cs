@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Assets.PaletteJsonContractsFixturesVerification;
-using static SuperMetroid.Verification.Assets.PaletteJsonContractsLegacyVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
@@ -89,9 +88,7 @@ internal static class PaletteJsonContractsVerification
             }
         }
         AssertEqual(0, accepted.Count, "palette compilers must reject ambiguous/corrupt data:\n" + string.Join('\n', accepted));
-        Suite(nameof(VerifyPaletteContractLegacyOverrides), () => VerifyPaletteContractLegacyOverrides());
-        Console.WriteLine($"PASS palette JSON contracts: 12 formats / 18 selections, {rejected} invalid documents, " +
-            "legacy overrides.");
+        Console.WriteLine($"PASS palette JSON contracts: 12 formats / 18 selections, {rejected} invalid documents.");
     }
 
     /// <summary>Names one palette schema, its valid document, loader, and historical casing rule.</summary>

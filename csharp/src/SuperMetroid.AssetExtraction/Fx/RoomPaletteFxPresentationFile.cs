@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -12,28 +11,16 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <summary>Reads and writes the installed room palette-effect colour document.</summary>
 public static class RoomPaletteFxPresentationFile
 {
-    /// <summary>The revision each accepted stored version number names; the stored number is decoded once, here.</summary>
-    private static readonly FrozenDictionary<int, RoomPaletteFxPresentationRevision> Revisions =
-        new Dictionary<int, RoomPaletteFxPresentationRevision>
-        {
-            [RoomPaletteFxPresentationFormat.PreviousVersion] = RoomPaletteFxPresentationRevision.InheritsHeatRows,
-            [RoomPaletteFxPresentationFormat.Version] = RoomPaletteFxPresentationRevision.Current,
-        }.ToFrozenDictionary();
-
     /// <summary>Validates editable palette-FX frames and compiles their RGB5 colors into the native bank-$8D color lookup.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>
-    /// <param name="previousVersionFallback">Current stock colors used only to supply the missing Samus heat frames when loading the previous schema version.</param>
     /// <returns>A color source preserving independent edits while reconstructing matching shared or calculated samples on demand.</returns>
-    /// <exception cref="InvalidDataException">The schema version, required frame geometry, or a color component is invalid, or the fallback lacks a required heat color.</exception>
-    public static RoomPaletteFxPresentation Read(Stream json,
-        RoomPaletteFxPresentation? previousVersionFallback = null)
+    /// <exception cref="InvalidDataException">The schema version, required frame geometry, or a color component is invalid.</exception>
+    public static RoomPaletteFxPresentation Read(Stream json)
     {
         RoomPaletteFxPresentationDocument document = JsonAssetDocument.Read<RoomPaletteFxPresentationDocument>(
             json, ArtworkJson.Options, "room palette-FX presentation");
 
-        bool supported = Revisions.TryGetValue(document.Version, out RoomPaletteFxPresentationRevision revision);
-        bool inheritsHeatRows = supported && revision == RoomPaletteFxPresentationRevision.InheritsHeatRows;
-        if (!supported || (inheritsHeatRows && previousVersionFallback is null))
+        if (document.Version != RoomPaletteFxPresentationFormat.Version)
         {
             throw new InvalidDataException(
                 $"Room palette-FX presentation requires version " +
@@ -51,23 +38,7 @@ public static class RoomPaletteFxPresentationFile
                 PaletteFxHeatSuit.Gravity => document.SamusHeatGravitySuit,
                 _ => throw new InvalidDataException($"Unsupported heat suit {definition.Suit}."),
             };
-            if (inheritsHeatRows)
-            {
-                // A v17 player override predates these three color families. Keep
-                // all its existing edits and inherit only the newly extracted
-                // Samus-in-heat frames from the verified current stock catalog.
-                for (int frame = 0; frame < definition.ColorFrames.FrameCount; frame++)
-                for (int index = 0; index < definition.ColorFrames.ColorsPerFrame; index++)
-                {
-                    PaletteFxColorKey key = definition.ColorFrames.Color(frame, index);
-                    if (!(previousVersionFallback ?? throw new InvalidDataException("A previous-version room palette-FX override requires the current stock presentation.")).TryReadColor(key, out RgbColor stockColor))
-                        throw new InvalidDataException(
-                            $"Current stock is missing {definition.Suit} heat color {key}.");
-                    colors.Add(key, stockColor);
-                }
-            }
-            else
-                ValidateAndCompile($"Samus {definition.Suit} suit in heat", frames, definition.ColorFrames, colors);
+            ValidateAndCompile($"Samus {definition.Suit} suit in heat", frames, definition.ColorFrames, colors);
         }
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)

@@ -70,6 +70,6 @@ public static class StandardObjectArtworkFiles
         }
     }
 
-    /// <summary>Binds the stock OBJ PNG digest to its source cartridge and asset format version.</summary>
+    /// <summary>Binds the installed OBJ artwork to its source cartridge and asset format version.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

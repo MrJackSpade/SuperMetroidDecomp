@@ -17,8 +17,8 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
 
-    /// <summary>Owned Mode 7 floor map, floor characters, OBJ characters, and Baby Metroid characters.</summary>
-    private readonly byte[] floorMap, floorCharacters, objectCharacters, babyCharacters;
+    /// <summary>Owned Mode 7 floor map, floor characters and Baby Metroid characters.</summary>
+    private readonly byte[] floorMap, floorCharacters, babyCharacters;
 
     /// <summary>Retains the compiled characters beside the validated map and compositions.</summary>
     /// <param name="map">The validated Mode 7 map and OBJ compositions.</param>
@@ -30,8 +30,10 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
         floorMap = map.Tiles.Select(tile => checked((byte)tile)).ToArray();
         sprites = CompileSprites(map.Sprites);
         this.floorCharacters = floorCharacters;
-        this.objectCharacters = objectCharacters;
         this.babyCharacters = babyCharacters;
+        // Built once here, so reading the page never changes the graphics' state.
+        ObjectPage = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
+            objectCharacters.AsSpan(0, Math.Min(TitleGraphicsFormat.ObjectCharacterByteCount, objectCharacters.Length)));
     }
 
     /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
@@ -44,8 +46,7 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
     /// <summary>The title OBJ page the compositions draw from: the OBJ sheet as the title uploads it (#1358).</summary>
-    public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.TitleObjects),
-        objectCharacters.AsSpan(0, Math.Min(TitleGraphicsFormat.ObjectCharacterByteCount, objectCharacters.Length)));
+    public SpriteArtwork ObjectPage { get; }
 
     /// <summary>One title composition as a whole frame over the title OBJ page (#1392); its parts take their draw's palette.</summary>
     internal SpriteFrame Frame(TitleSprite sprite, string name) => sprites.TryGetValue(sprite, out SpriteComposition? composition)

@@ -5,7 +5,7 @@ internal static class SpriteImageFixtures
 {
     /// <summary>
     /// A named image holding copies of <paramref name="pixels"/>, <paramref name="paletteIndices"/> and
-    /// <paramref name="priorities"/>, checked against its size when its pixels are first read.
+    /// <paramref name="priorities"/>, checked against its size and decoded before it is returned.
     /// </summary>
     /// <param name="name">The image's name, which names it in diagnostics.</param>
     /// <param name="size">The image's width and height in pixels.</param>
@@ -17,6 +17,9 @@ internal static class SpriteImageFixtures
         ReadOnlySpan<byte> paletteIndices, SpriteImagePalette palette, ReadOnlySpan<byte> priorities)
     {
         var layers = new SpriteImageLayers(pixels.ToArray(), paletteIndices.ToArray(), priorities.ToArray());
-        return new SpriteImage(name, size, palette, () => layers);
+        var image = new SpriteImage(name, size, palette, () => layers);
+        // The layers are in hand, so the image is checked and decoded now: reading it later never changes its state.
+        _ = image.Pixels;
+        return image;
     }
 }

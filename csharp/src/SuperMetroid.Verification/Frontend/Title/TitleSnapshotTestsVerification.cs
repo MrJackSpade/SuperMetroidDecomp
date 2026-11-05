@@ -41,8 +41,7 @@ internal static class TitleSnapshotTestsVerification
                     // control's frames are compared with the held packet for the pixels they show, which draws them only when
                     // their descriptions differ (#1532).
                     FloorScene packet = scene.CaptureRenderSnapshot();
-                    byte[] held = GraphDigest(packet);
-                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
+                    byte[] held = GraphDigest(packet);                    AssertTrue(ScenePixels.Same(new DisplayPacket(0, scene.CaptureRenderSnapshot()), new DisplayPacket((ushort)frame, packet)),
                         $"title snapshot {phase} frame {frame} shows the live scene's pixels");
                     FloorScene repeat = scene.CaptureRenderSnapshot();
                     AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeat.Paint.SpriteParts()), "repeat title OAM capture");
@@ -56,7 +55,7 @@ internal static class TitleSnapshotTestsVerification
                     control.Step(input);
                     // The held packet's whole description, every value it reaches through owned or shared state, is
                     // unchanged by the advancement, so it still shows the pixels it showed when captured (#1532).
-                    AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(packet)), $"title snapshot {phase} frame {frame} survives the scene's advancement");
+                    AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(packet)), $"title snapshot {source} {phase} frame {frame} survives the scene's advancement");
                 }
                 else
                 {

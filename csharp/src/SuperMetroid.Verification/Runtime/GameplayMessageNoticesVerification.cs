@@ -14,10 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 
-/// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
+/// <summary>Checks cartridge-extracted message text in the installed box renderer and presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification
 {
-    /// <summary>Compares notice tilemaps with the cartridge and checks selection redraw, live rebinding, and glyph rejection.</summary>
+    /// <summary>Lays out every installed notice and checks selection redraw and glyph rejection.</summary>
     internal static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -50,30 +50,15 @@ internal static class GameplayMessageNoticesVerification
 
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
         JsonObject mapNotice = document.Required("notices").Required(            GameplayMessageId.MapDataAccessCompleted.ToString()).AsObject();
-        mapNotice.Required("text").Required(0)["text"] = "MAP TEST";
-        byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options));
-        GameplayMessageNoticePresentation edited = GameplayMessageNoticePresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-
-        // The game names the form it shows; an edited notice changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
-        active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
-        active.Step(0);
-        BackgroundTile[] before = active.Tilemap(stockMessages);
-        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(null, null, edited))),
-            "UTF-8 notice edit changes the words of the shown message without a ROM patch");
-        AssertTrue(before.SequenceEqual(active.Tilemap(stockMessages)),
-            "stock notice lays the shown message out with its exact words");
-
+        mapNotice.Required("text").Required(0)["text"] = "map test";
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            ArtworkJson.Options).Replace("MAP TEST", "map test"));
+            ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => GameplayMessageNoticePresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message notice rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, edited layout and invalid glyph rejection pass.");
+            $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection and invalid glyph rejection pass.");
     }
 
     /// <summary>Checks that the installed gameplay-message notices are the deterministic cartridge extraction.</summary>

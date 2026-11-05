@@ -78,7 +78,11 @@ internal static class CrystalFlashCleanupVerification
         bool bubble = false, drained = false;
         RoomEnemySlot? contactEnemy = null;
         bool contactVerified = false;
-        var visibility = new List<VerifyCrystalFlashVisualFrameResult>();
+        // Each frame's published scenes are kept and drawn once the route has run. A published scene shares no storage
+        // with the runtime: its paint copies the frame's draws, its layers copy their arrays, and everything else it
+        // reaches is immutable (records and classes whose arrays are copied, or replaced and never written, once
+        // published) or installed content, so drawing it later draws the frame it was published as.
+        var scenes = new List<CrystalFlashFrameScenes>();
         for (int frame = 0; frame < 1000; frame++)
         {
             if (refill && frame == 60)
@@ -133,15 +137,14 @@ internal static class CrystalFlashCleanupVerification
             drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
             if (started >= 0)
             {
-                // Each frame's scenes are drawn before the next update: a published scene still reaches state the
-                // runtime goes on changing, so drawing it later would show a later frame.
-                visibility.Add(CrystalFlashVisualsVerification.Visibility(VerifyCrystalFlashVisualFrame(runtime, bus, frame - started)));
+                scenes.Add(VerifyCrystalFlashVisualFrame(runtime, bus, frame - started));
                 AssertEqual(512, samus.Position.X.Whole, "Crystal Flash owns horizontal movement");
                 AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.Position.Y.Whole,
                     "held Jump cannot replace the native Crystal Flash vertical trajectory");
                 if (samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive) { finished = frame; break; }
             }
         }
+        VerifyCrystalFlashVisualFrameResult[] visibility = CrystalFlashVisualsVerification.Visibility(scenes);
         int visibleBodyFrames = visibility.Count(visible => visible.Body);
         int visibleWindowFrames = visibility.Count(visible => visible.Window);
         if (capacity == 10 && !refill)

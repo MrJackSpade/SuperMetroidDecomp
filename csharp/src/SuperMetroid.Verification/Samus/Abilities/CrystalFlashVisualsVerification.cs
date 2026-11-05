@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.Verification.Harness;
-using System.Runtime.InteropServices;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
@@ -22,7 +21,7 @@ internal static class CrystalFlashVisualsVerification
     /// <summary>
     /// Checks authored body and bubble palette rows, then captures the scenes that isolate the visible body and
     /// color-window pixels: the frame, the frame with Samus muted and, while the color window shows, the frame without it.
-    /// The caller draws them with <see cref="Visibility"/> before the runtime advances.
+    /// The caller keeps them and draws every frame's with <see cref="Visibility"/> once its route has run.
     /// </summary>
     internal static CrystalFlashFrameScenes VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace bus, int elapsed)
     {
@@ -74,40 +73,44 @@ internal static class CrystalFlashVisualsVerification
     }
 
     /// <summary>
-    /// Draws one frame's captured scenes and decides whether its body and color window show any pixel. The scenes are
-    /// independent, so the ones the frame needs drawn are drawn at once, each on its own thread with its own renderer
-    /// (<see cref="ConcurrentSceneDrawing"/>); every draw finishes before this returns, so the runtime advances only after
-    /// the frame it published is drawn.
+    /// Draws every frame's captured scenes and decides, in frame order, whether each frame's body and color window show
+    /// any pixel, checking that each frame's window preserves its HUD pixels. The frames are independent, so they are
+    /// drawn at once, each frame on one companion thread with its own renderer (<see cref="ConcurrentSceneDrawing"/>);
+    /// every frame is drawn and compared exactly as when each was drawn before the runtime advanced, and the checks are
+    /// made in frame order with the same failures.
     /// </summary>
-    internal static VerifyCrystalFlashVisualFrameResult Visibility(CrystalFlashFrameScenes frame)
+    internal static VerifyCrystalFlashVisualFrameResult[] Visibility(IReadOnlyList<CrystalFlashFrameScenes> frames)
+    {
+        ArgumentNullException.ThrowIfNull(frames);
+        CrystalFlashDrawnFrame[] drawn = ConcurrentSceneDrawing.DrawEach(frames, Draw);
+        var visibility = new VerifyCrystalFlashVisualFrameResult[frames.Count];
+        for (int index = 0; index < frames.Count; index++)
+        {
+            AssertTrue(drawn[index].HudPreserved, $"Crystal Flash window preserves HUD pixels at frame {frames[index].Elapsed}");
+            visibility[index] = drawn[index].Visibility;
+        }
+        return visibility;
+    }
+
+    /// <summary>Draws one frame's captured scenes and finds whether its body and color window show any pixel.</summary>
+    private static CrystalFlashDrawnFrame Draw(CrystalFlashFrameScenes frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
         // Two scenes that describe the same frame show the same pixels, so they are drawn only when their descriptions
         // differ: a frame whose Samus draws carry no shading her beam inks take shows no body without drawing either.
-        bool drawsBody = !ScenePixels.SameDescription(new DisplayPacket(0, frame.BeamsDark), new DisplayPacket(0, frame.BeamsLight));
-        // The shown frame is drawn only to compare it with the frame without the color window, while one shows.
-        // The shown frame and the frame without the window, or nothing when no window shows or the two describe one frame.
-        LayeredScene[] windowPair = frame.WithoutWindow is { } scene &&
-            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, scene)) ? [frame.Shown, scene] : [];
-        var drawn = new List<LayeredScene>(4);
-        if (drawsBody)
+        bool bodyVisible = !ScenePixels.SameDescription(new DisplayPacket(0, frame.BeamsDark), new DisplayPacket(0, frame.BeamsLight))
+            && BodyRegionDiffers(frame, DisplayRendering.Render(frame.BeamsDark), DisplayRendering.Render(frame.BeamsLight));
+        bool windowVisible = false, hudPreserved = true;
+        // The shown frame is drawn only to compare it with the frame without the color window, while one shows and the
+        // two describe different frames.
+        if (frame.WithoutWindow is { } withoutWindow &&
+            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, withoutWindow)))
         {
-            drawn.Add(frame.BeamsDark);
-            drawn.Add(frame.BeamsLight);
-        }
-        drawn.AddRange(windowPair);
-        RgbaPixel[][] pixels = ConcurrentSceneDrawing.Draw(CollectionsMarshal.AsSpan(drawn));
-        bool bodyVisible = drawsBody && BodyRegionDiffers(frame, pixels[0], pixels[1]);
-        bool windowVisible = false;
-        if (windowPair.Length != 0)
-        {
-            int shownIndex = drawsBody ? 2 : 0;
-            RgbaPixel[] shown = pixels[shownIndex], withoutWindowPixels = pixels[shownIndex + 1];
-            AssertTrue(shown.AsSpan(0, 32 * 256).SequenceEqual(withoutWindowPixels.AsSpan(0, 32 * 256)),
-                $"Crystal Flash window preserves HUD pixels at frame {frame.Elapsed}");
+            RgbaPixel[] shown = DisplayRendering.Render(frame.Shown), withoutWindowPixels = DisplayRendering.Render(withoutWindow);
+            hudPreserved = shown.AsSpan(0, 32 * 256).SequenceEqual(withoutWindowPixels.AsSpan(0, 32 * 256));
             windowVisible = !shown.SequenceEqual(withoutWindowPixels);
         }
-        return new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible);
+        return new CrystalFlashDrawnFrame(new VerifyCrystalFlashVisualFrameResult(bodyVisible, windowVisible), hudPreserved);
     }
 
     /// <summary>

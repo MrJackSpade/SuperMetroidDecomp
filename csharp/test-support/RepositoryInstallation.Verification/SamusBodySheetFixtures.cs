@@ -156,18 +156,22 @@ internal static class SamusBodySheetFixtures
     {
         SpriteSheetId[] replaced = [.. ids];
         var composedSheets = new SpriteSheet[replaced.Length];
-        // Each sheet composes from the fixture's inputs alone and registers frames under its own name, so the sheets compose
-        // at once, each on its own worker; an exception from any of them fails the composition.
+        var composedSources = new SpriteSheetSources[replaced.Length];
+        // Each sheet composes from the fixture's inputs alone, so the sheets compose at once, each on its own worker; an
+        // exception from any of them fails the composition. Their frames are registered afterwards on this thread.
         System.Threading.Tasks.Parallel.For(0, replaced.Length, index =>
         {
             SpriteSheetId id = replaced[index];
-            SpriteSheetSources sources = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon.Source)
+            composedSources[index] = id == SpriteSheetId.SamusOverlays ? SamusOverlaySheetComposer.Sources(fixture, cannon.Source)
                 : SamusSheetSources.For(fixture, id);
-            composedSheets[index] = Load(id, sources, suffix);
+            composedSheets[index] = Load(id, composedSources[index], suffix);
         });
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
         for (int index = 0; index < replaced.Length; index++)
+        {
+            SheetFrameSources.Register(composedSheets[index], composedSources[index]);
             sheets[replaced[index]] = composedSheets[index];
+        }
         return new InstalledSpriteSheets(sheets);
     }
 
@@ -175,17 +179,17 @@ internal static class SamusBodySheetFixtures
     private static InstalledSpriteSheets Replace(InstalledSpriteSheets basis, SpriteSheetId id, SpriteSheetSources sources, string suffix)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
-        sheets[id] = Load(id, sources, suffix);
+        SpriteSheet loaded = Load(id, sources, suffix);
+        SheetFrameSources.Register(loaded, sources);
+        sheets[id] = loaded;
         return new InstalledSpriteSheets(sheets);
     }
 
-    /// <summary>Composes, loads and registers the fixture sheet <paramref name="id"/> from <paramref name="sources"/>.</summary>
+    /// <summary>Composes and loads the fixture sheet <paramref name="id"/> from <paramref name="sources"/>.</summary>
     private static SpriteSheet Load(SpriteSheetId id, SpriteSheetSources sources, string suffix)
     {
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
-        SpriteSheet loaded = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
+        return SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities);
-        SheetFrameSources.Register(loaded, sources);
-        return loaded;
     }
 }

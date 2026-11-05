@@ -147,17 +147,13 @@ public sealed record GameInstallation(string Root)
         EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
-    /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>
-    public string RoomPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPaletteDirectoryName);
-    /// <summary>Validates stock room palette hashes and loads each existing replacement palette keyed by its source identity.</summary>
+    /// <summary>Loads each installed room palette as the player left it, keyed by its source identity.</summary>
     public RoomStaticPalettes LoadRoomPalettes() =>
-        RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory, RoomPaletteOverrideDirectory);
+        RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory);
     /// <summary>Stock pre-coloured room block sheets under the replaceable content tree.</summary>
     public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
-    /// <summary>Edited block pictures survive stock content replacement.</summary>
-    public string RoomBlockSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBlockSheetDirectoryName);
-    /// <summary>Loads every tileset's pre-coloured block sheet, preferring the player's edits (#1392).</summary>
-    public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory, RoomBlockSheetOverrideDirectory);
+    /// <summary>Loads every tileset's installed pre-coloured block sheet as the player left it (#1392).</summary>
+    public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory);
     /// <summary>Stock pre-assembled boss body sheets under the replaceable content tree (#1466).</summary>
     public string BossBodySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossBodySheetDirectoryName);
     /// <summary>Edited boss body pictures survive stock content replacement.</summary>
@@ -166,12 +162,10 @@ public sealed record GameInstallation(string Root)
     public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory, BossBodySheetOverrideDirectory);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
     public string RoomVisualLayoutDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomVisualLayoutDirectoryName);
-    /// <summary>Persistent replacements for visual room-block references, preserved during stock rebuilds.</summary>
-    public string RoomVisualLayoutOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomVisualLayoutDirectoryName);
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
     public RoomLevelArtworks LoadRoomVisualLayouts() =>
-        RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
-    /// <summary>Stock typed terrain of every room level under the replaceable content tree; this family has no override directory.</summary>
+        RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory);
+    /// <summary>Stock typed terrain of every room level under the replaceable content tree; it is not artwork a player edits.</summary>
     public string RoomLevelStreamDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomLevelStreamDirectoryName);
     /// <summary>Validated stock collision/BTS and streaming allocations, independent of editable visual layouts.</summary>
     public InstalledRoomLevelStreams LoadRoomLevelStreams() => RoomLevelStreamFiles.Load(RoomLevelStreamDirectory);
@@ -383,13 +377,9 @@ public sealed record GameInstallation(string Root)
             RoomPlmCollectibleVisualOverrideDirectory);
     /// <summary>Stock definitions for X-ray reveal metatile selections under the replaceable content tree.</summary>
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
-    /// <summary>Persistent replacements for X-ray reveal metatile selections, preserved during stock rebuilds.</summary>
-    public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
     public InstalledXrayReveals LoadXrayRevealVisuals() =>
-        XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
-    /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
-    public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
+        XrayRevealVisualFiles.Load(XrayRevealVisualDirectory);
     /// <summary>Persistent projectile artwork and presentation replacements, preserved during stock rebuilds.</summary>
     public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
     /// <summary>Loads validated projectile presentation with compatible user artwork and visual-selector replacements.</summary>

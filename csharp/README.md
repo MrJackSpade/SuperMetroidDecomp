@@ -501,18 +501,15 @@ selected by both Windows and Android after restart. Initialization refuses to ov
 existing override directory. Instrument, sample and sequence edits are not overrides: they are
 stock-content diagnostics in `game/audio` and are replaced by repair.
 
-Room tileset palettes are modded the same way: place an edited copy of a stock file in `overrides/room-palettes`
-under the same name as the stock file. Files are named for the artwork, not its cartridge location: a palette is
-`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). Room characters take no overrides: the
-stock character sheets in `game/room-characters` are what the room pictures are composed from, and a room's blocks,
-backgrounds and written pictures are changed only through those pictures in the block sheets (below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
-override. Library-background tilemaps and scrolling-sky pages go in
-`overrides/room-backgrounds`: a tilemap is named for the background it pictures,
+Room tileset palettes are edited in place in `game/room-palettes`; running the extractor again restores the
+originals. Files are named for the artwork, not its cartridge location: a palette is
+`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). The character sheets in
+`game/room-characters` are what the room pictures are composed from, and a room's blocks, backgrounds and written
+pictures are changed through those pictures in the block sheets (below); the block compositions in `game/room-blocks`
+are what those sheets are composed from. Library-background tilemaps and scrolling-sky pages are in
+`game/room-backgrounds`: a tilemap is named for the background it pictures,
 `room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
-for its place among the seven, `scrolling-sky-page-{0-6}.json`. Overrides saved under the older names, which
-carried the cartridge address (`room-palette-C2BC9C.json`, `room-background-B9FA38.json`,
-`scrolling-sky-8AB180.json`), are renamed when the installation is rebuilt; an override present
-under both names stops the rebuild, leaving the previous installation in place, until one of them is removed.
+for its place among the seven, `scrolling-sky-page-{0-6}.json`.
 
 Sprites are moving to finished images. A sprite family that has moved is drawn from a pre-coloured
 sheet in `game/sprite-sheets`: an RGBA PNG (`{family}.png`, transparent where alpha is zero) and its
@@ -575,7 +572,7 @@ are `Messages.<tileset>`: one image of each message in each form it takes (each 
 choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
 image pictures. Each Ceres tileset's Mode 7 tiles are one picture, `Mode7.<tileset>`, sixteen tiles to a row;
 `mode7-tiles.json` records what each tile was pictured over.
-Edited copies go in `overrides/room-block-sheets`. The
+Edit them in place; running the extractor again restores the originals. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 
 Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in

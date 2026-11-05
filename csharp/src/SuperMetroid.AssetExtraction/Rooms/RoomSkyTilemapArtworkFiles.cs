@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installs seven literal bank-$8A sky tilemap pages with persistent JSON overrides.</summary>
+/// <summary>Installs seven literal bank-$8A sky tilemap pages as JSON a player edits in place.</summary>
 public static class RoomSkyTilemapArtworkFiles
 {
     /// <summary>Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge address (#1414).</summary>
@@ -39,15 +39,14 @@ public static class RoomSkyTilemapArtworkFiles
             new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
-    /// <summary>Checks stock provenance, seven-page manifest coverage, and page digests before compiling per-page overrides without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing the seven sky-page JSON files and their provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory with independently selected page replacements; each absent file retains verified stock.</param>
-    /// <returns>The selected contiguous tilemap pages, with native page/row streaming and scrolling pointer arithmetic unchanged.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected page's BG tile-word format and transfer size is invalid.</exception>
-    public static RoomSkyTilemaps Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks installed provenance and seven-page manifest coverage, then compiles each installed page as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the seven sky-page JSON files and their provenance manifest.</param>
+    /// <returns>The installed contiguous tilemap pages, with native page/row streaming and scrolling pointer arithmetic unchanged.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed page's BG tile-word format and transfer size is invalid.</exception>
+    public static RoomSkyTilemaps Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, RoomSkyTilemapFormat.ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, RoomSkyTilemapFormat.ManifestFileName);
         using var manifestStream = File.OpenRead(manifestPath);
         RoomSkyFileManifest manifest = JsonAssetDocument.Read<RoomSkyFileManifest>(
             manifestStream, JsonOptions, $"scrolling-sky manifest {manifestPath}");
@@ -64,12 +63,8 @@ public static class RoomSkyTilemapArtworkFiles
         for (int page = 0; page < pages.Length; page++)
         {
             string name = RoomSkyTilemapFormat.FileName(page);
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
-            byte[] json = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
+            string path = Path.Combine(directory, name);
+            byte[] json = File.ReadAllBytes(path);
             try
             {
                 pages[page] = RoomBackgroundTilemapAtlas.Load(
@@ -77,15 +72,11 @@ public static class RoomSkyTilemapArtworkFiles
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid scrolling-sky page {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid scrolling-sky page {path}: {error.Message}", error);
             }
         }
         return new RoomSkyTilemaps(pages);
     }
-
-    /// <summary>Each sky page's file name before #1414, which carried its cartridge source, and its current name.</summary>
-    internal static IReadOnlyDictionary<string, string> LegacyNames() => Enumerable.Range(0, RoomSkyTilemapFormat.PageCount).ToDictionary(
-        page => $"scrolling-sky-{LibraryBackgroundOperands.SkyPageAddress(page):X6}.json", RoomSkyTilemapFormat.FileName);
 
     /// <summary>Strict, camel-case JSON settings shared by sky-page manifest export and import.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

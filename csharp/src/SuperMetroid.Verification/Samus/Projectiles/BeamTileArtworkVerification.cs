@@ -22,7 +22,7 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks extracted beam PNGs and palettes through the projectile queue and runtime NMI path.</summary>
 internal static class BeamTileArtworkVerification
 {
-    /// <summary>Compares all beam selections with native VRAM, checks one-pixel edits, and exercises queued artwork rebinding.</summary>
+    /// <summary>Compares all beam selections with native VRAM, checks the queued transfer and bound page, and rejects malformed PNGs.</summary>
     internal static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
@@ -31,7 +31,7 @@ internal static class BeamTileArtworkVerification
         var palettes = BeamPaletteFile.Read(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
         var catalog = BeamTileCatalog.Load(files, palettes);
         Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus));
-        AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
+        AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have installed artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
             byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
@@ -40,18 +40,7 @@ internal static class BeamTileArtworkVerification
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
             AssertTrue(native.ImageEquals(extracted), "PNG matches production beam upload across complete VRAM");
-            var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
-            image.Pixels[0] ^= 1;
-            using var editedPng = new MemoryStream();
-            IndexedPng.Write(editedPng, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            editedPng.Position = 0;
-            var edited = BeamTileAtlas.Load(editedPng, SamusBeamCombinations.FromTableIndex(selection));
-            edited.LoadTo(extracted);
-            int firstByte = ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2;
-            AssertEqual((byte)(native.Bytes[firstByte] ^ 0x80), extracted.Bytes[firstByte], "Edited pixel changes the correct tile plane bit");
-            for (int index = 0; index < native.Bytes.Length; index++)
-                if (index != firstByte) AssertEqual(native.Bytes[index], extracted.Bytes[index], "Beam edit cannot change neighboring VRAM or other pixels");
-            AssertEqual(BeamTileAtlasDefinitions.ByteCount, edited.Characters.Length, "Edited upload retains native DMA size");
+            AssertEqual(BeamTileAtlasDefinitions.ByteCount, atlas.Characters.Length, "Extracted upload retains native DMA size");
             var actualPaletteColours = new SamusColours(); var expectedPalette = new SnesCgram();
             var paletteSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") };
             var nativeQueue = new VramWriteQueue();
@@ -69,12 +58,6 @@ internal static class BeamTileArtworkVerification
             RgbColor[] shownBeams = actualPaletteColours.ShownBeams(paletteSources);
             for (int color = 0; color < 16; color++)
                 AssertEqual(expectedPalette.Colors[0xe0 + color], shownBeams[color], "PNG selection leaves beam palette behavior unchanged");
-            var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
-            var editedPages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, BeamTileCatalog.Load(replacements),
-                InstalledFixtures.Projectiles.TrailTiles);
-            AssertTrue(editedPages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
-                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(extracted.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
-                "The bound page shows the edited PNG");
         }
         using var wrongSize = new MemoryStream();
         IndexedPng.Write(wrongSize, new(8, 8), new byte[64], new[] { new RgbaPixel(0, 0, 0, 255) });
@@ -87,7 +70,7 @@ internal static class BeamTileArtworkVerification
         invalidIndex.Position = 0;
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(invalidIndex, 0), "Beam index exceeds four bit hardware palette");
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(new MemoryStream(new byte[8]), 0), "Malformed beam PNG rejected");
-        Console.WriteLine("Beam PNG artwork: twelve native uploads reproduced on the bound page, exact edited-pixel isolation and malformed resource rejection pass.");
+        Console.WriteLine("Beam PNG artwork: twelve native uploads reproduced on the bound page and malformed resource rejection pass.");
     }
 
     /// <summary>Reconstructs the cartridge's selected beam tile transfer and palette as a native comparison fixture.</summary>

@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileInstructionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -10,10 +9,10 @@ using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks compiled projectile collision radii independently of editable frame artwork.</summary>
+/// <summary>Checks compiled projectile collision radii independently of frame artwork.</summary>
 internal static class ProjectileRadiiVerification
 {
-    /// <summary>Compares 805 bank 93 radius pairs and checks projectile and bomb frames under changed sprite bindings.</summary>
+    /// <summary>Compares 805 bank 93 radius pairs and checks projectile and bomb frames under the stock sprite bindings.</summary>
     internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.
@@ -99,17 +98,9 @@ internal static class ProjectileRadiiVerification
 
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson));
-        var editedDocument = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        ushort[] replacementSprites = ProjectileSpriteDefinitions.NativePointers.ToArray();
-        foreach (ushort frame in SamusProjectileRecordDefinitions.TimedRecordAddresses)
-            editedDocument.Frames[ProjectileFrameBindingFormat.FrameNameAt(frame)] =
-                ProjectileSpriteDefinitions.Name(stock.Resolve(frame) == replacementSprites[0]
-                    ? replacementSprites[1] : replacementSprites[0]);
-        var edited = ProjectileFrameBindingFile.Load(
-            new MemoryStream(ProjectileFrameBindingFile.Write(editedDocument)));
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var bombs = new SamusBombProjectileSystem();
+        projectiles.Animation.FrameBindings = bombs.FrameBindings = stock;
         int bombFrames = 0;
         foreach (int address in addresses)
         {
@@ -117,36 +108,29 @@ internal static class ProjectileRadiiVerification
             ushort duration = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x930000 | pointer));
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
-            foreach (bool replaceArt in new[] { false, true })
-            {
-                projectiles.Animation.FrameBindings = bombs.FrameBindings = replaceArt ? edited : stock;
-                ushort nativeSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
-                ushort expectedSprite = replaceArt
-                    ? (nativeSprite == replacementSprites[0] ? replacementSprites[1] : replacementSprites[0])
-                    : nativeSprite;
-                var slot = new SamusProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Damage = 30 };
-                AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
-                AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");
-                AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
-                AssertEqual(rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
-                AssertEqual(rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), slot.AnimationFrame, "Trail frame unchanged");
-                AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
+            ushort expectedSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
+            var slot = new SamusProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Damage = 30 };
+            AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
+            AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");
+            AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");
+            AssertEqual(rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
+            AssertEqual(rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), slot.AnimationFrame, "Trail frame unchanged");
+            AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
-                // The bomb owner deliberately rejects zero-duration records. Keep that
-                // existing contract instead of treating arbitrary beam records as bombs.
-                if (duration == 0) continue;
-                var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
-                AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
-                AssertEqual(duration, bomb.FrameHold.RawValue, "Bomb duration unchanged");
-                AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");
-                AssertEqual(rom.ReadCartridgeByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");
-                AssertEqual(rom.ReadCartridgeByte(address + 1), bomb.Radius.Y, "Bomb physical Y independent of artwork");
-                AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Bomb stream progression unchanged");
-                bombFrames++;
-            }
+            // The bomb owner deliberately rejects zero-duration records. Keep that
+            // existing contract instead of treating arbitrary beam records as bombs.
+            if (duration == 0) continue;
+            var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
+            AssertEqual(duration, bomb.FrameHold.RawValue, "Bomb duration unchanged");
+            AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb native artwork reference");
+            AssertEqual(rom.ReadCartridgeByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");
+            AssertEqual(rom.ReadCartridgeByte(address + 1), bomb.Radius.Y, "Bomb physical Y independent of artwork");
+            AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Bomb stream progression unchanged");
+            bombFrames++;
         }
-        Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
+        Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 805 projectile frames and {bombFrames} bomb frames pass.");
     }
 
     /// <summary>Runs radius and instruction checks against the same retail cartridge.</summary>

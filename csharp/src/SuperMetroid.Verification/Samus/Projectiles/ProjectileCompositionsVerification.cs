@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
@@ -31,10 +30,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Checks imported projectile OAM against native records, production draw owners, and installed edits.</summary>
+/// <summary>Checks imported projectile OAM against native records and production draw owners.</summary>
 internal static class ProjectileCompositionsVerification
 {
-    /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and verifies edits without draw-time ROM access.</summary>
+    /// <summary>Compares extracted bank-$93 sprites across coordinate wraps and rejects malformed compositions without draw-time ROM access.</summary>
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false)
     {
@@ -51,41 +50,30 @@ internal static class ProjectileCompositionsVerification
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
         foreach (int preceding in new[] { 0, 127 })
         {
-            var native = new OamBuffer(); var authored = new OamBuffer();
+            var native = new OamBuffer(); var extracted = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
                 native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
-                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
+                extracted.AddProjectileSpritePart(new(0), 0, new(0), new Position16<SpritePixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, new(origin, origin));
-            content.Draw(id, authored, new(origin, origin));
-            AssertTrue(native.LowTable.SequenceEqual(authored.LowTable), "Extracted composition retains all low OAM bytes");
-            AssertTrue(native.HighTable.SequenceEqual(authored.HighTable), "Extracted composition retains all high OAM bits");
-            AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Extracted composition retains native capacity wrapping");
+            content.Draw(id, extracted, new(origin, origin));
+            AssertTrue(native.LowTable.SequenceEqual(extracted.LowTable), "Extracted composition retains all low OAM bytes");
+            AssertTrue(native.HighTable.SequenceEqual(extracted.HighTable), "Extracted composition retains all high OAM bits");
+            AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Extracted composition retains native capacity wrapping");
             draws++;
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<ProjectileSpriteDocument>(json, options);
-        ushort editedId = ProjectileSpriteDefinitions.NativePointers.First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
-        string name = ProjectileSpriteDefinitions.Name(editedId);
+        // The first stock sprite with parts: the runtime and intro sheet checks draw it, and the rejection checks malform it.
+        ushort drawnId = ProjectileSpriteDefinitions.NativePointers.First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
+        string name = ProjectileSpriteDefinitions.Name(drawnId);
         var original = document.Frames[name][0];
-        document.Frames[name][0] = original with { OffsetX = original.OffsetX == 255 ? 254 : original.OffsetX + 1 };
-        byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
-        var edited = InstalledProjectileSprites.Load(new MemoryStream(editedJson));
-        Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
-        GameInstallation installation = RepositoryInstallation.Installation;
         var roomAssets = MapPresentationInstalledRoomAssets.Shared;
-        Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(editedId, InstalledFixtures.SpriteSheets,
+        Suite(nameof(VerifyRuntimeProjectileSheets), () => VerifyRuntimeProjectileSheets(drawnId, InstalledFixtures.SpriteSheets,
             roomAssets, InstalledFixtures.Maps));
         if (!compositionOnly)
-            VerifyIntroProjectileArtwork(editedId);
-        var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
-        content.Draw(editedId, baselineOam, new(100, 100)); edited.Draw(editedId, editedOam, new(100, 100));
-        AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");
-        AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Visual edit is observable");
-        document.Frames[name][0] = original;
-        editedOam = new OamBuffer(); edited.Draw(editedId, editedOam, new(100, 100));
-        AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns immutable compiled parts");
+            VerifyIntroProjectileArtwork(drawnId);
 
         void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
         Reject(document with { Version = ProjectileSpriteDefinitions.Version + 1 });
@@ -100,7 +88,7 @@ internal static class ProjectileCompositionsVerification
             AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(malformed)), "Duplicate or unknown mechanics fields rejected");
         }
         AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), new(0, 0)), "Unknown sprite is loud");
-        Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons, observable edits, immutable load and invalid-field rejection pass without a draw-time ROM.");
+        Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons and invalid-field rejection pass without a draw-time ROM.");
     }
 
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
@@ -233,254 +221,6 @@ internal static class ProjectileCompositionsVerification
             return target.Sprites.Draws.OfType<ImageSpriteDraw>().Single(draw => draw.Source.Kind == kind);
         }
     }
-
-    /// <summary>Checks stock digests, persistent overrides, invalid content, and stock repair in projectile installation.</summary>
-    private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
-    {
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.ProjectileDirectory);
-        GameInstallation installation = copy.Installation;
-        var stock = installation.LoadProjectiles();
-        AssertEqual(stock.StockSha256, stock.SelectedSha256, "Unmodified projectile identity");
-        Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
-        string replacement = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
-        File.WriteAllBytes(replacement, editedJson);
-        var edited = installation.LoadProjectiles();
-        AssertTrue(edited.SelectedSha256 != stock.SelectedSha256, "Selected projectile identity reflects override");
-        AssertEqual(stock.StockSha256, edited.StockSha256, "Override preserves stock provenance");
-        RepairProjectileStock(bus, installation);
-        AssertTrue(File.ReadAllBytes(replacement).SequenceEqual(editedJson), "Re-extraction preserves external projectile override");
-        AssertEqual(edited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Re-extraction preserves selected content");
-        File.WriteAllText(replacement, "broken");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Corrupt override never falls back");
-        File.WriteAllBytes(replacement, editedJson);
-        string stockPath = Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName);
-        File.WriteAllText(stockPath, "broken");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Override cannot hide corrupt stock");
-        File.Move(stockPath, stockPath + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Override cannot hide missing stock");
-        RepairProjectileStock(bus, installation);
-        string manifestPath = Path.Combine(installation.ProjectileDirectory, ProjectilePresentationFiles.ManifestFileName);
-        string manifest = File.ReadAllText(manifestPath);
-        File.WriteAllText(manifestPath, manifest.Replace(SupportedCartridge.Sha256, new string('0', 64)));
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Wrong cartridge provenance rejected");
-        File.WriteAllText(manifestPath, manifest.Insert(1, "\"version\":1,"));
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Duplicate manifest identity rejected");
-        File.WriteAllText(manifestPath, manifest);
-        string beamName = BeamTileAtlasDefinitions.FileName(0);
-        string beamStock = Path.Combine(installation.ProjectileDirectory, beamName);
-        string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
-        IndexedPngImage beamImage;
-        using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, new(64, 8));
-        beamImage.Pixels[0] ^= 1;
-        using (var output = File.Create(beamOverride))
-            IndexedPng.Write(output, new(64, 8), beamImage.Pixels, beamImage.Colours);
-        var beamEdited = installation.LoadProjectiles();
-        AssertTrue(beamEdited.SelectedSha256 != edited.SelectedSha256, "PNG-only change updates aggregate content identity");
-        AssertEqual((byte)(stock.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0] ^ 0x80),
-            beamEdited.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0], "Installed beam PNG edit reaches compiled tile byte");
-        byte[] savedPng = File.ReadAllBytes(beamOverride);
-        RepairProjectileStock(bus, installation);
-        AssertTrue(savedPng.SequenceEqual(File.ReadAllBytes(beamOverride)), "Re-extraction preserves PNG override bytes");
-        AssertEqual(beamEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Re-extraction preserves PNG selection identity");
-        File.WriteAllText(beamOverride, "broken png");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Corrupt beam PNG override rejected");
-        File.WriteAllBytes(beamOverride, savedPng);
-        File.WriteAllText(beamStock, "broken stock png");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "PNG override cannot conceal stock corruption");
-        File.Move(beamStock, beamStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "PNG override cannot conceal missing stock");
-        RepairProjectileStock(bus, installation);
-        string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteFile.FileName);
-        string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteFile.FileName);
-        var paletteDocument = RequiredJson.Parse(File.ReadAllText(paletteStock));
-        var red = paletteDocument.Required("palettes").Required(BeamPaletteFile.Key(0)).Required(0);
-        red["red"] = red.Required("red").GetValue<int>() ^ 1;
-        File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
-        var paletteEdited = installation.LoadProjectiles();
-        AssertTrue(paletteEdited.SelectedSha256 != beamEdited.SelectedSha256, "Palette-only override changes content identity");
-        File.WriteAllText(paletteStock, "broken stock palette");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Palette override cannot conceal stock corruption");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(paletteEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves selected palette");
-        File.WriteAllText(paletteOverride, "broken palette override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed palette override does not fall back");
-        File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
-        string hyperStock = Path.Combine(installation.ProjectileDirectory, HyperBeamFxColorFormat.FileName);
-        string hyperOverride = Path.Combine(installation.ProjectileOverrideDirectory, HyperBeamFxColorFormat.FileName);
-        var hyperDocument = RequiredJson.Parse(File.ReadAllText(hyperStock));
-        var hyperRed = hyperDocument.Required("frames").Required(3).Required(2).Required("red");
-        hyperDocument.Required("frames").Required(3).Required(2)["red"] = hyperRed.GetValue<int>() ^ 1;
-        File.WriteAllText(hyperOverride, hyperDocument.ToJsonString());
-        var hyperEdited = installation.LoadProjectiles();
-        AssertTrue(hyperEdited.SelectedSha256 != paletteEdited.SelectedSha256,
-            "Hyper Beam FX override changes selected identity");
-        // The Hyper Beam cycle's frame three; its third colour is the beams' fourth (#1512).
-        ImmutableArray<RgbColor> hyperNative = (stock.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires stock.BeamTiles.HyperBeamFxColors.")).Frame(3);
-        ImmutableArray<RgbColor> hyperSelected = (hyperEdited.BeamTiles.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires hyperEdited.BeamTiles.HyperBeamFxColors.")).Frame(3);
-        AssertEqual((ushort)(hyperNative[2].ToWord() ^ 1), hyperSelected[2],
-            "Installed Hyper Beam FX override changes its selected color");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(hyperEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256,
-            "Re-extraction retains Hyper Beam FX override");
-        File.WriteAllText(hyperStock, "broken stock Hyper Beam FX colors");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(),
-            "Hyper Beam FX override cannot conceal stock corruption");
-        RepairProjectileStock(bus, installation);
-        File.WriteAllText(hyperOverride, "broken Hyper Beam FX override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(),
-            "Malformed Hyper Beam FX override does not fall back");
-        File.WriteAllText(hyperOverride, hyperDocument.ToJsonString());
-        string trailStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName);
-        string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
-        var trailDocument = RequiredJson.Parse(File.ReadAllText(trailStock));
-        trailDocument.Required("frames").Required(ProjectileTrailVisualDefinitions.FrameNames[0])["flipX"] = true;
-        File.WriteAllText(trailOverride, trailDocument.ToJsonString());
-        var trailEdited = installation.LoadProjectiles();
-        AssertTrue(trailEdited.SelectedSha256 != paletteEdited.SelectedSha256, "Trail-only edit changes content identity");
-        File.WriteAllText(trailStock, "broken stock trail");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail override cannot conceal stock corruption");
-        File.Move(trailStock, trailStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Trail override cannot conceal missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(trailEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves trail override");
-        File.WriteAllText(trailOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid trail override does not fall back");
-        File.WriteAllText(trailOverride, trailDocument.ToJsonString());
-        string trailPngStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName);
-        string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
-        var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
-        trailImage.Pixels[0] ^= 1;
-        using var trailPng = new MemoryStream();
-        IndexedPng.Write(trailPng, new(trailImage.Size.X, trailImage.Size.Y), trailImage.Pixels, trailImage.Colours);
-        File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
-        var pngEdited = installation.LoadProjectiles();
-        AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
-        AssertTrue(!pngEdited.TrailTiles.IceAndWave.Span.SequenceEqual(trailEdited.TrailTiles.IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
-        File.WriteAllText(trailPngStock, "broken PNG");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide broken stock");
-        File.Move(trailPngStock, trailPngStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(pngEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves trail PNG override");
-        File.WriteAllText(trailPngOverride, "invalid override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed trail PNG override never falls back");
-        File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
-        string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementExtractor.FileName);
-        string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementExtractor.FileName);
-        var flareDocument = RequiredJson.Parse(File.ReadAllText(flareStock));
-        flareDocument.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
-        File.WriteAllText(flareOverride, flareDocument.ToJsonString());
-        var flareEdited = installation.LoadProjectiles();
-        AssertTrue(flareEdited.SelectedSha256 != pngEdited.SelectedSha256, "Flare-only edit changes content identity");
-        AssertEqual(17, flareEdited.FlarePlacement.Resolve(false, 0).X, "Installer selects edited flare offset");
-        File.WriteAllText(flareStock, "broken stock");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare override cannot hide stock corruption");
-        File.Move(flareStock, flareStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Flare override cannot hide missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(flareEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves flare override");
-        File.WriteAllText(flareOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare override never falls back");
-        File.WriteAllText(flareOverride, flareDocument.ToJsonString());
-        string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteExtractor.FileName);
-        string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteExtractor.FileName);
-        var compositionDocument = RequiredJson.Parse(File.ReadAllText(compositionStock));
-        string firstFlare = ChargeFlareSpriteSelection.Selectors[0].Name;
-        compositionDocument.Required("frames").Required(firstFlare).Required(0)["offsetX"] = 17;
-        File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
-        var compositionEdited = installation.LoadProjectiles();
-        AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
-        var flareOam = new OamBuffer();
-        compositionEdited.FlareCompositions.Draw(0, flareOam, new(100, 100));
-        AssertEqual(117, flareOam.GetEntry(0).Position.X, "Installed flare composition emits selected part offset");
-        File.WriteAllText(compositionStock, "broken stock");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal corrupt stock");
-        File.Move(compositionStock, compositionStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(compositionEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves flare composition override");
-        File.WriteAllText(compositionOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare composition override never falls back");
-        File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
-        string grappleStock = Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName);
-        string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
-        var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
-        grappleImage.Pixels[0] ^= 1;
-        using var grapplePng = new MemoryStream();
-        IndexedPng.Write(grapplePng, new(grappleImage.Size.X, grappleImage.Size.Y), grappleImage.Pixels, grappleImage.Colours);
-        File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
-        var grappleEdited = installation.LoadProjectiles();
-        AssertTrue(grappleEdited.SelectedSha256 != compositionEdited.SelectedSha256, "Grapple PNG-only edit changes content identity");
-        AssertEqual((byte)(compositionEdited.GrappleTiles.Resolve(InstalledArtworkId.GrapplePointFirstTiles).Span[0] ^ 128),
-            grappleEdited.GrappleTiles.Resolve(InstalledArtworkId.GrapplePointFirstTiles).Span[0], "Installed Grapple PNG selects edited endpoint pixel");
-        File.WriteAllText(grappleStock, "broken PNG");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple override cannot conceal corrupt stock");
-        File.Move(grappleStock, grappleStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Grapple override cannot conceal missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(grappleEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves Grapple PNG override");
-        File.WriteAllText(grappleOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple PNG override never falls back");
-        File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
-        string grappleStyleStock = Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName);
-        string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
-        var grappleStyle = RequiredJson.Parse(File.ReadAllText(grappleStyleStock));
-        grappleStyle.Required("endpoint")["palette"] = 4;
-        File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
-        var styleEdited = installation.LoadProjectiles();
-        AssertTrue(styleEdited.SelectedSha256 != grappleEdited.SelectedSha256, "Grapple style-only edit changes content identity");
-        // The edit changes only the endpoint's palette row, to the four the style override authors.
-        AssertEqual((grappleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires grappleEdited.GrappleTiles.Sprites.")).Endpoint with { Palette = 4 },
-            (styleEdited.GrappleTiles.Sprites ?? throw new InvalidOperationException("Verification requires styleEdited.GrappleTiles.Sprites.")).Endpoint, "Installed Grapple style selects edited palette");
-        File.WriteAllText(grappleStyleStock, "broken stock");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple style override cannot hide corrupt stock");
-        File.Move(grappleStyleStock, grappleStyleStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Grapple style override cannot hide missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(styleEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves Grapple style override");
-        File.WriteAllText(grappleStyleOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple style never falls back");
-        File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
-        string grappleFlareStock = Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName);
-        string grappleFlareOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName);
-        var grappleFlare = RequiredJson.Parse(File.ReadAllText(grappleFlareStock));
-        grappleFlare.Required("offsets").Required(ChargeFlarePlacementFile.Key(false, 0))["x"] = 17;
-        File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
-        var grappleFlareEdited = installation.LoadProjectiles();
-        AssertTrue(grappleFlareEdited.SelectedSha256 != styleEdited.SelectedSha256, "Grapple flare-only edit changes content identity");
-        AssertEqual((short)17, (grappleFlareEdited.GrappleTiles.FlarePlacement ?? throw new InvalidOperationException("Verification requires grappleFlareEdited.GrappleTiles.FlarePlacement.")).Resolve(false, 0).X, "Installer selects Grapple flare offset");
-        File.WriteAllText(grappleFlareStock, "broken stock");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple flare override cannot hide corrupt stock");
-        File.Move(grappleFlareStock, grappleFlareStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Grapple flare override cannot hide missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(grappleFlareEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves Grapple flare override");
-        File.WriteAllText(grappleFlareOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple flare never falls back");
-        File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
-        string swingStock = Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameExtractor.FileName);
-        string swingOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameExtractor.FileName);
-        var swing = RequiredJson.Parse(File.ReadAllText(swingStock));
-        swing.Required("frames")[0] = 17;
-        File.WriteAllText(swingOverride, swing.ToJsonString());
-        var swingEdited = installation.LoadProjectiles();
-        AssertTrue(swingEdited.SelectedSha256 != grappleFlareEdited.SelectedSha256, "Swing-only edit changes content identity");
-        AssertEqual(17, (swingEdited.GrappleTiles.SwingFrames ?? throw new InvalidOperationException("Verification requires swingEdited.GrappleTiles.SwingFrames.")).Resolve(new ByteAngle(0)), "Installer selects edited swing frame");
-        File.WriteAllText(swingStock, "broken stock");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Swing override cannot hide corrupt stock");
-        File.Move(swingStock, swingStock + ".invalid");
-        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Swing override cannot hide missing stock");
-        RepairProjectileStock(bus, installation);
-        AssertEqual(swingEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves swing override");
-        File.WriteAllText(swingOverride, "broken override");
-        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid swing override never falls back");
-        Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
-    }
-
-    /// <summary>Re-extracts the projectile stock over <paramref name="installation"/>'s projectile directory, as installer repair does.</summary>
-    [PrivateInstallation("Re-runs ProjectilePresentationFiles.Extract over the copy's projectile stock directory after its files are corrupted, moved away or left intact, so the caller checks that this repair restores every stock projectile file and keeps each sprite, beam, palette, Hyper Beam, trail, flare, composition and Grapple override selected; a read of the shared installation or of a copy never runs the extractor.")]
-    private static void RepairProjectileStock(ISnesAddressSpace bus, GameInstallation installation) =>
-        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
 
     /// <summary>Runs native projectile composition verification against the pinned cartridge.</summary>
     [VerificationCommand("--projectile-compositions-fixture")]

@@ -184,11 +184,12 @@ internal static class EnemyDefinitionBoundaryVerification
                     Corpses.CorpseRowLayouts.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
         foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
-            var records = DeadMonsterRowUploadDefinitions.ForKind(CorpseNativeAddresses.TransferTableAt(pointer));
+            RottingCorpseKind kind = CorpseNativeAddresses.TransferTableAt(pointer);
+            var records = DeadMonsterRowUploadDefinitions.ForKind(kind);
             for (int i = 0; i < records.Length; i++)
             {
                 var record = records[i];
-                int[] words = [record.SizeInBytes, record.SourceBankWord, record.SourceOffset, record.DestinationWord];
+                int[] words = [record.SizeInBytes, CorpseRowSources.BankWord, CorpseRowSources.Of(kind, i), record.DestinationWord];
                 for (int w = 0; w < words.Length; w++)
                     AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 8 + w * 2))), words[w], "corpse transfer descriptor");
             }

@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Frontend.Options;

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

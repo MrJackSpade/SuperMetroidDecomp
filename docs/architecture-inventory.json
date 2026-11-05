@@ -11340,108 +11340,56 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseGraphicsCopy",
+      "type": "SuperMetroid.AssetExtraction.Enemies.CorpseColumnRotDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/CorpseColumnRotDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.CorpsePictureDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/CorpsePictureDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRowPictures",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRowPictures.DrawnCharacter",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseGraphicsCopy.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowPictures.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRotRow",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotRow.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRotSimulation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotSimulation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRotSimulation.StagedCorpse",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotSimulation.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRotSimulation.TorizoUploadState",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotSimulation.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRotState",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotState.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRotationExtent",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotationExtent.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRowGeometry",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowGeometry.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRowUpload",
@@ -11470,45 +11418,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseStaging",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseStaging.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseStaging.StagedBytes",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseStaging.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseStagingGeometryDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseStagingGeometryDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadMonsterRowUploadDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -11517,32 +11426,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadMonsterRowUploadDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTorizoBounds",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoBounds.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTorizoGeometryDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoGeometryDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -11574,82 +11457,30 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTorizoSandCadence",
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.RottingCorpseCells",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoSandCadence.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/RottingCorpseCells.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTorizoSourcePart",
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.RottingCorpseCells.CorpseCharacterRun",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoSourcePart.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/RottingCorpseCells.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTorizoStationaryCompositionDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoStationaryCompositionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTorizoStockPart",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoStockPart.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpseStagingDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTourianCorpseStagingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.DeadTourianCorpseVariant",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTourianCorpseVariant.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder",
@@ -11862,32 +11693,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkDrawingDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.EncounterArtworkInterlude",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkInterlude.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.EncounterArtworkInterludes",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkInterludes.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -13463,19 +13268,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.FrameVariationPictures.JointStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/FrameVariationPictures.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.GraphicsSetCharacterLayout",
@@ -25273,7 +25065,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.PictureOwner",
+      "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.CorpsePictureOwner",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -25286,7 +25078,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.RotPictureOwner",
+      "type": "SuperMetroid.AssetExtraction.InstalledArtworkContentIdentity.PictureOwner",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -37101,6 +36893,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Assets.CorpseRotPicture",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/CorpseRotPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.EncounterArtworkSequence",
       "kind": "enum",
       "scope": "product",
@@ -45291,22 +45096,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCorpseArtworkDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/Artwork/MotherBrainCorpseArtworkDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainDarkHeadShade",
@@ -58725,6 +58514,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.CorpseColumnRot",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpseColumnRot.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.CorpsePictureLayout",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpsePictureLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.DeadTorizoArtworkDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -63335,6 +63150,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRotDrawing",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRotRows",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotRows.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRotSchedule",
       "kind": "class",
       "scope": "product",
@@ -63361,19 +63202,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRotView",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotView.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowFall",
       "kind": "class",
       "scope": "product",
@@ -63385,6 +63213,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowMoveDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRowMoveDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowOperation",
@@ -63942,14 +63783,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.IShowsCorpseRot",
+      "type": "SuperMetroid.Core.Enemies.Corpses.IShowsCorpseRotRows",
       "kind": "interface",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/IShowsCorpseRot.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/IShowsCorpseRotRows.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -63966,6 +63807,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.RottingCorpseRows",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/RottingCorpseRows.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.RottingCorpseSpecies",
@@ -141769,6 +141623,253 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseCharacterRot",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseCharacterRot.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseGraphicsCopy",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseGraphicsCopy.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseRotRow",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseRotRow.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseRotationExtent",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseRotationExtent.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseRowGeometry",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseRowGeometry.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseRowSources",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseRowSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseSheets",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseSheets.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseStaging",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseStaging.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseStaging.StagedBytes",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseStaging.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseStagingGeometryDefinitions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseStagingGeometryDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseWorkMemory",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/CorpseWorkMemory.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoBounds",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoBounds.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoGeometryDefinitions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoGeometryDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoSandCadence",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoSandCadence.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoSourcePart",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoSourcePart.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoStationaryCompositionDefinitions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoStationaryCompositionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoStockPart",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoStockPart.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTourianCorpseStagingDefinitions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTourianCorpseStagingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTourianCorpseVariant",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/DeadTourianCorpseVariant.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.TestSupport.VerificationOracles.EnemyPresentationNativeDrawAccess",
       "kind": "static class",
       "scope": "test",
@@ -141832,6 +141933,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationOracles.MotherBrainCorpseStaging",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationOracles/Corpses/MotherBrainCorpseStaging.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.TestSupport.VerificationOracles.ObjCharacterVramImage",
@@ -150987,30 +151101,30 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotPicturesVerification",
+      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotDrawingVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotPicturesVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotDrawingVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotPicturesVerification.Rot",
-      "kind": "record",
+      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotDrawingVerification.ScreenPixel",
+      "kind": "record struct",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotPicturesVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotDrawingVerification.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotScheduleChecks",

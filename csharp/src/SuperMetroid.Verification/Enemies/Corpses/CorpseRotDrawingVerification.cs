@@ -9,10 +9,11 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
@@ -141,7 +142,6 @@ internal static class CorpseRotDrawingVerification
         int lastCorpsePage = MotherBrainSpritePageDefinitions.Sequence.ToList().FindLastIndex(page => page.Sheet == MotherBrainSpritePageSheet.Corpse);
         AssertTrue(lastCorpsePage >= 0, "Mother Brain's pages load her corpse");
         string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHead12);
-        CorpsePictureLayout? layout = sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, name);
         FrameArtworkVariation pages = sheets.Variations(set, EnemyDefinitionId.MotherBrainHead, name)
             .Single(variation => variation.Sequence == EncounterArtworkSequence.MotherBrainPages);
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);
@@ -153,7 +153,8 @@ internal static class CorpseRotDrawingVerification
         {
             if (call > 0)
                 _ = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call);
-            compared += AssertDrawsAsRotted(sheet, layout, PictureAt(name, pages, lastCorpsePage), rotting.Shown, oracle.Characters(loaded, call),
+            string corpsePicture = PictureAt(name, pages, lastCorpsePage);
+            compared += AssertDrawsAsRotted(sheet, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, corpsePicture), corpsePicture, rotting.Shown, oracle.Characters(loaded, call),
                 EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's corpse after rot call {call}");
         }
         // Her escape's pages load once the corpse has rotted away, over what its last shown rows left.
@@ -164,7 +165,8 @@ internal static class CorpseRotDrawingVerification
                 upload.ApplyTo(escaped);
             if (!pages.DrawnAt(step))
                 continue;
-            compared += AssertDrawsAsRotted(sheet, layout, PictureAt(name, pages, step), rotting.Shown, escaped,
+            string picture = PictureAt(name, pages, step);
+            compared += AssertDrawsAsRotted(sheet, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, picture), picture, rotting.Shown, escaped,
                 EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's rotted corpse after page step {step}");
         }
         return compared;
@@ -216,8 +218,55 @@ internal static class CorpseRotDrawingVerification
             if (want != got)
                 throw new InvalidOperationException($"{context}: {picture} paints colour {got?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none"} at screen pixel ({pixel.X},{pixel.Y}), where the character rot leaves {want?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none"}.");
         }
+        if (draw.CorpseRot is { } rot)
+        {
+            rottedComparisons[picture] = rottedComparisons.GetValueOrDefault(picture) + 1;
+            if (rottedComparisons[picture] == ShaderSampleComparison)
+                AssertShaderDrawsAsMapped(draw, rot, context);
+        }
         return 1;
     }
+
+    /// <summary>Which rotted comparison of each picture the renderer also draws: one part-way through its rot.</summary>
+    private const int ShaderSampleComparison = 8;
+
+    /// <summary>How many rotted comparisons each picture has had, so each is drawn through the renderer once.</summary>
+    private static readonly Dictionary<string, int> rottedComparisons = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Checks the renderer draws <paramref name="draw"/> through its column tables (#1531): every screen pixel of the rotted
+    /// draw shows the pixel the unrotted picture shows at the row its column's table maps that row to, and the backdrop
+    /// where the table clears the row. The unrotted picture is drawn once as the reference, so the comparison does not
+    /// depend on how the renderer converts colours.
+    /// </summary>
+    private static void AssertShaderDrawsAsMapped(ImageSpriteDraw draw, CorpseRotPicture rot, string context)
+    {
+        RgbaPixel[] plain = SuperMetroid.TestSupport.FrameRendering.DisplayRendering.Render(
+            new LayeredScene(new FramePaint(RgbColor.Black, [draw with { CorpseRot = null }]), [], FullBrightness));
+        RgbaPixel[] rotted = SuperMetroid.TestSupport.FrameRendering.DisplayRendering.Render(
+            new LayeredScene(new FramePaint(RgbColor.Black, [draw]), [], FullBrightness));
+        RgbaPixel backdrop = plain[0];
+        Extent16<ImagePixels> size = draw.Image.Size;
+        for (int y = 0; y < size.Y; y++)
+        {
+            for (int x = 0; x < size.X; x++)
+            {
+                int screenX = draw.Corner.X + x, screenY = draw.Corner.Y + y;
+                if ((uint)screenX >= DisplayScreen.Width || (uint)screenY >= DisplayScreen.Height)
+                    continue;
+                int? source = rot.Shown(rot.TableOf(x / CorpseRotPicture.ColumnPixels), y);
+                RgbaPixel want = source is int row && draw.Corner.Y + row is >= 0 and < DisplayScreen.Height
+                    ? plain[(draw.Corner.Y + row) * DisplayScreen.Width + screenX]
+                    : backdrop;
+                RgbaPixel got = rotted[screenY * DisplayScreen.Width + screenX];
+                if (got != want)
+                    throw new InvalidOperationException($"{context}: the renderer draws {got} at screen pixel ({screenX},{screenY}), where the column table shows {want}.");
+            }
+        }
+    }
+
+    /// <summary>The brightness the renderer comparison draws at: full, so colours are unchanged.</summary>
+    private const int FullBrightness = 15;
 
     /// <summary>Whether <paramref name="frame"/> of <paramref name="enemy"/> reads characters the oracle's rot changes at some call.</summary>
     private static bool Reads(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, EnemyFrameId frame, CorpseCharacterRot oracle, byte[] loaded)

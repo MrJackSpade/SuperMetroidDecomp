@@ -1,9 +1,7 @@
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

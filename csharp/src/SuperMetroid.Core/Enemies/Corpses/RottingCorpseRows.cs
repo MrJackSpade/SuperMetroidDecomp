@@ -11,9 +11,6 @@ internal sealed class RottingCorpseRows
     /// <summary>For each band a column can start rotting at, the row each row shows, or none where a move has cleared it.</summary>
     private readonly int?[][] bands;
 
-    /// <summary>The rows as last published, until the next move changes them.</summary>
-    private CorpseRotRows? published;
-
     /// <summary>A corpse <paramref name="rowCount"/> pixel rows tall, before its first rot call: every row shows itself.</summary>
     /// <exception cref="ArgumentException">The corpse is not a whole number of bands tall.</exception>
     internal RottingCorpseRows(int rowCount)
@@ -47,11 +44,10 @@ internal sealed class RottingCorpseRows
             if (operation == CorpseRowOperation.Move)
                 shown[row] = null;
         }
-        published = null;
     }
 
     /// <summary>The rows as the rot calls so far have left them.</summary>
-    internal CorpseRotRows Shown => published ??= CorpseRotRows.Of(bands);
+    internal CorpseRotRows Shown => CorpseRotRows.Of(bands);
 
     /// <summary>
     /// The row <paramref name="row"/> of a corpse <paramref name="count"/> rows tall lands on: the next, or three down from

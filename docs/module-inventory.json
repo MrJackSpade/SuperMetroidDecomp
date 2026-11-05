@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 1927,
+      "files": 1913,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -86,7 +86,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
-      "files": 49,
+      "files": 50,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Compatibility",
@@ -135,7 +135,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 1433,
+      "files": 1438,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -1013,7 +1013,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 1121,
+      "files": 1120,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1113,10 +1113,12 @@
     {
       "module": "csharp/test-support/VerificationOracles",
       "role": "verification-support",
-      "files": 9,
+      "files": 28,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Frontend",
@@ -8561,25 +8563,28 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseGraphicsCopy.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/CorpseColumnRotDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotRow.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/CorpsePictureDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
+      "namespace": "SuperMetroid.AssetExtraction.Enemies",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotSimulation.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowPictures.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
@@ -8588,42 +8593,8 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotState.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRotationExtent.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowGeometry.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies"
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -8642,36 +8613,6 @@
       "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseStaging.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseStagingGeometryDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -8688,27 +8629,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoBounds.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoGeometryDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoRowUploadDefinitions.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -8721,46 +8641,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoSandCadence.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoSourcePart.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Spatial"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoStationaryCompositionDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTorizoStockPart.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTourianCorpseStagingDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/RottingCorpseCells.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
@@ -8769,16 +8650,9 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/DeadTourianCorpseVariant.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies.Corpses",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -8936,32 +8810,6 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkInterlude.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Assets"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EncounterArtworkInterludes.cs",
-      "module": "csharp/src/SuperMetroid.AssetExtraction",
-      "role": "production",
-      "namespace": "SuperMetroid.AssetExtraction.Enemies",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Bosses"
       ]
     },
     {
@@ -25072,6 +24920,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Assets/CorpseRotPicture.cs",
+      "module": "csharp/src/SuperMetroid.Core/Assets",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Assets",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Assets/EncounterArtworkSequence.cs",
       "module": "csharp/src/SuperMetroid.Core/Assets",
       "role": "production",
@@ -38974,6 +38835,29 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpseColumnRot.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpsePictureLayout.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/DeadTorizoArtworkDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -41439,6 +41323,34 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotDrawing.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Corpses",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotRows.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Corpses",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotSchedule.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -41462,7 +41374,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRotView.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRowFall.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Corpses",
@@ -41472,7 +41384,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRowFall.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRowMoveDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Corpses",
@@ -41927,7 +41839,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/IShowsCorpseRot.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/IShowsCorpseRotRows.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Corpses",
@@ -41938,6 +41850,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/RottingCorpseKind.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Corpses",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/RottingCorpseRows.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Corpses",
@@ -101152,7 +101074,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotPicturesVerification.cs",
+      "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotDrawingVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
       "namespace": "SuperMetroid.Verification.Enemies.Corpses",
@@ -101162,17 +101084,17 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Hud",
-        "csharp/src/SuperMetroid.Core/Rooms",
-        "csharp/src/SuperMetroid.Core/Runtime",
-        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
+        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -101210,8 +101132,8 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/src/SuperMetroid.Core/Enemies"
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -101258,7 +101180,8 @@
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
-        "csharp/test-support/VerificationImporters"
+        "csharp/test-support/VerificationImporters",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -101338,7 +101261,8 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/MovieReplay",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -101398,7 +101322,8 @@
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core",
-        "csharp/test-support/VerificationImporters"
+        "csharp/test-support/VerificationImporters",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -101494,7 +101419,8 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/MovieReplay",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -101527,7 +101453,8 @@
         "csharp/test-support/Assertions",
         "csharp/test-support/MovieReplay",
         "csharp/test-support/VerificationAccess.Core",
-        "csharp/test-support/VerificationImporters"
+        "csharp/test-support/VerificationImporters",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -102386,7 +102313,8 @@
         "csharp/test-support/Assertions",
         "csharp/test-support/MovieReplay",
         "csharp/test-support/RepositoryInstallation",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -104515,7 +104443,8 @@
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Core/World",
-        "csharp/test-support/Assertions"
+        "csharp/test-support/Assertions",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -105514,8 +105443,8 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
-        "csharp/test-support/VerificationAccess.Core"
+        "csharp/test-support/VerificationAccess.Core",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -120510,7 +120439,8 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Core",
-        "csharp/test-support/VerificationImporters"
+        "csharp/test-support/VerificationImporters",
+        "csharp/test-support/VerificationOracles"
       ]
     },
     {
@@ -132384,22 +132314,6 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Tooling"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/Artwork/MotherBrainCorpseArtworkDefinitionsConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Bosses.MotherBrain.Artwork",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction"
       ]
     },
     {
@@ -149094,6 +149008,218 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseCharacterRot.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseGraphicsCopy.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseRotRow.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseRotationExtent.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseRowGeometry.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseRowSources.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseSheets.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseStaging.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseStagingGeometryDefinitions.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/CorpseWorkMemory.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTorizoBounds.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTorizoGeometryDefinitions.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTorizoSandCadence.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTorizoSourcePart.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTorizoStationaryCompositionDefinitions.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTorizoStockPart.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTourianCorpseStagingDefinitions.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/DeadTourianCorpseVariant.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/VerificationOracles/Corpses/MotherBrainCorpseStaging.cs",
+      "module": "csharp/test-support/VerificationOracles",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.VerificationOracles",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Bosses"
       ]
     },
     {

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

@@ -73,8 +73,10 @@ internal static class SamusBodyArtworkVerification
                     ushort second = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 5);
                     AssertEqual(first, entry.FirstSize, $"Samus definition {definitionAddress:X6} first size");
                     AssertEqual(second, entry.SecondSize, $"Samus definition {definitionAddress:X6} second size");
-                    for (int i = 0; i < entry.Planar.Length; i++)
-                        AssertEqual(bus.ReadCartridgeByte(source + i), entry.Planar.Span[i],
+                    // Planar rebuilds the definition's bytes on every read, so it is read once per definition.
+                    ReadOnlySpan<byte> planar = entry.Planar.Span;
+                    for (int i = 0; i < planar.Length; i++)
+                        AssertEqual(bus.ReadCartridgeByte(source + i), planar[i],
                             $"Samus definition {definitionAddress:X6} tile byte {i:X3}");
                     definitions++;
                 }

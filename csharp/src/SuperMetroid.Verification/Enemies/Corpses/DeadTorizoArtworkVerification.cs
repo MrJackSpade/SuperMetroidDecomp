@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -110,9 +109,9 @@ internal static class DeadTorizoArtworkVerification
                 CorpseRowUpload record = records[index];
                 AssertEqual(record.SizeInBytes, rom.ReadCartridgeWord(address),
                     $"Dead Torizo phase {phase} transfer {index} size");
-                AssertEqual(record.SourceBankWord, rom.ReadCartridgeWord((address + 2)),
+                AssertEqual(CorpseRowSources.BankWord, rom.ReadCartridgeWord((address + 2)),
                     $"Dead Torizo phase {phase} transfer {index} source bank");
-                AssertEqual(record.SourceOffset, rom.ReadCartridgeWord((address + 4)),
+                AssertEqual(CorpseRowSources.OfTorizoHalf(phase == 1, index), rom.ReadCartridgeWord((address + 4)),
                     $"Dead Torizo phase {phase} transfer {index} source offset");
                 AssertEqual(record.DestinationWord, rom.ReadCartridgeWord((address + 6)),
                     $"Dead Torizo phase {phase} transfer {index} VRAM destination");
@@ -189,7 +188,7 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The installed dead-Torizo sheet.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TilesOf(CorpseSheetDefinitions.DeadTorizoSheet) is { Length: CorpseSheetDefinitions.DeadTorizoSheetByteCount } tiles
+        artwork.Enemies.TilesOf(CorpseSheets.DeadTorizoSheet) is { Length: CorpseSheets.DeadTorizoSheetByteCount } tiles
             ? tiles.Span : throw new InvalidDataException("Installed dead-Torizo sheet enemy-ed3f-tiles.png has the wrong size.");
 
     /// <summary>The <paramref name="length"/> staged corpse bytes from <paramref name="offset"/>.</summary>

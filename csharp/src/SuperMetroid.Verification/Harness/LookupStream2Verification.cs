@@ -784,7 +784,7 @@ internal static class LookupStream2Verification
             AssertEqual(minimumY[column], DeadTorizoGeometryDefinitions.ColumnMinimumY(column),
                 "Dead Torizo native clipping boundary");
         }
-        byte[] planar = ReadDeadTorizoRomBytes(rom, SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheetDefinitions.DeadTorizoSheet), CorpseSheetDefinitions.DeadTorizoSheetByteCount);
+        byte[] planar = ReadDeadTorizoRomBytes(rom, SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheets.DeadTorizoSheet), CorpseSheets.DeadTorizoSheetByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
             out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
@@ -807,8 +807,8 @@ internal static class LookupStream2Verification
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
             }, Spritemaps = display });
-        ReadOnlyMemory<byte> atlas = artwork.TilesOf(CorpseSheetDefinitions.DeadTorizoSheet);
-        AssertEqual(CorpseSheetDefinitions.DeadTorizoSheetByteCount, atlas.Length, "Dead Torizo installed art resolves its corpse sheet");
+        ReadOnlyMemory<byte> atlas = artwork.TilesOf(CorpseSheets.DeadTorizoSheet);
+        AssertEqual(CorpseSheets.DeadTorizoSheetByteCount, atlas.Length, "Dead Torizo installed art resolves its corpse sheet");
         // The character rot oracle stages the corpse as the cartridge does and rots it to picture each step (#1392).
         CorpseStaging corpseTiles = CorpseStaging.Torizo(atlas.Span);
         Compare(expected, "Actual Dead Torizo installed-art crop");
@@ -1375,8 +1375,8 @@ internal static class LookupStream2Verification
             {
                 int address = 0xa90000 | table + 8 * count;
                 AssertEqual(ReadVerificationWord(rom, address), row.SizeInBytes, "Dead Torizo native DMA size");
-                AssertEqual(ReadVerificationWord(rom, address + 2), row.SourceBankWord, "Dead Torizo native DMA bank");
-                AssertEqual(ReadVerificationWord(rom, address + 4), row.SourceOffset, "Dead Torizo native DMA source");
+                AssertEqual(ReadVerificationWord(rom, address + 2), CorpseRowSources.BankWord, "Dead Torizo native DMA bank");
+                AssertEqual(ReadVerificationWord(rom, address + 4), CorpseRowSources.OfTorizoHalf(phase == 1, count), "Dead Torizo native DMA source");
                 AssertEqual(ReadVerificationWord(rom, address + 6), row.DestinationWord, "Dead Torizo native DMA destination");
                 AssertEqual(rows[count++], row, "Dead Torizo enumeration order");
             }

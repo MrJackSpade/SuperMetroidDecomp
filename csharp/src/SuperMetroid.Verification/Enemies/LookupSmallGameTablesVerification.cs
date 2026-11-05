@@ -4,7 +4,6 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;

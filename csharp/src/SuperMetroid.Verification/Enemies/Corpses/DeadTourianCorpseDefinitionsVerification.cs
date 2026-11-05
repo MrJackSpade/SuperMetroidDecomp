@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Harness.LookupStream5Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Corpses;

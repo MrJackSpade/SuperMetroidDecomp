@@ -54,14 +54,14 @@ internal static class CorpseRowPictures
         {
             if (character.FlippedTopToBottom)
                 throw new InvalidDataException($"Corpse frame {name} flips {corpse.Name}'s character {character.Character} top to bottom, which turns its rows over.");
-            if ((character.X - left) % SpriteArtwork.CharacterPixels != 0)
+            if ((character.Place.X - left) % SpriteArtwork.CharacterPixels != 0)
                 throw new InvalidDataException($"Corpse frame {name} draws {corpse.Name}'s character {character.Character} between character columns.");
             int band = corpse.Band(character.Character);
-            int characterTop = character.Y - top - band * SpriteArtwork.CharacterPixels;
+            int characterTop = character.Place.Y - top - band * SpriteArtwork.CharacterPixels;
             if (corpseTop is int earlier && earlier != characterTop)
                 throw new InvalidDataException($"Corpse frame {name} draws {corpse.Name}'s character {character.Character} off its band's row.");
             corpseTop = characterTop;
-            int pictureColumn = (character.X - left) / SpriteArtwork.CharacterPixels;
+            int pictureColumn = (character.Place.X - left) / SpriteArtwork.CharacterPixels;
             int corpseColumn = RottingCorpseCells.Column(character.Character);
             if (columnOf.TryGetValue(pictureColumn, out int shown) && shown != corpseColumn)
                 throw new InvalidDataException($"Corpse frame {name}'s character column {pictureColumn} shows two of {corpse.Name}'s columns.");
@@ -71,7 +71,7 @@ internal static class CorpseRowPictures
                 Add(rottingOf, pictureColumn, band);
             foreach (DrawnCharacter over in drawn)
             {
-                if (Overlaps(over, character) && (over.X != character.X || over.Y != character.Y || over.Character != character.Character))
+                if (Overlaps(over, character) && (over.Place != character.Place || over.Character != character.Character))
                     throw new InvalidDataException(
                         $"Corpse frame {name} draws character {over.Character} over {corpse.Name}'s character {character.Character}, where the rot would move it too.");
             }
@@ -101,7 +101,7 @@ internal static class CorpseRowPictures
 
     /// <summary>Whether two drawn characters' pixels overlap.</summary>
     private static bool Overlaps(DrawnCharacter first, DrawnCharacter second) =>
-        Math.Abs(first.X - second.X) < SpriteArtwork.CharacterPixels && Math.Abs(first.Y - second.Y) < SpriteArtwork.CharacterPixels;
+        Math.Abs(first.Place.X - second.Place.X) < SpriteArtwork.CharacterPixels && Math.Abs(first.Place.Y - second.Place.Y) < SpriteArtwork.CharacterPixels;
 
     /// <summary>Each character <paramref name="part"/> draws, at its place in the frame.</summary>
     private static IEnumerable<DrawnCharacter> Characters(SpriteFramePart part)
@@ -113,16 +113,15 @@ internal static class CorpseRowPictures
             {
                 int character = part.CharacterAt(new Position16<ScreenPixels>(
                     checked((ushort)(column * SpriteArtwork.CharacterPixels)), checked((ushort)(row * SpriteArtwork.CharacterPixels))), out _);
-                yield return new DrawnCharacter(character, part.Offset.X + column * SpriteArtwork.CharacterPixels,
-                    part.Offset.Y + row * SpriteArtwork.CharacterPixels, flipped);
+                yield return new DrawnCharacter(character, part.Offset + Offset16<ScreenPixels>.Of(column * SpriteArtwork.CharacterPixels,
+                    row * SpriteArtwork.CharacterPixels), flipped);
             }
         }
     }
 
     /// <summary>One character a frame draws.</summary>
     /// <param name="Character">The character.</param>
-    /// <param name="X">The frame column of its left edge.</param>
-    /// <param name="Y">The frame row of its top edge.</param>
+    /// <param name="Place">Where its top-left corner lies in the frame.</param>
     /// <param name="FlippedTopToBottom">Whether its part flips it top to bottom.</param>
-    private readonly record struct DrawnCharacter(int Character, int X, int Y, bool FlippedTopToBottom);
+    private readonly record struct DrawnCharacter(int Character, Offset16<ScreenPixels> Place, bool FlippedTopToBottom);
 }

@@ -32,33 +32,32 @@ internal static class DeadMonsterRowUploadDefinitions
 
     /// <summary>The rows of Sidehopper corpse <paramref name="variant"/>.</summary>
     private static ImmutableArray<CorpseRowUpload> SidehopperRows(int variant) =>
-        Rows(5, 0xa0, (ushort)(0x2040 + variant * 0x2e0), (ushort)(0x7000 + variant * 0x90),
+        Rows(5, 0xa0, (ushort)(0x7000 + variant * 0x90),
             variant == 0 ? (ushort)0x60 : (ushort)0x40, variant == 0 ? (ushort)0x20 : (ushort)0);
 
     /// <summary>The rows of Zoomer corpse <paramref name="variant"/>.</summary>
     private static ImmutableArray<CorpseRowUpload> ZoomerRows(int variant) =>
-        Rows(2, 0x60, (ushort)(0x2940 + variant * 0xc0), (ushort)(0x7530 + variant * 0x30));
+        Rows(2, 0x60, (ushort)(0x7530 + variant * 0x30));
 
     /// <summary>The rows of Ripper corpse <paramref name="variant"/>.</summary>
     private static ImmutableArray<CorpseRowUpload> RipperRows(int variant) =>
-        Rows(2, 0x60, (ushort)(0x2b80 + variant * 0xc0), (ushort)(0x7500 + variant * 0xc0));
+        Rows(2, 0x60, (ushort)(0x7500 + variant * 0xc0));
 
     /// <summary>The rows of Skree corpse <paramref name="variant"/>: the first begins on the next VRAM tile row, later ones on row zero.</summary>
     private static ImmutableArray<CorpseRowUpload> SkreeRows(int variant) =>
-        Rows(4, 0x40, (ushort)(0x2640 + variant * 0x100), (ushort)(variant == 0 ? 0x7150 : 0x7000 + variant * 0x70));
+        Rows(4, 0x40, (ushort)(variant == 0 ? 0x7150 : 0x7000 + variant * 0x70));
 
     /// <summary>
-    /// Consecutive live-WRAM tile rows placed in 32-tile VRAM rows, in native descriptor order; sidehoppers clip their
+    /// Consecutive staged tile rows placed in 32-tile VRAM rows, in native descriptor order; sidehoppers clip their
     /// first row to <paramref name="firstSize"/> bytes and shift it by <paramref name="firstDestinationOffset"/>.
     /// </summary>
-    private static ImmutableArray<CorpseRowUpload> Rows(int count, int stride, int source, int destination,
+    private static ImmutableArray<CorpseRowUpload> Rows(int count, int stride, int destination,
         int firstSize = 0, int firstDestinationOffset = 0)
     {
         var rows = ImmutableArray.CreateBuilder<CorpseRowUpload>(count);
         for (int index = 0; index < count; index++)
         {
-            rows.Add(new(index == 0 && firstSize != 0 ? firstSize : stride, 0x7e00,
-                (ushort)(source + stride * index - (index == 0 ? 0 : firstDestinationOffset * 2)),
+            rows.Add(new(index == 0 && firstSize != 0 ? firstSize : stride,
                 (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0))));
         }
         return rows.MoveToImmutable();

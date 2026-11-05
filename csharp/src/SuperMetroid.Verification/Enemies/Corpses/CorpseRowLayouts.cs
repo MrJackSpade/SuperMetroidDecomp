@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Corpses;
 

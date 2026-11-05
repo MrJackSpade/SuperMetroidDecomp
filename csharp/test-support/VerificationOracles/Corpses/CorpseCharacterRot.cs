@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
@@ -144,15 +143,15 @@ internal sealed class CorpseCharacterRot
     /// </summary>
     internal static CorpseCharacterRot Torizo(EnemyTileSourceArtwork enemies)
     {
-        ReadOnlyMemory<byte> tiles = Ensure.NotNull(enemies).TilesOf(CorpseSheetDefinitions.DeadTorizoSheet);
-        if (tiles.Length != CorpseSheetDefinitions.DeadTorizoSheetByteCount)
-            throw new InvalidDataException($"Installed {CorpseSheetDefinitions.DeadTorizoSheet} tiles are {tiles.Length} bytes, not {CorpseSheetDefinitions.DeadTorizoSheetByteCount}.");
+        ReadOnlyMemory<byte> tiles = Ensure.NotNull(enemies).TilesOf(CorpseSheets.DeadTorizoSheet);
+        if (tiles.Length != CorpseSheets.DeadTorizoSheetByteCount)
+            throw new InvalidDataException($"Installed {CorpseSheets.DeadTorizoSheet} tiles are {tiles.Length} bytes, not {CorpseSheets.DeadTorizoSheetByteCount}.");
         ReadOnlySpan<byte> atlas = tiles.Span;
         CorpseStaging staged = CorpseStaging.Torizo(atlas);
         CorpseRowGeometry geometry = CorpseRowGeometry.Torizo;
         // The even half's rows first, then the odd half's.
         CorpseRotRow[][] halves = [.. new[] { false, true }.Select(odd =>
-            DeadTorizoRowUploadDefinitions.ForHalf(odd).Select((upload, index) => Row(index, upload)).ToArray())];
+            DeadTorizoRowUploadDefinitions.ForHalf(odd).Select((upload, index) => Row(index, CorpseRowSources.OfTorizoHalf(odd, index), upload)).ToArray())];
         CorpseRotRow[] rows = [.. halves[0], .. halves[1]];
         var schedule = new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount);
         var sand = new DeadTorizoSandCadence();
@@ -170,7 +169,7 @@ internal sealed class CorpseCharacterRot
 
     /// <summary>A dead monster of <paramref name="kind"/>, which uploads all its rows after each rot call, and none before the first.</summary>
     private static CorpseCharacterRot Batch(RottingCorpseKind kind, CorpseStaging staged, CorpseRowGeometry geometry, int rowCount) =>
-        Batch(kind.Name, [.. DeadMonsterRowUploadDefinitions.ForKind(kind).Select((upload, index) => Row(index, upload))],
+        Batch(kind.Name, [.. DeadMonsterRowUploadDefinitions.ForKind(kind).Select((upload, index) => Row(index, CorpseRowSources.Of(kind, index), upload))],
             new CorpseRotSchedule(rowCount), staged, geometry, uploadsLastCall: true);
 
     /// <summary>
@@ -193,16 +192,16 @@ internal sealed class CorpseCharacterRot
     /// <summary>The installed dead-monster sheet every dead Sidehopper, Zoomer, Ripper and Skree stages from.</summary>
     private static ReadOnlySpan<byte> DeadMonsterSheet(EnemyTileSourceArtwork enemies)
     {
-        ReadOnlyMemory<byte> tiles = Ensure.NotNull(enemies).TilesOf(CorpseSheetDefinitions.DeadMonsterSheet);
-        return tiles.Length == CorpseSheetDefinitions.DeadMonsterSheetByteCount ? tiles.Span
-            : throw new InvalidDataException($"Installed corpse sheet is {tiles.Length} bytes, not {CorpseSheetDefinitions.DeadMonsterSheetByteCount}.");
+        ReadOnlyMemory<byte> tiles = Ensure.NotNull(enemies).TilesOf(CorpseSheets.DeadMonsterSheet);
+        return tiles.Length == CorpseSheets.DeadMonsterSheetByteCount ? tiles.Span
+            : throw new InvalidDataException($"Installed corpse sheet is {tiles.Length} bytes, not {CorpseSheets.DeadMonsterSheetByteCount}.");
     }
 
     /// <summary>
-    /// The row <paramref name="upload"/> uploads, as the <paramref name="index"/>th of its corpse's rows, read from the
-    /// work-memory address of its descriptor's bank word's bank byte with its offset.
+    /// The row <paramref name="upload"/> uploads, as the <paramref name="index"/>th of its corpse's rows, read from
+    /// <paramref name="source"/> in the source bank's work memory (<see cref="CorpseRowSources"/>).
     /// </summary>
-    private static CorpseRotRow Row(int index, CorpseRowUpload upload) =>
-        new(index, (int)new SnesAddress(LittleEndianBytes.HighByte(upload.SourceBankWord), checked((ushort)upload.SourceOffset)),
+    private static CorpseRotRow Row(int index, int source, CorpseRowUpload upload) =>
+        new(index, (int)new SnesAddress(LittleEndianBytes.HighByte(CorpseRowSources.BankWord), checked((ushort)source)),
             upload.SizeInBytes, upload.FirstTableByte);
 }

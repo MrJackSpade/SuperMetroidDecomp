@@ -3,7 +3,6 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Corpses;

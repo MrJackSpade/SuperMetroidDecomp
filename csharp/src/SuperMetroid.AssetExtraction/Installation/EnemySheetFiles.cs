@@ -2,7 +2,6 @@ using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;

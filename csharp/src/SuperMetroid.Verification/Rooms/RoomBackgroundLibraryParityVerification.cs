@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;

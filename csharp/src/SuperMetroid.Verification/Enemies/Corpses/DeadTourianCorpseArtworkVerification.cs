@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -149,7 +147,7 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>The installed corpse sheet, which the character rot oracle stages every Tourian corpse from.</summary>
     private static ReadOnlySpan<byte> Atlas(InstalledEnemyArtwork artwork) =>
-        artwork.Enemies.TilesOf(CorpseSheetDefinitions.DeadMonsterSheet) is { Length: CorpseSheetDefinitions.DeadMonsterSheetByteCount } tiles
+        artwork.Enemies.TilesOf(CorpseSheets.DeadMonsterSheet) is { Length: CorpseSheets.DeadMonsterSheetByteCount } tiles
             ? tiles.Span : throw new InvalidDataException("Installed Tourian corpse sheet enemy-ed7f-tiles.png has the wrong size.");
 
     /// <summary>Compares each natively copied run of staged corpse characters with the extraction's.</summary>

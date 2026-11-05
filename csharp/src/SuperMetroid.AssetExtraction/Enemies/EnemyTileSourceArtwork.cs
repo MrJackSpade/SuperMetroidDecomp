@@ -36,8 +36,8 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
     }
 
     /// <summary>
-    /// Complete selected enemy presentation, including legacy-override merges, display
-    /// bindings, special uploads and colors. Gameplay definitions are excluded.
+    /// Complete installed enemy presentation, including display bindings, special uploads
+    /// and colors. Gameplay definitions are excluded.
     /// This is computed from the installed content rather than kept with the game state.
     /// </summary>
     public string ContentIdentity =>

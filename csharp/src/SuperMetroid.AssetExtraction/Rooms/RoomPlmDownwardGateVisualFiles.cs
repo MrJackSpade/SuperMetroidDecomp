@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public static class RoomPlmDownwardGateVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
+    /// <summary>Family-relative installed JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
     public const string VisualFileName = "downward-gates.json";
     /// <summary>Stock provenance manifest filename; records format version one, cartridge SHA-256, and the visual JSON's byte hash.</summary>
     public const string ManifestFileName = "manifest.json";
@@ -58,34 +58,24 @@ public static class RoomPlmDownwardGateVisualFiles
             new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
-    /// <summary>Validates stock downward-gate artwork and selects an optional complete fourteen-layout visual replacement.</summary>
-    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or an absent visual JSON selects validated stock.</param>
+    /// <summary>Validates the installed downward-gate manifest's provenance and loads the installed downward-gate JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed family directory containing the version-one downward-gate JSON and its manifest.</param>
     /// <returns>A ROM-independent catalog with copied authored words and compiled collision, draw placement, and gate timing unchanged.</returns>
-    /// <remarks>Stock provenance, file hash, and compiled visual equality are checked before overrides. Overrides require every published identity and original run shape with twelve-bit appearance, but no manifest; legacy trigger color labels remain unchanged.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, frame coverage, shapes, or appearance are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Manifest provenance, schema, identities, frame coverage, shapes, or appearance are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or downward-gate JSON cannot be read.</exception>
     public static InstalledRoomPlmDownwardGateVisuals Load(
-        string stockDirectory, string? overrideDirectory)
+        string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"Downward gate visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        InstalledRoomPlmDownwardGateVisuals stock = CreateCatalog(
-            ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        return overridePath is null || !File.Exists(overridePath)
-            ? stock
-            : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
+        string path = Path.Combine(directory, VisualFileName);
+        return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
     /// <summary>Validates complete downward-gate and shot-trigger coverage and builds the visuals from the run appearances that differ from the compiled layouts.</summary>

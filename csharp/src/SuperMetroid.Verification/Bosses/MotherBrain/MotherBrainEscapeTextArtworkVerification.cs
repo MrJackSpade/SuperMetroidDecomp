@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -21,9 +20,8 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Checks installed Mother Brain escape-text art and its five OBJ VRAM transfers.</summary>
 internal static class MotherBrainEscapeTextArtworkVerification
 {
-    /// <summary>Compares stock art with the cartridge and checks an edited PNG changes only its intended live VRAM byte.</summary>
-    internal static void VerifyInstalledMotherBrainEscapeTextArtwork(
-        string directory, InstalledEnemyArtwork stock)
+    /// <summary>Compares stock art with the cartridge through the live VRAM transfer.</summary>
+    internal static void VerifyInstalledMotherBrainEscapeTextArtwork(InstalledEnemyArtwork stock)
     {
         RoomCharacterAtlas artwork = stock.Bosses.MotherBrainEscapeText ??
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
@@ -59,40 +57,8 @@ internal static class MotherBrainEscapeTextArtworkVerification
                 $"installed and cartridge Mother Brain escape-text VRAM page {page} agree");
         }
 
-        string fileName = EscapeTextSheetFormat.FileName;
-        int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(
-            EscapeTextSheetFormat.ByteCount);
-        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-        int rows = (tileCount + columns - 1) / columns;
-        using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
-        IndexedPngImage image = IndexedPng.Read(input, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-        image.Pixels[0] ^= 1;
-        string overrideDirectory = Path.Combine(directory, "mother-brain-escape-text-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        string overridePath = Path.Combine(overrideDirectory, fileName);
-        using (var output = File.Create(overridePath))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { MotherBrainEscapeText = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainEscapeText() } };
-        SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
-        int firstDestination = EscapeNativePageWords.Of(EscapeTextPages.PageFirstCharacter(0)) * 2;
-        AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
-            editedVram.ReadByte(firstDestination),
-            "Mother Brain escape-text PNG pixel edit changes live sprite VRAM");
-        AssertTrue(installedVram.Bytes.Slice(firstDestination + 1,
-                EscapeTextPages.PageByteCount(0) - 1)
-            .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
-                EscapeTextPages.PageByteCount(0) - 1)),
-            "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
-        RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainEscapeText();
-        AssertTrue(reloaded.Characters.Span.SequenceEqual((edited.Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Characters.Span),
-            "Mother Brain escape-text override survives catalog reload");
-
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(directory, overrideDirectory).MotherBrainEscapeText(),
-            "malformed Mother Brain escape-text override is rejected explicitly");
         Console.WriteLine(
-            "  Mother Brain escape text art: five guarded OBJ pages, cartridge parity, visible edit, reload and invalid override pass.");
+            "  Mother Brain escape text art: five guarded OBJ pages and cartridge parity pass.");
     }
 
     /// <summary>Shows all five escape-text pages through the production Mother Brain path.</summary>
@@ -111,5 +77,4 @@ internal static class MotherBrainEscapeTextArtworkVerification
             "the encounter reaches the last escape-text page's step");
         return ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(EncounterArtworkSequence.MotherBrainPages, steps, resolver), resolver);
     }
-
 }

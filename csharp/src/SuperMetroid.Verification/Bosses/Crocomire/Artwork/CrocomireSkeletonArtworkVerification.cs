@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -18,9 +17,9 @@ namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 /// <summary>Checks Crocomire skeleton tile uploads against native source bytes and full VRAM results.</summary>
 internal static class CrocomireSkeletonArtworkVerification
 {
-    /// <summary>Exercises six installed uploads and a single-pixel PNG override with cartridge reads forbidden.</summary>
+    /// <summary>Exercises six installed uploads with cartridge reads forbidden.</summary>
     internal static void VerifyCrocomireSkeletonArtwork(
-        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
+        ISnesAddressSpace rom, InstalledEnemyArtwork stock)
     {
         CrocomireSkeletonArtwork artwork = stock.Bosses.CrocomireSkeleton ??
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
@@ -80,49 +79,8 @@ internal static class CrocomireSkeletonArtworkVerification
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");
 
-        string fileName = CrocomireSkeletonCharacterDefinitions.FileName;
-        string stockPath = Path.Combine(stockDirectory, fileName);
-        byte[] original = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(stockDirectory, "crocomire-skeleton-overrides");
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, fileName);
-        using (var input = new MemoryStream(original, writable: false))
-        {
-            IndexedPngImage image = IndexedPng.Read(input, new(256, 24));
-            image.Pixels[0] ^= 1;
-            using var output = File.Create(overridePath);
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
-                image.Pixels, image.Colours);
-        }
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { CrocomireSkeleton = EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireSkeleton() } };
-        (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
-            RunInstalled(edited);
-        int firstDestination = steps[0].Single().FirstByte;
-        AssertEqual((byte)(installedCharacters[firstDestination] ^ 0x80),
-            editedCharacters[firstDestination],
-            "Crocomire skeleton PNG edit changes the actual uploaded planar pixel");
-        AssertTrue(installedCharacters[..firstDestination].SequenceEqual(
-                editedCharacters[..firstDestination]) &&
-            installedCharacters[(firstDestination + 1)..].SequenceEqual(
-                editedCharacters[(firstDestination + 1)..]),
-            "Crocomire skeleton edit leaves every other OBJ character byte unchanged");
-        AssertEqual(0, editedGuard.ForbiddenReadAttempts,
-            "edited Crocomire skeleton remains ROM-free at upload time");
-        AssertEqual(editedCharacters[firstDestination], RunInstalled(stock with { Bosses = stock.Bosses with
-                { CrocomireSkeleton = EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireSkeleton() } }).Characters[firstDestination],
-            "Crocomire skeleton PNG override survives catalog reload");
-
-        File.WriteAllBytes(stockPath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, null).CrocomireSkeleton(),
-            "corrupt stock Crocomire skeleton fails loudly where it is read");
-        File.WriteAllBytes(stockPath, original);
-        File.WriteAllBytes(overridePath, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).CrocomireSkeleton(),
-            "malformed Crocomire skeleton override fails loudly");
         Console.WriteLine("Crocomire skeleton art: six native transfers, OBJ character parity, " +
-            "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");
+            "guarded installed upload pass.");
 
         static RunInstalledResult RunInstalled(InstalledEnemyArtwork art)
         {

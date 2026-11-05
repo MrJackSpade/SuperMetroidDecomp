@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
-using System.Text.Json.Nodes;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -26,8 +25,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     /// <summary>The colour the Zebetites' pulse starts at: the second enemy row's colour twelve.</summary>
     private const int PulseFirstColour = 0xac;
 
-    /// <summary>Compares live pulse frames with cartridge colors, then checks
-    /// one edited channel, override persistence, and malformed asset rejection.</summary>
+    /// <summary>Compares live pulse frames with cartridge colors, then checks the engine gates and malformed asset rejection.</summary>
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -57,37 +55,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Installed Zebetite pulse never reads migrated ROM colors");
 
-        string stockPath = Path.Combine(stockDirectory, ZebetiteColorFile.FileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        string overrides = Path.Combine(stockDirectory, "zebetite-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overridePath = Path.Combine(overrides, ZebetiteColorFile.FileName);
-        JsonNode editedDocument = RequiredJson.Parse(stockBytes);
-        JsonNode red = editedDocument.Required("frames").Required(3).Required(1).Required("red");
-        editedDocument.Required("frames").Required(3).Required(1)["red"] = red.GetValue<int>() ^ 1;
-        byte[] selectedBytes = System.Text.Encoding.UTF8.GetBytes(editedDocument.ToJsonString());
-        File.WriteAllBytes(overridePath, selectedBytes);
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { ZebetiteColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors() } };
-        RoomEnemySystem selected = Create(guard, edited);
-        SnesCgram controlCgram = SeedColors();
-        ushort controlCounter = 0;
-        for (int call = 0; call < 2; call++)
-        {
-            Cycle(selected);
-            ReferenceCycle(controlCgram, ref controlCounter);
-            AssertTrue(new CgramPalettes(controlCgram).ImageEquals(new CgramPalettes(Shown(selected, edited))),
-                "Zebetite edit leaves preceding pulse frames unchanged");
-        }
-        Cycle(selected);
-        ReferenceCycle(controlCgram, ref controlCounter);
-        SnesCgram selectedCgram = Shown(selected, edited);
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            AssertEqual((ushort)(controlCgram.Colors[color].ToWord() ^
-                (color == PulseFirstColour + 1 ? 1 : 0)),
-                selectedCgram.Colors[color],
-                "Zebetite visual edit changes only one color channel at the selected frame");
-        AssertEqual(controlCounter, Counter(selected),
-            "Zebetite color edit does not change animation counter");
+        byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockDirectory, ZebetiteColorFile.FileName));
+        RoomEnemySystem selected = Create(guard, stock);
         selected.ZebetiteBehavior.PaletteChangeNumber = 1;
         int counterBeforeGate = Counter(selected);
         Cycle(selected);
@@ -99,30 +68,12 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
 
-        EnemyTileStockReExtraction.ReExtractStock(bus, stockDirectory);
-        AssertTrue(selectedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
-            "Stock re-extraction preserves the Zebetite color override");
-        InstalledEnemyArtwork reloaded = stock with { Bosses = stock.Bosses with { ZebetiteColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors() } };
-        AssertEqual(Pulse(edited, 3).Colours[1], Pulse(reloaded, 3).Colours[1],
-            "Reload retains edited Zebetite pulse color");
-
-        File.WriteAllText(overridePath, "broken");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors(),
-            "Corrupt Zebetite color override fails loudly");
-        File.WriteAllText(overridePath, "{\"version\":1,\"version\":1}");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ZebetiteColors(),
-            "Duplicate Zebetite color property fails loudly");
         var invalid = RequiredJson.Parse(stockBytes);
         invalid.Required("frames").Required(0).Required(0)["green"] = 32;
         AssertThrows<InvalidDataException>(() => ZebetiteColorFile.Read(
             new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid.ToJsonString()))),
             "Out-of-range Zebetite RGB5 component rejected");
-        File.Delete(overridePath);
-        File.WriteAllText(stockPath, "broken stock");
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ZebetiteColors(),
-            "Corrupt stock Zebetite colors fail loudly where it is read");
-        File.WriteAllBytes(stockPath, stockBytes);
-        Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");
+        Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, gates and channel rejection pass.");
 
         static RoomEnemySystem Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)

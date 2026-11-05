@@ -1,27 +1,21 @@
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Frontend.FileSelect;
-using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks installed map landmarks against native OAM and edited file-select and pause pixels.</summary>
+/// <summary>Checks installed map landmarks against native OAM.</summary>
 internal static class MapLandmarksVerification
 {
-    /// <summary>Checks boss and elevator visibility across area state, then validates layout overrides and rebinds.</summary>
-    internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    /// <summary>Checks boss and elevator visibility across area state against native OAM.</summary>
+    internal static void VerifyMapLandmarks(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var guard = NewLandmarkGuard(bus);
         var iconGuard = NewLandmarkGuard(bus, blockGunship: true);
@@ -45,70 +39,7 @@ internal static class MapLandmarksVerification
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");
             cases++;
         }
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<MapLandmarkDocument>(File.ReadAllBytes(Path.Combine(stock, MapLandmarkFormat.FileName)), options);
-        var points = document.Markers.ToDictionary(pair => pair.Key, pair => pair.Value with { X = (ushort)(pair.Value.X + 8) });
-        Directory.CreateDirectory(overrides);
-        string path = Path.Combine(overrides, MapLandmarkFormat.FileName);
-        using (var stream = File.Create(path)) MapLandmarkFile.Write(stream, document with { Markers = points });
-        byte[] bytes = File.ReadAllBytes(path);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(original.ContentIdentity != edited.ContentIdentity, "landmark edit changes content identity");
-        // An undiscovered living boss remains invisible even after its visual is moved.
-        var unknown = new SharedGameState();
-        var hidden = new FileSelectMapIcons(unknown, AreaId.WreckedShip);
-        hidden.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
-        hidden.BindLandmarks(original.Landmarks); byte[] hiddenBefore = Draw(hidden, AreaId.WreckedShip);
-        hidden.BindLandmarks(edited.Landmarks);
-        AssertTrue(hiddenBefore.SequenceEqual(Draw(hidden, AreaId.WreckedShip)), "landmark edit cannot reveal living boss/elevators without map download");
-        // Observe all families in real renderers: Wrecked Ship has boss/elevators;
-        // Crateria has the independent gunship marker. Ceres boss data is covered above.
-        foreach (AreaId area in new[] { AreaId.Crateria, AreaId.WreckedShip })
-        {
-            var system = new SharedGameState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
-            system.Progress.ExploreEveryCell();
-            var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
-            var native = new FileSelectRoomMapGraphics(system, area,
-                mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-            var room = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-            var before = native.Render(new(0, 0), marker);
-            AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "full file-select landmark stock pixel parity");
-            room.BindFixtureArtwork(edited);
-            AssertTrue(!before.SequenceEqual(room.Render(new(0, 0), marker)), "edited landmarks change file-select pixels");
-            using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
-            room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
-            room.BindFixtureArtwork(original);
-            AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored file-select uses current landmark content");
-            if (area != AreaId.WreckedShip) continue;
-            var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-            var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = area, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-            var pauseBefore = pauseNative.Render();
-            AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause stock boss pixels with ROM coordinates blocked");
-            pause.BindFixtureArtwork(edited);
-            AssertTrue(!pauseBefore.SequenceEqual(pause.Render()), "boss layout edit changes pause pixels");
-            pause.BindFixtureArtwork(original);
-            AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause boss layout rebind restores pixels");
-        }
-        string rebuilt = Path.Combine(overrides, "rebuilt");
-        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "landmarks survive stock replacement");
-        AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(path)), "landmark override bytes preserved");
-        foreach (var bad in new[] { document with { Version = 0 }, document with { Markers = new() },
-            document with { Markers = points.ToDictionary(pair => pair.Key, pair => pair.Value with { Y = ushort.MaxValue }) } })
-            AssertThrows<InvalidDataException>(() =>
-            {
-                using var written = new MemoryStream();
-                MapLandmarkFile.Write(written, bad);
-                _ = MapLandmarkFile.Read(new MemoryStream(written.ToArray(), writable: false));
-            }, "invalid landmark schema/identity/position rejected on read");
-        File.WriteAllText(path, "{bad landmarks");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad landmark override cannot fall back");
-        AssertEqual("{bad landmarks", File.ReadAllText(path), "bad landmark override preserved for repair");
-        string rebuiltPath = Path.Combine(rebuilt, MapLandmarkFormat.FileName);
-        File.Delete(rebuiltPath);
-        AssertThrows<FileNotFoundException>(() => MapPresentationFiles.Load(rebuilt, null), "missing stock landmarks rejected");
-        File.WriteAllText(rebuiltPath, "corrupt landmarks");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(rebuilt, null), "corrupt stock landmarks rejected");
-        Console.WriteLine($"Map landmarks: {cases} boss/download states match native OAM; pause/file-select edited pixels, restored rebind and override validation pass.");
+        Console.WriteLine($"Map landmarks: {cases} boss/download states match native OAM.");
 
         static byte[] Draw(FileSelectMapIcons icons, AreaId area)
         {

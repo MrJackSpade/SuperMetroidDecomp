@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// <summary>
 /// Installs the pre-assembled boss body sheets (#1466): each boss's sheet as an image, palette map and frames, the manifest
 /// naming each frame's parts with the layer rows each lies on and covers, and the provenance of their hashes. A player
-/// override of a sheet's file replaces the stock one.
+/// edits a sheet's installed files in place.
 /// </summary>
 public static class BossBodySheetFiles
 {
@@ -46,17 +46,17 @@ public static class BossBodySheetFiles
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
-    /// <summary>Loads every boss's body sheet, preferring a player override of each sheet file.</summary>
-    /// <exception cref="InvalidDataException">The manifest, a stock hash, an image or a frame manifest is invalid.</exception>
-    public static BossBodySheets Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Loads every boss's body sheet from the installed files.</summary>
+    /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid.</exception>
+    public static BossBodySheets Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         Manifest manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), JsonOptions)
             ?? throw new InvalidDataException($"Boss body manifest {manifestPath} is empty.");
         if (manifest.Version != ManifestVersion || manifest.Sheets is null)
             throw new InvalidDataException($"Boss body manifest {manifestPath} is not revision {ManifestVersion}.");
-        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, manifest.Sheets.Count);
+        SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, manifest.Sheets.Count);
         return new BossBodySheets(manifest.Sheets.Select(entry =>
         {
             BossBodyOwner owner = Enum.TryParse(entry.Key, out BossBodyOwner parsed) && Enum.IsDefined(parsed) ? parsed

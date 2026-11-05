@@ -1,4 +1,3 @@
-using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Installation;
@@ -12,7 +11,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 internal static class MapPresentationJsonContractVerification
 {
-    /// <summary>Checks manifest-listed JSON resources reject duplicate properties and preserve authored override bytes.</summary>
+    /// <summary>Checks that every manifest-listed JSON resource, edited into ambiguity in a scratch copy, is rejected and left as written.</summary>
     internal static int Run(string installationRoot)
     {
         GameInstallation installation = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
@@ -24,11 +23,10 @@ internal static class MapPresentationJsonContractVerification
         try
         {
             string stock = Directory.CreateDirectory(Path.Combine(temporary, "stock")).FullName;
-            string edits = Directory.CreateDirectory(Path.Combine(temporary, "edits")).FullName;
             foreach (string source in Directory.GetFiles(installation.MapDirectory))
                 File.Copy(source, Path.Combine(stock, Path.GetFileName(source)));
             Dictionary<string, string> originalHashes = HashFiles(stock);
-            string expected = MapPresentationFiles.Load(stock, null).ContentIdentity;
+            string expected = MapPresentationFiles.Load(stock).ContentIdentity;
             string manifestPath = Path.Combine(stock, AreaMapCatalogFormat.ManifestFile);
             byte[] manifest = File.ReadAllBytes(manifestPath);
             using JsonDocument parsedManifest = JsonDocument.Parse(manifest);
@@ -39,51 +37,30 @@ internal static class MapPresentationJsonContractVerification
             // in that finite registry, not just the initially defective formats.
             foreach (string file in files)
             {
-                byte[] original = File.ReadAllBytes(Path.Combine(stock, file));
+                string path = Path.Combine(stock, file);
+                byte[] original = File.ReadAllBytes(path);
                 using JsonDocument document = JsonDocument.Parse(original);
                 foreach (byte[] corrupt in DuplicateDocuments(document.RootElement))
                 {
-                    bool rulesOnly = file == AreaMapCatalogFormat.StationRevealFile;
-                    string path = Path.Combine(rulesOnly ? stock : edits, file);
                     File.WriteAllBytes(path, corrupt);
-                    if (rulesOnly) RewriteHash(manifestPath, manifest, file, corrupt);
-                    Reject(file, path, () => MapPresentationFiles.Load(stock, edits));
-                    if (rulesOnly)
-                    {
-                        File.WriteAllBytes(path, original);
-                        File.WriteAllBytes(manifestPath, manifest);
-                    }
-                    else File.Delete(path);
-                }
-                // Whitespace-only edits must retain their bytes and deterministic
-                // selected identity across fresh catalog loads; no repair is allowed.
-                if (file != AreaMapCatalogFormat.StationRevealFile)
-                {
-                    string path = Path.Combine(edits, file);
-                    byte[] selected = [.. original, (byte)' ', (byte)'\n'];
-                    File.WriteAllBytes(path, selected);
-                    string selectedIdentity = MapPresentationFiles.Load(stock, edits).ContentIdentity;
-                    Require(selectedIdentity != expected, file + " participates in selected identity");
-                    Require(MapPresentationFiles.Load(stock, edits).ContentIdentity == selectedIdentity,
-                        file + " retains its identity on a fresh reload");
-                    Require(File.ReadAllBytes(path).SequenceEqual(selected), file + " retains authored bytes");
-                    File.Delete(path);
+                    Reject(file, path, () => MapPresentationFiles.Load(stock));
+                    File.WriteAllBytes(path, original);
                 }
             }
             using (JsonDocument document = JsonDocument.Parse(manifest))
                 foreach (byte[] corrupt in DuplicateDocuments(document.RootElement))
                 {
                     File.WriteAllBytes(manifestPath, corrupt);
-                    Reject("manifest", manifestPath, () => MapPresentationFiles.Load(stock, edits));
+                    Reject("manifest", manifestPath, () => MapPresentationFiles.Load(stock));
                 }
             File.WriteAllBytes(manifestPath, manifest);
             Require(HashFiles(stock).OrderBy(pair => pair.Key).SequenceEqual(originalHashes.OrderBy(pair => pair.Key)),
-                "diagnostics must leave the required stock files untouched");
-            Require(MapPresentationFiles.Load(stock, edits).ContentIdentity == expected,
-                "removing overrides restores the exact stock identity");
+                "the diagnostics put every installed file back as it was");
+            Require(MapPresentationFiles.Load(stock).ContentIdentity == expected,
+                "the restored files load with their original identity");
             Require(accepted.Count == 0, "silently accepted ambiguous JSON:\n" + string.Join('\n', accepted));
             Console.WriteLine($"PASS installed map/menu/title JSON: {files.Length} resource files plus manifest, " +
-                $"{rejected} duplicate documents rejected; override bytes, reload identities and stock retained.");
+                $"{rejected} duplicate documents rejected.");
             return 0;
         }
         finally { Directory.Delete(temporary, recursive: true); }
@@ -107,14 +84,6 @@ internal static class MapPresentationJsonContractVerification
     /// <summary>Captures installed stock file digests to detect unintended mutation during validation.</summary>
     private static Dictionary<string, string> HashFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
-
-    /// <summary>Updates a test copy's stock digest so duplicate-property rejection reaches the JSON parser.</summary>
-    private static void RewriteHash(string path, byte[] baseline, string file, byte[] content)
-    {
-        var manifest = RequiredJson.Parse(baseline);
-        manifest.Required("sha256")[file] = Convert.ToHexString(SHA256.HashData(content));
-        File.WriteAllText(path, manifest.ToJsonString());
-    }
 
     /// <summary>Creates ambiguous root and nested JSON documents from an otherwise valid resource.</summary>
     private static IEnumerable<byte[]> DuplicateDocuments(JsonElement root)

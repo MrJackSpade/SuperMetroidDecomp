@@ -6,15 +6,13 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Checks extracted staff-credit rows, playback cadence, and installed text overrides.</summary>
+/// <summary>Checks extracted staff-credit rows, playback cadence, and document validation.</summary>
 internal static class CreditsPresentationVerification
 {
     /// <summary>Compares every native credit row and exercises runtime scrolling and strict JSON validation.</summary>
@@ -60,22 +58,6 @@ internal static class CreditsPresentationVerification
         AssertTrue(runtime.Finished && !runtime.Enabled,
             "credits finish on the boundary after the final installed row");
 
-        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
-        JsonObject editedLine = editedDocument.Required("lines").Required(0).AsObject();
-        editedLine["text"] = "TEST STAFF";
-        editedLine["column"] = 3;
-        editedLine["palette"] = 6;
-        byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
-        CreditsPresentation edited = CreditsPresentation.Load(
-            new MemoryStream(editedBytes, writable: false));
-        int firstTextRow = CreditsRollDefinitions.InitialBlankRows;
-        AssertEqual(CreditsGlyphs.CompileGlyph('T', CreditsLineStyle.Small) with { ColourVariant = 6 },
-            edited.GetRow(firstTextRow)[3],
-            "edited text, column and palette compile into the live row");
-        AssertTrue(!edited.GetRow(firstTextRow).SequenceEqual(
-            presentation.GetRow(firstTextRow)), "staff-credit override changes rendered content");
-
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document => document["version"] = 2,
             "unsupported staff-credit schema rejected"));
         Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
@@ -93,7 +75,7 @@ internal static class CreditsPresentationVerification
 
         Console.WriteLine(
             $"Credits presentation: {nativeRows.Length} native rows, 67 editable lines, " +
-            "runtime cadence, overrides and strict validation pass.");
+            "runtime cadence and strict validation pass.");
     }
 
     /// <summary>Mutates a valid credit document and checks that loading rejects the specified invalid case.</summary>
@@ -106,45 +88,6 @@ internal static class CreditsPresentationVerification
             document.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => CreditsPresentation.Load(
             new MemoryStream(bytes, writable: false)), identity);
-    }
-
-    /// <summary>Checks override selection, content identity, stock restoration, and corrupt override rejection.</summary>
-    internal static void VerifyStaffCreditsAssets(string stockDirectory,
-        string overrideDirectory, AreaMapPresentation original)
-    {
-        Directory.CreateDirectory(overrideDirectory);
-        string stockPath = Path.Combine(
-            stockDirectory, CreditsPresentationDefinitions.FileName);
-        JsonObject document = RequiredJson.Parse(File.ReadAllBytes(stockPath)).AsObject();
-        JsonObject first = document.Required("lines").Required(0).AsObject();
-        first["text"] = "EDITED STAFF";
-        first["column"] = 2;
-        first["palette"] = 7;
-        string overridePath = Path.Combine(
-            overrideDirectory, CreditsPresentationDefinitions.FileName);
-        File.WriteAllText(overridePath,
-            document.ToJsonString(ArtworkJson.Options));
-
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        int textRow = CreditsRollDefinitions.InitialBlankRows;
-        AssertTrue(!InstalledAreaMapPresentation.StaffCreditsOf(edited).GetRow(textRow).SequenceEqual(
-            InstalledAreaMapPresentation.StaffCreditsOf(original).GetRow(textRow)),
-            "staff-credit override reaches the installed catalog");
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "staff-credit override changes catalog identity");
-
-        File.Delete(overridePath);
-        AreaMapPresentation restored = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertTrue(InstalledAreaMapPresentation.StaffCreditsOf(restored).GetRow(textRow).SequenceEqual(
-            InstalledAreaMapPresentation.StaffCreditsOf(original).GetRow(textRow)),
-            "removing staff-credit override restores stock content");
-
-        File.WriteAllText(overridePath, "{ bad credits");
-        AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory),
-            "corrupt staff-credit override fails without stock fallback");
     }
 
     /// <summary>Dispatches the cartridge-backed credits presentation verification command.</summary>

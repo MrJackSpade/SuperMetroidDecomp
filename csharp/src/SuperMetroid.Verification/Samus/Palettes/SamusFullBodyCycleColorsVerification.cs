@@ -411,9 +411,9 @@ internal static class SamusFullBodyCycleColorsVerification
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), edited.Resolve(pointer, color),
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
-    /// <summary>Edits four cycle families, drives their production owners for each suit, and checks CGRAM without source rereads.</summary>
-    internal static void VerifySamusFullBodyCycleColorOverride(
-        string stockDirectory, string overrideDirectory,
+    /// <summary>Drives the four installed cycle families' production owners for each suit and checks CGRAM without source rereads.</summary>
+    internal static void VerifySamusFullBodyCycleColors(
+        string stockDirectory,
         AreaMapPresentation original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom);
@@ -423,17 +423,7 @@ internal static class SamusFullBodyCycleColorsVerification
             File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock full-body cycle color JSON is null.");
-        Paint(document.SpeedBooster[0][0]);
-        Paint(document.ScrewAttack[1][2]);
-        Paint(document.StoredShine[2][3]);
-        Paint(document.ActiveShinespark[0][1]);
-        string replacement = Path.Combine(overrideDirectory, SamusFullBodyCycleColorFormat.FileName);
-        File.WriteAllBytes(replacement, SamusFullBodyCycleColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        var editedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledAreaMapPresentation.SamusColoursOf(edited).FullBodyCycles };
-        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
-            "full-body cycle edit changes installed-content identity");
-
+        var installedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledAreaMapPresentation.SamusColoursOf(original).FullBodyCycles };
         var guard = NewFullBodyColorReadGuard(rom);
         SamusEquipmentFlags[] equipment = [0, SamusEquipmentFlags.VariaSuit,
             SamusEquipmentFlags.GravitySuit];
@@ -500,7 +490,7 @@ internal static class SamusFullBodyCycleColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed full-body cycles do not reread any of the 768 source color words");
 
-        // Samus binds no colour table (#1512): the edited cycles reach her only through the import's shades, which the
+        // Samus binds no colour table (#1512): the installed cycles reach her only through the import's shades, which the
         // checks above resolve.
 
         PaletteRgb5 originalColor = document.SpeedBooster[0][0][1];
@@ -510,39 +500,15 @@ internal static class SamusFullBodyCycleColorsVerification
             new MemoryStream(malformed, writable: false)),
             "full-body cycle colors reject out-of-range RGB5 values");
 
-        string replacementStock = Path.Combine(
-            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
-            "cycle-color-reextract");
-        byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        AreaMapPresentation afterRepair = SuperMetroid.Verification.Frontend.Map.MapStockReExtraction.ReExtractStock(
-            rom, replacementStock, overrideDirectory);
-        AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,
-            "stock re-extraction preserves selected full-body cycle override");
-        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
-            "stock re-extraction never rewrites the user's cycle colors");
-
-        File.Delete(replacement);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
-        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
-            "removing cycle-color override restores stock identity");
-        Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard, rebind, strict values and override removal pass.");
+        Console.WriteLine("Samus full-body cycles: 768 native colors, four live families/three suits, attachment flash, ROM guard and strict values pass.");
 
         void AssertColors(SamusColours cgram, SamusFullBodyCycleFamily family, int suit, int shade)
         {
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
-                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).FullBodyCycles.Resolve(pointer, color),
-                    cgram.ShownSuit(editedSources)[color],
+                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).FullBodyCycles.Resolve(pointer, color),
+                    cgram.ShownSuit(installedSources)[color],
                     $"{family} suit {suit}, shade {shade}, color {color} reaches live CGRAM");
-        }
-
-        static void Paint(PaletteRgb5[] colors)
-        {
-            PaletteRgb5 originalColor = colors[1];
-            colors[1] = originalColor with
-            {
-                Blue = originalColor.Blue == 31 ? 30 : originalColor.Blue + 1,
-            };
         }
     }
 

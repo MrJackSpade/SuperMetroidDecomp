@@ -504,7 +504,6 @@ internal static class LookupStream4Verification
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
         }
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         var floor = CeresRidleyMode7ColorFile.Read(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var definition = stock.selection.Alarm;
@@ -539,23 +538,11 @@ internal static class LookupStream4Verification
             AssertEqual(0x1234, cgram[96], "alarm preceding CGRAM unchanged");
             AssertEqual(0x2345, cgram[100], "alarm following CGRAM unchanged");
         }
-        CeresBabyShadeColorsDocument alarmBabyShades = document.BabyShades ?? throw new InvalidOperationException("Verification requires document.BabyShades.");
-        // Version two stored the Baby's colours as the cartridge's ordered steps; version one predates them.
-        PaletteRgb5[][] alarmBabySteps = [alarmBabyShades.Resting, alarmBabyShades.HorizontalSquish, alarmBabyShades.Round, alarmBabyShades.VerticalSquish];
-        foreach (int version in new[] { 1, 2 })
-        {
-            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
-                document with { Version = version, Alarm = null, BabyShades = null, Baby = version == 1 ? null : alarmBabySteps }, ArtworkJson.Options);
-            var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
-            for (int row = 0; row < 16; row++)
-            for (int color = 0; color < 3; color++)
-                AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
-        }
         foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
         foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
-        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides,16 actual row writes,64 gated producer calls, legacy fallback and bounds pass.");
+        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides,16 actual row writes,64 gated producer calls and bounds pass.");
     }
 
     /// <summary>Checks Maridia palette definition pointers and their imported color rows.</summary>
@@ -2615,7 +2602,6 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<CeresRidleyColorDocument>(json, ArtworkJson.Options);
         var stock = CeresRidleyColorFile.Read(new MemoryStream(json));
         ushort Native(int row, int color)
         {
@@ -2634,10 +2620,6 @@ internal static class LookupStream4Verification
         }
         foreach (var source in new[] { new VerifyLookupStream4CeresBabyCase(Address:0xa994e6, Color:9), new VerifyLookupStream4CeresBabyCase(Address:0xa994ea, Color:11) })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source.Address), Native(0, source.Color), "Exact native shared fang source identities");
-        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = (int)CeresRidleyColorVersion.PreBaby, BabyShades = null }, ArtworkJson.Options);
-        var legacy = CeresRidleyColorFile.Read(new MemoryStream(legacyJson), stock);
-        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
-            AssertEqual(Native(row, color), legacy.ResolveBaby(shadeOfRow[row], color), "Legacy document preserves the independently installed Baby owner");
         for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
             AssertEqual(Native(row, color), stock.ResolveBaby(shadeOfRow[row], color), "All60 native Baby colors calculate");
         for (int row = 0; row < 4; row++)
@@ -2666,7 +2648,7 @@ internal static class LookupStream4Verification
         }
         foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(CeresBabyShade.Resting, color), "Baby color domain");
-        Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,actual15-color copies,12 native interpreter shape selections and the legacy document pass.");
+        Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,actual15-color copies,12 native interpreter shape selections pass.");
     }
 
     /// <summary>Checks shared Ceres retreat colors and phase ownership against cartridge rows.</summary>

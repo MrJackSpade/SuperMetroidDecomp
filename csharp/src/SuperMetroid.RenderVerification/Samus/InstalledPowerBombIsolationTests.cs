@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Assets;
 using System.Reflection;
-using System.Text.Json;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -14,10 +12,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
@@ -26,122 +21,55 @@ using SuperMetroid.TestSupport.FrameRendering;
 /// </summary>
 internal static class InstalledPowerBombIsolationTests
 {
-    /// <summary>JSON options: Camel-case property names.</summary>
-    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
-    /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and WARP/D3D pixels.</summary>
+    /// <summary>Runs the installed Power Bomb and Crystal Flash colours through their lifetimes, checking cleanup, state restoration, and WARP/D3D pixels.</summary>
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        string path = Path.Combine(stockDirectory, PowerBombFixedColorFile.FileName);
-        byte[] original = File.ReadAllBytes(path);
-        var options = CamelCaseJson;
-        var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
-            ?? throw new InvalidDataException($"Null color document: {path}");
-        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory, null);
+        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory);
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
         var framesToRender = new List<ContextFrame>();
-        using var overridesScratch = new TestScratchDirectory("installed-power-bomb-isolation");
-        string overrides = overridesScratch.Root;
-        int comparisons = 0, changedColors = 0;
-        try
+        foreach (bool crystalFlash in new[] { false, true })
         {
-            Directory.CreateDirectory(overrides);
-            foreach (string edit in new[] { "black", "white", "red", "blue", "gradient" })
+            var explosion = Create(stock.PowerBombFixedColors, crystalFlash);
+            int frames = 0;
+            do
             {
-                // Build one complete fixed-color row for the selected black, white, primary, or gradient edit.
-                PaletteRgb5[] Replace(PaletteRgb5[] source) => source.Select((_, index) => edit switch
+                frames++;
+                Require(frames < 300, "The bounded stock explosion failed to clean up.");
+                _ = explosion.StepFrame();
+                string context = $"{(crystalFlash ? "Crystal Flash" : "Power Bomb")}, frame {frames}";
+                var glow = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+                if (glow is not null)
                 {
-                    "black" => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 },
-                    "white" => new PaletteRgb5 { Red = 31, Green = 31, Blue = 31 },
-                    "red" => new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 },
-                    "blue" => new PaletteRgb5 { Red = 0, Green = 0, Blue = 31 },
-                    _ => new PaletteRgb5 { Red = index % 32, Green = (index * 3) % 32, Blue = (index * 7) % 32 },
-                }).ToArray();
-                File.WriteAllBytes(Path.Combine(overrides, PowerBombFixedColorFile.FileName),
-                    PowerBombFixedColorFile.Write(document with
-                    { PreExplosion = Replace(document.PreExplosion), Explosion = Replace(document.Explosion) }));
-                AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrides);
-                Require(stock.ContentIdentity != edited.ContentIdentity, edit + ": override identity did not change");
-                foreach (bool crystalFlash in new[] { false, true })
-                {
-                    var baseline = Create(stock.PowerBombFixedColors, crystalFlash);
-                    var replacement = Create(edited.PowerBombFixedColors, crystalFlash);
-                    var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-                    int frames = 0;
-                    do
-                    {
-                        frames++;
-                        Require(frames < 300, "The bounded stock explosion failed to clean up.");
-                        bool expected = baseline.StepFrame(), actual = replacement.StepFrame();
-                        string context = $"{edit}, {(crystalFlash ? "Crystal Flash" : "Power Bomb")}, frame {frames}";
-                        RequireSameMechanics(baseline, replacement, context);
-                        Require(expected == actual, context + ": cleanup result differs");
-                        if (replacement.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow)
-                            CheckEditedRestore(replacement, stock.PowerBombFixedColors, context);
-                        var first = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(baseline), new Position16<RoomPixels>(0, 0));
-                        var second = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(replacement), new Position16<RoomPixels>(0, 0));
-                        RequireSameGeometry(first, second, context);
-                        if (Colors(baseline) != Colors(replacement)) changedColors++;
-                        if (second is not null)
-                        {
-                            var memoryImage = FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []);
-                            var packet = new DisplayPacket(0,
-                                new LayeredScene(memoryImage, new DisplayLayer[] { second }, 15));
-                            framesToRender.Add(new ContextFrame(packet, context));
-                            // With a black backdrop this center pixel must be exactly the
-                            // selected expanded RGB, not merely different from stock.
-                            // The oval is centred on that pixel (#1468), so an open window covers it.
-                            if (!second.Window.IsClosed)
-                                Require(DisplayRendering.Render(packet)[112 * packet.Size.X + 128] ==
-                                    new RgbaPixel(RgbColor.ExpandChannel(second.Colour.Red), RgbColor.ExpandChannel(second.Colour.Green),
-                                        RgbColor.ExpandChannel(second.Colour.Blue)), context + ": edited RGB did not reach pixels");
-                        }
-                        comparisons++;
-                    } while (baseline.IsActive);
-                    if (crystalFlash)
-                        Require(frames == 36, context: "Stock Crystal Flash must expand for 18 frames, fade for 17, then clean up.");
-                    if (crystalFlash)
-                    {
-                        Require(!replacement.IsActive && !replacement.IsArmed,
-                            edit + ": Crystal Flash retained a lock after cleanup");
-                        Require(Colors(replacement) == new ExplosionColors(0, 0, 0), edit + ": inactive Crystal Flash retained display colors");
-                    }
-                    baseline.Reset(); replacement.Reset();
-                    RequireSameMechanics(baseline, replacement, edit + ": reset retains simulation state");
-                    Require(Colors(replacement) == new ExplosionColors(0, 0, 0), edit + ": reset retains display colors");
-                    Console.WriteLine($"{edit}: {(crystalFlash ? "Crystal Flash" : "Power Bomb")} cleanup at frame {frames}.");
+                    var packet = new DisplayPacket(0,
+                        new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []), new DisplayLayer[] { glow }, 15));
+                    framesToRender.Add(new ContextFrame(packet, context));
                 }
-            }
-            Require(changedColors > 0, "The edits never reached live fixed colors.");
-            Require(File.ReadAllBytes(path).SequenceEqual(original), "Stock colors were modified.");
-            File.Delete(Path.Combine(overrides, PowerBombFixedColorFile.FileName));
-            Require(MapPresentationFiles.Load(stockDirectory, overrides).ContentIdentity == stock.ContentIdentity,
-                "Removing the override did not restore stock content identity.");
-            foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+            } while (explosion.IsActive);
+            if (crystalFlash)
             {
-                using var device = new D3D11RenderDevice(kind);
-                using var renderer = new D3D11FrameRenderer(device);
-                foreach (var sample in framesToRender)
-                {
-                    var restored = sample.Frame;
-                    PixelComparison.Verify(restored, DisplayRendering.Render(restored),
-                        renderer.RenderForReadback(restored), $"{kind}: {sample.Context}");
-                }
-                Console.WriteLine($"{kind}: {framesToRender.Count} edited explosion frames match the WARP reference.");
+                Require(frames == 36, context: "Stock Crystal Flash must expand for 18 frames, fade for 17, then clean up.");
+                Require(!explosion.IsActive && !explosion.IsArmed, "Crystal Flash retained a lock after cleanup");
+                Require(Colors(explosion) == new ExplosionColors(0, 0, 0), "inactive Crystal Flash retained display colors");
             }
-            Console.WriteLine($"Power Bomb/Crystal Flash isolation: {comparisons} full mutable-state/window comparisons, " +
-                $"{changedColors} changed color observations; disk selection/removal verified. No ROM or player data used.");
+            explosion.Reset();
+            Require(Colors(explosion) == new ExplosionColors(0, 0, 0), "reset retains display colors");
+            Console.WriteLine($"{(crystalFlash ? "Crystal Flash" : "Power Bomb")} cleanup at frame {frames}.");
         }
-        finally
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
         {
-            string owner = Path.GetFullPath(Path.Combine("csharp", "test-temp")) + Path.DirectorySeparatorChar;
-            if (!overrides.StartsWith(owner, StringComparison.OrdinalIgnoreCase) ||
-                !Path.GetFileName(overrides).StartsWith("installed-power-bomb-isolation-", StringComparison.Ordinal))
-                throw new InvalidOperationException("Refusing to remove a non-fixture override directory.");
-            if (Directory.Exists(overrides)) Directory.Delete(overrides, true);
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            foreach (var sample in framesToRender)
+            {
+                var frame = sample.Frame;
+                PixelComparison.Verify(frame, DisplayRendering.Render(frame),
+                    renderer.RenderForReadback(frame), $"{kind}: {sample.Context}");
+            }
+            Console.WriteLine($"{kind}: {framesToRender.Count} installed explosion frames match the WARP reference.");
         }
+        Console.WriteLine("Power Bomb/Crystal Flash: installed colours run to cleanup and restore exactly. No ROM or player data used.");
     }
 
     /// <summary>Starts a Crystal Flash or arms and spawns a Power Bomb with the supplied presentation catalog.</summary>
@@ -166,15 +94,6 @@ internal static class InstalledPowerBombIsolationTests
             Require(Equals(field.GetValue(first), field.GetValue(second)),
                 $"{context}: {field.Name} differs: stock={field.GetValue(first)}, edited={field.GetValue(second)}");
         }
-    }
-
-    /// <summary>Checks color-add window lifetime and its shapes independently of its color.</summary>
-    private static void RequireSameGeometry(ColourAddWindowLayer? first,
-        ColourAddWindowLayer? second, string context)
-    {
-        Require((first is null) == (second is null), context + ": window lifetime differs");
-        if (first is null || second is null) return;
-        Require(first.Window == second.Window, context + ": window shapes differ");
     }
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>
@@ -228,18 +147,6 @@ internal static class InstalledPowerBombIsolationTests
             } while (state.IsActive);
         }
         Console.WriteLine($"Explosion state compatibility: {restores} checkpoints resume with identical stock state, colors and cleanup.");
-    }
-
-    /// <summary>Checks edited checkpoints restore bound to the colours supplied when loading.</summary>
-    private static void CheckEditedRestore(SamusPowerBombExplosionState edited,
-        InstalledPowerBombFixedColors reboundColors, string context)
-    {
-        var restored = Restore(edited, reboundColors, out string warning);
-        Require(warning.Length == 0, context + ": current edited capture warned");
-        Require(ReferenceEquals(restored.PresentationColors, reboundColors), context + ": restore did not bind the supplied colours");
-        RequireSameMechanics(edited, restored, context + ": edited checkpoint restore");
-        CompareRemainder(edited, restored, reboundColors, context + ": edited checkpoint rebind");
-
     }
 
     /// <summary>Steps a restored pair through cleanup, comparing mechanics and display colors on each remaining frame.</summary>

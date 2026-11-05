@@ -1,6 +1,4 @@
-using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -22,9 +20,8 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// <summary>Checks installed Tourian corpse tile staging and OAM against independent retail layouts.</summary>
 internal static class DeadTourianCorpseArtworkVerification
 {
-    /// <summary>Compares all corpse initializer variants against native WRAM and confirms a sidehopper PNG edit reaches live staging.</summary>
-    internal static void VerifyInstalledDeadTourianCorpseArtwork(
-        string directory, InstalledEnemyArtwork stock)
+    /// <summary>Compares all corpse initializer variants against native WRAM.</summary>
+    internal static void VerifyInstalledDeadTourianCorpseArtwork(InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock.Enemies));
         // Compare the installed initialization callbacks with independent native
@@ -61,40 +58,7 @@ internal static class DeadTourianCorpseArtworkVerification
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
-        string fileName = EnemyTileArtworkFiles.FileName(EnemyDefinitionId.CorpseSidehopper);
-        using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
-        int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x0e00);
-        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-        int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(source, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-        // The first copy starts at source offset $0040, tile 2. Its first
-        // pixel becomes the high bit at WRAM $7E:2040.
-        image.Pixels[2 * 8] ^= 1;
-        string overrideDirectory = Path.Combine(directory, "dead-sidehopper-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        var nativeCopies = ReferenceDeadTourianCorpseGraphics(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new NativeEnemyStaging(),
-            EnemyDefinitionId.CorpseSidehopper, 0);
-        CorpseStaging stockStaging = InitializeDeadSidehopperArtwork(stock, 0);
-        CorpseStaging editedStaging = InitializeDeadSidehopperArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory)), 0);
-        AssertEqual((byte)(Staged(stockStaging, 0x40, 1)[0] ^ 0x80), Staged(editedStaging, 0x40, 1)[0],
-            "dead-sidehopper PNG pixel edit reaches the staged corpse");
-        foreach (DeadTorizoArtworkCopy copy in nativeCopies)
-        {
-            byte[] stockBytes = Staged(stockStaging, copy.Destination, copy.Length), editedBytes = Staged(editedStaging, copy.Destination, copy.Length);
-            for (int offset = 0; offset < copy.Length; offset++)
-            {
-                if (copy.Destination + offset != 0x40)
-                    AssertEqual(stockBytes[offset], editedBytes[offset], "dead-sidehopper PNG edit leaves other corpse bytes unchanged");
-            }
-        }
-        CorpseStaging reloadedStaging = InitializeDeadSidehopperArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory)), 0);
-        AssertEqual(Staged(editedStaging, 0x40, 1)[0], Staged(reloadedStaging, 0x40, 1)[0],
-            "dead-sidehopper PNG edit survives catalog reload");
-
-        Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
+        Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM.");
     }
 
     /// <summary>Matches the installed OAM compositions of every corpse pose the typed programs show to retail spritemaps.</summary>

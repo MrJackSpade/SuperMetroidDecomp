@@ -1,9 +1,7 @@
-using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
@@ -35,7 +33,6 @@ internal static class EnemyContentIdentityVerification
             AssertEqual(baseline, new EnemyIdentityFixture(edit).Build().ContentIdentity,
                 edit + " preserves decoded enemy presentation identity");
 
-        Suite(nameof(VerifyLegacyEnemyIdentityMerges), () => VerifyLegacyEnemyIdentityMerges());
         // Inspect serialization shape, not data, so computed digests cannot silently change
         // the field count of a debugger snapshot. The hash itself uses typed production fields.
         Type[] catalogs = [typeof(EnemyTileSourceArtwork), typeof(BossSourceArtwork), typeof(AreaSourceArtwork)];
@@ -54,66 +51,14 @@ internal static class EnemyContentIdentityVerification
                 type.Name + " adds no persisted derived-identity field");
         }
         Console.WriteLine($"  Enemy content: {fixture.Edits.Count} independent edits across all 35 subdomains, " +
-            "OAM/BG2 ordering, display bindings, legacy stock merges, encoding invariance and host warnings pass without a ROM.");
+            "OAM/BG2 ordering, display bindings, encoding invariance and host warnings pass without a ROM.");
 
         static GameContentIdentity EnemyIdentity(string digest) => GameContentIdentity.Create(
             new string('A', 64), new string('B', 64), new string('C', 64), Guid.Empty,
             [KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, digest)]);
     }
 
-    /// <summary>Checks that legacy OAM, extended-frame, and projectile overrides inherit current stock identities.</summary>
-    private static void VerifyLegacyEnemyIdentityMerges()
-    {
-        var baseline = new EnemyIdentityFixture();
-        EnemySpritemapCatalog stockOam = baseline.Oam();
-        var legacyOam = baseline.OamDocument() with
-        {
-            Version = EnemySpritemapSchema.PreDisplayBindings.Revision,
-            Frames = baseline.OamDocument().Frames.Take(EnemySpritemapDefinitions.PreDisplayBindingsFrameCount).ToDictionary(),
-            DisplayFrames = null,
-        };
-        AssertEqual(stockOam.ContentIdentity,
-            EnemySpritemapDocuments.Load(baseline.Json(legacyOam), stockOam).ContentIdentity,
-            "older OAM overrides hash the merged current stock frames and bindings");
-        EnemySpritemapCatalog changedOam = new EnemyIdentityFixture("oam-x").Oam();
-        AssertTrue(stockOam.ContentIdentity != EnemySpritemapDocuments.Load(baseline.Json(legacyOam), changedOam).ContentIdentity,
-            "inherited new stock OAM changes are not hidden by an unchanged old override");
-
-        EnemyExtendedFrameCatalog stockExtended = baseline.Extended();
-        EnemyExtendedFrameDocument stockExtendedDocument = baseline.ExtendedDocument();
-        // Schema 3 named frames as they were named before frames were named for their meaning (#1465).
-        var legacyExtended = stockExtendedDocument with
-        {
-            Version = EnemyExtendedFrameSchema.PreDisplayBindings.Revision,
-            Frames = EnemyExtendedFrameDefinitions.Frames.Take(EnemyExtendedFrameDefinitions.PirateFrameCount)
-                .ToDictionary(frame => frame.LegacyName, frame => stockExtendedDocument.Frames[frame.Name], StringComparer.Ordinal),
-            DisplayFrames = null,
-        };
-        AssertEqual(stockExtended.ContentIdentity,
-            EnemyExtendedFrameDocuments.Load(baseline.Json(legacyExtended), stockExtended).ContentIdentity,
-            "older extended overrides hash merged stock components and bindings");
-        EnemyExtendedFrameCatalog changedExtended = new EnemyIdentityFixture("extended-x").Extended();
-        AssertTrue(stockExtended.ContentIdentity !=
-            EnemyExtendedFrameDocuments.Load(baseline.Json(legacyExtended), changedExtended).ContentIdentity,
-            "inherited new extended frames contribute to the selected identity");
-
-        EnemyProjectileSpritemapCatalog stockProjectiles = baseline.Projectiles();
-        var legacyProjectiles = baseline.ProjectileDocument() with
-        {
-            Version = (int)EnemyProjectileSpritemapVersion.CeresOnly,
-            Frames = baseline.ProjectileDocument().Frames.Take(EnemyProjectileSpritemapDocuments.LegacyFrameCount).ToDictionary(),
-            ProgramFrames = null,
-        };
-        AssertEqual(stockProjectiles.ContentIdentity,
-            EnemyProjectileSpritemapDocuments.Load(baseline.Json(legacyProjectiles), stockProjectiles).ContentIdentity,
-            "older projectile overrides include current instruction-selected compositions");
-        EnemyProjectileSpritemapCatalog changedProjectiles = new EnemyIdentityFixture("projectile-program-x").Projectiles();
-        AssertTrue(stockProjectiles.ContentIdentity !=
-            EnemyProjectileSpritemapDocuments.Load(baseline.Json(legacyProjectiles), changedProjectiles).ContentIdentity,
-            "inherited projectile program-frame changes contribute to the selected identity");
-    }
-
-    /// <summary>Runs selected enemy-artwork identity and legacy-merge checks.</summary>
+    /// <summary>Runs selected enemy-artwork identity checks.</summary>
     [VerificationCommand("--enemy-content-identity")]
     internal static int EnemyContentIdentityCommand()
     {

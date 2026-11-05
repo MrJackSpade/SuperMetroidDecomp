@@ -7,12 +7,9 @@ using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
@@ -23,9 +20,7 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Retail and installed-artwork checks for Samus's ten-frame Hyper Beam rainbow palette.</summary>
@@ -401,55 +396,19 @@ internal static class SamusHyperBeamColorsVerification
         Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
 
-    /// <summary>Edits one installed rainbow ink, verifies it reaches live CGRAM and content identity, then checks invalid RGB5 and stock restoration.</summary>
-    internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
-        AreaMapPresentation baseline, ISnesAddressSpace rom,
-        MapPresentationInstalledRoomAssets fixtureAssets)
+    /// <summary>Checks that the Hyper Beam colour codec rejects out-of-range colours.</summary>
+    internal static void VerifySamusHyperBeamColorsRejectMalformedDocuments(string stock)
     {
-        string path = Path.Combine(overrides, SamusHyperBeamColorFormat.FileName);
         SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(
             File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Hyper Beam color document is null.");
-        PaletteRgb5 original = document.Frames[4][7];
-        document.Frames[4][7] = original with { Red = (original.Red + 1) % 32 };
-        File.WriteAllBytes(path, SamusHyperBeamColorFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
-            "Hyper Beam color override changes installed content identity");
-
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
-        runtime.Artwork.MapPresentation = edited;
-        fixtureAssets.Bind(runtime);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        SamusState samus = runtime.Player.Samus ??
-            throw new InvalidOperationException("Ceres initialization did not construct Samus.");
-        // Samus binds no colour table (#1512); the edited glow reaches her through the import's shades.
-        var editedSources = InstalledFixtures.SamusShadeSources with { HyperBeamSuit = InstalledAreaMapPresentation.SamusColoursOf(edited).HyperBeam };
-        samus.Drained.EnableRainbow(samus);
-        var samusColours = new SamusColours();
-        var guarded = NewForbiddenHyperBeamColorBus(rom);
-        for (int frame = 0; frame <= 4; frame++)
-            AssertTrue(samus.Drained.UpdatePalette(samusColours, samus.EquippedItems),
-                $"edited Hyper Beam frame {frame} writes colors");
-        AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(edited).HyperBeam.Resolve(4, 7), samusColours.ShownSuit(editedSources)[7],
-            "edited Hyper Beam color reaches the shade of its selected frame");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "edited Hyper Beam colors avoid pointer and palette ROM tables");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document with
         {
             Frames = [.. document.Frames.Take(4),
-                [.. document.Frames[4].Take(7), original with { Red = 32 },
+                [.. document.Frames[4].Take(7), document.Frames[4][7] with { Red = 32 },
                  .. document.Frames[4].Skip(8)], .. document.Frames.Skip(5)],
         }))), "out-of-range Hyper Beam RGB5 fails loudly");
-        File.Delete(path);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
-            "removing Hyper Beam override restores stock content identity");
-        Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");
     }
 
     /// <summary>Blocks native Hyper Beam pointer and palette tables while installed colors update Samus.</summary>

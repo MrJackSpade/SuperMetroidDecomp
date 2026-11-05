@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
@@ -21,15 +19,13 @@ using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres destruction and Zebes reveal art against cartridge transfers and live cinematic rendering.</summary>
 internal static class CeresDestructionArtworkVerification
 {
-    /// <summary>Confirms native maps, characters, and OAM, then exercises editable actor, sprite, map, and PNG overrides through the running scene.</summary>
-    [PrivateInstallation("Edits Ceres destruction files on a private copy to check that their overrides apply.")]
+    /// <summary>Confirms native maps, characters, OAM and actor placements, and the layout and sprite codecs' rejections.</summary>
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
@@ -113,11 +109,8 @@ internal static class CeresDestructionArtworkVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed destruction/reveal never rereads its cartridge art sources");
 
-        string overrideRoot = installation.IntroCinematicOverrideDirectory;
-        Directory.CreateDirectory(overrideRoot);
         string actorsName = CeresRevealActorLayoutFormat.FileName;
         string actorsPath = Path.Combine(installation.IntroCinematicDirectory, actorsName);
-        string actorsOverride = Path.Combine(overrideRoot, actorsName);
         CeresRevealActorLayoutDocument actorsDocument =
             JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(
                 File.ReadAllBytes(actorsPath), ArtworkJson.Options) ??
@@ -136,40 +129,6 @@ internal static class CeresDestructionArtworkVerification
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");
         }
-        int stockPlanetX = actorsDocument.Actors[0].X;
-        actorsDocument.Actors[0] = actorsDocument.Actors[0] with { X = stockPlanetX + 16 };
-        using (var output = File.Create(actorsOverride))
-            CeresRevealActorLayoutFile.Write(output, actorsDocument);
-        IntroCinematicArtwork movedPlanet = installation.LoadIntroCinematicArt();
-        var stockReveal = CreateRetailDestructionFixture(artwork: stock);
-        var movedReveal = CreateRetailDestructionFixture(artwork: movedPlanet);
-        for (int frame = 0; frame < 4000 &&
-            stockReveal.Phase != CeresDestructionPhase.PlanetZebesTitle; frame++)
-        {
-            stockReveal.Step();
-            movedReveal.Step();
-        }
-        AssertEqual(CeresDestructionPhase.PlanetZebesTitle, stockReveal.Phase,
-            "Zebes placement fixture reaches the planet reveal");
-        AssertEqual(stockReveal.Phase, movedReveal.Phase,
-            "visual placement edit preserves cinematic handoff timing");
-        var stockPlanet = stockReveal.ZebesPlanetActor ??
-            throw new InvalidOperationException("Stock Zebes planet actor did not spawn.");
-        var editedPlanet = movedReveal.ZebesPlanetActor ??
-            throw new InvalidOperationException("Edited Zebes planet actor did not spawn.");
-        AssertEqual(unchecked((ushort)(stockPlanet.WholePosition.X + 16)), editedPlanet.WholePosition.X,
-            "edited scene position moves the actual planet actor by one tile");
-        for (int frame = 0; frame < 20; frame++)
-        {
-            stockReveal.Step();
-            movedReveal.Step();
-        }
-        AssertTrue(!stockReveal.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                movedReveal.CaptureRenderSnapshot().Paint.SpriteParts()),
-            "edited planet placement changes production OAM, not just JSON parsing");
-        AssertEqual(stockPlanetX + 16,
-            installation.LoadIntroCinematicArt().CeresDestruction.RevealActors[0].X,
-            "actor layout override still applies over the restored stock layout");
         actorsDocument.Actors[0] = actorsDocument.Actors[0] with { Id = "wrong-actor" };
         AssertThrows<InvalidDataException>(() =>
         {
@@ -177,12 +136,10 @@ internal static class CeresDestructionArtworkVerification
             CeresRevealActorLayoutFile.Write(invalid, actorsDocument);
             _ = CeresRevealActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
         }, "Zebes reveal layout rejects missing or reordered actor identities on read");
-        File.Delete(actorsOverride);
 
         string destructionActorsName = CeresDestructionActorLayoutFormat.FileName;
         string destructionActorsPath = Path.Combine(installation.IntroCinematicDirectory,
             destructionActorsName);
-        string destructionActorsOverride = Path.Combine(overrideRoot, destructionActorsName);
         CeresDestructionActorLayoutDocument destructionActorsDocument =
             JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(
                 File.ReadAllBytes(destructionActorsPath), ArtworkJson.Options) ??
@@ -199,37 +156,6 @@ internal static class CeresDestructionArtworkVerification
             AssertEqual(definition.Position.Y, destructionActorsDocument.Actors[index].Y,
                 $"Ceres destruction actor {index} Y matches its verified initializer");
         }
-        int stockAsteroidX = destructionActorsDocument.Actors[0].X;
-        destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with
-        {
-            X = stockAsteroidX + 16,
-        };
-        using (var output = File.Create(destructionActorsOverride))
-            CeresDestructionActorLayoutFile.Write(output, destructionActorsDocument);
-        IntroCinematicArtwork movedAsteroid = installation.LoadIntroCinematicArt();
-        var stockDestruction = CreateRetailDestructionFixture(artwork: stock);
-        var movedDestruction = CreateRetailDestructionFixture(artwork: movedAsteroid);
-        for (int frame = 0; frame < 36; frame++)
-        {
-            stockDestruction.Step();
-            movedDestruction.Step();
-        }
-        AssertEqual(stockDestruction.Phase, movedDestruction.Phase,
-            "edited Ceres asteroid placement preserves cinematic phase timing");
-        var stockDestructionActors = stockDestruction.actors ??
-            throw new InvalidOperationException("Stock Ceres destruction actors did not spawn.");
-        var movedDestructionActors =
-            movedDestruction.actors ??
-            throw new InvalidOperationException("Edited Ceres destruction actors did not spawn.");
-        AssertEqual(unchecked((ushort)(stockDestructionActors[0].WholePosition.X + 16)),
-            movedDestructionActors[0].WholePosition.X,
-            "edited destruction layout moves the actual asteroid actor by one tile");
-        AssertTrue(!stockDestruction.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                movedDestruction.CaptureRenderSnapshot().Paint.SpriteParts()),
-            "edited destruction placement changes production OAM");
-        AssertEqual(stockAsteroidX + 16,
-            installation.LoadIntroCinematicArt().CeresDestruction.DestructionActors[0].X,
-            "destruction actor override still applies over the restored stock layout");
         destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with
         {
             Id = "wrong-actor",
@@ -240,133 +166,21 @@ internal static class CeresDestructionArtworkVerification
             CeresDestructionActorLayoutFile.Write(invalid, destructionActorsDocument);
             _ = CeresDestructionActorLayoutFile.Read(new MemoryStream(invalid.ToArray(), writable: false));
         }, "Ceres destruction layout rejects missing or reordered actor identities on read");
-        File.Delete(destructionActorsOverride);
 
         string spritesName = CeresDestructionSpriteFormat.FileName;
         string spritesPath = Path.Combine(installation.IntroCinematicDirectory, spritesName);
-        string spritesOverride = Path.Combine(overrideRoot, spritesName);
         CeresDestructionSpriteDocument spriteDocument =
             JsonSerializer.Deserialize<CeresDestructionSpriteDocument>(
                 File.ReadAllBytes(spritesPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock Ceres destruction sprites are empty.");
-        string changedFrame = "station-under-attack-large-asteroid";
-        spriteDocument.Frames[changedFrame] = spriteDocument.Frames[changedFrame]
-            .Select(part => part with { OffsetX = part.OffsetX + 16 }).ToArray();
-        using (var output = File.Create(spritesOverride))
-            CeresDestructionSpritePresentation.Write(output, spriteDocument);
-        IntroCinematicArtwork editedSprites = installation.LoadIntroCinematicArt();
-        var spriteState = CreateRetailDestructionFixture(artwork: stock);
-        for (int frame = 0; frame < 36; frame++) spriteState.Step();
-        LayeredScene beforeSprites = spriteState.CaptureRenderSnapshot();
-        spriteState.BindFixtureDestructionArtwork(editedSprites);
-        LayeredScene afterSprites = spriteState.CaptureRenderSnapshot();
-        AssertTrue(!beforeSprites.Paint.SpriteParts().SequenceEqual(afterSprites.Paint.SpriteParts()) &&
-                !DisplayRendering.Render(beforeSprites).SequenceEqual(
-                    DisplayRendering.Render(afterSprites)),
-            "edited Ceres destruction composition changes production OAM and visible pixels");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "rebound Ceres destruction actor never rereads installed spritemaps");
-        spriteDocument.Frames.Remove(changedFrame);
+        string removedFrame = "station-under-attack-large-asteroid";
+        spriteDocument.Frames.Remove(removedFrame);
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();
             CeresDestructionSpritePresentation.Write(invalid, spriteDocument);
             _ = CeresDestructionSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
         }, "Ceres destruction sprites reject a missing named frame on read");
-        var repairedSpriteState = CreateRetailDestructionFixture(artwork: installation.LoadIntroCinematicArt());
-        for (int frame = 0; frame < 36; frame++) repairedSpriteState.Step();
-        AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Paint.SpriteParts().SequenceEqual(
-                afterSprites.Paint.SpriteParts()),
-            "Ceres destruction sprite override still applies over the restored stock and remains visible");
-        File.Delete(spritesOverride);
-
-        string ceresPath = Path.Combine(installation.IntroCinematicDirectory,
-            CeresDestructionMapFormat.FileName);
-        string ceresOverride = Path.Combine(overrideRoot,
-            CeresDestructionMapFormat.FileName);
-        CeresDestructionMapDocument ceres;
-        using (var input = File.OpenRead(ceresPath))
-            ceres = JsonSerializer.Deserialize<CeresDestructionMapDocument>(input,
-                ArtworkJson.Options)
-                ?? throw new InvalidDataException("Stock Ceres destruction JSON is empty.");
-        foreach (int[] view in ceres.Views) Array.Fill(view, 0);
-        using (var output = File.Create(ceresOverride))
-            CeresDestructionMaps.Write(output, ceres);
-        IntroCinematicArtwork editedCeres = installation.LoadIntroCinematicArt();
-        var ceresState = CreateRetailDestructionFixture(artwork: stock);
-        for (int frame = 0; frame < 36; frame++) ceresState.Step();
-        LayeredScene beforeCeres = ceresState.CaptureRenderSnapshot();
-        byte[] beforeCeresVram = ceresState.ShownVram();
-        ceresState.BindFixtureDestructionArtwork(editedCeres);
-        LayeredScene afterCeres = ceresState.CaptureRenderSnapshot();
-        byte[] afterCeresVram = ceresState.ShownVram();
-        AssertTrue(!beforeCeresVram.SequenceEqual(afterCeresVram) &&
-                !DisplayRendering.Render(beforeCeres).SequenceEqual(
-                    DisplayRendering.Render(afterCeres)),
-            "restored Ceres destruction adopts edited map and changes visible pixels");
-        File.Delete(ceresOverride);
-
-        string zebesMapPath = Path.Combine(installation.IntroCinematicDirectory,
-            ZebesRevealArtworkFormat.MapFileName);
-        string zebesMapOverride = Path.Combine(overrideRoot,
-            ZebesRevealArtworkFormat.MapFileName);
-        RoomBackgroundTilemapDocument zebesMap;
-        using (var input = File.OpenRead(zebesMapPath))
-            zebesMap = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(input,
-                ArtworkJson.Options)
-                ?? throw new InvalidDataException("Stock Zebes reveal JSON is empty.");
-        RoomBackgroundTilemapCell originalCell = zebesMap.Pages[0].Cells[0];
-        zebesMap.Pages[0].Cells[0] = originalCell with
-        {
-            TileColumn = (originalCell.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
-        };
-        using (var output = File.Create(zebesMapOverride))
-            RoomBackgroundTilemapAtlas.Write(output, zebesMap);
-        IntroCinematicArtwork editedZebesMap = installation.LoadIntroCinematicArt();
-        AssertTrue(!IntroCinematicSourceArtwork.Of(editedZebesMap).ZebesReveal.Map.Bytes.Span.SequenceEqual(
-                IntroCinematicSourceArtwork.Of(stock).ZebesReveal.Map.Bytes.Span),
-            "independent Zebes tilemap JSON edit compiles into its native transfer");
-        File.Delete(zebesMapOverride);
-
-        string zebesPngPath = Path.Combine(installation.IntroCinematicDirectory,
-            ZebesRevealArtworkFormat.CharacterFileName);
-        string zebesPngOverride = Path.Combine(overrideRoot,
-            ZebesRevealArtworkFormat.CharacterFileName);
-        IndexedPngImage zebesPng;
-        using (var input = File.OpenRead(zebesPngPath))
-            zebesPng = IndexedPng.Read(input, new(256, 128));
-        zebesPng.Pixels[0] = (byte)((zebesPng.Pixels[0] + 1) & 15);
-        using (var output = File.Create(zebesPngOverride))
-            IndexedPng.Write(output, new(zebesPng.Size.X, zebesPng.Size.Y),
-                zebesPng.Pixels, zebesPng.Colours);
-        IntroCinematicArtwork editedZebesPng = installation.LoadIntroCinematicArt();
-        File.Delete(zebesPngOverride);
-
-        var zebesState = CreateRetailDestructionFixture(artwork: stock);
-        for (int frame = 0; frame < 3000 &&
-            zebesState.Phase != CeresDestructionPhase.FadeInZebes; frame++)
-            zebesState.Step();
-        AssertEqual(CeresDestructionPhase.FadeInZebes, zebesState.Phase,
-            "rebind fixture reaches Zebes reveal");
-        LayeredScene originalZebes = zebesState.CaptureRenderSnapshot();
-        byte[] originalZebesVram = zebesState.ShownVram();
-        zebesState.BindFixtureDestructionArtwork(editedZebesMap);
-        AssertTrue(!zebesState.ShownVram().SequenceEqual(
-                originalZebesVram),
-            "restored Zebes reveal adopts edited BG map without resetting phase");
-        zebesState.BindFixtureDestructionArtwork(editedZebesPng);
-        AssertTrue(!zebesState.ShownVram().SequenceEqual(
-                originalZebesVram),
-            "restored Zebes reveal adopts edited character PNG without resetting phase");
-        AssertEqual(CeresDestructionPhase.FadeInZebes, zebesState.Phase,
-            "visual rebind leaves native cinematic phase unchanged");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "edited/rebound destruction art never reads cartridge art sources");
-
-        File.WriteAllBytes(ceresOverride, [0]);
-        AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-            "malformed Ceres destruction override fails loudly");
-        File.Delete(ceresOverride);
-        Console.WriteLine("Ceres destruction art: 23 native OAM frames, three destruction and six ROM-sourced reveal actor placements, visible edits, exact PNG/JSON transfers, overrides and state rebind pass.");
+        Console.WriteLine("Ceres destruction art: 23 native OAM frames, three destruction and six ROM-sourced reveal actor placements, exact PNG/JSON transfers and codec rejections pass.");
     }
 }

@@ -12,16 +12,13 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainRoomColorRecognition
 {
     /// <summary>Builds the selected flash, room, phase-two, room-entry and recovery colours.</summary>
-    /// <param name="colours">The selected colours; a null family is inherited from <paramref name="currentStock"/>.</param>
-    /// <param name="currentStock">The current stock presentation a missing family is inherited from.</param>
-    internal static Presentation Create(MotherBrainRoomColours colours, Presentation? currentStock)
+    /// <param name="colours">The selected colours.</param>
+    internal static Presentation Create(MotherBrainRoomColours colours)
     {
         Ensure.NotNull(colours);
         Presentation.FinalRoomPalette room = FinalRoom(colours.FinalRoom);
         return new(Flash(colours.Flash, room), room, Attack(colours.PhaseTwoAttack), RearLeg(colours.PhaseTwoRearLeg),
-            colours.InitialGlassShard is null ? Ensure.NotNull(currentStock).initialGlassShard : Glass(colours.InitialGlassShard, room),
-            colours.InitialTubeProjectile is null ? Ensure.NotNull(currentStock).initialTubeProjectile : Tube(colours.InitialTubeProjectile, room),
-            colours.RecoveryLights is null ? Ensure.NotNull(currentStock).recoveryLights : Recovery(colours.RecoveryLights, room));
+            Glass(colours.InitialGlassShard, room), Tube(colours.InitialTubeProjectile, room), Recovery(colours.RecoveryLights, room));
     }
 
     /// <summary>Whether <paramref name="resolve"/> gives every supplied colour.</summary>

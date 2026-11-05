@@ -1,6 +1,4 @@
-using SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -24,9 +22,8 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// <summary>Verifies installed Dead Torizo sheet, sand, spritemap, and VRAM transfer behavior against retail data.</summary>
 internal static class DeadTorizoArtworkVerification
 {
-    /// <summary>Checks installed corpse staging, native OAM, and the visible effect of an edited sheet pixel.</summary>
-    internal static void VerifyInstalledDeadTorizoArtwork(
-        string directory, InstalledEnemyArtwork stock)
+    /// <summary>Checks installed corpse staging and native OAM.</summary>
+    internal static void VerifyInstalledDeadTorizoArtwork(InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyDeadTorizoRowUploads), () => VerifyDeadTorizoRowUploads(stock));
         Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock.Enemies));
@@ -61,36 +58,7 @@ internal static class DeadTorizoArtworkVerification
         AssertThrows<InvalidDataException>(() => StageDeadTorizoArtwork(missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");
 
-        string fileName = EnemyTileArtworkFiles.FileName(EnemyDefinitionId.CorpseTorizo);
-        using var source = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
-        int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(0x1800);
-        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-        int rows = (tileCount + columns - 1) / columns;
-        IndexedPngImage image = IndexedPng.Read(source, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-        // Source offset $0120 is tile 9, first row, first pixel. It is copied
-        // to $7E:2060, so flipping its low indexed bit flips that planar MSB.
-        image.Pixels[9 * 8] ^= 1;
-        string overrideDirectory = Path.Combine(directory, "dead-torizo-overrides");
-        Directory.CreateDirectory(overrideDirectory);
-        using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        byte[] installedTiles = Staged(installed, 0, 0x1000);
-        byte[] editedTiles = Staged(StageDeadTorizoArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory))), 0, 0x1000);
-        AssertEqual((byte)(installedTiles[0x60] ^ 0x80),
-            editedTiles[0x60],
-            "dead-Torizo PNG pixel edit reaches the staged corpse");
-        for (int offset = 0; offset < 0x1000; offset++)
-        {
-            if (offset == 0x60)
-                continue;
-            AssertEqual(installedTiles[offset],
-                editedTiles[offset],
-                "dead-Torizo PNG edit leaves neighboring corpse staging bytes unchanged");
-        }
-        AssertEqual(editedTiles[0x60], Staged(StageDeadTorizoArtwork(EnemyArtworkEdits.WithSheets(stock, EnemyTileArtworkFiles.Open(directory, overrideDirectory))), 0x60, 1)[0],
-            "dead-Torizo PNG edit survives catalog reload");
-
-        Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
+        Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity pass.");
     }
 
     /// <summary>Matches the installed stationary frame's 25 OAM parts against the native spritemap.</summary>
@@ -258,5 +226,4 @@ internal static class DeadTorizoArtworkVerification
         oam.AddEnemySpritemap(hook, new Position16<SpritePixels>(296, 187), 0, 0);
         return oam;
     }
-
 }

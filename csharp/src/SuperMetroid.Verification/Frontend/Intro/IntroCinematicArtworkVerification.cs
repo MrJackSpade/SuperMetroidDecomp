@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
@@ -8,14 +7,12 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteAnimationsVerification;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
-using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification;
-using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryActorSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEggEffectSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEyeInstructionsVerification;
@@ -37,13 +34,11 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
@@ -57,7 +52,7 @@ internal static class IntroCinematicArtworkVerification
     [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that missing and damaged stock fails where it is read.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
-        // Edits, corruption and repairs run on a private copy of the repository installation;
+        // Corruption and repairs run on a private copy of the repository installation;
         // ROM import itself is covered by the asset-import verification.
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         string root = copy.Root;
@@ -114,7 +109,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroEyeArtwork), () => VerifyIntroEyeArtwork(bus));
             Suite(nameof(VerifyIntroCaretSpriteArtwork), () => VerifyIntroCaretSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainCollision), () => VerifyIntroMotherBrainCollision(bus, stock));
-            Suite(nameof(VerifyIntroMotherBrainSpriteArtwork), () => VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroMotherBrainSpriteArtwork), () => VerifyIntroMotherBrainSpriteArtwork(bus, stock));
             Suite(nameof(VerifyIntroMotherBrainExplosionSpriteArtwork), () => VerifyIntroMotherBrainExplosionSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroRinkaSpriteArtwork), () => VerifyIntroRinkaSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroEggEffectSpriteArtwork), () => VerifyIntroEggEffectSpriteArtwork(bus, stock, installation));
@@ -162,75 +157,12 @@ internal static class IntroCinematicArtworkVerification
                         $"installed cinematic preserves native graphics and colors at frame {frame}");
                 }
             }
-            Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-            string paletteName = IntroCinematicPaletteFile.FileName;
-            string paletteStockPath = Path.Combine(installation.IntroCinematicDirectory, paletteName);
-            string paletteOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, paletteName);
+            string paletteStockPath = Path.Combine(installation.IntroCinematicDirectory, IntroCinematicPaletteFile.FileName);
             IntroCinematicPaletteDocument paletteDocument =
                 JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(
                     File.ReadAllBytes(paletteStockPath),
                     CaseInsensitiveJson)
                 ?? throw new InvalidDataException("Extracted opening palette is empty.");
-            PaletteRgb5 originalColor = paletteDocument.Colors[1];
-            paletteDocument.Colors[1] = originalColor with
-            {
-                Red = originalColor.Red == 31 ? 30 : originalColor.Red + 1,
-            };
-            using (var output = File.Create(paletteOverridePath))
-                IntroCinematicPaletteFile.Write(output, paletteDocument);
-            IntroCinematicArtwork editedPalette = installation.LoadIntroCinematicArt();
-            var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
-            var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
-            // The pictures' shown colours, each as the native image it shows (#1512): the edit changes the colour one
-            // picture or more shows at the edited place, and no other colour any picture shows.
-            IReadOnlyList<RgbColor[]> originalShown = SceneShownColours.Of(stockPaletteState.CaptureTranslatedRenderSnapshot());
-            IReadOnlyList<RgbColor[]> editedShown = SceneShownColours.Of(editedPaletteState.CaptureTranslatedRenderSnapshot());
-            AssertTrue(originalShown.Count == editedShown.Count &&
-                !SceneShownColours.Same(originalShown, editedShown) &&
-                originalShown.Zip(editedShown).All(pair =>
-                    pair.First.AsSpan(0, 1).SequenceEqual(pair.Second.AsSpan(0, 1)) &&
-                    pair.First.AsSpan(2).SequenceEqual(pair.Second.AsSpan(2))),
-                "edited opening RGB5 color reaches only the pictures' colour at its production CGRAM destination");
-            stockPaletteState.BindFixtureIntroArtwork(editedPalette);
-            AssertTrue(SceneShownColours.Same(SceneShownColours.Of(stockPaletteState.CaptureTranslatedRenderSnapshot()), editedShown),
-                "restored initial narration rebinds the current palette without restarting its phase");
-            for (int frame = 0; frame < 120; frame++)
-            {
-                editedPaletteState.Step(0);
-                stockPaletteState.Step(0);
-                AssertEqual(editedPaletteState.Phase, stockPaletteState.Phase,
-                    $"opening palette edit preserves cinematic phase at frame {frame}");
-            }
-            // The initial single-color edit proves exact CGRAM targeting; it can be
-            // hidden behind the first card's chosen palette indices. A broad color
-            // edit proves the selected resource also reaches visible scene pixels.
-            using (var output = File.Create(paletteOverridePath))
-                IntroCinematicPaletteFile.Write(output, paletteDocument with
-                {
-                    Colors = paletteDocument.Colors.Select(color => color with
-                    {
-                        Red = (color.Red + 7) & 31,
-                        Green = (color.Green + 11) & 31,
-                    }).ToArray(),
-                });
-            IntroCinematicArtwork visiblePalette = installation.LoadIntroCinematicArt();
-            var stockVisualState = CreateRetailIntroFixture(characterArtwork: stock);
-            var editedVisualState = CreateRetailIntroFixture(characterArtwork: visiblePalette);
-            bool changedVisiblePixel = false;
-            for (int frame = 0; frame < 400; frame++)
-            {
-                stockVisualState.Step(0);
-                editedVisualState.Step(0);
-                AssertEqual(stockVisualState.Phase, editedVisualState.Phase,
-                    $"visible opening palette edit preserves cinematic phase at frame {frame}");
-                if (frame % 20 == 0 && !DisplayRendering.Render(
-                        stockVisualState.CaptureTranslatedRenderSnapshot()).SequenceEqual(
-                        DisplayRendering.Render(
-                            editedVisualState.CaptureTranslatedRenderSnapshot())))
-                    changedVisiblePixel = true;
-            }
-            AssertTrue(changedVisiblePixel,
-                "edited opening RGB5 colors change displayed narration pixels");
             AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
@@ -242,14 +174,6 @@ internal static class IntroCinematicArtworkVerification
                     Colors = paletteDocument.Colors.Select((color, index) =>
                         index == 1 ? color with { Red = 32 } : color).ToArray(),
                 }))), "opening palette rejects out-of-range RGB5 channels");
-            File.Delete(paletteOverridePath);
-            AssertTrue(IntroPaletteWords(installation.LoadIntroCinematicArt().Palette).AsSpan().SequenceEqual(
-                    ScreenColourImage.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
-                "removing opening palette override restores exact native colors");
-            File.WriteAllBytes(paletteOverridePath, [0]);
-            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-                "malformed opening palette override fails instead of silently restoring stock");
-            File.Delete(paletteOverridePath);
             byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
             AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
@@ -263,8 +187,6 @@ internal static class IntroCinematicArtworkVerification
                 "installed opening palette never rereads its cartridge source");
             string dividerStockPath = Path.Combine(installation.IntroCinematicDirectory,
                 IntroFinalLineTilemapFormat.FileName);
-            string dividerOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory,
-                IntroFinalLineTilemapFormat.FileName);
             IntroFinalLineTilemapDocument dividerDocument =
                 JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
                     File.ReadAllBytes(dividerStockPath),
@@ -274,329 +196,36 @@ internal static class IntroCinematicArtworkVerification
             var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
             foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
                 scene.SetupFirstIllustratedPage();
-            byte[] stockDividerVram = stockDividerState.ShownVram().ToArray();
-            AssertTrue(stockDividerVram.SequenceEqual(
+            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
                     nativeDividerState.ShownVram()),
                 "installed opening divider produces exact native illustrated-page VRAM");
-            int changedCell = Array.FindIndex(dividerDocument.Cells,
-                cell => cell.TileColumn < RoomBackgroundTilemapFormat.TileColumns - 1);
-            AssertTrue(changedCell >= 0, "opening divider has an editable tile column");
-            RoomBackgroundTilemapCell originalDividerCell = dividerDocument.Cells[changedCell];
-            dividerDocument.Cells[changedCell] = originalDividerCell with
-            {
-                TileColumn = originalDividerCell.TileColumn + 1,
-            };
-            using (var output = File.Create(dividerOverridePath))
-                IntroFinalLineTilemap.Write(output, dividerDocument);
-            IntroCinematicSourceArtwork editedDivider = installation.LoadIntroCinematicArt();
-            var editedDividerState = CreateRetailIntroFixture(characterArtwork: editedDivider);
-            editedDividerState.SetupFirstIllustratedPage();
-            byte[] expectedDividerVram = stockDividerVram.ToArray();
-            int dividerByte = (IntroVramWords.NarrationTilemapWord +
-                IntroCinematicDefinitions.Text.FinalLineFirstCell + changedCell) * sizeof(ushort);
-            BinaryPrimitives.WriteUInt16LittleEndian(expectedDividerVram.AsSpan(dividerByte),
-                editedDivider.FinalLine.Tiles.Span[changedCell].PackedWord);
-            AssertTrue(!expectedDividerVram.SequenceEqual(stockDividerVram) &&
-                    editedDividerState.ShownVram().SequenceEqual(
-                        expectedDividerVram),
-                "one edited divider cell changes only its production BG3 tile word");
-            stockDividerState.BindFixtureIntroArtwork(editedDivider);
-            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
-                    expectedDividerVram),
-                "restored illustrated page rebinds divider without erasing live text elsewhere");
-            using (var output = File.Create(dividerOverridePath))
-                IntroFinalLineTilemap.Write(output, dividerDocument with
-                {
-                    Cells = dividerDocument.Cells.Select(cell => cell with
-                    {
-                        Palette = (cell.Palette + 3) % RoomBackgroundTilemapFormat.PaletteCount,
-                    }).ToArray(),
-                });
-            IntroCinematicArtwork visibleDivider = installation.LoadIntroCinematicArt();
-            var stockDividerVisual = CreateRetailIntroFixture(characterArtwork: stock);
-            var editedDividerVisual = CreateRetailIntroFixture(characterArtwork: visibleDivider);
-            foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
-            {
-                scene.SetupFirstIllustratedPage();
-                scene.Brightness = ScreenBrightness.FullyLit;
-            }
-            AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
-                "visual divider override leaves page phase unchanged");
-            AssertTrue(!DisplayRendering.Render(
-                    stockDividerVisual.CaptureTranslatedRenderSnapshot()).SequenceEqual(
-                    DisplayRendering.Render(
-                        editedDividerVisual.CaptureTranslatedRenderSnapshot())),
-                "divider palette edits change displayed illustrated-page pixels");
-            File.Delete(dividerOverridePath);
-            stockDividerState.BindFixtureIntroArtwork(stock);
-            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
-                    stockDividerVram),
-                "removing opening divider override restores exact native BG3 words");
             AssertThrows<InvalidDataException>(() => IntroFinalLineTilemap.Load(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(dividerDocument with
                 {
                     Cells = dividerDocument.Cells.Take(127).ToArray(),
                 }))), "opening divider rejects a truncated tilemap");
-            File.WriteAllBytes(dividerOverridePath, [0]);
-            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
-                "malformed opening divider override fails loudly");
-            File.Delete(dividerOverridePath);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening divider never rereads its cartridge source");
 
-            string[] names =
-            [
-                IntroCinematicArtworkFormat.BackgroundFileName,
-                IntroCinematicArtworkFormat.IntroObjectFileName,
-                IntroCinematicArtworkFormat.CinematicObjectFileName,
-            ];
-            Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-            foreach (string name in names)
-            {
-                string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
-                string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-                int nativeByteCount = name == names[0]
-                    ? IntroCinematicArtworkFormat.BackgroundByteCount
-                    : name == names[1]
-                        ? IntroCinematicArtworkFormat.IntroObjectByteCount
-                        : IntroCinematicArtworkFormat.CinematicObjectByteCount;
-                int tileRows = nativeByteCount / 32 / IntroCinematicArtworkFormat.TileColumns;
-                IndexedPngImage image;
-                using (var input = File.OpenRead(stockPath))
-                    image = IndexedPng.Read(input, new(256, checked((ushort)(tileRows * 8))));
-                image.Pixels[0] = (byte)((image.Pixels[0] + 1) & 15);
-                using (var output = File.Create(overridePath))
-                    IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-
-                IntroCinematicSourceArtwork edited = installation.LoadIntroCinematicArt();
-                var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-                byte[] expected = nativeVram.ToArray();
-                // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
-                // the final $400 bytes of the first transfer are deliberately overwritten.
-                IntroCinematicSourceArtwork.Of(edited).BackgroundCharacters.Characters.Span.CopyTo(expected.AsSpan(
-                    (IntroVramLayout.BackgroundCharacters.Offset * 2)));
-                BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
-                    (IntroVramLayout.BackgroundPages.Offset * 2)));
-                IntroCinematicSourceArtwork.Of(edited).IntroObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
-                    (IntroVramLayout.IntroObjectCharacters.Offset * 2)));
-                IntroCinematicSourceArtwork.Of(edited).CinematicObjectCharacters.Characters.Span.CopyTo(expected.AsSpan(
-                    (IntroVramLayout.CinematicObjectCharacters.Offset * 2)));
-                // The final beam DMA wins over the $C600-$C6FF portion of the fixed
-                // OBJ sheet, including in a freshly constructed cinematic state.
-                nativeVram.AsSpan(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2,
-                    BeamTileAtlasDefinitions.ByteCount).CopyTo(expected.AsSpan(
-                        ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2));
-                var shownEditedState = editedState.ShownVram();
-                AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        shownEditedState.SequenceEqual(expected),
-                    $"edited {name} reaches the exact production VRAM transfer without changing other scene bytes");
-                installed.BindFixtureIntroArtwork(edited);
-                var shownInstalled = installed.ShownVram();
-                AssertTrue(shownInstalled.SequenceEqual(expected),
-                    $"restored cinematic state rebinds edited {name} with native transfer ordering");
-                File.Delete(overridePath);
-                installed.BindFixtureIntroArtwork(stock);
-                var shownInstalled2 = installed.ShownVram();
-                AssertTrue(shownInstalled2.SequenceEqual(nativeVram),
-                    $"removing {name} override restores stock cinematic VRAM");
-            }
-            for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
-            {
-                string name = IntroCinematicArtworkFormat.BackgroundPageFileName(page);
-                string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
-                string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-                RoomBackgroundTilemapDocument document;
-                using (var input = File.OpenRead(stockPath))
-                    document = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(input,
-                        CaseInsensitiveJson)
-                        ?? throw new InvalidDataException($"Empty cinematic BG page {name}.");
-                // Choose a nonblank source cell so each isolated page edit has a
-                // deterministic physical tilemap-word difference.
-                int editedCell = Enumerable.Range(RoomBackgroundTilemapFormat.TileColumns,
-                        26 * RoomBackgroundTilemapFormat.TileColumns)
-                    .First(index => document.Pages[0].Cells[index] is
-                        { TileColumn: not 31 } or { TileRow: not 31 });
-                RoomBackgroundTilemapCell original = document.Pages[0].Cells[editedCell];
-                document.Pages[0].Cells[editedCell] = original with
-                {
-                    TileColumn = 31,
-                    TileRow = 31,
-                };
-                if (page == 0)
-                    // A full-page high-contrast fixture crosses the native actor/text
-                    // occlusion, proving the authored tilemap is actually rendered.
-                    for (int cell = 0; cell < document.Pages[0].Cells.Length; cell++)
-                        document.Pages[0].Cells[cell] = document.Pages[0].Cells[cell] with
-                        { TileColumn = 0, TileRow = 0, Palette = 7, Priority = true };
-                using (var output = File.Create(overridePath))
-                    RoomBackgroundTilemapAtlas.Write(output, document);
-
-                IntroCinematicSourceArtwork edited = installation.LoadIntroCinematicArt();
-                byte[] expected = nativeVram.ToArray();
-                BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
-                    (IntroVramLayout.BackgroundPages.Offset * 2)));
-                var shownImage = CreateRetailIntroFixture(characterArtwork: edited)
-                            .ShownVram();
-                AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        shownImage.SequenceEqual(expected),
-                    $"edited {name} reaches exactly its production BG page transfer");
-                if (page == 0)
-                {
-                    var stockScene = CreateRetailIntroFixture(characterArtwork: stock);
-                    var editedScene = CreateRetailIntroFixture(characterArtwork: edited);
-                    foreach (IntroCinematicState scene in new[] { stockScene, editedScene })
-                    {
-                        scene.SetupFirstIllustratedPage();
-                        scene.SetupMotherBrainFlashback();
-                    }
-                    // The setup begins with gameplay colors cleared; wait for the
-                    // cartridge's 128-frame palette crossfade before checking pixels.
-                    for (int fadeFrame = 0; fadeFrame < 128; fadeFrame++)
-                    {
-                        stockScene.Step(0);
-                        editedScene.Step(0);
-                    }
-                    // The full game owns the screen brightness during this synthetic setup; force
-                    // the already-composed layer to visible brightness for this probe.
-                    stockScene.Brightness = ScreenBrightness.FullyLit;
-                    editedScene.Brightness = ScreenBrightness.FullyLit;
-                    AssertTrue(!DisplayRendering.Render(stockScene.CaptureTranslatedRenderSnapshot())
-                            .SequenceEqual(RenderForComparison(
-                                editedScene.CaptureTranslatedRenderSnapshot())),
-                        "edited opening BG page produces visible flashback pixels");
-                }
-                installed.BindFixtureIntroArtwork(edited);
-                var shownInstalled3 = installed.ShownVram();
-                AssertTrue(shownInstalled3.SequenceEqual(expected),
-                    $"restored cinematic rebinds edited {name} without changing another page");
-                File.Delete(overridePath);
-                installed.BindFixtureIntroArtwork(stock);
-                var shownInstalled4 = installed.ShownVram();
-                AssertTrue(shownInstalled4.SequenceEqual(nativeVram),
-                    $"removing {name} override restores stock BG VRAM");
-            }
-            foreach ((string name, int destination, Func<IntroCinematicArtwork, ReadOnlyMemory<byte>> transfer)
-                in new VerifyIntroCinematicArtworkCase[]
-                {
-                    new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.PortraitTilemapFileName,
-                        (IntroVramLayout.PortraitTilemap.Offset * 2),
-                        artwork => BackgroundTileWordBytes.Of(IntroCinematicSourceArtwork.Of(artwork).PortraitTilemap.Span)),
-                    new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-                        (IntroVramLayout.NarrationTilemap.Offset * 2),
-                        artwork => BackgroundTileWordBytes.Of(IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span)),
-                })
-            {
-                string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
-                string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-                RoomBackgroundTilemapDocument document;
-                using (var input = File.OpenRead(stockPath))
-                    document = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(input,
-                        CaseInsensitiveJson)
-                        ?? throw new InvalidDataException($"Empty opening tilemap {name}.");
-                RoomBackgroundTilemapCell original = document.Pages[0].Cells[0];
-                document.Pages[0].Cells[0] = original with
-                {
-                    TileColumn = (original.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
-                };
-                using (var output = File.Create(overridePath))
-                    RoomBackgroundTilemapAtlas.Write(output, document);
-
-                IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
-                byte[] expected = nativeVram.ToArray();
-                transfer(edited).Span.CopyTo(expected.AsSpan(destination));
-                byte[] editedVram = CreateRetailIntroFixture(characterArtwork: edited).ShownVram();
-                AssertTrue(!expected.SequenceEqual(nativeVram) && editedVram.SequenceEqual(expected),
-                    $"edited {name} reaches only its initial cinematic VRAM page");
-                var restoredEarly = CreateRetailIntroFixture(characterArtwork: stock);
-                restoredEarly.BindFixtureIntroArtwork(edited);
-                byte[] earlyShown = restoredEarly.ShownVram();
-                AssertTrue(earlyShown.SequenceEqual(expected),
-                    $"restored first narration/portrait state receives edited {name}");
-
-                var restoredLate = CreateRetailIntroFixture(characterArtwork: stock);
-                restoredLate.SetupFirstIllustratedPage();
-                byte[] lateBefore = restoredLate.ShownVram();
-                restoredLate.BindFixtureIntroArtwork(edited);
-                byte[] lateAfter = restoredLate.ShownVram();
-                if (name == IntroCinematicArtworkFormat.InitialNarrationTilemapFileName)
-                    AssertTrue(lateAfter.SequenceEqual(lateBefore),
-                        "later typewriter map survives rebinding an edited initial narration page");
-                else
-                {
-                    transfer(edited).Span.CopyTo(lateBefore.AsSpan(destination));
-                    AssertTrue(lateAfter.SequenceEqual(lateBefore),
-                        "later illustrated page receives edited portrait map without changing typewriter text");
-                }
-                File.Delete(overridePath);
-            }
-            AssertEqual(0, guarded.ForbiddenReadAttempts,
-                "edited and rebound cinematic never reads cartridge character or tilemap sources");
-
-            string backgroundStockPath = Path.Combine(installation.IntroCinematicDirectory, names[0]);
-            string backgroundOverridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, names[0]);
-            using (var input = File.OpenRead(backgroundStockPath))
-            {
-                IndexedPngImage image = IndexedPng.Read(input, new(256, 256));
-                image.Pixels[0] = (byte)((image.Pixels[0] + 1) & 15);
-                using var output = File.Create(backgroundOverridePath);
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            }
-            IntroCinematicArtwork selected = installation.LoadIntroCinematicArt();
+            string backgroundStockPath = Path.Combine(installation.IntroCinematicDirectory,
+                IntroCinematicArtworkFormat.BackgroundFileName);
             byte[] stockBackground = File.ReadAllBytes(backgroundStockPath);
-            GameInstallation repaired = installation;
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
-                    IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),
-                "the external cinematic PNG override still applies over the restored stock");
             File.Delete(backgroundStockPath);
-            AssertThrows<FileNotFoundException>(() => repaired.LoadIntroCinematicArt(),
-                "an override cannot hide missing stock cinematic artwork");
+            AssertThrows<FileNotFoundException>(() => installation.LoadIntroCinematicArt(),
+                "missing installed cinematic artwork fails where it is read");
             File.WriteAllBytes(backgroundStockPath, stockBackground);
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
-                    IntroCinematicSourceArtwork.Of(selected).BackgroundCharacters.Characters.Span),
-                "the external cinematic PNG override still applies once the missing stock is put back");
-            File.Delete(backgroundOverridePath);
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundCharacters.Characters.Span.SequenceEqual(
-                    IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span),
-                "removing an override restores exact cartridge opening artwork");
             string pageStockPath = Path.Combine(installation.IntroCinematicDirectory,
                 IntroCinematicArtworkFormat.BackgroundPageFileName(0));
             byte[] stockPage = File.ReadAllBytes(pageStockPath);
             File.WriteAllBytes(pageStockPath, [0]);
-            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
-                "a corrupt stock BG page is rejected even without an override");
+            AssertThrows<InvalidDataException>(() => installation.LoadIntroCinematicArt(),
+                "a corrupt stock BG page is rejected");
             File.WriteAllBytes(pageStockPath, stockPage);
-            AssertTrue(repaired.LoadIntroCinematicArt().BackgroundPages.Span.SequenceEqual(
+            AssertTrue(installation.LoadIntroCinematicArt().BackgroundPages.Span.SequenceEqual(
                     stock.BackgroundPages.Span),
                 "the restored stock shows all four native cinematic BG pages");
-            File.WriteAllBytes(backgroundOverridePath, [0]);
-            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
-                "malformed selected intro PNG fails instead of silently falling back");
-            File.Delete(backgroundOverridePath);
-            string invalidPage = Path.Combine(installation.IntroCinematicOverrideDirectory,
-                IntroCinematicArtworkFormat.BackgroundPageFileName(0));
-            File.WriteAllBytes(invalidPage, [0]);
-            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
-                "malformed selected intro BG page fails instead of silently falling back");
-            File.Delete(invalidPage);
-            string invalidEye = Path.Combine(installation.IntroCinematicOverrideDirectory,
-                IntroEyeTilemapFormat.FileName);
-            File.WriteAllBytes(invalidEye, [0]);
-            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
-                "malformed selected opening eye frames fail instead of silently falling back");
-            File.Delete(invalidEye);
-            string invalidCaret = Path.Combine(installation.IntroCinematicOverrideDirectory,
-                IntroCaretSpriteFormat.FileName);
-            File.WriteAllBytes(invalidCaret, [0]);
-            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
-                "malformed selected caret sprites fail instead of silently falling back");
-            File.Delete(invalidCaret);
-            string invalidMotherBrain = Path.Combine(installation.IntroCinematicOverrideDirectory,
-                IntroMotherBrainSpriteFormat.FileName);
-            File.WriteAllBytes(invalidMotherBrain, [0]);
-            AssertThrows<InvalidDataException>(() => repaired.LoadIntroCinematicArt(),
-                "malformed selected intro Mother Brain sprites fail instead of silently falling back");
             Console.WriteLine(
-                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity, edits, rebind, repair and strict failures pass.");
+                "Intro art: three indexed PNGs, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity and strict failures pass.");
         }
     }
 
@@ -667,54 +296,6 @@ internal static class IntroCinematicArtworkVerification
             File.ReadAllBytes(caretPath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         AssertEqual(1, document.Frames.Count,
             "caret asset excludes neighboring non-caret spritemaps");
-        var previousFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
-        {
-            [IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = document.Frames["caret-visible"],
-            [IntroCaretSpriteDefinitions.PreviousFrameNames[1]] = [],
-            [IntroCaretSpriteDefinitions.PreviousFrameNames[2]] = [],
-            [IntroCaretSpriteDefinitions.PreviousFrameNames[3]] = [],
-        };
-        using (var previousJson = new MemoryStream())
-        {
-            IntroCaretSpritePresentation.Write(previousJson, new IntroCaretSpriteDocument
-            {
-                Version = IntroCaretSpriteVersion.Previous.Revision,
-                Frames = previousFrames,
-            });
-            previousJson.Position = 0;
-            IntroCaretSpritePresentation previous = IntroCaretSpritePresentation.Load(previousJson);
-            var previousOam = ScreenSpritesFixtures.Blank();
-            previousOam.BeginFrame();
-            CinematicSheetFixtures.Drawer(previous).Draw(IntroCaretSpriteDefinitions.Visible.Pose, previousOam,
-                new(originX, originY), palette);
-            previousOam.FinalizeFrame();
-            var stockOam = ScreenSpritesFixtures.Blank();
-            stockOam.BeginFrame();
-            CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
-                new(originX, originY), palette);
-            stockOam.FinalizeFrame();
-            AssertTrue(previousOam.ImageEquals(stockOam),
-                "prior four-frame override preserves its actual caret composition");
-        }
-        SpriteVisualPart part = document.Frames["caret-visible"][0];
-        document.Frames["caret-visible"][0] = part with { TileColumn = part.TileColumn + 1 };
-        using var editedJson = new MemoryStream();
-        IntroCaretSpritePresentation.Write(editedJson, document);
-        editedJson.Position = 0;
-        IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
-        var changed = ScreenSpritesFixtures.Blank();
-        changed.BeginFrame();
-        CinematicSheetFixtures.Drawer(edited).Draw(IntroCaretSpriteDefinitions.Visible.Pose, changed, new(originX, originY), palette);
-        changed.FinalizeFrame();
-        var original = ScreenSpritesFixtures.Blank();
-        original.BeginFrame();
-        CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CaretSprites).Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
-            new(originX, originY), palette);
-        original.FinalizeFrame();
-        AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
-                changed.LowTable[..2].SequenceEqual(original.LowTable[..2]) &&
-                changed.HighTable.SequenceEqual(original.HighTable),
-            "caret JSON tile edit changes OAM art without changing sprite placement");
 
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeState = CreateRetailIntroFixture();
@@ -768,7 +349,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed Mother Brain flashback sprite frames with the cartridge's OAM layout.</summary>
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtwork stock, GameInstallation installation)
+        IntroCinematicArtwork stock)
     {
         // The cartridge oracle takes the sprite set Mother Brain's colouring resolves to as its attribute bits; the port's
         // draw takes the colouring itself.
@@ -796,71 +377,9 @@ internal static class IntroCinematicArtworkVerification
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                 $"intro Mother Brain {definition.Name} produces exact native OAM");
         }
-
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = IntroMotherBrainSpriteFormat.FileName;
-        IntroMotherBrainSpriteDocument document = RequiredJson.Deserialize<IntroMotherBrainSpriteDocument>(
-            File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        // Her parts inherit the draw's row, which every part row ORs into as the cartridge's does (#1512), so a palette
-        // edit cannot show; mirroring each part in place changes her drawn art and leaves every part where it was.
-        document.Frames["mother-brain-frame-0"] = document.Frames["mother-brain-frame-0"]
-            .Select(part => part with { FlipX = !part.FlipX }).ToArray();
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-        using (var output = File.Create(overridePath))
-            IntroMotherBrainSpritePresentation.Write(output, document);
-        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
-        var stockOam = ScreenSpritesFixtures.Blank();
-        stockOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), stockOam,
-            IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-            IntroMotherBrainSpriteState.Colouring);
-        stockOam.FinalizeFrame();
-        var editedOam = ScreenSpritesFixtures.Blank();
-        editedOam.BeginFrame();
-        CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).MotherBrainSprites).Draw(IntroMotherBrainSpritePoses.FramePose(0), editedOam,
-            IntroMotherBrainSpriteState.Position.ToSpritePosition(),
-            IntroMotherBrainSpriteState.Colouring);
-        editedOam.FinalizeFrame();
-        AssertTrue(!editedOam.ImageEquals(stockOam),
-            "intro Mother Brain sprite edit changes OAM art but not sprite size or X high bits");
-        for (int part = 0; part < IntroMotherBrainSpriteDefinitions.StockPartCount; part++)
-            AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
-                    .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
-                $"intro Mother Brain sprite edit preserves part {part} screen position");
-
-        var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        foreach (IntroCinematicState state in new[] { stockState, editedState })
-        {
-            state.SetupFirstIllustratedPage();
-            state.SetupMotherBrainFlashback();
-        }
-        // Her flashback fades her in from black, and her shading follows the fade (#1512), so her art shows only once the
-        // fade lets it: the scenes step together through the flashback until the edited art shows.
-        RgbaPixel[] stockPixels = stockState.RenderArtwork();
-        RgbaPixel[] editedPixels = editedState.RenderArtwork();
-        int steps = 0;
-        while (editedPixels.SequenceEqual(stockPixels) && stockState.CurrentFlashbackMotherBrain is not null)
-        {
-            stockState.Step(default);
-            editedState.Step(default);
-            steps++;
-            stockPixels = stockState.RenderArtwork();
-            editedPixels = editedState.RenderArtwork();
-        }
-        AssertTrue(!editedPixels.SequenceEqual(stockPixels),
-            $"intro Mother Brain sprite override changes visible production scene pixels ({steps} flashback steps)");
-        stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
-            "restored intro Mother Brain scene rebinds the selected visual composition");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "installed intro Mother Brain rendering avoids all three native spritemap records");
-        File.Delete(overridePath);
     }
 
-    /// <summary>Checks explosion sprite compositions and rejects missing named override frames.</summary>
+    /// <summary>Checks explosion sprite compositions and rejects a document missing a named frame.</summary>
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicArtwork stock,
         GameInstallation installation)
@@ -888,20 +407,10 @@ internal static class IntroCinematicArtworkVerification
                 $"intro Mother Brain explosion {definition.Name} produces exact native OAM");
         }
 
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = IntroMotherBrainExplosionSpriteFormat.FileName;
         IntroMotherBrainExplosionSpriteDocument document =
             RequiredJson.Deserialize<IntroMotherBrainExplosionSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroMotherBrainExplosionSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        // The part inherits the draw's row, so a palette edit cannot show (#1512); the next frame's character can.
-        document.Frames["small-explosion-0"] = document.Frames["small-explosion-0"]
-            .Select(part => part with { TileColumn = 1 }).ToArray();
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-        using (var output = File.Create(overridePath))
-            IntroMotherBrainExplosionSpritePresentation.Write(output, document);
-        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
-
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
@@ -910,49 +419,8 @@ internal static class IntroCinematicArtworkVerification
         stockOam.BeginFrame();
         explosions.Draw(stockOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).MotherBrainExplosionSprites));
         stockOam.FinalizeFrame();
-        var editedOam = ScreenSpritesFixtures.Blank();
-        editedOam.BeginFrame();
-        explosions.Draw(editedOam, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(edited).MotherBrainExplosionSprites));
-        editedOam.FinalizeFrame();
-        AssertTrue(!editedOam.ImageEquals(stockOam),
-            "intro explosion art edit changes production OAM, not actor placement");
-        for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
-            AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
-                    .SequenceEqual(stockOam.LowTable.Slice(part * 4, 2)),
-                $"intro explosion art edit preserves native part {part} X/Y");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");
-
-        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        foreach (IntroCinematicState state in new[] { stockState, editedState })
-        {
-            state.SetupFirstIllustratedPage();
-            state.SetupMotherBrainFlashback();
-        }
-        // The flashback fades in from black, and the explosions' shading follows the fade (#1512): the scenes step together
-        // through the flashback, showing the explosions in each, until the edited art shows. The explosions are shown only
-        // for each look, so the scenes step as they would without them.
-        RgbaPixel[] stockPixels, editedPixels;
-        int steps = 0;
-        while (true)
-        {
-            stockPixels = WithExplosions(stockState);
-            editedPixels = WithExplosions(editedState);
-            if (!stockPixels.SequenceEqual(editedPixels) || stockState.CurrentFlashbackMotherBrain is null)
-                break;
-            stockState.Step(default);
-            editedState.Step(default);
-            steps++;
-        }
-        AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            $"intro explosion art override changes visible production flashback pixels ({steps} flashback steps)");
-        stockState.FlashbackMotherBrainExplosions = explosions;
-        stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
-            "restored intro explosion scene rebinds the selected visual composition");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "production intro explosion render avoids all twelve native compositions");
 
         document.Frames.Remove("small-explosion-0");
         AssertThrows<InvalidDataException>(() =>
@@ -961,16 +429,6 @@ internal static class IntroCinematicArtworkVerification
             IntroMotherBrainExplosionSpritePresentation.Write(malformed, document);
             _ = IntroMotherBrainExplosionSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
         }, "intro explosion artwork rejects a missing named frame on read");
-        File.Delete(overridePath);
-
-        RgbaPixel[] WithExplosions(IntroCinematicState state)
-        {
-            var shown = state.FlashbackMotherBrainExplosions;
-            state.FlashbackMotherBrainExplosions = explosions;
-            RgbaPixel[] pixels = state.RenderArtwork();
-            state.FlashbackMotherBrainExplosions = shown;
-            return pixels;
-        }
     }
 
     /// <summary>Builds a guard that reports any cinematic read from selected migrated artwork ranges.</summary>
@@ -1114,27 +572,23 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>
-    /// The installed intro, Ceres and ending artwork family. Each suite that edits artwork runs on
-    /// its own private installation copy, so the full run schedules them independently; the two
-    /// read-only suites share the repository installation.
+    /// The installed intro, Ceres and ending artwork family, with the Samus body artwork. Each suite that corrupts artwork
+    /// runs on its own private installation copy, so the full run schedules them independently; the read-only suites
+    /// share the repository installation.
     /// </summary>
     internal static RegisteredSuite[] IntroCinematicArtworkSuites() =>
     [
         new(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(RepositoryRomPath, RepositoryInstallation.Installation)),
-        new(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy()),
+        new(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork),
         new(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(RepositoryRomPath)),
         new(nameof(VerifyCeresCinematicArtwork), () => VerifyCeresCinematicArtwork(RepositoryRomPath)),
         new(nameof(VerifyEndingArtwork), () => VerifyEndingArtwork()),
     ];
 
-    /// <summary>Runs the Samus body artwork checks, which edit pose artwork, on a private installation copy.</summary>
-    private static void VerifySamusBodyArtworkOnPrivateCopy()
-    {
-        // The check reads and edits only the Samus body directory and its overrides.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.SamusBodyDirectory);
+    /// <summary>Runs the Samus body artwork checks against the repository installation.</summary>
+    private static void VerifyInstalledSamusBodyArtwork() =>
         VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath),
-            copy.Installation);
-    }
+            RepositoryInstallation.Installation);
 
     /// <summary>Runs every suite of the installed intro, Ceres and ending artwork family in this process.</summary>
     [VerificationCommand("--intro-cinematic-artwork")]
@@ -1148,7 +602,7 @@ internal static class IntroCinematicArtworkVerification
     [VerificationCommand("--samus-body-artwork")]
     internal static int SamusBodyArtworkCommand()
     {
-        Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy());
+        Suite(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork);
         return 0;
     }
 

@@ -51,13 +51,6 @@ internal static class DraygonCannonPlmProgramVerification
         var level = CreateEmptyRoom(new(width, 32));
         var disabled = new List<DraygonWallCannon>();
         var plms = PlmFixtures.Unbound();
-        var entries = RoomPlmDraygonCannonVisualFiles.All.Select(draw =>
-            new RoomPlmVisualEntry(
-                RoomPlmDraygonCannonVisualFiles.VisualId(draw.Draw),
-                draw.Appearances())).ToArray();
-        entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = RoomBlockAppearance.Of(0x53);
-        entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = RoomBlockAppearance.Of(0x54);
-        PlmFixtures.VisualsOf(plms).RoomPlmDraygonCannonVisuals = RoomPlmDraygonCannonVisualFiles.Create(entries);
         AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
@@ -72,16 +65,10 @@ internal static class DraygonCannonPlmProgramVerification
         int leftShieldBlock = 15 * width + 29;
         AssertEqual(RoomTerrainBlock.Of(0x114, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
             level.GetCollisionBlockByIndex(rightShieldBlock).Terrain,
-            "edited right shield retains native physical collision and tile reference");
-        AssertEqual(RoomBlockAppearance.Of(0x53),
-            level.DisplayedAppearance(rightShieldBlock),
-            "edited right shield survives later room streaming");
+            "right shield draws its native physical collision and tile reference");
         AssertEqual(RoomTerrainBlock.Of(0x114, BlockMirroring.None, RoomCollisionType.ShootableBlock),
             level.GetCollisionBlockByIndex(leftShieldBlock).Terrain,
-            "edited left shield retains native physical collision and tile reference");
-        AssertEqual(RoomBlockAppearance.Of(0x54),
-            level.DisplayedAppearance(leftShieldBlock),
-            "edited offscreen left shield enters later background streaming");
+            "left shield draws its native physical collision and tile reference");
         AssertTrue(disabled.Contains(DraygonWallCannon.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
         int rightBlock = rightShieldBlock;

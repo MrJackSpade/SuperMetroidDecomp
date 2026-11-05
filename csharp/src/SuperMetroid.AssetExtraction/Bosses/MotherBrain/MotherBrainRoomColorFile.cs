@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -11,32 +10,16 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// <summary>Reads and writes the installed Mother Brain room colour document.</summary>
 public static class MotherBrainRoomColorFile
 {
-    /// <summary>The revision each accepted stored version number names; the stored number is decoded once, here.</summary>
-    private static readonly FrozenDictionary<int, MotherBrainRoomColorRevision> Revisions =
-        new Dictionary<int, MotherBrainRoomColorRevision>
-        {
-            [MotherBrainRoomColorFormat.PreRoomEntryVersion] = MotherBrainRoomColorRevision.PreRoomEntry,
-            [MotherBrainRoomColorFormat.PreRecoveryLightsVersion] = MotherBrainRoomColorRevision.PreRecoveryLights,
-            [MotherBrainRoomColorFormat.Version] = MotherBrainRoomColorRevision.Current,
-        }.ToFrozenDictionary();
-
     /// <summary>Validates and compiles fake-death flash, room-entry, phase-two and recovery color artwork without retaining the document's mutable RGB5 arrays.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
-    /// <param name="currentStock">Explicit compatibility source required for version 1 or 2 documents: version 1 inherits its room-entry and recovery colors; version 2 inherits only recovery colors.</param>
     /// <returns>Selected native color words, with calculated representations used only where their complete output matches the supplied artwork.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, the version is unsupported without stock fallback, array sizes are wrong, or a required color is null or outside RGB5 range.</exception>
-    public static MotherBrainRoomColorPresentation Read(Stream json,
-        MotherBrainRoomColorPresentation? currentStock = null)
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, the version is unsupported, array sizes are wrong, or a required color is null or outside RGB5 range.</exception>
+    public static MotherBrainRoomColorPresentation Read(Stream json)
     {
         MotherBrainRoomColorDocument document = JsonAssetDocument.Read<MotherBrainRoomColorDocument>(
             json, ArtworkJson.Options, "Mother Brain room colors");
-        if (!Revisions.TryGetValue(document.Version, out MotherBrainRoomColorRevision revision))
-            throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
-        bool inheritsRoomEntry = revision == MotherBrainRoomColorRevision.PreRoomEntry;
-        bool inheritsRecoveryLights = revision is MotherBrainRoomColorRevision.PreRoomEntry or
-            MotherBrainRoomColorRevision.PreRecoveryLights;
-        if ((inheritsRecoveryLights && currentStock is null) ||
+        if (document.Version != MotherBrainRoomColorFormat.Version ||
             document.Flash is null ||
             document.Flash.Length != MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
@@ -45,8 +28,6 @@ public static class MotherBrainRoomColorFile
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorDefinitions.SliceColors * 2,
                 $"flash row {index}");
         RgbColor[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorDefinitions.SliceColors * 2, "final room");
-        // A legacy override inherits the families it predates from the current stock the
-        // version check above required; a null family says so.
         return MotherBrainRoomColorRecognition.Create(new MotherBrainRoomColours
         {
             Flash = flash,
@@ -55,18 +36,12 @@ public static class MotherBrainRoomColorFile
                 "phase-two attack"),
             PhaseTwoRearLeg = Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorDefinitions.PhaseTwoColors,
                 "phase-two rear leg"),
-            InitialGlassShard = inheritsRoomEntry
-                ? null
-                : Compile(document.InitialGlassShard, MotherBrainRoomColorDefinitions.InitialColors,
-                    "room-entry glass shard"),
-            InitialTubeProjectile = inheritsRoomEntry
-                ? null
-                : Compile(document.InitialTubeProjectile, MotherBrainRoomColorDefinitions.InitialColors,
-                    "room-entry tube projectile"),
-            RecoveryLights = inheritsRecoveryLights
-                ? null
-                : CompileRecoveryLights(document.RecoveryLights),
-        }, currentStock);
+            InitialGlassShard = Compile(document.InitialGlassShard, MotherBrainRoomColorDefinitions.InitialColors,
+                "room-entry glass shard"),
+            InitialTubeProjectile = Compile(document.InitialTubeProjectile, MotherBrainRoomColorDefinitions.InitialColors,
+                "room-entry tube projectile"),
+            RecoveryLights = CompileRecoveryLights(document.RecoveryLights),
+        });
     }
 
     /// <summary>Validates the seven recovery frames and compiles their RGB5 words.</summary>

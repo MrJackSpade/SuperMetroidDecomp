@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
+using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -14,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 public static class RoomPlmGrappleBlockVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
+    /// <summary>Family-relative installed JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
     public const string VisualFileName = "grapple-blocks.json";
     /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
@@ -55,38 +56,29 @@ public static class RoomPlmGrappleBlockVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256,
+                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    /// <summary>Validates the five stock Grapple-block frames before selecting an optional complete artwork replacement.</summary>
-    /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or missing visual JSON selects validated stock.</param>
+    /// <summary>Validates the installed Grapple-block manifest's provenance and loads the installed Grapple-block JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed family directory containing the version-one Grapple-block JSON and its manifest.</param>
     /// <returns>A ROM-independent pointer-to-visual-word catalog; Grapple collision, breakup timing, and one-cell geometry remain compiled.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are mandatory even with an override. Override JSON needs each compiled draw pointer exactly once and twelve-bit words, but no manifest.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, document version, pointer coverage/uniqueness, or visual-only bits are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Manifest provenance, document version, pointer coverage/uniqueness, or visual-only bits are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or Grapple-block JSON cannot be read.</exception>
     public static InstalledRoomPlmGrappleBlockVisuals Load(
-        string stockDirectory, string? overrideDirectory)
+        string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException(
                 $"Grapple-block visual manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        InstalledRoomPlmGrappleBlockVisuals stock = CreateCatalog(
-            ReadJson<VisualDocument>(stockBytes, stockPath), stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        return overridePath is null || !File.Exists(overridePath)
-            ? stock
-            : CreateCatalog(ReadJson<VisualDocument>(overridePath), overridePath);
+        string path = Path.Combine(directory, VisualFileName);
+        return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
     /// <summary>Each one-block Grapple-block run writes along its row.</summary>
@@ -209,8 +201,9 @@ public static class RoomPlmGrappleBlockVisualFiles
         }
     }
 
-    /// <summary>Stock provenance and visual-file hash required even when an override is selected.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
+    /// <summary>Extraction provenance: the supported cartridge and the extracted visual file hash.</summary>
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
+        string VisualSha256);
     /// <summary>Versioned five-entry pointer-to-visual-word document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmVisualBlockEntry[] Entries);
 }

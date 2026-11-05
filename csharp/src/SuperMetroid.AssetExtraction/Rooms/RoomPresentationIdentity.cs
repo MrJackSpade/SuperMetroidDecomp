@@ -12,10 +12,10 @@ public static class RoomPresentationIdentity
     /// characters, library background and sky tilemaps those pictures are composed from are the import pipeline's input,
     /// which no host binds.
     /// </summary>
-    /// <param name="palettes">Non-null selected static room palette rows, not current animated CGRAM state.</param>
-    /// <param name="layouts">Non-null selected initial foreground/background room visual layouts.</param>
+    /// <param name="palettes">Non-null installed static room palette rows, not current animated CGRAM state.</param>
+    /// <param name="layouts">Non-null installed initial foreground/background room visual layouts.</param>
     /// <returns>A new ordinal-keyed dictionary of decoded-content identities, using installation directory names.</returns>
-    /// <remarks>Includes already selected overrides, reads no files, and retains no catalog references. These component identities remain separate from cartridge/engine provenance, room collision, and active mutable room state.</remarks>
+    /// <remarks>Includes in-place edits of the installed files, reads no files, and retains no catalog references. These component identities remain separate from cartridge/engine provenance, room collision, and active mutable room state.</remarks>
     public static IReadOnlyDictionary<string, string> Create(RoomStaticPalettes palettes, RoomLevelArtworks layouts) =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {

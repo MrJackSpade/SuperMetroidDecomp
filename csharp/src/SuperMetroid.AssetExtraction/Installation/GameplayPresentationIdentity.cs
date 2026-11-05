@@ -11,7 +11,7 @@ public static class GameplayPresentationIdentity
     /// <param name="commonSprites">Non-null selected standard-object planar character atlas.</param>
     /// <param name="xray">Non-null selected reveal-operand and item/special-room overlay catalog.</param>
     /// <returns>A new ordinal-keyed dictionary mapping the three installation domain names to decoded-content identity strings.</returns>
-    /// <remarks>Reflects already selected overrides without loading files or retaining catalogs; identities describe presentation content rather than engine revision, cartridge provenance, or active gameplay state.</remarks>
+    /// <remarks>Reflects the supplied installed content without loading files or retaining catalogs; identities describe presentation content rather than engine revision, cartridge provenance, or active gameplay state.</remarks>
     public static IReadOnlyDictionary<string, string> Create(
         GameplayBasePalette palettes, RoomCharacterAtlas commonSprites, InstalledXrayReveals xray) =>
         new Dictionary<string, string>(StringComparer.Ordinal)

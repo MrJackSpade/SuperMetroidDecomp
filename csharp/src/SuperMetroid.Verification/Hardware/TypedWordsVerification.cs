@@ -354,8 +354,6 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(0xec2a, (int)RoomLevelWordEncoder.Encode(grapple), "typed block encodes the level word");
     AssertEqual(grapple.Appearance, RoomLevelWordCodec.DecodeAppearance(0xec2a), "appearance ignores the collision kind");
     AssertEqual(0x0c2a, (int)RoomLevelWordEncoder.EncodeAppearance(grapple.Appearance), "appearance encodes without collision bits");
-    AssertTrue(RoomLevelWordCodec.IsAppearanceWord(0x0c2a) && !RoomLevelWordCodec.IsAppearanceWord(0xec2a),
-        "only collision-free words are appearance words");
     AssertEqual(RoomTerrainBlock.Of(42, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.HorizontalExtension),
         grapple.WithCollision(RoomCollisionType.HorizontalExtension), "collision replacement keeps the appearance");
     AssertEqual(RoomTerrainBlock.Of(42, BlockMirroring.Vertical, RoomCollisionType.GrappleBlock),

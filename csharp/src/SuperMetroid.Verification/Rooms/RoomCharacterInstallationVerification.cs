@@ -18,18 +18,16 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
-/// <summary>Checks stock and overridden room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
+/// <summary>Checks stock room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
 internal static class RoomCharacterInstallationVerification
 {
-    /// <summary>Stock import, live edit, repair and invalid-override contract for room art, in a writable installation.</summary>
-    [PrivateInstallation("Edits room character, palette, block and background files on a private copy to check that their overrides are selected.")]
+    /// <summary>Stock import contract for room art, in a writable installation whose background manifest is briefly altered.</summary>
     internal static void VerifyRoomArtworkInstallation(GameInstallation installed, CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
         AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
@@ -53,16 +51,13 @@ internal static class RoomCharacterInstallationVerification
             installedRoom.TilesetCharactersIn(stock).Span.SequenceEqual(nativeCharacters.Span),
             "installed stock room PNGs retain Landing Site character bytes");
 
-        // Room characters are the import's input and take no overrides (#1466): rooms show pre-composed pictures, which
-        // take theirs as composed sheets in the block sheet override directory.
+        // Room characters are the import's input (#1466): rooms show pre-composed pictures, which a player edits in the
+        // installed block sheets.
         int source = native.Tileset.CharacterAddress;
-        string name = RoomCharacterSheetFiles.SourceFileName(source);
         AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
             "the installed Landing Site character sheet holds the native characters");
 
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
-        string ghostName = RoomCharacterSheetFiles.SourceFileName(ghostSource);
-        string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
         byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
@@ -89,27 +84,7 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(File.Exists(Path.Combine(installed.RoomPaletteDirectory,
                 RoomStaticPaletteArtworkFiles.ManifestFileName)),
             "room-palette stock manifest is installed");
-        RoomStaticPalettes stockPalettes = installed.LoadRoomPalettes();
-        int paletteSource = native.Tileset.PaletteAddress;
-        string paletteName = RoomStaticPaletteFormat.SourceFileName(paletteSource);
-        string paletteStockPath = Path.Combine(installed.RoomPaletteDirectory, paletteName);
-        JsonNode paletteDocument = JsonNode.Parse(File.ReadAllText(paletteStockPath))
-            ?? throw new InvalidDataException("Installed room palette JSON is empty.");
-        JsonNode firstColor = paletteDocument.Required("colors").Required(0);
-        int stockRed = firstColor.Required("red").GetValue<int>();
-        firstColor["red"] = stockRed ^ 1;
-        Directory.CreateDirectory(installed.RoomPaletteOverrideDirectory);
-        string paletteOverridePath = Path.Combine(installed.RoomPaletteOverrideDirectory, paletteName);
-        File.WriteAllText(paletteOverridePath, paletteDocument.ToJsonString());
-        RoomStaticPalettes editedPalettes = installed.LoadRoomPalettes();
-        LoadedRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing);
-        // A room's pictures carry its palette's colours, which the import pre-colours them in (#1512): the installed
-        // override changes the palette the import composes from, colour for colour.
-        AssertEqual(editedPaletteRoom.Tileset, native.Tileset, "the edited palette's room loads");
-        RgbColor[] stockColours = RoomStaticPaletteImage.Colours(stockPalettes.GetAt(paletteSource));
-        RgbColor[] editedColours = RoomStaticPaletteImage.Colours(editedPalettes.GetAt(paletteSource));
-        AssertTrue(stockColours[0] != editedColours[0] && stockColours.AsSpan(1).SequenceEqual(editedColours.AsSpan(1)),
-            "installed RGB5 override changes only its room palette colour");
+        _ = installed.LoadRoomPalettes();
 
         AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
                 RoomMetatileArtworkFiles.ManifestFileName)),
@@ -123,8 +98,6 @@ internal static class RoomCharacterInstallationVerification
         AssertEqual((stockBlocks.Cre.BlockTiles.Length + stockBlocks.Get(native.Tileset.Blocks).BlockTiles.Length) / RoomMetatileFormat.TilesPerBlock,
             installedSheets.Get(native.Tileset).Inputs.Count,
             "the installed appearance record covers every block a Landing Site room loads");
-        string blockName = RoomMetatileFormat.CreFileName;
-        string blockStockPath = Path.Combine(installed.RoomMetatileDirectory, blockName);
 
         AssertTrue(File.Exists(Path.Combine(installed.RoomBackgroundTilemapDirectory,
                 RoomBackgroundTilemapArtworkFiles.ManifestFileName)),
@@ -176,22 +149,6 @@ internal static class RoomCharacterInstallationVerification
         LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
         AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
             "installed Ceres background tilemap retains native VRAM words");
-        string backgroundStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
-            backgroundName);
-        JsonNode backgroundDocument = JsonNode.Parse(File.ReadAllText(backgroundStockPath))
-            ?? throw new InvalidDataException("Installed background JSON is empty.");
-        JsonNode backgroundCell = backgroundDocument.Required("pages").Required(0).Required("cells").Required(0);
-        backgroundCell["tileColumn"] = (backgroundCell.Required("tileColumn").GetValue<int>() + 1)
-            % RoomBackgroundTilemapFormat.TileColumns;
-        Directory.CreateDirectory(installed.RoomBackgroundTilemapOverrideDirectory);
-        string backgroundOverridePath = Path.Combine(
-            installed.RoomBackgroundTilemapOverrideDirectory, backgroundName);
-        File.WriteAllText(backgroundOverridePath, backgroundDocument.ToJsonString());
-        var editedBackgroundVram = new SnesVram();
-        LibraryBackgroundReplay.Execute(editedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = installed.LoadRoomBackgroundTilemaps() });
-        AssertTrue(nativeBackgroundVram.ReadWord(0x4800) != editedBackgroundVram.ReadWord(0x4800) &&
-            nativeBackgroundVram.ReadWord(0x4801) == editedBackgroundVram.ReadWord(0x4801),
-            "installed background override changes only its selected Ceres BG tile");
 
         RoomSkyTilemaps stockSky = installed.LoadRoomSkyTilemaps();
         // The landing-cutscene door's command-E record selects the uploaded sky page.
@@ -207,67 +164,8 @@ internal static class RoomCharacterInstallationVerification
             LibraryBackgroundOperands.SkyPageAddress(skyPage), landingSky.ByteCount);
         AssertTrue(BackgroundTileWordBytes.Of(stockSky.Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(nativeSky),
             "installed scrolling-sky page retains native door-selected bytes");
-        JsonNode skyDocument = JsonNode.Parse(File.ReadAllText(skyStockPath))
-            ?? throw new InvalidDataException("Installed scrolling-sky JSON is empty.");
-        JsonNode skyCell = skyDocument.Required("pages").Required(0).Required("cells").Required(0);
-        skyCell["tileColumn"] = (skyCell.Required("tileColumn").GetValue<int>() + 1)
-            % RoomBackgroundTilemapFormat.TileColumns;
-        string skyOverridePath = Path.Combine(
-            installed.RoomBackgroundTilemapOverrideDirectory, skyName);
-        File.WriteAllText(skyOverridePath, skyDocument.ToJsonString());
-        RoomSkyTilemaps editedSky = installed.LoadRoomSkyTilemaps();
-        ReadOnlyMemory<byte> changedSky = BackgroundTileWordBytes.Of(editedSky.Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span);
-        AssertTrue(!changedSky.Span[..2].SequenceEqual(nativeSky.AsSpan(0, 2)) &&
-            changedSky.Span[2..].SequenceEqual(nativeSky.AsSpan(2)),
-            "installed sky override changes exactly its selected door tile word");
 
-        // Installed content is never repaired in place (#1532); every edit lives outside the replaceable game directory,
-        // so a reload of the stock installation keeps each one selected.
-        GameInstallation repaired = installed;
-        AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, name)),
-            "room-character stock sheet stays installed beside its override");
-        AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, ghostName)) &&
-            repaired.LoadRoomCharacters().GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
-            "statue-ghost stock sheet stays installed");
-        AssertTrue(File.Exists(paletteOverridePath) &&
-            File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),
-            "room-palette stock stays installed beside its override");
-        AssertTrue(File.Exists(Path.Combine(repaired.RoomMetatileDirectory, blockName)),
-            "room-block stock stays installed");
-        AssertTrue(File.Exists(backgroundOverridePath) &&
-            File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, backgroundName)),
-            "room-background stock stays installed beside its override");
-        AssertTrue(File.Exists(skyOverridePath) &&
-            File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
-            "scrolling-sky stock stays installed beside its override");
-        AssertTrue(repaired.LoadRoomCharacters().GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
-            "the reloaded installation shows the stock room characters");
-        LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing);
-        AssertEqual(repairedPaletteRoom.Tileset, native.Tileset, "the edited palette's room loads");
-        AssertTrue(RoomStaticPaletteImage.Colours(repaired.LoadRoomPalettes().GetAt(paletteSource)).AsSpan().SequenceEqual(editedColours),
-            "the reloaded installation retains the selected user room palette");
-        AssertEqual(installedSheets.ContentIdentity, repaired.LoadRoomBlockSheets().ContentIdentity,
-            "the reloaded installation composes the same block pictures and character records from the stock blocks");
-        var repairedBackgroundVram = new SnesVram();
-        LibraryBackgroundReplay.Execute(repairedBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceres.State.BackgroundDataPointer), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = repaired.LoadRoomBackgroundTilemaps() });
-        AssertTrue(repairedBackgroundVram.ImageEquals(editedBackgroundVram),
-            "the reloaded installation retains selected user background tilemap");
-        AssertTrue(BackgroundTileWordBytes.Of(repaired.LoadRoomSkyTilemaps().Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(changedSky.Span),
-            "the reloaded installation retains selected user scrolling sky");
-
-        File.WriteAllText(paletteOverridePath, "invalid RGB5 JSON");
-        AssertThrows<InvalidDataException>(() => repaired.LoadRoomPalettes(),
-            "invalid room-palette override fails loudly instead of reverting to stock");
-
-        File.WriteAllText(backgroundOverridePath, "invalid background tilemap JSON");
-        AssertThrows<InvalidDataException>(() => repaired.LoadRoomBackgroundTilemaps(),
-            "invalid room-background override fails loudly instead of reverting to stock");
-        File.WriteAllText(skyOverridePath, "invalid scrolling-sky JSON");
-        AssertThrows<InvalidDataException>(() => repaired.LoadRoomSkyTilemaps(),
-            "invalid scrolling-sky override fails loudly instead of reverting to stock");
-
-        Console.WriteLine("  Room artwork installation: PNG, statue ghost, RGB5, block, BG and sky stock import, palette, " +
-            "background and sky edits, repair preservation and invalid-override rejection verified.");
+        Console.WriteLine("  Room artwork installation: PNG, statue ghost, RGB5, block, BG and sky stock import verified.");
     }
 
     /// <summary>
@@ -283,7 +181,7 @@ internal static class RoomCharacterInstallationVerification
 
     /// <summary>
     /// Runs the room-art installation contract, each part timed on its own, in one writable copy of the repository
-    /// installation, as the parts write overrides and the last deletes and repairs stock files.
+    /// installation, as the parts write into installed files.
     /// </summary>
     [VerificationCommand("--room-artwork-installation")]
     internal static int RoomArtworkInstallationCommand()

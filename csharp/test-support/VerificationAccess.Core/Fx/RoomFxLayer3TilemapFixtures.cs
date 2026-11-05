@@ -6,8 +6,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// Reads the room effects' BG3 pages as the cartridge's little-endian tilemap words, and builds catalogs whose documents
-/// carry edited pages, so verification can compare pages with the cartridge's transfers.
+/// Reads the room effects' BG3 pages as the cartridge's little-endian tilemap words, so verification can compare pages
+/// with the cartridge's transfers, and loads documents with one page replaced, so verification can check page rejection.
 /// </summary>
 internal static class RoomFxLayer3TilemapFixtures
 {
@@ -19,7 +19,7 @@ internal static class RoomFxLayer3TilemapFixtures
     }
 
     /// <summary>A catalog loaded from a document holding <paramref name="stock"/>'s pages with <paramref name="type"/>'s replaced by <paramref name="page"/>.</summary>
-    /// <exception cref="InvalidDataException">The edited page is not a complete page.</exception>
+    /// <exception cref="InvalidDataException">The replacement page is not a complete page.</exception>
     internal static RoomFxLayer3Pages WithPage(RoomFxLayer3Pages stock, RoomFxType type, ReadOnlySpan<BackgroundTile> page)
     {
         var pages = RoomFxLayer3TilemapFormat.Types.ToDictionary(each => each.ToString(),

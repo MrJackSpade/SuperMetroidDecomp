@@ -1,97 +1,27 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
-using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
-/// <summary>Checks pause equipment selector OAM against native sprites and editable phase compositions.</summary>
+/// <summary>Checks pause equipment selector OAM against native sprites.</summary>
 internal static class PauseSelectorCompositionsVerification
 {
-    /// <summary>Checks stock compact storage and independent edits to selector parts and animation phases.</summary>
+    /// <summary>Checks stock compact storage, native compositions and the phase bound.</summary>
     internal static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
         AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");
         AssertTrue(!stock.StoresCompositionParts, "stock selector stores no sprite part records");
-        foreach (string name in new[] { "Reserve", "Beam", "Equipment" })
-        {
-            PauseEquipmentCategory category = name == "Reserve" ? PauseEquipmentCategory.Reserves
-                : name == "Beam" ? PauseEquipmentCategory.Beams : PauseEquipmentCategory.Suits;
-            var original = document.Frames[name];
-            for (int index = 0; index < original.Length; index++)
-            {
-                var part = original[index];
-                foreach (var change in new[] { part with { OffsetX = 17 }, part with { OffsetY = 13 },
-                    part with { TileColumn = 0 }, part with { TileRow = 0 }, part with { Size = 16 },
-                    part with { Priority = 0 }, part with { Palette = 7 }, part with { FlipX = true }, part with { FlipY = true } })
-                {
-                    var parts = (SpriteVisualPart[])original.Clone(); parts[index] = change;
-                    var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[name] = parts;
-                    var edited = PauseSelectorSourcePresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                        document with { Frames = frames }, ArtworkJson.Options)));
-                    AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
-                    var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                    var anchor = edited.Anchor(category, 0);
-                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new(anchor.X, anchor.Y), SnesObjAttributeWord.Create(0, edited.SpriteSet, 0).PaletteBits);
-                    edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, 0, PictureShading.Standard);
-                    expected.FinalizeFrame(); actual.FinalizeFrame();
-                    AssertTrue(expected.ImageEquals(actual),
-                        "all selector part fields remain independently editable");
-                }
-            }
-        }
-        for (int group = 0; group < 3; group++)
-        for (int changed = 0; changed < document.Animation.Length; changed++)
-        {
-            var phases = (PauseSelectorPhase[])document.Animation.Clone();
-            phases[changed] = group switch
-            {
-                0 => phases[changed] with { Reserve = "Beam" },
-                1 => phases[changed] with { Beam = "Equipment" },
-                _ => phases[changed] with { Equipment = "Reserve" },
-            };
-            using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document with { Animation = phases }); stream.Position = 0;
-            var edited = PauseSelectorSourcePresentation.Load(stream);
-            AssertEqual(changed == 0 ? phases.Length - 1 : 1, edited.StoredCompositionOverrideCount,
-                "only differences from the first authored phase are captured");
-            foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
-            foreach (int phase in Enumerable.Range(0, phases.Length).Append(phases.Length).Append(int.MaxValue))
-            {
-                var source = phases[phase % phases.Length];
-                string name = category switch
-                {
-                    PauseEquipmentCategory.Reserves => source.Reserve,
-                    PauseEquipmentCategory.Beams => source.Beam,
-                    PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => source.Equipment,
-                    _ => source.Equipment,
-                };
-                var composition = MenuSpriteCompiler.Compile(document.Frames[name], name);
-                var anchor = edited.Anchor(category, 0);
-                var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                composition.DrawOnScreen(expected, new(anchor.X, anchor.Y), SnesObjAttributeWord.Create(0, edited.SpriteSet, 0).PaletteBits);
-                edited.Draw(actual, MenuSheetFixtures.PauseSprites(edited), category, 0, phase, PictureShading.Standard);
-                expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.ImageEquals(actual),
-                    "independent authored group/phase and cyclic OAM");
-                AssertEqual(source.DurationTicks, edited.Duration(phase), "composition edit leaves phase timing unchanged");
-            }
-        }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1, PictureShading.Standard), "negative composition phase");
     }
 

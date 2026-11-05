@@ -37,12 +37,11 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>App-owned immutable cartridge/audio content, separate from persistent player data.</summary>
-/// <param name="Root">Installation root containing replaceable <c>game</c> content and persistent <c>overrides</c>; constructing this record does not create or validate it.</param>
+/// <param name="Root">Installation root containing the replaceable <c>game</c> content and persistent player data; constructing this record does not create or validate it.</param>
 /// <remarks>
-/// Directory properties compute paths without accessing the filesystem. Stock loaders validate
-/// the installed formats and source manifests before applying compatible replacements from
-/// the override tree. Missing files, unreadable paths, and malformed stock or selected override
-/// content propagate the corresponding I/O or invalid-data exception to the caller.
+/// Directory properties compute paths without accessing the filesystem. Loaders validate the
+/// installed formats. Missing files, unreadable paths, and malformed installed content
+/// propagate the corresponding I/O or invalid-data exception to the caller.
 /// </remarks>
 public sealed record GameInstallation(string Root)
 {
@@ -61,351 +60,235 @@ public sealed record GameInstallation(string Root)
                 "Extracted game content is incomplete or invalid.");
         return SuperMetroidAddressSpace.CreateWithoutCartridge();
     }
-    /// <summary>Stock audio files and manifests under the replaceable content tree.</summary>
+    /// <summary>Installed audio files and manifests, which the player edits in place.</summary>
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Persistent editable audio content, outside the replaceable stock installation.</summary>
-    public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays, with the persistent clip override when one exists.</summary>
-    /// <exception cref="InvalidDataException">The stock clips or the override are invalid.</exception>
-    public InstalledClipAudioLibrary LoadAudioClips() => ClipAudioOverrides.Load(AudioDirectory, AudioOverrideDirectory);
-    /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
+    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
+    /// <exception cref="InvalidDataException">The installed clips are invalid.</exception>
+    public InstalledClipAudioLibrary LoadAudioClips() => InstalledAudioClips.Load(AudioDirectory);
+    /// <summary>Installed area-map artwork, exploration masks and menu presentation, which the player edits in place.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
-    /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>
+    /// <summary>Installed starting CGRAM and room-entry sprite palettes, which the player edits in place.</summary>
     public string GameplayBasePaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Editable starting CGRAM and room-entry sprite colors survive stock rebuilds.</summary>
-    public string GameplayBasePaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Validates stock starting palettes and loads any compatible user replacements for initial CGRAM and room-entry sprite colors.</summary>
+    /// <summary>Loads the installed initial CGRAM and room-entry sprite colors.</summary>
     public GameplayBasePalette LoadGameplayBasePalettes() =>
-        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
-    /// <summary>Stock decoded results of Samus's glitch reads; not editable, so there is no override directory.</summary>
+        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory);
+    /// <summary>Stock decoded results of Samus's glitch reads, which are not presentation the player edits.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
     public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
-    /// <summary>Stock decoded results of what enemies read past their authored data; not editable, so there is no override directory.</summary>
+    /// <summary>Stock decoded results of what enemies read past their authored data, which are not presentation the player edits.</summary>
     public string EnemyOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing what enemies read past their authored data.</summary>
     public EnemyOverreadServices LoadEnemyOverreads() => EnemyOverreadFiles.Load(EnemyOverreadDirectory);
-    /// <summary>Stock decoded results of Kraid's, Crocomire's and the intro egg shell's reads past their data; not editable, so there is no override directory.</summary>
+    /// <summary>Stock decoded results of Kraid's, Crocomire's and the intro egg shell's reads past their data, which are not presentation the player edits.</summary>
     public string BossAndIntroOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossAndIntroOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     public SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices LoadBossAndIntroOverreads() => BossAndIntroOverreadFiles.Load(BossAndIntroOverreadDirectory);
-    /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
+    /// <summary>Installed pre-coloured sprite sheets and their frame manifests, which the player edits in place.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
-    /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>
-    public string SpriteSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SpriteSheetDirectoryName);
-    /// <summary>Loads every validated sprite sheet, preferring the player's overrides.</summary>
-    public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory, SpriteSheetOverrideDirectory);
-    /// <summary>Stock pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
+    /// <summary>Loads every installed sprite sheet.</summary>
+    public InstalledSpriteSheets LoadSpriteSheets() => SpriteSheetFiles.Load(SpriteSheetDirectory);
+    /// <summary>Installed pre-coloured enemy sheets and the manifest naming each graphics set's sheet for each enemy.</summary>
     public string EnemySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName);
-    /// <summary>Player-edited enemy sheet files, which replace the stock files of the same name.</summary>
-    public string EnemySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemySheetDirectoryName);
-    /// <summary>Loads every validated enemy sheet, preferring the player's overrides.</summary>
-    public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory, EnemySheetOverrideDirectory);
-    /// <summary>Stock indexed common gameplay OBJ sheet and its source manifest.</summary>
+    /// <summary>Loads every installed enemy sheet.</summary>
+    public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
+    /// <summary>Installed indexed common gameplay OBJ sheet and its source manifest, which the player edits in place.</summary>
     public string StandardObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Editable common gameplay OBJ sheet, preserved across stock rebuilds.</summary>
-    public string StandardObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.StandardObjectDirectoryName);
-    /// <summary>Validates the stock common OBJ sheet and selects a compatible replacement PNG for the shared character transfer.</summary>
-    public RoomCharacterAtlas LoadStandardObjects() =>
-        StandardObjectArtworkFiles.Load(StandardObjectDirectory, StandardObjectOverrideDirectory);
-    /// <summary>Stock projectile artwork and presentation selectors under the replaceable content tree.</summary>
+    /// <summary>Validates and loads the installed common OBJ sheet for the shared character transfer.</summary>
+    public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
+    /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Stock Samus body PNGs and visual selectors under the replaceable content tree.</summary>
+    /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Replacement Samus body PNGs and visual selectors survive stock rebuilds.</summary>
-    public string SamusBodyOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Loads validated Samus body artwork and compatible replacement PNGs and selectors from the persistent override tree.</summary>
-    public InstalledSamusBodyArtwork LoadSamusBodyArt() =>
-        SamusBodyArtworkFiles.Load(SamusBodyDirectory, SamusBodyOverrideDirectory);
-    /// <summary>Stock opening-cinematic artwork under the replaceable content tree.</summary>
+    /// <summary>Loads the validated installed Samus body artwork.</summary>
+    public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
+    /// <summary>Installed opening-cinematic artwork, which the player edits in place.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>
-    public string IntroCinematicOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.IntroCinematicDirectoryName);
-    /// <summary>Loads validated opening-cinematic artwork, selecting compatible user PNG replacements where supplied.</summary>
+    /// <summary>Loads the installed opening-cinematic artwork.</summary>
     public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
-        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory, IntroCinematicOverrideDirectory);
-    /// <summary>Stock ending Mode 7 scene artwork under the replaceable content tree.</summary>
+        IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
+    /// <summary>Installed ending Mode 7 scene artwork, which the player edits in place.</summary>
     public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Ending scene art edits remain outside replaceable stock content.</summary>
-    public string EndingMode7OverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Loads validated ending Mode 7 artwork and compatible scene replacements from the persistent override tree.</summary>
+    /// <summary>Loads the installed ending Mode 7 artwork.</summary>
     public EndingFloorArtwork LoadEndingMode7Art() =>
-        EndingMode7ArtworkFiles.Load(EndingMode7Directory, EndingMode7OverrideDirectory);
-    /// <summary>Stock ending sprite artwork under the replaceable content tree.</summary>
+        EndingMode7ArtworkFiles.Load(EndingMode7Directory);
+    /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Ending OBJ edits remain outside replaceable stock content.</summary>
-    public string EndingObjectOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Loads validated ending OBJ artwork and any compatible user replacements.</summary>
+    /// <summary>Loads the installed ending OBJ artwork.</summary>
     public EndingObjectSourceArtwork LoadEndingObjectArt() =>
-        EndingObjectArtworkFiles.Load(EndingObjectDirectory, EndingObjectOverrideDirectory);
-    /// <summary>Stock ending-scene color palettes under the replaceable content tree.</summary>
+        EndingObjectArtworkFiles.Load(EndingObjectDirectory);
+    /// <summary>Installed ending-scene color palettes, which the player edits in place.</summary>
     public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Ending color edits survive replacement of the stock installation.</summary>
-    public string EndingPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Loads validated ending color palettes and compatible color replacements from the persistent override tree.</summary>
+    /// <summary>Loads the installed ending color palettes.</summary>
     public EndingPaletteSet LoadEndingPalettes() =>
-        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
+        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
-    /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>
-    public string RoomPaletteOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPaletteDirectoryName);
-    /// <summary>Validates stock room palette hashes and loads each existing replacement palette keyed by its source identity.</summary>
+    /// <summary>Loads each installed room palette as the player left it, keyed by its source identity.</summary>
     public RoomStaticPalettes LoadRoomPalettes() =>
-        RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory, RoomPaletteOverrideDirectory);
+        RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory);
     /// <summary>Stock pre-coloured room block sheets under the replaceable content tree.</summary>
     public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
-    /// <summary>Edited block pictures survive stock content replacement.</summary>
-    public string RoomBlockSheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBlockSheetDirectoryName);
-    /// <summary>Loads every tileset's pre-coloured block sheet, preferring the player's edits (#1392).</summary>
-    public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory, RoomBlockSheetOverrideDirectory);
-    /// <summary>Stock pre-assembled boss body sheets under the replaceable content tree (#1466).</summary>
+    /// <summary>Loads every tileset's installed pre-coloured block sheet as the player left it (#1392).</summary>
+    public InstalledRoomArtwork LoadRoomBlockSheets() => RoomBlockSheetFiles.Load(RoomBlockSheetDirectory);
+    /// <summary>Installed pre-assembled boss body sheets (#1466), which the player edits in place.</summary>
     public string BossBodySheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossBodySheetDirectoryName);
-    /// <summary>Edited boss body pictures survive stock content replacement.</summary>
-    public string BossBodySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.BossBodySheetDirectoryName);
-    /// <summary>Loads every boss's pre-assembled body sheet, preferring the player's edits (#1466).</summary>
-    public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory, BossBodySheetOverrideDirectory);
+    /// <summary>Loads every boss's installed pre-assembled body sheet (#1466).</summary>
+    public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
     public string RoomVisualLayoutDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomVisualLayoutDirectoryName);
-    /// <summary>Persistent replacements for visual room-block references, preserved during stock rebuilds.</summary>
-    public string RoomVisualLayoutOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomVisualLayoutDirectoryName);
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
     public RoomLevelArtworks LoadRoomVisualLayouts() =>
-        RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
-    /// <summary>Stock typed terrain of every room level under the replaceable content tree; this family has no override directory.</summary>
+        RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory);
+    /// <summary>Stock typed terrain of every room level under the replaceable content tree; it is not artwork a player edits.</summary>
     public string RoomLevelStreamDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomLevelStreamDirectoryName);
     /// <summary>Validated stock collision/BTS and streaming allocations, independent of editable visual layouts.</summary>
     public InstalledRoomLevelStreams LoadRoomLevelStreams() => RoomLevelStreamFiles.Load(RoomLevelStreamDirectory);
     /// <summary>Stock definitions for shootable block appearances under the replaceable content tree.</summary>
     public string RoomPlmShotBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName);
-    /// <summary>Persistent replacements for shootable block appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmShotBlockVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName);
     /// <summary>Editable shot-block appearances; PLM timing, placement, and collision remain compiled.</summary>
     public InstalledRoomPlmShotBlockVisuals LoadRoomPlmShotBlockVisuals() =>
-        RoomPlmShotBlockVisualFiles.Load(RoomPlmShotBlockVisualDirectory, RoomPlmShotBlockVisualOverrideDirectory);
+        RoomPlmShotBlockVisualFiles.Load(RoomPlmShotBlockVisualDirectory);
     /// <summary>Stock definitions for Grapple-reactive block appearances under the replaceable content tree.</summary>
     public string RoomPlmGrappleBlockVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName);
-    /// <summary>Persistent replacements for Grapple-reactive block appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmGrappleBlockVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName);
     /// <summary>Editable Grapple-block appearances; timing, placement, and collision remain compiled.</summary>
     public InstalledRoomPlmGrappleBlockVisuals LoadRoomPlmGrappleBlockVisuals() =>
-        RoomPlmGrappleBlockVisualFiles.Load(RoomPlmGrappleBlockVisualDirectory, RoomPlmGrappleBlockVisualOverrideDirectory);
+        RoomPlmGrappleBlockVisualFiles.Load(RoomPlmGrappleBlockVisualDirectory);
     /// <summary>Stock definitions for save, refill, and map station appearances under the replaceable content tree.</summary>
     public string RoomPlmStationVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmStationVisualDirectoryName);
-    /// <summary>Persistent replacements for save, refill, and map station appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmStationVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmStationVisualDirectoryName);
     /// <summary>Editable station appearances; activation, rewards, and collision remain compiled.</summary>
     public InstalledRoomPlmStationVisuals LoadRoomPlmStationVisuals() =>
-        RoomPlmStationVisualFiles.Load(RoomPlmStationVisualDirectory, RoomPlmStationVisualOverrideDirectory);
+        RoomPlmStationVisualFiles.Load(RoomPlmStationVisualDirectory);
     /// <summary>Stock definitions for blue-door cap frames under the replaceable content tree.</summary>
     public string RoomPlmBlueDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName);
-    /// <summary>Persistent replacements for blue-door cap frames, preserved during stock rebuilds.</summary>
-    public string RoomPlmBlueDoorVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName);
     /// <summary>Editable blue-door cap art; opening timing and physical tiles remain compiled.</summary>
     public InstalledRoomPlmBlueDoorVisuals LoadRoomPlmBlueDoorVisuals() =>
-        RoomPlmBlueDoorVisualFiles.Load(RoomPlmBlueDoorVisualDirectory,
-            RoomPlmBlueDoorVisualOverrideDirectory);
+        RoomPlmBlueDoorVisualFiles.Load(RoomPlmBlueDoorVisualDirectory);
     /// <summary>Stock definitions for colored-door cap frames under the replaceable content tree.</summary>
     public string RoomPlmColoredDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName);
-    /// <summary>Persistent replacements for colored-door cap frames, preserved during stock rebuilds.</summary>
-    public string RoomPlmColoredDoorVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName);
     /// <summary>Editable colored-door cap art; hit rules and physical tiles remain compiled.</summary>
     public InstalledRoomPlmColoredDoorVisuals LoadRoomPlmColoredDoorVisuals() =>
-        RoomPlmColoredDoorVisualFiles.Load(RoomPlmColoredDoorVisualDirectory,
-            RoomPlmColoredDoorVisualOverrideDirectory);
+        RoomPlmColoredDoorVisualFiles.Load(RoomPlmColoredDoorVisualDirectory);
     /// <summary>Stock definitions for grey-door caps and shared clear frames under the replaceable content tree.</summary>
     public string RoomPlmGreyDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName);
-    /// <summary>Persistent replacements for grey-door caps and shared clear frames, preserved during stock rebuilds.</summary>
-    public string RoomPlmGreyDoorVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName);
     /// <summary>Editable grey caps and shared clear frames; physical door rules stay compiled.</summary>
     public InstalledRoomPlmGreyDoorVisuals LoadRoomPlmGreyDoorVisuals() =>
-        RoomPlmGreyDoorVisualFiles.Load(RoomPlmGreyDoorVisualDirectory,
-            RoomPlmGreyDoorVisualOverrideDirectory);
+        RoomPlmGreyDoorVisualFiles.Load(RoomPlmGreyDoorVisualDirectory);
     /// <summary>Stock definitions for the three eye-door components' appearances under the replaceable content tree.</summary>
     public string RoomPlmEyeDoorVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmEyeDoorVisualDirectoryName);
-    /// <summary>Persistent replacements for the three eye-door components' appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmEyeDoorVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmEyeDoorVisualDirectoryName);
     /// <summary>Editable eye-door blocks; the three PLM components retain compiled behavior.</summary>
     public InstalledRoomPlmEyeDoorVisuals LoadRoomPlmEyeDoorVisuals() =>
-        RoomPlmEyeDoorVisualFiles.Load(RoomPlmEyeDoorVisualDirectory,
-            RoomPlmEyeDoorVisualOverrideDirectory);
+        RoomPlmEyeDoorVisualFiles.Load(RoomPlmEyeDoorVisualDirectory);
     /// <summary>Stock definitions for Mother Brain glass appearances under the replaceable content tree.</summary>
     public string RoomPlmMotherBrainGlassVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName);
-    /// <summary>Persistent replacements for Mother Brain glass appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmMotherBrainGlassVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName);
     /// <summary>Editable glass appearance; shatter physics and room-object logic stay compiled.</summary>
     public RoomPlmMotherBrainGlassVisualCatalog LoadRoomPlmMotherBrainGlassVisuals() =>
-        RoomPlmMotherBrainGlassVisualFiles.Load(RoomPlmMotherBrainGlassVisualDirectory,
-            RoomPlmMotherBrainGlassVisualOverrideDirectory);
+        RoomPlmMotherBrainGlassVisualFiles.Load(RoomPlmMotherBrainGlassVisualDirectory);
     /// <summary>Stock definitions for intact and broken n00b-tube appearances under the replaceable content tree.</summary>
     public string RoomPlmNoobTubeVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmNoobTubeVisualDirectoryName);
-    /// <summary>Persistent replacements for intact and broken n00b-tube appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmNoobTubeVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmNoobTubeVisualDirectoryName);
     /// <summary>Editable n00b-tube appearance; break logic and physical blocks stay compiled.</summary>
     public InstalledRoomPlmNoobTubeVisuals LoadRoomPlmNoobTubeVisuals() =>
-        RoomPlmNoobTubeVisualFiles.Load(RoomPlmNoobTubeVisualDirectory,
-            RoomPlmNoobTubeVisualOverrideDirectory);
+        RoomPlmNoobTubeVisualFiles.Load(RoomPlmNoobTubeVisualDirectory);
     /// <summary>Stock definitions for downward gate-block appearances under the replaceable content tree.</summary>
     public string RoomPlmDownwardGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
-    /// <summary>Persistent replacements for downward gate-block appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmDownwardGateVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName);
     /// <summary>Editable gate-block art; activation, animation, and collision remain compiled.</summary>
     public InstalledRoomPlmDownwardGateVisuals LoadRoomPlmDownwardGateVisuals() =>
-        RoomPlmDownwardGateVisualFiles.Load(RoomPlmDownwardGateVisualDirectory,
-            RoomPlmDownwardGateVisualOverrideDirectory);
+        RoomPlmDownwardGateVisualFiles.Load(RoomPlmDownwardGateVisualDirectory);
     /// <summary>Stock definitions for elevator-platform frames under the replaceable content tree.</summary>
     public string RoomPlmElevatorPlatformVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName);
-    /// <summary>Persistent replacements for elevator-platform frames, preserved during stock rebuilds.</summary>
-    public string RoomPlmElevatorPlatformVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName);
     /// <summary>Editable elevator frames; physical blocks and the instruction loop stay compiled.</summary>
     public RoomPlmElevatorPlatformVisualCatalog LoadRoomPlmElevatorPlatformVisuals() =>
-        RoomPlmElevatorPlatformVisualFiles.Load(RoomPlmElevatorPlatformVisualDirectory,
-            RoomPlmElevatorPlatformVisualOverrideDirectory);
+        RoomPlmElevatorPlatformVisualFiles.Load(RoomPlmElevatorPlatformVisualDirectory);
     /// <summary>Stock definitions for closing escape-gate appearances under the replaceable content tree.</summary>
     public string RoomPlmEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName);
-    /// <summary>Persistent replacements for closing escape-gate appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmEscapeGateVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName);
     /// <summary>Editable escape-gate appearance; closing and collision stay compiled.</summary>
     public RoomPlmEscapeGateVisualCatalog LoadRoomPlmEscapeGateVisuals() =>
-        RoomPlmEscapeGateVisualFiles.Load(RoomPlmEscapeGateVisualDirectory,
-            RoomPlmEscapeGateVisualOverrideDirectory);
+        RoomPlmEscapeGateVisualFiles.Load(RoomPlmEscapeGateVisualDirectory);
     /// <summary>Stock definitions for Bomb Torizo hand appearances under the replaceable content tree.</summary>
     public string RoomPlmBombTorizoHandVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmBombTorizoHandVisualDirectoryName);
-    /// <summary>Persistent replacements for Bomb Torizo hand appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmBombTorizoHandVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmBombTorizoHandVisualDirectoryName);
     /// <summary>Editable Bomb Torizo hand art; its physical block words stay compiled.</summary>
     public RoomPlmBombTorizoHandVisualCatalog LoadRoomPlmBombTorizoHandVisuals() =>
-        RoomPlmBombTorizoHandVisualFiles.Load(RoomPlmBombTorizoHandVisualDirectory,
-            RoomPlmBombTorizoHandVisualOverrideDirectory);
+        RoomPlmBombTorizoHandVisualFiles.Load(RoomPlmBombTorizoHandVisualDirectory);
     /// <summary>Stock definitions for reachable Draygon cannon appearances under the replaceable content tree.</summary>
     public string RoomPlmDraygonCannonVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmDraygonCannonVisualDirectoryName);
-    /// <summary>Persistent replacements for reachable Draygon cannon appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmDraygonCannonVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmDraygonCannonVisualDirectoryName);
     /// <summary>Editable reachable cannon art; physical blocks remain compiled.</summary>
     public RoomPlmDraygonCannonVisualCatalog LoadRoomPlmDraygonCannonVisuals() =>
-        RoomPlmDraygonCannonVisualFiles.Load(RoomPlmDraygonCannonVisualDirectory,
-            RoomPlmDraygonCannonVisualOverrideDirectory);
+        RoomPlmDraygonCannonVisualFiles.Load(RoomPlmDraygonCannonVisualDirectory);
     /// <summary>Stock definitions for Chozo hand and slope-access appearances under the replaceable content tree.</summary>
     public string RoomPlmChozoStatueVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName);
-    /// <summary>Persistent replacements for Chozo hand and slope-access appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmChozoStatueVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName);
     /// <summary>Editable Chozo hand and slope-access art; physical blocks remain compiled.</summary>
     public RoomPlmChozoStatueVisualCatalog LoadRoomPlmChozoStatueVisuals() =>
-        RoomPlmChozoStatueVisualFiles.Load(RoomPlmChozoStatueVisualDirectory,
-            RoomPlmChozoStatueVisualOverrideDirectory);
+        RoomPlmChozoStatueVisualFiles.Load(RoomPlmChozoStatueVisualDirectory);
     /// <summary>Stock definitions for linked-block restoration appearances under the replaceable content tree.</summary>
     public string RoomPlmLinkedRestoreVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName);
-    /// <summary>Persistent replacements for linked-block restoration appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmLinkedRestoreVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName);
     /// <summary>Editable linked-block restoration art; collision stays compiled.</summary>
     public InstalledRoomPlmLinkedRestoreVisuals LoadRoomPlmLinkedRestoreVisuals() =>
-        RoomPlmLinkedRestoreVisualFiles.Load(RoomPlmLinkedRestoreVisualDirectory,
-            RoomPlmLinkedRestoreVisualOverrideDirectory);
+        RoomPlmLinkedRestoreVisualFiles.Load(RoomPlmLinkedRestoreVisualDirectory);
     /// <summary>Stock definitions for Tourian access-floor appearances under the replaceable content tree.</summary>
     public string RoomPlmTourianAccessVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
-    /// <summary>Persistent replacements for Tourian access-floor appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmTourianAccessVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName);
     /// <summary>Editable Tourian access-floor art; physical rows and timing stay compiled.</summary>
     public RoomPlmTourianAccessVisuals LoadRoomPlmTourianAccessVisuals() =>
-        RoomPlmTourianAccessVisualFiles.Load(RoomPlmTourianAccessVisualDirectory,
-            RoomPlmTourianAccessVisualOverrideDirectory);
+        RoomPlmTourianAccessVisualFiles.Load(RoomPlmTourianAccessVisualDirectory);
     /// <summary>Stock definitions for the bomb-revealed Speed Booster tile under the replaceable content tree.</summary>
     public string RoomPlmSpeedBoosterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName);
-    /// <summary>Persistent replacements for the bomb-revealed Speed Booster tile, preserved during stock rebuilds.</summary>
-    public string RoomPlmSpeedBoosterVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName);
     /// <summary>Editable bomb-revealed Speed Booster tile; collision stays compiled.</summary>
     public InstalledRoomPlmSpeedBoosterVisuals LoadRoomPlmSpeedBoosterVisuals() =>
-        RoomPlmSpeedBoosterVisualFiles.Load(RoomPlmSpeedBoosterVisualDirectory,
-            RoomPlmSpeedBoosterVisualOverrideDirectory);
+        RoomPlmSpeedBoosterVisualFiles.Load(RoomPlmSpeedBoosterVisualDirectory);
     /// <summary>Stock definitions for the Maridia elevatube PLM tile under the replaceable content tree.</summary>
     public string RoomPlmMaridiaElevatubeVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmMaridiaElevatubeVisualDirectoryName);
-    /// <summary>Persistent replacements for the Maridia elevatube PLM tile, preserved during stock rebuilds.</summary>
-    public string RoomPlmMaridiaElevatubeVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmMaridiaElevatubeVisualDirectoryName);
     /// <summary>Editable Maridia elevatube PLM tile; its physical block stays compiled.</summary>
     public InstalledRoomPlmMaridiaElevatubeVisuals LoadRoomPlmMaridiaElevatubeVisuals() =>
-        RoomPlmMaridiaElevatubeVisualFiles.Load(RoomPlmMaridiaElevatubeVisualDirectory,
-            RoomPlmMaridiaElevatubeVisualOverrideDirectory);
+        RoomPlmMaridiaElevatubeVisualFiles.Load(RoomPlmMaridiaElevatubeVisualDirectory);
     /// <summary>Stock definitions for Spore Spawn ceiling tiles under the replaceable content tree.</summary>
     public string RoomPlmSporeSpawnCeilingVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName);
-    /// <summary>Persistent replacements for Spore Spawn ceiling tiles, preserved during stock rebuilds.</summary>
-    public string RoomPlmSporeSpawnCeilingVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName);
     /// <summary>Editable Spore Spawn ceiling tiles; physical draw words stay compiled.</summary>
     public RoomPlmSporeSpawnCeilingVisualCatalog LoadRoomPlmSporeSpawnCeilingVisuals() =>
-        RoomPlmSporeSpawnCeilingVisualFiles.Load(RoomPlmSporeSpawnCeilingVisualDirectory,
-            RoomPlmSporeSpawnCeilingVisualOverrideDirectory);
+        RoomPlmSporeSpawnCeilingVisualFiles.Load(RoomPlmSporeSpawnCeilingVisualDirectory);
     /// <summary>Stock definitions for floor and ceiling plant tiles under the replaceable content tree.</summary>
     public string RoomPlmSamusEaterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName);
-    /// <summary>Persistent replacements for floor and ceiling plant tiles, preserved during stock rebuilds.</summary>
-    public string RoomPlmSamusEaterVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName);
     /// <summary>Editable floor/ceiling plant tiles; physical draw geometry stays compiled.</summary>
     public InstalledRoomPlmSamusEaterVisuals LoadRoomPlmSamusEaterVisuals() =>
-        RoomPlmSamusEaterVisualFiles.Load(RoomPlmSamusEaterVisualDirectory,
-            RoomPlmSamusEaterVisualOverrideDirectory);
+        RoomPlmSamusEaterVisualFiles.Load(RoomPlmSamusEaterVisualDirectory);
     /// <summary>Stock definitions for Botwoon wall-clear tiles under the replaceable content tree.</summary>
     public string RoomPlmBotwoonWallVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
-    /// <summary>Persistent replacements for Botwoon wall-clear tiles, preserved during stock rebuilds.</summary>
-    public string RoomPlmBotwoonWallVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName);
     /// <summary>Editable Botwoon wall-clear tiles; collision and crumble timing stay compiled.</summary>
     public InstalledRoomPlmBotwoonWallVisuals LoadRoomPlmBotwoonWallVisuals() =>
-        RoomPlmBotwoonWallVisualFiles.Load(RoomPlmBotwoonWallVisualDirectory,
-            RoomPlmBotwoonWallVisualOverrideDirectory);
+        RoomPlmBotwoonWallVisualFiles.Load(RoomPlmBotwoonWallVisualDirectory);
     /// <summary>Stock definitions for Kraid ceiling and spike appearances under the replaceable content tree.</summary>
     public string RoomPlmKraidVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmKraidVisualDirectoryName);
-    /// <summary>Persistent replacements for Kraid ceiling and spike appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmKraidVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmKraidVisualDirectoryName);
     /// <summary>Editable Kraid ceiling/spike art; physical mutations stay compiled.</summary>
     public InstalledRoomPlmKraidVisuals LoadRoomPlmKraidVisuals() =>
-        RoomPlmKraidVisualFiles.Load(RoomPlmKraidVisualDirectory,
-            RoomPlmKraidVisualOverrideDirectory);
+        RoomPlmKraidVisualFiles.Load(RoomPlmKraidVisualDirectory);
     /// <summary>Stock definitions for Crocomire bridge and wall appearances under the replaceable content tree.</summary>
     public string RoomPlmCrocomireVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName);
-    /// <summary>Persistent replacements for Crocomire bridge and wall appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmCrocomireVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName);
     /// <summary>Editable Crocomire bridge/wall art; collision and timing stay compiled.</summary>
     public RoomPlmCrocomireVisualCatalog LoadRoomPlmCrocomireVisuals() =>
-        RoomPlmCrocomireVisualFiles.Load(RoomPlmCrocomireVisualDirectory,
-            RoomPlmCrocomireVisualOverrideDirectory);
+        RoomPlmCrocomireVisualFiles.Load(RoomPlmCrocomireVisualDirectory);
     /// <summary>Stock definitions for Mother Brain fake-death terrain appearances under the replaceable content tree.</summary>
     public string RoomPlmMotherBrainFakeDeathVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName);
-    /// <summary>Persistent replacements for Mother Brain fake-death terrain appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmMotherBrainFakeDeathVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName);
     /// <summary>Editable fake-death terrain art; physical room mutations remain compiled.</summary>
     public RoomPlmMotherBrainFakeDeathVisualCatalog LoadRoomPlmMotherBrainFakeDeathVisuals() =>
         RoomPlmMotherBrainFakeDeathVisualFiles.Load(
-            RoomPlmMotherBrainFakeDeathVisualDirectory,
-            RoomPlmMotherBrainFakeDeathVisualOverrideDirectory);
+            RoomPlmMotherBrainFakeDeathVisualDirectory);
     /// <summary>Stock definitions for item, orb, and reveal appearances under the replaceable content tree.</summary>
     public string RoomPlmCollectibleVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
-    /// <summary>Persistent replacements for item, orb, and reveal appearances, preserved during stock rebuilds.</summary>
-    public string RoomPlmCollectibleVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName);
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
     public InstalledRoomPlmCollectibleVisuals LoadRoomPlmCollectibleVisuals() =>
-        RoomPlmCollectibleVisualFiles.Load(RoomPlmCollectibleVisualDirectory,
-            RoomPlmCollectibleVisualOverrideDirectory);
+        RoomPlmCollectibleVisualFiles.Load(RoomPlmCollectibleVisualDirectory);
     /// <summary>Stock definitions for X-ray reveal metatile selections under the replaceable content tree.</summary>
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
-    /// <summary>Persistent replacements for X-ray reveal metatile selections, preserved during stock rebuilds.</summary>
-    public string XrayRevealVisualOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
     public InstalledXrayReveals LoadXrayRevealVisuals() =>
-        XrayRevealVisualFiles.Load(XrayRevealVisualDirectory, XrayRevealVisualOverrideDirectory);
-    /// <summary>Editable BG tilemaps survive replacement of stock game content.</summary>
-    public string RoomBackgroundTilemapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
-    /// <summary>Persistent projectile artwork and presentation replacements, preserved during stock rebuilds.</summary>
-    public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Loads validated projectile presentation with compatible user artwork and visual-selector replacements.</summary>
-    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
-    /// <summary>Ordinary enemy tile sheets; replacement PNGs survive stock-content rebuilds.</summary>
+        XrayRevealVisualFiles.Load(XrayRevealVisualDirectory);
+    /// <summary>Loads the validated installed projectile presentation.</summary>
+    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory);
+    /// <summary>Installed enemy, boss and area artwork, which the player edits in place.</summary>
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Persistent ordinary-enemy PNG replacements, preserved during stock rebuilds.</summary>
-    public string EnemyTileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Loads validated enemy, boss and area artwork and compatible replacement PNGs from the persistent override tree.</summary>
-    public InstalledEnemyArtwork LoadEnemyTiles() =>
-        EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
-    /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
-    public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
+    /// <summary>Loads the validated installed enemy, boss and area artwork.</summary>
+    public InstalledEnemyArtwork LoadEnemyTiles() => EnemyTileArtworkFiles.Load(EnemyTileDirectory);
 
-    /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
-    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory, MapOverrideDirectory);
+    /// <summary>Loads the installed maps, exploration masks and menu presentation without a cartridge address space.</summary>
+    public AreaMapPresentation LoadMaps() => MapPresentationFiles.Load(MapDirectory);
 
     /// <summary>
     /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps, projectile presentation and

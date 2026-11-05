@@ -40,9 +40,9 @@ internal static class LookupEyeDoorStockVerification
             AssertEqual(Hash(words),catalog.ContentIdentity,"Eye door original stock identity framing");
             foreach (var frame in frames)
                 for (int cell = 0; cell < words[frame.Pointer].Length; cell++)
-                    AssertEqual(words[frame.Pointer][cell],catalog.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(frame.Pointer),cell),"Eye door selected stock/custom word");
+                    AssertEqual(words[frame.Pointer][cell],catalog.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(frame.Pointer),cell),"Eye door stock word");
             for (int cell = 0; cell < 4; cell++)
-                AssertEqual(words[0x9c4f][cell].WithMirroring(words[0x9c4f][cell].Mirroring ^ BlockMirroring.Horizontal),catalog.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9bf7),cell),"Eye door shared custom clear mirror");
+                AssertEqual(words[0x9c4f][cell].WithMirroring(words[0x9c4f][cell].Mirroring ^ BlockMirroring.Horizontal),catalog.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>(0x9bf7),cell),"Eye door shared clear mirror");
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id,native[frame.Pointer].ToArray())).ToArray();
         var stock = InstalledRoomPlmEyeDoorVisuals.Stock();
@@ -61,13 +61,6 @@ internal static class LookupEyeDoorStockVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (raw != 0x9bf7 && !native.ContainsKey((ushort)raw))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<EyeDoorDraws.Draw>((ushort)raw),0),"Eye door stock full pointer rejection");
-        entries[11].Blocks[2] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmEyeDoorVisualFiles.Create(entries);
-        var expected = frames.Select((frame,index) => new LookupEyeDoorStockExpected(frame.Pointer,Words:entries[index].Blocks.ToArray()))
-            .ToDictionary(pair => pair.Pointer,pair => pair.Words);
-        entries[11].Blocks[2] = RoomBlockAppearance.Of(0x05a);
-        entries[12].Blocks[0] = RoomBlockAppearance.Of(0x05b);
-        Compare(mixed,expected);
         AssertThrows<InvalidDataException>(() => RoomPlmEyeDoorVisualFiles.Create(entries[..1]),"Eye door missing import");
         AssertThrows<InvalidDataException>(() => RoomPlmEyeDoorVisualFiles.Create(entries.Append(entries[0])),"Eye door duplicate import");
         foreach (RoomPlmVisualEntry bad in new RoomPlmVisualEntry[]

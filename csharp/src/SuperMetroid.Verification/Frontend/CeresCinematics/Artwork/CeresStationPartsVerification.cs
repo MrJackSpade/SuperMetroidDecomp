@@ -18,7 +18,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics.Artwork;
 /// <summary>Checks Ceres station sprite composition and rendering against imported artwork.</summary>
 internal static class CeresStationPartsVerification
 {
-    /// <summary>Verifies source identity, independent part edits, bounds, and native OAM at visible and wrapped origins.</summary>
+    /// <summary>Verifies stock source identity, bounds, and native OAM at visible and wrapped origins.</summary>
     internal static void VerifyCeresStationParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
@@ -30,32 +30,6 @@ internal static class CeresStationPartsVerification
             SpriteComposition result = CeresStationParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original CeresStation selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original CeresStation compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 15 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    CheckCeresStationLoader(definition.Pose, edited);
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresStation");
-                    var selected = CeresStationParts.CalculateIfMatching(definition.Pose, supplied);
-                    AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
-                    AssertTrue(ReferenceEquals(supplied, selected),
-                        "independent CeresStation field edit stays supplied");
-                }
-            }
-            CheckCeresStationLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom CeresStation");
-            AssertTrue(ReferenceEquals(extra, CeresStationParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated CeresStation part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
@@ -72,7 +46,7 @@ internal static class CeresStationPartsVerification
             }
         }
     }
-    /// <summary>Checks that serialized station art draws the supplied parts at visible and wrapped origins.</summary>
+    /// <summary>Checks that serialized stock station art draws its parts at visible and wrapped origins.</summary>
     internal static void CheckCeresStationLoader(CinematicSpritePose pose, SpriteVisualPart[] visual)
     {
         var definition = CeresFlightSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pose == pose);
@@ -95,6 +69,6 @@ internal static class CeresStationPartsVerification
             actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual)
                 && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
-                "Ceres alias loader preserves original and independently edited blast compositions");
+                "Ceres station loader draws the stock composition");
         }
     }}

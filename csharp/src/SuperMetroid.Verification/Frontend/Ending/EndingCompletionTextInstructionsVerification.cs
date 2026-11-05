@@ -69,7 +69,7 @@ internal static class EndingCompletionTextInstructionsVerification
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[invalid], "completion catalog bounds");
     }
 
-    /// <summary>Checks calculated stock composition, on- and off-screen OAM, and retention of independent artwork edits.</summary>
+    /// <summary>Checks calculated stock composition, on- and off-screen OAM, and part bounds.</summary>
     private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, CinematicSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name);
@@ -90,20 +90,6 @@ internal static class EndingCompletionTextInstructionsVerification
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
             AssertTrue(originalOam.ImageEquals(calculatedOam),
                 "completion text preserves native OAM and clipping");
-        }
-        SpriteVisualPart first = visual[0];
-        foreach (SpriteVisualPart edit in new[]
-        {
-            first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
-            first with { TileColumn = (first.TileColumn + 1) % 16 }, first with { TileRow = first.TileRow + 1 },
-            first with { Size = 16, TileColumn = Math.Min(14, first.TileColumn) },
-            first with { Priority = 2 }, first with { Palette = 3 },
-            first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
-        })
-        {
-            visual[0] = edit;
-            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited completion text");
-            AssertTrue(ReferenceEquals(edited, edited.CalculateIfMatching(parts)), "independent completion artwork edits stay supplied");
         }
         foreach (int invalid in new[] { int.MinValue, -1, parts.Count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = parts[invalid], "completion part bounds");

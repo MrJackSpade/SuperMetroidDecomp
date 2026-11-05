@@ -833,7 +833,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby OAM oracle revision");
         Suite(nameof(VerifyStream3BabySpriteReflection), () => VerifyStream3BabySpriteReflection(rom));
-        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits and legacy schemas pass; geometry/artwork remain required.");
+        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits pass; geometry/artwork remain required.");
         return 0;
     }
 
@@ -2809,9 +2809,8 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres haze oracle revision");
         Suite(nameof(VerifyCeresHazeNativeRamp), () => VerifyCeresHazeNativeRamp(rom));
-        Suite(nameof(VerifyCeresHazeTintScaling), () => VerifyCeresHazeTintScaling(rom));
         Suite(nameof(VerifyCeresHazePhaseControl), () => VerifyCeresHazePhaseControl(rom));
-        Console.WriteLine("Ceres haze: original HDMA bands, all17 native counters, both channels, captured views and RGB5 tint scaling pass.");
+        Console.WriteLine("Ceres haze: original HDMA bands, all17 native counters, both channels and captured views pass.");
         return 0;
     }
 
@@ -3325,9 +3324,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
         Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(oracle));
         Suite(nameof(VerifyBotwoonWallVisualIdMapping), () => VerifyBotwoonWallVisualIdMapping());
-        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(SuperMetroid.AssetExtraction.Rooms.RoomPlmBotwoonWallVisualFiles.Create(
-            [new SuperMetroid.AssetExtraction.Rooms.RoomPlmVisualEntry("clear-wall",[.. Enumerable.Repeat(RoomBlockAppearance.Of(0xff), 3), RoomBlockAppearance.Of(0x58),
-                .. Enumerable.Repeat(RoomBlockAppearance.Of(0xff), 5)])])));
         return 0;
     }
 

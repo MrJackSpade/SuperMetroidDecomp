@@ -9,9 +9,8 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms a statically identified extended-frame omission through the production loader.</summary>
 internal static class ExtendedEnemyCompositionResourceChecks
 {
-    /// <summary>Checks newly added frames load from stock and inherit correctly when older edited catalogs are merged.</summary>
-    internal static void Run(string family, EnemySpritemapDefinition[] selected,
-        int previousVersion, int previousCount)
+    /// <summary>Checks newly added frames load from a complete document.</summary>
+    internal static void Run(string family, EnemySpritemapDefinition[] selected, int previousCount)
     {
         EnemySpritemapDefinition[] expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
         EnemyExtendedFrameDocument document = CreateDocument();
@@ -19,31 +18,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
         foreach (var frame in selected) Confirm(stock, frame);
         Require(expected.Skip(previousCount).Take(selected.Length).SequenceEqual(selected),
             "schema append must contain exactly the statically identified frame set");
-
-        EnemySpritemapDefinition edited = expected[0];
-        EnemySpritemapDefinition alternate = expected[1];
-        var previous = expected[..previousCount];
-        // An older schema names each frame as its documents did (#1465).
-        EnemyExtendedFrameSchema previousSchema = EnemyExtendedFrameSchema.FromRevision(previousVersion)
-            ?? throw new InvalidOperationException($"Extended enemy composition schema {previousVersion} is not accepted.");
-        var legacy = document with
-        {
-            Version = previousVersion,
-            Frames = previous.ToDictionary(frame => previousSchema.NameOf(frame), frame => frame == alternate
-                ? new[] { Component(-1) } : document.Frames[frame.Name]),
-            DisplayFrames = previous.ToDictionary(frame => previousSchema.NameOf(frame),
-                frame => previousSchema.NameOf(frame == edited ? alternate : frame)),
-        };
-        EnemyExtendedFrameCatalog merged = Load(legacy, stock);
-        Require(merged.TryGetDisplay(edited.Bank, edited.Pointer, out var old) &&
-            old.Span[0].Offset.X == -1 && merged.GetDisplayPointer(edited.Bank, edited.Pointer) == alternate.Pointer,
-            "legacy component edits and display bindings must survive stock inheritance");
-        foreach (var frame in selected) Confirm(merged, frame);
-        bool rejected = false;
-        try { _ = Load(legacy); }
-        catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "incomplete old stock must request repair rather than omit the new family");
-        Console.WriteLine($"{family}: {selected.Length} extended compositions load; legacy component edits and bindings survive; old stock is rejected.");
+        Console.WriteLine($"{family}: {selected.Length} extended compositions load.");
     }
 
     /// <summary>Constructs a one-part visual component with distinguishable X and Y offsets.</summary>
@@ -63,18 +38,17 @@ internal static class ExtendedEnemyCompositionResourceChecks
         var expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
         return new EnemyExtendedFrameDocument
         {
-            Version = EnemyExtendedFrameSchema.Current.Revision,
+            Version = EnemyExtendedFrameSchema.Revision,
             Frames = expected.ToDictionary(frame => frame.Name, frame =>
                 EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] : new[] { Component(frame.Pointer & 0x7f) }),
             DisplayFrames = expected.ToDictionary(frame => frame.Name, frame => frame.Name),
         };
     }
 
-    /// <summary>Loads an in-memory document through the production catalog parser, optionally inheriting stock frames.</summary>
-    internal static EnemyExtendedFrameCatalog Load(EnemyExtendedFrameDocument document,
-        EnemyExtendedFrameCatalog? stock = null) => EnemyExtendedFrameDocuments.Load(
+    /// <summary>Loads an in-memory document through the production catalog parser.</summary>
+    internal static EnemyExtendedFrameCatalog Load(EnemyExtendedFrameDocument document) => EnemyExtendedFrameDocuments.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
 
     /// <summary>Checks a selected frame resolves to its expected component offset and single OAM part.</summary>
     private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemySpritemapDefinition frame)

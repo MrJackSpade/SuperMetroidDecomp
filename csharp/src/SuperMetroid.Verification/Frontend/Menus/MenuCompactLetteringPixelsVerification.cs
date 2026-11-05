@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction.Frontend.Menus;
 
 namespace SuperMetroid.Verification.Frontend.Menus;
 
-/// <summary>Checks reconstructed compact menu glyph pixels and edited atlas uploads against native tiles.</summary>
+/// <summary>Checks reconstructed compact menu glyph pixels and the stock atlas upload against native tiles.</summary>
 internal static class MenuCompactLetteringPixelsVerification
 {
-    /// <summary>Compares every selected glyph pixel, Tourian's distinct T cap, and edited VRAM encodings.</summary>
+    /// <summary>Compares every selected glyph pixel, Tourian's distinct T cap, and input bounds.</summary>
     internal static void VerifyMenuCompactLetteringPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56,0x5f,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb7];
@@ -64,40 +64,13 @@ internal static class MenuCompactLetteringPixelsVerification
             for (int plane = 0; plane < 4; plane++)
                 expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
             AssertEqual((byte)expected, font.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original letter ink, outline, trim and transparency");
-            byte[] pixels = (byte[])image.Pixels.Clone();
-            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
-            pixels[position] = (byte)((expected + 1) % 16);
-            CheckEdited(pixels);
         }
-        // Every color at an strip-edge ink pixel, neighboring outline and trimmed corner, including introducing/removing foreground.
-        foreach (int position in new[] { 128 + 7, 8, 0, 81 * 128 + 40, 82 * 128 + 72 })
-        for (byte value = 0; value < 16; value++)
-        {
-            byte[] pixels = (byte[])image.Pixels.Clone(); pixels[position] = value; CheckEdited(pixels);
-        }
-        byte[] all = (byte[])image.Pixels.Clone();
-        foreach (int tile in tiles)
-        for (int y = 0; y < 8; y++)
-        for (int x = 0; x < 8; x++)
-        {
-            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
-            all[position] = (byte)((all[position] + 1) % 16);
-        }
-        CheckEdited(all);
         foreach (int invalid in new[] { -1, 0xa, 0x11, 0x17, 0x52, 0x57, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, new(0, 0)), "invalid elevator lettering tile");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0, new(unchecked((ushort)invalid), 0)), "invalid glyph X");
             AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0, new(0, unchecked((ushort)invalid))), "invalid glyph Y");
-        }
-        void CheckEdited(byte[] pixels)
-        {
-            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Colours); png.Position = 0;
-            var edited = MapSpriteArtwork.Read(new MemoryStream(json), png);
-            var vram = new SnesVram(); edited.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
-            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
-            AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");
         }
     }
 }

@@ -5,6 +5,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmNoobTubeVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled n00b-tube visuals.</summary>
-    /// <param name="stockDirectory">Stock n00b-tube directory; overrides are ignored.</param>
+    /// <param name="stockDirectory">Stock n00b-tube directory.</param>
     public static void ValidateStock(string stockDirectory) => RoomPlmNoobTubeVisualFiles.Load(stockDirectory);
 }

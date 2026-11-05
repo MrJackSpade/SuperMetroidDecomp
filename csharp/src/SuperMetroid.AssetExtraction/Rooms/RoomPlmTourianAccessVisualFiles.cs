@@ -23,13 +23,11 @@ public static class RoomPlmTourianAccessVisualFiles
             VisualFileName, "Tourian access", All,
             VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Tourian access override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Tourian access JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose Tourian access JSON is selected when present.</param>
-    /// <returns>The immutable selected Tourian access-floor visual catalog.</returns>
-    public static RoomPlmTourianAccessVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Tourian access manifest's provenance and loads the installed Tourian access JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Tourian access JSON.</param>
+    /// <returns>The immutable Tourian access-floor visual catalog.</returns>
+    public static RoomPlmTourianAccessVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<RoomPlmTourianAccessVisuals>(VisualFileName, "Tourian access", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

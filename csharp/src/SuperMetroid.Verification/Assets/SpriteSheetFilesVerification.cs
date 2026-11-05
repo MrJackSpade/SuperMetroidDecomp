@@ -6,32 +6,22 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>
-/// Confirms the installed sprite sheets (#1392): extraction writes each sheet's composed image and frames, a player's
-/// image or frame override replaces the stock file, and a damaged stock file or a sheet missing a frame fails loudly.
+/// Confirms the installed sprite sheets (#1392): extraction writes each sheet's composed image and frames, and the
+/// installed timer sheet loads holding exactly the composed pixels and frames.
 /// </summary>
 internal static class SpriteSheetFilesVerification
 {
-    /// <summary>Checks that composing the sheets again reproduces the installed files, then loading, overrides and rejections.</summary>
+    /// <summary>Checks that composing the sheets again reproduces the installed files, then that the installed timer sheet loads as composed.</summary>
     internal static void VerifySpriteSheetFiles(ISnesAddressSpace bus)
     {
         VerifySpriteSheetRecomposition(bus);
-        // A private installation copy, whose sprite-sheet override is written and whose stock image is damaged below.
-        // Loading names the body, pause, intro and ending sheets from the body tables, map presentation, intro and
-        // ending compositions installed beside the sheets, so those directories are copied with them.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.SpriteSheetDirectory,
-            layout => layout.SamusBodyDirectory, layout => layout.MapDirectory,
-            layout => layout.IntroCinematicDirectory, layout => layout.EndingObjectDirectory);
-        string stock = copy.Installation.SpriteSheetDirectory;
-        string overrides = copy.Installation.SpriteSheetOverrideDirectory;
-        InstalledSpriteSheets installed = SpriteSheetFiles.Load(stock, null);
+        InstalledSpriteSheets installed = SpriteSheetFiles.Load(RepositoryInstallation.Installation.SpriteSheetDirectory);
 
         ComposedSpriteSheet composed = EscapeTimerSheetComposer.Compose(bus);
         SpriteSheet timer = installed.Get(SpriteSheetId.EscapeTimer);
@@ -39,39 +29,7 @@ internal static class SpriteSheetFilesVerification
         AssertTrue(timer.Image.Pixels.SequenceEqual(composed.Pixels), "the installed timer image holds the composed pixels");
         AssertTrue(timer.HoldsExactly(EscapeTimerLayoutDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName)),
             "the installed timer sheet holds exactly the timer's frames");
-
-        string image = SpriteSheetStore.ImageFile(SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer]);
-        RgbaPixel[] edited = [.. composed.Pixels];
-        int opaque = Array.FindIndex(edited, pixel => pixel.A != 0);
-        edited[opaque] = new RgbaPixel(1, 2, 3, 255);
-        Directory.CreateDirectory(overrides);
-        using (var pngBuffers = new RgbaPngBuffers())
-            File.WriteAllBytes(Path.Combine(overrides, image), RgbaPng.Encode(composed.Size, edited, pngBuffers));
-        InstalledSpriteSheets overridden = SpriteSheetFiles.Load(stock, overrides);
-        AssertEqual(new RgbaPixel(1, 2, 3, 255), overridden.Get(SpriteSheetId.EscapeTimer).Image.Pixels[opaque],
-            "a player's sheet image replaces the stock pixels");
-        AssertTrue(overridden.ContentIdentity != installed.ContentIdentity, "a sheet image override changes the content identity");
-        File.Delete(Path.Combine(overrides, image));
-
-        string frames = SpriteSheetFiles.FrameFile(SpriteSheetId.EscapeTimer);
-        SpriteSheetDocument missing = composed.Manifest with
-        {
-            Frames = composed.Manifest.Frames.Where(pair => pair.Key != "Digit.9").ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal),
-        };
-        File.WriteAllBytes(Path.Combine(overrides, frames), SpriteSheetManifestWriter.Write(missing));
-        AssertThrows<InvalidDataException>(() => SpriteSheetFiles.Load(stock, overrides), "a sheet override missing a frame fails loudly");
-        File.Delete(Path.Combine(overrides, frames));
-
-        byte[] stockImage = File.ReadAllBytes(Path.Combine(stock, image));
-        stockImage[^20] ^= 1;
-        File.WriteAllBytes(Path.Combine(stock, image), stockImage);
-        // A stock image is decoded when it is first drawn (#1430), so a damaged one fails then, not at load.
-        SpriteSheet damaged = SpriteSheetFiles.Load(stock, null).Get(SpriteSheetId.EscapeTimer);
-        AssertThrows<InvalidDataException>(() => { _ = damaged.Image.Pixels.Length; }, "a damaged stock sheet fails when it is first decoded");
-
-        using (var corrupt = new MemoryStream(stockImage, writable: false))
-            AssertThrows<InvalidDataException>(() => RgbaPng.Read(corrupt, out Extent16<ImagePixels> _), "a PNG chunk failing its CRC is rejected");
-        Console.WriteLine("Sprite sheet files: composed timer sheet installed exactly, image override applied, missing frame and damaged stock rejected.");
+        Console.WriteLine("Sprite sheet files: every sheet recomposes byte for byte; the composed timer sheet loads exactly.");
     }
 
     /// <summary>Composes the sheets again into a scratch directory and compares them with the installed files byte for byte.</summary>

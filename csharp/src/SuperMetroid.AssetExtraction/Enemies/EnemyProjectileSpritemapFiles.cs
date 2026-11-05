@@ -34,7 +34,7 @@ public static class EnemyProjectileSpritemapFiles
         }
         return EnemyProjectileSpritemapDocuments.Write(new EnemyProjectileSpritemapDocument
         {
-            Version = (int)EnemyProjectileSpritemapVersion.Current,
+            Version = EnemyProjectileSpritemapDocuments.Version,
             Frames = frames,
             ProgramFrames = programFrames,
         });

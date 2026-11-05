@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
-/// <summary>Checks pause selector identities, native anchor geometry, and editable coordinate admission.</summary>
+/// <summary>Checks pause selector identities, native anchor geometry, and coordinate admission.</summary>
 internal static class PauseSelectorAnchorsVerification
 {
-    /// <summary>Compares original selector names and coordinates with compiled stock and checks edited component storage.</summary>
+    /// <summary>Compares original selector names and coordinates with compiled stock and checks identity bounds.</summary>
     internal static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
     {
         // Original names from the preconversion definition table, kept only as the oracle.
@@ -89,7 +89,7 @@ internal static class PauseSelectorAnchorsVerification
             }, "label loader rejects missing, substituted, case-changed or extra identities on read");
     }
 
-    /// <summary>Checks one coordinate axis against retail geometry and validates authored boundary values.</summary>
+    /// <summary>Checks one coordinate axis against retail geometry and rejects out-of-range coordinates.</summary>
     private static void VerifyPauseSelectorAnchorField(ISnesAddressSpace rom, PauseSelectorDocument document,
         PauseSelectorPresentation stock, bool horizontal)
     {
@@ -101,18 +101,6 @@ internal static class PauseSelectorAnchorsVerification
             var point = stock.Anchor(anchor.Category, anchor.Item);
             AssertEqual(original, horizontal ? basis.X : basis.Y, "native selector geometry field");
             AssertEqual(original, horizontal ? point.X : point.Y, "native installed selector coordinate field");
-            foreach (int value in new[] { 0, horizontal ? 255 : 223 })
-            {
-                var anchors = new Dictionary<string, Position16<SpritePixels>>(document.Anchors);
-                string name = PauseSelectorAnchors.Anchor(anchor.Category, anchor.Item);
-                var previous = anchors[name];
-                anchors[name] = horizontal ? new(checked((ushort)value), previous.Y) : new(previous.X, checked((ushort)value));
-                using var stream = new MemoryStream(); PauseSelectorSourcePresentation.Write(stream, document with { Anchors = anchors }); stream.Position = 0;
-                var edited = PauseSelectorSourcePresentation.Load(stream);
-                AssertEqual(1, edited.StoredAnchorComponentCount, "only one independently authored coordinate captured");
-                foreach (var other in PauseSelectorAnchors.Anchors())
-                    AssertEqual(anchors[PauseSelectorAnchors.Anchor(other.Category, other.Item)], edited.Anchor(other.Category, other.Item), "all edited and unedited coordinates");
-            }
         }
         foreach (int invalid in new[] { -1, horizontal ? 256 : 224 })
         {

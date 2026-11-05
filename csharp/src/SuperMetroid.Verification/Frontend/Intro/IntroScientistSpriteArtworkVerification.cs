@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroRinkaSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -23,7 +22,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Checks installed scientist and delivered-Baby sprites in intro scenes against native OAM.</summary>
 internal static class IntroScientistSpriteArtworkVerification
 {
-    /// <summary>Compares ten frames, an edited delivery-scene override, rebinding, and missing-frame rejection.</summary>
+    /// <summary>Compares ten frames and the live examination actor with native OAM, and checks missing-frame rejection.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtwork stock, GameInstallation installation)
     {
@@ -57,44 +56,12 @@ internal static class IntroScientistSpriteArtworkVerification
             }
         }
 
-        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
-        string name = IntroScientistSpriteFormat.FileName;
         IntroScientistSpriteDocument document =
             RequiredJson.Deserialize<IntroScientistSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, name)),
+                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroScientistSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        document.Frames["delivered-baby-1"] = document.Frames["delivered-baby-1"]
-            .Select(part => part with { OffsetX = part.OffsetX + 1 }).ToArray();
-        string overridePath = Path.Combine(installation.IntroCinematicOverrideDirectory, name);
-        using (var output = File.Create(overridePath))
-            IntroScientistSpritePresentation.Write(output, document);
-        IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroScientistSprites);
-        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        foreach (IntroCinematicState state in new[] { stockState, editedState })
-        {
-            state.SetupFirstIllustratedPage();
-            state.SetupMotherBrainFlashback();
-            state.SetupBabyDiscoveryCrossfade();
-            state.SetupBabyMetroidDelivery();
-            for (int frame = 0; frame < 128 &&
-                state.Phase == IntroCinematicPhase.BabyMetroidDeliveryCrossfade; frame++)
-                state.StepBabyMetroidDeliveryCrossfade();
-            AssertEqual(IntroCinematicPhase.BabyMetroidDelivery, state.Phase,
-                "scientist sprite probe reached the lit delivery scene");
-            var scientist = state.CurrentScientistCutscene;
-            (scientist ?? throw new InvalidOperationException("Verification requires scientist.")).Step(0, introCrossfadeTimer: 0x007f);
-        }
-        RgbaPixel[] stockPixels = stockState.RenderArtwork();
-        RgbaPixel[] editedPixels = editedState.RenderArtwork();
-        AssertTrue(!stockPixels.SequenceEqual(editedPixels),
-            "scientist sprite override changes visible delivery-scene pixels");
-        stockState.BindFixtureIntroArtwork(edited);
-        AssertTrue(stockState.RenderArtwork().SequenceEqual(editedPixels),
-            "restored scientist scene rebinds selected baby artwork");
-
         var examination = IntroScientistCutsceneState.CreateExamination();
         examination.Step(0, introCrossfadeTimer: 0x007f);
         var installedExamination = ScreenSpritesFixtures.Blank();
@@ -117,6 +84,5 @@ internal static class IntroScientistSpriteArtworkVerification
             IntroScientistSpritePresentation.Write(malformed, document);
             _ = IntroScientistSpritePresentation.Load(new MemoryStream(malformed.ToArray(), writable: false));
         }, "scientist sprite artwork rejects a missing named frame on read");
-        File.Delete(overridePath);
     }
 }

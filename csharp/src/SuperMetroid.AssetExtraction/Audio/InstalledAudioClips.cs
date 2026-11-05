@@ -37,25 +37,15 @@ public static class InstalledAudioClips
         Converters = { new SoundEffectClipEntryJsonConverter(), new UnrenderableSoundEffectJsonConverter() },
     };
 
-    /// <summary>The validated stock clips: their audio root, their manifest and the manifest file's identity.</summary>
-    /// <param name="Root">The audio root the manifest's paths are relative to.</param>
-    /// <param name="Manifest">The stock manifest, its files checked.</param>
-    /// <param name="Identity">SHA-256 of the stock manifest file, which names every clip's hash.</param>
-    internal sealed record StockClips(string Root, AudioClipManifest Manifest, string Identity);
-
-    /// <summary>Loads and validates the stock clips beneath <paramref name="audioDirectory"/>.</summary>
-    /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
-    /// <exception cref="InvalidDataException">The format, rate, an identity, a sound, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
-    public static InstalledClipAudioLibrary Load(string audioDirectory) => ClipAudioOverrides.Load(audioDirectory, overrideDirectory: null);
-
     /// <summary>
-    /// Reads the stock clip manifest beneath <paramref name="audioDirectory"/> and checks its format and every clip
-    /// file's containment and size. The manifest names each sound by its library and request number;
-    /// <see cref="ManifestOptions"/> decode them into sounds. The catalog checks the manifest's meaning.
+    /// Loads the installed clips beneath <paramref name="audioDirectory"/>, as the player may have edited them in place:
+    /// reads the clip manifest and checks its format and every clip file's containment and size. The manifest names each
+    /// sound by its library and request number; <see cref="ManifestOptions"/> decode them into sounds. The catalog checks
+    /// the manifest's meaning.
     /// </summary>
     /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
-    /// <exception cref="InvalidDataException">The format, a path or a file size is invalid.</exception>
-    internal static StockClips ReadStock(string audioDirectory)
+    /// <exception cref="InvalidDataException">The format, rate, an identity, a sound, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
+    public static InstalledClipAudioLibrary Load(string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
         string root = Path.GetFullPath(audioDirectory);
@@ -74,6 +64,9 @@ public static class InstalledAudioClips
             InstalledClipFiles.ValidateFileSize(root, entry.Clip);
         foreach (InstalledSoundEffectLayer layer in manifest.SoundEffects.SelectMany(entry => entry.Layers))
             InstalledClipFiles.ValidateFileSize(root, layer.Clip);
-        return new StockClips(root, manifest, Convert.ToHexString(SHA256.HashData(manifestBytes)));
+        return new InstalledClipAudioLibrary(
+            manifest,
+            Convert.ToHexString(SHA256.HashData(manifestBytes)),
+            new InstalledClipFiles(root, manifest.SampleRate));
     }
 }

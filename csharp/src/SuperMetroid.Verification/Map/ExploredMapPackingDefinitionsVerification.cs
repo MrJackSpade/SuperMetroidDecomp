@@ -5,14 +5,10 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Map;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 /// <summary>Checks occupancy-derived SRAM map packing against native lists and production save/load behavior.</summary>
 internal static class ExploredMapPackingDefinitionsVerification
@@ -97,75 +93,30 @@ internal static class ExploredMapPackingDefinitionsVerification
     /// <summary>Reads a native map-packing byte solely for the cartridge-side verification oracle.</summary>
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that edited map artwork preserves SRAM layout and that debugger restoration requires artwork rebinding.</summary>
+    /// <summary>Checks that map packing needs a bound map presentation and that debugger restoration keeps the bound provider and decoded slots.</summary>
     private static void VerifyCalculatedMapPackingBindings(PersistentProgress explored)
     {
-        string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
-        string root = Directory.CreateDirectory(Path.Combine(parent, "packing-bindings-" + Guid.NewGuid().ToString("N"))).FullName;
-        try
-        {
-            // The shared installation's stock maps are only read; the blank artwork overrides go to the scratch root.
-            string stock = RepositoryInstallation.Installation.MapDirectory;
-            string edits = Directory.CreateDirectory(Path.Combine(root, "edits")).FullName;
-            var original = MapPresentationFiles.Load(stock, null);
-            for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
-            {
-                var document = new MapPresentationDocument
-                {
-                    Version = MapPresentationFormat.Version,
-                    Area = ((AreaId)area).ToString(),
-                    Cells = Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
-                        .Select(_ => new MapPresentationCell { TileColumn = 31, TileRow = 0, Palette = 0,
-                            Priority = false, FlipX = false, FlipY = false }).ToArray(),
-                };
-                File.WriteAllText(Path.Combine(edits, AreaMapCatalogFormat.FileName((AreaId)area)),
-                    System.Text.Json.JsonSerializer.Serialize(document, ArtworkJson.Options));
-            }
-            var edited = MapPresentationFiles.Load(stock, edits);
-            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var snapshot = new SuperMetroidSaveSnapshot { Progress = explored };
-            var unbound = new SaveSlotStore();
-            AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
-                "unbound map packing fails before persistence");
-            AssertTrue(unbound.ReadSlot(0) is null, "unbound save leaves the slot empty");
-            var saves = new SaveSlotStore(original);
-            saves.SaveSlot(0, snapshot);
-            byte[] expected = SaveRamCodec.Encode(saves, original);
-            var editedSaves = new SaveSlotStore(edited);
-            editedSaves.SaveSlot(0, snapshot);
-            AssertTrue(expected.SequenceEqual(SaveRamCodec.Encode(editedSaves, edited)), "blank artwork overrides preserve exact SRAM format");
-            for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
-            {
-                SaveRamPackedArea a = SaveRamMapPacking.Area(area, original);
-                SaveRamPackedArea b = SaveRamMapPacking.Area(area, edited);
-                AssertTrue(a.PlaneBytes.SequenceEqual(b.PlaneBytes), "editable artwork retains stock occupied byte order");
-                AssertEqual(a.SaveOffset, b.SaveOffset, "editable artwork retains packed offset");
-            }
+        var original = InstalledFixtures.Maps;
+        var snapshot = new SuperMetroidSaveSnapshot { Progress = explored };
+        var unbound = new SaveSlotStore();
+        AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
+            "unbound map packing fails before persistence");
+        AssertTrue(unbound.ReadSlot(0) is null, "unbound save leaves the slot empty");
+        var saves = new SaveSlotStore(original);
+        saves.SaveSlot(0, snapshot);
 
-            var game = new SuperMetroidGame(editedSaves);
-            game.BindArtwork(game.Artwork with
-            {
-                MapPresentation = original,
-            });
-            var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
-            var restoredSaves = restored.Saves;
-            AssertTrue(ReferenceEquals(original, restored.Artwork.MapPresentation), "debugger graph names its bound map provider");
-            restored.BindArtwork(restored.Artwork with
-            {
-                MapPresentation = edited,
-            });
-            AssertTrue(restoredSaves.ReadSlot(0) is not null, "the restored graph keeps the decoded slot");
-            restoredSaves.SaveSlot(0, snapshot);
-            AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).Progression.SameAs((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).Progression),
-                "rebound debugger game preserves decoded exploration");
-        }
-        finally
+        var game = new SuperMetroidGame(saves);
+        game.BindArtwork(game.Artwork with
         {
-            string resolved = Path.GetFullPath(root);
-            if (!resolved.StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("Packing fixture cleanup escaped its temporary parent.");
-            Directory.Delete(resolved, recursive: true);
-        }
+            MapPresentation = original,
+        });
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
+        var restoredSaves = restored.Saves;
+        AssertTrue(ReferenceEquals(original, restored.Artwork.MapPresentation), "debugger graph names its bound map provider");
+        AssertTrue(restoredSaves.ReadSlot(0) is not null, "the restored graph keeps the decoded slot");
+        restoredSaves.SaveSlot(0, snapshot);
+        AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).Progression.SameAs((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression),
+            "restored debugger game preserves decoded exploration");
     }
 
 

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -189,11 +188,11 @@ internal static class RoomPaletteFxPresentationVerification
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Crateria and Brinstar beacon flash", new PaletteFxFamilyShape { FrameCount = BeaconPaletteFxColorDefinitionsConstants.FrameCount, ColorsPerFrame = BeaconPaletteFxColorDefinitions.ColorsPerFrame, ColorPointer = BeaconPaletteFxColorDefinitions.ColorPointer, Definitions = [BeaconPaletteFxColorDefinitions.DefinitionPointer] }, BeaconPaletteFxColorDefinitions.CycleFrames * 2));
         Suite(nameof(VerifyRoomPaletteFxPresentationValidation), () => VerifyRoomPaletteFxPresentationValidation(extracted));
         Console.WriteLine(
-            "  Room palette presentation: 5108 editable palette colors match ROM; " +
+            "  Room palette presentation: 5108 installed palette colors match ROM; " +
             "fifty-five installed programs match native execution without color-source reads.");
     }
 
-    /// <summary>Checks the ending gunship's calculated palette samples and independent color edits against its native cycle.</summary>
+    /// <summary>Checks the ending gunship's calculated palette samples against its native cycle.</summary>
     internal static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -237,42 +236,11 @@ internal static class RoomPaletteFxPresentationVerification
         ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
         AssertEqual(256, identities.Length, "gunship auditor identities include calculated colors");
         AssertEqual(256, identities.Distinct().Count(), "gunship auditor identities are unique");
-        var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), ArtworkJson.Options);
-        // White, both dim boundaries, the special boundary color, each interpolation
-        // stage and the bright base all remain independently editable.
-        foreach (var edit in new[] { new Coordinate(0, 1), new Coordinate(7, 2), new Coordinate(7, 15), new Coordinate(8, 3), new Coordinate(3, 4), new Coordinate(11, 5), new Coordinate(15, 6) })
-        {
-            PaletteRgb5 current = document.ZebesExplosionGunship[edit.Frame][edit.Color];
-            document.ZebesExplosionGunship[edit.Frame][edit.Color] = current with { Red = (current.Red + 11) & 31 };
-        }
-        for (int color = 0; color < 16; color++)
-        {
-            PaletteRgb5 current = document.ZebesExplosionGunship[15][color];
-            document.ZebesExplosionGunship[15][color] = new PaletteRgb5
-            {
-                Red = (current.Red + 11) & 31,
-                Green = (current.Green + 7) & 31,
-                Blue = (current.Blue + 13) & 31,
-            };
-        }
-        document.ZebesExplosionGunship[15][9] = document.ZebesExplosionGunship[15][9] with { Green = 0 };
-        document.ZebesExplosionGunship[15][13] = document.ZebesExplosionGunship[15][13] with { Blue = 0 };
-        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-        RoomPaletteFxPresentation edited = RoomPaletteFxPresentationFile.Read(json);
-        for (int frame = 0; frame < 16; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            PaletteRgb5 expected = document.ZebesExplosionGunship[frame][color];
-            AssertTrue(edited.TryReadColor((ushort)(0xd6c0 + frame * 36 + color * 2), out RgbColor actual), "edited gunship color remains readable");
-            AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
-                "gunship preserves independent edits and unchanged samples");
-        }
         AssertTrue(!EndingGunshipPaletteColors.TryCalculatedColor(0xd6e4, ToColors(new Dictionary<ushort, ushort>()), out _),
             "gunship does not invent missing interpolation inputs");
     }
 
-    /// <summary>Checks post-credits logo glare ownership, calculated colors, edits, and installed playback.</summary>
+    /// <summary>Checks post-credits logo glare ownership, calculated colors, and installed playback.</summary>
     internal static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -305,30 +273,11 @@ internal static class RoomPaletteFxPresentationVerification
         ushort[] identities = presentation.ColorPointers.Where(original.ContainsKey).ToArray();
         AssertEqual(224, identities.Length, "glare computed and supplied identities remain enumerable");
         AssertEqual(224, identities.Distinct().Count(), "glare identities have no duplicates");
-        var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), ArtworkJson.Options);
-        // An intermediate, its return-side counterpart, white peak and base can be
-        // edited independently. Unchanged rows must not inherit a changed base value.
-        foreach (var edit in new[] { new Coordinate(0, 1), new Coordinate(12, 2), new Coordinate(6, 0), new Coordinate(13, 3) })
-        {
-            PaletteRgb5 current = document.PostCreditsIconGlare[edit.Frame][edit.Color];
-            document.PostCreditsIconGlare[edit.Frame][edit.Color] = current with { Red = (current.Red + 11) & 31 };
-        }
-        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
-        RoomPaletteFxPresentation edited = RoomPaletteFxPresentationFile.Read(json);
-        for (int frame = 0; frame < 14; frame++)
-        for (int color = 0; color < 16; color++)
-        {
-            PaletteRgb5 expected = document.PostCreditsIconGlare[frame][color];
-            AssertTrue(edited.TryReadColor((ushort)(0xdf9a + frame * 36 + color * 2), out RgbColor actual), "edited glare remains readable");
-            AssertEqual((ushort)(expected.Red | expected.Green << 5 | expected.Blue << 10), actual,
-                "glare preserves every independently supplied frame color");
-        }
         AssertTrue(!LogoGlarePaletteColors.TryCalculatedColor(0xdf9a, ToColors(new Dictionary<ushort, ushort>()), out _),
             "glare does not invent a missing base color");
     }
 
-    /// <summary>Checks Samus loading colors, independent endpoint channels, aliases, and installed cycle output.</summary>
+    /// <summary>Checks Samus loading colors, endpoint channels, aliases, and installed cycle output.</summary>
     internal static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -343,26 +292,6 @@ internal static class RoomPaletteFxPresentationVerification
         int independentComponents = endpointChannels.Sum(channels =>
             (channels.red is null ? 0 : 1) + (channels.green is null ? 0 : 1) + (channels.blue is null ? 0 : 1));
         AssertEqual(9, independentComponents, "Stock endpoint words reduce to nine independent channel inputs");
-        var endpointFixture = splitEndpoints.Concat(new ushort[] { 0xdb6d, 0xdb6f, 0xdb7d, 0xdb83, 0xdce5, 0xdce7, 0xdce9, 0xde3b })
-            .ToDictionary(pointer => pointer, pointer => ReadVerificationWord(bus, 0x8d0000 | pointer));
-        // The supplied words keyed once; each case is that table with one endpoint's word replaced.
-        Dictionary<PaletteFxColorKey, RgbColor> keyedEndpointFixture = PaletteFxColorAddressAccess.Keyed(ToColors(endpointFixture));
-        foreach (ushort endpoint in splitEndpoints)
-        {
-            PaletteFxColorKey endpointKey = PaletteFxColorAddressAccess.KeyAt(endpoint);
-            for (int rgb = 0; rgb < 32768; rgb++)
-            {
-                var source = new Dictionary<PaletteFxColorKey, RgbColor>(keyedEndpointFixture) { [endpointKey] = RgbColor.FromWord((ushort)rgb) };
-                var view = new LoadingPaletteInputView(source);
-                foreach (ushort selected in splitEndpoints)
-                {
-                    AssertTrue(view.TryGetValue(selected, out RgbColor actual), "Split endpoint remains owned");
-                    AssertEqual(selected == endpoint ? (ushort)rgb : endpointFixture[selected], actual,
-                        "Every RGB5 endpoint edit preserves its value and other supplied endpoints");
-                    AssertTrue(!source.ContainsKey(selected), "No complete split endpoint word remains stored");
-                }
-            }
-        }
         var aliases = new Dictionary<ushort, ushort>();
         List<RoomPaletteFxPresentationRow>? powerRows = null;
         var tinted = new HashSet<ushort>();
@@ -425,55 +354,14 @@ internal static class RoomPaletteFxPresentationVerification
         AssertEqual(432, aliases.Count, "Loading color domain");
         AssertEqual(62, tinted.Count, "Base tints, endpoint brightening and shared channels");
         AssertEqual(25, aliases.Keys.Count(stored.ContainsKey), "Endpoint splitting and transparent sharing remove whole words");
-        for (int rgb = 0; rgb < 32768; rgb++)
-        for (int shade = 0; shade < 3; shade++)
-        {
-            int greenAdd = new[] { 15, 5, 0 }[shade];
-            int blueAdd = new[] { 20, 20, 10 }[shade];
-            int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + greenAdd, 0, 31) * 32 +
-                Math.Clamp((rgb >> 10 & 31) + blueAdd, 0, 31) * 1024;
-            AssertEqual((ushort)expected, LoadingPaletteColors.TintColor(RgbColor.FromWord(checked((ushort)rgb)), shade), "Every RGB5 tint input and saturation boundary");
-            int variaGreen = new[] { 5, 0, 0 }[shade];
-            int variaBlue = new[] { 30, 20, 10 }[shade];
-            int variaExpected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + variaGreen, 0, 31) * 32 +
-                Math.Clamp((rgb >> 10 & 31) + variaBlue, 0, 31) * 1024;
-            AssertEqual((ushort)variaExpected, LoadingPaletteColors.VariaTintColor(RgbColor.FromWord(checked((ushort)rgb)), shade), "Every RGB5 Varia tint input and saturation boundary");
-        }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.TintColor(new RgbColor(0, 0, 0), invalid), "Tint shade rejects outside domain");
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.VariaTintColor(new RgbColor(0, 0, 0), invalid), "Varia tint shade rejects outside domain");
-        foreach (var (peak, plateau, brightGreen, middleGreen, brightBlue, middleBlue) in
-            new[] { new VerifyExtractedSamusLoadingPaletteFxPresentationCase(15, true, 15, 5, 10, 10), new VerifyExtractedSamusLoadingPaletteFxPresentationCase(0, false, 0, 0, 10, 5), new VerifyExtractedSamusLoadingPaletteFxPresentationCase(5, false, 5, 0, 10, 5) })
-        for (int rgb = 0; rgb < 32768; rgb++)
-        for (int shade = 0; shade < 2; shade++)
-        {
-            int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + (shade == 0 ? brightGreen : middleGreen), 0, 31) * 32 +
-                Math.Clamp((rgb >> 10 & 31) + (shade == 0 ? brightBlue : middleBlue), 0, 31) * 1024;
-            AssertEqual((ushort)expected, LoadingPaletteColors.BrightenDimColor(RgbColor.FromWord(checked((ushort)rgb)), shade, peak, plateau),
-                "Every RGB5 dim endpoint across each original brightening rule");
-        }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.BrightenDimColor(new RgbColor(0, 0, 0), invalid, 0, false), "Dim brightening rejects invalid shade");
         foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColors.BrightenDimColor(new RgbColor(0, 0, 0), 0, invalid, false), "Dim brightening rejects invalid green peak");
-        for (int blue = 0; blue < 32; blue++)
-        foreach (ushort normal in new ushort[] { 0, 0x7fff, 0x1234, 0x4321 })
-        {
-            var input = new Dictionary<ushort, ushort>
-            {
-                [0xdb7d] = normal, [0xdb7f] = normal, [0xdb81] = normal,
-                [0xdc80] = (ushort)(blue * 1024), [0xdba1] = (ushort)(blue * 1024),
-            };
-            foreach (ushort pointer in new ushort[] { 0xdc90, 0xdc92 })
-            {
-                AssertTrue(LoadingPaletteColors.TryCalculatedColor(pointer, ToColors(input), out RgbColor actual), "Dim shared-blue word resolves independently edited inputs");
-                AssertEqual((ushort)(normal % 1024 + blue * 1024), actual, "Dim blue source cannot overwrite normal red/green");
-            }
-            AssertTrue(LoadingPaletteColors.TryCalculatedColor(0xdc3f, ToColors(input), out RgbColor middle), "Middle shared-blue word resolves independently edited inputs");
-            int expected = (normal & 31) + Math.Min(31, (normal >> 5 & 31) + 5) * 32 + blue * 1024;
-            AssertEqual((ushort)expected, middle, "Middle tint preserves independently selected bright blue");
-        }
         AssertEqual(95, aliases.Count(item => item.Key == item.Value), "Shared suit and transparent colors reduce four-row inputs");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
@@ -500,26 +388,6 @@ internal static class RoomPaletteFxPresentationVerification
         var inputs = presentation.heatInputs;
         foreach (int? channel in new[] { inputs.greenOverride, inputs.blueOverride, inputs.mixedBlueOverride })
             AssertTrue(channel is null, "Stock endpoint channels are calculated, not stored overrides");
-        // The native endpoint words keyed once; each case is that table with one endpoint's word replaced.
-        Dictionary<PaletteFxColorKey, RgbColor> keyedHeatEndpoints = PaletteFxColorAddressAccess.Keyed(ToColors(new Dictionary<ushort, ushort>
-        {
-            [0xe46e] = ReadVerificationWord(bus, 0x8de46e),
-            [0xe470] = ReadVerificationWord(bus, 0x8de470),
-            [0xe55c] = ReadVerificationWord(bus, 0x8de55c),
-            [0xe55e] = ReadVerificationWord(bus, 0x8de55e),
-        }));
-        foreach (ushort endpoint in new ushort[] { 0xe55c, 0xe55e })
-        {
-            PaletteFxColorKey endpointKey = PaletteFxColorAddressAccess.KeyAt(endpoint);
-            for (int rgb = 0; rgb < 32768; rgb++)
-            {
-                var source = new Dictionary<PaletteFxColorKey, RgbColor>(keyedHeatEndpoints) { [endpointKey] = RgbColor.FromWord((ushort)rgb) };
-                var split = new HeatPaletteInputView(source);
-                AssertTrue(split.TryGetValue(endpoint, out RgbColor actual), "Split endpoint remains owned");
-                AssertEqual((ushort)rgb, actual, "Every independently edited RGB5 endpoint survives channel decomposition");
-                AssertTrue(!source.ContainsKey(endpoint), "No complete endpoint word remains in source storage");
-            }
-        }
         var expectedAliases = new Dictionary<ushort, ushort>();
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
         for (int phase = 0; phase < 16; phase++)
@@ -587,97 +455,6 @@ internal static class RoomPaletteFxPresentationVerification
             }
             AssertEqual(ReadVerificationWord(bus, 0x8d0000 | pointer), calculated, "Every calculated shared-red color matches original");
             AssertTrue(!stored.ContainsKey(pointer), "Calculated shared-red word is not cached");
-        }
-        // Confirm the newly identified endpoint interpolation for every RGB5 red
-        // endpoint pair. The oracle uses a floating-point weighted average and floor.
-        for (int startRed = 0; startRed < 32; startRed++)
-        for (int endRed = 0; endRed < 32; endRed++)
-        {
-            var endpoints = new Dictionary<ushort, ushort>
-            {
-                [0xe46e] = (ushort)(0x3fe0 | startRed),
-                [0xe55c] = (ushort)endRed,
-            };
-            for (int row = 1; row < 4; row++)
-            {
-                ushort pointer = (ushort)(0xe46e + (2 * row - 1) * 34);
-                AssertTrue(HeatPaletteColors.TryRedRamp(pointer, ToColors(endpoints), out RgbColor actual), "Interior ramp owned");
-                ushort expected = (ushort)(0x3fe0 | (int)Math.Floor(startRed * (1.0 - row / 4.0) + endRed * row / 4.0));
-                AssertEqual(expected, actual, "Edited red endpoints preserve floor interpolation and base green/blue");
-            }
-        }
-        foreach (int first in new[] { 0xe46a, 0xe478, 0xe6a6 })
-        for (int startRed = 0; startRed < 32; startRed++)
-        for (int endRed = 0; endRed < 32; endRed++)
-        {
-            var endpoints = new Dictionary<ushort, ushort>
-            {
-                [(ushort)first] = (ushort)(0x3fe0 | startRed),
-                [(ushort)(first + 238)] = (ushort)endRed,
-            };
-            for (int row = 1; row < 4; row++)
-            {
-                ushort pointer = (ushort)(first + (2 * row - 1) * 34);
-                AssertTrue(HeatPaletteColors.TrySecondaryRedRamp(pointer, ToColors(endpoints), out RgbColor actual), "Secondary red ramp owned");
-                double interpolated = startRed * (1.0 - row / 4.0) + endRed * row / 4.0;
-                int red = (int)(first == 0xe6a6 ? Math.Floor(interpolated) : Math.Round(interpolated, MidpointRounding.AwayFromZero));
-                AssertEqual((ushort)(0x3fe0 | red), actual, "All endpoint pairs preserve each gradient's original rounding convention");
-            }
-        }
-        for (int startRed = 0; startRed < 32; startRed++)
-        for (int endRed = 0; endRed < 32; endRed++)
-        {
-            var endpoints = new Dictionary<ushort, ushort>
-            {
-                [0xe470] = (ushort)(startRed | 13 << 5 | 8 << 10),
-                [0xe55e] = (ushort)(endRed | 16 << 5 | 11 << 10),
-            };
-            for (int row = 1; row < 4; row++)
-            {
-                AssertTrue(HeatPaletteColors.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), ToColors(endpoints), out RgbColor actual),
-                    "Mixed red interpolation owned");
-                int expected = (int)Math.Ceiling(startRed * (1.0 - row / 4.0) + endRed * row / 4.0);
-                AssertEqual(expected, actual.ToWord() & 31, "Every red endpoint pair uses upward rounding");
-            }
-        }
-        for (int startGreen = 0; startGreen < 32; startGreen++)
-        for (int endGreen = 0; endGreen < 32; endGreen++)
-        for (int startBlue = 0; startBlue < 32; startBlue++)
-        {
-            var endpoints = new Dictionary<ushort, ushort>
-            {
-                [0xe470] = (ushort)(startGreen << 5 | startBlue << 10),
-                [0xe55e] = (ushort)(endGreen << 5),
-            };
-            for (int row = 1; row < 4; row++)
-            {
-                int green = (int)Math.Round(startGreen * (1.0 - row / 4.0) + endGreen * row / 4.0, MidpointRounding.ToEven);
-                int blue = startBlue + green - startGreen;
-                bool accepted = blue is >= 0 and < 32;
-                AssertEqual(accepted, HeatPaletteColors.TryMixedRamp((ushort)(0xe470 + (2 * row - 1) * 34), ToColors(endpoints), out RgbColor actual),
-                    "Edited green/blue relation has exact RGB5 representability boundary");
-                AssertEqual(accepted ? (ushort)(green << 5 | blue << 10) : (ushort)0, actual,
-                    "Nearest-even green and shared blue delta match independent oracle");
-            }
-        }
-        foreach (var (endpoint, source) in new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase[] { new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase(0xe558, 0xe46a), new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase(0xe566, 0xe478), new RoomPaletteFxPresentationVerifyExtractedSamusHeatPaletteFxPresentationCase(0xe794, 0xe6a6) })
-        for (int rgb = 0; rgb < 32768; rgb++)
-        {
-            var supplied = new Dictionary<ushort, ushort> { [source] = (ushort)rgb };
-            AssertTrue(HeatPaletteColors.TryHighlightEndpoint(endpoint, ToColors(supplied), out RgbColor actual), "Highlight endpoint identity");
-            int red = (int)Math.Ceiling(((rgb & 31) + 31) / 2.0);
-            AssertEqual((ushort)((rgb & 0x7fe0) | red), actual, "Every edited RGB5 base preserves halfway red highlight and other channels");
-        }
-        foreach (bool overflow in new[] { false, true })
-        {
-            var editedSeeds = new Dictionary<ushort, ushort>
-            {
-                [0xe468] = overflow ? (ushort)31 : (ushort)0,
-                [0xe46e] = overflow ? (ushort)0 : (ushort)31,
-                [0xe490] = overflow ? (ushort)31 : (ushort)0,
-            };
-            AssertTrue(!HeatPaletteColors.TrySharedRed(0xe48a, ToColors(editedSeeds), out _),
-                "Edited red underflow/overflow requires an explicit supplied color, never clamping");
         }
         AssertTrue(expectedAliases.Keys.All(presentation.ColorPointers.Contains), "Audit enumeration includes removed aliases");
         foreach (PaletteFxHeatProgramDefinition definition in
@@ -903,7 +680,7 @@ internal static class RoomPaletteFxPresentationVerification
             "installed Maridia palette loops avoid cartridge color reads");
     }
 
-    /// <summary>Checks schema version, shape, and color validation for edited room palette-FX documents.</summary>
+    /// <summary>Checks schema version, shape, and color validation for malformed room palette-FX documents.</summary>
     private static void VerifyRoomPaletteFxPresentationValidation(
         byte[] extracted)
     {
@@ -938,81 +715,6 @@ internal static class RoomPaletteFxPresentationVerification
         document.SamusHeatGravitySuit[0][0] = gravityColor with { Blue = 32 };
         Reject("room palette-FX rejects invalid Gravity Suit heat color");
         document.SamusHeatGravitySuit[0][0] = gravityColor;
-
-        // Current stock supplies only the new heat family to a version-seventeen
-        // override. Its existing environmental edit must survive unchanged.
-        RoomPaletteFxPresentation currentStock = RoomPaletteFxPresentationFile.Read(
-            new MemoryStream(extracted, writable: false));
-        PaletteRgb5 legacyOriginal = document.NorfairForegroundPalette4[0][0];
-        PaletteRgb5 legacyEdit = legacyOriginal with
-        {
-            Red = (legacyOriginal.Red + 1) & 31,
-        };
-        document.NorfairForegroundPalette4[0][0] = legacyEdit;
-        RoomPaletteFxPresentationDocument legacyDocument = document with
-        {
-            Version = RoomPaletteFxPresentationFormatConstants.PreviousVersion,
-            SamusHeatPowerSuit = null,
-            SamusHeatVariaSuit = null,
-            SamusHeatGravitySuit = null,
-        };
-        byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(
-            legacyDocument, ArtworkJson.Options);
-        AssertThrows<InvalidDataException>(
-            () => RoomPaletteFxPresentationFile.Read(
-                new MemoryStream(legacyBytes, writable: false)),
-            "old room palette-FX override requires current stock for new heat rows");
-        RoomPaletteFxPresentation migrated = RoomPaletteFxPresentationFile.Read(
-            new MemoryStream(legacyBytes, writable: false), currentStock);
-        ushort legacyPointer = NorfairEnvironmentalPaletteFxColorDefinitions.All
-            .Single(item => item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundPalette4)
-            .ColorPointer(0, 0);
-        AssertTrue(migrated.TryReadColor(legacyPointer, out RgbColor preserved),
-            "old Norfair override keeps its original color owner");
-        AssertEqual((ushort)(legacyEdit.Red | legacyEdit.Green << 5 |
-            legacyEdit.Blue << 10), preserved,
-            "old Norfair override retains its edited environmental color");
-        ushort heatPointer = PaletteFxHeatProgramMechanicsDefinitions.All[0]
-            .Frames[0].FirstColorPointer;
-        AssertTrue(currentStock.TryReadColor(heatPointer, out RgbColor stockHeat),
-            "current stock contains the new heat color family");
-        AssertTrue(migrated.TryReadColor(heatPointer, out RgbColor inheritedHeat),
-            "old override inherits the new heat color family from stock");
-        AssertEqual(stockHeat, inheritedHeat,
-            "old override inherits exact current stock heat color");
-        document.NorfairForegroundPalette4[0][0] = legacyOriginal;
-
-        PaletteRgb5 heatOriginal = (document.SamusHeatPowerSuit ?? throw new InvalidOperationException("Verification requires document.SamusHeatPowerSuit."))[0][0];
-        document.SamusHeatPowerSuit[0][0] = heatOriginal with
-        {
-            Red = (heatOriginal.Red + 1) & 31,
-        };
-        RoomPaletteFxPresentation editedHeat = RoomPaletteFxPresentationFile.Read(
-            new MemoryStream(Json(), writable: false));
-        var stockOwnerSession = new PaletteFxSessionState();
-        var stockOwner = new RoomPaletteFxSystem(stockOwnerSession);
-        var editedOwnerSession = new PaletteFxSessionState();
-        var editedOwner = new RoomPaletteFxSystem(editedOwnerSession);
-        stockOwner.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat,
-            equippedItems: 0);
-        editedOwner.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat,
-            equippedItems: 0);
-        // The same native control stream selects both color sources. Only the
-        // visible CGRAM word should change, not phase or sound side effects.
-        var stockCgram = new SnesCgram();
-        var editedCgram = new SnesCgram();
-        stockOwner.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        PaletteFxRoomLook.LayShownShades(stockOwner, stockCgram, currentStock);
-        editedOwner.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        PaletteFxRoomLook.LayShownShades(editedOwner, editedCgram, editedHeat);
-        AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)),
-            "editing Samus's Power Suit heat color changes visible CGRAM");
-        AssertEqual(stockOwnerSession.SamusInHeatPaletteIndex,
-            editedOwnerSession.SamusInHeatPaletteIndex,
-            "heat color override preserves native phase");
-        AssertTrue(stockOwner.SoundRequests.SequenceEqual(editedOwner.SoundRequests),
-            "heat color override preserves native sound requests");
-        document.SamusHeatPowerSuit[0][0] = heatOriginal;
 
         PaletteRgb5[][] heat = document.NorfairForegroundAndHeatPhase;
         document = document with { NorfairForegroundAndHeatPhase = heat[..^1] };

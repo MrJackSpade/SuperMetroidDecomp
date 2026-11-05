@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
 /// The installed room-FX atlas PNG (#1409): its file name, pixel geometry and the stable order of the character segments
-/// it holds, and the widths of the older sheets an override may still supply. Only the import pipeline reads and writes
+/// it holds. Only the import pipeline reads and writes
 /// the file; the game holds the compiled characters (<see cref="RoomFxAnimatedTileAtlasFormat"/>).
 /// </summary>
 public static class RoomFxAnimatedTileAtlasFile
@@ -16,22 +16,13 @@ public static class RoomFxAnimatedTileAtlasFile
     public const int BitsPerPixel = 2;
     /// <summary>Four palette-index values representable by the two-bit artwork; visible palette colors remain separately owned.</summary>
     public const int ColorCount = 4;
-    /// <summary>Legacy PNG width in pixels for the original 89-character prefix, admitted only with a seekable stream and current-stock tail fallback.</summary>
-    public const int LegacyWidth = RoomFxAnimatedTileAtlasFormat.LegacyTileCount * 8;
-    /// <summary>Legacy PNG width in pixels for the simple-FX/treadmill prefix, whose missing statue and later characters are inherited from current stock.</summary>
-    public const int PreStatueWidth = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 8;
-    /// <summary>Legacy PNG width in pixels for the prefix through statue characters, whose missing spore and spike tail is inherited from current stock.</summary>
-    public const int PreSporesWidth = RoomFxAnimatedTileAtlasFormat.PreSporesTileCount * 8;
-    /// <summary>Legacy PNG width in pixels for the prefix through spore characters, whose missing spike tail is inherited from current stock.</summary>
-    public const int PreSpikesWidth = RoomFxAnimatedTileAtlasFormat.PreSpikesTileCount * 8;
     /// <summary>Required current PNG width in pixels, with every character placed horizontally in stable transfer-segment order.</summary>
     public const int Width = RoomFxAnimatedTileAtlasFormat.TileCount * 8;
     /// <summary>Required PNG height in pixels: one 8-pixel character row.</summary>
     public const int Height = 8;
 
     /// <summary>
-    /// Stable PNG strip order: existing simple frames, treadmills, the statue strip, spores, then spikes. Never insert new
-    /// frames into the historical prefix or older replacements would shift unrelated art.
+    /// Stable PNG strip order: existing simple frames, treadmills, the statue strip, spores, then spikes.
     /// </summary>
     public static IEnumerable<RoomFxAtlasSegment> Segments => EnumerateSegments();
 

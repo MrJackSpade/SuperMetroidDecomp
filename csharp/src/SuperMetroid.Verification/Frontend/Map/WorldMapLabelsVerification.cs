@@ -1,15 +1,10 @@
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
@@ -17,8 +12,8 @@ namespace SuperMetroid.Verification.Frontend.Map;
 /// <summary>Checks installed world-map labels and opening windows against native pixels and motion.</summary>
 internal static class WorldMapLabelsVerification
 {
-    /// <summary>Verifies stock output with ROM coordinates blocked, then checks editable anchors and override preservation.</summary>
-    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentation original)
+    /// <summary>Verifies stock output with ROM coordinates blocked.</summary>
+    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
@@ -42,42 +37,7 @@ internal static class WorldMapLabelsVerification
                 AssertEqual(nativeWindow.Step(), installedWindow.Step(), "stock window completion timing");
             }
         }
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        var document = RequiredJson.Deserialize<WorldMapLabelDocument>(File.ReadAllBytes(Path.Combine(stock, WorldMapLabelFormat.FileName)), options);
-        var areas = new Dictionary<string, Position16<SpritePixels>>(document.Areas);
-        areas["Crateria"] = areas["Crateria"] with { X = (ushort)(areas["Crateria"].X + 8) };
-        Directory.CreateDirectory(overrides);
-        string replacement = Path.Combine(overrides, WorldMapLabelFormat.FileName);
-        using (var stream = File.Create(replacement)) WorldMapLabelFile.Write(stream, document with { Areas = areas });
-        byte[] bytes = File.ReadAllBytes(replacement);
-        var edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(original.ContentIdentity != edited.ContentIdentity, "label edit invalidates content identity");
-        installed.SelectArea(0); native.SelectArea(0);
-        installed.BindLabels(edited.Labels);
-        AssertTrue(!native.Render(used).SequenceEqual(installed.Render(used)), "label edit changes real rendered pixels");
-        AssertTrue(native.Render(new ushort[6]).SequenceEqual(installed.Render(new ushort[6])), "layout edit does not reveal unavailable areas");
-        var navigation = new FileSelectMapNavigation(0);
-        navigation.BindLabels(edited.Labels);
-        navigation.Step(ControllerButton.A); navigation.Step(0);
-        AssertEqual(areas["Crateria"].X, (navigation.Window ?? throw new InvalidOperationException("Verification requires navigation.Window.")).TopLeft.X, "normal navigation uses edited label/window anchor");
-        AssertEqual(areas["Crateria"].Y, navigation.Window.TopLeft.Y, "normal navigation uses edited vertical anchor");
-        installed.BindLabels(original.Labels);
-        AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");
-        string rebuilt = Path.Combine(overrides, "rebuilt");
-        AssertEqual(edited.ContentIdentity, MapStockReExtraction.ReExtractStock(bus, rebuilt, overrides).ContentIdentity, "label override survives stock replacement");
-        AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
-        foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },
-            document with { Areas = areas.ToDictionary(pair => pair.Key, pair => pair.Value with { X = ushort.MaxValue }) } })
-            AssertThrows<System.IO.InvalidDataException>(() =>
-            {
-                using var written = new MemoryStream();
-                WorldMapLabelFile.Write(written, invalid);
-                _ = WorldMapLabelFile.Read(new MemoryStream(written.ToArray(), writable: false));
-            }, "invalid label schema/area/coordinate rejected on read");
-        File.WriteAllText(replacement, "{bad labels");
-        AssertThrows<System.IO.InvalidDataException>(() => MapPresentationFiles.Load(stock, overrides), "bad label override cannot silently fall back");
-        AssertEqual("{bad labels", File.ReadAllText(replacement), "bad label override remains for repair");
-        Console.WriteLine("World-map labels: native pixels/window timing, blocked ROM reads, visible edits, availability isolation and override preservation pass.");
+        Console.WriteLine("World-map labels: native pixels/window timing and blocked ROM reads pass.");
     }
 
     /// <summary>Blocks migrated label positions and window motion tables while allowing unrelated cartridge reads.</summary>

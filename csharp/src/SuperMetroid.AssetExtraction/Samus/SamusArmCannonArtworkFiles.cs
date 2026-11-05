@@ -93,16 +93,15 @@ public static class SamusArmCannonArtworkFiles
                 SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256), JsonOptions));
     }
 
-    /// <summary>Validates stock cannon-cover placement and pixels, then independently selects optional replacement JSON and PNG files.</summary>
-    /// <param name="stockDirectory">Artwork directory containing the required placement JSON, indexed PNG, and pinned-cartridge manifest.</param>
-    /// <param name="overrideDirectory">Optional artwork directory; each missing replacement file independently falls back to validated stock.</param>
+    /// <summary>Validates the manifest's provenance and loads the installed cannon-cover placement and pixels, as the player may have edited them.</summary>
+    /// <param name="directory">Artwork directory containing the required placement JSON, indexed PNG, and pinned-cartridge manifest.</param>
     /// <returns>A ROM-independent catalog of owned cover placement/attribute selectors and encoded character pixels.</returns>
-    /// <remarks>Stock provenance, both byte hashes, and production codec admission are mandatory even with overrides. Overrides need no manifest; strict placement JSON retains bounded pose/descriptor/direction/source domains, while the PNG supplies twelve four-bit characters.</remarks>
-    /// <exception cref="InvalidDataException">Manifest compatibility, stock hashes, strict JSON, selectors, or indexed artwork are invalid; admission errors identify the offending filename.</exception>
-    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static SamusArmCannonSourceArtwork Load(string stockDirectory, string? overrideDirectory)
+    /// <remarks>Strict placement JSON retains bounded pose/descriptor/direction/source domains, while the PNG supplies twelve four-bit characters.</remarks>
+    /// <exception cref="InvalidDataException">Manifest compatibility, strict JSON, selectors, or indexed artwork are invalid; admission errors identify the offending filename.</exception>
+    /// <exception cref="IOException">A required installed file cannot be read.</exception>
+    public static SamusArmCannonSourceArtwork Load(string directory)
     {
-        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
         Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
@@ -112,12 +111,8 @@ public static class SamusArmCannonArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Arm-cannon manifest does not match the pinned cartridge.");
-            SamusArtworkFile stockJson = SamusArtworkFile.Read(Path.Combine(stockDirectory,
-                SamusArmCannonArtworkFormat.JsonFileName));
-            SamusArtworkFile stockPng = SamusArtworkFile.Read(Path.Combine(stockDirectory,
-                SamusArmCannonArtworkFormat.TileFileName));
-            _ = Compile(stockJson, stockPng);
-            return Compile(stockJson.Select(overrideDirectory), stockPng.Select(overrideDirectory));
+            return Compile(SamusArtworkFile.Read(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)),
+                SamusArtworkFile.Read(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName)));
         }
 
         static SamusArmCannonSourceArtwork Compile(SamusArtworkFile json, SamusArtworkFile png)

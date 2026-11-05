@@ -53,16 +53,15 @@ public static class SamusDeathTileArtworkFiles
                 sourceCartridgeSha256), JsonOptions));
     }
 
-    /// <summary>Checks stock death-explosion provenance, hash, and PNG admission before selecting an optional replacement atlas.</summary>
-    /// <param name="stockDirectory">Artwork directory containing the required death-explosion PNG and version-one manifest.</param>
-    /// <param name="overrideDirectory">Optional artwork directory; null or an absent replacement PNG selects validated stock.</param>
-    /// <returns>A ROM-independent atlas of the explosion characters, retaining selected character pixels without changing palettes or sequence timing.</returns>
-    /// <remarks>Overrides need no manifest but must decode as the same 64-by-160 four-bit character sheet. Required stock is validated even when replaced.</remarks>
-    /// <exception cref="InvalidDataException">Manifest provenance/version, stock hash, or selected PNG dimensions/indices are invalid; admission errors include the source filename.</exception>
-    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static SamusDeathTileAtlas Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks the death-explosion manifest's provenance and loads the installed atlas, as the player may have edited it.</summary>
+    /// <param name="directory">Artwork directory containing the required death-explosion PNG and version-one manifest.</param>
+    /// <returns>A ROM-independent atlas of the explosion characters, retaining the installed character pixels without changing palettes or sequence timing.</returns>
+    /// <remarks>The PNG must decode as the 64-by-160 four-bit character sheet.</remarks>
+    /// <exception cref="InvalidDataException">Manifest provenance/version or PNG dimensions/indices are invalid; admission errors include the source filename.</exception>
+    /// <exception cref="IOException">A required installed file cannot be read.</exception>
+    public static SamusDeathTileAtlas Load(string directory)
     {
-        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, SamusDeathTileAtlasFormat.ManifestFileName));
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, SamusDeathTileAtlasFormat.ManifestFileName));
         ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
@@ -72,10 +71,8 @@ public static class SamusDeathTileArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Samus death-tile manifest does not match the pinned cartridge.");
-            SamusArtworkFile stock = SamusArtworkFile.Read(Path.Combine(stockDirectory,
-                SamusDeathTileAtlasFormat.ArtworkFileName));
-            _ = stock.Compile(SamusDeathTileAtlas.Load);
-            return stock.Select(overrideDirectory).Compile(SamusDeathTileAtlas.Load);
+            return SamusArtworkFile.Read(Path.Combine(directory, SamusDeathTileAtlasFormat.ArtworkFileName))
+                .Compile(SamusDeathTileAtlas.Load);
         }
     }
 

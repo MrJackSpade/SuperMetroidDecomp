@@ -11,7 +11,7 @@ public static class EndingPresentationIdentity
     /// <param name="objects">Non-null selected ending OBJ/BG character and composition catalog.</param>
     /// <param name="palettes">Non-null selected ending palette/animation catalog.</param>
     /// <returns>A new ordinal-keyed dictionary mapping the three installation domain names to their decoded-content identity strings.</returns>
-    /// <remarks>Uses the supplied catalogs, including any already selected overrides; does not load files, retain catalog references, or conflate raw-file hashes with engine-build/cartridge provenance.</remarks>
+    /// <remarks>Uses the supplied catalogs; does not load files, retain catalog references, or conflate raw-file hashes with engine-build/cartridge provenance.</remarks>
     public static IReadOnlyDictionary<string, string> Create(
         EndingFloorArtwork mode7, EndingObjectArtwork objects, EndingPaletteSet palettes) =>
         new Dictionary<string, string>(StringComparer.Ordinal)

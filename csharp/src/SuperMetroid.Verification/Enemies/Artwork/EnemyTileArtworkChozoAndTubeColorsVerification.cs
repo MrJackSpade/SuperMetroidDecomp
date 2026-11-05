@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
@@ -23,7 +22,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
+    /// <summary>Checks three installed color bands, and real initializers while preserving native instructions and PLM requests.</summary>
     internal static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -42,24 +41,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             JsonSerializer.Deserialize<ChozoAndTubeColorDocument>(stockJson,
                 CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Chozo/tube color JSON is null.");
-        visual.TubeCracks[5] = ChangeRed(visual.TubeCracks[5]);
-        visual.WreckedShip[5] = ChangeRed(visual.WreckedShip[5]);
-        visual.LowerNorfair[5] = ChangeRed(visual.LowerNorfair[5]);
-        string overrides = Path.Combine(stockDirectory, "chozo-tube-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides, ChozoAndTubeColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, ChozoAndTubeColorFile.Write(visual));
-        InstalledEnemyArtwork edited = EnemyArtworkEdits.WithEnemyParts(stock, parts => parts with { ChozoAndTubeColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors() });
-        ChozoAndTubeColorCatalog colors = edited.Enemies.ChozoAndTubeColors ??
-            throw new InvalidDataException("Edited enemy art has no Chozo/tube colors.");
-        CheckEditedBand(native.ResolveTubeCracks, colors.ResolveTubeCracks, "tube cracks");
-        CheckEditedBand(native.ResolveWreckedShip, colors.ResolveWreckedShip,
-            "Wrecked Ship Chozo");
-        CheckEditedBand(native.ResolveLowerNorfair, colors.ResolveLowerNorfair,
-            "Lower Norfair Chozo");
-        AssertEqual(colors.ResolveWreckedShip(5),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors().ResolveWreckedShip(5),
-            "Chozo/tube override survives catalog reload");
+        ChozoAndTubeColorCatalog colors = native;
 
         // Every live initializer must use the installed data, while variant selection,
         // instruction identity and native PLM requests remain engine-owned.
@@ -75,24 +57,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueProgram.LowerNorfairInitial));
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors(),
-            "invalid Chozo/tube override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).ChozoAndTubeColors(),
-            "duplicate Chozo/tube color property fails loudly");
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => ChozoAndTubeColorFile.Read(new MemoryStream(ChozoAndTubeColorFile.Write(visual))),
             "Chozo/tube RGB5 channel outside five-bit precision is rejected");
-        File.Delete(overrideFile);
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).ChozoAndTubeColors(),
-            "corrupt stock Chozo/tube colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Chozo/tube colors: 96 native RGB5 words, all three live initializers, persistent overrides, ROM guard, and strict failures pass.");
+        Console.WriteLine("  Chozo/tube colors: 96 native RGB5 words, all three live initializers, ROM guard, and strict failures pass.");
 
         void VerifyBand(int source, Func<int, RgbColor> resolve, string name)
         {
@@ -105,7 +73,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
             initialize(enemies, statue);
@@ -120,22 +88,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                 AssertTrue(enemies.ChozoStatuePlmRequests.Count != 0,
                     $"{name} still publishes its native PLM request");
             }
-        }
-
-        static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
-        {
-            Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
-        };
-
-        static void CheckEditedBand(Func<int, RgbColor> original,
-            Func<int, RgbColor> changed, string name)
-        {
-            AssertTrue(original(5) != changed(5),
-                $"{name} edit changes selected RGB5 word");
-            for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-                if (color != 5)
-                    AssertEqual(original(color), changed(color),
-                        $"{name} edit leaves color {color} unchanged");
         }
     }
 

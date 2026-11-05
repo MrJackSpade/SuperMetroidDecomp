@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -9,7 +8,6 @@ using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -17,12 +15,11 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Checks installed opening narration and font artwork through the cinematic's live tilemap and VRAM paths.</summary>
 internal static class IntroNarrationPresentationVerification
 {
-    /// <summary>Compares all six stock pages and the font upload with native data, then checks edits, rebinding, and malformed glyph rejection.</summary>
+    /// <summary>Compares all six stock pages and the font upload with native data, then checks debugger restore and malformed glyph rejection.</summary>
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -68,34 +65,6 @@ internal static class IntroNarrationPresentationVerification
                 $"installed opening narration {page} shows its text");
         }
 
-        JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
-        editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
-            "TEST";
-        byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
-        IntroNarrationPresentation edited = IntroNarrationFile.Read(
-            new MemoryStream(editedBytes, writable: false));
-        var editedText = PagesText();
-        var editedState = new IntroCinematicObjectSystem(
-            editedText, new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: edited);
-        editedState.StartEnglishPageSix();
-        editedState.Step(0);
-        editedState.Step(0);
-        AssertEqual(new IntroTextCell('T', 0), editedText.ShownAt(1, 4),
-            "edited UTF-8 opening narration shows its first letter at its cell");
-
-        var reboundText = PagesText();
-        var rebound = new IntroCinematicObjectSystem(
-            reboundText, new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: presentation);
-        rebound.StartEnglishPageSix();
-        rebound.Step(0);
-        rebound.BindNarration(edited);
-        rebound.Step(0);
-        AssertEqual(new IntroTextCell('T', 0), reboundText.ShownAt(1, 4),
-            "active opening narration accepts current replacement content");
-
         var saved = new IntroCinematicObjectSystem(
             PagesText(), new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation);
@@ -107,33 +76,19 @@ internal static class IntroNarrationPresentationVerification
         AssertEqual((ushort)16, restored.Caret.X,
             "restored opening narration resumes at its saved character");
 
-        editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
+        JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
+        malformedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
             "lowercase";
         byte[] malformed = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(ArtworkJson.Options));
+            malformedDocument.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => IntroNarrationFile.Read(
             new MemoryStream(malformed, writable: false)),
             "opening narration rejects glyphs absent from the documented font mapping");
 
-        IndexedPngImage editableFont = IndexedPng.Read(
-            new MemoryStream(fontPng, writable: false),
-            new(IntroFontCharacters.Width, IntroFontCharacters.Height));
-        editableFont.Pixels[0] ^= 1;
-        using var editedFontPng = new MemoryStream();
-        IndexedPng.Write(editedFontPng, new(editableFont.Size.X, editableFont.Size.Y),
-            editableFont.Pixels, editableFont.Colours);
-        editedFontPng.Position = 0;
-        IntroFontCharacters editedFont = IntroFontCharacters.Read(editedFontPng);
-        installedIntro.BindIntroFont(editedFont);
-        AssertTrue(installedIntro.ShownVram().AsSpan(
-            (IntroVramLayout.FontOne.Offset * 2),
-            IntroFontAtlasFormat.ByteCount).SequenceEqual(editedFont.Characters.Span),
-            "active opening cinematic rebinds edited font pixels");
-
         Console.WriteLine(
-            $"Opening narration: six extracted UTF-8 pages and {comparedFrames} stock frames match with narration ROM reads forbidden; caret timing, page completion, edits and glyph validation pass.");
+            $"Opening narration: six extracted UTF-8 pages and {comparedFrames} stock frames match with narration ROM reads forbidden; caret timing, page completion, debugger restore and glyph validation pass.");
         Console.WriteLine(
-            "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
+            "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload and ROM-read guard pass.");
     }
 
     /// <summary>Narration text showing the pages, every text cell blank, as the first illustrated page leaves it.</summary>
@@ -187,73 +142,31 @@ internal static class IntroNarrationPresentationVerification
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };
 
-    /// <summary>Checks deterministic stock JSON, installed text overrides, identity changes, and corrupt-override failure.</summary>
+    /// <summary>Checks that the installed opening narration is the deterministic cartridge extraction.</summary>
     internal static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroNarrationFile.FileName))),
             "installed opening narration is the deterministic cartridge extraction");
 
-        Directory.CreateDirectory(overrideDirectory);
-        JsonObject document = RequiredJson.Parse(deterministic).AsObject();
-        document.Required("pages").Required(IntroNarrationPageId.Page1.ToString()).Required("lines").Required(0)["text"] =
-            "TEST";
-        string replacement = Path.Combine(
-            overrideDirectory, IntroNarrationFile.FileName);
-        File.WriteAllText(replacement,
-            document.ToJsonString(ArtworkJson.Options));
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertEqual('T', edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].Character,
-            "catalog override changes installed opening narration");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "opening-narration override changes catalog content identity");
-
-        File.WriteAllText(replacement, "{ broken opening narration");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt opening-narration override fails loudly");
         Console.WriteLine(
-            "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
+            "Opening-narration catalog: deterministic stock passes.");
     }
 
-    /// <summary>Checks deterministic stock PNG bytes, edited installed VRAM bytes, identity changes, and corrupt-PNG rejection.</summary>
+    /// <summary>Checks that the installed opening font is the deterministic cartridge extraction.</summary>
     internal static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
-        string stockDirectory,
-        string overrideDirectory,
-        AreaMapPresentation stockCatalog)
+        string stockDirectory)
     {
         byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroFontCharacters.FileName))),
             "installed opening font is the deterministic cartridge extraction");
-        IndexedPngImage image = IndexedPng.Read(
-            new MemoryStream(deterministic, writable: false),
-            new(IntroFontCharacters.Width, IntroFontCharacters.Height));
-        image.Pixels[0] ^= 1;
-        Directory.CreateDirectory(overrideDirectory);
-        string replacement = Path.Combine(overrideDirectory, IntroFontCharacters.FileName);
-        using (var output = File.Create(replacement))
-            IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-        AreaMapPresentation edited = MapPresentationFiles.Load(
-            stockDirectory, overrideDirectory);
-        AssertTrue(!IntroFontCharacters.Of(edited.IntroFont).Characters.Span.SequenceEqual(
-            IntroFontCharacters.Of(stockCatalog.IntroFont).Characters.Span),
-            "opening-font override changes installed VRAM bytes");
-        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
-            "opening-font override changes catalog content identity");
-        File.WriteAllText(replacement, "not a PNG");
-        AssertThrows<InvalidDataException>(() =>
-            MapPresentationFiles.Load(stockDirectory, overrideDirectory),
-            "corrupt opening-font override fails loudly");
         Console.WriteLine(
-            "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
+            "Opening-font catalog: deterministic stock passes.");
     }
 
     /// <summary>Rejects cartridge text reads from the English narration's bank-$8C source ranges.</summary>

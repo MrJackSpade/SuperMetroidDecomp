@@ -13,8 +13,8 @@ internal sealed record MotherBrainRainbowPaletteColours
     /// <summary>The revival phases.</summary>
     public required MotherBrainPaletteFrameColours[] FromGrey { get; init; }
 
-    /// <summary>The fake-death brain fade, or null when an older override inherits it from stock.</summary>
-    public required RgbColor[][]? FakeDeathToGrey { get; init; }
+    /// <summary>The fake-death brain fade.</summary>
+    public required RgbColor[][] FakeDeathToGrey { get; init; }
 
     /// <summary>The restored normal phase.</summary>
     public required MotherBrainPaletteFrameColours Normal { get; init; }

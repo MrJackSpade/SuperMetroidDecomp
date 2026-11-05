@@ -3,8 +3,7 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The installed extended enemy compositions (#1402). Each older schema revision is a prefix of this order, so the
-/// order is part of the installed document contract.
+/// The installed extended enemy compositions (#1402). The order is part of the installed document contract.
 /// </summary>
 internal static class EnemyExtendedFrameCompositions
 {

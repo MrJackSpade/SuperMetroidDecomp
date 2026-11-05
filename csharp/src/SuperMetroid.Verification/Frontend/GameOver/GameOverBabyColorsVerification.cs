@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
 
-/// <summary>Checks game-over Baby Metroid palette phases and independently editable RGB5 components.</summary>
+/// <summary>Checks game-over Baby Metroid palette phases against the cartridge.</summary>
 internal static class GameOverBabyColorsVerification
 {
-    /// <summary>Compares four sixteen-color native phases with installed CGRAM slots and verifies channel edits, phase bounds, and content identity.</summary>
+    /// <summary>Compares four sixteen-color native phases with installed CGRAM slots and verifies ink and phase bounds and content identity.</summary>
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
         var palettes = new Dictionary<GameOverBabyPalette, ushort[]>();
@@ -46,23 +46,6 @@ internal static class GameOverBabyColorsVerification
                 if (ink != 0)
                     AssertEqual(expected, shaded[64 + ink], "installed Baby shade");
             }
-        }
-        foreach (ushort[] edited in palettes.Values)
-        for (int ink = 0; ink < 16; ink++)
-        for (int channel = 0; channel < 3; channel++)
-        {
-            ushort original = edited[ink];
-            for (int intensity = 0; intensity < 32; intensity++)
-            {
-                int shift = channel * 5;
-                edited[ink] = (ushort)((original & ~(31 << shift)) | intensity << shift);
-                var changed = new GameOverBabyPaint(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
-                for (int phase = 0; phase < 4; phase++)
-                for (int target = 0; target < 16; target++)
-                    AssertEqual(palettes[(GameOverBabyPalette)phase][target],
-                        changed.Read((GameOverBabyPalette)phase, target), "independent Baby color edit");
-            }
-            edited[ink] = original;
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read(GameOverBabyPalette.Idle, invalid), "Baby ink bounds");

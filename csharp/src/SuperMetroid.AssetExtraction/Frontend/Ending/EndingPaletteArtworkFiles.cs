@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
-/// <summary>Installs native ending colors as independently replaceable RGB5 JSON files.</summary>
+/// <summary>Installs native ending colors as RGB5 JSON files.</summary>
 public static class EndingPaletteArtworkFiles
 {
     /// <summary>Manifest schema recording seven stock hashes and cartridge provenance.</summary>
@@ -70,16 +70,14 @@ public static class EndingPaletteArtworkFiles
             new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
-    /// <summary>Checks the complete stock palette manifest and file digests, then compiles independently selected RGB5 palette files without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing all seven palette-role JSON files and their provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory with per-role palette replacements; each absent file retains verified stock.</param>
-    /// <returns>The selected ending colors in native transfer order, with palette selection and animation timing unchanged.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or a selected palette's format, count, or RGB5 colors is invalid.</exception>
-    public static EndingPaletteSet Load(string stockDirectory,
-        string? overrideDirectory)
+    /// <summary>Checks the palette manifest's provenance and coverage, then compiles the installed RGB5 palette files without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing all seven palette-role JSON files and their provenance/digest manifest.</param>
+    /// <returns>The ending colors in native transfer order, with palette selection and animation timing unchanged.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed palette's format, count, or RGB5 colors is invalid.</exception>
+    public static EndingPaletteSet Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory,
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory,
             EndingPaletteDefinitions.ManifestFileName);
         Manifest manifest;
         try
@@ -108,21 +106,15 @@ public static class EndingPaletteArtworkFiles
         EndingPalette LoadOne(EndingPaletteId id)
         {
             string name = EndingPaletteFiles.FileName(id);
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null :
-                Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
+            string installedPath = Path.Combine(directory, name);
             try
             {
-                return EndingPaletteFile.Read(new MemoryStream(selectedPath == stockPath
-                    ? stock : File.ReadAllBytes(selectedPath), writable: false), id);
+                return EndingPaletteFile.Read(new MemoryStream(File.ReadAllBytes(installedPath), writable: false), id);
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid ending palette {selectedPath}: {error.Message}", error);
+                    $"Invalid ending palette {installedPath}: {error.Message}", error);
             }
         }
     }

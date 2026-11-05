@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Hardware;
@@ -46,14 +45,6 @@ internal static class BombTorizoHandVerification
         var level = CreateEmptyRoom(new(width, height));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var plms = PlmFixtures.Unbound();
-        var editedVisuals = RoomPlmBombTorizoHandVisualFiles.Create(
-        [
-            new("intact", [RoomBlockAppearance.Of(0x53), RoomBlockAppearance.Of(0x66), RoomBlockAppearance.Of(0x64), RoomBlockAppearance.Of(0x45),
-                RoomBlockAppearance.Of(0x46), RoomBlockAppearance.Of(0x47), RoomBlockAppearance.Of(0x48), RoomBlockAppearance.Of(0x49)]),
-            new("cleared", Enumerable.Repeat(RoomBlockAppearance.Of(0xff), 16).ToArray()),
-        ]);
-        PlmFixtures.VisualsOf(plms).RoomPlmBombTorizoHandVisuals = editedVisuals;
-
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
@@ -65,10 +56,7 @@ internal static class BombTorizoHandVerification
         int handOrigin = level.GetBlockIndex(new(13, 11));
         AssertEqual(RoomTerrainBlock.Of(0x65, BlockMirroring.None, RoomCollisionType.SolidBlock),
             level.GetCollisionBlockByIndex(handOrigin).Terrain,
-            "edited Bomb Torizo hand keeps the cartridge's terrain block");
-        AssertEqual(RoomBlockAppearance.Of(0x53),
-            level.DisplayedAppearance(handOrigin),
-            "edited hand survives later background streaming");
+            "Bomb Torizo hand draws the cartridge's terrain block");
         AssertEqual(RoomTerrainBlock.Of(0x64, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(12, 11)).Terrain,
             "multi-run hand geometry retains the second native run");
         AssertEqual(RoomTerrainBlock.Of(0x49, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(14, 12)).Terrain,

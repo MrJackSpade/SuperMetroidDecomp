@@ -33,11 +33,11 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         string samusBody = Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
-        InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName), null);
-        GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName), null);
-        IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName), null);
+        InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName));
+        GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
+        IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName));
         // Her colour tables are the ones the map presentation was read with, edits included.
-        AreaMapPresentation maps = MapPresentationFiles.Load(map, null);
+        AreaMapPresentation maps = MapPresentationFiles.Load(map);
         SamusMapColourTables tables = InstalledAreaMapPresentation.SamusColoursOf(maps);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName));
         var sources = new SamusShadeSources(
@@ -55,16 +55,16 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             overruns.Chainsaw,
             tables.CrystalFlash,
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
-            SamusDeathPaletteArtworkFiles.Load(samusBody, null),
+            SamusDeathPaletteArtworkFiles.Load(samusBody),
             maps.RoomPaletteFx);
         return new(
             projectiles,
             ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
-                StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName), null).Characters.Span),
+                StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters.Span),
             palettes,
             intro,
-            SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
-            SamusDeathTileArtworkFiles.Load(samusBody, null),
+            SamusBodyArtworkFiles.LoadCharacters(samusBody),
+            SamusDeathTileArtworkFiles.Load(samusBody),
             sources);
     }
 

@@ -11,8 +11,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Installs the pre-coloured enemy sheets (#1392): each distinct sheet's image, palette map and frames, the manifest
-/// naming each room graphics set's sheet for each of its enemies, and the provenance of their hashes. A player override
-/// of a sheet's file replaces the stock one.
+/// naming each room graphics set's sheet for each of its enemies, and the provenance of their hashes. A player edits a
+/// sheet's installed files in place.
 /// </summary>
 public static class EnemySheetFiles
 {
@@ -44,23 +44,21 @@ public static class EnemySheetFiles
     }
 
     /// <summary>
-    /// Loads the set manifest and every sheet it names, preferring a player override of each file, and checks each
-    /// sheet holds exactly the frames its enemy's behaviour shows.
+    /// Loads the set manifest and every sheet it names from the installed files, and checks each sheet holds exactly the
+    /// frames its enemy's behaviour shows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The manifest, a stock hash, an image or a frame manifest is invalid.</exception>
-    public static InstalledEnemySheets Load(string stockDirectory, string? overrideDirectory)
+    /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid.</exception>
+    public static InstalledEnemySheets Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         EnemySheetManifestDocument manifest = JsonSerializer.Deserialize<EnemySheetManifestDocument>(File.ReadAllBytes(manifestPath), JsonOptions)
             ?? throw new InvalidDataException($"Enemy sheet manifest {manifestPath} is empty.");
         if (manifest.Version != ManifestVersion)
             throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {ManifestVersion}.");
         string[] names = [.. manifest.Sets.Values.SelectMany(members => members.Values)
             .Concat(manifest.Spawned.Values.SelectMany(bases => bases.Values.Select(entry => entry.Sheet))).Distinct(StringComparer.Ordinal)];
-        // A player's sheet written before enemy frames were named for their meaning names them by their older keys (#1465).
-        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName, names.Length,
-            EnemySheetLegacyFrameNames.Current);
+        SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
         var variations = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>();
@@ -69,9 +67,9 @@ public static class EnemySheetFiles
         var spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
         var artwork = new Lazy<InstalledEnemyArtwork>(() => EnemyTileArtworkFiles.Load(
-            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(stockDirectory))
-                ?? throw new ArgumentException($"Stock directory {stockDirectory} has no installation above it.", nameof(stockDirectory)),
-                GameInstallationLayout.EnemyTileDirectoryName), null));
+            Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
+                ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory)),
+                GameInstallationLayout.EnemyTileDirectoryName)));
         var setCorpses = new Dictionary<string, IReadOnlyList<CorpseRotSimulation>>(StringComparer.Ordinal);
         foreach ((string set, Dictionary<string, string> members) in manifest.Sets)
         {

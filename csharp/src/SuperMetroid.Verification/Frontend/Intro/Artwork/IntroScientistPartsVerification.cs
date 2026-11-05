@@ -14,10 +14,10 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 
-/// <summary>Checks calculated intro scientist sprites against native OAM and both caret artwork schemas.</summary>
+/// <summary>Checks calculated intro scientist sprites against native OAM and the caret artwork.</summary>
 internal static class IntroScientistPartsVerification
 {
-    /// <summary>Compares stock parts at visible and wrapped origins and preserves independent edits through the caret loader.</summary>
+    /// <summary>Compares stock parts at visible and wrapped origins and the stock caret through its loader.</summary>
     internal static void VerifyIntroScientistParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);
@@ -29,30 +29,6 @@ internal static class IntroScientistPartsVerification
             SpriteComposition result = IntroScientistParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original Scientist selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original Scientist compiled fields");
-            for (int piece = 0; piece < visual.Length; piece++)
-            {
-                var part = visual[piece];
-                SpriteVisualPart[] edits =
-                [
-                    part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY + 1 },
-                    part with { TileColumn = (part.TileColumn + 1) % 16 }, part with { TileRow = part.TileRow + 1 },
-                    part with { Size = part.Size == 8 ? 16 : 8, TileColumn = Math.Min(14, part.TileColumn) },
-                    part with { Priority = 2 }, part with { Palette = 1 },
-                    part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
-                ];
-                foreach (var edit in edits)
-                {
-                    var edited = (SpriteVisualPart[])visual.Clone();
-                    edited[piece] = edit;
-                    CheckCaretLoader(definition.Pose, edited);
-                    var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited Scientist");
-                    AssertTrue(ReferenceEquals(supplied, IntroScientistParts.CalculateIfMatching(definition.Pose, supplied)),
-                        "independent Scientist field edit stays supplied");
-                }
-            }
-            CheckCaretLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
-            var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom Scientist");
-            AssertTrue(ReferenceEquals(extra, IntroScientistParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated Scientist part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
@@ -75,26 +51,17 @@ internal static class IntroScientistPartsVerification
             var expected = new OamBuffer(); expected.BeginFrame();
             IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, new(120, 72), 0x0c00);
             expected.FinalizeFrame();
-            foreach (int version in new[] { IntroCaretSpriteVersion.Previous.Revision, IntroCaretSpriteVersion.Current.Revision })
-            {
-                var frames = new Dictionary<string, SpriteVisualPart[]>();
-                if (version == IntroCaretSpriteVersion.Previous.Revision)
-                {
-                    foreach (string name in IntroCaretSpriteDefinitions.PreviousFrameNames) frames.Add(name, []);
-                    frames[IntroCaretSpriteDefinitions.PreviousFrameNames[0]] = visual;
-                }
-                else frames.Add("caret-visible", visual);
-                using var json = new MemoryStream();
-                IntroCaretSpritePresentation.Write(json, new() { Version = version, Frames = frames });
-                json.Position = 0;
-                var presentation = IntroCaretSpritePresentation.Load(json);
-                var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
-                actual.FinalizeFrame();
-                AssertTrue(expected.ImageEquals(actual)
-                    && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
-                    "both caret schema loaders preserve original and independently edited compositions");
-            }
+            var frames = new Dictionary<string, SpriteVisualPart[]> { ["caret-visible"] = visual };
+            using var json = new MemoryStream();
+            IntroCaretSpritePresentation.Write(json, new() { Version = IntroCaretSpriteVersion.Current.Revision, Frames = frames });
+            json.Position = 0;
+            var presentation = IntroCaretSpritePresentation.Load(json);
+            var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
+            CinematicSheetFixtures.Drawer(presentation).Draw(pose, actual, new(120, 72), IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+            actual.FinalizeFrame();
+            AssertTrue(expected.ImageEquals(actual)
+                && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
+                "the caret loader draws the stock composition");
         }
     }
 }

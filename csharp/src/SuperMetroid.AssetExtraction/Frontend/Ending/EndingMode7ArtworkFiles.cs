@@ -111,17 +111,15 @@ public static class EndingMode7ArtworkFiles
         }
     }
 
-    /// <summary>Checks the complete stock manifest and file digests, then compiles independently selected ending map and character files without cartridge access.</summary>
-    /// <param name="stockDirectory">Stock directory containing all three backdrop pairs, the reward-icon pair, and their provenance/digest manifest.</param>
-    /// <param name="overrideDirectory">Optional directory with per-file replacements; missing map or PNG files independently fall back to verified stock.</param>
-    /// <returns>The selected three-backdrop and reward-icon artwork catalog with owned decoded transfer data.</returns>
+    /// <summary>Checks the manifest's provenance and coverage, then compiles the installed ending map and character files without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing all three backdrop pairs, the reward-icon pair, and their provenance/digest manifest.</param>
+    /// <returns>The three-backdrop and reward-icon artwork catalog with owned decoded transfer data.</returns>
     /// <remarks>Backdrop maps are 128x64 tile-index half-maps; the reward icon uses a full 128x128 map, with map and character lanes compiled separately.</remarks>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, a stock digest, or selected map/PNG geometry and content is invalid.</exception>
-    public static EndingFloorArtwork Load(string stockDirectory,
-        string? overrideDirectory)
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed map/PNG geometry and content is invalid.</exception>
+    public static EndingFloorArtwork Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory,
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory,
             EndingFloorArtworkFormat.ManifestFileName);
         Manifest manifest;
         try
@@ -159,8 +157,8 @@ public static class EndingMode7ArtworkFiles
 
         EndingRewardIconArtwork LoadRewardIcon()
         {
-            (string mapPath, byte[] map) = ReadSelected(EndingRewardIconArtworkFormat.MapFileName);
-            (string pngPath, byte[] png) = ReadSelected(EndingRewardIconArtworkFormat.CharacterFileName);
+            (string mapPath, byte[] map) = ReadInstalled(EndingRewardIconArtworkFormat.MapFileName);
+            (string pngPath, byte[] png) = ReadInstalled(EndingRewardIconArtworkFormat.CharacterFileName);
             try
             {
                 return EndingRewardIconCharacters.Read(
@@ -176,8 +174,8 @@ public static class EndingMode7ArtworkFiles
 
         EndingFloorSceneArtwork LoadScene(EndingFloorSceneId id)
         {
-            (string mapPath, byte[] map) = ReadSelected(EndingFloorArtworkFormat.MapFileName(id));
-            (string pngPath, byte[] png) = ReadSelected(EndingFloorArtworkFormat.CharacterFileName(id));
+            (string mapPath, byte[] map) = ReadInstalled(EndingFloorArtworkFormat.MapFileName(id));
+            (string pngPath, byte[] png) = ReadInstalled(EndingFloorArtworkFormat.CharacterFileName(id));
             try
             {
                 return EndingFloorSceneCharacters.Read(
@@ -191,14 +189,10 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        SelectedArtworkFile ReadSelected(string name)
+        SelectedArtworkFile ReadInstalled(string name)
         {
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
-            return new SelectedArtworkFile(selectedPath, selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath));
+            string installedPath = Path.Combine(directory, name);
+            return new SelectedArtworkFile(installedPath, File.ReadAllBytes(installedPath));
         }
     }
 

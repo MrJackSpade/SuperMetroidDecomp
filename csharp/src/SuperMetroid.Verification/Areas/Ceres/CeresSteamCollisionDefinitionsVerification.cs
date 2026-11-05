@@ -44,7 +44,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                         CeresSteamCollisionDefinitions.Bank, slot.SpritemapPointer,
                         out _),
-                    $"installed Ceres steam {variant} frame {frame} has editable art");
+                    $"installed Ceres steam {variant} frame {frame} has installed art");
                 selected++;
             }
             AssertEqual(0, denied.ForbiddenReadAttempts,

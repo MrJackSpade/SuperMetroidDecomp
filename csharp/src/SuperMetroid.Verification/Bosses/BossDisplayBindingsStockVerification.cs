@@ -1,12 +1,9 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsFixtureVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsOracleVerification;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
@@ -35,12 +32,7 @@ internal static class BossDisplayBindingsStockVerification
     internal static void VerifyBossDisplayStock()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        using var temporary = new TestScratchDirectory("map-catalog");
-        // The stock enemy-tile files of a private installation copy, which the binding edits below write beside.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string path = copy.Installation.EnemyTileDirectory, overrides = Path.Combine(temporary.Root, "overrides");
-        EnemyTileArtworkFilesConstants.ValidateStock(path);
-        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(path, null);
+        InstalledEnemyArtwork installed = InstalledFixtures.EnemyArtwork;
         int frames = 0, parts = 0, runs = 0, tiles = 0;
         var nativeLists = new HashSet<int>();
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
@@ -83,9 +75,8 @@ internal static class BossDisplayBindingsStockVerification
                     Tiles = RoomBackgroundTilemapCellWords.Cells(write.Tiles.Span) }).ToArray());
             }
         }
-        Suite(nameof(VerifyBossDisplayInstallation), () => VerifyBossDisplayInstallation(path, overrides, installed));
         Console.WriteLine($"PASS stock boss import: {frames} native roots, {parts} sprites, {runs} BG2 runs/{tiles} words, " +
-            $"{nativeLists.Count} compiled collision lists; exact RAM-only packed drawing and installation acceptance.");
+            $"{nativeLists.Count} compiled collision lists; exact RAM-only packed drawing.");
     }
 
     /// <summary>Resolves one Crocomire, Phantoon, or Draygon frame's installed BG2 writes.</summary>
@@ -102,34 +93,7 @@ internal static class BossDisplayBindingsStockVerification
         return exists ? writes : ReadOnlyMemory<EnemyBg2TilemapWrite>.Empty;
     }
 
-    /// <summary>Checks edited root remaps persist and malformed or missing stock resources fail loading.</summary>
-    private static void VerifyBossDisplayInstallation(string stock, string overrides, InstalledEnemyArtwork baseline)
-    {
-        var json = new EnemyIdentityFixture();
-        string stockFile = Path.Combine(stock, EnemyExtendedFrameDefinitions.FileName);
-        var document = RequiredJson.Deserialize<EnemyExtendedFrameDocument>(File.ReadAllBytes(stockFile),
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        Directory.CreateDirectory(overrides);
-        string file = Path.Combine(overrides, EnemyExtendedFrameDefinitions.FileName);
-        var families = BossDisplayDocuments.Families().ToArray();
-        foreach ((_, EnemySpritemapDefinition[] family) in families)
-            (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[family[0].Name] = family[1].Name;
-        using (var bytes = json.Json(document)) File.WriteAllBytes(file, bytes.ToArray());
-        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stock, overrides);
-        AssertTrue(baseline.ContentIdentity != edited.ContentIdentity, "selected BG2 display bindings affect bundle identity");
-        AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stock, overrides).ContentIdentity, "installed edits persist across reload");
-        foreach ((_, EnemySpritemapDefinition[] family) in families)
-            AssertEqual(family[1].Pointer, (edited.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).GetDisplayPointer(family[0].Bank, family[0].Pointer), "loader retains exact selected root");
-        using (var bytes = json.Json(document with { Version = document.Version + 1 })) File.WriteAllBytes(file, bytes.ToArray());
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stock, overrides), "future/malformed binding schema fails explicitly");
-        using (var bytes = json.Json(document)) File.WriteAllBytes(file, bytes.ToArray());
-        File.Delete(Path.Combine(stock, PhantoonBg2FrameDefinitions.FileName));
-        AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFilesConstants.ValidateStock(stock), "missing stock BG2 file fails loudly where it is read");
-        AssertThrows<FileNotFoundException>(() => EnemyTileArtworkFiles.Load(stock, overrides), "missing stock BG2 file fails installation loading");
-        Console.WriteLine("PASS boss installation: validated stock manifest, selected remaps/identity/reload and malformed/missing-resource rejection.");
-    }
-
-    /// <summary>Runs the stock boss OAM, BG2, and installation checks.</summary>
+    /// <summary>Runs the stock boss OAM and BG2 checks.</summary>
     [VerificationCommand("--boss-display-stock")]
     internal static int BossDisplayStockCommand()
     {

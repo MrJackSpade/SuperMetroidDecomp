@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 /// <summary>Checks Draygon cannon visual catalogs against native draw runs and editable asset constraints.</summary>
 internal static class LookupDraygonCannonStockVerification
 {
-    /// <summary>Compares twelve shield and damage frames with bank-$84 art, then checks custom copies and invalid shapes.</summary>
+    /// <summary>Compares twelve shield and damage frames with bank-$84 art, then checks invalid shapes.</summary>
     internal static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDraygonCannonVisualCatalog installed)
     {
@@ -63,19 +63,6 @@ internal static class LookupDraygonCannonStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<DraygonCannonDraw>((ushort)pointer),0,0), "Cannon stock unknown pointer");
-        entries[8].Blocks[2] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmDraygonCannonVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Cannon mixed custom/stock identity");
-        entries[8].Blocks[2] = RoomBlockAppearance.Of(0x5a);
-        entries[10].Blocks[3] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<DraygonCannonDraw>(frame.Pointer),run,word), "Cannon cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.Create(entries[..1]), "Cannon missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmDraygonCannonVisualFiles.Create(entries.Append(entries[0])), "Cannon duplicate frame");
         var invalid = entries.ToArray();

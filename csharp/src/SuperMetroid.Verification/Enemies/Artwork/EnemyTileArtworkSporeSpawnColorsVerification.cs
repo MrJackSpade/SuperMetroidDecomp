@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares 432 native RGB5 words, edits one color per palette family, and checks production CGRAM and fade targets without source reads.</summary>
+    /// <summary>Compares 432 native RGB5 words and checks production shades and fade targets without source reads.</summary>
     internal static void VerifyInstalledSporeSpawnColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -51,41 +51,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson,
                 CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Spore Spawn color JSON is null.");
-        visual.Spores[5] = ChangeRed(visual.Spores[5]);
-        foreach (PaletteRgb5[] frame in visual.Health)
-            frame[5] = ChangeRed(frame[5]);
-        foreach (PaletteRgb5[] frame in visual.DeathSprite)
-            frame[5] = ChangeRed(frame[5]);
-        foreach (PaletteRgb5[] frame in visual.DeathLevel)
-            frame[5] = ChangeRed(frame[5]);
-        foreach (PaletteRgb5[] frame in visual.DeathBackground)
-            frame[5] = ChangeRed(frame[5]);
-        string overrides = Path.Combine(stockDirectory, "spore-spawn-color-overrides");
-        Directory.CreateDirectory(overrides);
-        string overrideFile = Path.Combine(overrides, SporeSpawnColorFormat.FileName);
-        File.WriteAllBytes(overrideFile, SporeSpawnColorFile.Write(visual));
-        InstalledEnemyArtwork edited = stock with { Bosses = stock.Bosses with { SporeSpawnColors = EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors() } };
-        SporeSpawnColorCatalog colors = edited.Bosses.SporeSpawnColors ??
-            throw new InvalidDataException("Edited enemy art has no Spore Spawn colors.");
-        AssertTrue(native.ResolveSpore(5) != colors.ResolveSpore(5),
-            "Spore Spawn initial spore edit changes its selected color");
-        AssertEqual(native.ResolveSpore(4), colors.ResolveSpore(4),
-            "Spore Spawn spore edit leaves adjacent color unchanged");
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthFrameCount; frame++)
-            CheckEditedFrame(native.ResolveHealth, colors.ResolveHealth, frame, "health");
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSpriteFrameCount; frame++)
-            CheckEditedFrame(native.ResolveDeathSprite, colors.ResolveDeathSprite,
-                frame, "death sprite");
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.DeathSceneFrameCount; frame++)
-        {
-            CheckEditedFrame(native.ResolveDeathLevel, colors.ResolveDeathLevel,
-                frame, "death level");
-            CheckEditedFrame(native.ResolveDeathBackground, colors.ResolveDeathBackground,
-                frame, "death background");
-        }
-        AssertEqual(colors.ResolveDeathSprite(6, 5),
-            EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors().ResolveDeathSprite(6, 5),
-            "Spore Spawn override survives catalog reload");
+        SporeSpawnColorCatalog colors = native;
 
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
             address => address is >= SporeSpawnSourceDefinitions.SporeColors and
@@ -93,7 +59,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     SporeSpawnColorDefinitions.DeathSceneFrameCount *
                     SporeSpawnSourceDefinitions.ImageBytes),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
@@ -104,9 +70,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         SporeSpawnEnemyState state = enemies.SporeSpawn ??
             throw new InvalidDataException("Live Spore Spawn initializer did not install state.");
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
-        // edited colours.
-        IReadOnlyList<SheetShade> sprites = SporeSpawnSheetShades.Sprites(edited.Bosses);
-        IReadOnlyList<SheetShade> room = SporeSpawnSheetShades.Room(edited.Bosses);
+        // installed colours.
+        IReadOnlyList<SheetShade> sprites = SporeSpawnSheetShades.Sprites(stock.Bosses);
+        IReadOnlyList<SheetShade> room = SporeSpawnSheetShades.Room(stock.Bosses);
         AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores), body.Shading, "live Spore Spawn starts in his spores' colours");
         AssertShade(sprites, SporeSpawnShades.Spores, colors.ResolveSpore, "live spore colours");
         AssertEqual(AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive),
@@ -137,24 +103,10 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "live Spore Spawn palette consumers avoid all migrated ROM colors");
 
-        File.WriteAllBytes(overrideFile, [0]);
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors(),
-            "invalid Spore Spawn override fails loudly");
-        File.WriteAllBytes(overrideFile,
-            "{\"version\":1,\"version\":1}"u8.ToArray());
-        AssertThrows<InvalidDataException>(
-            () => EnemyTileArtworkFiles.Open(stockDirectory, overrides).SporeSpawnColors(),
-            "duplicate Spore Spawn color property fails loudly");
         visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
             "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
-        File.Delete(overrideFile);
-        File.WriteAllBytes(file, [0]);
-        AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Open(stockDirectory, null).SporeSpawnColors(),
-            "corrupt stock Spore Spawn colors fail loudly where it is read");
-        File.WriteAllBytes(file, stockJson);
-        Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, current and target palette edits, ROM guard and strict failures pass.");
+        Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, ROM guard and strict failures pass.");
 
         void VerifyFrame(int source, Func<int, RgbColor> resolve, string name)
         {
@@ -169,20 +121,6 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             for (int frame = 0; frame < count; frame++)
                 VerifyFrame(source + frame * SporeSpawnSourceDefinitions.ImageBytes,
                     color => resolve(frame, color), $"{name} frame {frame}");
-        }
-
-        static PaletteRgb5 ChangeRed(PaletteRgb5 rgb) => rgb with
-        {
-            Red = rgb.Red == 31 ? 30 : rgb.Red + 1,
-        };
-
-        static void CheckEditedFrame(Func<int, int, RgbColor> original,
-            Func<int, int, RgbColor> changed, int frame, string name)
-        {
-            AssertTrue(original(frame, 5) != changed(frame, 5),
-                $"{name} frame {frame} edit changes selected RGB5 word");
-            AssertEqual(original(frame, 4), changed(frame, 4),
-                $"{name} frame {frame} edit leaves adjacent color unchanged");
         }
     }
 

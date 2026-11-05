@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Fx.LookupFxPairColorsVerification;
 using static SuperMetroid.Verification.Fx.LookupFxWeatherBlueVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
@@ -19,12 +18,11 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
+/// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and the Ceres haze tints.</summary>
 internal static class RoomFxPaletteBlendsVerification
 {
     /// <summary>The colour a Ceres haze layer adds at the start of screen line 120, drawn over black by the display renderer.</summary>
@@ -49,11 +47,11 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyFxBlendBlackRed), () => VerifyFxBlendBlackRed(rom, catalog));
         Suite(nameof(VerifyFxBlendBlackGreen), () => VerifyFxBlendBlackGreen(rom, catalog));
         Suite(nameof(VerifyFxBlendBlackBlue), () => VerifyFxBlendBlackBlue(rom, catalog));
-        Suite(nameof(VerifyFxBlendBlackStorageAndEdits), () => VerifyFxBlendBlackStorageAndEdits(catalog));
+        Suite(nameof(VerifyFxBlendBlackStorage), () => VerifyFxBlendBlackStorage(catalog));
         Suite(nameof(VerifyFxPairRed), () => VerifyFxPairRed(rom, catalog));
         Suite(nameof(VerifyFxPairGreen), () => VerifyFxPairGreen(rom, catalog));
         Suite(nameof(VerifyFxPairBlue), () => VerifyFxPairBlue(rom, catalog));
-        Suite(nameof(VerifyFxPairStorageAndEdits), () => VerifyFxPairStorageAndEdits(rom));
+        Suite(nameof(VerifyFxPairStorage), () => VerifyFxPairStorage(rom));
         Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
         Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
         Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
@@ -86,12 +84,12 @@ internal static class RoomFxPaletteBlendsVerification
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(
             new MemoryStream(System.Text.Encoding.UTF8.GetBytes(duplicate))),
             "duplicate room-FX blend property fails loudly");
-        Suite(nameof(VerifyCeresHazeTintOverride), () => VerifyCeresHazeTintOverride(rom));
+        Suite(nameof(VerifyCeresHazeTint), () => VerifyCeresHazeTint(rom));
         Console.WriteLine("  Room-FX blend palettes: all 24 native words and guarded load/reload paths pass.");
     }
 
-    /// <summary>Checks that edited haze channels reach both renderers without changing the stock fade timing.</summary>
-    private static void VerifyCeresHazeTintOverride(ISnesAddressSpace rom)
+    /// <summary>Checks the extracted Ceres haze tints, their native scanline colours, and the tint codec's channel bound.</summary>
+    private static void VerifyCeresHazeTint(ISnesAddressSpace rom)
     {
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
             RoomFxPaletteBlendExtractor.Extract(rom), ArtworkJson.Options)
@@ -100,89 +98,34 @@ internal static class RoomFxPaletteBlendsVerification
             "extractor names the stock Ceres blue tint");
         AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed), stock.CeresHazeRed,
             "extractor names the stock Ceres escape tint");
-        var editedDocument = stock with
-        {
-            CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
-            CeresHazeRed = new PaletteRgb5 { Red = 0, Green = 0, Blue = 15 },
-        };
-        RoomFxBlendInks edited = RoomFxPaletteBlendFile.Read(
-            new MemoryStream(RoomFxPaletteBlendFile.Write(editedDocument)));
         // Each haze over a black screen, as the display renderer draws its line 120 (#1468).
         RgbaPixel stockLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(false));
         AssertEqual(new RgbaPixel(0, 0, 66, 255), stockLine,
             "stock Ceres blue haze retains its native scanline-eight fixed color");
         AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(true)),
             "stock Ceres escape haze retains the matching red fixed color");
-        RgbaPixel editedLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(false, colors: edited));
-        AssertEqual(stockLine.B, editedLine.G,
-            "edited Ceres tint replaces blue with equal-amplitude green on the same scanline");
-        AssertEqual((byte)0, editedLine.B, "edited Ceres tint removes blue addition");
-        RgbaPixel editedEscapeLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(true, colors: edited));
-        AssertEqual(stockLine.B, editedEscapeLine.B,
-            "edited escape tint reaches the post-Ridley channel without changing the gradient");
-        AssertEqual((byte)0, editedEscapeLine.R,
-            "edited escape tint removes the stock red channel");
-        AssertEqual(stockLine, HazeLine(GameplayEffectCapture.CaptureCeresHaze(false)),
-            "cosmetic override does not mutate stock presentation");
-        AssertEqual((byte)0, HazeLine(GameplayEffectCapture.CaptureCeresHaze(false, intensity: 0, colors: edited)).G,
-            "cosmetic color cannot change the native fade-out duration");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(
-            editedDocument with
+            stock with
             {
-                CeresHazeBlue = editedDocument.CeresHazeBlue with { Green = 32 },
+                CeresHazeBlue = (stock.CeresHazeBlue ?? throw new InvalidOperationException("The extractor writes the Ceres blue tint.")) with { Green = 32 },
             }), writable: false)), "reading an invalid Ceres tint component fails loudly");
-        RoomFxBlendInks legacy = RoomFxPaletteBlendFile.Read(new MemoryStream(
-            RoomFxPaletteBlendFile.Write(stock with
-            {
-                CeresHazeBlue = null,
-                CeresHazeRed = null,
-            })));
-        AssertEqual(RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue, legacy.CeresHazeBlue,
-            "older color overrides inherit the stock blue haze tint");
-        AssertEqual(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed, legacy.CeresHazeRed,
-            "older color overrides inherit the stock red haze tint");
     }
 
-    /// <summary>Installs a color override, verifies its CGRAM and haze effects, then checks identity restoration after removal.</summary>
-    internal static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
-        AreaMapPresentation baseline)
+    /// <summary>Checks that the room-FX blend codec rejects out-of-range colours.</summary>
+    internal static void VerifyRoomFxPaletteBlendsRejectMalformedDocuments(string stock)
     {
-        string path = Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName);
         RoomFxPaletteBlendDocument document = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
             File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
         string key = RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.Lava);
-        PaletteRgb5 original = document.Blends[key][0];
-        document.Blends[key][0] = original with { Red = (original.Red + 1) % 32 };
-        document = document with
-        {
-            CeresHazeBlue = new PaletteRgb5 { Red = 0, Green = 15, Blue = 0 },
-        };
-        File.WriteAllBytes(path, RoomFxPaletteBlendFile.Write(document));
-        AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
-        AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
-            "room-FX blend edit changes installed content identity");
-        RgbColor expected = edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0];
-        AssertTrue(expected != baseline.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)[0],
-            "room-FX blend edit changes the authored color");
-        AssertEqual(expected, BlendShade(edited.RoomFxPaletteBlends, RoomFxPaletteBlend.Lava).Colours[0],
-            "edited room-FX blend color reaches the layer-3 pictures' shade");
-        AssertTrue(HazeLine(GameplayEffectCapture.CaptureCeresHaze(false,
-                colors: edited.RoomFxPaletteBlends)).G > 0,
-            "installed room-FX color override reaches Ceres haze rendering");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(document with
         {
             Blends = new Dictionary<string, PaletteRgb5[]>(document.Blends)
             {
-                [key] = [original with { Red = 32 }, .. document.Blends[key].Skip(1)],
+                [key] = [document.Blends[key][0] with { Red = 32 }, .. document.Blends[key].Skip(1)],
             },
         }), writable: false)), "reading an invalid room-FX blend component fails loudly");
-        File.Delete(path);
-        AreaMapPresentation restored = MapPresentationFiles.Load(stock, overrides);
-        AssertEqual(baseline.ContentIdentity, restored.ContentIdentity,
-            "removing room-FX blend override restores stock identity");
-        Console.WriteLine("Room-FX blend override: edited color reaches the blend's shade and removal restores stock.");
     }
 
     /// <summary>Loads a selected compiled FX record through a bus that forbids bank-$89 reads.</summary>

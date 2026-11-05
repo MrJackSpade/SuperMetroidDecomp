@@ -473,9 +473,6 @@ Asset operations share the DebugRunner developer executable under the `assets` s
 ```powershell
 dotnet run --project src/SuperMetroid.DebugRunner -- assets ../standalone-assets/raw ../standalone-assets/png
 dotnet run --project src/SuperMetroid.DebugRunner -- assets audio ../standalone-assets/raw ../standalone-assets/audio
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-override-init "$env:LOCALAPPDATA\SuperMetroid"
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid" music-0f-track-05 brinstar.wav 2563200
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid" sfx-1-0b power-beam.wav none
 dotnet run --project src/SuperMetroid.DebugRunner -- assets room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
@@ -484,42 +481,26 @@ upload streams, audio metadata, and canonical decoded PCM WAVs. Installation the
 song and every sound effect, in every bank context, into finished 16-bit stereo clips at the
 native 32,040 Hz (`game/audio/clips`, listed in `audio-clips.json`); the game plays those clips.
 
-Audio is modded by replacing finished clips. Initialize `overrides/audio` once with
-`audio-override-init`, then install each replacement with `audio-replace`, naming the clip by its
-stable identity: `music-{data index}-track-{nn}` for a song (the data index in hexadecimal, as
-the extracted catalog names tracks) or `sfx-{library}-{command}` for a sound effect (the command
-in hexadecimal; it replaces the sound in every bank context). A replacement must be an
-uncompressed 16-bit stereo WAV at 32,040 Hz. The optional last argument is the frame a song loops
-back to, or `none` to play it once; a sound that never ends on the cartridge needs a loop, and a
-one-shot sound cannot have one. Each edit is validated against the stock clips before it replaces
-the override, so a rejected edit leaves the previous override in place.
+Audio is modded by editing the installed clips in `game/audio` in place: each is an uncompressed
+16-bit stereo WAV at 32,040 Hz, and `audio-clips.json` records each clip's frame count and the frame a
+song loops back to. Running the extractor again restores the originals.
 
-Startup validates the immutable `game/audio` clips first and the override second; corrupt stock
-or user content fails loudly instead of silently choosing the other copy. The override sits
-outside the replaceable `game/` directory, survives stock repair and application updates, and is
-selected by both Windows and Android after restart. Initialization refuses to overwrite an
-existing override directory. Instrument, sample and sequence edits are not overrides: they are
-stock-content diagnostics in `game/audio` and are replaced by repair.
-
-Room tileset palettes are modded the same way: place an edited copy of a stock file in `overrides/room-palettes`
-under the same name as the stock file. Files are named for the artwork, not its cartridge location: a palette is
-`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). Room characters take no overrides: the
-stock character sheets in `game/room-characters` are what the room pictures are composed from, and a room's blocks,
-backgrounds and written pictures are changed only through those pictures in the block sheets (below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
-override. Library-background tilemaps and scrolling-sky pages go in
-`overrides/room-backgrounds`: a tilemap is named for the background it pictures,
+Room tileset palettes are edited in place in `game/room-palettes`; running the extractor again restores the
+originals. Files are named for the artwork, not its cartridge location: a palette is
+`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). The character sheets in
+`game/room-characters` are what the room pictures are composed from, and a room's blocks, backgrounds and written
+pictures are changed through those pictures in the block sheets (below); the block compositions in `game/room-blocks`
+are what those sheets are composed from. Library-background tilemaps and scrolling-sky pages are in
+`game/room-backgrounds`: a tilemap is named for the background it pictures,
 `room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
-for its place among the seven, `scrolling-sky-page-{0-6}.json`. Overrides saved under the older names, which
-carried the cartridge address (`room-palette-C2BC9C.json`, `room-background-B9FA38.json`,
-`scrolling-sky-8AB180.json`), are renamed when the installation is rebuilt; an override present
-under both names stops the rebuild, leaving the previous installation in place, until one of them is removed.
+for its place among the seven, `scrolling-sky-page-{0-6}.json`.
 
 Sprites are moving to finished images. A sprite family that has moved is drawn from a pre-coloured
 sheet in `game/sprite-sheets`: an RGBA PNG (`{family}.png`, transparent where alpha is zero) and its
 frame list (`{family}.json`: each frame's rectangle on the sheet, its origin, whether it takes part
 in colour math, and the colours it was coloured with), and a palette map (`{family}.palette.png`: each
 pixel's sprite palette row and colour, in red) that lets in-game palette effects such as flashes recolour
-the sheet. Place an edited copy of either in `overrides/sprite-sheets` under the same name; an
+the sheet. Edit these files in place; an
 edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
 this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
 (`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,
@@ -547,9 +528,8 @@ reveals and copyright from `title`, the intro's cinematic actors and caret from 
 revealed, `zebes-reveal-sprites`, and the ending's actors from a sheet for each of its scenes:
 `ending-cloud-sprites`, `ending-explosion-sprites`, `ending-suited-reward-sprites` or
 `ending-suitless-reward-sprites`, then `ending-shooting-sprites`, which also holds the logo the shooting scene ends
-on. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
-anchors and digit spacing; a layout written for the earlier version, which also held the frames and
-palette, is rejected until it is rewritten.
+on. The escape countdown's layout, `escape-timer.json` in `game/maps`, holds only the anchors and
+digit spacing.
 
 Room blocks are drawn from pre-coloured block sheets in `game/room-block-sheets`, one for each tileset
 (`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), in the same three files as a sprite
@@ -575,7 +555,7 @@ are `Messages.<tileset>`: one image of each message in each form it takes (each 
 choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
 image pictures. Each Ceres tileset's Mode 7 tiles are one picture, `Mode7.<tileset>`, sixteen tiles to a row;
 `mode7-tiles.json` records what each tile was pictured over.
-Edited copies go in `overrides/room-block-sheets`. The
+Edit them in place; running the extractor again restores the originals. The
 Ceres Ridley arena, whose planes read the object characters, still draws its blocks from characters.
 
 Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in

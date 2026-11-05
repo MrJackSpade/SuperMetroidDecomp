@@ -115,7 +115,8 @@ internal static class ClosedPresentationIndexDefinitions
         ("ChargeFlareSprites", "Frame", "selector") => new(0, ChargeFlareSpriteSelection.Selectors.Count),
         ("InstalledGrappleSprites", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentFrameCount),
         ("InstalledSamusBodyArtwork", "GraphicsYOffset", "pose") => new(0, InstalledSamusBodyArtwork.PoseCount),
-        ("InstalledSamusSpritemaps", "TryGetComposition" or "TryGetFrameKey", "frame.Pose") => new(0, InstalledSamusBodyArtwork.PoseCount),
+        ("InstalledSamusSpritemaps", "TryGetComposition", "frame.Pose") or
+            ("InstalledSamusSpritemaps", "TryGetFrameKey", "top.Pose" or "bottom.Pose") => new(0, InstalledSamusBodyArtwork.PoseCount),
         ("SamusSpritemapSources", "TryGet", "index") => new(0, SamusSpritemapSources.EntryCount),
         ("SamusArmCannonSourceArtwork", "PoseDescriptor", "pose") => new(0, InstalledSamusBodyArtwork.PoseCount),
         ("SamusArmCannonSourceArtwork", "ReadDrawingByte", "offset") => new(0, SamusArmCannonArtworkFormat.DrawingDataByteCount),

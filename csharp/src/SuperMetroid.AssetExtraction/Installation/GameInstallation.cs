@@ -61,13 +61,11 @@ public sealed record GameInstallation(string Root)
                 "Extracted game content is incomplete or invalid.");
         return SuperMetroidAddressSpace.CreateWithoutCartridge();
     }
-    /// <summary>Stock audio files and manifests under the replaceable content tree.</summary>
+    /// <summary>Installed audio files and manifests, which the player edits in place.</summary>
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Persistent editable audio content, outside the replaceable stock installation.</summary>
-    public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays, with the persistent clip override when one exists.</summary>
-    /// <exception cref="InvalidDataException">The stock clips or the override are invalid.</exception>
-    public InstalledClipAudioLibrary LoadAudioClips() => ClipAudioOverrides.Load(AudioDirectory, AudioOverrideDirectory);
+    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
+    /// <exception cref="InvalidDataException">The installed clips are invalid.</exception>
+    public InstalledClipAudioLibrary LoadAudioClips() => InstalledAudioClips.Load(AudioDirectory);
     /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>

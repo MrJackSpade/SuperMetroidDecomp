@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms;
-using static SuperMetroid.Verification.Audio.AudioOverridesVerification;
+using static SuperMetroid.Verification.Runtime.GameContentIdentityCompositionVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;

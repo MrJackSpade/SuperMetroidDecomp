@@ -132,10 +132,10 @@ internal static class FrontendFloorSheetComposer
         byte[] pixels = characters[..CeresFlightArtworkFileFormat.FloorByteCount].ToArray();
         byte[] station = Blank();
         views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells).CopyTo(station);
-        // The final explosion shows the front gunship in the upper view, or a blank view with Samus still aboard, over a
-        // blank lower view; the approach to Zebes then shows the rear gunship in the upper view.
+        // The final explosion shows the front gunship in the upper view over a blank lower view; with Samus still aboard
+        // both views are blank and the scene shows no floor (#1513). The approach to Zebes then shows the rear gunship in
+        // the upper view.
         byte[] explosion = Exploded(views, station, CeresFloorShotDefinitions.FrontViewStart);
-        byte[] explosionWithoutGunship = Exploded(views, station, CeresFloorShotDefinitions.BlankViewStart);
         byte[] zebes = (byte[])explosion.Clone();
         views.AsSpan(CeresFloorShotDefinitions.RearViewStart, CeresFloorShotDefinitions.ViewCells).CopyTo(zebes);
         ComposedSpriteSheet floor = FloorSheetComposer.Compose(
@@ -144,7 +144,6 @@ internal static class FrontendFloorSheetComposer
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.FlightRear), View(views, CeresFloorShotDefinitions.RearViewStart), pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Station), station, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Explosion), explosion, pixels),
-            FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ExplosionWithoutGunship), explosionWithoutGunship, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ZebesApproach), zebes, pixels),
         ], ScreenPaletteColours.FlightColours(flight));
         // The floor shows each record the gunship engine's flicker shows over the engine's colour (#1512).

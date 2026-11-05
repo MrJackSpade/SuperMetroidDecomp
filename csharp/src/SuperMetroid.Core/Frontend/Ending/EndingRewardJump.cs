@@ -8,6 +8,19 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Reward jump/landing actor owner, ending at the screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
+    /// <summary>The program Samus's body falls by once she is drawn from her falling sheet.</summary>
+    private const CinematicSpriteProgram FallingProgram = CinematicSpriteProgram.Falling;
+
+    /// <summary>The program Samus's body lands and shoots by.</summary>
+    private const CinematicSpriteProgram LandingProgram = CinematicSpriteProgram.Landing;
+
+    /// <summary>
+    /// The programs the jump's actors run while Samus is drawn from her falling sheet (#1513): the body's falling and
+    /// landing. A suited jump's head flies ahead of the body, which it leaves below it, and is deleted as it passes the
+    /// height at which the body later switches to the falling sheet, so no head is drawn from that sheet.
+    /// </summary>
+    internal static IReadOnlyList<CinematicSpriteProgram> FallingSheetPrograms { get; } = [FallingProgram, LandingProgram];
+
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
     /// <summary>Loads the reward icon's floor once Samus has fallen for its reveal.</summary>
@@ -59,7 +72,7 @@ internal sealed class EndingRewardJump
             {
                 FallingSheetSelected = true;
                 body.SetColouring(EndingShades.Drawn(EndingSpriteColouring.FallingSamus));
-                body.Start(CinematicSpriteProgram.Falling);
+                body.Start(FallingProgram);
                 body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
             }
         }
@@ -72,7 +85,7 @@ internal sealed class EndingRewardJump
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
-                body.Start(CinematicSpriteProgram.Landing);
+                body.Start(LandingProgram);
                 body.InstallFrameBehavior(null);
             }
         }

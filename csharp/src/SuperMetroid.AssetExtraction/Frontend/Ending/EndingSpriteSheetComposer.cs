@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
@@ -48,7 +49,7 @@ internal static class EndingSpriteSheetComposer
                     FrontendSheetPalette.FrameColourGroup.Number);
             }));
         RgbColor[] sprites = page.SpriteColours(palettes);
-        return new SpriteSheetSources(frames, sprites, sizes, PartsKeepOwnRows: true)
+        return new SpriteSheetSources(frames, StandardColours(page, sprites), sizes, PartsKeepOwnRows: true)
         {
             Shades = EndingScreenShades.Sprites(EndingScreenShades.Screen(palettes, paletteFx), sprites,
                 FrontendSheetPalette.FrameColourGroup.Number * EndingScreenInks.GroupColours),
@@ -67,6 +68,22 @@ internal static class EndingSpriteSheetComposer
         return page.Stars ? families.Concat(StarSheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : families;
     }
 
+    /// <summary>
+    /// The colours <paramref name="page"/>'s frames show in their standard draw: the scene's sprite colours, except that
+    /// the frame row, which a family's palette-inheriting parts are inked in, holds the colours of the colouring every
+    /// actor of the page draws in, where one colouring draws them all (#1513).
+    /// </summary>
+    private static RgbColor[] StandardColours(EndingPage page, RgbColor[] sprites)
+    {
+        if (page.FrameColouring is not { } colouring)
+            return sprites;
+        RgbColor[] standard = [.. sprites];
+        int frameFirst = FrontendSheetPalette.FrameColourGroup.Number * EndingScreenInks.GroupColours;
+        int colouringFirst = EndingScreenInks.SpriteSet(colouring) * EndingScreenInks.GroupColours;
+        Array.Copy(sprites, colouringFirst, standard, frameFirst, EndingScreenInks.GroupColours);
+        return standard;
+    }
+
     /// <summary>The characters <paramref name="transfers"/> leave on the sprite page <paramref name="objectSelection"/> selects.</summary>
     private static SpriteArtwork Characters(IReadOnlyList<EndingTransfer> transfers, EndingTransferArtwork artwork, int objectSelection) =>
         ObjCharacterImage.Page(EndingScreenImage.Compose(transfers, artwork), objectSelection);
@@ -83,8 +100,9 @@ internal static class EndingSpriteSheetComposer
     {
         return sheet switch
         {
+            // Every cloud draws in the clouds' colouring.
             SpriteSheetId.EndingCloudSprites => new(EndingObjectSheet.Clouds, EndingReward.Armored, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
-                objects => [objects.CloudSprites], Stars: false, Logo: false, EscapeColours),
+                objects => [objects.CloudSprites], Stars: false, Logo: false, EscapeColours, EndingSpriteColouring.Clouds),
             SpriteSheetId.EndingExplosionSprites => new(EndingObjectSheet.Explosion, EndingReward.Armored,
                 [
                     new EndingTransfer(EndingTransferKind.ExplosionObjects),
@@ -136,10 +154,21 @@ internal static class EndingSpriteSheetComposer
     /// <summary>
     /// The shooting scene: the falling, landing and shooting Samus and the stars over the post-credits art, and the logo
     /// the scene ends on over its own characters. The reward's characters lie outside this page, so any reward shows it.
+    /// Of the reward family the page holds only the poses the jump shows once Samus is drawn from it (#1513).
     /// </summary>
     private static EndingPage Shooting => new(EndingObjectSheet.RewardFalling, EndingReward.Armored,
-        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], objects => [objects.RewardSprites], Stars: true, Logo: true,
+        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], objects => [FallingReward(objects)], Stars: true, Logo: true,
         PostCreditsColours);
+
+    /// <summary>The reward family's compositions of the poses the reward jump shows from its falling sheet.</summary>
+    /// <exception cref="InvalidDataException">The jump shows a pose the reward family does not compose.</exception>
+    private static ICinematicSpriteFrames FallingReward(EndingObjectSourceArtwork objects)
+    {
+        HashSet<CinematicSpritePose> shown = CinematicShownFrames.PosesOf(EndingRewardJump.FallingSheetPrograms);
+        ICinematicSpriteFrames falling = CinematicShownFrames.Of(objects.RewardSprites, shown, _ => true);
+        CinematicShownFrames.RequireComposed("The falling reward jump", shown, [falling]);
+        return falling;
+    }
 
     /// <summary>The escape scenes' sprite colours.</summary>
     private static RgbColor[] EscapeColours(EndingPaletteSet palettes) => SpritesOf(palettes, EndingPaletteId.Escape);
@@ -153,9 +182,10 @@ internal static class EndingSpriteSheetComposer
     /// <summary>
     /// A scene of the ending: the object sheet that selects it, the reward the scene's transfers dress, those transfers in
     /// order, the families it shows over them, whether the stars show on it, whether it also holds the logo over the
-    /// logo's own characters, and the sprite colours its scene loads.
+    /// logo's own characters, the sprite colours its scene loads, and the colouring every actor of the scene draws in,
+    /// where one colouring draws them all.
     /// </summary>
     private sealed record EndingPage(EndingObjectSheet ObjectSheet, EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
         Func<EndingObjectSourceArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Stars, bool Logo,
-        Func<EndingPaletteSet, RgbColor[]> SpriteColours);
+        Func<EndingPaletteSet, RgbColor[]> SpriteColours, EndingSpriteColouring? FrameColouring = null);
 }

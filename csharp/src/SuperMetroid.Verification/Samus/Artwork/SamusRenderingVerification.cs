@@ -415,18 +415,13 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x0080, samus.Presentation.SpritemapPosition.Y,
         "normal-jump landing frame one is placed by its own byte");
 
-    // Ceres status bit `$8000` makes `$90:8C1F` borrow bank `$8B`'s Mode 7 point
-    // transform before applying the ordinary pose offset. A 90-degree matrix around
-    // ($0480,$0080) maps (+8,+6) to (-6,+8). The body must use that temporary point while
-    // collision-visible Samus coordinates remain byte-for-byte unchanged afterward.
+    // Over the Ceres shaft's turning floor, Samus's drawing turns her point with the floor before applying the
+    // ordinary pose offset. A quarter turn around (1152, 128) maps (+8,+6) to (-6,+8). The body must use that
+    // temporary point while collision-visible Samus coordinates remain unchanged afterward.
     samus.Pose = SamusPoseId.FacingRightNormalPose;
     samus.AnimationFrame = 0;
     samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));
-    var quarterTurn = new TurningFloorTransform(
-        MatrixA: 0x0000,
-        MatrixB: 0x0100,
-        MatrixC: -0x0100,
-        Center: new Position16<RoomPixels>(0x0480, 0x0080));
+    var quarterTurn = new TurningFloorTransform(Math.PI / 2, new Position16<RoomPixels>(0x0480, 0x0080));
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, 
@@ -435,29 +430,15 @@ internal static void VerifySamusRenderingSlice()
         turningFloor: quarterTurn);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x007a, samus.Presentation.SpritemapPosition.X,
-        "Mode 7 quarter-turn rotates Samus render X around M7X");
+        "a quarter-turned floor turns Samus's drawn X about its centre");
     AssertEqual(0x0082, samus.Presentation.SpritemapPosition.Y,
-        "Mode 7 quarter-turn applies pose graphics offset after rotated Y");
+        "a quarter-turned floor applies the pose graphics offset after the turned Y");
     AssertEqual(0x0488, samus.Position.X.Whole,
-        "Mode 7 body calculation restores physical Samus X");
+        "the turned drawing restores physical Samus X");
     AssertEqual(0x0086, samus.Position.Y.Whole,
-        "Mode 7 body calculation restores physical Samus Y");
+        "the turned drawing restores physical Samus Y");
 
-    // Exercise negative products and a coordinate wrap independently of the convenient
-    // quarter-turn result. The explicit reference operations mirror `$8B:8A52`'s two
-    // word-sized accumulators and catch a host implementation that retains extra precision.
-    var wrappedMatrix = new TurningFloorTransform(
-        MatrixA: -0x0080,
-        MatrixB: 0x0180,
-        MatrixC: -0x0180,
-        Center: new Position16<RoomPixels>(0xfff0, 0x0010));
-    Position16<RoomPixels> wrapped = wrappedMatrix.Transform(new Position16<RoomPixels>(0x0010, 0xffe0));
-    AssertEqual(0x0028, wrapped.X,
-        "Mode 7 transform preserves signed-product and center-X word wrap");
-    AssertEqual(0x0058, wrapped.Y,
-        "Mode 7 transform preserves signed-product and center-Y word wrap");
-
-    Console.WriteLine("  Samus: body art, Mode 7 position, bottom rules, tile DMA, OAM, and invincibility flicker agree.");
+    Console.WriteLine("  Samus: body art, turning-floor position, bottom rules, tile DMA, OAM, and invincibility flicker agree.");
 }
 
 /// <summary>

@@ -33,8 +33,8 @@ internal static class EndingDmaVerification
         var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.TurningFloorLayer>().Single().Transform;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
-        AssertEqual(45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
-        AssertEqual(45, projection.MatrixB, "native initial angle 32, scale 64 sine");
+        AssertEqual(Math.PI / 4, projection.Angle, "the atmospheric floor starts turned an eighth of a turn");
+        AssertEqual(0.25, projection.Scale, "the atmospheric floor starts at zoom 64, four times its own size");
         byte[] vram = ending.ShownVram();
         byte[] interleaved = RomDataReader.Decompress(bus, 0x99d17e, 0x8000);
         byte[] characters = RomDataReader.Decompress(bus, 0x98bcd6, 0x8000);

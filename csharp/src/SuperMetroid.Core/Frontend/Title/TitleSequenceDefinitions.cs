@@ -71,6 +71,8 @@ public static class TitleSequenceDefinitions
         public const int IdentityScale = 256;
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
         public static RotationAngle Rotation => RotationAngle.Zero;
+        /// <summary>The floor point the floor scenes zoom about.</summary>
+        public static Offset16<FloorPixels> FloorCentre => new(128, 128);
     }
 
     /// <summary>Where the logo and copyright draw and with which sprite palettes.</summary>

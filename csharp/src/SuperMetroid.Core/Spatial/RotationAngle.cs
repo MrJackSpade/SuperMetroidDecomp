@@ -24,6 +24,9 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>The high byte as the eight-bit angle the trigonometry routines read.</summary>
     public ByteAngle ToByteAngle() => new(TableIndex);
 
+    /// <summary>The angle in radians, fraction included: a half turn is pi, and the sine table's quarter turn is pi / 2.</summary>
+    public double Radians => RawValue * Math.PI / HalfTurn.RawValue;
+
     /// <summary>
     /// This angle's 1/256th fraction read as a table angle: what an eight-bit routine handed the whole angle word
     /// reads, as the Fireflea initializer does before its main AI reads the table index.

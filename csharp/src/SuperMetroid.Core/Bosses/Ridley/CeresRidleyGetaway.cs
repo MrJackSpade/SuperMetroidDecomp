@@ -49,11 +49,7 @@ internal sealed class CeresRidleyGetaway
         _roomStatus = dependencies.RoomStatus;
     }
 
-    /// <summary>
-    /// Sets up the getaway floor. Every value below is a literal display/actor value installed by the retail
-    /// setup routine; in particular B and C intentionally begin before the first
-    /// getaway-table entry replaces the matrix.
-    /// </summary>
+    /// <summary>Sets up the getaway floor: its angle, scroll, zoom and centre before the first getaway-table entry.</summary>
     internal static void SetupCeresRidleyGetawayFloor(RidleyEnemyState state)
     {
         state.GetawayActive = true;
@@ -62,10 +58,6 @@ internal sealed class CeresRidleyGetaway
         state.FloorAngle = RotationAngle.FromRaw(1);
         state.FloorOffset = new Offset16<FloorPixels>(-128, 32);
         state.FloorZoom = 2048;
-        state.FloorMatrixA = CeresRidleyBehavior.FloorUnitCoefficient;
-        state.FloorMatrixB = CeresRidleyBehavior.FloorUnitCoefficient;
-        state.FloorMatrixC = CeresRidleyBehavior.FloorUnitCoefficient;
-        state.FloorMatrixD = CeresRidleyBehavior.FloorUnitCoefficient;
         state.FloorCenter = new Position16<FloorPixels>(64, 64);
         state.GetawayBabyFrame = 0;
         state.GetawayWingFrame = 0;
@@ -122,10 +114,6 @@ internal sealed class CeresRidleyGetaway
             state.GetawayFinished = true;
             state.GetawayActive = false;
             state.FloorOffset = Offset16<FloorPixels>.Zero;
-            state.FloorMatrixA = default;
-            state.FloorMatrixB = default;
-            state.FloorMatrixC = default;
-            state.FloorMatrixD = default;
             state.FloorCenter = Position16<FloorPixels>.Zero;
             // The getaway's end hands the same extended actor workspace to the escape-text sequence. Samus's
             // special push/fall handler remains responsible for restoring normal input;
@@ -144,7 +132,6 @@ internal sealed class CeresRidleyGetaway
 
         UpdateCeresRidleyFloorPalette(state, zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);
-        UpdateCeresRidleyFloorMatrix(state);
 
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
@@ -170,34 +157,13 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Negates a signed 8.8 coefficient the way the getaway's two's-complement negate does: the most negative value,
-    /// which has no positive counterpart, negates to itself.
+    /// How the perspective floor appears as the getaway last turned, zoomed and moved it, before room shake, or null while
+    /// the getaway does not show the floor: turned by the getaway's angle at its zoom about the floor's centre, and
+    /// scrolled by the getaway's offset across the floor.
     /// </summary>
-    internal static SignedEightEight NegateFloorCoefficient(SignedEightEight coefficient) =>
-        SignedEightEight.FromSignedRaw(WordWrap.Signed(-coefficient.SignedRawValue));
-
-    /// <summary>
-    /// The perspective floor's transform as the getaway last turned and moved it, before room shake, or null while the
-    /// getaway does not show the floor: the zoom-scaled rotation, the floor point it turns about, and the getaway's
-    /// scroll across the floor.
-    /// </summary>
-    internal static AffineTransform? FloorTransform(RidleyEnemyState? ridley) => ridley is { GetawayActive: true } getaway
-        ? new AffineTransform(getaway.FloorMatrixA.SignedRawValue, getaway.FloorMatrixB.SignedRawValue,
-            getaway.FloorMatrixC.SignedRawValue, getaway.FloorMatrixD.SignedRawValue,
-            getaway.FloorCenter.AsSignedWord(), getaway.FloorOffset)
+    internal static FloorView? FloorTransform(RidleyEnemyState? ridley) => ridley is { GetawayActive: true } getaway
+        ? FloorView.Turned(getaway.FloorAngle, getaway.FloorZoom, getaway.FloorCenter.AsSignedWord(), getaway.FloorOffset)
         : null;
-
-    /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
-    private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
-    {
-        ByteAngle angle = state.FloorAngle.ToByteAngle();
-        var diagonal = EnemyMath.MultiplySineSample(Ensure.BetweenInclusive(0, ushort.MaxValue, state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue));
-        var offDiagonal = EnemyMath.MultiplySineSample(Ensure.BetweenInclusive(0, ushort.MaxValue, state.FloorZoom), angle);
-        state.FloorMatrixA = diagonal;
-        state.FloorMatrixB = offDiagonal;
-        state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);
-        state.FloorMatrixD = diagonal;
-    }
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>
     /// <param name="state">The getaway's Ridley, whose room colours show the floor.</param>

@@ -69,9 +69,7 @@ internal static class EndingCreditsPresentation
                 if (UsesFlyawayFloorPriority(ending)) layers.Add(new SpriteDepthLayer(0, ending.Flyaway.FlyawayFixedColor));
                 if (ending.Floor() is { } floor)
                 {
-                    int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
-                    int b = Scale(ReadSine(ending.Stage.FloorAngle.ToByteAngle()), ending.Stage.FloorZoom);
-                    layers.Add(new TurningFloorLayer(new(WordWrap.Signed(a), WordWrap.Signed(b), WordWrap.Signed(-b), WordWrap.Signed(a),
+                    layers.Add(new TurningFloorLayer(FloorView.Turned(ending.Stage.FloorAngle, ending.Stage.FloorZoom,
                         CurrentFloorCenter(ending),
                         ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                         floor, AddsForeground: AtmosphericMapWraps(ending)));
@@ -102,22 +100,18 @@ internal static class EndingCreditsPresentation
         return new(memory, layers.ToArray(), ending.Stage.Brightness);
     }
 
-    /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
-    private static AffineTransform PostShotTransform(EndingCreditsState ending)
-    {
-            int a = Scale(ReadSine(ending.PostShot.Angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.PostShot.Scale);
-            int b = Scale(ReadSine(ending.PostShot.Angle.ToByteAngle()), ending.PostShot.Scale);
-            return new(WordWrap.Signed(a), WordWrap.Signed(b), WordWrap.Signed(-b), WordWrap.Signed(a),
-                new Offset16<FloorPixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
-                new Offset16<FloorPixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
-        }
+    /// <summary>How the post-shot reward scene's turning shot picture appears: turned and zoomed about its centre.</summary>
+    private static FloorView PostShotTransform(EndingCreditsState ending) => FloorView.Turned(ending.PostShot.Angle,
+        ending.PostShot.Scale,
+        new Offset16<FloorPixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
+        new Offset16<FloorPixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
 
     /// <summary>Selects the cloud sheet before the explosion and the explosion sheet afterward.</summary>
     internal static EndingObjectSheet CurrentEscapeObjectSheet(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase)
         ? EndingObjectSheet.Clouds : EndingObjectSheet.Explosion;
 
 
-    /// <summary>Whether atmospheric scenes use the Mode 7 wrap policy from SetupPpu_5_Mode7.</summary>
+    /// <summary>Whether the atmospheric scenes repeat their floor beyond its edges.</summary>
     private static bool AtmosphericMapWraps(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
@@ -129,7 +123,7 @@ internal static class EndingCreditsPresentation
     private static bool EndingObjectsEnabled(EndingCreditsState ending) => !ExplosionWhiteout(ending) && ending.Stage.Phase is not
         (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
-    /// <summary>Mode 7 rotation center, shared by atmospheric scenes and changed for flyaway.</summary>
+    /// <summary>The floor point the floor turns about, shared by atmospheric scenes and changed for flyaway.</summary>
     private static Offset16<FloorPixels> CurrentFloorCenter(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Stage.Phase)
         ? EndingMotionDefinitions.AtmosphericFloorCenter
         : EndingMotionDefinitions.FloorCenter;
@@ -204,14 +198,7 @@ internal static class EndingCreditsPresentation
         SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward));
     }
 
-    /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>
-    internal static int ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
-
     /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
     private static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true
         ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward;
-
-    /// <summary>Multiplies a signed Mode 7 component by the scene's positive 8.8 zoom scalar.</summary>
-    private static int Scale(int component, int scalar) =>
-        WordWrap.Signed(EightEight.Multiply(component, scalar));
 }

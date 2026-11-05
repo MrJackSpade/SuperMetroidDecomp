@@ -731,7 +731,7 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
-    /// <summary>Checks signed sine and cinematic samples, then every tide phase and option combination against retail words.</summary>
+    /// <summary>Checks signed sine samples, then every tide phase and option combination against retail words.</summary>
     internal static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)
@@ -739,8 +739,6 @@ internal static class EnemyTrigonometryVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        Func<byte, int>[] cinematicReaders =
-            [sample => FloorRotationMatrix.ReadSine(new ByteAngle(sample)), sample => EndingCreditsPresentation.ReadSine(new ByteAngle(sample))];
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);
@@ -749,8 +747,6 @@ internal static class EnemyTrigonometryVerification
             {
                 byte angle = (byte)(index - 64);
                 AssertEqual(expected, Trigonometry.SignedSine(new ByteAngle(angle)), "all signed sine quadrants match cartridge");
-                foreach (var reader in cinematicReaders)
-                    AssertEqual(expected, reader(angle), "cinematic matrix sample matches cartridge without bus");
             }
         }
         foreach (int invalid in new[] { -1, 320, int.MinValue, int.MaxValue })
@@ -760,7 +756,7 @@ internal static class EnemyTrigonometryVerification
             catch (ArgumentOutOfRangeException) { rejected = true; }
             AssertTrue(rejected, "signed table does not silently wrap invalid prefix indexes");
         }
-        Console.WriteLine("Compiled signed sine: all 320 native words and three cinematic readers match, including +/-256 peaks and prefix bounds.");
+        Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks and prefix bounds.");
         if (definitionsOnly) return;
         var tideSession = new RoomFxSession();
         var tide = new RoomLayer3FxState(tideSession);

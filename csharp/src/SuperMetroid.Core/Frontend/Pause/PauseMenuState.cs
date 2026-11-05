@@ -276,18 +276,19 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        // BG fetches start on physical scanline one; OBJ coordinates already use
-        // output-space Y. Keep the game's scroll and sprite origins unchanged.
-        Position16<TilePlanePixels> mapScroll = new(
-            ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : 0,
-            CoordinateAxis.Wrap((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset));
+        // The map page shows the area map from the map row below its scroll position: the position names the row above
+        // the screen's top, the row Samus's marker and the map's icons are placed from. The equipment page's pictures are
+        // placed where the screen shows them, so its plane is not scrolled.
+        Position16<TilePlanePixels> mapScroll = ScreenMode == PauseScreenMode.Map
+            ? new(MapScrollPosition.X, CoordinateAxis.Wrap(MapScrollPosition.Y + 1))
+            : Position16<TilePlanePixels>.Zero;
         // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
         // and the frame the area's backdrop and button pictures (#1467).
         DisplayLayer bg1 = ScreenMode == PauseScreenMode.Map
             ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll, false)
             : new PicturedPlaneLayer(screen.EquipmentPage(ShownEquipment ?? throw new InvalidOperationException(
                 "The equipment page shows before it was uploaded."), ReserveArrowShading), mapScroll, false);
-        var bg2 = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), new Position16<TilePlanePixels>(0, ScreenGeometry.BackgroundRowOffset), false);
+        var bg2 = new PicturedPlaneLayer(screen.Frame(area, ButtonHighlight), Position16<TilePlanePixels>.Zero, false);
         // The retained HUD is its own layer at the HUD's place, drawn from its images in their priority tiers (#1466).
         var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true, Priority: false);
         DisplayLayer[] layers =

@@ -479,15 +479,15 @@ void Main(uint3 id : SV_DispatchThreadID)
     }
     if (Operation == OpFloor)
     {
-        int cx = (CenterX << 19) >> 19, cy = (CenterY << 19) >> 19;
-        int h = ((OffsetX << 19) >> 19) - cx, v = ((OffsetY << 19) >> 19) - cy;
-        h = (h & 8192) != 0 ? h | ~1023 : h & 1023;
-        v = (v & 8192) != 0 ? v | ~1023 : v & 1023;
-        int physicalY = (int)id.y + 1;
-        int startX = ((MatrixA * h) & ~63) + ((MatrixB * physicalY) & ~63) + ((MatrixB * v) & ~63) + (cx << 8);
-        int startY = ((MatrixC * h) & ~63) + ((MatrixD * physicalY) & ~63) + ((MatrixD * v) & ~63) + (cy << 8);
-        int x = (startX + MatrixA * (int)id.x) >> 8;
-        int y = (startY + MatrixC * (int)id.x) >> 8;
+        // The floor (FloorView, #1514): the pixel's distance from the floor's centre, once the floor is scrolled, turned
+        // and scaled by the matrix the header's matrix words hold as floats, lands that far from the centre on the floor.
+        // `precise` keeps each product and sum separately rounded, so every device lands each pixel on the same texel.
+        precise float2 centre = float2(CenterX, CenterY);
+        precise float2 fromCentre = float2((int)id.x + OffsetX, (int)id.y + OffsetY) - centre;
+        precise float2 onFloor = centre + float2(
+            asfloat(MatrixA) * fromCentre.x + asfloat(MatrixB) * fromCentre.y,
+            asfloat(MatrixC) * fromCentre.x + asfloat(MatrixD) * fromCentre.y);
+        int x = (int)floor(onFloor.x), y = (int)floor(onFloor.y);
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
         bool transparentOutside = outside && FloorOutside == 0;
         // Outside the floor, it shows nothing or repeats.

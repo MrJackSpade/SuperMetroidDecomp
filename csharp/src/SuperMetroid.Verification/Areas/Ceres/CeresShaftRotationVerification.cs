@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Areas.Ceres;
-/// <summary>Checks the Ceres elevator shaft's timed Mode 7 matrix publications against native rotation records.</summary>
+/// <summary>Checks the Ceres elevator shaft's timed tilt publications against native rotation records.</summary>
 internal static class CeresShaftRotationVerification
 {
-    /// <summary>Compares held frames and 548 matrix changes across four forward-and-reverse sweeps.</summary>
+    /// <summary>Compares held frames and 548 tilt changes across four forward-and-reverse sweeps.</summary>
     internal static void VerifyCeresShaftCompiledRotation()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -14,7 +14,7 @@ internal static class CeresShaftRotationVerification
         var state = new CeresElevatorShaftRoomMainState(active: true, carryover);
         ushort phaseWord = 34, timer = 60;
         int updates = 0;
-        // Four full sweeps: compare every held frame as well as every matrix
+        // Four full sweeps: compare every held frame as well as every tilt
         // publication against independently read retail records and word arithmetic.
         while (updates < 548)
         {
@@ -25,13 +25,18 @@ internal static class CeresShaftRotationVerification
             if (changed)
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
             var actual = state.Step(null, elevatorDoorDestroyed: true, allowDeparture: false, carryover);
-            AssertEqual(changed, actual.MatrixChanged, "shaft matrix publication frame");
+            AssertEqual(changed, actual.TiltChanged, "shaft tilt publication frame");
             AssertEqual(timer, state.RotationTimer.RawValue, "shaft native timer every frame");
             if (changed)
             {
-                AssertEqual(unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 4))), actual.Transform.MatrixA, "shaft native cosine every publication");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2))), actual.Transform.MatrixB, "shaft native sine every publication");
-                AssertEqual(unchecked((short)-rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2))), actual.Transform.MatrixC, "shaft native negative sine");
+                // The native record holds the tilt's sine and cosine in 256ths: its sine is the tilt in steps, and its
+                // cosine is the tilt's cosine to within one 256th.
+                int nativeSine = unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2)));
+                int nativeCosine = unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 4)));
+                AssertEqual((double)nativeSine, actual.Transform.Angle * CeresShaftRotationDefinitions.StepsPerRadian,
+                    "shaft tilt is the native record's sine in steps every publication");
+                AssertTrue(Math.Abs(nativeCosine - Math.Cos(actual.Transform.Angle) * 256) < 1,
+                    "shaft native cosine is the tilt's cosine every publication");
                 phaseWord = (short)phaseWord < 0
                     ? phaseWord == 0x8001 ? (ushort)0 : (ushort)(phaseWord - 1)
                     : phaseWord == 67 ? (ushort)0x8044 : (ushort)(phaseWord + 1);

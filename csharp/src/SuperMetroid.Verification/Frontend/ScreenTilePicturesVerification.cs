@@ -240,8 +240,8 @@ internal static class ScreenTilePicturesVerification
             ShownTilemap? tilemap = layer switch
             {
                 PictureGridLayer grid => new ShownTilemap(page, pageSize, grid.Scroll, grid.Priority),
-                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, MenuScreen.PageSize, plane.Scroll, plane.Priority),
-                PicturedPlaneLayer plane => new ShownTilemap(page, pageSize, plane.Scroll, plane.Priority),
+                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, MenuScreen.PageSize, CartridgePageScroll(plane), plane.Priority),
+                PicturedPlaneLayer plane => new ShownTilemap(page, pageSize, CartridgePageScroll(plane), plane.Priority),
                 _ => null,
             };
             if (tilemap is null)
@@ -256,6 +256,14 @@ internal static class ScreenTilePicturesVerification
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");
         return layers;
     }
+
+    /// <summary>
+    /// The tilemap row the cartridge's screen shows a pause page from: the page's plane places its pictures where the screen
+    /// shows them, while the cartridge leaves the page's tilemap unscrolled and the hardware shows a background from the row
+    /// below its scroll, so the oracle reads the tilemap one row down.
+    /// </summary>
+    private static Position16<TilePlanePixels> CartridgePageScroll(PicturedPlaneLayer plane) =>
+        plane.Scroll + new Offset16<TilePlanePixels>(0, 1);
 
     /// <summary>
     /// The turning floor the cartridge's floor map and tile characters in <paramref name="vram"/> compose, in the native

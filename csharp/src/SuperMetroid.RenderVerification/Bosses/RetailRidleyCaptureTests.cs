@@ -28,17 +28,16 @@ internal static class RetailRidleyCaptureTests
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
         var retained = new List<RetainedFrame>();
-        foreach (ushort scale in new ushort[] { 128, 240, 256 })
-        foreach (short tilt in new short[] { -33, 0, 33 })
+        foreach (int scale in new[] { 128, 240, 256 })
+        foreach (int tilt in new[] { -33, 0, 33 })
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
             (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
-            ridley.FloorMatrixA = new SignedEightEight(scale); ridley.FloorMatrixD = new SignedEightEight(scale);
-            ridley.FloorMatrixB = SignedEightEight.FromSignedRaw(tilt);
-            ridley.FloorMatrixC = SignedEightEight.FromSignedRaw(unchecked((short)-tilt));
+            ridley.FloorZoom = scale;
+            ridley.FloorAngle = RotationAngle.NormalizeTableIndex(tilt);
             ridley.FloorCenter = new Position16<FloorPixels>(128, 120);
             ridley.FloorOffset = new Offset16<FloorPixels>(7, unchecked(scroll));
-            // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
+            // The getaway's floor reaches the display at the accepted frame boundary (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

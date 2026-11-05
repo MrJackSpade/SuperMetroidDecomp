@@ -12,10 +12,10 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.TestSupport.FrameRendering;
 
-/// <summary>Checks D3D11 Mode 7 rendering against the WARP reference over native PPU geometry.</summary>
+/// <summary>Checks D3D11 turning-floor rendering against the WARP reference.</summary>
 internal static class Mode7SmokeTests
 {
-    /// <summary>Compares scale, offset, overflow, ordered-layer, HUD, and floor-band cases with the WARP reference's exact pixels.</summary>
+    /// <summary>Compares angle, scale, offset, overflow, ordered-layer, HUD, and floor-band cases with the WARP reference's exact pixels.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var random = new Random(32113);
@@ -32,11 +32,12 @@ internal static class Mode7SmokeTests
         RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Bg2
             ?? throw new InvalidOperationException("A seeded room with a BG2 scroll has a layer-2 plane.");
         int count = 0;
-        foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
+        foreach (double angle in new[] { 0, 0.4, Math.PI / 2, -2.5 })
+        foreach (double scale in new[] { 0, 0.25, 1, 2, 127.5 })
         foreach (short offset in new short[] { -1024, -1, 0, 1023, short.MinValue, short.MaxValue })
         foreach (FloorOverflowMode overflow in Enum.GetValues<FloorOverflowMode>())
         {
-            var registers = new AffineTransform(scale, 113, -113, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
+            var registers = new FloorView(angle, scale, new Offset16<FloorPixels>(128, 112), new Offset16<FloorPixels>(offset, offset), overflow);
             var frame = new DisplayPacket(0,
                 new FloorScene(memory, registers, DisplayBrightness.Combine(13, 11), floor: map));
             Check(frame);
@@ -49,13 +50,13 @@ internal static class Mode7SmokeTests
         Check(new DisplayPacket(0, new FloorScene(memory, null, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })
         foreach (int? floorStart in new int?[] { null, 208, 223 })
-        foreach (short scale in new short[] { 256, -113, 511, 0 })
+        foreach (double scale in new[] { 1, 0.5, 2, 0 })
         {
             var band = floorStart is { } start
                 ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
                 : (TurningRoomLowerBand?)null;
             var layer = new TurningRoomLayer(
-                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
+                new FloorView(0.27, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
                 map, hud, band);
             Check(new DisplayPacket(0,
                 new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
@@ -69,11 +70,11 @@ internal static class Mode7SmokeTests
         ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.BabyFrame2));
         foreach (AffineFloor shown in new[] { map, ceres.Publish() })
         foreach (int hud in new[] { 0, 32 })
-        foreach (short scale in new short[] { 256, -113, 511 })
+        foreach (double scale in new[] { 1, 0.5, 2 })
         foreach (bool fill in new[] { false, true })
         {
             var layer = new TurningRoomLayer(
-                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
+                new FloorView(-0.27, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                 shown, hud, null);
             Check(new DisplayPacket(0,
                 new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));

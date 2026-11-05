@@ -62,11 +62,19 @@ internal sealed class PauseScreen
     }
 
     /// <summary>
-    /// <paramref name="picture"/> placed with its origin on the frame's corner, where the game's page shows it, in
-    /// <paramref name="shading"/> (#1512).
+    /// <paramref name="picture"/> placed where the pause screen shows it, in <paramref name="shading"/> (#1512): with its
+    /// origin on the page's corner, which lies <see cref="PageRowsAboveScreen"/> above the screen's top, so the screen
+    /// shows each page from the row below its first.
     /// </summary>
-    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading) =>
-        PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize, shading);
+    private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading)
+    {
+        PlacedPlanePicture atCorner = PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize, shading);
+        int pageHeight = MenuScreen.PageSize.Y * ScreenGeometry.BackgroundTileSizePixels;
+        return atCorner with { Corner = atCorner.Corner.WithY((atCorner.Corner.Y + pageHeight - PageRowsAboveScreen) % pageHeight) };
+    }
+
+    /// <summary>The pixel rows of each pause page, frame and equipment page alike, that lie above the screen's top.</summary>
+    private const int PageRowsAboveScreen = 1;
 
     /// <summary><paramref name="picture"/> placed on the frame's corner in the standard colours the import pre-coloured it in under the pause colours (#1512).</summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) => AtCorner(picture, PictureShading.Standard);

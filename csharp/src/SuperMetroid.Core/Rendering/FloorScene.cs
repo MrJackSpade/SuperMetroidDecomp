@@ -10,8 +10,8 @@ public sealed record FloorScene
 {
     /// <summary>The frame's backdrop, shading and sprite draws, retained by reference without another copy.</summary>
     public FramePaint Paint { get; }
-    /// <summary>The floor's transform; null shows no floor, leaving the backdrop.</summary>
-    public AffineTransform? Background { get; }
+    /// <summary>How the floor appears on the screen; null shows no floor, leaving the backdrop.</summary>
+    public FloorView? Background { get; }
 
     /// <summary>The floor's map and tiles (#1403), present exactly when <see cref="Background"/> is.</summary>
     public AffineFloor? Floor { get; }
@@ -25,14 +25,14 @@ public sealed record FloorScene
 
     /// <summary>Captures a 256-by-224 frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
     /// <param name="paint">The frame's backdrop, shading and sprite draws; retained rather than recaptured.</param>
-    /// <param name="background">The floor's transform, or null to show the backdrop behind the sprites. The floor is measured from screen column zero, with the first visible row at line one.</param>
+    /// <param name="background">How the floor appears on the screen, or null to show the backdrop behind the sprites.</param>
     /// <param name="brightness">The frame's brightness, 0 (black) through 15.</param>
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
     /// <param name="floor">The floor's map and tiles, given exactly when <paramref name="background"/> is.</param>
     /// <exception cref="ArgumentException">A floor is given without a transform or a transform without a floor.</exception>
-    public FloorScene(FramePaint paint, AffineTransform? background,
+    public FloorScene(FramePaint paint, FloorView? background,
         int brightness, ScreenGradientLayer? gradient = null,
         AffineFloor? floor = null)
     {

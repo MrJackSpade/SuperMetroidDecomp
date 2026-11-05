@@ -25,14 +25,14 @@ internal sealed class IntroCeresFlightState
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
-    /// <summary>Mode 7 scroll position advanced with the star actor or rear-view drift.</summary>
+    /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
     private FixedPosition<FloorPixels> background = new(new(WordWrap.Unsigned(-72), 0), new(WordWrap.Unsigned(-104), 0));
     /// <summary>
-    /// Mode 7 scale in 8.8 fixed point: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
+    /// The floor's zoom in 256ths of a floor pixel per screen pixel: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
     /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
     /// </summary>
     private int zoom = 512;
-    /// <summary>Mode 7 rotation index used to derive the four matrix entries.</summary>
+    /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle = RotationAngle.FromTableIndex(224);
     /// <summary>
     /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
@@ -198,7 +198,7 @@ internal sealed class IntroCeresFlightState
         }
         else
         {
-            layers.Add(new TurningFloorLayer(FloorRotationMatrix.Transform(angle, zoom,
+            layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
                 CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedWord()),
                 CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront)

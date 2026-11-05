@@ -54,7 +54,7 @@ internal static class OperationContractsVerification
             NewlyPressedControllerInput = ControllerButton.A,
             ControllerInput = ControllerButton.Right,
             SamusProjectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads),
-            TurningFloor = new TurningFloorTransform(240, 16, -16, new(128, 112)),
+            TurningFloor = new TurningFloorTransform(0.0666, new(128, 112)),
             SharedProjectiles = new SamusBombProjectileSystem(),
         };
         var clock = new FrameCounters(3);

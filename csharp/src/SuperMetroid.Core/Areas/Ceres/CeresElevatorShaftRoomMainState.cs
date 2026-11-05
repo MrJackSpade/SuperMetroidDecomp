@@ -49,7 +49,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>One-frame publication consumed by the outer game-state dispatcher.</summary>
     public bool DepartureRequestedThisFrame { get; private set; }
 
-    /// <summary>Most recently published Mode 7 matrix.</summary>
+    /// <summary>The shaft's most recently published tilt.</summary>
     public TurningFloorTransform Transform { get; private set; } = CreateInitialTransform();
 
     /// <summary>
@@ -95,10 +95,10 @@ public sealed class CeresElevatorShaftRoomMainState
         DepartureRequestedThisFrame = false;
 
         // The room code is entirely dormant until the Ceres door's destruction publishes
-        // its escape status. In particular, the initial elevator descent retains door ASM's identity
-        // matrix instead of prematurely consuming the rotation table.
+        // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
+        // rotation steps.
         if (!IsActive || !elevatorDoorDestroyed)
-            return new(Transform, MatrixChanged: false, DepartureRequestedThisFrame);
+            return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
 
         if (allowDeparture &&
             !DepartureRequested &&
@@ -126,16 +126,12 @@ public sealed class CeresElevatorShaftRoomMainState
         CountdownStep timer = RotationTimer.Decrement();
         RotationTimer = timer.Remaining;
         if (timer.IsNonNegative)
-            return new(Transform, MatrixChanged: false, DepartureRequestedThisFrame);
+            return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
 
         // Both sweeps read the record of the current step.
         var record = CeresShaftRotation.Read(RotationStep);
         RotationTimer = WrappingCountdown.FromRaw(record.Timer);
-        Transform = new TurningFloorTransform(
-            MatrixA: record.Cosine,
-            MatrixB: record.Sine,
-            MatrixC: -record.Sine,
-            Center: CeresShaftRotationCenter);
+        Transform = new TurningFloorTransform(record.Tilt, CeresShaftRotationCenter);
 
         // Steps 0..67 sweep forward; after 67 the turn reverses at step 68. The backward sweep counts down until
         // step 1 hands over to forward step 0, so the backward sweep never reaches step 0 itself.
@@ -158,7 +154,7 @@ public sealed class CeresElevatorShaftRoomMainState
         }
         LeaveTurnStep(carryover);
 
-        return new(Transform, MatrixChanged: true, DepartureRequestedThisFrame);
+        return new(Transform, TiltChanged: true, DepartureRequestedThisFrame);
     }
 
     /// <summary>
@@ -178,12 +174,8 @@ public sealed class CeresElevatorShaftRoomMainState
     private void LeaveTurnStep(RoomMainCarryover carryover) =>
         carryover.LeaveTurnStep(RotationStep, backward: Sweep == CeresShaftSweep.Backward);
 
-    /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
-    private static TurningFloorTransform CreateInitialTransform() => new(
-        MatrixA: CoordinateAxis.AsSigned(EightEight.FromWhole(1)),
-        MatrixB: 0,
-        MatrixC: 0,
-        Center: CeresShaftRotationCenter);
+    /// <summary>Starts the shaft level, as the elevator door's setup leaves it, about its fixed rotation center.</summary>
+    private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationCenter);
 
     /// <summary>The room point the shaft's turning floor always rotates about, set by both the elevator door's setup and room main.</summary>
     internal static readonly Position16<RoomPixels> CeresShaftRotationCenter = new(128, 1008);

@@ -709,24 +709,26 @@ public sealed class D3D11FrameRenderer : IDisposable
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
     /// <summary>
-    /// Uploads the frame's floor transform: signed matrix, center, scroll, what shows outside the floor, and optional
-    /// color math. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
+    /// Uploads the frame's floor (#1514): the matrix that turns each screen pixel's distance from the floor's centre into a
+    /// distance across the floor, built from the floor's angle and scale, then the centre, the scroll, what shows outside
+    /// the floor, and optional color math. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
     /// </summary>
-    private unsafe void DispatchFloor(AffineTransform transform, int firstScanline = 0, int endScanline = 224,
+    private unsafe void DispatchFloor(FloorView view, int firstScanline = 0, int endScanline = 224,
         bool subtractSprites = false, bool addLayer1 = false)
     {
-        // The transform's signed values go as they are; the shader projects every pixel itself.
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Floor;
-        data[16] = transform.MatrixA; data[17] = transform.MatrixB;
-        data[18] = transform.MatrixC; data[19] = transform.MatrixD;
-        data[20] = transform.Center.X; data[21] = transform.Center.Y;
-        data[22] = transform.Scroll.X; data[23] = transform.Scroll.Y;
-        data[24] = transform.Outside switch
+        // The matrix's four coefficients go as floats in the header's matrix words; the shader projects every pixel.
+        double cosine = Math.Cos(view.Angle) * view.Scale, sine = Math.Sin(view.Angle) * view.Scale;
+        data[16] = BitConverter.SingleToInt32Bits((float)cosine); data[17] = BitConverter.SingleToInt32Bits((float)sine);
+        data[18] = BitConverter.SingleToInt32Bits((float)-sine); data[19] = BitConverter.SingleToInt32Bits((float)cosine);
+        data[20] = view.Center.X; data[21] = view.Center.Y;
+        data[22] = view.Scroll.X; data[23] = view.Scroll.Y;
+        data[24] = view.Outside switch
         {
             FloorOverflowMode.Transparent => 0,
             FloorOverflowMode.Wrap => 2,
-            _ => throw new ArgumentOutOfRangeException(nameof(transform), transform.Outside, "Unknown floor overflow."),
+            _ => throw new ArgumentOutOfRangeException(nameof(view), view.Outside, "Unknown floor overflow."),
         };
         data[25] = firstScanline; data[26] = endScanline;
         data[27] = (int)(addLayer1 ? FloorColorBlend.AddForeground

@@ -33,7 +33,7 @@ public sealed class BossBodySheet
         {
             if (frame.Parts.IsDefaultOrEmpty)
                 throw new InvalidDataException($"{owner}'s body frame {frame.Name} has no parts.");
-            if (frame.Parts.Any(part => part.Picture.Sheet != sheet.Image))
+            if (frame.Parts.Any(part => part.Picture is { } picture && picture.Sheet != sheet.Image))
                 throw new InvalidDataException($"{owner}'s body frame {frame.Name} has a part off its sheet.");
             if (!named.TryAdd(frame.Name, frame))
                 throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");

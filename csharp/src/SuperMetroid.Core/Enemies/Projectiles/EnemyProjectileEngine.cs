@@ -367,8 +367,8 @@ internal sealed class EnemyProjectileEngine
             if (CoordinateAxis.Wrap(screen.X + 128) >= 512 || CoordinateAxis.Wrap(screen.Y + 128) >= 512)
                 continue;
 
-            // The blank frame draws nothing.
-            if (frame != EnemyProjectileFrameId.Blank)
+            // The blank frame, and the program frames showing the empty spritemap, draw nothing (#1513).
+            if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
                     EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
         }

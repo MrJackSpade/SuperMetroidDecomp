@@ -33,10 +33,21 @@ internal sealed record EnemySheetManifestDocument
     /// <summary>
     /// For each graphics set by name, then each enemy by definition name and each of its frames drawn over a rotting
     /// corpse's rows by name, the name of the kind of corpse whose rot the frame shows (#1406). The enemy's sheet holds the
-    /// frame's picture of each rot that corpse can show. A frame drawn over no corpse's rows is absent.
+    /// frame's picture of each rot that corpse can show at which it shows anything. A frame drawn over no corpse's rows is
+    /// absent.
     /// </summary>
     public required Dictionary<string, Dictionary<string, Dictionary<string, string>>> RotPictures { get; init; }
 
     /// <summary>The same for each set's spawned-object sheets, by the tile base in decimal in place of the enemy.</summary>
     public required Dictionary<string, Dictionary<string, Dictionary<string, string>>> SpawnedRotPictures { get; init; }
+
+    /// <summary>
+    /// For each graphics set by name, then each enemy by definition name, the names of its frames' pictures of the rots at
+    /// which every character they read is blank (#1513): the frame shows nothing at that rot, so its sheet holds no such
+    /// picture and the frame draws nothing then. An enemy none of whose frames shows nothing at a rot is absent.
+    /// </summary>
+    public required Dictionary<string, Dictionary<string, string[]>> BlankRotPictures { get; init; }
+
+    /// <summary>The same for each set's spawned-object sheets, by owner in place of the enemy.</summary>
+    public required Dictionary<string, Dictionary<string, string[]>> SpawnedBlankRotPictures { get; init; }
 }

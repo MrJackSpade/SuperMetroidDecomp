@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.FrameDefinitionsGenerator;
 
@@ -62,6 +63,7 @@ internal sealed class SpawnAnalysis
     {
         RequireMembers(model.EnemyFrameId, Walk.ExcludedEnemyFrames);
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
+        RequireEmptySpritemapFrames(model);
         RequireMembers(model.RoomSpriteObjectKind, Walk.ExcludedSpriteObjects);
         var analysis = new SpawnAnalysis(model);
         var scanner = new UnitScanner(model);
@@ -257,6 +259,39 @@ internal sealed class SpawnAnalysis
         {
             if (!model.IsTable(type) && model.FamilyOf(type) is null && model.OwnersOf(type) is { } owners && owners.Contains(behaviour.Type))
                 RootAll(walk, model, type);
+        }
+    }
+
+    /// <summary>
+    /// Requires the projectile frames the generator excludes, the blank frame aside, to be exactly those Core's
+    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames</c> lists as drawing nothing, so a frame Core draws
+    /// nothing for is on no sheet and a frame Core draws is on its sheet.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The catalog is missing or lists other frames.</exception>
+    private static void RequireEmptySpritemapFrames(CoreModel model)
+    {
+        INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == "EnemyProjectileEmptyFrameDefinitions")];
+        if (catalogs is not [var catalog] || catalog.GetMembers("EmptySpritemapFrames") is not [IFieldSymbol field])
+            throw new InvalidDataException("Core declares no single EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.");
+        var listed = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (SyntaxReference reference in field.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is not VariableDeclaratorSyntax { Initializer.Value: var value })
+                continue;
+            SemanticModel semantic = model.ModelOf(value.SyntaxTree);
+            foreach (ExpressionSyntax expression in value.DescendantNodes().OfType<ExpressionSyntax>())
+            {
+                if (semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member
+                    && SymbolEqualityComparer.Default.Equals(member.ContainingType, model.EnemyProjectileFrameId))
+                    listed.Add(member.Name);
+            }
+        }
+        var excluded = new SortedSet<string>(Walk.ExcludedProjectileFrames, StringComparer.Ordinal);
+        excluded.Remove("Blank");
+        if (!listed.SetEquals(excluded))
+        {
+            throw new InvalidDataException("The generator's excluded projectile frames (" + string.Join(", ", excluded)
+                + ") are not the frames EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames lists (" + string.Join(", ", listed) + ").");
         }
     }
 

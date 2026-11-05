@@ -25,10 +25,21 @@ public interface IEnemySheetSource
     /// <summary>
     /// The name of the kind of rotting corpse whose rot frame <paramref name="frame"/> of <paramref name="enemy"/>'s sheet
     /// under graphics set <paramref name="set"/> shows, when the frame is drawn over the corpse's rows: the sheet holds the
-    /// frame's picture of each rot the corpse can show (#1406). None for a frame that shows no rot.
+    /// frame's picture of each rot the corpse can show at which the frame shows anything (#1406, #1513). None for a frame
+    /// that shows no rot.
     /// </summary>
     string? RotCorpse(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame);
 
     /// <summary>The same for frame <paramref name="frame"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
     string? SpawnedRotCorpse(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string frame);
+
+    /// <summary>
+    /// Whether <paramref name="picture"/>, a picture of a frame of <paramref name="enemy"/>'s sheet under graphics set
+    /// <paramref name="set"/> at a rot its corpse can show, shows nothing: every character the frame reads is blank at that
+    /// rot, so the sheet holds no such picture and the frame draws nothing then (#1513).
+    /// </summary>
+    bool RotShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
+
+    /// <summary>The same for a picture of a frame of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
+    bool SpawnedRotShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
 }

@@ -47,6 +47,11 @@ internal sealed class EnemySheetShades
             .Concat(FrameColouringDefinitions.Frames.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.FrameName(entry.Key), entry.Value))),
         StringComparer.Ordinal));
 
+    /// <summary>Each catalogued common spawner's frame colouring by the sheet frame name its frame takes.</summary>
+    private static readonly Lazy<Dictionary<string, CommonSpawnerShades>> CommonFrameColourings = new(() =>
+        FrameColouringDefinitions.CommonProjectiles.ToDictionary(entry => EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry => entry.Value,
+            StringComparer.Ordinal));
+
     /// <summary>The installed artwork the effects' colours come from.</summary>
     private readonly EnemySheetInputs inputs;
 
@@ -113,13 +118,17 @@ internal sealed class EnemySheetShades
         var recoloured = new Dictionary<int, RgbColor>();
         foreach (FramePictures pictures in frames)
         {
-            if (!FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
+            IReadOnlyList<SheetShade> laid;
+            if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
+                laid = [.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))];
+            else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
+                laid = Common([common]).Inks;
+            else
                 continue;
             HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? 0) | paletteBits))];
             var left = new Dictionary<int, RgbColor>();
-            foreach (PictureShade name in colouring.Shades)
+            foreach (SheetShade shade in laid)
             {
-                SheetShade shade = EffectOf(colouring.Owner, name);
                 for (int index = 0; index < shade.Inks.Length; index++)
                 {
                     if (rows.Contains(shade.Inks[index] / LoadedSetColours.RowColours))

@@ -31,4 +31,10 @@ public sealed record SpriteSheetDocument
 
     /// <summary>The frames by name.</summary>
     public required Dictionary<string, SpriteSheetFrameDocument> Frames { get; init; }
+
+    /// <summary>
+    /// The names of the frames the sheet's family draws that show nothing (#1513): each inks no pixel, so the sheet holds
+    /// no picture for it and its draw draws nothing; absent for none. No name is also a frame of <see cref="Frames"/>.
+    /// </summary>
+    public string[]? Blank { get; init; }
 }

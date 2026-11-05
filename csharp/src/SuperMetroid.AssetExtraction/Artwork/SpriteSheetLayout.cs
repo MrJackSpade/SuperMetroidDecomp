@@ -152,6 +152,7 @@ internal sealed class SpriteSheetLayout
             Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,
             Frames = manifest,
             Shades = SheetShade.Documents([.. (sources.Shades ?? []).Select(InkShade), .. RowShades()]),
+            Blank = sources.Blank is { Count: > 0 } blank ? [.. blank] : null,
         };
     }
 
@@ -312,6 +313,11 @@ internal sealed class SpriteSheetLayout
                 writer.Write(frame.Name);
                 writer.Write(frame.Image);
             }
+            // The frames that show nothing are part of what the sheet installs (#1513).
+            IReadOnlyList<string> blanks = sources.Blank ?? [];
+            writer.Write(blanks.Count);
+            foreach (string blank in blanks)
+                writer.Write(blank);
         }
         return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
     }

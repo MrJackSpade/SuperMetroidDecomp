@@ -3,7 +3,9 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.NoobTube.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -46,6 +48,13 @@ internal static class FrameColouringDefinitions
         [EnemyProjectileFrameId.MotherBrainGlassFrame14] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
         [EnemyProjectileFrameId.MotherBrainGlassFrame15] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
     };
+
+    /// <summary>
+    /// The projectile frames a common spawner's objects always draw in its shades: every piece of the n00b tube (its
+    /// crack, shards and bubbles), drawn in the crack colours its cracks' initialization installs.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyProjectileFrameId, CommonSpawnerShades> CommonProjectiles { get; } =
+        NoobTubeProjectileFrameDefinitions.ShownProjectileFrames.Values.Distinct().ToDictionary(frame => frame, _ => CommonSpawnerShades.TubeCracks);
 
     /// <summary>The enemy frames: Mother Brain's tubes, drawn from her room's entry in the tube colours it loads.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, FrameColouring> Frames { get; } = new Dictionary<EnemyFrameId, FrameColouring>

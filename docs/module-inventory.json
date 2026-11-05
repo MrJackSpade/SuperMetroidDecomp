@@ -708,7 +708,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2168,
+      "files": 2169,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -109896,7 +109896,6 @@
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Rendering",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Diagnostics",
         "csharp/test-support/Assertions",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
@@ -115717,9 +115716,8 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Assets",
-        "csharp/src/SuperMetroid.Core/Rendering",
-        "csharp/test-support/FrameRendering"
+        "csharp/test-support/FrameRendering",
+        "csharp/test-support/RepositoryInstallation"
       ]
     },
     {
@@ -121350,6 +121348,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Samus/Abilities/CrystalFlashDrawnFrame.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Samus.Abilities",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Samus/Abilities/CrystalFlashFrameScenes.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -121399,6 +121406,7 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
+        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]

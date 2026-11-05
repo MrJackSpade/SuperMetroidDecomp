@@ -131215,6 +131215,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph.HeldReferences\u003CTRead\u003E",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph.LazyAccess",
       "kind": "record",
       "scope": "product",
@@ -131280,6 +131293,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.CompiledWriters",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.EnumNames",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.GraphReader",
       "kind": "class",
       "scope": "product",
@@ -131306,6 +131345,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.IntegerWidth",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.LayoutKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.ObjectMarker",
       "kind": "enum",
       "scope": "product",
@@ -131330,6 +131395,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.TypeLayout",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerSaveStateLoadResult",
@@ -162817,6 +162895,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Harness.ConcurrentSceneDrawing.CompanionWork",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/ConcurrentSceneDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Verification.Harness.ConcurrentSceneDrawing.DrawingCompanion",
       "kind": "class",
       "scope": "test",
@@ -162828,19 +162919,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Verification.Harness.ConcurrentSceneDrawing.SceneDraw",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Harness/ConcurrentSceneDrawing.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Harness.Cutout",
@@ -167573,6 +167651,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Abilities.CrystalFlashDrawnFrame",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Abilities/CrystalFlashDrawnFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Samus.Abilities.CrystalFlashFrameScenes",

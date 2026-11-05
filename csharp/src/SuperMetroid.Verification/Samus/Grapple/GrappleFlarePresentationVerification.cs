@@ -131,7 +131,7 @@ internal static class GrappleFlarePresentationVerification
 
             AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
-            AssertTrue(GraphDigest(native, content).SequenceEqual(GraphDigest(actual, content)), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
+            AssertTrue(SameGraph(native, actual, content), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
             cases++;
         }
         SamusState Clone(SamusState source) => RoundTrip(source, content);

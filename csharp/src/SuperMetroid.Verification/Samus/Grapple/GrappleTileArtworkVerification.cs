@@ -46,7 +46,7 @@ internal static class GrappleTileArtworkVerification
             OamBuffer oa = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(native, sprites, new(0, 0), InstalledFixtures.GrappleSheet));
             OamBuffer ob = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleBeamDrawing.DrawConnectedBeam(selected, sprites, new(0, 0), InstalledFixtures.GrappleSheet));
             AssertTrue(oa.ImageEquals(ob), "Grapple sheet draws are deterministic in rope OBJ placement and composition");
-            AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)), "Grapple draws preserve entire rope/animation simulation state");
+            AssertTrue(SameGraph(native, selected), "Grapple draws preserve entire rope/animation simulation state");
             // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly
             // as the cartridge uploads them to $6200/$6210.
             SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, GrappleRopeOrientations.For(selected.Angle));

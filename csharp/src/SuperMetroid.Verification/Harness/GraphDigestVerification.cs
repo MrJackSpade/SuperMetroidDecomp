@@ -24,6 +24,79 @@ internal static class GraphDigestVerification
     }
 
     /// <summary>
+    /// Whether <paramref name="left"/> and <paramref name="right"/> have the same complete debugger-state graph, both naming
+    /// what they reach of <paramref name="content"/> by path: the comparison two equal <see cref="GraphDigest"/>s make,
+    /// made on the serialized bytes themselves, so neither graph is hashed.
+    /// </summary>
+    internal static bool SameGraph(object left, object right, params object[] content) =>
+        SameGraph(left, content, right, content);
+
+    /// <summary>
+    /// Whether <paramref name="left"/>, naming what it reaches of <paramref name="leftContent"/> by path, and
+    /// <paramref name="right"/>, naming what it reaches of <paramref name="rightContent"/>, have the same complete
+    /// debugger-state graph: the comparison their two <see cref="GraphDigest"/>s make, made on the serialized bytes. The left
+    /// graph is written into this thread's reused buffer and the right one is compared with it as it is written.
+    /// </summary>
+    internal static bool SameGraph(object left, object[] leftContent, object right, object[] rightContent)
+    {
+        MemoryStream written = leftGraph ??= new MemoryStream();
+        written.SetLength(0);
+        DebuggerObjectGraphSerializer.Serialize(written, left, Bound(leftContent));
+        if (!written.TryGetBuffer(out ArraySegment<byte> expected))
+            throw new InvalidOperationException("The reused graph buffer exposes its bytes.");
+        using var comparing = new ComparingStream(expected);
+        DebuggerObjectGraphSerializer.Serialize(comparing, right, Bound(rightContent));
+        return comparing.Same;
+    }
+
+    /// <summary>This thread's buffer for the left graph of a <see cref="SameGraph(object, object[], object, object[])"/>, kept between comparisons.</summary>
+    [ThreadStatic] private static MemoryStream? leftGraph;
+
+    /// <summary>Write-only stream that compares the bytes written with an expected graph as they arrive.</summary>
+    private sealed class ComparingStream(ArraySegment<byte> expected) : Stream
+    {
+        /// <summary>How many bytes have been written.</summary>
+        private long written;
+
+        /// <summary>Whether a written byte differed from the expected byte at its position, or ran past the expected bytes.</summary>
+        private bool differs;
+
+        /// <summary>Whether the bytes written are exactly the expected bytes.</summary>
+        internal bool Same => !differs && written == expected.Count;
+
+        /// <summary>Comparing accepts writes only.</summary>
+        public override bool CanRead => false;
+        /// <summary>Written bytes cannot be repositioned.</summary>
+        public override bool CanSeek => false;
+        /// <summary>Written bytes are compared in order.</summary>
+        public override bool CanWrite => true;
+        /// <summary>A comparing stream has no retrievable length.</summary>
+        public override long Length => throw new NotSupportedException();
+        /// <summary>A comparing stream has no seekable position.</summary>
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Comparisons are immediate and need no flush.</summary>
+        public override void Flush() { }
+        /// <summary>Rejects reads from the write-only stream.</summary>
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        /// <summary>Rejects repositioning written bytes.</summary>
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        /// <summary>Rejects changing the stream's length.</summary>
+        public override void SetLength(long value) => throw new NotSupportedException();
+        /// <summary>Compares an array segment with the expected bytes at the current position.</summary>
+        public override void Write(byte[] buffer, int offset, int count) => Write(new ReadOnlySpan<byte>(buffer, offset, count));
+        /// <summary>Compares one byte with the expected byte at the current position.</summary>
+        public override void WriteByte(byte value) => Write(new ReadOnlySpan<byte>(in value));
+        /// <summary>Compares a span with the expected bytes at the current position.</summary>
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            if (!differs)
+                differs = written + buffer.Length > expected.Count ||
+                    !buffer.SequenceEqual(expected.AsSpan((int)written, buffer.Length));
+            written += buffer.Length;
+        }
+    }
+
+    /// <summary>
     /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path, content loaded
     /// since the list was first indexed included.
     /// </summary>

@@ -243,11 +243,15 @@ internal static class MapPresentationVerification
         {
             Bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             Stock = copy.Installation.MapDirectory;
+            Reopened = copy.Installation.LoadMaps();
             // The copy's files are the shared installation's, so its catalog is the shared one, which the fixture sheets and
             // pictures already compose and register (#1532).
-            Original = copy.Installation.LoadMaps().ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.Maps
+            Original = Reopened.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.Maps
                 : throw new InvalidDataException("The private copy's map presentation differs from the shared installation's.");
         }
+
+        /// <summary>The copy's map presentation, loaded again from its files before any corruption.</summary>
+        internal AreaMapPresentation Reopened { get; }
 
         /// <summary>Retail cartridge oracle for native comparisons.</summary>
         internal SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace Bus { get; }
@@ -270,7 +274,7 @@ internal static class MapPresentationVerification
         string stock = fixture.Stock;
         AreaMapPresentation original = fixture.Original;
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
-        var reopened = MapPresentationFiles.Load(stock);
+        AreaMapPresentation reopened = fixture.Reopened;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)

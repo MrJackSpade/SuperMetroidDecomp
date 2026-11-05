@@ -7,8 +7,9 @@ namespace SuperMetroid.TestSupport.FrameRendering;
 /// Whether two published frames show the same pixels (#1532). A frame's pixels are a function of its description alone: the
 /// scene's records, planes, grids and shadings compare by value, as the renderer's own upload caching relies on, and every
 /// other member a scene holds is immutable once published, so an equal reference holds equal content. Two frames whose
-/// descriptions are equal therefore show equal pixels without drawing either; only frames whose descriptions differ are
-/// drawn with the game's renderer and compared pixel by pixel. The answer is the pixel comparison's in every case.
+/// descriptions are equal therefore show equal pixels without drawing either, and so do two frames whose graphs hold the
+/// same values (<see cref="PublishedGraphs"/>); only frames that differ in both are drawn with the game's renderer and
+/// compared pixel by pixel. The answer is the pixel comparison's in every case.
 /// </summary>
 internal static class ScenePixels
 {
@@ -17,8 +18,18 @@ internal static class ScenePixels
     {
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
-        return SameDescription(left, right) || DisplayRendering.Render(left).AsSpan().SequenceEqual(DisplayRendering.Render(right));
+        return SameDescription(left, right) || SameGraph(left, right)
+            || DisplayRendering.Render(left).AsSpan().SequenceEqual(DisplayRendering.Render(right));
     }
+
+    /// <summary>
+    /// Whether two packets reach the same values: twin games' frames hold equal copies of what they show, which
+    /// <see cref="SameDescription"/> compares only by instance for a gameplay room's layers. The frame number names the
+    /// publication, not what it shows, so it is not compared.
+    /// </summary>
+    private static bool SameGraph(DisplayPacket left, DisplayPacket right) =>
+        left.Brightness == right.Brightness && left.Size == right.Size && left.SolidColor == right.SolidColor
+        && PublishedGraphs.Same(left.Layers, right.Layers) && PublishedGraphs.Same(left.Floor, right.Floor);
 
     /// <summary>Whether <paramref name="left"/> and <paramref name="right"/>, each shown alone, show the same pixels.</summary>
     internal static bool Same(LayeredScene left, LayeredScene right) => Same(new DisplayPacket(0, left), new DisplayPacket(0, right));
@@ -38,7 +49,7 @@ internal static class ScenePixels
             return right.Layers is { } rightScene && SameScene(leftScene, rightScene);
         if (left.Floor is { } leftFloor)
             return right.Floor is { } rightFloor && SamePaint(leftFloor.Paint, rightFloor.Paint)
-                && Equals(leftFloor.Background, rightFloor.Background) && ReferenceEquals(leftFloor.Floor, rightFloor.Floor)
+                && Equals(leftFloor.Background, rightFloor.Background) && Equals(leftFloor.Floor, rightFloor.Floor)
                 && leftFloor.Brightness == rightFloor.Brightness && Equals(leftFloor.Gradient, rightFloor.Gradient);
         return right.Layers is null && right.Floor is null;
     }
@@ -65,7 +76,9 @@ internal static class ScenePixels
     /// Whether two layers describe the same pass. The frontend screens' layers are records whose every member compares by
     /// value: their planes, windows, gradients and tints. A HUD layer is compared by its placed pictures, an inset scene's
     /// scene by its description, a picture grid by each cell's picture, mirroring and shading, and a turning floor by its
-    /// transform and its floor instance. Any other layer, such as a gameplay room's, is the same pass only when it is the same instance.
+    /// transform and its floor: the same picture instances under an equal shading, as a screen that shades its floor each
+    /// frame publishes a new one. Any other layer, such as a gameplay room's, is the same pass only when it is the same
+    /// instance.
     /// </summary>
     private static bool SameLayer(DisplayLayer left, DisplayLayer right) => left switch
     {
@@ -76,7 +89,7 @@ internal static class ScenePixels
         PictureGridLayer leftGrid => right is PictureGridLayer rightGrid && leftGrid.Scroll == rightGrid.Scroll
             && leftGrid.Priority == rightGrid.Priority && SameGrid(leftGrid.Grid, rightGrid.Grid),
         TurningFloorLayer leftFloor => right is TurningFloorLayer rightFloor && leftFloor.Transform == rightFloor.Transform
-            && ReferenceEquals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
+            && Equals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
             && leftFloor.AddsForeground == rightFloor.AddsForeground,
         HudLayer leftHud => right is HudLayer rightHud && leftHud.TransparentColorZero == rightHud.TransparentColorZero
             && leftHud.Priority == rightHud.Priority && SameHud(leftHud.Hud, rightHud.Hud),

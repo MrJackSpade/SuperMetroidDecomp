@@ -99,6 +99,18 @@ internal static class GraphDigestVerification
     }
 
     /// <summary>
+    /// SHA-256 of everything <paramref name="value"/> reaches, content included: no object is named by path, so a change
+    /// to content itself, such as a part it loads on first use, changes the digest (#1532).
+    /// </summary>
+    internal static byte[] UnboundGraphDigest(object value)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        using (var stream = new HashingStream(hash))
+            DebuggerObjectGraphSerializer.Serialize(stream, value);
+        return hash.GetHashAndReset();
+    }
+
+    /// <summary>
     /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path, content loaded
     /// since the list was first indexed included.
     /// </summary>
@@ -135,23 +147,46 @@ internal static class GraphDigestVerification
             return Indexed(content);
     }
 
-    /// <summary>The graph of <paramref name="content"/>, indexed now unless it was before; callers hold the lock.</summary>
+    /// <summary>
+    /// The graph of <paramref name="content"/>, indexed now unless it was before; callers hold the lock. The fixture's
+    /// installed content is indexed, and re-indexed after another of its catalogs loads, as a shared fixture
+    /// (<see cref="IndexInstalledContent"/>), whether a capture names it alone or as the list a longer list extends.
+    /// </summary>
     private static BoundObjectGraph Indexed(object[] content)
     {
-        foreach ((object[] roots, BoundObjectGraph graph) in boundGraphs)
+        bool installed = IsInstalledContent(content);
+        foreach ((object[] roots, BoundObjectGraph graph, object[]? extends) in boundGraphs)
             if (roots.Length == content.Length && EndsWith(content, roots))
             {
                 // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
                 // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
-                // keeps the path it was first indexed under.
-                graph.Refresh();
+                // keeps the path it was first indexed under. The list a graph extends is refreshed first, as its own
+                // list is, so installed content's refresh is timed as the shared fixture's.
+                if (extends is not null)
+                    Indexed(extends);
+                if (installed && SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent != installedCatalogsIndexed)
+                    IndexInstalledContent(() =>
+                    {
+                        graph.Refresh();
+                        return graph;
+                    });
+                else
+                    graph.Refresh();
                 return graph;
             }
-        BoundObjectGraph indexed = IndexedSuffix(content) is { } suffix
-            ? new BoundObjectGraph(content[..^suffix.Length], Indexed(suffix))
+        object[]? suffix = installed ? null : IndexedSuffix(content);
+        BoundObjectGraph indexed = installed ? IndexInstalledContent(() => new BoundObjectGraph(content))
+            : suffix is not null ? new BoundObjectGraph(content[..^suffix.Length], Indexed(suffix))
             : new BoundObjectGraph(content);
-        boundGraphs.Add(([.. content], indexed));
+        boundGraphs.Add(([.. content], indexed, suffix));
         return indexed;
+    }
+
+    /// <summary>Whether <paramref name="content"/> is the fixture's installed content, the same objects in order.</summary>
+    private static bool IsInstalledContent(object[] content)
+    {
+        object[] installed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        return content.Length == installed.Length && EndsWith(content, installed);
     }
 
     /// <summary>
@@ -161,7 +196,7 @@ internal static class GraphDigestVerification
     private static object[]? IndexedSuffix(object[] content)
     {
         object[]? longest = null;
-        foreach ((object[] roots, _) in boundGraphs)
+        foreach ((object[] roots, _, _) in boundGraphs)
             if (roots.Length < content.Length && roots.Length > (longest?.Length ?? 0) && EndsWith(content, roots))
                 longest = roots;
         object[] installed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
@@ -182,8 +217,23 @@ internal static class GraphDigestVerification
         return true;
     }
 
+    /// <summary>
+    /// Indexes the installed content's catalogs loaded since they were last indexed, as the process's one shared index of
+    /// its installed content (#1532): every capture of the process names installed content through it, so its cost is a
+    /// shared fixture's, timed as its own entry, not a cost of whichever suite first captures after a catalog loads.
+    /// </summary>
+    private static BoundObjectGraph IndexInstalledContent(Func<BoundObjectGraph> index)
+    {
+        installedCatalogsIndexed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent;
+        return SuperMetroid.TestSupport.RepositoryInstallation.SharedFixtureTiming.Load("Fixture: installed content index", index);
+    }
+
+    /// <summary>How many installed catalogs had loaded when the installed content was last indexed.</summary>
+    private static int installedCatalogsIndexed = -1;
+
     /// <summary>Each content list indexed so far, with its graph.</summary>
-    private static readonly List<(object[] Roots, BoundObjectGraph Graph)> boundGraphs = [];
+    /// <remarks>An extending graph keeps the list it extends, which is refreshed before it.</remarks>
+    private static readonly List<(object[] Roots, BoundObjectGraph Graph, object[]? Extends)> boundGraphs = [];
 
     /// <summary>
     /// Write-only stream that feeds serialized graph bytes into an incremental SHA-256 hash. The serializer writes a graph
@@ -329,26 +379,4 @@ internal static class GraphDigestVerification
     /// <summary>The pixels a layered scene shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
         DisplayRendering.Render(frame);
-
-    /// <summary>
-    /// Whether two packets show the same pixels (#1532). A packet holds everything the renderer draws and nothing else, so
-    /// two packets whose descriptions compare equal, or whose scenes' whole graphs digest alike naming
-    /// <paramref name="content"/> by path, show the same pixels without drawing either; this answers for a gameplay frame,
-    /// whose room layer compares only by instance. Only packets that differ in both are drawn and compared pixel by pixel.
-    /// The frame number names the publication, not what it shows, so it is not compared.
-    /// </summary>
-    internal static bool SamePixels(SuperMetroid.Core.Rendering.DisplayPacket left, SuperMetroid.Core.Rendering.DisplayPacket right,
-        params object[] content)
-    {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-        if (ScenePixels.SameDescription(left, right))
-            return true;
-        object? leftScene = (object?)left.Layers ?? left.Floor, rightScene = (object?)right.Layers ?? right.Floor;
-        if (left.Brightness == right.Brightness && left.Size == right.Size && left.SolidColor == right.SolidColor
-            && leftScene is not null && rightScene is not null && leftScene.GetType() == rightScene.GetType()
-            && GraphDigest(leftScene, content).AsSpan().SequenceEqual(GraphDigest(rightScene, content)))
-            return true;
-        return ScenePixels.Same(left, right);
-    }
 }

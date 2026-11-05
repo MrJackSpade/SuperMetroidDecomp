@@ -34,14 +34,36 @@ internal static class SceneShownColours
     internal static IReadOnlyList<ShownColourSource> SourcesAt(LayeredScene scene, int place)
     {
         Ensure.BetweenInclusive(0, NativeColouredPictures.ColorCount - 1, place);
-        var shown = new List<ShownColourSource>();
+        return Sources(scene, place)[place];
+    }
+
+    /// <summary>
+    /// What <paramref name="scene"/>'s pictures show at each place of the native 256-colour image, indexed by place, as
+    /// <see cref="SourcesAt"/> answers for one place: the scene's pictures and inks are gathered once for every place
+    /// (#1532).
+    /// </summary>
+    internal static IReadOnlyList<IReadOnlyList<ShownColourSource>> SourcesByPlace(LayeredScene scene) => Sources(scene, only: null);
+
+    /// <summary>
+    /// The sources of each place of the native image <paramref name="scene"/>'s pictures colour, indexed by place: only
+    /// <paramref name="only"/>'s when it is given, every place's otherwise.
+    /// </summary>
+    private static List<ShownColourSource>[] Sources(LayeredScene scene, int? only)
+    {
+        var shown = new List<ShownColourSource>[NativeColouredPictures.ColorCount];
+        for (int place = 0; place < shown.Length; place++)
+            shown[place] = [];
         foreach (ShownPictureInks entry in ShownInks(scene))
         {
             RgbColor[] inks = entry.Shading.InkColours(entry.Picture);
+            string? shading = null;
             foreach (int ink in entry.Inks)
             {
-                if (SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(entry.Picture, ink, entry.DrawRow) == place)
-                    shown.Add(new ShownColourSource(entry.Picture.Name, entry.Shading.ToString() ?? string.Empty, ink, inks[ink]));
+                int place = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(entry.Picture, ink, entry.DrawRow);
+                if (only is { } wanted && place != wanted)
+                    continue;
+                shading ??= entry.Shading.ToString() ?? string.Empty;
+                shown[place].Add(new ShownColourSource(entry.Picture.Name, shading, ink, inks[ink]));
             }
         }
         return shown;

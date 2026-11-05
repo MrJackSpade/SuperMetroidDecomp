@@ -52,8 +52,11 @@ internal static class InstalledFileSelectMapVerification
         AssertTrue(initialScrollX != ScrollX(installed), "installed menu test actually scrolls before saving");
 
         // Preserve a live, scrolled menu; the stored state names the catalog it is bound to, and a restore draws from it.
-        byte[] state = GraphDigestVerification.SerializeGraph(installed, original, MenuSheetFixtures.For(original));
-        installed = GraphDigestVerification.RestoreGraph<FileSelectMapMenuState>(state, original, MenuSheetFixtures.For(original));
+        // The installation's catalog and sheets are named through the process's one index of the installed content, which
+        // every capture shares, instead of indexing them again as a list of their own (#1532).
+        object[] content = ReferenceEquals(original, InstalledFixtures.Maps) ? [] : [original, MenuSheetFixtures.For(original)];
+        byte[] state = GraphDigestVerification.SerializeGraph(installed, content);
+        installed = GraphDigestVerification.RestoreGraph<FileSelectMapMenuState>(state, content);
         AssertTrue(ScenePixels.Same(control.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()), "restored room map retains scrolled frame");
         StepBoth(ControllerButton.B);
         for (int i = 0; i < 60; i++) StepBoth(0);

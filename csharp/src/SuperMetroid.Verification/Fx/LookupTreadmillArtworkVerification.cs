@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -27,16 +28,19 @@ internal static class LookupTreadmillArtworkVerification
                 "Preserved rejection parameter");
         foreach (var pair in new[] { new VerifyTreadmillArtworkSourcesCase(Definition:right, First:0x81e3), new VerifyTreadmillArtworkSourcesCase(Definition:left, First:0x81f9) })
         {
-            for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            // The four frames' original operands are read first; the pointer domain is then swept across the cores, as
+            // a frame's source is a pure function of the immutable direction program.
+            var operands = new Dictionary<int, int>();
+            for (int delta = 0; delta < 16; delta += 4)
+                operands.Add(pair.First + delta, 0x870000 | ReadVerificationWord(rom, 0x870002 + pair.First + delta));
+            ParallelSweep.For(0, ushort.MaxValue + 1, pointer =>
             {
-                int delta = pointer - pair.First;
-                if (delta >= 0 && delta < 16 && delta % 4 == 0)
-                    AssertEqual(0x870000 | ReadVerificationWord(rom, 0x870002 + pointer),
-                        pair.Definition.FrameSourceAddress((ushort)pointer), "Original directional operand view");
+                if (operands.TryGetValue(pointer, out int operand))
+                    AssertEqual(operand, pair.Definition.FrameSourceAddress((ushort)pointer), "Original directional operand view");
                 else
                     AssertThrows<InvalidDataException>(() => pair.Definition.FrameSourceAddress((ushort)pointer),
                         "All non-frame instruction pointers reject");
-            }
+            });
         }
     }
 }

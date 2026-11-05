@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -24,7 +25,9 @@ internal static class LookupAnimatedArtworkSourcesVerification
                 expected.Add((ushort)cursor, 0x870000 | ReadVerificationWord(rom, 0x870000 | (cursor + 2)));
                 total++;
             }
-            for (int value = 0; value <= ushort.MaxValue; value++)
+            // The artwork source of a cursor is a pure function of the immutable loop, so the whole cursor domain is
+            // swept across the cores.
+            ParallelSweep.For(0, ushort.MaxValue + 1, value =>
             {
                 ushort cursor = (ushort)value;
                 if (expected.TryGetValue(cursor, out int source))
@@ -34,7 +37,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
                     AssertThrows<InvalidDataException>(
                         () => AnimatedTileImageSources.OfCursor((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
                         "Non-frame cursor rejects including odd/source/loop words");
-            }
+            });
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
         var unknown = new RoomFxAnimatedTileLoop(0, 32, 1, 10, 1);

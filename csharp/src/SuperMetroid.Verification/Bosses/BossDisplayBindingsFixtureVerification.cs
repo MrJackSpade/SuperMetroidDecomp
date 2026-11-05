@@ -15,7 +15,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 
-/// <summary>Builds a RAM-only boss actor fixture for queued OAM and hitbox checks.</summary>
+/// <summary>Builds a RAM-only boss actor fixture for queued OAM checks.</summary>
 internal static class BossDisplayBindingsFixtureVerification
 {
     /// <summary>One compiled boss actor with RAM only, exercising the public queued draw path.</summary>
@@ -50,11 +50,6 @@ internal static class BossDisplayBindingsFixtureVerification
         private BossBodySheets Sheets => bodies.Sheets;
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton> instructions;
-        /// <summary>Bound extended-hitbox query used by the collision check.</summary>
-        private readonly HitboxQuery hitbox;
-        /// <summary>Queries an extended hitbox and returns its reaction when touched.</summary>
-        private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
-            Extent16<RoomPixels> radius, HitboxContactKind contactKind, out EnemyReaction? reaction);
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
         internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
@@ -80,7 +75,6 @@ internal static class BossDisplayBindingsFixtureVerification
             // A boss that owns BG2 attaches its body layer as its initialisation does, before any of its frames draw on it.
             ClearBg2();
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
-            hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxReaction);
         }
 
         /// <summary>The boss whose body layer <paramref name="definition"/> draws on, or null for one that draws none.</summary>
@@ -123,12 +117,6 @@ internal static class BossDisplayBindingsFixtureVerification
 
         /// <summary>Advances the selected actor's production instruction interpreter once.</summary>
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
-        /// <summary>Probes the actor's extended hitbox at a two-pixel radius.</summary>
-        internal HitboxResult Hitbox(Position16<RoomPixels> probe, bool shot)
-        {
-            bool hit = hitbox(Actor, probe, new(2, 2), shot ? HitboxContactKind.Shot : HitboxContactKind.Touch, out EnemyReaction? reaction);
-            return new HitboxResult(hit, reaction);
-        }
         /// <summary>Clears the boss body layer before a presentation check.</summary>
         internal void ClearBg2()
         {

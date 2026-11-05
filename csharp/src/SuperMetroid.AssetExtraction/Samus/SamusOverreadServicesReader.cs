@@ -55,6 +55,16 @@ internal static class SamusOverreadServicesReader
             ChainsawColours(Require(document.ChainsawBeamColours, nameof(document.ChainsawBeamColours))));
     }
 
+    /// <summary>What an animation frame past a pose's program reads, which only the import reads to compose Samus's body sheet (#1513).</summary>
+    /// <exception cref="InvalidDataException">The document has an unsupported version or an incomplete continuation.</exception>
+    internal static LaidOutProgramContinuation<SamusPoseId> ReadAnimationContinuation(SamusOverreadDocument document)
+    {
+        Ensure.NotNull(document);
+        if (document.Version != SamusOverreadFormat.Version)
+            throw new InvalidDataException("Samus overread file has an unsupported version.");
+        return AnimationContinuation(Require(document.AnimationContinuations, nameof(document.AnimationContinuations)));
+    }
+
     /// <summary>Every pose with an animation program and its program's successor.</summary>
     private static LaidOutProgramContinuation<SamusPoseId> AnimationContinuation(
         IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> continuations)

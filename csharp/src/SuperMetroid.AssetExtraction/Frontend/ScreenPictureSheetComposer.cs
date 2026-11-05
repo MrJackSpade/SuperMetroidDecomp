@@ -29,6 +29,42 @@ internal static class ScreenPictureSheetComposer
         return painted.Canvas.ToSheet(painted.Colours, painted.Frames, characters.Colours);
     }
 
+    /// <summary>
+    /// Composes the sheet picturing <paramref name="subjects"/> as <see cref="Compose"/> does, except that a subject painting
+    /// no pixel over <paramref name="characters"/> shows nothing: the sheet holds it without a picture, and the screen draws
+    /// nothing for it (#1513). Whether a subject shows anything follows from the installed page data and characters, so
+    /// the import decides it here.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>
+    internal static ComposedSpriteSheet ComposeHoldingBlanks(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters,
+        ReadOnlySpan<RgbColor> palette)
+    {
+        Ensure.NotNull(subjects);
+        Ensure.NotNull(characters);
+        var pictured = new List<ScreenPictureSubject>(subjects.Count);
+        var blank = new List<string>();
+        foreach (ScreenPictureSubject subject in subjects)
+        {
+            if (ShowsAnything(subject, characters))
+                pictured.Add(subject);
+            else
+                blank.Add(subject.Name);
+        }
+        ComposedSpriteSheet sheet = Compose(pictured, characters, palette);
+        return blank.Count == 0 ? sheet : sheet with { Manifest = sheet.Manifest with { Blank = [.. blank] } };
+    }
+
+    /// <summary>Whether any cell of <paramref name="subject"/> paints a pixel other than colour zero over <paramref name="characters"/>.</summary>
+    private static bool ShowsAnything(ScreenPictureSubject subject, ScreenCharacters characters)
+    {
+        foreach (BackgroundTile? cell in subject.Tiles)
+        {
+            if (cell is { } tile && characters.TryCharacter(tile.Tile, out ReadOnlySpan<byte> character) && character.IndexOfAnyExcept((byte)0) >= 0)
+                return true;
+        }
+        return false;
+    }
+
     /// <summary>A screen's painted pictures: the canvas they are painted on, the colours its pixels name and each picture's frame.</summary>
     /// <param name="Canvas">The canvas every picture is painted on.</param>
     /// <param name="Colours">The colours the pixels name.</param>

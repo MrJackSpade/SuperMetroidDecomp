@@ -21,7 +21,19 @@ internal static class SamusAnimationDelays
     /// <param name="pose">The pose whose program is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
     /// <param name="continuation">What a frame past a program's end reads.</param>
-    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId> continuation)
+    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId> continuation) =>
+        TryStepFor(pose, frame, continuation) ?? throw new InvalidDataException(
+            $"Samus animation frame {frame} is not a step of pose {pose}'s program nor of a program laid out after it.");
+
+    /// <summary>
+    /// The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads
+    /// it, or null when the frame falls between two runs of a program or reads past every program, where the animation
+    /// fails.
+    /// </summary>
+    /// <param name="pose">The pose whose program is read.</param>
+    /// <param name="frame">Samus's animation frame.</param>
+    /// <param name="continuation">What a frame past a program's end reads.</param>
+    internal static SamusAnimationProgramStep? TryStepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId> continuation)
     {
         Ensure.NotNull(continuation);
         SamusPoseId read = pose;
@@ -32,9 +44,9 @@ internal static class SamusAnimationDelays
         while (step is null)
         {
             if (readFrame < program.FrameCount)
-                throw new InvalidDataException($"Samus animation frame {frame} is not a step of pose {pose}'s program.");
-            LaidOutProgramContinuation<SamusPoseId>.Read past = continuation.ReadPast(read, readFrame)
-                ?? throw new InvalidDataException($"Samus animation frame {frame} of pose {pose} reads past every program.");
+                return null;
+            if (continuation.ReadPast(read, readFrame) is not { } past)
+                return null;
             read = past.Program;
             program = ProgramOf(read);
             readFrame = past.Frame;

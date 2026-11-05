@@ -78,6 +78,11 @@ internal readonly record struct PendingKey(GraphicsSource Source, ISymbol Key)
 /// <param name="Pending">The pending graphics, when other code decides them.</param>
 internal sealed record CallRecord(IMethodSymbol Callee, INamedTypeSymbol SiteType, Destination? Destination, PendingKey? Pending);
 
+/// <summary>Something code that spawns nothing itself names, waiting to learn whether a caller chain spawns it.</summary>
+/// <param name="Unit">The code naming it.</param>
+/// <param name="Add">Adds it to a collection.</param>
+internal sealed record UnspawnedName(Unit Unit, Action<Collected> Add);
+
 /// <summary>
 /// One reachability walk over Core's call graph, from a behaviour, a projectile program family, or the code outside
 /// every behaviour. It follows calls, constructions, property and indexer accesses, method groups, user-defined
@@ -96,8 +101,16 @@ internal sealed class Walk
     /// </summary>
     public static readonly string[] ExcludedEnemyFrames = ["Empty", "EmptyExtended", "NorfairLavaJumperPose0"];
 
-    /// <summary>EnemyProjectileFrameId members that draw nothing.</summary>
-    public static readonly string[] ExcludedProjectileFrames = ["Blank"];
+    /// <summary>
+    /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, and the program frames Core's
+    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames</c> lists as showing the empty projectile spritemap.
+    /// </summary>
+    public static readonly string[] ExcludedProjectileFrames =
+    [
+        "Blank", "EnemyDeathFrame00", "EnemyDeathFrame01", "EnemyDeathFrame02", "FallingSparkFrame04", "FallingSparkFrame06",
+        "FallingSparkFrame08", "FallingSparkFrame10", "FallingSparkFrame12", "PhantoonFrame19", "PhantoonFrame21", "PhantoonFrame23",
+        "TorizoDroolFrame00", "TorizoDroolFrame01", "GoldenTorizoEyeBeamFrame05", "TourianStatueFrame13", "BotwoonFrame40",
+    ];
 
     /// <summary>RoomSpriteObjectKind members that are no object.</summary>
     public static readonly string[] ExcludedSpriteObjects = ["None"];
@@ -114,6 +127,7 @@ internal sealed class Walk
     private readonly Dictionary<Unit, Collected> _helperEvidence = [];
     private readonly List<(Unit Unit, SpawnCall Call)> _openSpriteObjectSpawns = [];
     private readonly List<(Unit Unit, string Kind)> _dataSpriteObjects = [];
+    private readonly List<UnspawnedName> _unspawnedNames = [];
     private readonly Queue<(Unit Unit, WalkContext Context)> _pending = new();
 
     /// <summary>
@@ -202,7 +216,30 @@ internal sealed class Walk
                 Reach(target, context, viaDispatch: false, origin: unit);
         }
         RouteDataSpriteObjects();
+        RouteUnspawnedNames();
         RouteHelperEvidence();
+    }
+
+    /// <summary>
+    /// Sends what code that spawns nothing itself names (a family it starts, a projectile frame or kind it names) to the
+    /// spawner's own sheet only when no caller chain in the walk spawns it: a helper that starts a family on the object its
+    /// callers spawn, as the pickup a drop's spawn starts, draws where those callers' graphics say, which
+    /// <see cref="RouteHelperEvidence"/> sends it to; code no spawning caller reaches (a handler switching the program of an
+    /// object the spawner's code spawned) changes an object drawing from the spawner's sheet.
+    /// </summary>
+    private void RouteUnspawnedNames()
+    {
+        var sinks = new Dictionary<Unit, HashSet<Collected>>();
+        foreach (UnspawnedName named in _unspawnedNames)
+        {
+            if (SpawningCallersOf(named.Unit, sinks, []).Count > 0)
+                continue;
+            foreach (SpawnTarget target in ScanOf(named.Unit).UnitTargets)
+            {
+                if (Collect(named.Unit, target) is { } collected)
+                    named.Add(collected);
+            }
+        }
     }
 
     /// <summary>
@@ -341,11 +378,17 @@ internal sealed class Walk
                 if (!viaDispatch && origin is { } spawner)
                 {
                     UnitScan scan = ScanOf(spawner);
-                    foreach (SpawnTarget target in scan.UnitTargets)
-                        Collect(spawner, target)?.Families.Add(family);
                     Evidence(spawner).Families.Add(family);
                     if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+                    {
                         Of(_helperEvidence, spawner).Families.Add(family);
+                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.Families.Add(family)));
+                    }
+                    else
+                    {
+                        foreach (SpawnTarget target in scan.UnitTargets)
+                            Collect(spawner, target)?.Families.Add(family);
+                    }
                     if (context == WalkContext.Own)
                         Own.Families.Add(family);
                     Spawners.Add(spawner);
@@ -456,7 +499,11 @@ internal sealed class Walk
         Spawners.Add(unit);
         add(Evidence(unit));
         if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
+        {
             add(Of(_helperEvidence, unit));
+            _unspawnedNames.Add(new UnspawnedName(unit, add));
+            return;
+        }
         foreach (SpawnTarget target in scan.TargetsOf(member))
         {
             if (Collect(unit, target) is { } collected)

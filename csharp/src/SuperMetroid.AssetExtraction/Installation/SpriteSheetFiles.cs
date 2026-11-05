@@ -74,11 +74,10 @@ public static class SpriteSheetFiles
     {
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
-        // The body sheets are named from the body tables installed beside them.
+        // The body sheet is named from the bodies Samus can show with the body installed beside it (#1513).
         string content = Path.GetDirectoryName(Path.GetFullPath(directory))
             ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory));
-        var body = new Lazy<InstalledSamusBodyArtwork>(() => SamusBodyArtworkFiles.Load(
-            Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName)));
+        var body = new Lazy<IReadOnlyList<string>>(() => SamusBodySheetComposer.FrameNames(content));
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentation>(() => MapPresentationFiles.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
@@ -111,12 +110,12 @@ public static class SpriteSheetFiles
 
     /// <summary>The frames a sheet must hold: the ones its family draws.</summary>
     /// <param name="sheet">The sheet.</param>
-    /// <param name="body">Samus's body tables, which name the body sheet's frames.</param>
+    /// <param name="body">The body sheet's frames, the bodies Samus can show with the installed body.</param>
     /// <param name="maps">The menus' presentation, whose selector frames name the pause sheet's.</param>
     /// <param name="intro">The opening cinematic's artwork, whose compositions name the intro sheet's frames.</param>
     /// <param name="ending">The ending's sprite artwork, whose compositions name the ending sheets' frames.</param>
     /// <param name="projectiles">The projectile frame bindings, whose compositions name the projectile sheets' frames.</param>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<IReadOnlyList<string>> body,
         Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending,
         Lazy<InstalledProjectileFrameBindings> projectiles) => sheet switch
     {
@@ -134,7 +133,7 @@ public static class SpriteSheetFiles
             [EndingFloorDefinitions.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerLayoutDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
         SpriteSheetId.Grapple => GrappleSheetComposer.Frames,
-        SpriteSheetId.SamusBody => SamusBodySheetComposer.FrameNames(body.Value),
+        SpriteSheetId.SamusBody => body.Value,
         SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Frames,
         SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetComposer.Frames,
         SpriteSheetId.SamusDeath => SamusDeathSheetComposer.Frames,
@@ -156,7 +155,8 @@ public static class SpriteSheetFiles
         SpriteSheetId.Title => TitleGraphicsFormat.Sprites.Select(TitleSpriteDefinitions.FrameName),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.FrameNames(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightFrameNames(intro.Value.CeresFlight),
-        SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
+        SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionFrameNames(intro.Value),
+        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealFrameNames(intro.Value),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>

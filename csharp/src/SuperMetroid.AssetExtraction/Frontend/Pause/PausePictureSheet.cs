@@ -91,11 +91,12 @@ internal static class PausePictureSheet
     /// <summary>Composes the sheet.</summary>
     /// <remarks>
     /// The reserve arrow's pictures are pre-coloured in its solid bevel colours and in each phase of its pulse (#1512); the
-    /// pause screen names the shade its arrow shows in.
+    /// pause screen names the shade its arrow shows in. A picture whose cells the page data leaves clear, such as a blank
+    /// label or a map cell's empty shape, shows nothing and is held without a picture (#1513).
     /// </remarks>
     internal static ComposedSpriteSheet Compose(AreaMapPresentation maps)
     {
-        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.Compose([.. Subjects(maps)], Characters(maps), InstalledAreaMapPresentation.PalettesOf(maps).Pause);
+        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks([.. Subjects(maps)], Characters(maps), InstalledAreaMapPresentation.PalettesOf(maps).Pause);
         PauseReserveArrowColours arrow = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ArrowColours;
         return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
     }

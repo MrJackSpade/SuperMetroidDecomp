@@ -184,14 +184,16 @@ internal static class UploadedPictureChecks
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
         int frames = 0;
         foreach ((EnemySheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.variations.Where(entry => entry.Key.Set == set.Name))
-            frames += AssertSheetFollowsSequence(set, sequence, steps, sheets.For(set, key.Enemy), followed, $"{message}: {key.Enemy}");
+            frames += AssertSheetFollowsSequence(set, sequence, steps, sheets.For(set, key.Enemy), followed,
+                picture => sheets.ShowsNothing(set, key.Enemy, picture), $"{message}: {key.Enemy}");
         var checkedSheets = new HashSet<SpriteSheet>(ReferenceEqualityComparer.Instance);
         foreach ((SpawnedObjectSheetKey key, IReadOnlyDictionary<string, FrameArtworkVariation[]> followed) in sheets.spawnedVariations.Where(entry => entry.Key.Set == set.Name))
         {
             // Owners sharing one spawned-object sheet are checked once.
             SpriteSheet sheet = sheets.Spawned(set, key.Owner).Sheet;
             if (checkedSheets.Add(sheet))
-                frames += AssertSheetFollowsSequence(set, sequence, steps, sheet, followed, $"{message}: {key.Owner}'s spawned objects");
+                frames += AssertSheetFollowsSequence(set, sequence, steps, sheet, followed,
+                    picture => sheets.SpawnedShowsNothing(set, key.Owner, picture), $"{message}: {key.Owner}'s spawned objects");
         }
         if (requireFrames)
             AssertTrue(frames > 0, $"{message}: {sequence} changes frames of {set.Name}'s sheets");
@@ -204,7 +206,7 @@ internal static class UploadedPictureChecks
     /// </summary>
     /// <returns>The frames the sequence changes.</returns>
     private static int AssertSheetFollowsSequence(RoomEnemyGraphicsSetDefinition set, EncounterArtworkSequence sequence, int steps, SpriteSheet sheet,
-        IReadOnlyDictionary<string, FrameArtworkVariation[]> followed, string message)
+        IReadOnlyDictionary<string, FrameArtworkVariation[]> followed, Func<string, bool> showsNothing, string message)
     {
         var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
         int frames = 0;
@@ -226,6 +228,9 @@ internal static class UploadedPictureChecks
                     continue;
                 }
                 string picture = ExpectedPicture(frame, variations, [new EncounterArtworkStep(sequence, step)]);
+                // A picture in which every character the frame reads is blank is on no sheet and draws nothing (#1513).
+                if (showsNothing(picture))
+                    continue;
                 var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), sheet.Frame(picture), origin, SpriteMirror.None);
                 AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [new EncounterArtworkStep(sequence, step)]))],
                     $"{message} frame {frame} at step {step} of {sequence}", requirePixels: false);

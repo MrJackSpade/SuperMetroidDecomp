@@ -35,11 +35,12 @@ public interface IEnemySheetSource
 
     /// <summary>
     /// Whether <paramref name="picture"/>, a picture of a frame of <paramref name="enemy"/>'s sheet under graphics set
-    /// <paramref name="set"/> at a rot its corpse can show, shows nothing: every character the frame reads is blank at that
-    /// rot, so the sheet holds no such picture and the frame draws nothing then (#1513).
+    /// <paramref name="set"/>, shows nothing: every character the frame reads is blank in it, as the room's load, an
+    /// encounter's artwork sequence or a corpse's rot leaves them, so the sheet holds no such picture and the frame draws
+    /// nothing then (#1513).
     /// </summary>
-    bool RotShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
+    bool ShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
 
     /// <summary>The same for a picture of a frame of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
-    bool SpawnedRotShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
+    bool SpawnedShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
 }

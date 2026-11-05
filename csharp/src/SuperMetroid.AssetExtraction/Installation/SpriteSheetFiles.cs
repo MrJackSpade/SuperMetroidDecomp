@@ -32,7 +32,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Installs the pre-coloured sprite sheets (#1392): for each sheet an RGBA PNG and its frame manifest, with a provenance
-/// manifest of their hashes. A player override of either file replaces the stock one.
+/// manifest of their hashes. A player edits the installed files in place.
 /// </summary>
 public static class SpriteSheetFiles
 {
@@ -68,15 +68,15 @@ public static class SpriteSheetFiles
         store.Finish(sourceCartridgeSha256);
     }
 
-    /// <summary>Checks the stock files against their manifest and loads every sheet, preferring a player override of each file.</summary>
-    /// <exception cref="InvalidDataException">The manifest, a stock hash, an image or a frame manifest is invalid.</exception>
-    public static InstalledSpriteSheets Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks the installed files against their manifest and loads every sheet.</summary>
+    /// <exception cref="InvalidDataException">The manifest, an image or a frame manifest is invalid.</exception>
+    public static InstalledSpriteSheets Load(string directory)
     {
-        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);
+        SpriteSheetStore store = SpriteSheetStore.Open(directory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
-        // The body sheets are named from the stock body tables installed beside them.
-        string content = Path.GetDirectoryName(Path.GetFullPath(stockDirectory))
-            ?? throw new ArgumentException($"Stock directory {stockDirectory} has no installation above it.", nameof(stockDirectory));
+        // The body sheets are named from the body tables installed beside them.
+        string content = Path.GetDirectoryName(Path.GetFullPath(directory))
+            ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory));
         var body = new Lazy<InstalledSamusBodyArtwork>(() => SamusBodyArtworkFiles.Load(
             Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
         // The pause sheet is named from the stock selector presentation installed beside it.

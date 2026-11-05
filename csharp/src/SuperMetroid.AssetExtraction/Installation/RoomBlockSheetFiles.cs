@@ -98,7 +98,7 @@ public static class RoomBlockSheetFiles
             throw new InvalidDataException($"Floor manifest {floorPath} is not revision {FloorManifestVersion}.");
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
-        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, overrideDirectory, ProvenanceFileName,
+        SpriteSheetStore store = SpriteSheetStore.Open(stockDirectory, ProvenanceFileName,
             2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + floors.Tilesets.Length);
         // The inputs each block depends on are the stock record's: an override repaints a block's pictures, not what they
         // depend on.

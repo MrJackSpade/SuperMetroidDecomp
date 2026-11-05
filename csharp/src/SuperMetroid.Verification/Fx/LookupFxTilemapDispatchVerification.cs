@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Fx;
@@ -29,7 +30,9 @@ internal static class LookupFxTilemapDispatchVerification
         RoomFxLayer3Pages Load() => RoomFxLayer3Pages.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document)));
         native.Add(RoomFxType.TourianEntranceStatue, native[RoomFxType.Water]);
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        // A page's resolution is a pure function of the immutable stock pages and its identity, so the identity domain is
+        // swept across the cores (#1532).
+        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
         {
             var type = (RoomFxType)value;
             if (native.TryGetValue(type, out byte[]? expected))
@@ -53,7 +56,7 @@ internal static class LookupFxTilemapDispatchVerification
                 }
             }
             else AssertThrows<InvalidDataException>(() => stock.Resolve(type), "Unsupported stock type rejects");
-        }
+        });
         foreach (RoomFxType type in OriginalFxTilemapTypes)
         {
             var cells = document.Pages[type.ToString()];

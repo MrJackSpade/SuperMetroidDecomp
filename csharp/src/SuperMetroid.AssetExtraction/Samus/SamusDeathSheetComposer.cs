@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Spatial;
@@ -45,7 +46,21 @@ internal static class SamusDeathSheetComposer
                     ? spritemap : new SpriteFrame(name, []), inputs.DeathTiles.Explosion));
             }
         }
-        return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
+        return new SpriteSheetSources(frames, ExplosionColours(inputs), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
+    }
+
+    /// <summary>
+    /// The colours the explosion is drawn in (#1513): Samus's suited colours, with her body without the suit in the
+    /// colours of the first death step. The explosion loads that step's suited and suitless colours before its first frame
+    /// and a later step's before each later frame, so the suitless colours always hold a death step's while it draws; the
+    /// other steps show through the sheet's shades.
+    /// </summary>
+    private static RgbColor[] ExplosionColours(SamusSheetInputs inputs)
+    {
+        RgbColor[] colours = inputs.SuitedColours();
+        for (int colour = 0; colour < SamusSheetInks.GroupColours; colour++)
+            colours[SamusSheetInks.Suitless + colour] = inputs.ShadeSources.Death.SuitlessColor(0, colour);
+        return colours;
     }
 
     /// <summary>The Samus spritemap the explosion's frame <paramref name="frame"/> shows facing <paramref name="facing"/>.</summary>

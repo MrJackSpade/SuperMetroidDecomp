@@ -479,6 +479,9 @@ public sealed class SamusState
     /// <summary>What an animation frame past her pose's program reads, the session's installed service.</summary>
     private readonly LaidOutProgramContinuation<SamusPoseId> _animationContinuation;
 
+    /// <summary>What an animation frame past her pose's program reads, which decides the frames her body can show.</summary>
+    internal LaidOutProgramContinuation<SamusPoseId> AnimationContinuation => _animationContinuation;
+
     /// <summary>
     /// Operand published by animation command $F8 through the “super-special
     /// prospective pose” seam. Null means the animation has not requested that transition.

@@ -3,6 +3,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -43,6 +45,15 @@ public static class SamusOverreadFiles
     /// <param name="directory">The installed overread directory.</param>
     /// <exception cref="InvalidDataException">The manifest, its hash, or a colour run is invalid.</exception>
     internal static SamusOverrunColours LoadColours(string directory) => SamusOverreadServicesReader.ReadColours(LoadDocument(directory));
+
+    /// <summary>
+    /// Loads what an animation frame past a pose's program reads from a verified overread installation, which the import
+    /// reads to compose the frames Samus's body can show (#1513).
+    /// </summary>
+    /// <param name="directory">The installed overread directory.</param>
+    /// <exception cref="InvalidDataException">The manifest, its hash, or a continuation is invalid.</exception>
+    internal static LaidOutProgramContinuation<SamusPoseId> LoadAnimationContinuation(string directory) =>
+        SamusOverreadServicesReader.ReadAnimationContinuation(LoadDocument(directory));
 
     /// <summary>Reads the overread document of a verified installation after checking its manifest and hash.</summary>
     private static SamusOverreadDocument LoadDocument(string directory)

@@ -1,20 +1,23 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Composes Samus's body sheet (#1392, #1513): one full-body picture for every body an update draws, at every animation
-/// frame the tables hold, over the definitions that frame selects. Each picture is the frame's top half, the chest cover
-/// the forward-facing Power Suit body shows, and its bottom half unless the top half is the complete body, in that
-/// drawing order; which halves and cover a frame shows is decided by the draw's own <see cref="SamusBodyDrawing"/>. The
-/// tables are covered whole, since glitched animation frames index past a pose's program. Frames are coloured in the
-/// Power Suit; the other suits, like palette effects, draw through the sheet's palette map.
+/// Composes Samus's body sheet (#1392, #1513): one full-body picture for every body the game can draw, and nothing else.
+/// The bodies are the ones <see cref="SamusShownFrames"/> gives: each frame each pose can show, with the movement types it
+/// is drawn with and the bottom pictures it can show. Each picture is the frame's top half, the chest cover the
+/// forward-facing Power Suit body shows, and its bottom half unless the top half is the complete body, in that drawing
+/// order; which halves and cover a frame shows is decided by the draw's own <see cref="SamusBodyDrawing"/>. A body whose
+/// selected characters are blank wherever its compositions read them shows nothing and is on no sheet; bodies that show
+/// the same picture share it on the sheet. Frames are coloured in the Power Suit; the other suits, like palette effects,
+/// draw through the sheet's palette map.
 /// </summary>
 internal static class SamusBodySheetComposer
 {
@@ -28,54 +31,77 @@ internal static class SamusBodySheetComposer
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
     {
         Ensure.NotNull(inputs);
-        SamusBodyCharacterArtwork body = inputs.SamusBody;
-        var frames = new List<SheetFrameSource>();
-        foreach ((SamusBodyFrameKey key, SpriteFrame frame) in Frames(body.Body))
-        {
-            SpriteArtwork characters = body.BodyArtwork(key.TopPicture, key.BottomPicture);
-            // A part naming characters past the body's, the chest cover among them, reads the standard OBJ sheet there.
-            if (frame.LastCharacter >= characters.CharacterCount)
-                characters = SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, characters.Id.Variant),
-                    inputs.StandardObjects, characters, 0);
-            frames.Add(new(key.Name, frame, characters));
-        }
+        SheetFrameSource[] frames = [.. Bodies(inputs.SamusBody, inputs.StandardObjects, inputs.AnimationContinuation)];
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 
-    /// <summary>The names of the frames the body sheet holds.</summary>
-    internal static IEnumerable<string> FrameNames(InstalledSamusBodyArtwork body) =>
-        Frames(body).Select(frame => frame.Key.Name);
+    /// <summary>The names of the frames the body sheet installed under <paramref name="content"/> holds.</summary>
+    /// <param name="content">The installation's content directory.</param>
+    internal static IReadOnlyList<string> FrameNames(string content)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        return [.. Bodies(
+            SamusBodyArtworkFiles.LoadCharacters(Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName)),
+            SamusSheetInputs.LoadStandardObjects(content),
+            SamusOverreadFiles.LoadAnimationContinuation(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName)))
+            .Select(frame => frame.Name)];
+    }
 
     /// <summary>
-    /// Every distinct full-body frame the sheet holds, in table order. A frame that transfers no bottom half keeps the
-    /// bottom characters an earlier frame selected, or none before any did, so it is covered over each of those. A body
-    /// whose halves reach past the table draws nothing the sheet could hold: the draw rejects it.
+    /// Every distinct full body that shows anything, in pose and frame order, as its frame over the characters it reads. A
+    /// body whose halves reach past the table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
-    private static IEnumerable<KeyValuePair<SamusBodyFrameKey, SpriteFrame>> Frames(InstalledSamusBodyArtwork body)
+    private static IEnumerable<SheetFrameSource> Bodies(SamusBodyCharacterArtwork characters, SpriteArtwork standardObjects,
+        LaidOutProgramContinuation<SamusPoseId> continuation)
     {
+        InstalledSamusBodyArtwork body = characters.Body;
         SamusSpritemapSources spritemaps = body.Spritemaps.Source;
-        SamusBodyPicture?[] inheritedBottoms = [null, .. Selections(body)
-            .Where(entry => entry.Pictures.Bottom is not null)
-            .Select(entry => entry.Pictures.Bottom)
-            .Distinct()];
         var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach ((SamusPoseId pose, int animationFrame, SamusBodyFramePictures pictures) in Selections(body))
+        var overlaid = new Dictionary<SpriteArtwork, SpriteArtwork>(ReferenceEqualityComparer.Instance);
+        foreach (SamusShownBody shown in SamusShownFrames.Of(continuation).Bodies(body))
         {
-            SamusBodyPicture top = pictures.Top;
-            SamusBodyPicture?[] bottoms = pictures.Bottom is null ? inheritedBottoms : [pictures.Bottom];
-            foreach (SamusMovementType movementType in SamusBodyDrawing.MovementTypesDrawnWith(pose))
+            SamusBodyFrame drawn = shown.Frame;
+            if (!Covers(spritemaps, drawn.Top) || (drawn.Bottom is { } lower && !Covers(spritemaps, lower)))
+                continue;
+            if (!spritemaps.TryGetFrameKey(drawn.Top, drawn.Bottom, drawn.ChestCover, shown.Pictures, out SamusBodyFrameKey key) ||
+                !names.Add(key.Name))
+                continue;
+            SpriteFrame frame = Compose(key.Name, spritemaps, drawn);
+            SpriteArtwork read = characters.BodyArtwork(key.TopPicture, key.BottomPicture);
+            // A part naming characters past the body's, the chest cover among them, reads the standard OBJ sheet there.
+            if (frame.LastCharacter >= read.CharacterCount)
             {
-                SamusBodyFrame drawn = SamusBodyDrawing.Frame(movementType, pose, animationFrame, body);
-                if (!Covers(spritemaps, drawn.Top) || (drawn.Bottom is { } lower && !Covers(spritemaps, lower)))
-                    continue;
-                foreach (SamusBodyPicture? bottom in bottoms)
+                if (!overlaid.TryGetValue(read, out SpriteArtwork? onStandardObjects))
                 {
-                    if (spritemaps.TryGetFrameKey(drawn.Top, drawn.Bottom, drawn.ChestCover, new SamusBodyPictures(top, bottom),
-                            out SamusBodyFrameKey key) && names.Add(key.Name))
-                        yield return KeyValuePair.Create(key, Compose(key.Name, spritemaps, drawn));
+                    onStandardObjects = SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, read.Id.Variant),
+                        standardObjects, read, 0);
+                    overlaid.Add(read, onStandardObjects);
+                }
+                read = onStandardObjects;
+            }
+            if (ShowsAnything(frame, read))
+                yield return new SheetFrameSource(key.Name, frame, read);
+        }
+    }
+
+    /// <summary>Whether a part of <paramref name="frame"/> reads a character of <paramref name="characters"/> that is not blank.</summary>
+    private static bool ShowsAnything(SpriteFrame frame, SpriteArtwork characters)
+    {
+        ReadOnlySpan<byte> bytes = characters.Characters;
+        foreach (SpriteFramePart part in frame.Parts)
+        {
+            int columns = part.Size.X / SpriteArtwork.CharacterPixels, rows = part.Size.Y / SpriteArtwork.CharacterPixels;
+            for (int row = 0; row < rows; row++)
+            {
+                for (int column = 0; column < columns; column++)
+                {
+                    int character = part.Character + row * SpriteArtwork.CharactersPerRow + column;
+                    if (bytes.Slice(character * SpriteArtwork.CharacterByteCount, SpriteArtwork.CharacterByteCount).IndexOfAnyExcept((byte)0) >= 0)
+                        return true;
                 }
             }
         }
+        return false;
     }
 
     /// <summary>Whether <paramref name="half"/>'s animation frame is one the table holds for its pose half.</summary>
@@ -97,23 +123,4 @@ internal static class SamusBodySheetComposer
             parts.AddRange(bottom.Parts);
         return new SpriteFrame(name, parts.ToImmutable());
     }
-
-    /// <summary>Every animation frame the body shows installed pictures at, in pose and frame order.</summary>
-    private static IEnumerable<SelectedFrame> Selections(InstalledSamusBodyArtwork body)
-    {
-        for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
-        {
-            for (int animationFrame = 0; animationFrame < SamusBodySheetDefinitions.AnimationFrames; animationFrame++)
-            {
-                if (body.TryFrame(SamusPoseNumbering.FromNumber(pose), animationFrame, out SamusBodyFramePictures pictures))
-                    yield return new SelectedFrame(SamusPoseNumbering.FromNumber(pose), animationFrame, pictures);
-            }
-        }
-    }
-
-    /// <summary>An animation frame the body shows installed pictures at.</summary>
-    /// <param name="Pose">The pose.</param>
-    /// <param name="AnimationFrame">The pose's animation frame.</param>
-    /// <param name="Pictures">The half pictures the frame selects.</param>
-    private readonly record struct SelectedFrame(SamusPoseId Pose, int AnimationFrame, SamusBodyFramePictures Pictures);
 }

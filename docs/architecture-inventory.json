@@ -131229,7 +131229,7 @@
     },
     {
       "type": "SuperMetroid.Diagnostics.SaveStates.BoundObjectGraph.Origin",
-      "kind": "record",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Diagnostics"
@@ -131238,7 +131238,7 @@
         "csharp/src/SuperMetroid.Diagnostics/SaveStates/BoundObjectGraph.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Diagnostics.SaveStates.DebuggerDelegateIdentity",
@@ -137959,6 +137959,51 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.FrameRendering.PublishedGraphs",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/FrameCapture/PublishedGraphs.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.FrameRendering.PublishedGraphs.GraphKind",
+      "kind": "enum",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/FrameCapture/PublishedGraphs.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.FrameRendering.PublishedGraphs.PairComparer",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/FrameCapture/PublishedGraphs.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.TestSupport.FrameRendering.ScenePixels",
@@ -161056,6 +161101,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Frontend.Title.TitleFixtureContent",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Title/TitleFixtureVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Verification.Frontend.Title.TitleFixtureVerification",
       "kind": "static class",
       "scope": "test",
@@ -162900,6 +162958,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.GraphDigestVerification.ComparingStream",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/GraphDigestVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Harness.GraphDigestVerification.HashingStream",
@@ -167010,6 +167081,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification.AttractRun",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Runtime/Attract/AttractCaptureTestsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Verification.Runtime.Attract.AttractDemoControllerVerification",
       "kind": "static class",
       "scope": "test",
@@ -168100,6 +168184,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Artwork.SamusRenderingFixtureVerification.SyntheticBody",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusRenderingFixtureVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Verification.Samus.Artwork.SamusRenderingVerification",

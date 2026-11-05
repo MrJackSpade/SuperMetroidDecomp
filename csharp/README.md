@@ -519,7 +519,7 @@ sheet in `game/sprite-sheets`: an RGBA PNG (`{family}.png`, transparent where al
 frame list (`{family}.json`: each frame's rectangle on the sheet, its origin, whether it takes part
 in colour math, and the colours it was coloured with), and a palette map (`{family}.palette.png`: each
 pixel's sprite palette row and colour, in red) that lets in-game palette effects such as flashes recolour
-the sheet. Place an edited copy of either in `overrides/sprite-sheets` under the same name; an
+the sheet. Edit these files in place; an
 edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
 this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
 (`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,

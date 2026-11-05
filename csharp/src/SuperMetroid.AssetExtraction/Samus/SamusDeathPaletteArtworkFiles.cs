@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Extracts the authored bank-$9B fatal-damage color and color-selection data.</summary>
 public static class SamusDeathPaletteArtworkFiles
 {
-    /// <summary>Stock/override JSON filename for suited/suitless death rows, whiteout shades, and explosion palette selectors.</summary>
+    /// <summary>Installed JSON filename for suited/suitless death rows, whiteout shades, and explosion palette selectors.</summary>
     public const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the death-palette JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-death-palettes-manifest.json";
@@ -77,16 +77,15 @@ public static class SamusDeathPaletteArtworkFiles
                 sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))), JsonOptions));
     }
 
-    /// <summary>Validates stock fatal-damage color/selector artwork before selecting an optional complete JSON replacement.</summary>
-    /// <param name="stockDirectory">Artwork directory containing required version-one death-palette JSON and its provenance/hash manifest.</param>
-    /// <param name="overrideDirectory">Optional artwork directory; null or absent artwork JSON uses validated stock.</param>
+    /// <summary>Validates the manifest's provenance and loads the installed fatal-damage color/selector artwork, as the player may have edited it.</summary>
+    /// <param name="directory">Artwork directory containing required version-one death-palette JSON and its provenance manifest.</param>
     /// <returns>A ROM-independent catalog of owned color inputs and selector choices, leaving death/explosion durations and suit-selection mechanics compiled.</returns>
-    /// <remarks>Stock provenance, byte hash, and strict schema/catalog admission are mandatory even with overrides. Replacement JSON needs all original dimensions, packed colors at most $7FFF, and nine row selectors 0..9, but no manifest.</remarks>
-    /// <exception cref="InvalidDataException">Provenance, hash, strict JSON, version, dimensions, color words, or selectors are invalid; admission errors identify the source filename.</exception>
-    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static InstalledSamusDeathPalettes Load(string stockDirectory, string? overrideDirectory)
+    /// <remarks>The JSON needs all original dimensions, packed colors at most $7FFF, and nine row selectors 0..9.</remarks>
+    /// <exception cref="InvalidDataException">Provenance, strict JSON, version, dimensions, color words, or selectors are invalid; admission errors identify the source filename.</exception>
+    /// <exception cref="IOException">A required installed file cannot be read.</exception>
+    public static InstalledSamusDeathPalettes Load(string directory)
     {
-        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
         ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
@@ -96,10 +95,8 @@ public static class SamusDeathPaletteArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Samus death-palette manifest does not match the pinned cartridge.");
-            SamusArtworkFile stock = SamusArtworkFile.Read(Path.Combine(stockDirectory, ArtworkFileName));
-            _ = stock.WithContext(() => Build(stock.Json<ArtworkDocument>(JsonOptions)));
-            SamusArtworkFile selected = stock.Select(overrideDirectory);
-            return selected.WithContext(() => Build(selected.Json<ArtworkDocument>(JsonOptions)));
+            SamusArtworkFile installed = SamusArtworkFile.Read(Path.Combine(directory, ArtworkFileName));
+            return installed.WithContext(() => Build(installed.Json<ArtworkDocument>(JsonOptions)));
         }
     }
 

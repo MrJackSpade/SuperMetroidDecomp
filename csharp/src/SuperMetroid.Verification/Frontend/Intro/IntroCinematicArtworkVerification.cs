@@ -1114,27 +1114,23 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>
-    /// The installed intro, Ceres and ending artwork family. Each suite that edits artwork runs on
-    /// its own private installation copy, so the full run schedules them independently; the two
-    /// read-only suites share the repository installation.
+    /// The installed intro, Ceres and ending artwork family, with the Samus body artwork. Each suite that edits artwork
+    /// runs on its own private installation copy, so the full run schedules them independently; the read-only suites
+    /// share the repository installation.
     /// </summary>
     internal static RegisteredSuite[] IntroCinematicArtworkSuites() =>
     [
         new(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(RepositoryRomPath, RepositoryInstallation.Installation)),
-        new(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy()),
+        new(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork),
         new(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(RepositoryRomPath)),
         new(nameof(VerifyCeresCinematicArtwork), () => VerifyCeresCinematicArtwork(RepositoryRomPath)),
         new(nameof(VerifyEndingArtwork), () => VerifyEndingArtwork()),
     ];
 
-    /// <summary>Runs the Samus body artwork checks, which edit pose artwork, on a private installation copy.</summary>
-    private static void VerifySamusBodyArtworkOnPrivateCopy()
-    {
-        // The check reads and edits only the Samus body directory and its overrides.
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.SamusBodyDirectory);
+    /// <summary>Runs the Samus body artwork checks against the repository installation.</summary>
+    private static void VerifyInstalledSamusBodyArtwork() =>
         VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath),
-            copy.Installation);
-    }
+            RepositoryInstallation.Installation);
 
     /// <summary>Runs every suite of the installed intro, Ceres and ending artwork family in this process.</summary>
     [VerificationCommand("--intro-cinematic-artwork")]
@@ -1148,7 +1144,7 @@ internal static class IntroCinematicArtworkVerification
     [VerificationCommand("--samus-body-artwork")]
     internal static int SamusBodyArtworkCommand()
     {
-        Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy());
+        Suite(nameof(VerifySamusBodyArtwork), VerifyInstalledSamusBodyArtwork);
         return 0;
     }
 

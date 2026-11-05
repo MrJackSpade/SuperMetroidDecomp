@@ -55,7 +55,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             overruns.Chainsaw,
             tables.CrystalFlash,
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
-            SamusDeathPaletteArtworkFiles.Load(samusBody, null),
+            SamusDeathPaletteArtworkFiles.Load(samusBody),
             maps.RoomPaletteFx);
         return new(
             projectiles,
@@ -63,8 +63,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
                 StandardObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName)).Characters.Span),
             palettes,
             intro,
-            SamusBodyArtworkFiles.LoadCharacters(samusBody, null),
-            SamusDeathTileArtworkFiles.Load(samusBody, null),
+            SamusBodyArtworkFiles.LoadCharacters(samusBody),
+            SamusDeathTileArtworkFiles.Load(samusBody),
             sources);
     }
 

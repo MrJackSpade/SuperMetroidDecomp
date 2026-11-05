@@ -103,13 +103,10 @@ public sealed record GameInstallation(string Root)
     public RoomCharacterAtlas LoadStandardObjects() => StandardObjectArtworkFiles.Load(StandardObjectDirectory);
     /// <summary>Stock projectile artwork and presentation selectors under the replaceable content tree.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Stock Samus body PNGs and visual selectors under the replaceable content tree.</summary>
+    /// <summary>Installed Samus body PNGs and visual selectors, which the player edits in place.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Replacement Samus body PNGs and visual selectors survive stock rebuilds.</summary>
-    public string SamusBodyOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.SamusBodyDirectoryName);
-    /// <summary>Loads validated Samus body artwork and compatible replacement PNGs and selectors from the persistent override tree.</summary>
-    public InstalledSamusBodyArtwork LoadSamusBodyArt() =>
-        SamusBodyArtworkFiles.Load(SamusBodyDirectory, SamusBodyOverrideDirectory);
+    /// <summary>Loads the validated installed Samus body artwork.</summary>
+    public InstalledSamusBodyArtwork LoadSamusBodyArt() => SamusBodyArtworkFiles.Load(SamusBodyDirectory);
     /// <summary>Stock opening-cinematic artwork under the replaceable content tree.</summary>
     public string IntroCinematicDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.IntroCinematicDirectoryName);
     /// <summary>Opening-cinematic PNG edits survive stock content replacement.</summary>

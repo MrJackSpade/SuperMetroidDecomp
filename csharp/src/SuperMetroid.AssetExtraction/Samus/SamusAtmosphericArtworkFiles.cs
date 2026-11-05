@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Extracts the two authored direct small-OBJ atmospheric lists as editable JSON.</summary>
 public static class SamusAtmosphericArtworkFiles
 {
-    /// <summary>Stock/override JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
+    /// <summary>Installed JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
     public const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
@@ -59,16 +59,15 @@ public static class SamusAtmosphericArtworkFiles
                 sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))), JsonOptions));
     }
 
-    /// <summary>Validates stock atmospheric attributes before selecting an optional complete two-list JSON replacement.</summary>
-    /// <param name="stockDirectory">Artwork directory containing the required version-one JSON and pinned-cartridge manifest.</param>
-    /// <param name="overrideDirectory">Optional artwork directory; null or absent artwork JSON uses validated stock.</param>
+    /// <summary>Validates the manifest's provenance and loads the installed atmospheric attributes, as the player may have edited them.</summary>
+    /// <param name="directory">Artwork directory containing the required version-one JSON and pinned-cartridge manifest.</param>
     /// <returns>A ROM-independent catalog that captures both lists without retaining deserialized caller arrays.</returns>
-    /// <remarks>Stock provenance, byte hash, and strict schema/list-length admission are checked even with overrides. Replacement JSON needs both four-word lists but no manifest; packed attribute values themselves are unrestricted, and type-two/animation mechanics are unchanged.</remarks>
-    /// <exception cref="InvalidDataException">Provenance, hash, strict JSON, version, or list dimensions are invalid; admission errors include the source filename.</exception>
-    /// <exception cref="IOException">A required stock or selected override file cannot be read.</exception>
-    public static SamusAtmosphericSourceArtwork Load(string stockDirectory, string? overrideDirectory)
+    /// <remarks>The JSON needs both four-word lists; packed attribute values themselves are unrestricted, and type-two/animation mechanics are unchanged.</remarks>
+    /// <exception cref="InvalidDataException">Provenance, strict JSON, version, or list dimensions are invalid; admission errors include the source filename.</exception>
+    /// <exception cref="IOException">A required installed file cannot be read.</exception>
+    public static SamusAtmosphericSourceArtwork Load(string directory)
     {
-        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
         ArtworkManifest manifest = manifestFile.Json<ArtworkManifest>(JsonOptions);
         return manifestFile.WithContext(() => LoadArtwork());
 
@@ -78,10 +77,8 @@ public static class SamusAtmosphericArtworkFiles
                 !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Samus atmospheric artwork manifest does not match the pinned cartridge.");
-            SamusArtworkFile stock = SamusArtworkFile.Read(Path.Combine(stockDirectory, ArtworkFileName));
-            _ = stock.WithContext(() => Build(stock.Json<ArtworkDocument>(JsonOptions), stock.Path));
-            SamusArtworkFile selected = stock.Select(overrideDirectory);
-            return selected.WithContext(() => Build(selected.Json<ArtworkDocument>(JsonOptions), selected.Path));
+            SamusArtworkFile installed = SamusArtworkFile.Read(Path.Combine(directory, ArtworkFileName));
+            return installed.WithContext(() => Build(installed.Json<ArtworkDocument>(JsonOptions), installed.Path));
         }
     }
 
@@ -121,6 +118,6 @@ public static class SamusAtmosphericArtworkFiles
 
     /// <summary>Editable single small pieces for footsteps and the shared lava/dust effect.</summary>
     private sealed record ArtworkDocument(int Version, SpriteVisualPart[] TypeOne, SpriteVisualPart[] SharedTypeFour);
-    /// <summary>Stock source revision and artwork-byte hash used before any override is selected.</summary>
+    /// <summary>The extracted artwork's source revision and byte hash.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

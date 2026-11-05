@@ -118,59 +118,26 @@ public static class SamusBodyArtworkFiles
             JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
     }
 
-    /// <summary>Validates the complete stock Samus body catalog before compiling selected body JSON, PNGs, and linked artwork.</summary>
-    /// <param name="stockDirectory">Directory containing supported-revision body metadata, hash-checked PNG sets, and all linked Samus artwork.</param>
-    /// <param name="overrideDirectory">Optional directory of independently selected same-named JSON or PNG replacements; missing files retain stock content.</param>
-    /// <returns>A cartridge-free catalog of visual pose/frame mappings, spritemaps, offsets, linked artwork and the selected characters' identity.</returns>
-    /// <remarks>Body JSON overrides must retain stock PNG hashes, definition-set counts, native source addresses, and spritemap identities. Transfer sizes and references remain validated, and unused PNG-slot tiles must stay zero.</remarks>
-    /// <exception cref="InvalidDataException">Stock validation fails or selected metadata, identities, hashes, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static InstalledSamusBodyArtwork Load(string stockDirectory, string? overrideDirectory) =>
-        LoadCharacters(stockDirectory, overrideDirectory).Body;
+    /// <summary>Validates and compiles the installed Samus body catalog, as the player may have edited it: body JSON, PNGs, and linked artwork.</summary>
+    /// <param name="directory">Directory containing supported-revision body metadata, PNG sets, and all linked Samus artwork.</param>
+    /// <returns>A cartridge-free catalog of visual pose/frame mappings, spritemaps, offsets, linked artwork and the installed characters' identity.</returns>
+    /// <remarks>Transfer sizes and references are validated, and unused PNG-slot tiles must stay zero.</remarks>
+    /// <exception cref="InvalidDataException">Metadata, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
+    public static InstalledSamusBodyArtwork Load(string directory) => LoadCharacters(directory).Body;
 
-    /// <summary>Validates the complete stock Samus body catalog, then compiles the selected body and its characters, from which the body sheets are composed.</summary>
-    /// <param name="stockDirectory">Directory containing supported-revision body metadata, hash-checked PNG sets, and all linked Samus artwork.</param>
-    /// <param name="overrideDirectory">Optional directory of independently selected same-named JSON or PNG replacements; missing files retain stock content.</param>
-    /// <returns>The selected split-DMA characters, bound to the selected body catalog.</returns>
-    /// <exception cref="InvalidDataException">Stock validation fails or selected metadata, identities, hashes, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static SamusBodyCharacterArtwork LoadCharacters(string stockDirectory, string? overrideDirectory)
+    /// <summary>Validates and compiles the installed Samus body and its characters, from which the body sheets are composed.</summary>
+    /// <param name="directory">Directory containing supported-revision body metadata, PNG sets, and all linked Samus artwork.</param>
+    /// <returns>The installed split-DMA characters, bound to the installed body catalog.</returns>
+    /// <exception cref="InvalidDataException">Metadata, sizes, PNG padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
+    public static SamusBodyCharacterArtwork LoadCharacters(string directory)
     {
-        SamusArtworkFile stockFile = SamusArtworkFile.Read(Path.Combine(stockDirectory, ManifestFileName));
-        Manifest stock = stockFile.Json<Manifest>(JsonOptions);
-        // Always verify installed stock first; a replacement never conceals corruption.
-        _ = stockFile.WithContext(() =>
+        SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(directory, ManifestFileName));
+        Manifest manifest = manifestFile.Json<Manifest>(JsonOptions);
+        return manifestFile.WithContext(() =>
         {
-            ValidateManifest(stock);
-            return BuildCatalog(stockDirectory, stock, null);
+            ValidateManifest(manifest);
+            return BuildCatalog(directory, manifest);
         });
-        SamusArtworkFile selectedFile = stockFile.Select(overrideDirectory);
-        return selectedFile.WithContext(() => LoadSelected(selectedFile.Json<Manifest>(JsonOptions)));
-
-        SamusBodyCharacterArtwork LoadSelected(Manifest selected)
-        {
-            ValidateManifest(selected);
-            if (selected.Hashes.Count != stock.Hashes.Count ||
-                stock.Hashes.Any(entry => !selected.Hashes.TryGetValue(entry.Key, out string? hash) ||
-                    !string.Equals(hash, entry.Value, StringComparison.OrdinalIgnoreCase)))
-                throw new InvalidDataException("Samus body override must retain stock PNG provenance hashes.");
-            if (selected.Top.Length != stock.Top.Length || selected.Bottom.Length != stock.Bottom.Length ||
-                !selected.TopSetStarts.SequenceEqual(stock.TopSetStarts) ||
-                !selected.BottomSetStarts.SequenceEqual(stock.BottomSetStarts) ||
-                selected.Top.Where((set, i) => set.Length != stock.Top[i].Length).Any() ||
-                selected.Bottom.Where((set, i) => set.Length != stock.Bottom[i].Length).Any())
-                throw new InvalidDataException("Samus body override changes native definition identities.");
-            for (int set = 0; set < stock.Top.Length; set++)
-                for (int position = 0; position < stock.Top[set].Length; position++)
-                    if (selected.Top[set][position].SourceAddress != stock.Top[set][position].SourceAddress)
-                        throw new InvalidDataException("Samus body override changes a native top source identity.");
-            for (int set = 0; set < stock.Bottom.Length; set++)
-                for (int position = 0; position < stock.Bottom[set].Length; position++)
-                    if (selected.Bottom[set][position].SourceAddress != stock.Bottom[set][position].SourceAddress)
-                        throw new InvalidDataException("Samus body override changes a native bottom source identity.");
-            if (!selected.SpritemapEntries.SequenceEqual(stock.SpritemapEntries) ||
-                selected.Spritemaps.Length != stock.Spritemaps.Length)
-                throw new InvalidDataException("Samus body override changes native spritemap identities.");
-            return BuildCatalog(stockDirectory, selected, overrideDirectory);
-        }
     }
 
     /// <summary>Exports each upper or lower DMA set as a padded PNG and records its native source sizes.</summary>
@@ -219,34 +186,26 @@ public static class SamusBodyArtworkFiles
         return sets;
     }
 
-    /// <summary>Combines selected body halves with spritemaps and all linked Samus artwork catalogs.</summary>
-    private static SamusBodyCharacterArtwork BuildCatalog(string stockDirectory, Manifest manifest,
-        string? overrideDirectory)
+    /// <summary>Combines the installed body halves with spritemaps and all linked Samus artwork catalogs.</summary>
+    private static SamusBodyCharacterArtwork BuildCatalog(string directory, Manifest manifest)
     {
-        SamusBodyTileTransfer[][] top = LoadHalf(stockDirectory, overrideDirectory,
-            manifest, true);
-        SamusBodyTileTransfer[][] bottom = LoadHalf(stockDirectory, overrideDirectory,
-            manifest, false);
+        SamusBodyTileTransfer[][] top = LoadHalf(directory, manifest, true);
+        SamusBodyTileTransfer[][] bottom = LoadHalf(directory, manifest, false);
         var spritemaps = new SamusSpritemapSources(manifest.SpritemapTopBases,
             manifest.SpritemapBottomBases,
             [.. manifest.SpritemapEntries.Select(entry => entry is { } ordinal ? new SamusSpritemapId(ordinal) : (SamusSpritemapId?)null)],
             [.. manifest.Spritemaps.Select(parts => new SamusSpritemapDefinition(
                 [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
-        SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
-        InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
-        SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(
-            stockDirectory, overrideDirectory);
+        SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(directory);
+        InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(directory);
+        SamusDeathTileAtlas deathTiles = SamusDeathTileArtworkFiles.Load(directory);
         // Cover coordinates the stock rules derive from the body's compositions are stored only where they differ.
-        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(
-            stockDirectory, overrideDirectory).WithBodyGeometry(spritemaps);
+        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(directory).WithBodyGeometry(spritemaps);
         return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = Array.ConvertAll<sbyte, int>(manifest.GraphicsYOffsets, value => value), Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = Array.ConvertAll<ushort, int>(manifest.LandingYOffsets, value => value), PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets }, top, bottom);
     }
 
-    /// <summary>Re-encodes selected PNG sets into native planar bytes and rejects painted padding tiles.</summary>
-    private static SamusBodyTileTransfer[][] LoadHalf(string stockDirectory,
-        string? overrideDirectory, Manifest manifest, bool upperHalf)
+    /// <summary>Re-encodes the installed PNG sets into native planar bytes and rejects painted padding tiles.</summary>
+    private static SamusBodyTileTransfer[][] LoadHalf(string directory, Manifest manifest, bool upperHalf)
     {
         DefinitionEntry[][] metadata = upperHalf ? manifest.Top : manifest.Bottom;
         var result = new SamusBodyTileTransfer[metadata.Length][];
@@ -262,8 +221,7 @@ public static class SamusBodyArtworkFiles
                     entry.FirstSize + entry.SecondSize > SamusBodyCharacterArtwork.BytesPerDefinitionSlot ||
                     (entry.FirstSize + entry.SecondSize) % 32 != 0)
                     throw new InvalidDataException($"Samus body definition {name} has invalid sizes.");
-            SamusArtworkFile selected = SamusArtworkFile.Read(Path.Combine(stockDirectory, name))
-                .Select(overrideDirectory);
+            SamusArtworkFile selected = SamusArtworkFile.Read(Path.Combine(directory, name));
             int height = checked(metadata[set].Length * DefinitionHeight);
             result[set] = selected.Compile(stream => DecodeSet(stream));
 

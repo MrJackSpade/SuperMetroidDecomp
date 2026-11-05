@@ -87,7 +87,7 @@ Within either platform's application-data root:
   image and 16 common sprite colors restored on room entry. Copy the JSON to
   `overrides/gameplay-palettes/` to edit it without altering stock content.
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
-  gameplay sprite sheet. Copy it to `overrides/standard-objects/` for persistent edits.
+  gameplay sprite sheet, edited in place.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are
   composed from. These files have no override directory: a block is changed through its picture in the block sheet.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
@@ -200,60 +200,39 @@ require their input directories. Keep all ROMs and generated game resources out 
 `game/samus-body/top-00.png` through `top-0C.png` and `bottom-00.png` through
 `bottom-0A.png` contain the 4-bpp character data uploaded for Samus animation
 frames. Each native transfer definition occupies a 64x16-pixel strip in its set's
-PNG; unused cells must remain palette index zero. Copy a PNG to the same filename
-under `overrides/samus-body/` to change its pixels. Copy `samus-body.json` there
-to change visual pose/frame selectors, signed per-pose graphics Y offsets, the
-two split VRAM transfer sizes, or the `spritemaps` array's OAM part offsets and
-attributes. The `spritemapTopBases` and `spritemapBottomBases` arrays select each
-pose's upper/lower indexed OAM frame. `landingYOffsets`, `postureYOffsets`, and
-`drainedYOffsets` adjust visual placement in those special poses without changing
-their movement or collision. Keep the stock provenance hashes, definition
-counts, set pointers, source addresses, and `spritemapPointers`/record identities.
+PNG; unused cells must remain palette index zero. Edit a PNG in place to change its
+pixels. Edit `samus-body.json` to change visual pose/frame selectors, signed
+per-pose graphics Y offsets, the two split VRAM transfer sizes, or the `spritemaps`
+array's OAM part offsets and attributes. The `spritemapTopBases` and
+`spritemapBottomBases` arrays select each pose's upper/lower indexed OAM frame.
+`landingYOffsets`, `postureYOffsets`, and `drainedYOffsets` adjust visual placement
+in those special poses without changing their movement or collision.
 Zero spritemap pointers are native mutable-memory references, not blank frames.
 `samus-atmosphere.json` in the same directory exposes the four-frame direct
 small-OBJ attribute lists for atmospheric type one and the list shared by types
-four, six, and seven. Copy it to `overrides/samus-body/` to edit those visual
-attributes. Type two has a zero cartridge pointer and remains a mutable-memory
-read rather than an extracted asset; effect timing and slot motion stay compiled.
+four, six, and seven. Type two has a zero cartridge pointer and remains a
+mutable-memory read rather than an extracted asset; effect timing and slot motion
+stay compiled.
 `samus-death-palettes.json` exposes the three suited and one suitless ten-palette
-death sequences, the 22 whiteout colors, and the nine visual palette selections.
-Copy it to `overrides/samus-body/` to change fatal-damage colors; the death phases,
-frame durations, and collision remain compiled. Colors are packed SNES RGB5 words
-from 0 through 32767. Stock JSON files have separately verified provenance hashes;
-an override does not conceal a damaged installation.
+death sequences, the 22 whiteout colors, and the nine visual palette selections;
+the death phases, frame durations, and collision remain compiled. Colors are packed
+SNES RGB5 words from 0 through 32767.
 `samus-death-explosion.png` holds the five 4-bpp death graphics transfers in
 native upload order. Each transfer occupies four 64-pixel-wide tile rows (32
-characters), for a 64x160 image. Copy it to `overrides/samus-body/` to reskin the
-explosion without changing transfer timing or VRAM destinations.
+characters), for a 64x160 image; editing it reskins the explosion without changing
+transfer timing or VRAM destinations.
 `samus-arm-cannon-tiles.png` is a 96x8 indexed sheet of the twelve 8x8 cover
-characters. Copy it to `overrides/samus-body/` to recolor or redraw the opening
-cannon cover. `samus-arm-cannon.json` in the same directory contains the 253
+characters. `samus-arm-cannon.json` in the same directory contains the 253
 pose drawing pointers, signed placement bytes, ten direction-specific OAM
-attributes, and frame-to-tile selections. Copy it to the override directory
-to adjust the cover's visual placement or frame appearance; keep its table
-sizes and references within the supplied drawing-data and tile ranges. Neither
-file changes the HUD selection, cover opening/closing cadence, projectile
-origin, damage, or equipment behavior. Stock JSON and PNG hashes are checked
-independently before overrides load.
-For a developer check using an existing extracted installation, run
-`SuperMetroid.RenderVerification --installed-samus-isolation`.
-It edits an isolated copy and checks the selected movement, pose-collision and
-special-sequence owners against stock presentation frame by frame. It does not
-import a ROM or touch player data. This complements the separate
-`--installed-samus-artwork` software/GPU pixel checks;
-neither command establishes whole-game parity.
+attributes, and frame-to-tile selections; keep its table sizes and references
+within the supplied drawing-data and tile ranges. Neither file changes the HUD
+selection, cover opening/closing cadence, projectile origin, damage, or equipment
+behavior.
 
-`--installed-samus-file-contracts` checks all 34 Samus PNG/JSON
-resources using disposable copies. Invalid stock and edits report the exact file in the
-error message and retain the original codec exception; edits never hide bad stock.
-JSON fields are required, unknown or duplicated fields are rejected, and older version
-markers fail rather than silently changing appearance. Complete zero-valued fields must
-remain present: omitting a frame selector or an OAM coordinate is not equivalent to zero.
-
-Replacements are validated on
-load, and installed stock is checked independently. These files do not change
-pose timing, movement, collision, or equipment. The same installed artwork is
-used by normal gameplay, attract demos, and the opening flashbacks.
+Edited files are validated on load. Run the extractor again to restore the
+originals. These files do not change pose timing, movement, collision, or
+equipment. The same installed artwork is used by normal gameplay, attract demos,
+and the opening flashbacks.
 
 ## Opening-cinematic character PNG overrides
 

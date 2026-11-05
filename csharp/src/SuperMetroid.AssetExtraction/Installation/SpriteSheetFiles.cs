@@ -78,7 +78,7 @@ public static class SpriteSheetFiles
         string content = Path.GetDirectoryName(Path.GetFullPath(directory))
             ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory));
         var body = new Lazy<InstalledSamusBodyArtwork>(() => SamusBodyArtworkFiles.Load(
-            Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName), null));
+            Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName)));
         // The pause sheet is named from the stock selector presentation installed beside it.
         var maps = new Lazy<AreaMapPresentation>(() => MapPresentationFiles.Load(
             Path.Combine(content, GameInstallationLayout.MapDirectoryName), null));

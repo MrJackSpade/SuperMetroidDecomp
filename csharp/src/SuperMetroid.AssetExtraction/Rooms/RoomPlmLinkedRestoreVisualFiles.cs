@@ -34,8 +34,8 @@ public static class RoomPlmLinkedRestoreVisualFiles
     public static InstalledRoomPlmLinkedRestoreVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all six linked restoration layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing linked parent/child collision or restoration programs.</summary>
     /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>

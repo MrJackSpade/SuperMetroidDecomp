@@ -47,8 +47,8 @@ public static class RoomPlmCrocomireVisualFiles
     public static RoomPlmCrocomireVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<RoomPlmCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all five Crocomire arena layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing terrain blocks, run geometry, or PLM programs.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled draw identity with its full flattened block count.</param>

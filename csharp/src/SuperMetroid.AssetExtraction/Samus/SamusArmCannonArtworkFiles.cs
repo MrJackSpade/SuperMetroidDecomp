@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
@@ -91,9 +90,7 @@ public static class SamusArmCannonArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName), json);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new Manifest(
-                SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json)),
-                Convert.ToHexString(SHA256.HashData(png))), JsonOptions));
+                SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>Validates stock cannon-cover placement and pixels, then independently selects optional replacement JSON and PNG files.</summary>
@@ -134,6 +131,5 @@ public static class SamusArmCannonArtworkFiles
     }
 
     /// <summary>Expected schema, cartridge revision, placement JSON hash, and indexed PNG hash for stock art.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256,
-        string JsonSha256, string PngSha256);
+    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

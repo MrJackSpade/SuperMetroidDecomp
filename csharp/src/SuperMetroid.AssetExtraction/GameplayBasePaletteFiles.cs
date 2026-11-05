@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -37,8 +36,7 @@ public static class GameplayBasePaletteFiles
         File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, GameplayBasePaletteFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(
-                GameplayBasePaletteFormat.Version, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(bytes))),
+                GameplayBasePaletteFormat.Version, sourceCartridgeSha256),
                 GameplayBasePaletteFormat.JsonOptions));
     }
 
@@ -155,6 +153,5 @@ public static class GameplayBasePaletteFiles
     }
 
     /// <summary>Records the schema, cartridge identity, and stock palette digest checked on load.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256,
-        string ArtworkSha256);
+    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

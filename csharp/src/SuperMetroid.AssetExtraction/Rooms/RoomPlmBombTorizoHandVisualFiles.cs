@@ -48,8 +48,8 @@ public static class RoomPlmBombTorizoHandVisualFiles
     public static RoomPlmBombTorizoHandVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<RoomPlmBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates complete hand-frame coverage and builds the visuals from the authored appearances that differ from the compiled frames, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>
     /// <param name="entries">One entry for every compiled hand frame, with exactly the flattened block count and no physical collision bits.</param>

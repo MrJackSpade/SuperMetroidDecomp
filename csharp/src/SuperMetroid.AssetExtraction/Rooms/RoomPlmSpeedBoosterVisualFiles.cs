@@ -26,8 +26,8 @@ public static class RoomPlmSpeedBoosterVisualFiles
     public static InstalledRoomPlmSpeedBoosterVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmSpeedBoosterVisuals>(VisualFileName, "Speed Booster", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmSpeedBoosterVisuals>(VisualFileName, "Speed Booster", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>The artwork identity of the bomb reveal of one Speed Booster block.</summary>
     internal const string BombRevealVisualId = "bomb-reveal";

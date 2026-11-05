@@ -16,7 +16,7 @@ internal static class MotherBrainSheetRowsVerification
     /// <summary>Checks each row and the refusal of a disagreeing one.</summary>
     internal static int VerifyMotherBrainSheetRows()
     {
-        var rows = new GraphicsSetRows(RoomEnemyGraphicsSetDefinitions.MotherBrain01);
+        var rows = new GraphicsSetRows(RoomEnemyGraphicsSetDefinitions.MotherBrain01, EnemyGraphicsSetPaletteRowDefinitions.Rows);
         AssertEqual(1, rows.RowOf(EnemyDefinitionId.MotherBrainHead), "Mother Brain's brain draws in row one");
         AssertEqual(0, rows.RowOf(EnemyDefinitionId.MotherBrainBody), "Mother Brain's body draws in the rows its parts name");
         AssertEqual(2, rows.RowOf(EnemyDefinitionId.BabyMetroid), "The Shitroid draws in row two");

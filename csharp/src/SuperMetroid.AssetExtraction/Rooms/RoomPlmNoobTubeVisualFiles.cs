@@ -26,8 +26,8 @@ public static class RoomPlmNoobTubeVisualFiles
     public static InstalledRoomPlmNoobTubeVisuals Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmNoobTubeVisuals>(VisualFileName, "n00b-tube", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmNoobTubeVisuals>(VisualFileName, "n00b-tube", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all seven n00b-tube layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block runs.</param>

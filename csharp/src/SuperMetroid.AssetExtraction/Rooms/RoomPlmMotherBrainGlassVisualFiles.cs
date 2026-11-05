@@ -36,8 +36,8 @@ public static class RoomPlmMotherBrainGlassVisualFiles
     public static RoomPlmMotherBrainGlassVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<RoomPlmMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all eleven glass layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing damage thresholds, shards, event timing, terrain blocks, or signed draw offsets.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled glass identity, with the full flattened count of its run cells.</param>

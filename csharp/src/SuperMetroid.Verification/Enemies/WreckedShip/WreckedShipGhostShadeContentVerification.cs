@@ -37,7 +37,7 @@ internal static class WreckedShipGhostShadeContentVerification
 
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
             candidate.Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
-        int first = new GraphicsSetRows(set).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
+        int first = new GraphicsSetRows(set, EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Coven).Image;
         IReadOnlyList<ShadeColours> steps = EnemySheetShades.GhostFadeSteps();
         AssertTrue(steps.Count > 3 * 31, "the ghost's path passes through its brightening and both fades");

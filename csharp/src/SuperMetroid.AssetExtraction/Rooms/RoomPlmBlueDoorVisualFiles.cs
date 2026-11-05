@@ -26,8 +26,8 @@ public static class RoomPlmBlueDoorVisualFiles
     public static InstalledRoomPlmBlueDoorVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmBlueDoorVisuals>(VisualFileName, "Blue-door", Editable, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmBlueDoorVisuals>(VisualFileName, "Blue-door", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates complete canonical blue-door frame coverage and builds the visuals from the appearances that differ from the compiled caps.</summary>
     /// <param name="entries">Exactly one entry for every editable frame, each retaining the four-block run geometry.</param>

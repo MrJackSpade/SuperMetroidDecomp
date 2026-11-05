@@ -30,8 +30,8 @@ public static class RoomPlmDraygonCannonVisualFiles
     public static RoomPlmDraygonCannonVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates complete reachable cannon-frame coverage and builds the visuals from the appearances that differ from the compiled frames, without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>
     /// <param name="entries">One visual-only entry per compiled frame with the exact flattened count of all its run cells.</param>

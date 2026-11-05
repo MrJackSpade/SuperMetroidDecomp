@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -28,7 +27,7 @@ public static class SamusOverreadFiles
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
-                new Manifest(SamusOverreadFormat.Version, sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))),
+                new Manifest(SamusOverreadFormat.Version, sourceCartridgeSha256),
                 SamusOverreadFormat.JsonOptions));
     }
 
@@ -71,5 +70,5 @@ public static class SamusOverreadFiles
         JsonAssetDocument.Read<SamusOverreadDocument>(json, SamusOverreadFormat.JsonOptions, "Samus overread");
 
     /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256, string FileSha256);
+    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

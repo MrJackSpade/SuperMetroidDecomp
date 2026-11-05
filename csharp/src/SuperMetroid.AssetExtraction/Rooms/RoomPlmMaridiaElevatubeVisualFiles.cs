@@ -35,8 +35,8 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
     public static InstalledRoomPlmMaridiaElevatubeVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", AllDraws, DrawVisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>
     internal const string VisualId = "elevatube-block";

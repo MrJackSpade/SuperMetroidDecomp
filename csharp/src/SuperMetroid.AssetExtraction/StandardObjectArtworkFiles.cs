@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -34,7 +33,7 @@ public static class StandardObjectArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, StandardObjectArtworkFormat.FileName), selected);
         File.WriteAllBytes(Path.Combine(directory, StandardObjectArtworkFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new Manifest(StandardObjectArtworkFormat.Version,
-                sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(selected)))));
+                sourceCartridgeSha256)));
     }
 
     /// <summary>Validates stock provenance, PNG digest, and atlas geometry before compiling an optional standard OBJ PNG replacement without cartridge access.</summary>
@@ -80,5 +79,5 @@ public static class StandardObjectArtworkFiles
     }
 
     /// <summary>Binds the stock OBJ PNG digest to its source cartridge and asset format version.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256, string PngSha256);
+    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

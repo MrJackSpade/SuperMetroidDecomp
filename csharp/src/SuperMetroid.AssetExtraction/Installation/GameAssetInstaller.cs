@@ -103,11 +103,14 @@ public static class GameAssetInstaller
     {
         string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
         if (!File.Exists(receiptPath)) return false;
-        InstallationReceipt? receipt;
-        try { receipt = JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath)); }
+        try { return ReceiptMismatchAt(receiptPath) is null; }
         catch (JsonException) { return false; }
-        return ReceiptMismatch(receipt, receiptPath) is null;
     }
+
+    /// <summary>Why the receipt at <paramref name="receiptPath"/> does not name this importer's format and source, or null when it does.</summary>
+    /// <exception cref="JsonException">The receipt is not a receipt document.</exception>
+    internal static string? ReceiptMismatchAt(string receiptPath) =>
+        ReceiptMismatch(JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath)), receiptPath);
 
     /// <summary>Stages a complete content directory extracted from <paramref name="rom"/> and publishes it atomically.</summary>
     private static GameInstallation ExtractAndPublish(GameInstallation installation, byte[] rom,
@@ -370,19 +373,6 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.EnemySheetDirectoryName, InstallerComponentKind.Composition,
             Step("Composing enemy sheets...", (_, d) => EnemySheetFiles.Extract(InstallationOf(d), d, SupportedCartridge.Sha256))),
     ];
-
-    /// <summary>
-    /// The strict form of the startup decision, for tools: the content's receipt must name this importer's format and the
-    /// supported source, or the exception says why it does not. Published content never changes, so its files are not
-    /// read; a damaged one fails loudly where it is loaded.
-    /// </summary>
-    internal static void ValidateRequiredExtractedContent(GameInstallation installation)
-    {
-        string receiptPath = Path.Combine(installation.ContentDirectory, GameInstallationLayout.ReceiptFileName);
-        var receipt = JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath));
-        if (ReceiptMismatch(receipt, receiptPath) is { } mismatch)
-            throw new InvalidDataException(mismatch);
-    }
 
     /// <summary>Why <paramref name="receipt"/> does not name this importer's format and source, or null when it does.</summary>
     private static string? ReceiptMismatch(InstallationReceipt? receipt, string receiptPath)

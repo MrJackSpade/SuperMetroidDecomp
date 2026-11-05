@@ -30,8 +30,8 @@ public static class RoomPlmSporeSpawnCeilingVisualFiles
     public static RoomPlmSporeSpawnCeilingVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<RoomPlmSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates complete coverage of the clear and three crumble frames and builds the visuals from the appearances that differ from the compiled frames, without changing compiled geometry or collision.</summary>
     /// <param name="entries">Each of the four compiled visual identities exactly once, with four appearances per frame.</param>

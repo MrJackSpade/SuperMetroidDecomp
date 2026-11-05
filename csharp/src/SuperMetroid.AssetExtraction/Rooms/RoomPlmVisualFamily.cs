@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -12,7 +10,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal sealed record RoomPlmVisualFamily<TCatalog>(
     string FileName,
     string Name,
-    IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Definitions,
-    Func<PlmDraw, string> VisualId,
-    Func<RoomPlmDoorVisualFileCodec.Entry[], TCatalog> CreateCatalog,
-    Func<TCatalog, PlmDraw, int, int, RoomBlockAppearance?> GetAppearance);
+    Func<RoomPlmDoorVisualFileCodec.Entry[], TCatalog> CreateCatalog);

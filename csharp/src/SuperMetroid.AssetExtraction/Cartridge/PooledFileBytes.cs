@@ -38,9 +38,6 @@ internal sealed class PooledFileBytes : IDisposable
         return new PooledFileBytes(buffer, length);
     }
 
-    /// <summary>Limits parser access to the file's bytes rather than the rented array's spare capacity.</summary>
-    public ReadOnlySpan<byte> Span => Buffer.AsSpan(0, length);
-
     /// <summary>A read-only view whose buffer a JSON reader may parse in place.</summary>
     public MemoryStream OpenRead() => new(Buffer, 0, length, writable: false, publiclyVisible: true);
 

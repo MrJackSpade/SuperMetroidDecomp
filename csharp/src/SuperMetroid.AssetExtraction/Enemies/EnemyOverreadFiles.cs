@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -29,7 +28,7 @@ public static class EnemyOverreadFiles
         File.WriteAllBytes(Path.Combine(directory, EnemyOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, EnemyOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
-                new Manifest(EnemyOverreadFormat.Version, sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))),
+                new Manifest(EnemyOverreadFormat.Version, sourceCartridgeSha256),
                 EnemyOverreadFormat.JsonOptions));
     }
 
@@ -84,5 +83,5 @@ public static class EnemyOverreadFiles
         value ?? throw new InvalidDataException($"Enemy overread file has no {name}.");
 
     /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256, string FileSha256);
+    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

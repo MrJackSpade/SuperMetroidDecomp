@@ -19,12 +19,6 @@ internal sealed class GraphicsSetRows
     /// <summary>The set's catalogued rows, resolved when a lookup first needs them.</summary>
     private Rows? resolved;
 
-    /// <summary>Keeps retail set <paramref name="set"/>, whose catalogued record rows are resolved when a lookup needs them.</summary>
-    internal GraphicsSetRows(RoomEnemyGraphicsSetDefinition set)
-        : this(set, EnemyGraphicsSetPaletteRowDefinitions.Rows)
-    {
-    }
-
     /// <summary>
     /// Keeps set <paramref name="set"/>, whose record rows <paramref name="catalogue"/> names by set name: the retail
     /// catalogue for an installation's sets, or a fixture's own for the set it seeds, as its records' placement words

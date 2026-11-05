@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
@@ -98,8 +97,7 @@ public static class XrayRevealVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new XrayRevealVisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new XrayRevealVisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates version-two stock X-ray presentation and selects an optional complete replacement while retaining native rule selection, copy geometry, extensions, and area gating.</summary>
@@ -321,8 +319,7 @@ public static class XrayRevealVisualFiles
     }
 
     /// <summary>Stock provenance and SHA-256 of the exact reveal JSON bytes.</summary>
-    private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Complete editable rule, item, and room-overlay families for the installed format.</summary>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
         RoomBlockAppearance[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);

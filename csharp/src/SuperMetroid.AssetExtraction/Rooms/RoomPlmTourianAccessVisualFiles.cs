@@ -30,8 +30,8 @@ public static class RoomPlmTourianAccessVisualFiles
     public static RoomPlmTourianAccessVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmTourianAccessVisuals>(VisualFileName, "Tourian access", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<RoomPlmTourianAccessVisuals>(VisualFileName, "Tourian access", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all five Tourian access-floor layouts and builds the visuals from the appearances that differ from the compiled layouts.</summary>
     /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and appearances.</param>

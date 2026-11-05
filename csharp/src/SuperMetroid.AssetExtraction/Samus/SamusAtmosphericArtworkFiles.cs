@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -56,7 +55,7 @@ public static class SamusAtmosphericArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
-                sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))), JsonOptions));
+                sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>Validates stock atmospheric attributes before selecting an optional complete two-list JSON replacement.</summary>
@@ -122,5 +121,5 @@ public static class SamusAtmosphericArtworkFiles
     /// <summary>Editable single small pieces for footsteps and the shared lava/dust effect.</summary>
     private sealed record ArtworkDocument(int Version, SpriteVisualPart[] TypeOne, SpriteVisualPart[] SharedTypeFour);
     /// <summary>Stock source revision and artwork-byte hash used before any override is selected.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
+    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

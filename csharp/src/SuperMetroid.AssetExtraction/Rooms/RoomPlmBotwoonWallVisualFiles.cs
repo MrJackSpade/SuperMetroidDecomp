@@ -27,8 +27,8 @@ public static class RoomPlmBotwoonWallVisualFiles
     public static InstalledRoomPlmBotwoonWallVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmBotwoonWallVisuals>(VisualFileName, "Botwoon wall", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmBotwoonWallVisuals>(VisualFileName, "Botwoon wall", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates the single nine-block wall-clear appearance and builds the visuals, keeping an owned copy only when it differs from the compiled blocks.</summary>
     /// <param name="entries">Exactly one known clear-frame entry containing nine visual-only appearances; crumble frames belong to the separate shot-block catalog.</param>

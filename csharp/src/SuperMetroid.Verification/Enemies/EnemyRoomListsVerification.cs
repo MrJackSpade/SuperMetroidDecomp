@@ -65,7 +65,7 @@ internal static class EnemyRoomListsVerification
         foreach (ushort pointer in graphicsPointers)
         {
             RoomEnemyGraphicsSetDefinition compiled = RoomEnemyGraphicsSetDefinitions.Get(pointer);
-            var importRows = new GraphicsSetRows(compiled);
+            var importRows = new GraphicsSetRows(compiled, EnemyGraphicsSetPaletteRowDefinitions.Rows);
             int address = RoomEnemyRomLayout.TilesetBank | pointer;
             ReadOnlySpan<RoomEnemyGraphicsSetMember> records = compiled.Records.Span;
             for (int index = 0; index < records.Length; index++, address += 4)

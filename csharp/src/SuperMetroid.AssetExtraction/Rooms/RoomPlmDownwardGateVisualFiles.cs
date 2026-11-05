@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -56,8 +55,7 @@ public static class RoomPlmDownwardGateVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates stock downward-gate artwork and selects an optional complete fourteen-layout visual replacement.</summary>
@@ -216,8 +214,7 @@ public static class RoomPlmDownwardGateVisualFiles
     }
 
     /// <summary>Stock provenance and byte-integrity record for the downward-gate visual document.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Versioned set of named downward-gate visual runs stored in JSON.</summary>
     private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

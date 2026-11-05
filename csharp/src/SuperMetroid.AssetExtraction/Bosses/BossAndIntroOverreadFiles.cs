@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -28,7 +27,7 @@ public static class BossAndIntroOverreadFiles
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(
-                new Manifest(BossAndIntroOverreadFormat.Version, sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))),
+                new Manifest(BossAndIntroOverreadFormat.Version, sourceCartridgeSha256),
                 BossAndIntroOverreadFormat.JsonOptions));
     }
 
@@ -94,5 +93,5 @@ public static class BossAndIntroOverreadFiles
     private static bool IsSignedWord(int value) => value is >= short.MinValue and <= short.MaxValue;
 
     /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256, string FileSha256);
+    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

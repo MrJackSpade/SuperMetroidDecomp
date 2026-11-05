@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Samus.Palettes;
@@ -74,7 +73,7 @@ public static class SamusDeathPaletteArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
-                sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(bytes))), JsonOptions));
+                sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>Validates stock fatal-damage color/selector artwork before selecting an optional complete JSON replacement.</summary>
@@ -137,5 +136,5 @@ public static class SamusDeathPaletteArtworkFiles
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);
     /// <summary>Stock death-palette provenance and payload hash.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
+    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -56,8 +55,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates the five stock Grapple-block frames before selecting an optional complete artwork replacement.</summary>
@@ -212,8 +210,7 @@ public static class RoomPlmGrappleBlockVisualFiles
     }
 
     /// <summary>Stock provenance and visual-file hash required even when an override is selected.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Versioned five-entry pointer-to-visual-word document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmVisualBlockEntry[] Entries);
 }

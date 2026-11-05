@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -58,8 +57,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates stock platform artwork before selecting an optional complete three-frame visual replacement.</summary>
@@ -210,8 +208,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
     }
 
     /// <summary>Captures schema version, supported cartridge provenance, and the stock visual JSON hash.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Contains the three editable elevator frame entries and their schema version.</summary>
     private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

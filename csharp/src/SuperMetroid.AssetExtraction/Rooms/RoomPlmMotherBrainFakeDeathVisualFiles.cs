@@ -37,10 +37,10 @@ public static class RoomPlmMotherBrainFakeDeathVisualFiles
     public static RoomPlmMotherBrainFakeDeathVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<RoomPlmMotherBrainFakeDeathVisualCatalog>(VisualFileName, "Mother Brain fake-death room", All, VisualId, entries => Create(
+            new RoomPlmVisualFamily<RoomPlmMotherBrainFakeDeathVisualCatalog>(VisualFileName, "Mother Brain fake-death room", entries => Create(
                 entries.Select(entry =>
                     new RoomPlmVisualEntry(
-                        entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+                        entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all twenty-two fake-death room layouts and builds the visuals from the appearances that differ from the compiled layouts, retaining collision kinds, signed draw offsets, and PLM timing.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, with the exact flattened count of all its run cells.</param>

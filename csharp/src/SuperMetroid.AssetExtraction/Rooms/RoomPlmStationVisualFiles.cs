@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -56,8 +55,7 @@ public static class RoomPlmStationVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates stock station artwork and selects an optional complete twenty-layout replacement without changing station effects or collision.</summary>
@@ -238,8 +236,7 @@ public static class RoomPlmStationVisualFiles
     }
 
     /// <summary>Stock revision, cartridge provenance, and SHA-256 of the exact station visual JSON bytes.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Versioned set of named station draw layouts exported from the source cartridge.</summary>
     private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

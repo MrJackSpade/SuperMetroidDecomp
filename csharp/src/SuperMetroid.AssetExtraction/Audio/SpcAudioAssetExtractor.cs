@@ -50,8 +50,7 @@ public static class SpcAudioAssetExtractor
             sourceStreams.Add(definition.SnesAddress, stream);
             uploads.Add(new AudioUploadManifestEntry(
                 definition.SnesAddress,
-                relativePath.Replace('\\', '/'),
-                Convert.ToHexString(SHA256.HashData(stream))));
+                relativePath.Replace('\\', '/')));
         }
 
         byte[] commonRam = new byte[SpcDriverDefinitions.ApuRamSize];
@@ -442,15 +441,13 @@ public static class SpcAudioAssetExtractor
             string id = $"sample-{dataIndex:X2}-{source:X2}".ToLowerInvariant();
             string absolutePath = Path.Combine(samplesDirectory, id + ".wav");
             PcmWaveFile.WriteMonoPcm16(absolutePath, InstrumentSampleFormat.StockSampleRate, pcm);
-            byte[] waveBytes = File.ReadAllBytes(absolutePath);
             string relativePath = Path.GetRelativePath(audioDirectory, absolutePath).Replace('\\', '/');
             metadata.Add(new AudioCanonicalSampleMetadata(
                 id,
                 relativePath,
                 InstrumentSampleFormat.StockSampleRate,
                 pcm.Length,
-                loopSampleIndex,
-                Convert.ToHexString(SHA256.HashData(waveBytes))));
+                loopSampleIndex));
             idsByContent.Add(contentKey, id);
             return id;
         }

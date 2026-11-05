@@ -6,5 +6,4 @@ public sealed record AudioCanonicalSampleMetadata(
     string WavFile,
     int SampleRate,
     int SampleCount,
-    int? LoopSampleIndex,
-    string Sha256);
+    int? LoopSampleIndex);

@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
@@ -51,7 +50,7 @@ public static class SamusDeathTileArtworkFiles
         File.WriteAllBytes(Path.Combine(directory, SamusDeathTileAtlasFormat.ArtworkFileName), png);
         File.WriteAllBytes(Path.Combine(directory, SamusDeathTileAtlasFormat.ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
-                sourceCartridgeSha256, Convert.ToHexString(SHA256.HashData(png))), JsonOptions));
+                sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>Checks stock death-explosion provenance, hash, and PNG admission before selecting an optional replacement atlas.</summary>
@@ -81,5 +80,5 @@ public static class SamusDeathTileArtworkFiles
     }
 
     /// <summary>Binds the extracted PNG hash to its source cartridge and manifest revision.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
+    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

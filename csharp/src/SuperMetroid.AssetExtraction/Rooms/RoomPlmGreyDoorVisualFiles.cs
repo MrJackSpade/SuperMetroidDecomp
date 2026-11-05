@@ -34,8 +34,8 @@ public static class RoomPlmGreyDoorVisualFiles
     public static InstalledRoomPlmGreyDoorVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmGreyDoorVisuals>(VisualFileName, "Grey-door", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmGreyDoorVisuals>(VisualFileName, "Grey-door", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates all twenty clear/grey-door frames and builds the visuals from the appearances that differ from the compiled caps.</summary>
     /// <param name="entries">Exactly one four-block visual-only entry for each compiled orientation and frame identity.</param>

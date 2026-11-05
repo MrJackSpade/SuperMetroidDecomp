@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -57,8 +56,7 @@ public static class RoomPlmShotBlockVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates all stock shot-block draws before selecting an optional complete visual replacement.</summary>
@@ -239,8 +237,7 @@ public static class RoomPlmShotBlockVisualFiles
     }
 
     /// <summary>Captures stock schema, cartridge provenance, and visual JSON byte hash.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Contains the nineteen ordered visual draw entries and schema version.</summary>
     private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

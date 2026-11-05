@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -55,8 +54,7 @@ public static class RoomPlmCollectibleVisualFiles
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates the stock manifest/digest and compiled stock parity, then selects an optional editable override without cartridge access.</summary>
@@ -228,8 +226,7 @@ public static class RoomPlmCollectibleVisualFiles
     }
 
     /// <summary>Records the supported cartridge revision and digest of the stock visual JSON.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Stores a versioned, complete set of named collectible visual references.</summary>
     private sealed record VisualDocument(int Version,
         RoomPlmVisualBlockEntry[] Entries);

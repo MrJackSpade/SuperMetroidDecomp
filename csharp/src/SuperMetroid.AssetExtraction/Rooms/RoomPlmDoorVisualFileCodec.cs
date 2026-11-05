@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -52,8 +51,7 @@ internal static class RoomPlmDoorVisualFileCodec
         using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256,
-                Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
+            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
     /// <summary>Validates stock provenance, then selects an optional edited visual catalog.</summary>
@@ -177,8 +175,7 @@ internal static class RoomPlmDoorVisualFileCodec
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, pointer));
 
     /// <summary>Stock provenance binding a visual JSON hash to the supported cartridge.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
-        string VisualSha256);
+    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Versioned collection of editable block appearances extracted from compiled draw lists.</summary>
     private sealed record VisualDocument(int Version, Entry[] Entries);
 }

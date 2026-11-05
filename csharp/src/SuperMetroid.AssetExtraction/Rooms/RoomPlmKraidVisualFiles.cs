@@ -36,8 +36,8 @@ public static class RoomPlmKraidVisualFiles
     public static InstalledRoomPlmKraidVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", All, VisualId, entries => Create(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
+            new RoomPlmVisualFamily<InstalledRoomPlmKraidVisuals>(VisualFileName, "Kraid room", entries => Create(entries.Select(entry =>
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 
     /// <summary>Validates and copies all ten Kraid ceiling and spike layouts, building the visuals without changing collision appearances, crumble timing, or movement callbacks.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled role, with one block for individual stages or fifteen/twenty-two for the clearing layouts.</param>

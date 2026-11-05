@@ -135,12 +135,19 @@ internal static class MenuSheetFixtures
     /// </summary>
     private static bool ShowsStockTitle(TitleGraphicsPresentation graphics) =>
         graphics is SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters characters
-        && characters.ContentIdentity == stockTitleContent.Value;
+        && SameTitleContent(characters, InstalledFixtures.Maps.TitleGraphics as SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters
+            ?? throw new InvalidOperationException("The installation's title graphics are not installed title characters."));
 
-    /// <summary>The installation's title graphics' content identity, computed once.</summary>
-    private static readonly Lazy<string> stockTitleContent = new(() =>
-        (InstalledFixtures.Maps.TitleGraphics as SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters
-            ?? throw new InvalidOperationException("The installation's title graphics are not installed title characters.")).ContentIdentity);
+    /// <summary>
+    /// Whether two title graphics hold the same content: the floor map, the floor, object and Baby characters, and every
+    /// title composition's parts.
+    /// </summary>
+    private static bool SameTitleContent(SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters first,
+        SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters second) =>
+        first.FloorMap.SequenceEqual(second.FloorMap) && first.FloorCharacters.SequenceEqual(second.FloorCharacters)
+        && first.BabyCharacters.SequenceEqual(second.BabyCharacters) && first.ObjectPage.Characters.SequenceEqual(second.ObjectPage.Characters)
+        && Enum.GetValues<SuperMetroid.Core.Frontend.Title.TitleSprite>().All(sprite =>
+            first.Frame(sprite, sprite.ToString()).Parts.SequenceEqual(second.Frame(sprite, sprite.ToString()).Parts));
 
     /// <summary>
     /// The installed sheets with the title and title floor sheets the installation's title graphics compose under

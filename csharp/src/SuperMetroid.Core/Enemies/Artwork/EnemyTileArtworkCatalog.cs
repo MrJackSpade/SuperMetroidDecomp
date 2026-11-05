@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The installed enemy artwork gameplay reads (#1463): the extended frame placements its draw selects and the auxiliary
+/// The installed enemy artwork gameplay reads (#1463): the extended frame displays its draw selects and the auxiliary
 /// colours the Golden Torizo still reads. The pictures enemies draw are pre-coloured sheets with their shades (#1512);
 /// the palettes, colour cycles, characters and compositions they are composed from belong to the import pipeline's
 /// subclass.
@@ -18,10 +18,10 @@ public abstract class EnemyTileArtworkCatalog
     /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors => installed.AuxiliaryColors;
 
-    /// <summary>Installed extended frames' component placements and display bindings; hitbox and AI data stay engine-owned.</summary>
-    public EnemyExtendedFramePlacementCatalog? ExtendedFramePlacements
+    /// <summary>Installed extended frames' pictures and display bindings; hitbox and AI data stay engine-owned.</summary>
+    public EnemyExtendedFrameDisplayCatalog? ExtendedFrameDisplays
     {
-        get => installed.ExtendedFramePlacements;
-        internal set => installed = installed with { ExtendedFramePlacements = value };
+        get => installed.ExtendedFrameDisplays;
+        internal set => installed = installed with { ExtendedFrameDisplays = value };
     }
 }

@@ -14,8 +14,8 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>
-/// Checks #1343's enemy-format draws as #1392 draws them: an ordinary enemy and each visible component of an extended
-/// enemy publish the frames of the sheets their room's graphics set names, a draw in another palette row shows its
+/// Checks #1343's enemy-format draws as #1392 draws them: an ordinary enemy and an extended enemy publish the whole
+/// frames of the sheets their room's graphics set names (#1513), a draw in another palette row shows its
 /// frame in that row, an enemy projectile publishes its frame from the set's spawned-object sheet, and the shake tick is
 /// a simulation phase.
 /// </summary>
@@ -80,19 +80,12 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertImage(draws[0], new SpriteSource(SpriteSourceKind.Enemy, 0), beetomSheet.Frame(EnemySheetDefinitions.FrameName(ordinaryFrame)),
             new(100, 80), PictureShading.Standard, "Ordinary enemy");
 
+        // The extended frame's pieces are one whole picture, drawn once at the enemy's origin (#1513).
         SpriteSheet pirateSheet = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.PirateGreenWalking);
-        extendedFrames.TryGetDisplay(extendedFrame, out ReadOnlyMemory<EnemyExtendedDrawComponent> components);
-        int entry = 1;
-        for (int component = 0; component < components.Length; component++)
-        {
-            Position16<SpritePixels> origin = new Position16<SpritePixels>(120, 110) + components.Span[component].Offset;
-            if (!EnemyDrawRange.Contains(origin))
-                continue;
-            AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.Enemy, 1),
-                pirateSheet.Frame(EnemySheetDefinitions.ComponentFrameName(extendedFrame, component)), new(origin.X, origin.Y), PictureShading.Standard,
-                "Extended enemy component");
-        }
-        AssertTrue(entry > 2, "The extended enemy publishes one entry per visible component");
+        AssertImage(draws[1], new SpriteSource(SpriteSourceKind.Enemy, 1),
+            pirateSheet.Frame(EnemySheetDefinitions.FrameName(extendedFrame)), new(120, 110), PictureShading.Standard,
+            "Extended enemy");
+        int entry = 2;
 
         SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
         AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
@@ -123,7 +116,7 @@ internal static class EnemyFormatDrawEntriesVerification
         AssertEqual(1, undisplayed, "An undrawn frame consumes one shake tick");
         AssertEqual(undisplayed, ordinary.ShakeTimer.RawValue, "A drawn frame consumes the same shake tick");
         AssertEqual(new Position16<ScreenPixels>(101, 80), sprites.Draws[0].Origin, "The drawn frame shows the shaken origin");
-        Console.WriteLine($"Enemy-format draws: ordinary and {entry - 2}-component extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display.");
+        Console.WriteLine($"Enemy-format draws: ordinary and whole extended entries from their graphics set's sheets, a frame in another look, and a projectile over the enemy tile page; shake advance independent of display.");
 
         static void AssertImage(SpriteDraw draw, SpriteSource source, SpriteSheetFrame frame, Position16<ScreenPixels> origin, PictureShading shading, string subject)
         {

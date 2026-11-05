@@ -145,17 +145,23 @@ internal static class RoomBlockPicturesVerification
     internal static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
         SpriteSheetFrame picture, Position16<ImagePixels> pixel)
     {
-        int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
-        int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
-        int address = word.CharacterIndex * TileCharacterWords * sizeof(ushort) + pixelRow * 2;
-        int colour = (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
-            | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
+        int colour = TileColour(vram, word, x, y);
         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
         SpriteImage sheet = picture.Sheet;
         int at = (picture.Corner.Y + pixel.Y) * sheet.Size.X + picture.Corner.X + pixel.X;
         AssertTrue(sheet.Inks[at].PaletteIndex == expected && (colour == 0 || ((sheet.Inks[at].Priority != 0) == word.HasPriority
                 && sheet.Pixels[at] == sheet.StandardColours[expected].ToRgbaPixel())),
             $"{context}: the picture paints index {sheet.Inks[at].PaletteIndex} where tile ${word.Raw:X4} paints {expected}");
+    }
+
+    /// <summary>The colour, within its palette row, that <paramref name="word"/>'s tile paints at (<paramref name="x"/>, <paramref name="y"/>) over <paramref name="vram"/>'s characters.</summary>
+    private static int TileColour(ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y)
+    {
+        int pixelRow = word.FlipVertically ? CharacterPixels - 1 - y : y;
+        int bit = 7 - (word.FlipHorizontally ? CharacterPixels - 1 - x : x);
+        int address = word.CharacterIndex * TileCharacterWords * sizeof(ushort) + pixelRow * 2;
+        return (vram[address] >> bit & 1) | (vram[address + 1] >> bit & 1) << 1
+            | (vram[address + 16] >> bit & 1) << 2 | (vram[address + 17] >> bit & 1) << 3;
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded and Samus held still.</summary>
@@ -258,8 +264,13 @@ internal static class RoomBlockPicturesVerification
                     for (int y = 0; y < CharacterPixels; y++)
                     for (int x = 0; x < CharacterPixels; x++)
                     {
-                        AssertPaintsTile($"{owner} {part.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, part.Picture,
-                            new Position16<ImagePixels>((ushort)(column * CharacterPixels + x), (ushort)((row - part.Top) * CharacterPixels + y)));
+                        // A part that clears its cells has no picture: the tile its frame writes there paints nothing (#1513).
+                        if (part.Picture is { } picture)
+                            AssertPaintsTile($"{owner} {part.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
+                                new Position16<ImagePixels>((ushort)(column * CharacterPixels + x), (ushort)((row - part.Top) * CharacterPixels + y)));
+                        else
+                            AssertTrue(TileColour(vram, word, x, y) == 0,
+                                $"{owner} {part.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");
                     }
                 }
                 parts++;

@@ -88,7 +88,7 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         if (blankCharacter.Span.IndexOfAnyExcept((byte)0) >= 0)
         {
             pictures.Add(new BossBodyPicture(BlankPartName, 1, 1, [new BossBodyPaintedCell(0, 0, blank, blankCharacter)]));
-            blankPart = new ComposedBossBodyPart(BlankPartName, 0, BossBodyFootprint.OfCells(0, 1), null,
+            blankPart = new ComposedBossBodyPart(BlankPartName, BlankPartName, 0, BossBodyFootprint.OfCells(0, 1), null,
                 new Dictionary<string, string>(StringComparer.Ordinal));
         }
 
@@ -150,7 +150,9 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
 
     /// <summary>
     /// The part named <paramref name="name"/> covering <paramref name="cells"/>: its picture over the room's load and, for
-    /// an animated part, a picture over each frame of <paramref name="animation"/>.
+    /// an animated part, a picture over each frame of <paramref name="animation"/>. A still part whose every cell's
+    /// character inks only colour zero shows nothing: it has no picture and clears the cells it covers (#1513), as
+    /// Crocomire's second melt image clears the rows below his first.
     /// </summary>
     private ComposedBossBodyPart Part(string name, SortedDictionary<int, BackgroundTile> cells, ArtworkAnimation? animation)
     {
@@ -159,6 +161,9 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         var masks = new uint[rows];
         foreach (int cell in cells.Keys)
             masks[cell / BossBodyDefinitions.ColumnCount - top] |= 1u << (cell % BossBodyDefinitions.ColumnCount);
+        var footprint = new BossBodyFootprint(top, ImmutableArray.Create(masks));
+        if (animation is null && !ShowsAnything(cells))
+            return new ComposedBossBodyPart(name, null, top, footprint, null, new Dictionary<string, string>(StringComparer.Ordinal));
         AddPicture(name, top, rows, cells, null);
         var animationPictures = new Dictionary<string, string>(StringComparer.Ordinal);
         if (animation is { } shown)
@@ -170,7 +175,18 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
                 animationPictures.Add(frame.Name, pictureName);
             }
         }
-        return new ComposedBossBodyPart(name, top, new BossBodyFootprint(top, ImmutableArray.Create(masks)), animation, animationPictures);
+        return new ComposedBossBodyPart(name, name, top, footprint, animation, animationPictures);
+    }
+
+    /// <summary>Whether any of <paramref name="cells"/>' characters, as the room loads them, inks a colour other than colour zero.</summary>
+    private bool ShowsAnything(SortedDictionary<int, BackgroundTile> cells)
+    {
+        foreach (BackgroundTile tile in cells.Values)
+        {
+            if (Character(tile.Tile, null).Span.IndexOfAnyExcept((byte)0) >= 0)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>Adds the picture of <paramref name="cells"/> from row <paramref name="top"/>, over <paramref name="frame"/> where it paints.</summary>

@@ -71,7 +71,7 @@ internal static class XrayRevealVisualInstallationVerification
         string stockPath = Path.Combine(installed.XrayRevealVisualDirectory,
             XrayRevealVisualFiles.VisualFileName);
         byte[] installedBytes = File.ReadAllBytes(stockPath);
-        JsonNode document = JsonNode.Parse(installedBytes)
+        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
             ?? throw new InvalidDataException("Installed X-ray visuals are empty.");
         JsonArray entries = document.Required("entries").AsArray();
         JsonObject tall = entries.RequiredElements().Select(node => node.AsObject()).Single(entry =>

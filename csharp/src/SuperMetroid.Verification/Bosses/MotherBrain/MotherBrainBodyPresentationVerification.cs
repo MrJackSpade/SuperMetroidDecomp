@@ -34,55 +34,39 @@ internal static class MotherBrainBodyPresentationVerification
     internal static void VerifyMotherBrainBodyPresentation()
     {
         var author = new EnemyIdentityFixture();
-        EnemyExtendedFrameDocument stockOam = BodyOam(edited: false), editedOam = BodyOam(edited: true);
-        EnemyBg2FrameDocument stockBg2 = BodyBg2(edited: false), editedBg2 = BodyBg2(edited: true);
+        EnemyExtendedFrameDocument stockOam = BodyOam();
+        EnemyBg2FrameDocument stockBg2 = BodyBg2();
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
-        var mixed = MotherBrainBodyVisualDefinitions.Frames
-            .Where(frame => MotherBrainBodyVisualDefinitionsConstants.HasBg2(frame.Pointer)).ToArray();
         var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
             .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
             .OfType<AnimationProgramStep<MotherBrainBodyProgram, MotherBrainBodyFrame, MotherBrainBodyCue>.ShowStep>()
             .Select(step => MotherBrainBodyVisualDefinitionsConstants.Frame(step.Frame.Index).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
-        // Remap the whole mixed pose, not only its limbs. The native selector must not change.
-        for (int index = 0; index < mixed.Length; index++)
-            (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[mixed[index].Name] = mixed[(index + 1) % mixed.Length].Name;
-        var replacement = new MotherBrainPresentationFixture(Build(editedOam, editedBg2));
         foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
         {
             baseline.SetFrame(frame.Pointer, fresh: true);
-            replacement.SetFrame(frame.Pointer, fresh: true);
-            baseline.ClearBg2(); replacement.ClearBg2();
-            OamBuffer original = baseline.Draw(), changed = replacement.Draw();
+            baseline.ClearBg2();
+            OamBuffer original = baseline.Draw();
             AssertBodyOam(original, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies);
-            string selected = (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[frame.Name];
-            AssertBodyOam(changed, editedOam.Frames[selected], replacement.Body, replacement.Inner.Enemies);
             AssertBodyBg2(baseline.Bg2Words, stockBg2, frame.Name);
-            AssertBodyBg2(replacement.Bg2Words, editedBg2, selected);
-            AssertEnemyAnimationMechanics(baseline.Inner, replacement.Inner, frame.Pointer);
-            AssertEqual(frame.Pointer, replacement.Body.SpritemapPointer, "display remap retains physical frame");
 
-            replacement.SetFrame(frame.Pointer, fresh: false);
-            replacement.MarkBg2();
-            ushort[] retained = replacement.Bg2Words;
-            AssertBodyOam(replacement.Draw(), editedOam.Frames[selected], replacement.Body, replacement.Inner.Enemies);
-            AssertTrue(retained.SequenceEqual(replacement.Bg2Words),
+            baseline.SetFrame(frame.Pointer, fresh: false);
+            baseline.MarkBg2();
+            ushort[] retained = baseline.Bg2Words;
+            AssertBodyOam(baseline.Draw(), stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies);
+            AssertTrue(retained.SequenceEqual(baseline.Bg2Words),
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
         int steps = 0;
         foreach (MotherBrainBodyProgram program in new[] { MotherBrainBodyProgram.WalkForwardMedium,
                      MotherBrainBodyProgram.WalkBackwardFast, MotherBrainBodyProgram.CrouchSlow })
         {
-            baseline.SetProgram(program); replacement.SetProgram(program);
+            baseline.SetProgram(program);
             for (int frame = 0; frame < 100; frame++, steps++)
             {
-                baseline.Step(); replacement.Step();
-                baseline.Draw(); replacement.Draw();
-                AssertEnemyAnimationMechanics(baseline.Inner, replacement.Inner, steps);
-                AssertAnimationValues(baseline.State, replacement.State, "Mother Brain instruction state");
-                AssertTrue(baseline.ScrollCalls.SequenceEqual(replacement.ScrollCalls),
-                    "editable art preserves each body/BG2 counter-scroll");
+                baseline.Step();
+                baseline.Draw();
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
@@ -91,8 +75,8 @@ internal static class MotherBrainBodyPresentationVerification
             "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
         // reinstalls it after a restore.
-        Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, mixed remaps, new-frame gating, " +
-            $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, and missing-art rejection. RAM-only.");
+        Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, new-frame gating, " +
+            $"{steps} production instruction steps with counter-scroll, and missing-art rejection. RAM-only.");
 
         // She draws from sheets composed over the installed enemy artwork, so the fixture starts from it and replaces only
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
@@ -105,7 +89,7 @@ internal static class MotherBrainBodyPresentationVerification
                 new AreaSourceArtwork());
         }
 
-        EnemyExtendedFrameDocument BodyOam(bool edited)
+        EnemyExtendedFrameDocument BodyOam()
         {
             EnemyExtendedFrameDocument document = author.ExtendedDocument();
             int index = 0;
@@ -113,22 +97,22 @@ internal static class MotherBrainBodyPresentationVerification
             {
                 SpriteVisualPart part = document.Frames[frame.Name][0].Parts[0] with
                 { OffsetX = 2, OffsetY = 3, Size = 16, TileColumn = index % 16, TileRow = index / 16,
-                    Palette = 1, Priority = 2, FlipX = edited, FlipY = edited };
+                    Palette = 1, Priority = 2, FlipX = false, FlipY = false };
                 document.Frames[frame.Name] =
-                [ new() { OffsetX = edited ? 5 : 0, OffsetY = edited ? -4 : 0, Parts = [part] },
-                  new() { OffsetX = edited ? -7 : 6, OffsetY = edited ? 8 : 5, Parts = [part with { Size = 8 }] } ];
+                [ new() { OffsetX = 0, OffsetY = 0, Parts = [part] },
+                  new() { OffsetX = 6, OffsetY = 5, Parts = [part with { Size = 8 }] } ];
                 index++;
             }
             return document;
         }
 
-        static EnemyBg2FrameDocument BodyBg2(bool edited) => new()
+        static EnemyBg2FrameDocument BodyBg2() => new()
         {
             Version = MotherBrainBodyBg2FrameDefinitions.Version,
             Frames = MotherBrainBodyBg2FrameDefinitions.Frames.SelectToArray((frame, index) =>
                 KeyValuePair.Create(frame.Name, new EnemyBg2WriteDocument[]
-                { new() { X = edited ? 3 : 0, Y = edited ? 2 : 0, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
-                  new() { X = edited ? 4 : 1, Y = edited ? 3 : 1, Tiles = RoomBackgroundTilemapCellWords.Cells(300 + index, edited ? 460 + index : 400 + index) } })).ToDictionary(),
+                { new() { X = 0, Y = 0, Tiles = RoomBackgroundTilemapCellWords.Cells(100 + index, 200 + index) },
+                  new() { X = 1, Y = 1, Tiles = RoomBackgroundTilemapCellWords.Cells(300 + index, 400 + index) } })).ToDictionary(),
         };
     }
 

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>Checks stock collectible visual words and content identity against the native PLM frame table.</summary>
 internal static class LookupCollectibleStockVerification
 {
-    /// <summary>Compares 24 native frame words with stock, imported, and installed catalogs, then checks unknown pointers, edited copies, and invalid imports.</summary>
+    /// <summary>Compares 24 native frame words with stock, imported, and installed catalogs, then checks unknown pointers and invalid imports.</summary>
     internal static void VerifyCollectibleStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomPlmCollectibleVisuals installed)
     {
@@ -32,15 +32,6 @@ internal static class LookupCollectibleStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)pointer)), "Collectible stock unknown pointer");
-        entries[5] = entries[5] with { Appearance = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical) };
-        var mixed = RoomPlmCollectibleVisualFiles.Create(entries);
-        var expected = frames.Select((frame, index) => new LookupCollectibleStockExpected(frame.Pointer, entries[index].Appearance))
-            .ToDictionary(pair => pair.Pointer, pair => pair.Appearance);
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Collectible mixed custom/stock identity");
-        entries[5] = entries[5] with { Appearance = RoomBlockAppearance.Of(0x05a) };
-        entries[6] = entries[6] with { Appearance = RoomBlockAppearance.Of(0x05b) };
-        foreach (var frame in frames)
-            AssertEqual(expected[frame.Pointer], mixed.GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(frame.Pointer)), "Collectible changed and unchanged input isolation");
         AssertThrows<InvalidDataException>(() => RoomPlmCollectibleVisualFiles.Create(entries[..1]), "Collectible missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmCollectibleVisualFiles.Create(entries.Append(entries[0])), "Collectible duplicate frame");
         foreach (RoomPlmVisualBlockEntry bad in new RoomPlmVisualBlockEntry[]

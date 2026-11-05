@@ -3336,9 +3336,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
         Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(oracle));
         Suite(nameof(VerifyBotwoonWallVisualIdMapping), () => VerifyBotwoonWallVisualIdMapping());
-        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(SuperMetroid.AssetExtraction.Rooms.RoomPlmBotwoonWallVisualFiles.Create(
-            [new SuperMetroid.AssetExtraction.Rooms.RoomPlmVisualEntry("clear-wall",[.. Enumerable.Repeat(RoomBlockAppearance.Of(0xff), 3), RoomBlockAppearance.Of(0x58),
-                .. Enumerable.Repeat(RoomBlockAppearance.Of(0xff), 5)])])));
         return 0;
     }
 

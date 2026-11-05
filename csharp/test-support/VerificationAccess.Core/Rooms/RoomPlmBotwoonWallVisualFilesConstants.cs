@@ -5,6 +5,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmBotwoonWallVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Botwoon wall visuals.</summary>
-    /// <param name="directory">Stock Botwoon wall directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmBotwoonWallVisualFiles.Load(directory, null);
+    /// <param name="directory">Stock Botwoon wall directory.</param>
+    public static void ValidateStock(string directory) => _ = RoomPlmBotwoonWallVisualFiles.Load(directory);
 }

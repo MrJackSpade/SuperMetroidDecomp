@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Installed, replaceable Maridia elevatube PLM visual block, and the editable identity that names it.</summary>
 public static class RoomPlmMaridiaElevatubeVisualFiles
 {
-    /// <summary>Family-relative stock/override JSON filename for the Maridia elevatube's single visual block, separate from Kraid's use of the same native draw.</summary>
+    /// <summary>Family-relative installed JSON filename for the Maridia elevatube's single visual block, separate from Kraid's use of the same native draw.</summary>
     public const string VisualFileName = "maridia-elevatube.json";
 
     /// <summary>Checks the one-block elevatube draw at $84:9367 and exports its metatile/flip appearance without changing the solid word, sixteen-update wait, or sound.</summary>
@@ -25,16 +25,13 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
             VisualFileName, "Maridia elevatube",
             AllDraws, DrawVisualId);
 
-    /// <summary>Validates the installed elevatube stock image and selects an optional one-block visual replacement.</summary>
-    /// <param name="stockDirectory">Family directory containing stock JSON and its required version-one manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or an absent override JSON selects validated stock.</param>
+    /// <summary>Validates the installed Maridia elevatube manifest's provenance and loads the installed Maridia elevatube JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Maridia elevatube JSON.</param>
     /// <returns>A ROM-independent catalog for <c>elevatube-block</c>; Kraid appearance and elevatube mechanics remain separate.</returns>
-    /// <remarks>Stock must match supported-cartridge provenance, its byte hash, and compiled appearance before overrides are considered. Override JSON needs the sole known identity and one twelve-bit appearance, but no manifest.</remarks>
-    /// <exception cref="InvalidDataException">Stock integrity/provenance, JSON version, identity, coverage, block count, or visual-only bits are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static InstalledRoomPlmMaridiaElevatubeVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <exception cref="InvalidDataException">Manifest provenance, JSON version, identity, coverage, block count, or visual-only bits are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or Maridia elevatube JSON cannot be read.</exception>
+    public static InstalledRoomPlmMaridiaElevatubeVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmMaridiaElevatubeVisuals>(VisualFileName, "Maridia elevatube", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

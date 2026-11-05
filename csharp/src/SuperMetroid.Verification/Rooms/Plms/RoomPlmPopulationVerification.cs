@@ -1079,8 +1079,7 @@ internal static class RoomPlmPopulationVerification
     }
 
     /// <summary>Exercises map, missile and save-station admission and message timing in one populated room.</summary>
-    internal static void VerifyOtherStationFamilies(TestAddressSpace bus,
-        InstalledRoomPlmStationVisuals? visuals = null)
+    internal static void VerifyOtherStationFamilies(TestAddressSpace bus)
     {
         const ushort population = 0x9200;
         SeedRoomPlmPopulation(bus, population, [
@@ -1095,7 +1094,7 @@ internal static class RoomPlmPopulationVerification
             new RoomBlockBehavior[width * 16]);
         var system = new SharedGameState();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
+        var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, plms.StationSnapshots.Count, "map, missile, and save parents share one pool");

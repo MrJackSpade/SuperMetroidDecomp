@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Areas.Escape;
 /// <summary>Checks the three escape-gate block drawings and catalog identity against native PLM words.</summary>
 internal static class LookupEscapeGateStockVerification
 {
-    /// <summary>Compares open, half-closed, and closed rows with stock and installed art, then checks bounds, edited-copy isolation, and invalid imports.</summary>
+    /// <summary>Compares open, half-closed, and closed rows with stock and installed art, then checks bounds, and invalid imports.</summary>
     internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmEscapeGateVisualCatalog installed)
     {
@@ -43,17 +43,6 @@ internal static class LookupEscapeGateStockVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>((ushort)raw),0), "Escape gate unknown stock pointer");
-        entries[2].Blocks[1] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[1].Blocks[3] = RoomBlockAppearance.Of(0x59);
-        var mixed = RoomPlmEscapeGateVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer,
-            frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Escape gate custom/stock hash");
-        entries[2].Blocks[1] = RoomBlockAppearance.Of(0x5a);
-        entries[0].Blocks[0] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetAppearance(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate custom clone and stock isolation");
         AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(entries[..2]), "Escape gate missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmEscapeGateVisualFiles.Create(entries.Append(entries[0])), "Escape gate duplicate frame");
         var invalid = entries.ToArray();

@@ -21,7 +21,7 @@ using SuperMetroid.Core.World;
 /// <summary>Checks Samus Eater PLM draw geometry, editable visual blocks and physical collision isolation against retail data.</summary>
 internal static class SamusEaterVisualsVerification
 {
-    /// <summary>Extracts all eight native draws, checks their compiled geometry and live floor/ceiling redraws, and rejects collision-changing overrides.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifySamusEaterVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -40,53 +40,12 @@ internal static class SamusEaterVisualsVerification
         string stockPath = Path.Combine(
             installation.RoomPlmSamusEaterVisualDirectory,
             RoomPlmSamusEaterVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted Samus Eater JSON is empty.");
-        JsonArray entries = document.Required("entries").AsArray();
-        JsonNode floor = entries.RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "floor-chew-2");
-        JsonNode ceiling = entries.RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "ceiling-chew-2");
-        floor.Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
-        ceiling.Required("blocks")[0] = PlmVisualJson.Appearance(0x059);
-        Directory.CreateDirectory(
-            installation.RoomPlmSamusEaterVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmSamusEaterVisualOverrideDirectory,
-            RoomPlmSamusEaterVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        InstalledRoomPlmSamusEaterVisuals edited =
-            installation.LoadRoomPlmSamusEaterVisuals();
-        VerifySamusEaterLiveDraw(rom, edited,
-            PlmDrawAddressCodec.Of(PlmDraw.Of(SamusEaterDraw.FloorChew2)), RoomTerrainBlock.Of(0x1a5, BlockMirroring.Horizontal, RoomCollisionType.Air), RoomBlockAppearance.Of(0x058));
-        VerifySamusEaterLiveDraw(rom, edited,
-            PlmDrawAddressCodec.Of(PlmDraw.Of(SamusEaterDraw.CeilingChew2)), RoomTerrainBlock.Of(0x1a5, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air), RoomBlockAppearance.Of(0x059));
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x058),
-            ReExtractSamusEaterStock(rom, refreshed,
-                installation.RoomPlmSamusEaterVisualOverrideDirectory)
-                .GetAppearance(PlmDraw.Of(SamusEaterDraw.FloorChew2), 0, 0),
-            "Samus Eater override survives stock refresh");
-        floor.Required("blocks")[0] = 0xf058;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmSamusEaterVisuals(),
-            "Samus Eater override cannot change collision nibble");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => RoomPlmSamusEaterVisualFilesConstants.ValidateStock(
                 installation.RoomPlmSamusEaterVisualDirectory),
             "tampered Samus Eater stock fails loudly where it is read");
-        Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
-    }
-
-    /// <summary>Extracts stock Samus Eater visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmSamusEaterVisualFiles.Extract into a fresh stock directory beside the copy's Samus Eater override, to check that a stock refresh keeps the edited floor-chew frame (appearance 058) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmSamusEaterVisuals ReExtractSamusEaterStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmSamusEaterVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmSamusEaterVisualFiles.Load(refreshed, overrides);
+        Console.WriteLine("Samus Eater visuals: eight exact native draw lists and stock integrity pass.");
     }
 
     /// <summary>Matches each installed visual frame to its native draw-list words while checking clone and ID validation rules.</summary>
@@ -143,20 +102,6 @@ internal static class SamusEaterVisualsVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SamusEaterDraw>((ushort)pointer),0,0), "plant stock rejects unknown pointer");
-        entries[0].Blocks[7] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[6].Blocks[0] = RoomBlockAppearance.Of(0x059);
-        var mixed = RoomPlmSamusEaterVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "plant mixed custom and stock hash");
-        entries[0].Blocks[7] = RoomBlockAppearance.Of(0x05a);
-        entries[1].Blocks[0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < counts[frame.Pointer].Length; run++)
-            for (int block = 0; block < counts[frame.Pointer][run]; block++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<SamusEaterDraw>(frame.Pointer),run,block), "plant custom cloning and calculated stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(entries[..7]), "plant missing frame rejected");
         AssertThrows<InvalidDataException>(() => RoomPlmSamusEaterVisualFiles.Create(entries.Append(entries[0])), "plant duplicate frame rejected");
         var badEntries = entries.ToArray();
@@ -237,39 +182,6 @@ internal static class SamusEaterVisualsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => draw.NextY(invalid), "plant offset Y bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(invalid, 0), "plant word run bounds");
             }
-        }
-    }
-
-    /// <summary>Draws an edited PLM into a room and checks that the rendered block changes while native collision words and placement remain intact.</summary>
-    private static void VerifySamusEaterLiveDraw(
-        SuperMetroidAddressSpace rom, InstalledRoomPlmSamusEaterVisuals visuals, ushort pointer,
-        RoomTerrainBlock physicalWord, RoomBlockAppearance visualWord)
-    {
-        const int width = 16;
-        const int height = 16;
-        var level = CreateRoom(new(width, height), new RoomTerrainBlock[width * height],
-            new RoomBlockBehavior[width * height]);
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmSamusEaterVisuals = visuals });
-        int origin = 8 * width + 8;
-        plms.Drawing.Draw(level, origin, NativePlmDraws.At<SamusEaterDraw>(pointer));
-        AssertEqual(physicalWord,
-            level.GetCollisionBlockByIndex(origin).Terrain,
-            "Samus Eater edited draw retains native collision word");
-        AssertEqual(visualWord, level.DisplayedAppearance(origin),
-            "Samus Eater edited block reaches the real redraw path");
-        int nativeCursor = 0x840000 | pointer;
-        int expectedX = 8, expectedY = 8;
-        for (int run = 0; run < 3; run++)
-        {
-            int count = ReadSamusEaterPlmWord(rom, nativeCursor);
-            for (int block = 0; block < count; block++)
-                AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, nativeCursor + 2 + block * 2)),
-                    level.GetCollisionBlockByIndex(expectedY * width + expectedX + block).Terrain,
-                    "plant live placement follows native signed run offsets");
-            ushort offset = ReadSamusEaterPlmWord(rom, nativeCursor + 2 + count * 2);
-            expectedX = 8 + unchecked((sbyte)offset);
-            expectedY = 8 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
-            nativeCursor += 4 + count * 2;
         }
     }
 

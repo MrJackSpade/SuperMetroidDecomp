@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Cartridge-checked stock and strict visual-only n00b-tube overrides.</summary>
+/// <summary>Cartridge-checked, strictly visual-only installed n00b-tube artwork.</summary>
 public static class RoomPlmNoobTubeVisualFiles
 {
     /// <summary>Editable n00b-tube visual JSON filename.</summary>
@@ -19,13 +19,11 @@ public static class RoomPlmNoobTubeVisualFiles
             VisualFileName, "n00b-tube", All,
             VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable n00b-tube override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and n00b-tube JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose n00b-tube JSON is selected when present.</param>
-    /// <returns>The immutable selected n00b-tube visual catalog.</returns>
-    public static InstalledRoomPlmNoobTubeVisuals Load(string stockDirectory,
-        string? overrideDirectory = null) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed n00b-tube manifest's provenance and loads the installed n00b-tube JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and n00b-tube JSON.</param>
+    /// <returns>The immutable n00b-tube visual catalog.</returns>
+    public static InstalledRoomPlmNoobTubeVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmNoobTubeVisuals>(VisualFileName, "n00b-tube", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

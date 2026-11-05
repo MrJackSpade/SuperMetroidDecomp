@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Hash-checked stock RGB5 room palettes plus persistent user-selected replacements.</summary>
+/// <summary>Installed RGB5 room palettes, which a player edits in place.</summary>
 public static class RoomStaticPaletteArtworkFiles
 {
     /// <summary>Stock room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
@@ -18,7 +18,7 @@ public static class RoomStaticPaletteArtworkFiles
     /// <param name="bus">Non-null cartridge import address space supplying compressed native room palettes.</param>
     /// <param name="directory">Output directory, created if needed; palette and manifest filenames must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with the generated palette-file hashes.</param>
-    /// <remarks>Exports 128 base BG colors per source, checks equivalent CGRAM colors after recompilation, and does not access player overrides.</remarks>
+    /// <remarks>Exports 128 base BG colors per source, checks equivalent CGRAM colors after recompilation, and reads no installed palette.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -40,16 +40,15 @@ public static class RoomStaticPaletteArtworkFiles
             new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
-    /// <summary>Checks installed room-palette provenance and compiles independently selected RGB5 palette documents.</summary>
-    /// <param name="stockDirectory">Directory containing the supported-cartridge manifest and all hash-checked stock palette JSON files.</param>
-    /// <param name="overrideDirectory">Optional directory of same-named complete replacements; null or a missing file selects the corresponding stock palette.</param>
-    /// <returns>A catalog owning each selected 128-color base BG transfer, keyed by its native palette source address.</returns>
-    /// <remarks>Checks every stock file's hash before selecting and validating its replacement. Neither the stock manifest nor its hashes are taken from the override directory; loading needs no cartridge.</remarks>
-    /// <exception cref="InvalidDataException">The manifest, source coverage, stock hash, schema, color count, or RGB5 values are invalid.</exception>
-    public static RoomStaticPalettes Load(string stockDirectory, string? overrideDirectory)
+    /// <summary>Checks installed room-palette provenance and compiles each installed RGB5 palette document as the player left it.</summary>
+    /// <param name="directory">Directory containing the supported-cartridge manifest and every installed palette JSON file.</param>
+    /// <returns>A catalog owning each installed 128-color base BG transfer, keyed by its native palette source address.</returns>
+    /// <remarks>An installed palette edited in place loads as edited; it fails only when it does not decode. Loading needs no cartridge.</remarks>
+    /// <exception cref="InvalidDataException">The manifest, source coverage, schema, color count, or RGB5 values are invalid.</exception>
+    public static RoomStaticPalettes Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         RoomPaletteFileManifest manifest;
         try
         {
@@ -69,29 +68,21 @@ public static class RoomStaticPaletteArtworkFiles
             sources.Keys.Any(name => !manifest.Sha256.ContainsKey(name)))
             throw new InvalidDataException($"Room palette manifest {manifestPath} does not describe this installation.");
 
-        var selected = new Dictionary<RoomPaletteSet, RoomStaticPalette>();
+        var palettes = new Dictionary<RoomPaletteSet, RoomStaticPalette>();
         foreach ((string name, RoomPaletteSet set) in sources)
         {
-            string stockPath = Path.Combine(stockDirectory, name);
-            byte[] stock = File.ReadAllBytes(stockPath);
-            string stockHash = Convert.ToHexString(SHA256.HashData(stock));
-            if (!string.Equals(stockHash, manifest.Sha256[name], StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException($"Stock room palette {stockPath} failed its manifest hash.");
-
-            string? overridePath = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
-            string selectedPath = overridePath is not null && File.Exists(overridePath)
-                ? overridePath : stockPath;
-            byte[] bytes = selectedPath == stockPath ? stock : File.ReadAllBytes(selectedPath);
+            string path = Path.Combine(directory, name);
+            byte[] bytes = File.ReadAllBytes(path);
             try
             {
-                selected.Add(set, RoomStaticPaletteFile.Read(new MemoryStream(bytes, writable: false)));
+                palettes.Add(set, RoomStaticPaletteFile.Read(new MemoryStream(bytes, writable: false)));
             }
             catch (InvalidDataException error)
             {
-                throw new InvalidDataException($"Invalid room palette {selectedPath}: {error.Message}", error);
+                throw new InvalidDataException($"Invalid room palette {path}: {error.Message}", error);
             }
         }
-        return new RoomStaticPalettes(selected);
+        return new RoomStaticPalettes(palettes);
     }
 
     /// <summary>Maps each distinct room palette file to its palette.</summary>

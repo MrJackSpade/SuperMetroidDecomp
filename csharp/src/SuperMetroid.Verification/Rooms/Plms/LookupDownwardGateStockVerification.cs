@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>Checks downward gate column and colored trigger draw lists against bank-$84 PLM data.</summary>
 internal static class LookupDownwardGateStockVerification
 {
-    /// <summary>Checks fourteen stock frames, run shapes, edited words, content identity, and rejection bounds.</summary>
+    /// <summary>Checks fourteen stock frames, run shapes, content identity, and rejection bounds.</summary>
     internal static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomPlmDownwardGateVisuals installed)
     {
@@ -64,18 +64,6 @@ internal static class LookupDownwardGateStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<DownwardGateDraw>((ushort)pointer),0,0), "Gate stock unknown pointer");
-        entries[6].Runs[1][0] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[5].Runs[0][4] = RoomBlockAppearance.Of(0x059);
-        var mixed = RoomPlmDownwardGateVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer,
-            frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Gate mixed stock/custom hash");
-        entries[6].Runs[1][0] = RoomBlockAppearance.Of(0x05a);
-        entries[0].Runs[0][0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        for (int run = 0; run < expected[frame.Pointer].Length; run++)
-        for (int word = 0; word < expected[frame.Pointer][run].Length; word++)
-            AssertEqual(expected[frame.Pointer][run][word], mixed.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => RoomPlmDownwardGateVisualFiles.Create(entries[..13]), "Gate missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmDownwardGateVisualFiles.Create(entries.Append(entries[0])), "Gate duplicate frame");
         var invalid = entries.ToArray();

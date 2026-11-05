@@ -8,8 +8,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Hash-checked stock block compositions, which extraction composes the block sheets from (#1431). They are not a player
-/// override surface: a room's blocks change only through their pictures in the block sheet.
+/// Hash-checked stock block compositions, which extraction composes the block sheets from (#1431). They are not what a player
+/// edits: a room's blocks change only through their pictures in the block sheet.
 /// </summary>
 public static class RoomMetatileArtworkFiles
 {

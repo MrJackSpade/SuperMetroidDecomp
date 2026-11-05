@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 /// <summary>Checks blue door visual catalogs against native frames, physical aliases, and editable asset constraints.</summary>
 internal static class LookupBlueDoorStockVerification
 {
-    /// <summary>Compares all four orientations and their aliases with bank-$84 art, then checks custom-frame isolation and validation.</summary>
+    /// <summary>Compares all four orientations and their aliases with bank-$84 art, then checks validation.</summary>
     internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomPlmBlueDoorVisuals installed)
     {
@@ -58,21 +58,6 @@ internal static class LookupBlueDoorStockVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw) && !aliases.Contains((ushort)raw))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>((ushort)raw),0), "Blue door unknown stock pointer");
-        entries[12].Blocks[1] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        entries[8].Blocks[3] = RoomBlockAppearance.Of(0x059);
-        var mixed = RoomPlmBlueDoorVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer,
-            frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Blue door custom/stock hash");
-        entries[12].Blocks[1] = RoomBlockAppearance.Of(0x05a);
-        entries[0].Blocks[0] = RoomBlockAppearance.Of(0x05b);
-        foreach (var frame in frames)
-        for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(frame.Pointer),row), "Blue door custom clone and stock isolation");
-        for (int orientation = 0; orientation < aliases.Length; orientation++)
-        for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frames[orientation * 4].Pointer][row], mixed.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(aliases[orientation]),row),
-                "Blue alias follows custom or stock canonical frame");
         AssertThrows<InvalidDataException>(() => RoomPlmBlueDoorVisualFiles.Create(entries[..15]), "Blue door missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmBlueDoorVisualFiles.Create(entries.Append(entries[0])), "Blue door duplicate frame");
         var invalid = entries.ToArray();

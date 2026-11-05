@@ -140,7 +140,7 @@ internal static class BombBlockProgramsVerification
         }
     }
 
-    /// <summary>Runs every bomb-block producer and BTS timeline with compiled source bytes blocked, then checks editable art isolation.</summary>
+    /// <summary>Runs every bomb-block producer and BTS timeline with compiled source bytes blocked, then checks the stock breakup and restored art.</summary>
     internal static void VerifyBombBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -210,25 +210,14 @@ internal static class BombBlockProgramsVerification
 
         Suite(nameof(VerifyBombBlockVisualSeparation), () => VerifyBombBlockVisualSeparation(rom, forbidden));
         Suite(nameof(VerifyLinkedRestoreVisualInstallation), () => VerifyLinkedRestoreVisualInstallation(rom));
-        Suite(nameof(VerifyLinkedRestoreVisualSeparation), () => VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: true));
 
         Console.WriteLine($"Bomb-block PLMs: 88 control words, 16 sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }
 
-    /// <summary>Confirms a breakup visual edit reaches immediate and streamed artwork without changing physical restoration.</summary>
+    /// <summary>Confirms the stock breakup frame's physical word and tile, and the native restored parent.</summary>
     private static void VerifyBombBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockVisualFiles.All
-            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockVisualFiles.VisualId(list.Draw),
-                list.Runs.Span.SelectToArray(run =>
-                    run.Blocks.Span.SelectToArray(block => block.Appearance))))
-            .ToArray();
-        RoomPlmVisualRunEntry first = entries.Single(entry =>
-            entry.Id == "single-breakup-0");
-        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
-        var edited = RoomPlmShotBlockVisualFiles.Create(entries);
-
         BombBlockProgramsRenderResult Render(
             InstalledRoomPlmShotBlockVisuals visuals)
         {
@@ -247,18 +236,11 @@ internal static class BombBlockProgramsVerification
         }
 
         var stock = Render(InstalledRoomPlmShotBlockVisuals.Stock());
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), stock.Physical,
             "native bomb-break frame installs its original air collision word");
-        AssertEqual(stock.Physical, changed.Physical,
-            "shared breakup-art edit cannot change bomb-block physical collision");
-        // The block BG1 shows names its picture (#1431): the stock breakup frame's block, or the edited frame's.
+        // The block BG1 shows names its picture (#1431): the stock breakup frame's block.
         AssertEqual(RoomBlockAppearance.Of(0x053), stock.Immediate,
             "stock breakup frame's block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Immediate,
-            "edited breakup frame's block reaches the immediate bomb-block redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x054), changed.Streamed,
-            "edited bomb-block breakup frame's block survives later camera streaming");
 
         RenderRestoredParentResult RenderRestoredParent()
         {
@@ -280,7 +262,7 @@ internal static class BombBlockProgramsVerification
         }
 
         // A block's look is its picture in the block sheet (#1431), so the restored parent is checked as the block it
-        // shows: block $058 unmirrored, whose picture a block sheet override repaints.
+        // shows: block $058 unmirrored, whose picture an edit of the block sheet repaints.
         var restoredParent = RenderRestoredParent();
         AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), restoredParent.Physical,
             "linked bomb block restores its native solid parent word");

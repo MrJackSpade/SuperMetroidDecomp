@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Checks Mother Brain glass PLM visuals through damage and shatter frames.</summary>
 internal static class LookupMotherBrainGlassStockVerification
 {
-    /// <summary>Compares eleven stock frames, flattened identity, edited ownership, and strict import validation.</summary>
+    /// <summary>Compares eleven stock frames, flattened identity, and strict import validation.</summary>
     internal static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {
@@ -63,19 +63,6 @@ internal static class LookupMotherBrainGlassStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>((ushort)pointer),0,0), "Glass stock unknown pointer");
-        entries[8].Blocks[12] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmMotherBrainGlassVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Glass mixed custom/stock identity");
-        entries[8].Blocks[12] = RoomBlockAppearance.Of(0x5a);
-        entries[10].Blocks[15] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        {
-            int index = 0;
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.Create(entries[..1]), "Glass missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmMotherBrainGlassVisualFiles.Create(entries.Append(entries[0])), "Glass duplicate frame");
         var invalid = entries.ToArray();

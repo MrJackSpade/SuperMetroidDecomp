@@ -13,14 +13,14 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks validation and content identity for installed room visual JSON and selected overrides.</summary>
+/// <summary>Checks validation and content identity for installed room visual JSON.</summary>
 internal static class RoomAssetJsonContractsVerification
 {
     /// <summary>
     /// Checks the five statically identified installed room-visual JSON families.
     /// Only extracted files are copied; no ROM or gameplay is opened by this fixture.
-    /// Defective stock manifests and selected overrides must fail with their path,
-    /// while valid historical casing keeps the exact selected-content identity.
+    /// Defective manifests must fail with their path, while valid historical casing keeps the exact
+    /// content identity.
     /// </summary>
     internal static void VerifyRoomAssetJsonContracts(string installationRoot)
     {
@@ -35,16 +35,16 @@ internal static class RoomAssetJsonContractsVerification
             RoomJsonFileContract[] contracts =
             [
                 new("backgrounds", installed.RoomBackgroundTilemapDirectory, RoomBackgroundTilemapArtworkFiles.ManifestFileName,
-                    (stock, edited) => BackgroundTilemapIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock, edited))),
+                    stock => BackgroundTilemapIdentity(RoomBackgroundTilemapArtworkFiles.Load(stock))),
                 new("skies", installed.RoomBackgroundTilemapDirectory, RoomSkyTilemapFormat.ManifestFileName,
-                    (stock, edited) => SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock, edited))),
-                // Block compositions are stock extraction input with no override (#1431): their identity is their tiles.
+                    stock => SkyIdentity(RoomSkyTilemapArtworkFiles.Load(stock))),
+                // Block compositions are stock extraction input (#1431): their identity is their tiles.
                 new("metatiles", installed.RoomMetatileDirectory, RoomMetatileArtworkFiles.ManifestFileName,
-                    (stock, _) => BlockCompositionIdentity(RoomMetatileArtworkFiles.Load(stock))),
+                    stock => BlockCompositionIdentity(RoomMetatileArtworkFiles.Load(stock))),
                 new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.ManifestFileName,
-                    (stock, edited) => RoomVisualLayoutFiles.Load(stock, edited).ContentIdentity),
+                    stock => RoomVisualLayoutFiles.Load(stock).ContentIdentity),
                 new("X-ray", installed.XrayRevealVisualDirectory, XrayRevealVisualFiles.ManifestFileName,
-                    (stock, edited) => XrayRevealVisualFiles.Load(stock, edited).ContentIdentity),
+                    stock => XrayRevealVisualFiles.Load(stock).ContentIdentity),
             ];
             foreach (RoomJsonFileContract contract in contracts)
             {
@@ -53,45 +53,24 @@ internal static class RoomAssetJsonContractsVerification
                 foreach (string file in Directory.GetFiles(contract.Source)) File.Copy(file, Path.Combine(stock, Path.GetFileName(file)));
                 string manifest = Path.Combine(stock, contract.Manifest);
                 string original = File.ReadAllText(manifest);
-                string expected = contract.Identity(stock, null);
+                string expected = contract.Identity(stock);
                 Dictionary<string, string> originalHashes = SnapshotRoomJsonFiles(stock);
 
                 // Changing only historical member spelling is not an authored edit.
                 File.WriteAllText(manifest, original.Replace("\"version\"", "\"VERSION\"", StringComparison.Ordinal));
-                AssertEqual(expected, contract.Identity(stock, null), contract.Name + " retains historical manifest casing");
+                AssertEqual(expected, contract.Identity(stock), contract.Name + " retains historical manifest casing");
                 File.WriteAllText(manifest, original);
                 foreach (string corrupt in RoomJsonCorruptions(original))
                 {
                     File.WriteAllText(manifest, corrupt);
-                    Reject(contract.Name + " manifest", manifest, () => contract.Identity(stock, null));
+                    Reject(contract.Name + " manifest", manifest, () => contract.Identity(stock));
                 }
                 File.WriteAllText(manifest, original);
                 AssertRoomJsonUnchanged(originalHashes, stock, contract.Name + " manifest diagnostics leave other stock files intact");
-
-                if (contract.Name is "layouts" or "X-ray")
-                {
-                    string name = contract.Name == "layouts"
-                        ? RoomVisualLayoutFiles.LevelFileName(RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal).First())
-                        : XrayRevealVisualFiles.VisualFileName;
-                    string visual = File.ReadAllText(Path.Combine(stock, name));
-                    string overrides = Directory.CreateDirectory(Path.Combine(temporary, contract.Name + "-overrides")).FullName;
-                    string replacement = Path.Combine(overrides, name);
-                    string versionField = contract.Name == "layouts" ? "formatVersion" : "version";
-                    foreach (string corrupt in RoomJsonCorruptions(visual, versionField)
-                        .Concat(RoomJsonMissingVisualFields(visual, contract.Name)))
-                    {
-                        File.WriteAllText(replacement, corrupt);
-                        Reject(contract.Name + " override", replacement, () => contract.Identity(stock, overrides));
-                    }
-                    File.WriteAllText(replacement, visual.Replace('"' + versionField + '"',
-                        '"' + versionField.ToUpperInvariant() + '"', StringComparison.Ordinal));
-                    AssertEqual(expected, contract.Identity(stock, overrides), contract.Name + " historical visual casing retains exact content");
-                    AssertRoomJsonUnchanged(originalHashes, stock, contract.Name + " rejected overrides never rewrite stock");
-                }
             }
             AssertEqual(0, accepted.Count, "room asset loaders must reject malformed documents:\n" + string.Join('\n', accepted));
-            Console.WriteLine($"PASS installed room JSON contracts: five manifest families plus layout/X-ray overrides; " +
-                $"{rejected} invalid documents rejected with exact paths; stock bytes and selected identities preserved.");
+            Console.WriteLine($"PASS installed room JSON contracts: five manifest families; " +
+                $"{rejected} invalid documents rejected with exact paths; stock bytes and identities preserved.");
         }
         finally { Directory.Delete(temporary, recursive: true); }
 
@@ -122,17 +101,17 @@ internal static class RoomAssetJsonContractsVerification
     }
 
     /// <summary>
-    /// The identity of the selected library background tilemaps, which only the import reads (#1466): their tiles in
+    /// The identity of the installed library background tilemaps, which only the import reads (#1466): their tiles in
     /// background order.
     /// </summary>
     private static string BackgroundTilemapIdentity(RoomBackgroundTilemaps catalog) => Convert.ToHexString(SHA256.HashData(
         [.. catalog.Tilemaps.OrderBy(entry => entry.Key).SelectMany(entry => BackgroundTileWords.ToBytes(entry.Value.Tiles.Span))]));
 
-    /// <summary>The identity of the selected sky pages, which only the import reads (#1466): their tiles in scrolling order.</summary>
+    /// <summary>The identity of the installed sky pages, which only the import reads (#1466): their tiles in scrolling order.</summary>
     private static string SkyIdentity(RoomSkyTilemaps skies) => Convert.ToHexString(SHA256.HashData(BackgroundTileWords.ToBytes(skies.Pages.Span)));
 
-    /// <summary>Names one room asset family, its stock manifest, and its selected-content identity loader.</summary>
-    internal sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string?, string> Identity);
+    /// <summary>Names one room asset family, its stock manifest, and its content identity loader.</summary>
+    internal sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string> Identity);
 
     /// <summary>Produces malformed version, duplicate member, and invalid field variants for a room JSON document.</summary>
     private static IEnumerable<string> RoomJsonCorruptions(string json, string versionField = "version")
@@ -156,29 +135,11 @@ internal static class RoomAssetJsonContractsVerification
             yield return TilemapContractMutate(json, copy => copy.Required("entries").Required(0)["damage"] = 7);
     }
 
-    /// <summary>Removes or invalidates fields required by layout and X-ray visual override documents.</summary>
-    private static IEnumerable<string> RoomJsonMissingVisualFields(string json, string domain)
-    {
-        if (domain == "layouts")
-        {
-            yield return TilemapContractMutate(json, root => root.Remove("foregroundVisualWords"));
-            yield return TilemapContractMutate(json, root => root["widthInBlocks"] = 0);
-        }
-        else
-        {
-            yield return TilemapContractMutate(json, root => root.Required("entries").Required(0).AsObject().Remove("topLeft"));
-            yield return TilemapContractMutate(json, root => root.Required("entries").Required(0).AsObject().Remove("btsValues"));
-            yield return TilemapContractMutate(json, root => root.Required("rooms").Required(0).Required("tiles").Required(0).AsObject().Remove("x"));
-            yield return TilemapContractMutate(json, root => root.Required("rooms").Required(0).Required("tiles").Required(0).AsObject().Remove("y"));
-            yield return TilemapContractMutate(json, root => root.Required("rooms").Required(0).Required("tiles").Required(0)["collision"] = 7);
-        }
-    }
-
     /// <summary>Hashes each stock file by name so failed loads can be checked for unintended writes.</summary>
     internal static Dictionary<string, string> SnapshotRoomJsonFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
-    /// <summary>Checks that a failed manifest or override load preserved the stock file set and bytes.</summary>
+    /// <summary>Checks that a failed manifest load preserved the stock file set and bytes.</summary>
     internal static void AssertRoomJsonUnchanged(Dictionary<string, string> expected, string directory, string description)
     {
         Dictionary<string, string> actual = SnapshotRoomJsonFiles(directory);

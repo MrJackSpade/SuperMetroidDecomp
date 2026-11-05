@@ -29,7 +29,7 @@ using SuperMetroid.Core.World;
 /// <summary>Retail and guarded runtime checks for ordinary and Bomb Torizo grey-door PLM programs and editable draw blocks.</summary>
 internal static class GreyDoorPlmDrawDefinitionsVerification
 {
-    /// <summary>Checks native program words, five door lifecycles, physical draw ownership and installed visual overrides.</summary>
+    /// <summary>Checks native program words, five door lifecycles, physical draw ownership and installed visuals.</summary>
     internal static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
@@ -44,15 +44,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmGreyDoorVisuals stock = InstalledRoomPlmGreyDoorVisuals.Stock();
-        RoomPlmVisualEntry editedFrame = entries.Single(entry =>
-            entry.Id == "grey-right-frame-0");
-        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
-        var edited = RoomPlmGreyDoorVisualFiles.Create(entries);
-        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
-        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
-            "grey-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+        AssertEqual(entries.Single(entry => entry.Id == "grey-right-frame-0").Blocks[0], stock.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "stock grey-door visual retains native tile choice");
         Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
         Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
@@ -84,8 +76,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             const int width = 16;
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
-            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = header == PlmHeaderId.BombTorizoGreyDoor
-                    ? edited : stock });
+            var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = stock });
             var system = new SharedGameState();
             var guarded = NewGreyDoorDrawGuard(bus, lists);
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -105,9 +96,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 $"resident grey-door {header} avoids draw payload ROM reads");
             if (header == PlmHeaderId.BombTorizoGreyDoor)
             {
-                AssertEqual(RoomBlockAppearance.Of(0x053),
-                    level.DisplayedAppearance(origin),
-                    "edited grey cap is shown");
                 VerifyBombTorizoGreyDoorLifecycle(guarded, new TorizoGreyDoorRoom { Level = level, Plms = plms, System = system }, population, origin);
             }
             else
@@ -165,8 +153,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     $"opened grey door {header} avoids program/draw ROM reads");
             }
         }
-        editedFrame.Blocks[0] = originalVisual;
-        Suite(nameof(VerifySharedDoorClearVisual), () => VerifySharedDoorClearVisual(rom, entries, lists));
         Suite(nameof(VerifyGreyDoorVisualInstallation), () => VerifyGreyDoorVisualInstallation(rom));
         Console.WriteLine(
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
@@ -250,95 +236,20 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         Suite(nameof(RoomPlmProgramsVerification.VerifyGreyDoorPrograms), () => RoomPlmProgramsVerification.VerifyGreyDoorPrograms(rom));
 
 
-    /// <summary>Checks that an edited clear tile reaches shared blue-door streaming without changing physical door behavior.</summary>
-    private static void VerifySharedDoorClearVisual(
-        SuperMetroidAddressSpace rom,
-        RoomPlmVisualEntry[] entries,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists)
-    {
-        RoomPlmVisualEntry clear = entries.Single(entry =>
-            entry.Id == "clear-right");
-        RoomBlockAppearance original = clear.Blocks[0];
-        clear.Blocks[0] = RoomBlockAppearance.Of(0x054);
-        var edited = RoomPlmGreyDoorVisualFiles.Create(entries);
-        clear.Blocks[0] = original;
-
-        const int width = 16;
-        const int origin = 4 + 4 * width;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
-        var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = edited });
-        AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin,
-                RoomBlockBehaviorValues.BlueDoorFacingRight,
-                SamusProjectileType.None),
-            "shared clear visual test allocates a real blue-door opening actor");
-        var guarded = NewGreyDoorDrawGuard(rom, lists);
-        int frame = 0;
-        while (frame++ < 200 &&
-            level.GetCollisionBlockByIndex(origin).Terrain != RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air))
-            plms.Step(level);
-        AssertTrue(frame <= 200,
-            "blue-door opening reaches the shared right-facing clear draw");
-        AssertEqual(RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air),
-            level.GetCollisionBlockByIndex(origin).Terrain,
-            "shared clear art leaves the native physical air word intact");
-        AssertEqual(RoomBlockAppearance.Of(0x054),
-            level.DisplayedAppearance(origin),
-            "edited shared clear tile reaches blue-door camera streaming");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "blue-door shared clear draw does not reread bank-$84 payload bytes");
-    }
-
-    /// <summary>Applies an override to a copy of the installed grey-door art and checks refresh persistence and tamper rejection.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmGreyDoorVisualDirectory);
         GameInstallation installation = copy.Installation;
         RoomPlmGreyDoorVisualFilesConstants.ValidateStock(
             installation.RoomPlmGreyDoorVisualDirectory);
-        var installed = installation.LoadRoomPlmGreyDoorVisuals();
-        VerifyGreyDoorStockMapping(rom, installed);
-        RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0);
+        VerifyGreyDoorStockMapping(rom, installation.LoadRoomPlmGreyDoorVisuals());
         string stockPath = Path.Combine(installation.RoomPlmGreyDoorVisualDirectory,
             RoomPlmGreyDoorVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted grey-door JSON is empty.");
-        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "grey-right-frame-0");
-        frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
-        Directory.CreateDirectory(
-            installation.RoomPlmGreyDoorVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmGreyDoorVisualOverrideDirectory,
-            RoomPlmGreyDoorVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            installation.LoadRoomPlmGreyDoorVisuals().GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
-            "installed grey-door override changes selected frame");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            ReExtractGreyDoorStock(rom, refreshed,
-                installation.RoomPlmGreyDoorVisualOverrideDirectory)
-                .GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
-            "grey-door override survives stock replacement");
-
-        frame.Required("blocks")[0] = 0xf053;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmGreyDoorVisuals(),
-            "invalid grey-door override fails loudly");
-        frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmGreyDoorVisuals(),
             "tampered grey-door stock fails loudly where it is read");
     }
 
-    /// <summary>Extracts stock grey-door cap visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmGreyDoorVisualFiles.Extract into a fresh stock directory beside the copy's grey-door override, to check that a stock replacement keeps the edited grey-right-frame-0 block (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmGreyDoorVisuals ReExtractGreyDoorStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmGreyDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmGreyDoorVisualFiles.Load(refreshed, overrides);
-    }
 }

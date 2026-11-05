@@ -89,10 +89,10 @@ Within either platform's application-data root:
 - `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
   gameplay sprite sheet. Copy it to `overrides/standard-objects/` for persistent edits.
 - `game/room-blocks/`: stock JSON for 16x16 visual block compositions and their manifest, which the block sheets are
-  composed from. These files have no override directory: a block is changed through its picture in the block sheet.
+  composed from. A block is changed through its picture in the block sheet.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
 - `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
-  streaming baseline) for every room level source. These files have no override directory.
+  streaming baseline) for every room level source. These files are not artwork.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
 - `game/room-backgrounds/`: stock JSON for library-background BG tilemaps and their manifest.
 - `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
@@ -176,7 +176,7 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:
 # Synthetic validation, or full integration from the repository-root Super Metroid.smc.
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import-rom
-# Check room-character, palette and visual-block stock import, edits, repair and invalid overrides.
+# Check room-character, palette and visual-block stock import.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
 # Check all opening character PNGs, live VRAM replacement, and stock repair.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-cinematic-artwork "C:\ROMs\Super Metroid.smc"
@@ -498,8 +498,8 @@ The ghost sheet is `room-characters-87AD64.png`. These are indexed 8x8 tile shee
 screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixed,
 and the neutral PNG palette is only a preview. The room palette and metatile map
 still supply the on-screen colors and arrangement. These sheets are what the room pictures
-are composed from; they take no overrides. Edit a room's look through its pictures in
-`overrides/room-block-sheets` instead.
+are composed from. Edit a room's look through its pictures in
+the installed `game/room-block-sheets` instead.
 
 To find a room's files, open `game/room-art-index.json` and search for its
 `roomId`, such as `00/00` for Landing Site. Each room lists a `default` state and,
@@ -509,14 +509,14 @@ possible background-art files. Background lists include door-dependent
 alternatives, so a listed file is not necessarily visible on every entrance.
 The `sharedCharacters` and `sharedBlocks` fields identify the common CRE art.
 `scrollingSkyArtwork` lists the seven shared sky pages used by the streaming path.
-Files are shared across rooms: an override can affect every room that cites it.
-Use the listed filename in the corresponding `overrides/` subdirectory; do not
-edit the index, which is regenerated when stock content is repaired.
+Files are shared across rooms: an edit can affect every room that cites it.
+Edit the listed file in place; do not edit the index, which is regenerated when
+content is extracted again.
 
 Landing Site's dedicated setup path uses these same installed CRE and area
 sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
 allocation comes from the installed stock-only room-level streams because those
-words also drive collision and placement; artwork overrides do not edit room geometry.
+words also drive collision and placement; artwork edits do not edit room geometry.
 
 Do not edit stock files or `room-characters.json`: stock hashes are validated and repaired
 from the installed ROM.
@@ -870,26 +870,23 @@ the corresponding live CGRAM writes, while damage thresholds, eye-fade steps,
 and death timing stay in engine code. Stock hashes and RGB5/shape validation
 apply on load.
 Base room colors are separately extracted into `game/room-palettes/*.json`.
-Copy a file to `overrides/room-palettes/` to replace its 128 RGB5 colors, keeping
+Edit a file in place to replace its 128 RGB5 colors, keeping
 `version: 1` and each `red`, `green`, and `blue` component in 0..31. Restart to
-load the edit. Stock palette hashes and user overrides follow the same repair
-rules as the PNG sheets. Palette-FX scripts may animate or replace these base
+load the edit; running the extractor again restores the originals. Palette-FX scripts may animate or replace these base
 colors later in the room; this file does not edit those effects or their timing.
 
 Visual 16x16 blocks are composed at installation from `game/room-blocks/*.json`. Each
 ordered `blocks` entry names its four 8x8 children (`topLeft`, `topRight`,
 `bottomLeft`, `bottomRight`), with `tileColumn`, `tileRow`, `palette`, `priority`,
 `flipX`, and `flipY`. `room-blocks-cre.json` holds the common Zebes blocks; other
-filenames name their block set. These files are stock extraction input with no
-override: a room draws each block as one 16x16 picture from its tileset's block
-sheet in `game/room-block-sheets`, so a block's appearance is changed by repainting
-its picture in an override of that sheet under `overrides/room-block-sheets/`.
-Stock hashes are verified and repaired.
+filenames name their block set. These files are extraction input: a room draws each block as one 16x16 picture
+from its tileset's block sheet in `game/room-block-sheets`, so a block's appearance
+is changed by repainting its picture in that sheet in place.
 
 Library-background tilemaps are installed as `game/room-backgrounds/*.json`.
 Each file contains one or two ordered 32x32 pages of 8x8 tile references with
-`tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Copy a file
-to `overrides/room-backgrounds/` under the same name to edit it, then restart.
+`tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Edit a file
+in place, then restart.
 The library-background command sequence, WRAM staging, VRAM transfer order and
 door conditions remain engine behavior, not editable data. The shared tilemap
 loaders reject unknown fields, duplicate/case-aliased
@@ -898,8 +895,8 @@ properties, invalid dimensions and invalid cells explicitly.
 roundtrips, historical casing and 44 malformed-document rejections.
 The installed library files cover the 58 compressed room BG tilemaps.
 Seven contiguous scrolling-sky pages are
-installed alongside them as `scrolling-sky-*.json`; copies under
-`overrides/room-backgrounds/` change both door-selected and per-frame sky rows.
+installed alongside them as `scrolling-sky-*.json`; edits to them change both
+door-selected and per-frame sky rows.
 All 68 retail library-background command lists, including Landing Site's six
 door-to-sky choices, are compiled engine definitions; only the referenced
 tilemaps and character sheets are replaceable artwork.
@@ -911,14 +908,11 @@ reads the same indexed HUD sheet in four ordered quarters; editing that PNG
 changes those BG3 characters too, without changing the native transfer cadence.
 The Tourian statue-ghost library upload
 likewise uses the installed room-character sheet instead of the raw ROM source.
-Stock hashes and override repair follow the same rules as the room-character
-sheets.
 
 Room-level visual arrangements are installed as 246 `game/room-layouts/level-*.json`
 files, one per level. Each level is named for the room whose state first uses it, for
 example `level-LandingSite.json`; a room's states that share a level share its file.
-Copy the file to the same filename under `overrides/room-layouts/`,
-edit, and restart. Overrides saved under the earlier address names are renamed at reinstall. `widthInBlocks` and `heightInBlocks` describe the complete
+Edit the file in place and restart. `widthInBlocks` and `heightInBlocks` describe the complete
 native allocation, including any authored rows beyond the visible camera.
 `foregroundVisualWords` and `backgroundVisualWords` are row-major arrays of
 16x16 block references. Each decimal word uses bits 0-9 for the index into the
@@ -928,22 +922,20 @@ in this presentation file. BG2 entries that the ROM leaves uninitialized are
 exported as zero visual references. The renderer receives edited references,
 while collision, BTS, slopes and hazards use the unmodified native level
 allocation. Subsequent PLM draws apply their own visual bindings where installed.
-Stock files are hash-checked;
-overrides survive stock repair and invalid values fail with the offending path.
+Invalid values fail with the offending path.
 For all 246 retail level sources, that collision/BTS and streaming baseline is
 extracted at installation into `game/room-level-streams/` as one
 `level-*.bin` file per level: the complete, unmodified decompressor output,
 listed with its length and SHA-256 in `room-level-streams.json`. These files are
-stock-only; there is no override directory, and a missing or corrupt file fails
-with its path. Installed desktop and Android room loads do not decompress these
-level streams from the ROM. The separate JSON override changes only rendered
+not artwork, and a missing or corrupt file fails with its path. Installed desktop and Android room loads do not decompress these
+level streams from the ROM. The room-layout JSON changes only rendered
 visual words; it cannot modify the installed physical allocation or the native
 overread tail. Development verifiers can still read the pinned ROM to compare
 every installed byte with its original source.
 
 Ordinary shot-block PLM appearances are installed as
-`game/room-plm-shot-blocks/shot-blocks.json`. Copy that file to the matching
-path under `overrides/`, edit a `runs` visual word, and restart. Each decimal
+`game/room-plm-shot-blocks/shot-blocks.json`. Edit a `runs` visual word in the
+installed file and restart. Each decimal
 `drawPointer` identifies one of 19 compiled animation/restoration draw lists;
 each nested run retains its native block count and direction. A visual word may
 be 0..4095 (block index and two flip bits). Do not change the pointers, run
@@ -952,8 +944,7 @@ timers, sounds, draw geometry and complete physical level words remain compiled
 and immutable. An edited word changes both the immediate PLM redraw and later
 camera streaming, without changing shot-block collision or respawn timing.
 The visual block still needs a valid definition in the active room's combined
-CRE/area block table. Stock content is hash-checked; an override survives stock
-repair and installation updates. Bomb blocks reuse the same 16 breakup-frame
+CRE/area block table. Bomb blocks reuse the same 16 breakup-frame
 `drawPointer` entries, so these edits also change their break/reverse animation.
 Their three linked-block restoration lists retain fixed collision words and use
 visual block `$058`; repaint that block's pictures in the block sheet to
@@ -965,8 +956,8 @@ display visual block `$0BC`; repaint that block's pictures in the block sheet to
 restored appearance. Neither edit changes contact collision or crumble timing.
 
 Breakable Grapple-block appearances are installed separately as
-`game/room-plm-grapple-blocks/grapple-blocks.json`. Copy the file to the matching
-path under `overrides/` and edit a `visualWord` (0..4095). Keep all five
+`game/room-plm-grapple-blocks/grapple-blocks.json`. Edit a `visualWord` (0..4095)
+in the installed file. Keep all five
 `drawPointer` entries: they select compiled Grapple and breakup frames. The full
 native level words, including Grapple/air collision, and both instruction
 timelines remain fixed. Edited art appears in immediate redraws and later camera
@@ -975,8 +966,7 @@ must exist in the active room's block-definition table. Other PLM families use
 their own resources or remain ROM-backed.
 
 Station PLM appearances are installed as
-`game/room-plm-stations/stations.json`. Copy it to
-`overrides/room-plm-stations/stations.json` and edit only `runs` visual words
+`game/room-plm-stations/stations.json`. In the installed file, edit only `runs` visual words
 (0..4095), then restart. Every entry has a semantic `id`, such as
 `map-frame-0`, `save-active-a`, or `resource-right-extended`; keep all 20
 IDs and each nested run/word count. The values select visual blocks from the
@@ -985,77 +975,65 @@ repainted in the block sheet. Do not put collision bits in a visual word.
 Station timing, access selection, full physical level words, map
 rewards, refills, and save behavior stay compiled. Edited station art affects
 the immediate redraw and later camera streaming without changing those rules.
-The stock file is hash-checked; the override lives outside replaceable stock
-content and survives installation repair or updates. Other room-object
+Other room-object
 families still need separate presentation resources.
 
 Blue-door cap appearances are installed as
-`game/room-plm-blue-doors/blue-doors.json`. Copy it to
-`overrides/room-plm-blue-doors/blue-doors.json`, edit only `blocks` visual
+`game/room-plm-blue-doors/blue-doors.json`. In the installed file, edit only `blocks` visual
 words (0..4095), and restart. Keep all 16 IDs: four animation frames for
 each of `left`, `right`, `up`, and `down`. Each frame contains four visual
 blocks from the active room's combined CRE/area definitions. The full
 physical level words, door collision, animation cadence, and sound stay
 cartridge-defined. Edited cap tiles appear in immediate redraws and later
-camera streaming. Stock content is hash-checked, invalid overrides fail
-loudly, and overrides survive stock repair. Colored, grey, and eye-door
+camera streaming. Invalid content fails loudly. Colored, grey, and eye-door
 artwork is not covered by this blue-cap resource.
 
 Yellow, green, and red door-cap appearances are installed as
-`game/room-plm-colored-doors/colored-doors.json`. Copy it to
-`overrides/room-plm-colored-doors/colored-doors.json`, edit only `blocks`
+`game/room-plm-colored-doors/colored-doors.json`. In the installed file, edit only `blocks`
 visual words (0..4095), and restart. Keep all 48 IDs: four frames for each
 color and orientation. Each frame contains four visual blocks from the active
 room's combined CRE/area definitions. The full physical level words, shot
 filters, hit counters, opening cadence, sounds, and door-bit persistence stay
 cartridge-defined. Edited cap tiles appear immediately and during later camera
-streaming. Stock content is hash-checked, invalid overrides fail loudly, and
-overrides survive stock repair. Grey-door art uses the separate resource below;
+streaming. Invalid content fails loudly. Grey-door art uses the separate resource below;
 eye-door art uses the separate resource below.
 
 Grey-door caps and the four shared door-clear frames are installed as
-`game/room-plm-grey-doors/grey-doors.json`. Copy it to
-`overrides/room-plm-grey-doors/grey-doors.json`, edit only `blocks` visual
+`game/room-plm-grey-doors/grey-doors.json`. In the installed file, edit only `blocks` visual
 words (0..4095), and restart. Keep all 20 IDs: four frames for each grey
 orientation and `clear-left`, `clear-right`, `clear-up`, `clear-down`. The
 clear frames are also used by blue and colored doors. Bomb Torizo's special
 grey-door program selects the ordinary right-facing grey cap. Physical level
 words, collision, condition gates, timing, sound, and door-bit persistence
-remain cartridge-defined. Invalid stock or override content fails loudly;
-user overrides survive stock repair.
+remain cartridge-defined. Invalid content fails loudly.
 
 Eye-door components are installed as `game/room-plm-eye-doors/eye-doors.json`.
-Copy it to `overrides/room-plm-eye-doors/eye-doors.json`, edit only `blocks`
+In the installed file, edit only `blocks`
 visual words (0..4095), and restart. Keep all 23 IDs: five animated eye
 frames per orientation, three middle and three bottom frames per orientation,
 and `left-eye-clear`. Each entry carries one, two or four visual blocks, as
 listed in the stock file; replacements use the active room's CRE/area tile
 definitions. These edits do not change eye-door collision, attacks, missile
-hit counts, opening timing, sounds, or door-bit persistence. Stock files are
-hash-checked, malformed overrides fail loudly, and valid overrides survive
-stock repair.
+hit counts, opening timing, sounds, or door-bit persistence. Malformed content
+fails loudly.
 
 Mother Brain's glass frames are installed as
-`game/room-plm-mother-brain-glass/mother-brain-glass.json`. Copy the file to
-`overrides/room-plm-mother-brain-glass/mother-brain-glass.json`, edit only the
+`game/room-plm-mother-brain-glass/mother-brain-glass.json`. In the installed file, edit only the
 0..4095 `blocks` visual words, and restart. Keep all eleven frame IDs. A
 multi-run frame lists its blocks in the native run order shown by the stock
 file; the compiled application keeps each run's shape and signed placement.
 The active room's CRE/area definitions supply the tiles. Glass collision,
 damage thresholds, shatter timing, shards, and progression cannot be changed
-by this appearance file. Stock content is hash-checked; malformed overrides
-fail loudly, while valid overrides survive stock repair.
+by this appearance file. Malformed content fails loudly.
 
 The n00b-tube break-apart frames are installed as
-`game/room-plm-noob-tube/noob-tube.json`. Copy the file to
-`overrides/room-plm-noob-tube/noob-tube.json`, edit only the 0..4095
+`game/room-plm-noob-tube/noob-tube.json`. In the installed file, edit only the 0..4095
 `blocks` visual words, and restart. Keep all seven frame IDs. Twelve-block
 rows are flattened in native run order in the stock file; run placement,
 physical blocks, the power-bomb trigger, shards, and event timing remain
 compiled. The tube's two reachable instruction branches are compiled as
-engine behavior too. The active room's tile definitions supply the actual art. Stock
-data is hash-checked, invalid overrides fail loudly, and valid overrides
-survive stock repair.
+engine behavior too. The active room's tile definitions supply the actual art.
+Invalid content fails loudly.
 
 Room-object placement records are compiled application definitions, not
 editable art. All retail room PLM populations are selected without rereading
@@ -1063,8 +1041,8 @@ their bank-$8F source records; visual files above can replace appearance but
 do not change which objects spawn or their collision/progression behavior.
 The 70 referenced PLM setup/initial-list header pairs are compiled too;
 the 173 retail scroll-trigger mutation programs are compiled as well. Their
-room-scroll cell writes remain gameplay behavior, never an editable visual
-override. Constructed test-room populations can still supply their own
+room-scroll cell writes remain gameplay behavior, never editable visual
+data. Constructed test-room populations can still supply their own
 bank-$8F scroll programs. The 17 dynamically uploaded permanent-item kinds
 also use compiled character bytes and palette offsets rather than reading
 bank $89 and their initial bank-$84 instruction lists during retail loads.
@@ -1073,73 +1051,65 @@ tile uploads are compiled definitions with installed PNG/palette overrides;
 other PLM instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
-`game/room-plm-downward-gates/downward-gates.json`. Copy that file to
-`overrides/room-plm-downward-gates/downward-gates.json` and edit only `runs`
+`game/room-plm-downward-gates/downward-gates.json`. In the installed file, edit only `runs`
 visual words (0..4095), then restart. Keep all 14 semantic IDs and each
 run/word count: six `column-frame-*` entries and left/right trigger entries
 for blue, green, red, and yellow gates. These words select visual blocks from
 the active room's combined CRE/area definitions. The compiled draw geometry,
 physical level words, collision, shot filters, and animation timing do not
 change. The visible moving gate actor uses separate bank-$86 sprite art and is
-not replaced by this resource. Invalid stock or override data fails loudly;
-the override survives stock installation repair or updates.
+not replaced by this resource. Invalid data fails loudly.
 
 Elevator-platform PLM frames are installed as
-`game/room-plm-elevator-platforms/elevator-platforms.json`. Copy that file to
-`overrides/room-plm-elevator-platforms/elevator-platforms.json` and edit only
+`game/room-plm-elevator-platforms/elevator-platforms.json`. In the installed file, edit only
 the `runs` visual words (0..4095), then restart. Keep all three named frames
 and their run lengths. Each word selects a visual block from the active room
 tileset; the four-step frame loop, draw offsets, and physical collision words
-remain compiled. Invalid edits fail loudly, and overrides survive stock repair.
+remain compiled. Invalid edits fail loudly.
 
 Mother Brain's escape-gate appearances are installed as
-`game/room-plm-escape-gate/escape-gate.json`. Copy that file to
-`overrides/room-plm-escape-gate/escape-gate.json`, edit only `blocks` visual
+`game/room-plm-escape-gate/escape-gate.json`. In the installed file, edit only `blocks` visual
 words (0..4095), then restart. Keep all three four-block frames: `open`,
 `half-closed`, and `closed`. These words select visual blocks from the active
 room's combined CRE/area definitions; the cartridge's collision, closing
 timing, and door-transition handoff remain compiled mechanics. Malformed
-overrides fail loudly, and a valid override survives stock installation repair.
+content fails loudly.
 
 Bomb Torizo's resident hand PLM appearances are installed as
-`game/room-plm-bomb-torizo-hand/bomb-torizo-hand.json`. Copy that file to
-`overrides/room-plm-bomb-torizo-hand/bomb-torizo-hand.json` and edit only
+`game/room-plm-bomb-torizo-hand/bomb-torizo-hand.json`. In the installed file, edit only
 `blocks` visual words (0..4095), then restart. Keep both `intact` (eight
 blocks in native run order) and `cleared` (sixteen blocks). The authored
 geometry, collision words, Bombs gate, debris timing, and music are not
-editable through this file. Invalid files fail loudly; valid overrides survive
-stock installation repair.
+editable through this file. Invalid files fail loudly.
 
 Reachable Draygon cannon appearances are installed as
-`game/room-plm-draygon-cannons/draygon-cannons.json`. Copy the file to
-`overrides/room-plm-draygon-cannons/draygon-cannons.json` and edit only
+`game/room-plm-draygon-cannons/draygon-cannons.json`. In the installed file, edit only
 `blocks` visual words (0..4095), then restart. Keep all twelve semantic
 right/left shield and damaged-frame IDs, four blocks per frame in native run
 order. This does not alter cannon collision, projectile thresholds, or boss
 control-word writes. The unused diagonal orientations are not part of this
-resource. Invalid overrides fail; valid ones survive stock repair.
+resource. Invalid content fails loudly.
 
 Chozo statue terrain appearances are installed as
-`game/room-plm-chozo-statues/chozo-statues.json`. Copy the file to
-`overrides/room-plm-chozo-statues/chozo-statues.json` and edit only `blocks`
+`game/room-plm-chozo-statues/chozo-statues.json`. In the installed file, edit only `blocks`
 visual words (0..4095), then restart. Keep the three IDs for the cleared
 Lower Norfair hand and the two Wrecked Ship slope-access states. These edits
 cannot change draw geometry, slope collision, or the statue's event/acid
 behavior. The crumble plug continues to use the shared shot-block frames.
-Invalid overrides fail; valid ones survive stock installation repair.
+Invalid content fails loudly.
 The Chozo crumble, hand, and slope-access PLM instruction lists are also
 compiled as bounded mechanics data, while the native statue callbacks remain
 separate executable behavior.
 
 Linked bomb-block and Samus-contact crumble-block restoration appearances
 are installed as `game/room-plm-linked-restores/linked-restores.json`.
-Copy it to `overrides/room-plm-linked-restores/linked-restores.json`, edit
+In the installed file, edit
 only `blocks` visual words (0..4095), then restart. Keep the six IDs:
 `bomb-horizontal`, `bomb-vertical`, `bomb-square`, `crumble-horizontal`,
 `crumble-vertical`, and `crumble-square`, with their existing two- or
 four-block counts. These choices change restored appearance, not the
 linked parent/child collision, respawn timer, or contact/bomb trigger.
-Malformed overrides fail; valid edits survive stock installation repair.
+Malformed content fails loudly.
 
 The five reachable Speed Booster contact PLM programs and the bomb-special
 reveal program are compiled from the pinned cartridge. Their sound operands,
@@ -1152,35 +1122,29 @@ draw, sound, and deletion data, leaving its physical tile and sound behavior
 unchanged without reading that bank-$84 source at runtime.
 The Tourian entrance access floor also uses compiled clear/crumble programs
 and physical draw rows. Its five appearances are installed as
-`game/room-plm-tourian-access/tourian-access.json`. Copy the file to
-`overrides/room-plm-tourian-access/tourian-access.json` and edit only `blocks`
+`game/room-plm-tourian-access/tourian-access.json`. In the installed file, edit only `blocks`
 visual words (0..4095), retaining all five IDs and each frame's native block
 count. The six-row removal, collision words, and frame timing remain compiled.
-Invalid overrides fail; valid edits survive stock installation repair.
+Invalid content fails loudly.
 
 The bomb-revealed Speed Booster block uses
-`game/room-plm-speed-booster/speed-booster.json`. Copy it to
-`overrides/room-plm-speed-booster/speed-booster.json` and edit the sole
+`game/room-plm-speed-booster/speed-booster.json`. In the installed file, edit the sole
 `bomb-reveal` entry's `blocks` word (0..4095). Its type-B collision and
-one-frame reveal timing remain compiled. Invalid edits fail validation;
-valid overrides survive stock repair.
+one-frame reveal timing remain compiled. Invalid edits fail validation.
 
 The Maridia elevatube's one-block PLM appearance is installed at
-`game/room-plm-maridia-elevatube/maridia-elevatube.json`. Copy it to
-`overrides/room-plm-maridia-elevatube/maridia-elevatube.json` and edit the
+`game/room-plm-maridia-elevatube/maridia-elevatube.json`. In the installed file, edit the
 `elevatube-block` entry's `blocks` word (0..4095). The sixteen-frame hold,
 physical block, sound, and deletion remain compiled and unchanged.
 
 Spore Spawn's four 2×2 ceiling frames are installed at
-`game/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json`. Copy the file to
-`overrides/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json` and edit only
+`game/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json`. In the installed file, edit only
 the `blocks` visual words (0..4095). Retain all four frame IDs and four blocks
 per frame in native top-row-then-bottom-row order. The crumble/clear sequence,
 sound, timing, and physical terrain changes remain compiled.
 
 Permanent collectible PLM appearances are installed as
-`game/room-plm-collectibles/collectibles.json`. Copy it to
-`overrides/room-plm-collectibles/collectibles.json` and edit only `visualWord`
+`game/room-plm-collectibles/collectibles.json`. In the installed file, edit only `visualWord`
 (0..4095), then restart. Keep all 24 semantic IDs: the empty block, Chozo orb
 and burst, the four two-frame tank kinds, four two-frame dynamic graphics slots,
 and the three shot-block reveal frames. The words select visual blocks from the
@@ -1189,19 +1153,18 @@ show the item through pictures described below.
 Item acquisition, collision, room-item and Chozo persistence, sound, frame
 timing, and physical level words remain compiled. An edited word changes the
 immediate redraw and later camera streaming without changing the item reward.
-Invalid stock or override data fails loudly; the override survives stock
-installation repair or updates.
+Invalid data fails loudly.
 
 Permanent items that load their own graphics (every item but the four tanks)
 are drawn as pictures in the room block sheets: each tileset's sheet in
 `game/room-block-sheets` holds, for each such item, the pictures of the two
 graphics-slot blocks (one per animation frame) with that item shown over each of
-the four slots. To restyle an item, repaint those pictures in an override of the
-sheet under `overrides/room-block-sheets/`, then restart. Pickup behavior is
+the four slots. To restyle an item, repaint those pictures in the installed sheet,
+then restart. Pickup behavior is
 unchanged.
 
-X-ray reveal art is installed as `game/xray-reveals/reveals.json`. Copy that
-file to `overrides/xray-reveals/reveals.json`, edit its `topLeft`, `topRight`,
+X-ray reveal art is installed as `game/xray-reveals/reveals.json`. In the
+installed file, edit its `topLeft`, `topRight`,
 `bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names
 the collision type and BTS values that select it, plus its read-only copy
 shape. The installer groups identical cartridge rules to keep the file short;
@@ -1217,12 +1180,11 @@ coordinates, and the word's low ten bits select a metatile while bit 11 selects
 the cartridge's vertical row swap. Keep room pointers and record counts intact;
 they identify which compiled room state owns each list. Installed hosts use
 these entries without reading the item draw table or room overlay records from
-the ROM during X-ray setup. Stock hashes are checked and user overrides survive
-stock repair.
+the ROM during X-ray setup.
 
 The room-ID guide makes visual-layout files discoverable, but shared sheet and
 palette filenames still encode source identities. Further required-reference,
-override-format compatibility and presentation-parity review remains tracked in
+format compatibility and presentation-parity review remains tracked in
 #530 and #549; Core does not retain a runtime ROM fallback for that work.
 
 ## Projectile composition and beam PNG overrides

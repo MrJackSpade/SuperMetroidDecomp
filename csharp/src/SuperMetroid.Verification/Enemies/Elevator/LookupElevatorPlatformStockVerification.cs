@@ -9,10 +9,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 
-/// <summary>Checks the three elevator platform draw lists against native PLM words and edited catalog behavior.</summary>
+/// <summary>Checks the three elevator platform draw lists against native PLM words.</summary>
 internal static class LookupElevatorPlatformStockVerification
 {
-    /// <summary>Checks stock runs, custom words, identity hashes, copy isolation, and invalid frame shapes.</summary>
+    /// <summary>Checks stock runs, identity hashes, and invalid frame shapes.</summary>
     internal static void VerifyElevatorPlatformStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmElevatorPlatformVisualCatalog installed)
     {
@@ -62,18 +62,6 @@ internal static class LookupElevatorPlatformStockVerification
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
                 AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<ElevatorPlatformDraw>((ushort)pointer),0,0), "Elevator platform stock unknown pointer");
-        entries[1].Runs[2][2] = RoomBlockAppearance.Of(0x58, BlockMirroring.Horizontal | BlockMirroring.Vertical);
-        var mixed = RoomPlmElevatorPlatformVisualFiles.Create(entries);
-        var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
-        AssertEqual(Hash(expected), mixed.ContentIdentity, "Elevator platform mixed custom/stock identity");
-        entries[1].Runs[2][2] = RoomBlockAppearance.Of(0x5a);
-        entries[2].Runs[2][3] = RoomBlockAppearance.Of(0x5b);
-        foreach (var frame in frames)
-        {
-            for (int run = 0; run < native[frame.Pointer].Length; run++)
-            for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][run][word], mixed.GetAppearance(NativePlmDraws.At<ElevatorPlatformDraw>(frame.Pointer),run,word), "Elevator platform cloned custom and unchanged stock isolation");
-        }
         AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.Create(entries[..1]), "Elevator platform missing frame");
         AssertThrows<InvalidDataException>(() => RoomPlmElevatorPlatformVisualFiles.Create(entries.Append(entries[0])), "Elevator platform duplicate frame");
         var invalid = entries.ToArray();

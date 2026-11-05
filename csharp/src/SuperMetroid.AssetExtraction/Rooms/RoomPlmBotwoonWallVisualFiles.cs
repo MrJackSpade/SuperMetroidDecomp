@@ -20,13 +20,11 @@ public static class RoomPlmBotwoonWallVisualFiles
         RoomPlmDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
             VisualFileName, "Botwoon wall", All, VisualId);
 
-    /// <summary>Validates stock provenance and compiled parity, then selects an optional editable Botwoon wall override without cartridge access.</summary>
-    /// <param name="stockDirectory">Installed stock directory containing the shared manifest and Botwoon wall JSON.</param>
-    /// <param name="overrideDirectory">Optional directory whose Botwoon wall JSON is selected when present.</param>
-    /// <returns>The immutable selected Botwoon wall visual catalog.</returns>
-    public static InstalledRoomPlmBotwoonWallVisuals Load(
-        string stockDirectory, string? overrideDirectory) =>
-        RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
+    /// <summary>Validates the installed Botwoon wall manifest's provenance and loads the installed Botwoon wall JSON as the player left it, without cartridge access.</summary>
+    /// <param name="directory">Installed directory containing the shared manifest and Botwoon wall JSON.</param>
+    /// <returns>The immutable Botwoon wall visual catalog.</returns>
+    public static InstalledRoomPlmBotwoonWallVisuals Load(string directory) =>
+        RoomPlmDoorVisualFileCodec.Load(directory,
             new RoomPlmVisualFamily<InstalledRoomPlmBotwoonWallVisuals>(VisualFileName, "Botwoon wall", entries => Create(entries.Select(entry =>
                 new RoomPlmVisualEntry(entry.Id, entry.Blocks)))));
 

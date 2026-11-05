@@ -18,14 +18,14 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
-    /// <summary>Family-relative version-two stock/override JSON filename for reveal-rule operands, eight item metatiles, and special-room overlay records.</summary>
+    /// <summary>Family-relative version-two installed JSON filename for reveal-rule operands, eight item metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
     /// <summary>Stock manifest filename containing version-two format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
     /// <summary>Schema revision that includes rule operands, item metatiles, and room-overlay records.</summary>
     private const int FormatVersion = 2;
 
-    /// <summary>Uses camel-case enum names and strict constructor/property admission for stock and overrides.</summary>
+    /// <summary>Uses camel-case enum names and strict constructor/property admission for the installed reveal JSON.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -39,7 +39,7 @@ public static class XrayRevealVisualFiles
     /// <summary>Checks all 16-by-256 cartridge collision-kind and behaviour reveal results, then exports drawable blocks, item-slot appearances, and room-specific X-ray overlays.</summary>
     /// <param name="bus">Cartridge source for bank-$91 reveal records, eight bank-$84 item draw pointers at $84:839D, and bank-$8F special-X-ray lists referenced by compiled room states.</param>
     /// <param name="directory">Family directory, created before native validation; receives new <see cref="VisualFileName"/> and <see cref="ManifestFileName"/> files.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; stock load requires the supported cartridge identity.</param>
+    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; loading requires the supported cartridge identity.</param>
     /// <remarks>Drawable rules are grouped by collision kind and definition. Item and room-overlay level words are decoded to appearances by <see cref="RoomLevelWordCodec"/>; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
@@ -100,66 +100,35 @@ public static class XrayRevealVisualFiles
             new XrayRevealVisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
     }
 
-    /// <summary>Validates version-two stock X-ray presentation and selects an optional complete replacement while retaining native rule selection, copy geometry, extensions, and area gating.</summary>
-    /// <param name="stockDirectory">Family directory containing the required stock reveal JSON and provenance/hash manifest.</param>
-    /// <param name="overrideDirectory">Optional family directory; null or missing reveal JSON selects validated stock.</param>
+    /// <summary>Validates the installed version-two X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
+    /// <param name="directory">Family directory containing the installed reveal JSON and its provenance manifest.</param>
     /// <returns>A ROM-independent catalog with copied rule operands, eight item slots, and ordered special-room tile lists.</returns>
-    /// <remarks>Stock provenance, byte hash, and structure are checked even with overrides; loading does not repeat cartridge reads or compare every stock block with the cartridge. Strict JSON rejects unknown/missing constructor properties. Overrides need no manifest but must retain stock rule order, collision kinds, behaviour groups, shapes, room identities, and record counts; blocks, appearances and byte-range room coordinates may change.</remarks>
-    /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, strict JSON schema, rule coverage/shape, unused operands, or overlay identities/counts are invalid.</exception>
-    /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
-    public static InstalledXrayReveals Load(string stockDirectory,
-        string? overrideDirectory)
+    /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
+    /// <exception cref="InvalidDataException">Manifest provenance, strict JSON schema, rule coverage/shape, unused operands, or overlay identities are invalid.</exception>
+    /// <exception cref="IOException">The installed manifest or reveal JSON cannot be read.</exception>
+    public static InstalledXrayReveals Load(string directory)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        string manifestPath = Path.Combine(directory, ManifestFileName);
         XrayRevealVisualManifest manifest = ReadJson<XrayRevealVisualManifest>(manifestPath);
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException($"X-ray manifest {manifestPath} is incompatible.");
-        string stockPath = Path.Combine(stockDirectory, VisualFileName);
-        byte[] stockBytes = File.ReadAllBytes(stockPath);
-        XrayRevealVisualDocument stock = ReadJson<XrayRevealVisualDocument>(stockBytes, stockPath);
-        ValidateStructure(stock, stockPath);
-
-        string? overridePath = overrideDirectory is null ? null :
-            Path.Combine(overrideDirectory, VisualFileName);
-        XrayRevealVisualDocument selected = overridePath is not null && File.Exists(overridePath)
-            ? ReadJson<XrayRevealVisualDocument>(overridePath)
-            : stock;
-        string selectedPath = overridePath is not null && File.Exists(overridePath)
-            ? overridePath : stockPath;
-        ValidateStructure(selected, selectedPath);
-        if (selected.Entries.Length != stock.Entries.Length)
-            throw new InvalidDataException($"X-ray visuals {selectedPath} changed rule count.");
-        if (selected.ItemMetatiles.Length != stock.ItemMetatiles.Length ||
-            selected.Rooms.Length != stock.Rooms.Length)
-            throw new InvalidDataException($"X-ray visuals {selectedPath} changed overlay count.");
+        string path = Path.Combine(directory, VisualFileName);
+        XrayRevealVisualDocument document = ReadJson<XrayRevealVisualDocument>(path);
+        ValidateStructure(document, path);
 
         var mappings = new List<XrayRevealVisualDefinition>();
-        for (int index = 0; index < stock.Entries.Length; index++)
+        foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            XrayRevealVisualEntry original = stock.Entries[index];
-            XrayRevealVisualEntry edited = selected.Entries[index];
-            if (edited.CollisionType != original.CollisionType ||
-                edited.Shape != original.Shape ||
-                !edited.BehaviorValues.SequenceEqual(original.BehaviorValues))
-                throw new InvalidDataException(
-                    $"X-ray visuals {selectedPath} changed the compiled rule at entry {index}.");
-            var visual = new XrayRevealVisualBlocks(edited.TopLeft, edited.TopRight, edited.BottomLeft, edited.BottomRight);
-            foreach (int value in edited.BehaviorValues)
-                mappings.Add(new XrayRevealVisualDefinition(edited.CollisionType, new RoomBlockBehavior(value), visual));
+            var visual = new XrayRevealVisualBlocks(entry.TopLeft, entry.TopRight, entry.BottomLeft, entry.BottomRight);
+            foreach (int value in entry.BehaviorValues)
+                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, new RoomBlockBehavior(value), visual));
         }
-        for (int index = 0; index < stock.Rooms.Length; index++)
-        {
-            if (selected.Rooms[index].Pointer != stock.Rooms[index].Pointer ||
-                selected.Rooms[index].Tiles.Length != stock.Rooms[index].Tiles.Length)
-                throw new InvalidDataException(
-                    $"X-ray visuals {selectedPath} changed room-overlay structure at entry {index}.");
-        }
-        var overlays = new InstalledXrayOverlays(selected.ItemMetatiles,
-            selected.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
+        var overlays = new InstalledXrayOverlays(document.ItemMetatiles,
+            document.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
                 room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, RoomBlockAppearance.Of(tile.Appearance.Block, tile.Appearance.Mirroring))).ToArray())));
         return new InstalledXrayReveals(mappings, overlays);
@@ -212,7 +181,7 @@ public static class XrayRevealVisualFiles
     /// extension commands have no visual shape and every other ushort
     /// fails. The independent 16-by-256 native reveal oracle covers all
     /// reachable command identities; the room installation verifier
-    /// accepts stock shapes and rejects an override changing a shape.
+    /// accepts stock shapes and rejects an edit changing a shape.
     /// Retain this finite named mapping because pointer arithmetic cannot
     /// derive the serialization labels more clearly or losslessly.
     /// </remarks>
@@ -307,7 +276,7 @@ public static class XrayRevealVisualFiles
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
 
-    /// <summary>Reads a stock or override file before applying strict X-ray JSON deserialization.</summary>
+    /// <summary>Reads an installed file before applying strict X-ray JSON deserialization.</summary>
     private static T ReadJson<T>(string path) where T : class =>
         ReadJson<T>(File.ReadAllBytes(path), path);
 

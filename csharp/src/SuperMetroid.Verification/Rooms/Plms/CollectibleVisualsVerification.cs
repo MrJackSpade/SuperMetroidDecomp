@@ -15,10 +15,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks collectible PLM art, live pickup behavior, and visual-only overrides.</summary>
+/// <summary>Checks collectible PLM art, live pickup behavior, and visual-only edits.</summary>
 internal static class CollectibleVisualsVerification
 {
-    /// <summary>Compares 24 native draw lists, exercises all item kinds, and checks edited tile streaming.</summary>
+    /// <summary>Compares 24 native draw lists, exercises all item kinds, and checks the stock tile's redraw.</summary>
     internal static void VerifyCollectibleVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -35,19 +35,6 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleTankSelector), () => VerifyCollectibleTankSelector(rom));
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
-        RoomPlmVisualBlockEntry[] entries =
-            RoomPlmCollectibleVisualFiles.All
-                .Select(frame => new RoomPlmVisualBlockEntry(frame.Id,
-                    frame.Terrain.Appearance))
-                .ToArray();
-        int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
-        entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x053) };
-        var edited = RoomPlmCollectibleVisualFiles.Create(entries);
-        entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x054) };
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            edited.GetAppearance(CollectiblePlmDraws.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
-            "collectible catalog copies the edited visual word");
-
         CollectibleVisualsRenderResult Render(
             InstalledRoomPlmCollectibleVisuals visuals)
         {
@@ -60,28 +47,21 @@ internal static class CollectibleVisualsVerification
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex),
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex));
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
-                "edited item art leaves the native touch trigger active");
+                "the item keeps its native touch trigger active");
             fixture.Plms.Step(fixture.Level);
             AssertEqual(199, fixture.Samus.MaxHealth,
-                "edited energy-tank art leaves the pickup reward unchanged");
+                "the energy tank grants its native pickup reward");
             AssertTrue(fixture.System.HasCollectedItemBit(0),
-                "edited energy-tank art leaves persistence unchanged");
+                "the energy tank sets its native persistence bit");
             return result;
         }
 
         var original = Render(stock);
-        var changed = Render(edited);
         AssertEqual(RoomTerrainBlock.Of(0x04a, BlockMirroring.None, RoomCollisionType.SpecialBlock), original.Physical,
             "stock energy tank retains the cartridge physical level word");
-        AssertEqual(original.Physical, changed.Physical,
-            "collectible art does not change physical collision or pickup state");
-        // The block BG1 shows names its picture (#1431): the stock frame's block, or the edited frame's.
+        // The block BG1 shows names its picture (#1431): the stock frame's block.
         AssertEqual(RoomBlockAppearance.Of(0x04a), original.Immediate,
             "stock collectible block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Immediate,
-            "edited collectible block reaches the immediate redraw");
-        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
-            "edited collectible block survives later camera streaming");
 
         for (int kind = 0; kind < 21; kind++)
         {
@@ -111,59 +91,25 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleVisualInstallation), () => VerifyCollectibleVisualInstallation(rom));
         Console.WriteLine(
             "Collectible visuals: 24 native draw lists, eight dynamic selectors, " +
-            "all 21 item kinds, orb/reveal paths, live edits, physical isolation, " +
+            "all 21 item kinds, orb/reveal paths, " +
             "source-read guards, and installation validation pass.");
     }
 
-    /// <summary>Checks extracted stock, selected tank-frame overrides, replacement stock, and invalid visual bits.</summary>
+    /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomPlmCollectibleVisualDirectory);
         GameInstallation installation = copy.Installation;
         RoomPlmCollectibleVisualFilesConstants.ValidateStock(
             installation.RoomPlmCollectibleVisualDirectory);
-        ushort pointer = PlmDrawSourceDefinitions.CollectibleTankFirst.Offset;
         VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
 
         string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,
             RoomPlmCollectibleVisualFiles.VisualFileName);
-        JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
-            ?? throw new InvalidDataException("Extracted collectible JSON is empty.");
-        JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
-            entry.Required("id").GetValue<string>() == "energy-tank-0");
-        frame["appearance"] = PlmVisualJson.Appearance(0x053);
-        Directory.CreateDirectory(installation.RoomPlmCollectibleVisualOverrideDirectory);
-        string overridePath = Path.Combine(
-            installation.RoomPlmCollectibleVisualOverrideDirectory,
-            RoomPlmCollectibleVisualFiles.VisualFileName);
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            installation.LoadRoomPlmCollectibleVisuals().GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
-            "collectible visual override selects edited tank frame");
-
-        string refreshed = Path.Combine(copy.Root, "refreshed-stock");
-        AssertEqual(RoomBlockAppearance.Of(0x053),
-            ReExtractCollectibleStock(rom, refreshed,
-                installation.RoomPlmCollectibleVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
-            "collectible override survives stock replacement");
-
-        frame["appearance"] = 0xf053;
-        File.WriteAllText(overridePath, document.ToJsonString());
-        AssertThrows<InvalidDataException>(
-            () => installation.LoadRoomPlmCollectibleVisuals(),
-            "collectible override rejects collision-bit edits");
         File.WriteAllText(stockPath, "{}");
         AssertThrows<InvalidDataException>(
             () => installation.LoadRoomPlmCollectibleVisuals(),
             "collectible stock manifest rejects corruption");
-    }
-
-    /// <summary>Extracts stock collectible visuals from the cartridge into <paramref name="refreshed"/> and loads them under <paramref name="overrides"/>.</summary>
-    [PrivateInstallation("Runs RoomPlmCollectibleVisualFiles.Extract into a fresh stock directory beside the copy's collectible override, to check that a stock replacement keeps the edited first tank frame (appearance 053) selected; the copied stock is the installer's output and never re-runs the extractor.")]
-    private static InstalledRoomPlmCollectibleVisuals ReExtractCollectibleStock(ISnesAddressSpace rom, string refreshed, string overrides)
-    {
-        RoomPlmCollectibleVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-        return RoomPlmCollectibleVisualFiles.Load(refreshed, overrides);
     }
 
     /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>

@@ -5,6 +5,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomPlmTourianAccessVisualFilesConstants
 {
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Tourian access visuals.</summary>
-    /// <param name="directory">Stock Tourian access directory; overrides are ignored.</param>
-    public static void ValidateStock(string directory) => _ = RoomPlmTourianAccessVisualFiles.Load(directory, null);
+    /// <param name="directory">Stock Tourian access directory.</param>
+    public static void ValidateStock(string directory) => _ = RoomPlmTourianAccessVisualFiles.Load(directory);
 }

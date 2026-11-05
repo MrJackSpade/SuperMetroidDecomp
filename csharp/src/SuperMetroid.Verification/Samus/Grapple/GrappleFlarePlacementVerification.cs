@@ -86,9 +86,26 @@ internal static class GrappleFlarePlacementVerification
                 samus.Grapple.FlarePlacement = placement;
                 return samus;
             }
-            void Compare() =>
-                AssertTrue(SameGraph(native, [stock, .. InstalledFixtures.BoundContent], selected, [InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement
-                    ?? throw new InvalidOperationException("The installation places the grapple flare."), .. InstalledFixtures.BoundContent]), "Stock extracted flare preserves complete Samus graph");
+            // The two states differ only in the placement each is bound to: the extracted one and the installed one. Both
+            // graphs name their placement as one bound object, so the comparison holds native to the installed placement
+            // while it is captured and both name it by the one installed path, through the fixture's shared index of the
+            // installed content; a content list of their own would walk all installed content again (#1532).
+            void Compare()
+            {
+                ChargeFlarePlacements installed = InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement
+                    ?? throw new InvalidOperationException("The installation places the grapple flare.");
+                AssertTrue(ReferenceEquals(stock, native.Grapple.FlarePlacement) && ReferenceEquals(installed, selected.Grapple.FlarePlacement),
+                    "Each Samus keeps the flare placement it was bound to");
+                native.Grapple.FlarePlacement = installed;
+                try
+                {
+                    AssertTrue(SameGraph(native, selected, InstalledFixtures.BoundContent), "Stock extracted flare preserves complete Samus graph");
+                }
+                finally
+                {
+                    native.Grapple.FlarePlacement = stock;
+                }
+            }
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture();

@@ -16,19 +16,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] TourianEntranceStatueProjectiles =
     [
-        EnemyProjectileFrameId.TourianStatueFrame00,
-        EnemyProjectileFrameId.TourianStatueFrame01,
-        EnemyProjectileFrameId.TourianStatueFrame02,
-        EnemyProjectileFrameId.TourianStatueFrame03,
-        EnemyProjectileFrameId.TourianStatueFrame04,
-        EnemyProjectileFrameId.TourianStatueFrame05,
-        EnemyProjectileFrameId.TourianStatueFrame06,
-        EnemyProjectileFrameId.TourianStatueFrame07,
-        EnemyProjectileFrameId.TourianStatueFrame08,
-        EnemyProjectileFrameId.TourianStatueFrame09,
-        EnemyProjectileFrameId.TourianStatueFrame10,
-        EnemyProjectileFrameId.TourianStatueFrame11,
-        EnemyProjectileFrameId.TourianStatueFrame12,
         EnemyProjectileFrameId.TourianStatueFrame14,
         EnemyProjectileFrameId.TourianStatueFrame15,
         EnemyProjectileFrameId.TourianStatueFrame16,
@@ -37,8 +24,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueFrame19,
         EnemyProjectileFrameId.TourianStatueFrame20,
         EnemyProjectileFrameId.TourianStatueFrame21,
-        EnemyProjectileFrameId.TourianStatueFrame22,
-        EnemyProjectileFrameId.TourianStatueFrame23,
         EnemyProjectileFrameId.TourianStatueFrame24,
         EnemyProjectileFrameId.TourianStatueFrame25,
         EnemyProjectileFrameId.TourianStatueFrame26,
@@ -133,25 +118,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.DraygonFrame05,
         EnemyProjectileFrameId.DraygonFrame06,
         EnemyProjectileFrameId.DraygonFrame07,
-        EnemyProjectileFrameId.DraygonFrame08,
-        EnemyProjectileFrameId.DraygonFrame09,
-        EnemyProjectileFrameId.DraygonFrame10,
-        EnemyProjectileFrameId.DraygonFrame11,
-        EnemyProjectileFrameId.DraygonFrame12,
-        EnemyProjectileFrameId.DraygonFrame13,
-        EnemyProjectileFrameId.DraygonFrame14,
-        EnemyProjectileFrameId.DraygonFrame15,
-        EnemyProjectileFrameId.DraygonFrame16,
-        EnemyProjectileFrameId.DraygonFrame17,
-        EnemyProjectileFrameId.DraygonFrame18,
-        EnemyProjectileFrameId.DraygonFrame19,
-        EnemyProjectileFrameId.DraygonFrame20,
-        EnemyProjectileFrameId.DraygonFrame21,
-        EnemyProjectileFrameId.DraygonFrame22,
-        EnemyProjectileFrameId.DraygonFrame23,
-        EnemyProjectileFrameId.DraygonFrame24,
-        EnemyProjectileFrameId.DraygonFrame25,
-        EnemyProjectileFrameId.DraygonFrame26,
         EnemyProjectileFrameId.Projectile86E0eeFrame00,
         EnemyProjectileFrameId.Projectile86E0eeFrame01,
         EnemyProjectileFrameId.Projectile86E0eeFrame02,
@@ -378,6 +344,47 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainProjectiles =
     [
+        EnemyProjectileFrameId.CeresRidleyFrame11,
+        EnemyProjectileFrameId.CeresRidleyFrame12,
+        EnemyProjectileFrameId.CeresRidleyFrame13,
+        EnemyProjectileFrameId.CeresRidleyFrame14,
+        EnemyProjectileFrameId.CeresRidleyFrame15,
+        EnemyProjectileFrameId.CeresRidleyFrame21,
+        EnemyProjectileFrameId.CeresRidleyFrame22,
+        EnemyProjectileFrameId.CeresRidleyFrame23,
+        EnemyProjectileFrameId.CeresRidleyFrame24,
+        EnemyProjectileFrameId.CeresRidleyFrame25,
+        EnemyProjectileFrameId.MotherBrainTurretFrame00,
+        EnemyProjectileFrameId.MotherBrainTurretFrame01,
+        EnemyProjectileFrameId.MotherBrainTurretFrame02,
+        EnemyProjectileFrameId.MotherBrainTurretFrame03,
+        EnemyProjectileFrameId.MotherBrainTurretFrame04,
+        EnemyProjectileFrameId.MotherBrainTurretFrame05,
+        EnemyProjectileFrameId.MotherBrainTurretFrame06,
+        EnemyProjectileFrameId.MotherBrainTurretFrame07,
+        EnemyProjectileFrameId.MotherBrainTurretFrame08,
+        EnemyProjectileFrameId.MotherBrainTurretFrame09,
+        EnemyProjectileFrameId.MotherBrainTurretFrame10,
+        EnemyProjectileFrameId.MotherBrainTurretFrame11,
+        EnemyProjectileFrameId.MotherBrainTurretFrame12,
+        EnemyProjectileFrameId.MotherBrainTurretFrame13,
+        EnemyProjectileFrameId.MotherBrainTurretFrame14,
+        EnemyProjectileFrameId.MotherBrainTurretFrame15,
+        EnemyProjectileFrameId.MotherBrainTurretFrame16,
+        EnemyProjectileFrameId.MotherBrainTurretFrame17,
+        EnemyProjectileFrameId.MotherBrainTurretFrame18,
+        EnemyProjectileFrameId.MotherBrainTurretFrame19,
+        EnemyProjectileFrameId.MotherBrainTurretFrame20,
+        EnemyProjectileFrameId.MotherBrainBlueRing00,
+        EnemyProjectileFrameId.MotherBrainBlueRing01,
+        EnemyProjectileFrameId.MotherBrainBlueRing02,
+        EnemyProjectileFrameId.MotherBrainBlueRing03,
+        EnemyProjectileFrameId.MotherBrainBlueRing04,
+        EnemyProjectileFrameId.MotherBrainBlueRing05,
+        EnemyProjectileFrameId.Projectile86C8e1Frame00,
+        EnemyProjectileFrameId.Projectile86C8e1Frame01,
+        EnemyProjectileFrameId.Projectile86C8e1Frame02,
+        EnemyProjectileFrameId.Projectile86C8e1Frame03,
         EnemyProjectileFrameId.MotherBrainTopTubeFrame00,
         EnemyProjectileFrameId.MotherBrainTopTubeFrame01,
         EnemyProjectileFrameId.MotherBrainTopTubeFrame02,
@@ -692,11 +699,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.KagoBugFrame03,
         EnemyProjectileFrameId.KagoBugFrame04,
         EnemyProjectileFrameId.KagoBugFrame05,
-        EnemyProjectileFrameId.KagoBugFrame06,
-        EnemyProjectileFrameId.KagoBugFrame07,
-        EnemyProjectileFrameId.KagoBugFrame08,
-        EnemyProjectileFrameId.KagoBugFrame09,
-        EnemyProjectileFrameId.KagoBugFrame10,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Kago/KagoBehavior.cs</c> spawns.</summary>
@@ -742,7 +744,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Enemies/Metaree/MetareeBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] MetareeProjectiles =
     [
-        EnemyProjectileFrameId.SkreeDebris,
         EnemyProjectileFrameId.MetareeDebris,
     ];
 
@@ -809,7 +810,6 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly EnemyProjectileFrameId[] SkreeProjectiles =
     [
         EnemyProjectileFrameId.SkreeDebris,
-        EnemyProjectileFrameId.MetareeDebris,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Skree/SkreeBehavior.cs</c> spawns.</summary>
@@ -818,32 +818,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Enemies/SpacePirates/NinjaSpacePirateBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] NinjaSpacePirateProjectiles =
     [
-        EnemyProjectileFrameId.SpacePirateFrame00,
-        EnemyProjectileFrameId.SpacePirateFrame01,
-        EnemyProjectileFrameId.SpacePirateFrame02,
-        EnemyProjectileFrameId.SpacePirateFrame03,
-        EnemyProjectileFrameId.SpacePirateFrame04,
-        EnemyProjectileFrameId.SpacePirateFrame05,
-        EnemyProjectileFrameId.SpacePirateFrame06,
-        EnemyProjectileFrameId.SpacePirateFrame07,
-        EnemyProjectileFrameId.SpacePirateFrame08,
-        EnemyProjectileFrameId.SpacePirateFrame09,
-        EnemyProjectileFrameId.SpacePirateFrame10,
-        EnemyProjectileFrameId.SpacePirateFrame11,
-        EnemyProjectileFrameId.SpacePirateFrame12,
-        EnemyProjectileFrameId.SpacePirateFrame13,
-        EnemyProjectileFrameId.SpacePirateFrame14,
-        EnemyProjectileFrameId.SpacePirateFrame15,
-        EnemyProjectileFrameId.SpacePirateFrame16,
-        EnemyProjectileFrameId.SpacePirateFrame17,
-        EnemyProjectileFrameId.SpacePirateFrame18,
-        EnemyProjectileFrameId.SpacePirateFrame19,
-        EnemyProjectileFrameId.SpacePirateFrame20,
-        EnemyProjectileFrameId.SpacePirateFrame21,
-        EnemyProjectileFrameId.SpacePirateFrame22,
-        EnemyProjectileFrameId.SpacePirateFrame23,
-        EnemyProjectileFrameId.SpacePirateFrame24,
-        EnemyProjectileFrameId.SpacePirateFrame25,
         EnemyProjectileFrameId.SpacePirateFrame26,
         EnemyProjectileFrameId.SpacePirateFrame27,
         EnemyProjectileFrameId.SpacePirateFrame28,
@@ -871,12 +845,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.FallingSparkFrame00,
         EnemyProjectileFrameId.FallingSparkFrame01,
         EnemyProjectileFrameId.FallingSparkFrame02,
-        EnemyProjectileFrameId.FallingSparkFrame03,
-        EnemyProjectileFrameId.FallingSparkFrame05,
-        EnemyProjectileFrameId.FallingSparkFrame07,
-        EnemyProjectileFrameId.FallingSparkFrame09,
-        EnemyProjectileFrameId.FallingSparkFrame11,
-        EnemyProjectileFrameId.FallingSparkFrame13,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Sparks/SparkBehavior.cs</c> spawns.</summary>
@@ -894,21 +862,6 @@ internal static class SpawnedObjectFrameDefinitions
 
     /// <summary>The room sprite objects <c>Enemies/Stoke/StokeBehavior.cs</c> spawns.</summary>
     private static readonly RoomSpriteObjectKind[] StokeSpriteObjects = [];
-
-    /// <summary>The projectile frames <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> spawns.</summary>
-    private static readonly EnemyProjectileFrameId[] WorkRobotProjectiles =
-    [
-        EnemyProjectileFrameId.WorkRobotLaserFrame00,
-        EnemyProjectileFrameId.WorkRobotLaserFrame01,
-        EnemyProjectileFrameId.WorkRobotLaserFrame02,
-        EnemyProjectileFrameId.WorkRobotLaserFrame03,
-        EnemyProjectileFrameId.WorkRobotLaserFrame04,
-        EnemyProjectileFrameId.WorkRobotLaserFrame05,
-        EnemyProjectileFrameId.WorkRobotLaserFrame06,
-    ];
-
-    /// <summary>The room sprite objects <c>Enemies/WorkRobots/WorkRobotBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] WorkRobotSpriteObjects = [];
 
     /// <summary>The projectile frames <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] YappingMawProjectiles =
@@ -1184,16 +1137,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Areas/Tourian/TourianEntranceStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] TourianEntranceStatueSharedProjectiles =
     [
-        EnemyProjectileFrameId.ChozoTourianDustFrame00,
-        EnemyProjectileFrameId.ChozoTourianDustFrame01,
-        EnemyProjectileFrameId.ChozoTourianDustFrame02,
-        EnemyProjectileFrameId.ChozoTourianDustFrame03,
-        EnemyProjectileFrameId.ChozoTourianDustFrame04,
-        EnemyProjectileFrameId.ChozoTourianDustFrame05,
-        EnemyProjectileFrameId.ChozoTourianDustFrame06,
-        EnemyProjectileFrameId.ChozoTourianDustFrame07,
-        EnemyProjectileFrameId.ChozoTourianDustFrame08,
-        EnemyProjectileFrameId.ChozoTourianDustFrame09,
         EnemyProjectileFrameId.ChozoTourianDustFrame10,
         EnemyProjectileFrameId.ChozoTourianDustFrame11,
         EnemyProjectileFrameId.ChozoTourianDustFrame12,
@@ -1771,8 +1714,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.DraygonFrame03,
         EnemyProjectileFrameId.DraygonFrame04,
         EnemyProjectileFrameId.DraygonFrame05,
-        EnemyProjectileFrameId.DraygonFrame06,
-        EnemyProjectileFrameId.DraygonFrame07,
         EnemyProjectileFrameId.DraygonFrame08,
         EnemyProjectileFrameId.DraygonFrame09,
         EnemyProjectileFrameId.DraygonFrame10,
@@ -2562,32 +2503,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainSharedProjectiles =
     [
-        EnemyProjectileFrameId.CeresRidleyFrame00,
-        EnemyProjectileFrameId.CeresRidleyFrame01,
-        EnemyProjectileFrameId.CeresRidleyFrame02,
-        EnemyProjectileFrameId.CeresRidleyFrame03,
-        EnemyProjectileFrameId.CeresRidleyFrame04,
-        EnemyProjectileFrameId.CeresRidleyFrame05,
-        EnemyProjectileFrameId.CeresRidleyFrame06,
-        EnemyProjectileFrameId.CeresRidleyFrame07,
-        EnemyProjectileFrameId.CeresRidleyFrame08,
-        EnemyProjectileFrameId.CeresRidleyFrame09,
-        EnemyProjectileFrameId.CeresRidleyFrame10,
-        EnemyProjectileFrameId.CeresRidleyFrame11,
-        EnemyProjectileFrameId.CeresRidleyFrame12,
-        EnemyProjectileFrameId.CeresRidleyFrame13,
-        EnemyProjectileFrameId.CeresRidleyFrame14,
-        EnemyProjectileFrameId.CeresRidleyFrame15,
-        EnemyProjectileFrameId.CeresRidleyFrame16,
-        EnemyProjectileFrameId.CeresRidleyFrame17,
-        EnemyProjectileFrameId.CeresRidleyFrame18,
-        EnemyProjectileFrameId.CeresRidleyFrame19,
-        EnemyProjectileFrameId.CeresRidleyFrame20,
-        EnemyProjectileFrameId.CeresRidleyFrame21,
-        EnemyProjectileFrameId.CeresRidleyFrame22,
-        EnemyProjectileFrameId.CeresRidleyFrame23,
-        EnemyProjectileFrameId.CeresRidleyFrame24,
-        EnemyProjectileFrameId.CeresRidleyFrame25,
         EnemyProjectileFrameId.SpacePirateFrame00,
         EnemyProjectileFrameId.SpacePirateFrame01,
         EnemyProjectileFrameId.SpacePirateFrame02,
@@ -2614,22 +2529,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SpacePirateFrame23,
         EnemyProjectileFrameId.SpacePirateFrame24,
         EnemyProjectileFrameId.SpacePirateFrame25,
-        EnemyProjectileFrameId.SpacePirateFrame26,
-        EnemyProjectileFrameId.SpacePirateFrame27,
-        EnemyProjectileFrameId.SpacePirateFrame28,
-        EnemyProjectileFrameId.SpacePirateFrame29,
-        EnemyProjectileFrameId.SpacePirateFrame30,
-        EnemyProjectileFrameId.SpacePirateFrame31,
-        EnemyProjectileFrameId.SpacePirateFrame32,
-        EnemyProjectileFrameId.SpacePirateFrame33,
-        EnemyProjectileFrameId.SpacePirateFrame34,
-        EnemyProjectileFrameId.SpacePirateFrame35,
-        EnemyProjectileFrameId.SpacePirateFrame36,
-        EnemyProjectileFrameId.SpacePirateFrame37,
-        EnemyProjectileFrameId.SpacePirateFrame38,
-        EnemyProjectileFrameId.SpacePirateFrame39,
-        EnemyProjectileFrameId.SpacePirateFrame40,
-        EnemyProjectileFrameId.SpacePirateFrame41,
         EnemyProjectileFrameId.MotherBrainTurretFrame00,
         EnemyProjectileFrameId.MotherBrainTurretFrame01,
         EnemyProjectileFrameId.MotherBrainTurretFrame02,
@@ -2705,10 +2604,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.MotherBrainDroolAttached03,
         EnemyProjectileFrameId.MotherBrainDroolAttached04,
         EnemyProjectileFrameId.MotherBrainDroolReleased,
-        EnemyProjectileFrameId.Projectile86C8e1Frame00,
-        EnemyProjectileFrameId.Projectile86C8e1Frame01,
-        EnemyProjectileFrameId.Projectile86C8e1Frame02,
-        EnemyProjectileFrameId.Projectile86C8e1Frame03,
         EnemyProjectileFrameId.Projectile86Ca22Frame00,
         EnemyProjectileFrameId.Projectile86Ca22Frame01,
         EnemyProjectileFrameId.Projectile86Ca22Frame02,
@@ -2734,10 +2629,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.Projectile86Cac8Frame06,
         EnemyProjectileFrameId.Projectile86Cac8Frame07,
         EnemyProjectileFrameId.Projectile86Cb0dFrame00,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame00,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame01,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame02,
-        EnemyProjectileFrameId.MotherBrainTopTubeFrame03,
         EnemyProjectileFrameId.MotherBrainGlassFrame00,
         EnemyProjectileFrameId.MotherBrainGlassFrame01,
         EnemyProjectileFrameId.MotherBrainGlassFrame02,
@@ -3617,21 +3508,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.CeresRidleyFrame03,
         EnemyProjectileFrameId.CeresRidleyFrame04,
         EnemyProjectileFrameId.CeresRidleyFrame05,
-        EnemyProjectileFrameId.CeresRidleyFrame06,
-        EnemyProjectileFrameId.CeresRidleyFrame07,
-        EnemyProjectileFrameId.CeresRidleyFrame08,
-        EnemyProjectileFrameId.CeresRidleyFrame09,
-        EnemyProjectileFrameId.CeresRidleyFrame10,
-        EnemyProjectileFrameId.CeresRidleyFrame11,
-        EnemyProjectileFrameId.CeresRidleyFrame12,
-        EnemyProjectileFrameId.CeresRidleyFrame13,
-        EnemyProjectileFrameId.CeresRidleyFrame14,
-        EnemyProjectileFrameId.CeresRidleyFrame15,
-        EnemyProjectileFrameId.CeresRidleyFrame16,
-        EnemyProjectileFrameId.CeresRidleyFrame17,
-        EnemyProjectileFrameId.CeresRidleyFrame18,
-        EnemyProjectileFrameId.CeresRidleyFrame19,
-        EnemyProjectileFrameId.CeresRidleyFrame20,
         EnemyProjectileFrameId.CeresRidleyFrame21,
         EnemyProjectileFrameId.CeresRidleyFrame22,
         EnemyProjectileFrameId.CeresRidleyFrame23,
@@ -4632,16 +4508,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.ChozoTourianDustFrame01,
         EnemyProjectileFrameId.ChozoTourianDustFrame02,
         EnemyProjectileFrameId.ChozoTourianDustFrame03,
-        EnemyProjectileFrameId.ChozoTourianDustFrame04,
-        EnemyProjectileFrameId.ChozoTourianDustFrame05,
-        EnemyProjectileFrameId.ChozoTourianDustFrame06,
-        EnemyProjectileFrameId.ChozoTourianDustFrame07,
-        EnemyProjectileFrameId.ChozoTourianDustFrame08,
-        EnemyProjectileFrameId.ChozoTourianDustFrame09,
-        EnemyProjectileFrameId.ChozoTourianDustFrame10,
-        EnemyProjectileFrameId.ChozoTourianDustFrame11,
-        EnemyProjectileFrameId.ChozoTourianDustFrame12,
-        EnemyProjectileFrameId.ChozoTourianDustFrame13,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/Chozo/ChozoStatueBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -5524,19 +5390,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Enemies/Kago/KagoBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] KagoSharedProjectiles =
     [
-        EnemyProjectileFrameId.KraidRockFrame00,
-        EnemyProjectileFrameId.KraidRockFrame01,
-        EnemyProjectileFrameId.KraidRockFrame02,
-        EnemyProjectileFrameId.KraidRockFrame03,
-        EnemyProjectileFrameId.KraidRockFrame04,
-        EnemyProjectileFrameId.KraidRockFrame05,
-        EnemyProjectileFrameId.KraidRockFrame06,
-        EnemyProjectileFrameId.KagoBugFrame00,
-        EnemyProjectileFrameId.KagoBugFrame01,
-        EnemyProjectileFrameId.KagoBugFrame02,
-        EnemyProjectileFrameId.KagoBugFrame03,
-        EnemyProjectileFrameId.KagoBugFrame04,
-        EnemyProjectileFrameId.KagoBugFrame05,
         EnemyProjectileFrameId.KagoBugFrame06,
         EnemyProjectileFrameId.KagoBugFrame07,
         EnemyProjectileFrameId.KagoBugFrame08,
@@ -6092,22 +5945,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SpacePirateFrame23,
         EnemyProjectileFrameId.SpacePirateFrame24,
         EnemyProjectileFrameId.SpacePirateFrame25,
-        EnemyProjectileFrameId.SpacePirateFrame26,
-        EnemyProjectileFrameId.SpacePirateFrame27,
-        EnemyProjectileFrameId.SpacePirateFrame28,
-        EnemyProjectileFrameId.SpacePirateFrame29,
-        EnemyProjectileFrameId.SpacePirateFrame30,
-        EnemyProjectileFrameId.SpacePirateFrame31,
-        EnemyProjectileFrameId.SpacePirateFrame32,
-        EnemyProjectileFrameId.SpacePirateFrame33,
-        EnemyProjectileFrameId.SpacePirateFrame34,
-        EnemyProjectileFrameId.SpacePirateFrame35,
-        EnemyProjectileFrameId.SpacePirateFrame36,
-        EnemyProjectileFrameId.SpacePirateFrame37,
-        EnemyProjectileFrameId.SpacePirateFrame38,
-        EnemyProjectileFrameId.SpacePirateFrame39,
-        EnemyProjectileFrameId.SpacePirateFrame40,
-        EnemyProjectileFrameId.SpacePirateFrame41,
     ];
 
     /// <summary>The room sprite objects <c>Enemies/SpacePirates/WalkingSpacePirateBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
@@ -6142,22 +5979,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.SpacePirateFrame23,
         EnemyProjectileFrameId.SpacePirateFrame24,
         EnemyProjectileFrameId.SpacePirateFrame25,
-        EnemyProjectileFrameId.SpacePirateFrame26,
-        EnemyProjectileFrameId.SpacePirateFrame27,
-        EnemyProjectileFrameId.SpacePirateFrame28,
-        EnemyProjectileFrameId.SpacePirateFrame29,
-        EnemyProjectileFrameId.SpacePirateFrame30,
-        EnemyProjectileFrameId.SpacePirateFrame31,
-        EnemyProjectileFrameId.SpacePirateFrame32,
-        EnemyProjectileFrameId.SpacePirateFrame33,
-        EnemyProjectileFrameId.SpacePirateFrame34,
-        EnemyProjectileFrameId.SpacePirateFrame35,
-        EnemyProjectileFrameId.SpacePirateFrame36,
-        EnemyProjectileFrameId.SpacePirateFrame37,
-        EnemyProjectileFrameId.SpacePirateFrame38,
-        EnemyProjectileFrameId.SpacePirateFrame39,
-        EnemyProjectileFrameId.SpacePirateFrame40,
-        EnemyProjectileFrameId.SpacePirateFrame41,
         EnemyProjectileFrameId.EnemyDeathFrame03,
         EnemyProjectileFrameId.EnemyDeathFrame04,
         EnemyProjectileFrameId.EnemyDeathFrame05,
@@ -6901,9 +6722,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>FallingSparksBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonFallingSparksBehaviorProjectiles =
     [
-        EnemyProjectileFrameId.FallingSparkFrame00,
-        EnemyProjectileFrameId.FallingSparkFrame01,
-        EnemyProjectileFrameId.FallingSparkFrame02,
         EnemyProjectileFrameId.FallingSparkFrame03,
         EnemyProjectileFrameId.FallingSparkFrame05,
         EnemyProjectileFrameId.FallingSparkFrame07,
@@ -7030,12 +6848,6 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>RidleyProjectiles</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
     private static readonly EnemyProjectileFrameId[] CommonRidleyProjectilesProjectiles =
     [
-        EnemyProjectileFrameId.CeresRidleyFrame00,
-        EnemyProjectileFrameId.CeresRidleyFrame01,
-        EnemyProjectileFrameId.CeresRidleyFrame02,
-        EnemyProjectileFrameId.CeresRidleyFrame03,
-        EnemyProjectileFrameId.CeresRidleyFrame04,
-        EnemyProjectileFrameId.CeresRidleyFrame05,
         EnemyProjectileFrameId.CeresRidleyFrame06,
         EnemyProjectileFrameId.CeresRidleyFrame07,
         EnemyProjectileFrameId.CeresRidleyFrame08,
@@ -7289,10 +7101,6 @@ internal static class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.TourianStatueFrame21,
         EnemyProjectileFrameId.TourianStatueFrame22,
         EnemyProjectileFrameId.TourianStatueFrame23,
-        EnemyProjectileFrameId.TourianStatueFrame24,
-        EnemyProjectileFrameId.TourianStatueFrame25,
-        EnemyProjectileFrameId.TourianStatueFrame26,
-        EnemyProjectileFrameId.TourianStatueFrame27,
     ];
 
     /// <summary>The room sprite objects <c>TourianUnlockBehavior</c>'s code spawns onto the shared sheet of the sets whose rooms run it.</summary>
@@ -7356,8 +7164,6 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.PirateSilverNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateSpriteObjects),
             [EnemyDefinitionId.Spark] = new(SparkProjectiles, SparkSpriteObjects),
             [EnemyDefinitionId.Stoke] = new(StokeProjectiles, StokeSpriteObjects),
-            [EnemyDefinitionId.Robot] = new(WorkRobotProjectiles, WorkRobotSpriteObjects),
-            [EnemyDefinitionId.RobotNoPower] = new(WorkRobotProjectiles, WorkRobotSpriteObjects),
             [EnemyDefinitionId.YappingMaw] = new(YappingMawProjectiles, YappingMawSpriteObjects),
         };
 

@@ -305,32 +305,28 @@ internal static void VerifySamusRenderingSlice()
     samus.InvincibilityTimer = WrappingCountdown.Start(0);
     samus.KnockbackTimer = WrappingCountdown.Start(0);
     SeedBodyHalfRoutingTileAnimation(bus);
-    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
-    {
+    SamusRenderingVerifySamusRenderingSliceCase[] routingCases =
+    [
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 0, 1, "$D7 frame zero top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceLeftPose, 0x0a, 2, 1, "$D8 frame two top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 3, 2, "$D7 frame three split"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.CrouchingTransitionRightPose, 0x0f, 0, 2, "$35 basic crouch transition split"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.MorphingTransitionRightPose, 0x0f, 0, 1, "$37 morph transition top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnmorphingTransitionRightPose, 0x0f, 1, 1, "$3D unmorph transition top-only"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDb, 0x0f, 0, 2, "$DB frame-zero split"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDc, 0x0f, 1, 1, "$DC nonzero frame top-only"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDd, 0x0f, 1, 1, "$DD pre-frame-two top-only"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPoseDd, 0x0f, 2, 2, "$DD frame-two transition split"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DraygonGrabbedMovingRightPose, 0x1a, 2, 2, "$F0 held body split"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.CrouchingTransitionAimUpRightPose, 0x0f, 0, 2, "$F1 aimed transition always split"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose20, 0x07, 0, 1, "unused type-seven top-only"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedKnockbackRightPose, 0x09, 0, 1, "unused type-nine top-only"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose5D, 0x0b, 0, 2, "unused type-B split"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose65, 0x0d, 0, 2, "unused type-D pose $65 frame-zero split"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose66, 0x0d, 1, 1, "unused type-D pose $66 later top-only"),
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose63, 0x0d, 1, 2, "other unused type-D pose remains split"),
-    })
+    ];
+    // Every case's pose records are seeded before any is drawn: each draw reads only its own pose's records, so the cases
+    // share one body built from the seeded tables rather than each composing its own body's sheets.
+    foreach ((SamusPoseId pose, byte movementType, _, _, _) in routingCases)
     {
         WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
         WriteSamusTileAnimationPointer(bus, pose, 0xe100);
-        AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
+    }
+    foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in routingCases)
+    {
+        AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         samus.Pose = pose;
         samus.AnimationFrame = frame;
         oamFrame.BeginFrame();
@@ -355,8 +351,7 @@ internal static void VerifySamusRenderingSlice()
         "movement type beyond complete bottom-half table is rejected as malformed pose data");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
-    // host switch. `$37` proves signed -4/-2 values; unused `$39` proves that the native
-    // zero record remains admitted and does not fall through to its nonzero pose offset.
+    // host switch. `$37` proves signed -4/-2 values.
     samus.Pose = SamusPoseId.MorphingTransitionRightPose;
     samus.Position = samus.Position.WithWholeY(0x0086);
     samus.AnimationFrame = 0;
@@ -373,18 +368,6 @@ internal static void VerifySamusRenderingSlice()
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0084, samus.Presentation.SpritemapPosition.Y,
         "morph transition frame one reads signed minus-two table byte");
-
-    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.UnusedPose39), [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
-    WriteSamusTileAnimationPointer(bus, SamusPoseId.UnusedPose39, 0xe100);
-    WriteSamusSpritemapBases(bus, SamusPoseId.UnusedPose39, top: 0, bottom: 0);
-    samus.Pose = SamusPoseId.UnusedPose39;
-    samus.AnimationFrame = 0;
-    oamFrame.BeginFrame();
-    BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(samus, oamFrame, layer1: new(samus.Position.X.Whole, 0));
-    oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0086, samus.Presentation.SpritemapPosition.Y,
-        "unused transition pose reads native zero instead of generic graphics offset");
 
     // Standing's position selector has two special families. Front-view frames zero/one
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`

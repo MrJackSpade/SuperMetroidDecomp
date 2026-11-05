@@ -42,6 +42,13 @@ internal sealed class UnitScan
     public List<SpawnCall> SpawnCalls { get; } = [];
 
     /// <summary>
+    /// The projectile program families the code refers to, each with the programs its constructions start it in (#1513);
+    /// null for a family the code reaches otherwise, or constructs naming a program no constant decides, which may then be
+    /// started in any of its programs.
+    /// </summary>
+    public Dictionary<INamedTypeSymbol, HashSet<string>?> FamilyPrograms { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>
     /// Where graphics this code assigns to a spawned object (after spawning it, before or between draws) can make it draw
     /// from: the object may draw with these as well as with the graphics it was spawned with.
     /// </summary>
@@ -325,7 +332,10 @@ internal sealed class UnitScanner(CoreModel model)
                 SymbolInfo info = semantic.GetSymbolInfo(node);
                 int before = scan.Targets.Count;
                 if (info.Symbol is { } symbol)
+                {
                     Add(scan, symbol);
+                    RecordFamilyStart(scan, semantic, node, symbol);
+                }
                 else if (info.CandidateReason is CandidateReason.MemberGroup or CandidateReason.OverloadResolutionFailure)
                 {
                     foreach (ISymbol candidate in info.CandidateSymbols)
@@ -369,13 +379,39 @@ internal sealed class UnitScanner(CoreModel model)
             // Reshading keeps the owner the object already has.
             IReadOnlyList<SpawnTarget> switched = classifier.IsReshading(semantic, assignment.Right) ? [] : classifier.Classify(semantic, assignment.Right);
             // Graphics a method was handed and installs in the object it spawns (the pool's and the engine's spawn
-            // primitives) are its callers' spawn graphics, which their own calls already name: no switch.
-            if (switched.Any(target => target.Source != GraphicsSource.Parameter))
+            // primitives) are its callers' spawn graphics, which their own calls already name: no switch. A cue handler's
+            // switch to the room's graphics is the effect of the programs publishing the cue, which the program frames
+            // route to the shared sheet from that step on (#1513).
+            bool cueSwitch = assignment.Ancestors().OfType<SwitchSectionSyntax>().FirstOrDefault() is { } section
+                && model.ProgramFrames.IsRoomGraphicsCueSection(section);
+            if (switched.Any(target => target.Source != GraphicsSource.Parameter) && !cueSwitch)
                 scan.Reassignments.Add((switched, assignment.ToString()));
         }
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)
             && semantic.GetConversion(expression) is { IsUserDefined: true, MethodSymbol: { } conversion })
             Add(scan, conversion);
+    }
+
+    /// <summary>
+    /// Records a reference to a projectile program family's code (#1513): a construction starts it in the program its
+    /// argument names; any other reference, or a program no constant decides, may start it in any.
+    /// </summary>
+    private void RecordFamilyStart(UnitScan scan, SemanticModel semantic, SyntaxNode node, ISymbol symbol)
+    {
+        if (symbol is INamedTypeSymbol || symbol.ContainingType is not { } containing || model.FamilyOf(containing.OriginalDefinition) is not { } family)
+            return;
+        IReadOnlySet<string>? programs = node is BaseObjectCreationExpressionSyntax creation && symbol is IMethodSymbol { MethodKind: MethodKind.Constructor }
+            && SymbolEqualityComparer.Default.Equals(containing.OriginalDefinition, family)
+            ? model.ProgramsOf(semantic, creation, family) : null;
+        if (programs is null)
+        {
+            scan.FamilyPrograms[family] = null;
+            return;
+        }
+        if (!scan.FamilyPrograms.TryGetValue(family, out HashSet<string>? named))
+            scan.FamilyPrograms[family] = new HashSet<string>(programs, StringComparer.Ordinal);
+        else
+            named?.UnionWith(programs);
     }
 
     /// <summary>Whether <paramref name="name"/> is the method an invocation calls, rather than a method group passed on.</summary>

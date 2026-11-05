@@ -28,11 +28,11 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <summary>The same for each set's spawned-object sheets.</summary>
     internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>> spawnedRotPictures;
 
-    /// <summary>Each set's enemy sheets' frames' pictures of the rots at which they show nothing (#1513).</summary>
-    internal readonly Dictionary<EnemySheetKey, IReadOnlySet<string>> blankRotPictures;
+    /// <summary>Each set's enemy sheets' frames' pictures that show nothing (#1513).</summary>
+    internal readonly Dictionary<EnemySheetKey, IReadOnlySet<string>> blankPictures;
 
     /// <summary>The same for each set's spawned-object sheets.</summary>
-    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>> spawnedBlankRotPictures;
+    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>> spawnedBlankPictures;
 
     /// <summary>
     /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and owner, with how each of
@@ -44,26 +44,26 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(spawnedObjects);
-        var (sheets, variations, rotPictures, blankRotPictures) = enemies;
-        var (spawned, spawnedVariations, spawnedRotPictures, spawnedBlankRotPictures) = spawnedObjects;
+        var (sheets, variations, rotPictures, blankPictures) = enemies;
+        var (spawned, spawnedVariations, spawnedRotPictures, spawnedBlankPictures) = spawnedObjects;
         this.sheets = new Dictionary<EnemySheetKey, SpriteSheet>(Ensure.NotNull(sheets));
         this.spawned = new Dictionary<SpawnedObjectSheetKey, SpawnedObjectSheet>(Ensure.NotNull(spawned));
         this.variations = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>(Ensure.NotNull(variations));
         this.spawnedVariations = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>>(Ensure.NotNull(spawnedVariations));
         this.rotPictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, string>>(Ensure.NotNull(rotPictures));
         this.spawnedRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, string>>(Ensure.NotNull(spawnedRotPictures));
-        this.blankRotPictures = new Dictionary<EnemySheetKey, IReadOnlySet<string>>(Ensure.NotNull(blankRotPictures));
-        this.spawnedBlankRotPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>>(Ensure.NotNull(spawnedBlankRotPictures));
+        this.blankPictures = new Dictionary<EnemySheetKey, IReadOnlySet<string>>(Ensure.NotNull(blankPictures));
+        this.spawnedBlankPictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlySet<string>>(Ensure.NotNull(spawnedBlankPictures));
     }
 
     /// <inheritdoc/>
-    public bool RotShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture) =>
-        blankRotPictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlySet<string>? blank)
+    public bool ShowsNothing(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture) =>
+        blankPictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlySet<string>? blank)
             && blank.Contains(picture);
 
     /// <inheritdoc/>
-    public bool SpawnedRotShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture) =>
-        spawnedBlankRotPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlySet<string>? blank)
+    public bool SpawnedShowsNothing(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture) =>
+        spawnedBlankPictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlySet<string>? blank)
             && blank.Contains(picture);
 
     /// <inheritdoc/>

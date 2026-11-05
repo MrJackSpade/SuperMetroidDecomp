@@ -47,9 +47,12 @@ internal static class EncounterArtworkDrawingDefinitions
             Frames = [.. GunshipFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
         };
 
-    /// <summary>The takeoff's dust, which spawns once the engines have fired, after the last page.</summary>
+    /// <summary>
+    /// The takeoff's dust, which the engines raise once the fifth page has shown: never before the takeoff's first page,
+    /// so it has no picture of the characters the room's load leaves.
+    /// </summary>
     private static readonly EncounterArtworkDrawing GunshipDust =
-        new(EncounterArtworkSequence.GunshipLiftoff, DrawnBeforeFirstStep: true, [new(4, 4)])
+        new(EncounterArtworkSequence.GunshipLiftoff, DrawnBeforeFirstStep: false, [new(4, 4)])
         {
             Projectiles = [.. GunshipDustVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
@@ -156,6 +159,16 @@ internal static class EncounterArtworkDrawingDefinitions
             Projectiles = [.. MotherBrainEffectFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
+    /// <summary>
+    /// Mother Brain's red hand beam, which only her second phase fires: she stands to attack once her rise has shown its
+    /// last attack page, and her rainbow beam ends the phase long before the Baby's first page.
+    /// </summary>
+    private static readonly EncounterArtworkDrawing MotherBrainHandBeam =
+        new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: false, [new(11, 11)])
+        {
+            Projectiles = [.. MotherBrainHandBeamVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+        };
+
     /// <summary>The dust rising from Mother Brain's death, her corpse's rot and the exploding escape door.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainDust =
         new(EncounterArtworkSequence.MotherBrainPages, DrawnBeforeFirstStep: true, [new(20, 34)])
@@ -187,6 +200,7 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainBody,
         BabyMetroid,
         MotherBrainEffects,
+        MotherBrainHandBeam,
         MotherBrainDust,
         MotherBrainCorpse,
     ];

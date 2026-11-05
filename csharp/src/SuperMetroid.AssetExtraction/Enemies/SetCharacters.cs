@@ -33,6 +33,9 @@ internal sealed class SetCharacters
     /// <summary>Each rot's character table, by the rot it shows.</summary>
     private readonly Dictionary<string, byte[]> rotTables = new(StringComparer.Ordinal);
 
+    /// <summary>Each combination of sequence steps' character table, by the steps it shows.</summary>
+    private readonly Dictionary<string, byte[]> stepTables = new(StringComparer.Ordinal);
+
     /// <summary>
     /// The table as the room load leaves it, the artwork sequences the set's encounters play, and the corpses of a kind that
     /// rot in the set's rooms.
@@ -74,7 +77,8 @@ internal sealed class SetCharacters
     /// distinct looks the sequences give it at the steps <paramref name="drawings"/> says it is drawn at (#1513), each step
     /// of a sequence that leaves the frame as an earlier step did sharing that step's picture, and its loaded picture only
     /// when it is drawn before a sequence's first step or a step it is drawn at leaves it as loaded. A sequence no entry
-    /// lists the frame for leaves it as loaded. Only a corpse's own frames show its rot (#1406).
+    /// lists the frame for leaves it as loaded. Only a corpse's own frames show its rot (#1406). A picture in which every
+    /// character the frame reads is blank shows nothing: it is named among the frame's blank pictures instead of composed.
     /// </summary>
     /// <param name="name">The frame's name, which names its pictures.</param>
     /// <param name="frame">The frame.</param>
@@ -119,23 +123,42 @@ internal sealed class SetCharacters
             if (pictures.Any(step => step is not null))
                 variations.Add(new FrameArtworkVariation(sequence.Sequence, [.. pictures], [.. drawnAt], drawn.DrawnBeforeFirstStep));
         }
+        // A picture in which every character the frame reads is blank shows nothing: it is on no sheet, and the frame draws
+        // nothing while it shows it (#1513).
         if (variations.Count == 0)
-            return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null, []);
-        return new FramePictures(name, [.. FrameVariationPictures.Combinations(variations).Select(combination =>
-            new SheetFrameSource(FrameArtworkVariation.PictureName(name, combination), frame, Page(combination)))], [.. variations], null, []);
+        {
+            return ShowsNothing(table, read) ? new FramePictures(name, [], [], null, [name])
+                : new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null, []);
+        }
+        var sources = new List<SheetFrameSource>();
+        var blank = new List<string>();
+        foreach (IReadOnlyList<EncounterArtworkStep> combination in FrameVariationPictures.Combinations(variations))
+        {
+            string picture = FrameArtworkVariation.PictureName(name, combination);
+            if (ShowsNothing(Characters(combination), read))
+                blank.Add(picture);
+            else
+                sources.Add(new SheetFrameSource(picture, frame, Page(combination)));
+        }
+        return new FramePictures(name, sources, [.. variations], null, blank);
     }
 
     /// <summary>
     /// The pictures of a frame drawn over the rows of <paramref name="corpse"/> (#1406): the frame whole over the set's
     /// characters, which it shows before the corpse's kind first rots, then over each rot the kind can show at which a
-    /// character it reads holds a pixel; at a rot that leaves every character it reads blank it shows nothing, so that rot
-    /// is one of its blank rots and on no sheet (#1513).
+    /// character it reads holds a pixel; at a rot that leaves every character it reads blank it shows nothing, so that
+    /// rot's picture is one of its blank pictures and on no sheet (#1513), as is the frame over the set's characters when
+    /// they leave every character it reads blank.
     /// </summary>
     private FramePictures RotPictures(string name, SpriteFrame frame, CorpseRotSimulation corpse)
     {
         int[] read = [.. frame.Parts.SelectMany(Read).Distinct().Order()];
-        var sources = new List<SheetFrameSource> { new(name, frame, Loaded) };
+        var sources = new List<SheetFrameSource>();
         var blank = new List<string>();
+        if (ShowsNothing(table, read))
+            blank.Add(name);
+        else
+            sources.Add(new(name, frame, Loaded));
         foreach (CorpseRotState state in corpse.States)
         {
             string picture = state.View.PictureName(name);
@@ -191,15 +214,25 @@ internal sealed class SetCharacters
         string key = FrameArtworkVariation.PictureName("page", combination);
         if (pages.TryGetValue(key, out SpriteArtwork? page))
             return page;
+        page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), Characters(combination));
+        pages.Add(key, page);
+        return page;
+    }
+
+    /// <summary>The character table <see cref="Page"/> shows for <paramref name="combination"/>, built once.</summary>
+    private byte[] Characters(IReadOnlyList<EncounterArtworkStep> combination)
+    {
+        string key = FrameArtworkVariation.PictureName("page", combination);
+        if (stepTables.TryGetValue(key, out byte[]? known))
+            return known;
         byte[] shown = [.. table];
         foreach ((EncounterArtworkSequence sequence, int step) in combination)
         {
             foreach (EncounterArtworkUpload upload in sequences.Single(played => played.Sequence == sequence).Steps.Take(step + 1).SelectMany(copies => copies))
                 upload.ApplyTo(shown);
         }
-        page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), shown);
-        pages.Add(key, page);
-        return page;
+        stepTables.Add(key, shown);
+        return shown;
     }
 
     /// <summary>The bytes of <paramref name="characters"/>'s characters <paramref name="read"/> names, spelled for comparing.</summary>

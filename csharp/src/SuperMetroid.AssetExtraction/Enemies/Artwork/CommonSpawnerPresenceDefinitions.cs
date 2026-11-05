@@ -80,8 +80,14 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>The escape's falling Ceres tiles.</summary>
     private static readonly CommonSpawnerPresence CeresDebris = new() { Mains = FallingDebris, Shades = [CommonSpawnerShades.CeresDoorLooks] };
 
-    /// <summary>Ridley's fireballs and afterburns, with the getaway.</summary>
-    private static readonly CommonSpawnerPresence RidleyFire = new()
+    /// <summary>
+    /// Ridley's fireballs, afterburns and dust, which only his fights spawn: the getaway after Ceres Ridley's fight flies
+    /// him off over the room's floor and spawns none of them.
+    /// </summary>
+    private static readonly CommonSpawnerPresence RidleyFire = new() { Enemies = Ridleys, Shades = [CommonSpawnerShades.RidleySprites] };
+
+    /// <summary>Ridley's fight code, with the getaway that follows Ceres Ridley's fight.</summary>
+    private static readonly CommonSpawnerPresence RidleyGetaway = new()
     {
         Enemies = Ridleys, Mains = [RoomMainCallback.HandleCeresRidleyGetawayCutscene], Shades = [CommonSpawnerShades.RidleySprites],
     };
@@ -126,8 +132,8 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(CeresElevatorArrivalDefinitions)] = ElevatorArrival,
         [nameof(CeresElevatorArrivalAnimations)] = ElevatorArrival,
         [nameof(RidleyProjectiles)] = RidleyFire,
-        [nameof(RidleyTail)] = RidleyFire,
-        [nameof(CeresRidleyBehavior)] = RidleyFire,
+        [nameof(RidleyTail)] = RidleyGetaway,
+        [nameof(CeresRidleyBehavior)] = RidleyGetaway,
         [nameof(CrocomireEncounterAccess)] = new() { Enemies = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue] },
         [nameof(DeadMonsterFrame)] = new() { Enemies = Corpses },
         [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile] },

@@ -163,7 +163,7 @@ internal static class GrappleFlarePresentationVerification
         samus.Grapple.FlareCounter = 0;
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real actor fixture reaches Grapple flare path");
         samus.Grapple.FlareCounter = 2;
-        InstalledSpriteSheets rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
+        InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
         game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor draws the same flare from rebound sheets");
         runtime.Sprites.BeginFrame();

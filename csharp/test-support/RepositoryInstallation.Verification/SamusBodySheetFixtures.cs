@@ -22,7 +22,8 @@ internal static class SamusBodySheetFixtures
             SpriteSheetId.SamusDeath];
 
     /// <summary>The installation's stock artwork, which a fixture's body replaces.</summary>
-    private static readonly Lazy<SamusSheetInputs> inputs = new(() => SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+    private static readonly Lazy<SamusSheetInputs> inputs = new(() => SharedFixtureTiming.Load("Fixture: Samus sheet inputs",
+        () => SamusSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory)));
 
     /// <summary>The installation's stock artwork and the colour tables Samus's sheets are pre-coloured from.</summary>
     internal static SamusSheetInputs Inputs => inputs.Value;

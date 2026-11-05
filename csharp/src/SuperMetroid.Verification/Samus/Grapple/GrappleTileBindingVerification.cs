@@ -39,7 +39,7 @@ internal static class GrappleTileBindingVerification
         samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
         game.AdoptRuntime(runtime);
-        InstalledSpriteSheets stock = InstalledFixtures.SpriteSheets, rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
+        InstalledSpriteSheets stock = InstalledFixtures.SpriteSheets, rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.Grapple);
         game.BindArtwork(game.Artwork with { SpriteSheets = stock });
         AssertBoundTo(runtime, stock, "Actual actor pass draws the installed grapple sheet");
 

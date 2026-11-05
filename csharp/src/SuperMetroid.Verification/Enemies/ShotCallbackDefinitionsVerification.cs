@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -85,17 +86,21 @@ internal static class ShotCallbackDefinitionsVerification
         foreach (int address in shotCallbacks)
             AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)address),
                 classifyShot(SnesLittleEndianConstants.BankByte(address), (ushort)address), "real shot classifier native parity");
-        for (int bank = 0; bank <= 255; bank++)
-        for (int pointer = 0; pointer <= 65535; pointer++)
+        // Every bank/pointer pair: the classifiers read only frozen catalogs and the expected sets are only read, so each
+        // bank's sweep runs on its own worker (#1532).
+        ParallelSweep.For(0, 256, bank =>
         {
-            int address = ((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)));
-            AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)pointer),
-                classifyShot((byte)bank, (ushort)pointer),
-                "bank-qualified shot identity");
-            AssertEqual(expectedTouchNoOps.Contains(address) || IsEngineReturn((ushort)pointer),
-                classifyTouch((byte)bank, (ushort)pointer),
-                "bank-qualified touch identity");
-        }
+            for (int pointer = 0; pointer <= 65535; pointer++)
+            {
+                int address = ((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)));
+                AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)pointer),
+                    classifyShot((byte)bank, (ushort)pointer),
+                    "bank-qualified shot identity");
+                AssertEqual(expectedTouchNoOps.Contains(address) || IsEngineReturn((ushort)pointer),
+                    classifyTouch((byte)bank, (ushort)pointer),
+                    "bank-qualified touch identity");
+            }
+        });
         AssertTrue(EnemyInteractionCallbacks.HitboxScan(0x94b5) == EnemyHitboxScan.Scanned &&
             EnemyInteractionCallbacks.HitboxScan(0x804b) == EnemyHitboxScan.Withheld &&
             EnemyInteractionCallbacks.HitboxScan(0x804c) == EnemyHitboxScan.Withheld,

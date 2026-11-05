@@ -15,7 +15,7 @@ internal static class AudioSoundProgramsVerification
     internal static void VerifySoundEffectPrograms()
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
+        ExtractedAudioAssetCatalog stock = InstalledFixtures.Audio;
         var rawPlayer = new ManagedSpcPlayer();
         rawPlayer.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
 

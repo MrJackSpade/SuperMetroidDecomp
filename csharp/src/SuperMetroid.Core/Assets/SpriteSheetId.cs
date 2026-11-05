@@ -7,11 +7,9 @@ public enum SpriteSheetId
     EscapeTimer,
     /// <summary>The grapple beam's endpoint and rope.</summary>
     Grapple,
-    /// <summary>Samus's body frames that show the top half's characters, or neither half's.</summary>
-    SamusBodyTop,
-    /// <summary>Samus's body frames that show only the bottom half's characters.</summary>
-    SamusBodyBottom,
-    /// <summary>The arm cannon's covers and the chest cover drawn over Samus's body.</summary>
+    /// <summary>Samus's full-body frames, one per body an update draws.</summary>
+    SamusBody,
+    /// <summary>The arm cannon's covers drawn over Samus's body.</summary>
     SamusOverlays,
     /// <summary>Samus's footstep splashes, lava spray, dust, diving splash and bubbles.</summary>
     SamusAtmosphere,

@@ -5,10 +5,8 @@ public enum SpriteSourceKind
 {
     /// <summary>The Ceres or Zebes escape countdown.</summary>
     EscapeTimer,
-    /// <summary>Samus's body: instance 0 is the top spritemap, 1 the bottom one.</summary>
+    /// <summary>Samus's whole body.</summary>
     Samus,
-    /// <summary>The power-suit chest cover drawn over forward-facing Samus.</summary>
-    SamusChest,
     /// <summary>The arm-cannon cover.</summary>
     SamusArmCannon,
     /// <summary>A splash, bubble or dust effect; the instance is its atmospheric slot.</summary>
@@ -19,7 +17,7 @@ public enum SpriteSourceKind
     SamusGrappleRope,
     /// <summary>The grapple beam's endpoint.</summary>
     SamusGrappleEndpoint,
-    /// <summary>A speed-booster or shinespark-crash echo of Samus; the instance is its echo slot times two plus top (0) or bottom (1).</summary>
+    /// <summary>A speed-booster or shinespark-crash echo of Samus; the instance is its echo slot.</summary>
     SamusEcho,
     /// <summary>Samus's death explosion.</summary>
     SamusDeathExplosion,

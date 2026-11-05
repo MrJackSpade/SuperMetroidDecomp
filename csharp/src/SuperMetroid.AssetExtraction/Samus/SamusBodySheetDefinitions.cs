@@ -1,10 +1,9 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// How the body sheets name Samus's pictures (#1392): each spritemap over the body characters the selected tile
-/// definitions make visible, named by the spritemap and the definition records whose characters it reads. Every
-/// spritemap reads either the top half's characters (0-7 and 16-23) or the bottom half's (8-15 and 24-31), so a frame
-/// is named by the one record it shows; a spritemap reading neither shows no record.
+/// How the body sheet names Samus's pictures (#1392, #1513): each full body over the body characters the selected tile
+/// definitions make visible, named by its spritemaps and the definition records whose characters they read. A
+/// spritemap reads the top half's characters (0-7 and 16-23), the bottom half's (8-15 and 24-31), or neither.
 /// </summary>
 internal static class SamusBodySheetDefinitions
 {

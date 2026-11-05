@@ -720,10 +720,9 @@ Melt JSON rejects unknown fields and duplicate names, including case aliases,
 at the document root and inside cells. Existing case-insensitive field spelling
 is still accepted. Invalid or missing melt/corpse resources are rejected before
 their initializer changes actor state, phase counters or mutable graphics tables.
-The focused `--enemy-effect-isolation` verifier replaces both melt maps/images
-and Mother Brain corpse pixels with authored PNG/JSON. It checks both 54-call
-dissolves and the 118-call corpse rot, including exact erase/HDMA, row completion,
-smoke, band-selection and audio schedules. Production receives RAM only; these checks
+The focused `--enemy-effect-mechanics` verifier checks both 54-call dissolves and
+the 118-call corpse rot, including exact erase/HDMA, row completion, smoke,
+band-selection and audio schedules. Production receives RAM only; these checks
 verify identified conversion paths, not the complete battles or every corpse family.
 `--enemy-effect-resources` checks failure before mutation, `--crocomire-melt-json`
 checks strict fields, and `--mother-brain-corpse-stock-artwork` uses import-only

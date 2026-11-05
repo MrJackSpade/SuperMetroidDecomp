@@ -173,15 +173,19 @@ internal static class EnemyDefinitionBoundaryVerification
         }
     }
 
-    /// <summary>Checks corpse rotation offsets, the extraction's row upload descriptors, Torizo touch boxes, and sand tile sources.</summary>
+    /// <summary>
+    /// Checks the pictured corpses' rotation offsets, the extraction's dead Sidehopper row upload descriptors, Torizo touch
+    /// boxes, and sand tile sources. A dead Zoomer, Ripper or Skree is drawn through its rows as its rot leaves them (#1531),
+    /// so the extraction stages none of theirs.
+    /// </summary>
     internal static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
         foreach ((ushort pointer, int count) in new VerifyCorpseMetadataDefinitionsCase[]
-            { new VerifyCorpseMetadataDefinitionsCase(0xe226, 13), new VerifyCorpseMetadataDefinitionsCase(0xe240, 6), new VerifyCorpseMetadataDefinitionsCase(0xe24c, 3), new VerifyCorpseMetadataDefinitionsCase(0xe252, 3), new VerifyCorpseMetadataDefinitionsCase(0xe258, 5) })
+            { new VerifyCorpseMetadataDefinitionsCase(0xe226, 13), new VerifyCorpseMetadataDefinitionsCase(0xe240, 6) })
             for (int i = 0; i < count; i++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 2))),
                     Corpses.CorpseRowLayouts.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
-        foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
+        foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a })
         {
             var records = DeadMonsterRowUploadDefinitions.ForKind(CorpseNativeAddresses.TransferTableAt(pointer));
             for (int i = 0; i < records.Length; i++)

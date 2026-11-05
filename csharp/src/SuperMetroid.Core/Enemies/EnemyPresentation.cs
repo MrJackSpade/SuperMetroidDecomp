@@ -91,8 +91,10 @@ internal sealed class EnemyPresentation
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
-    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, shading and rot.</param>
-    /// <exception cref="InvalidDataException">A frame showing a corpse's rot is drawn without that rot.</exception>
+    /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, shading, rot and rotting rows.</param>
+    /// <exception cref="InvalidDataException">
+    /// A frame showing a corpse's rot is drawn without that rot, or a rotting corpse's frame is not as tall as its rows.
+    /// </exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
         (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin, CorpseRotView? rot) = draw;
@@ -103,7 +105,17 @@ internal sealed class EnemyPresentation
         // a corpse's rot leaves them, shows nothing: the sheet holds none and the frame draws nothing then (#1513).
         if (Sheets.ShowsNothing(LoadedSet, enemy, picture))
             return;
-        sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
+        SpriteSheetFrame image = sheet.Frame(picture);
+        if (draw.RotRows is { } rows)
+        {
+            // A rotting corpse's picture is its rows, top to bottom (#1531): the rot moves them within it.
+            if (rows.Count != image.Size.Y)
+                throw new InvalidDataException($"Sheet frame {picture} of {enemy} is {image.Size.Y} rows tall, but the corpse it shows rots {rows.Count} rows.");
+            // Once the rot has cleared every row, the frame draws nothing.
+            if (rows.ShowsNothing)
+                return;
+        }
+        sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None) { Shading = shading, RotRows = draw.RotRows });
     }
 
     /// <summary>

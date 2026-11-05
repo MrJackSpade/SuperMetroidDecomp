@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One DeadTourian occupant: its own AI handlers, with the shared reactions.</summary>
@@ -6,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
-        IShowsCorpseRot
+        IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotView ShownRot => species.ShownDeadTourianRot(Slot);
+    public CorpseRotRows ShownRotRows => species.ShownDeadTourianRows(Slot);
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTourianCorpse;

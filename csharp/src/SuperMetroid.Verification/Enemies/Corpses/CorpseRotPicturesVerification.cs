@@ -29,16 +29,16 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// </summary>
 internal static class CorpseRotPicturesVerification
 {
-    /// <summary>The Tourian corpses of the Baby Metroid's room, one of each kind, by definition and first population parameter.</summary>
+    /// <summary>
+    /// The pictured Tourian corpses of the Baby Metroid's room, one of each kind, by definition and first population
+    /// parameter: the dead Sidehoppers. A dead Zoomer, Ripper or Skree is drawn through its rows instead (#1531).
+    /// </summary>
     private static readonly (EnemyDefinitionId Enemy, int Parameter)[] TourianCorpses =
     [
         (EnemyDefinitionId.CorpseSidehopper, 0), (EnemyDefinitionId.CorpseSidehopper, 2),
-        (EnemyDefinitionId.CorpseZoomer, 0), (EnemyDefinitionId.CorpseZoomer, 2), (EnemyDefinitionId.CorpseZoomer, 4),
-        (EnemyDefinitionId.CorpseRipper, 0), (EnemyDefinitionId.CorpseRipper, 2),
-        (EnemyDefinitionId.CorpseSkree, 0), (EnemyDefinitionId.CorpseSkree, 2), (EnemyDefinitionId.CorpseSkree, 4),
     ];
 
-    /// <summary>Rots each Tourian corpse and the dead Torizo through the runtime, checking the picture each update selects.</summary>
+    /// <summary>Rots each pictured Tourian corpse and the dead Torizo through the runtime, checking the picture each update selects.</summary>
     internal static void VerifyCorpseRotPictures()
     {
         foreach ((EnemyDefinitionId enemy, int parameter) in TourianCorpses)
@@ -170,22 +170,16 @@ internal static class CorpseRotPicturesVerification
                 return new CorpseRotView(DeadTorizoCorpseDefinitions.Kind, [even, odd]);
             });
         }
-        if (slot.DefinitionId == EnemyDefinitionId.CorpseSidehopper)
-        {
-            DeadSidehopperEnemyState sidehopper = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
-            if (sidehopper.Function == DeadSidehopperAiFunction.AliveWaitForCamera)
-                DeadSidehopperBehavior.SetDeadSidehopperProgram(slot, sidehopper, DeadTourianProgram.SidehopperCorpse);
-            DeadSidehopperBehavior.TriggerDeadSidehopperRotting(slot, sidehopper);
-            return Batch(sidehopper.Flesh, () => sidehopper.ProcessCallCount, () => sidehopper.Function == DeadSidehopperAiFunction.Rotting);
-        }
-        DeadTourianCorpseEnemyState corpse = slot.RequireSpeciesState<DeadTourianCorpseEnemyState>();
-        DeadTourianBehavior.TriggerDeadTourianCorpseRotting(slot);
-        return Batch(corpse.Flesh, () => corpse.ProcessCallCount, () => corpse.Function == DeadTourianCorpseFunction.Rotting);
+        DeadSidehopperEnemyState sidehopper = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
+        if (sidehopper.Function == DeadSidehopperAiFunction.AliveWaitForCamera)
+            DeadSidehopperBehavior.SetDeadSidehopperProgram(slot, sidehopper, DeadTourianProgram.SidehopperCorpse);
+        DeadSidehopperBehavior.TriggerDeadSidehopperRotting(slot, sidehopper);
+        return Batch(sidehopper.Flesh, () => sidehopper.ProcessCallCount, () => sidehopper.Function == DeadSidehopperAiFunction.Rotting);
     }
 
     /// <summary>
-    /// A dead monster, whose rows the cartridge uploads after each rot step it takes: they show the set's characters before
-    /// its first step, then the step last taken.
+    /// A dead Sidehopper, whose rows the cartridge uploads after each rot step it takes: they show the set's characters
+    /// before its first step, then the step last taken.
     /// </summary>
     private static Rot Batch(RottingCorpseKind kind, Func<uint> steps, Func<bool> rotting) =>
         new(kind, steps, rotting, () => new CorpseRotView(kind, [steps() is uint taken and > 0 ? checked((int)taken) : null]));

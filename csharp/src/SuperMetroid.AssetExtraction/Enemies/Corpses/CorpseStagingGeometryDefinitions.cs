@@ -56,8 +56,8 @@ internal static class CorpseStagingGeometryDefinitions
         {
             RottingCorpseSpecies.Torizo => new CorpseRotationExtent(13, 10),
             RottingCorpseSpecies.Sidehopper => new CorpseRotationExtent(6, 5),
-            RottingCorpseSpecies.Zoomer or RottingCorpseSpecies.Ripper => new CorpseRotationExtent(3, 3),
-            RottingCorpseSpecies.Skree => new CorpseRotationExtent(5, 2),
+            RottingCorpseSpecies.Zoomer or RottingCorpseSpecies.Ripper or RottingCorpseSpecies.Skree => throw new InvalidOperationException(
+                $"A dead {species} is drawn through its rows as its rot leaves them; the extraction stages none."),
             _ => throw new InvalidOperationException($"Undefined RottingCorpseSpecies {species}."),
         };
 

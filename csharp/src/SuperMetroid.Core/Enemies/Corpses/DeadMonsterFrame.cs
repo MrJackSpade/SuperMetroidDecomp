@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -5,9 +6,10 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// State shared by the dead-monster family (dead sidehoppers and Tourian corpses): the rot steps each kind of corpse has
-/// taken, which corpses of one kind take together, the rot each kind's frames show, and the dust sound the family
-/// requests.
+/// State shared by the dead-monster family (dead sidehoppers and Tourian corpses): the rot steps each kind of dead
+/// Sidehopper has taken, which corpses of one kind take together, and the rot its frames show; the rows each kind of dead
+/// Zoomer, Ripper or Skree shows as its rot calls have left them (#1531), which its frames are drawn through; and the dust
+/// sound the family requests.
 /// </summary>
 [RoomLifetime]
 internal sealed class DeadMonsterFrame
@@ -23,6 +25,28 @@ internal sealed class DeadMonsterFrame
 
     /// <summary>The rot step each kind of corpse's frames show, from the first step it takes.</summary>
     private readonly Dictionary<RottingCorpseKind, int> shownSteps = [];
+
+    /// <summary>The rows each kind of dead Zoomer, Ripper or Skree shows as its rot calls have left them (#1531).</summary>
+    private readonly Dictionary<RottingCorpseKind, RottingCorpseRows> rottingRows = [];
+
+    /// <summary>
+    /// Starts the rows of <paramref name="kind"/>, <paramref name="rowCount"/> pixel rows tall, over, as a corpse of that
+    /// kind copies its characters in afresh; every corpse of the kind rots the one copy.
+    /// </summary>
+    internal void BeginRows(RottingCorpseKind kind, int rowCount) => rottingRows[kind] = new RottingCorpseRows(rowCount);
+
+    /// <summary>Moves pixel row <paramref name="row"/> of <paramref name="kind"/>'s rows as one of its corpses' rot calls does.</summary>
+    /// <exception cref="InvalidOperationException">No corpse of the kind has copied its characters in.</exception>
+    internal void MoveRow(RottingCorpseKind kind, int row, CorpseRowOperation operation) => RowsOf(kind).MoveRow(row, operation);
+
+    /// <summary>The rows every corpse of <paramref name="kind"/> shows now, which its frames are drawn through.</summary>
+    /// <exception cref="InvalidOperationException">No corpse of the kind has copied its characters in.</exception>
+    internal CorpseRotRows ShownRows(RottingCorpseKind kind) => RowsOf(kind).Shown;
+
+    /// <summary>The rows of <paramref name="kind"/>, which a corpse of the kind has begun.</summary>
+    /// <exception cref="InvalidOperationException">No corpse of the kind has copied its characters in.</exception>
+    private RottingCorpseRows RowsOf(RottingCorpseKind kind) => rottingRows.TryGetValue(kind, out RottingCorpseRows? rows) ? rows
+        : throw new InvalidOperationException($"{kind.Name}'s rows are shown before a corpse copies its characters in.");
 
     /// <summary>
     /// Starts the rot of <paramref name="kind"/>'s staged characters over, as a corpse of that kind copies them in afresh;

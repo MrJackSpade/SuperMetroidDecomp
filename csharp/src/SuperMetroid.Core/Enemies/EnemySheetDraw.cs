@@ -15,4 +15,10 @@ internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Pos
     /// for the picture's standard colours.
     /// </summary>
     public PictureShading? Shading { get; init; }
+
+    /// <summary>
+    /// The rows a rotting corpse's frame shows as its rot has left them (#1531), which the frame is drawn through; null for
+    /// an enemy whose frames show their pictures' rows as they are.
+    /// </summary>
+    public CorpseRotRows? RotRows { get; init; }
 }

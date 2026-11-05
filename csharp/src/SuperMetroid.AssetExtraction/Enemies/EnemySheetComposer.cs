@@ -284,7 +284,8 @@ internal static class EnemySheetComposer
             var rots = new Dictionary<string, string>(StringComparer.Ordinal);
             var blank = new HashSet<string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            FramePictures[] pictures = [.. Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters, CorpseRotSimulation.Rots(enemy))];
+            FramePictures[] pictures = [.. Frames(inputs.Enemies, shown, checked((ushort)tileBase), loaded.Characters, CorpseRotSimulation.Rots(enemy),
+                CorpseRowPictures.RowsOf(enemy))];
             // An enemy whose encounter sets its colours is coloured in those its frames first show in, and a frame family
             // always drawn in one colouring in that colouring (#1513).
             RgbColor[] colours = loaded.Shades.WithFrameColourings(loaded.Shades.FirstShownColours([enemy]), pictures, paletteBits,
@@ -402,10 +403,22 @@ internal static class EnemySheetComposer
     /// are composed into it at their placements (#1513).
     /// </summary>
     private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown,
-        int tileBase, SetCharacters characters, bool showsRot) =>
+        int tileBase, SetCharacters characters, bool showsRot, int? corpseRows) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(tileBase),
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, CorpseRows(frame.Name, frame.Picture(tileBase), corpseRows),
             FrameDrawings.Of(frame.Frame), showsRot));
+
+    /// <summary>
+    /// <paramref name="picture"/>, which must be its corpse's <paramref name="corpseRows"/> rows, top to bottom, when its
+    /// enemy is a corpse the game draws through its rows as its rot leaves them (#1531).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The corpse's frame is not its rows.</exception>
+    private static SpriteFrame CorpseRows(string name, SpriteFrame picture, int? corpseRows)
+    {
+        if (corpseRows is int rows)
+            CorpseRowPictures.Require(name, picture, rows);
+        return picture;
+    }
 
     /// <summary>
     /// Each shown frame's composition by sheet frame name: an ordinary frame as one piece at the frame's origin, an

@@ -12,8 +12,9 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// <summary>
 /// A rotting corpse's staged characters, rotted as the cartridge rots them (#1392): the bytes of each row it uploads after
 /// each rot step, from which its sheet pictures every rot its frames can show, and the rots its rows can show together. A
-/// dead monster or the dead Torizo selects the rot its frames show by its kind (#1406); Mother Brain's corpse is pictured
-/// for each rot step its encounter's artwork sequence reaches (#1513). Nothing rots pixels at run time.
+/// dead Sidehopper or the dead Torizo selects the rot its frames show by its kind (#1406); Mother Brain's corpse is
+/// pictured for each rot step its encounter's artwork sequence reaches (#1513). A dead Zoomer, Ripper or Skree is not
+/// pictured here: its sheet holds each frame once and the game draws it through its rows as its rot leaves them (#1531).
 /// </summary>
 internal sealed class CorpseRotSimulation
 {
@@ -82,9 +83,12 @@ internal sealed class CorpseRotSimulation
     /// <summary>Whether <paramref name="enemy"/>'s frames show a corpse whose characters rot: a corpse's, or Mother Brain's.</summary>
     internal static bool Rots(EnemyDefinitionId enemy) => ShowsSelectedRot(enemy) || ShowsUploadedRot(enemy);
 
-    /// <summary>Whether <paramref name="enemy"/>'s frames show the rot a corpse of a kind selects: a dead monster's or the dead Torizo's.</summary>
+    /// <summary>
+    /// Whether <paramref name="enemy"/>'s frames show the rot a corpse of a kind selects: a dead Sidehopper's or the dead
+    /// Torizo's. A dead Zoomer, Ripper or Skree is drawn through its rows as its rot leaves them instead (#1531).
+    /// </summary>
     internal static bool ShowsSelectedRot(EnemyDefinitionId enemy) =>
-        enemy is EnemyDefinitionId.CorpseTorizo or EnemyDefinitionId.CorpseSidehopper || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy);
+        enemy is EnemyDefinitionId.CorpseTorizo or EnemyDefinitionId.CorpseSidehopper;
 
     /// <summary>Whether <paramref name="enemy"/>'s frames show Mother Brain's corpse as its uploaded rows leave it.</summary>
     internal static bool ShowsUploadedRot(EnemyDefinitionId enemy) =>
@@ -110,12 +114,6 @@ internal sealed class CorpseRotSimulation
                 corpses.Add(Sidehopper(enemies, 0, DeadSidehopperCorpseDefinitions.InitiallyAlive));
                 corpses.Add(Sidehopper(enemies, 2, DeadSidehopperCorpseDefinitions.InitiallyDead));
             }
-            else if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
-            {
-                DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianBehavior.ProfileForDeadTourianCorpse(enemy);
-                for (int variant = 0; variant < profile.VariantCount; variant++)
-                    corpses.Add(Tourian(enemies, profile.Species, variant));
-            }
         }
         return corpses;
     }
@@ -126,16 +124,6 @@ internal sealed class CorpseRotSimulation
         CorpseStaging staged = CorpseStaging.Sidehopper(
             Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
         return Batch(definition.Kind, staged, CorpseRowGeometry.Sidehopper(graphicsVariant), definition.RowCount);
-    }
-
-    /// <summary>Variant <paramref name="variant"/> of a dead Zoomer, Ripper or Skree.</summary>
-    private static CorpseRotSimulation Tourian(EnemyTileSourceArtwork enemies, DeadTourianCorpseSpecies species, int variant)
-    {
-        DeadTourianCorpseVariant layout = DeadTourianCorpseStagingDefinitions.Variants(species)[variant];
-        DeadTourianCorpseDefinition definition = DeadTourianCorpses.For(species, variant);
-        CorpseStaging staged = CorpseStaging.Tourian(
-            Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), layout);
-        return Batch(definition.Kind, staged, CorpseRowGeometry.Tourian(species, layout), definition.RowCount);
     }
 
     /// <summary>

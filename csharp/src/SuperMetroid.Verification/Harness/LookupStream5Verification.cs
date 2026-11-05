@@ -1433,11 +1433,14 @@ internal static class LookupStream5Verification
             AssertEqual(identity,source.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
         }
     }
-    /// <summary>Checks the extraction's corpse row upload lists and the corpse geometry bounds.</summary>
+    /// <summary>
+    /// Checks the extraction's dead Sidehopper row upload lists and the corpse geometry bounds. A dead Zoomer, Ripper or
+    /// Skree is drawn through its rows as its rot leaves them (#1531), so the extraction keeps no upload list of theirs.
+    /// </summary>
     internal static void VerifyLookupStream5CorpseViews()
     {
         var expected = new List<CorpseRowUpload>();
-        foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
+        foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a })
         {
             var rows = DeadMonsterRowUploadDefinitions.ForKind(CorpseNativeAddresses.TransferTableAt(table));
             int index = 0;
@@ -1450,8 +1453,9 @@ internal static class LookupStream5Verification
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
         }
-        AssertTrue(expected.SequenceEqual(CorpseNativeAddresses.AllTransferTables.SelectMany(kind => DeadMonsterRowUploadDefinitions.ForKind(kind))),
-            "every kind's row uploads, in native list order");
+        AssertTrue(expected.SequenceEqual(CorpseNativeAddresses.AllTransferTables.Where(kind => kind.Species == RottingCorpseSpecies.Sidehopper)
+                .SelectMany(kind => DeadMonsterRowUploadDefinitions.ForKind(kind))),
+            "every dead Sidehopper kind's row uploads, in native list order");
         AssertThrows<InvalidDataException>(() => CorpseNativeAddresses.TransferTableAt(0xe0e1), "unaligned row upload list rejected");
         AssertThrows<InvalidDataException>(() => DeadMonsterRowUploadDefinitions.ForKind(DeadTorizoCorpseDefinitions.Kind), "the Torizo corpse uploads by halves");
         AssertThrows<InvalidDataException>(() => SuperMetroid.Verification.Enemies.Corpses.CorpseRowLayouts.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");

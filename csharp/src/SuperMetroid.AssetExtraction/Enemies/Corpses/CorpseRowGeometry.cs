@@ -21,11 +21,6 @@ internal sealed record CorpseRowGeometry(bool InHeap, int Rows, int TilesPerRow,
         [.. Enumerable.Range(0, 5).Select(column => CorpseStagingGeometryDefinitions.SidehopperColumnMinimumY(graphicsVariant, column))],
         copyLimit: 38);
 
-    /// <summary>A dead Zoomer's, Ripper's or Skree's movers for its variant <paramref name="layout"/>, which move every column from the top.</summary>
-    internal static CorpseRowGeometry Tourian(DeadTourianCorpseSpecies species, DeadTourianCorpseVariant layout) =>
-        InBg2(DeadTourianCorpseStagingDefinitions.RowLayout(species), [.. layout.ColumnWordOffsets.Select(offset => (int)offset)],
-            new int[layout.ColumnWordOffsets.Length], layout.MaximumY);
-
     /// <summary>The dead Torizo's movers.</summary>
     internal static CorpseRowGeometry Torizo { get; } = InBg2(RottingCorpseSpecies.Torizo,
         [.. Enumerable.Range(0, DeadTorizoGeometryDefinitions.Columns).Select(DeadTorizoGeometryDefinitions.ColumnWordOffset)],

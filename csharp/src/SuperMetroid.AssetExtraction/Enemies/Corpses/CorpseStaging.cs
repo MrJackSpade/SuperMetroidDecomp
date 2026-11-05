@@ -32,15 +32,6 @@ internal sealed class CorpseStaging
         return staged;
     }
 
-    /// <summary>A dead Zoomer's, Ripper's or Skree's staged characters for its variant <paramref name="layout"/>, copied from <paramref name="atlas"/>.</summary>
-    internal static CorpseStaging Tourian(ReadOnlySpan<byte> atlas, DeadTourianCorpseVariant layout)
-    {
-        var staged = new CorpseStaging();
-        foreach (CorpseGraphicsCopy copy in Ensure.NotNull(layout).InitialGraphicsCopies)
-            staged.Copy(atlas, copy);
-        return staged;
-    }
-
     /// <summary>
     /// The dead Torizo's staged characters: every byte cleared, then its rows copied from <paramref name="atlas"/>; its sand
     /// strips zero, as the session's rotting heap holds them until its sand falls.

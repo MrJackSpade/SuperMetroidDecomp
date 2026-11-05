@@ -114,6 +114,7 @@ internal static class NativeColouredPictures
             shown.Add(new ImageSpriteDraw(image.Source, Of(image.Image, copies[(image.Image.Sheet, DrawRow(image))]), image.Origin, image.Mirror)
             {
                 Shading = PictureShading.Standard,
+                RotRows = image.RotRows,
             });
         }
         return shown.MoveToImmutable();

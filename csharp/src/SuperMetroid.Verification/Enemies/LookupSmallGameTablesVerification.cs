@@ -8,7 +8,7 @@ using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;
 
-/// <summary>Checks compact native tables for falling tubes, bomb bounce, Crocomire debris, Rinkas, and corpse layouts.</summary>
+/// <summary>Checks compact native tables for falling tubes, bomb bounce, Crocomire debris and Rinkas.</summary>
 internal static class LookupSmallGameTablesVerification
 {
     /// <summary>
@@ -22,9 +22,8 @@ internal static class LookupSmallGameTablesVerification
         Suite(nameof(VerifyCrocomireBridgeDustPositions), () => VerifyCrocomireBridgeDustPositions(rom));
         Suite(nameof(VerifyCeresFallingDebrisColumns), () => VerifyCeresFallingDebrisColumns(rom));
         Suite(nameof(VerifyRinkaSpawnResources), () => VerifyRinkaSpawnResources(rom));
-        Suite(nameof(VerifyDeadTourianCorpseLayouts), () => VerifyDeadTourianCorpseLayouts(rom));
         Console.WriteLine("Small game tables: falling-tube bodies, bomb bounce gravity, " +
-            "Crocomire bridge dust, Ceres debris columns, Rinka resource tokens and dead Tourian corpse layouts match every native word.");
+            "Crocomire bridge dust, Ceres debris columns, and Rinka resource tokens match every native word.");
     }
 
     /// <summary>Checks five falling-tube body radius and floor records against bank $A9.</summary>
@@ -92,63 +91,4 @@ internal static class LookupSmallGameTablesVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), resource.Token, $"Rinka spawn {index} token");
         }
     }
-
-    /// <summary>Matches dead Tourian corpse copy geometry and initialization tile moves to native routines.</summary>
-    private static void VerifyDeadTourianCorpseLayouts(ISnesAddressSpace rom)
-    {
-        const int bank = 0xa90000, workBuffer = 0x2000;
-        int? tileSheetBase = null;
-        foreach ((DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianCorpseSpecies species) in new[]
-        {
-            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadZoomerProfile, DeadTourianCorpseSpecies.Zoomer),
-            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadRipperProfile, DeadTourianCorpseSpecies.Ripper),
-            new VerifyDeadTourianCorpseLayoutsCase(DeadTourianCorpseProfileDefinitions.DeadSkreeProfile, DeadTourianCorpseSpecies.Skree),
-        })
-        {
-            IReadOnlyList<DeadTourianCorpseVariant> variants = DeadTourianCorpseStagingDefinitions.Variants(species);
-            AssertEqual(profile.VariantCount, variants.Count, $"Dead {species} stages each of its variants");
-            for (int variant = 0; variant < variants.Count; variant++)
-            {
-                var layout = variants[variant];
-                string name = $"Dead {species} variant {variant}";
-
-                // Rot-entry copy routine: per column, LDA rotEntryYOffset / CMP #limit / BPL / LDA src,X ...
-                int configuration = bank | Corpses.DeadTourianCorpseDefinitionsVerification.ConfigurationPointer(rom, species, variant);
-                int copy = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord(configuration + 4);
-                for (int column = 0; column < layout.ColumnWordOffsets.Length; column++)
-                {
-                    int block = copy + 20 * column;
-                    AssertEqual((byte)0xc9, DeadTourianCorpseLayoutsRomByte(rom, block + 3), $"{name} column {column} CMP opcode");
-                    AssertEqual(layout.MaximumY, CartridgeImportSource.Require(rom).ReadCartridgeWord((block + 4)), $"{name} column {column} rot depth");
-                    AssertEqual((byte)0xbd, DeadTourianCorpseLayoutsRomByte(rom, block + 8), $"{name} column {column} LDA abs,X opcode");
-                    AssertEqual((ushort)(workBuffer / 2 + layout.ColumnWordOffsets[column]),
-                        (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((block + 9)) / 2), $"{name} column {column} word offset");
-                }
-                AssertEqual((byte)0x60, DeadTourianCorpseLayoutsRomByte(rom, copy + 20 * layout.ColumnWordOffsets.Length),
-                    $"{name} copy routine ends after its last column");
-
-                // Initialization routine: per tile row, PHB / LDX #sheet / LDY #work / LDA #length-1 / MVN / PLB.
-                // Production does not call the graphics-initialization routine; locate it through
-                // the native configuration record's sixth word.
-                int init = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord(configuration + 10);
-                for (int row = 0; row < layout.InitialGraphicsCopies.Length; row++)
-                {
-                    var expected = layout.InitialGraphicsCopies[row];
-                    int group = init + 14 * row;
-                    AssertEqual((byte)0xa2, DeadTourianCorpseLayoutsRomByte(rom, group + 1), $"{name} row {row} LDX opcode");
-                    AssertEqual((byte)0xa0, DeadTourianCorpseLayoutsRomByte(rom, group + 4), $"{name} row {row} LDY opcode");
-                    AssertEqual((byte)0x54, DeadTourianCorpseLayoutsRomByte(rom, group + 10), $"{name} row {row} MVN opcode");
-                    int sheetBase = CartridgeImportSource.Require(rom).ReadCartridgeWord((group + 2)) - expected.SourceOffset;
-                    tileSheetBase ??= sheetBase;
-                    AssertEqual(tileSheetBase.Value, sheetBase, $"{name} row {row} shares the corpse tile sheet");
-                    AssertEqual(workBuffer + expected.DestinationOffset, CartridgeImportSource.Require(rom).ReadCartridgeWord((group + 5)), $"{name} row {row} destination");
-                    AssertEqual(expected.Length - 1, CartridgeImportSource.Require(rom).ReadCartridgeWord((group + 8)), $"{name} row {row} length");
-                }
-                AssertEqual((byte)0x60, DeadTourianCorpseLayoutsRomByte(rom, init + 14 * layout.InitialGraphicsCopies.Length), $"{name} copies end with RTS");
-            }
-        }
-    }
-
-    /// <summary>Reads a retail opcode byte when checking dead-corpse copy and initialization routines.</summary>
-    private static byte DeadTourianCorpseLayoutsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

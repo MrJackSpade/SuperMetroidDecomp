@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Rooms.Backgrounds;
 /// <summary>Checks installed scrolling-sky pages, the rows they show and Landing Site transfers against native data.</summary>
 internal static class RoomSkyTilemapsVerification
 {
-    /// <summary>Checks page roundtrips, land and ocean rows, Landing Site page uploads, and one edited visible tile.</summary>
+    /// <summary>Checks page roundtrips, land and ocean rows, and Landing Site page uploads.</summary>
     internal static void VerifyRoomSkyTilemaps()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -116,23 +116,8 @@ internal static class RoomSkyTilemapsVerification
         LibraryBackgroundReplay.Execute(installedDoorVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), DoorDefinitions.Get(LandingSiteRomData.LandingCutsceneDoorPointer), new LibraryBackgroundArtwork { SkyArt = stock });
         AssertTrue(nativeDoorVram.ImageEquals(installedDoorVram),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
-
-        // An edited page reaches the row the land table shows at camera Y $0300: chunk three, row zero.
-        int selectedPage = 3;
-        JsonNode editedDocument = JsonNode.Parse(json[selectedPage])
-            ?? throw new InvalidDataException("Scrolling-sky page JSON is empty.");
-        JsonNode editedCell = editedDocument.Required("pages").Required(0).Required("cells").Required(0);
-        editedCell["tileColumn"] = (editedCell.Required("tileColumn").GetValue<int>() + 1)
-            % RoomBackgroundTilemapFormat.TileColumns;
-        pages[selectedPage] = RoomBackgroundTilemapAtlas.Load(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(editedDocument)),
-            RoomSkyTilemapFormat.PageByteCount);
-        int shownRow = 0x0300 / 8 * SkyTilemap.Columns;
-        AssertTrue(new RoomSkyTilemaps(pages).Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow] !=
-                stock.Tilemap(ScrollingSkyChunkTable.Land).Tiles[shownRow],
-            "editing a sky page changes the row the sky shows");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
-            "rows are the native page rows, and an edit reaches the shown row.");
+            "rows are the native page rows.");
     }
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>

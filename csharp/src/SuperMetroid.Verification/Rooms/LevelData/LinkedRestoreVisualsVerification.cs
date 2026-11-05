@@ -24,7 +24,7 @@ internal static class LinkedRestoreVisualsVerification
     private static PlmDraw LinkedAt(int pointer) => NativePlmDraws.IsDrawAt<BombBlockRestoreDraw>(pointer)
         ? NativePlmDraws.At<BombBlockRestoreDraw>(pointer) : NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer);
 
-    /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and edit isolation.</summary>
+    /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and rejection.</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa4c7,"bomb-horizontal"), new LookupEscapeGateStockFrame(0xa4cf,"bomb-vertical"),

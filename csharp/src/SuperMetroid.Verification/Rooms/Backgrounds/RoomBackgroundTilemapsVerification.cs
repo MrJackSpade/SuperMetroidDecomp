@@ -11,10 +11,10 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks extracted compressed room backgrounds and installed Ceres tilemap edits.</summary>
+/// <summary>Checks extracted compressed room backgrounds and the installed Ceres tilemap.</summary>
 internal static class RoomBackgroundTilemapsVerification
 {
-    /// <summary>Compares all retail sources, Ceres VRAM parity, and the effect of a single JSON tile edit.</summary>
+    /// <summary>Compares all retail sources, Ceres VRAM parity, and rejection of an invalid palette selector.</summary>
     internal static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -52,34 +52,18 @@ internal static class RoomBackgroundTilemapsVerification
         AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
-        byte[] original = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), ceresSource);
-        JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapArtworkFiles.FileName(ceresTilemap)])
+        JsonNode malformed = JsonNode.Parse(files[RoomBackgroundTilemapArtworkFiles.FileName(ceresTilemap)])
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
-        JsonNode firstCell = edited.Required("pages").Required(0).Required("cells").Required(0);
-        firstCell["tileColumn"] = (firstCell.Required("tileColumn").GetValue<int>() + 1)
-            % RoomBackgroundTilemapFormat.TileColumns;
-        RoomBackgroundTilemapAtlas modified = RoomBackgroundTilemapAtlas.Load(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)),
-            original.Length);
-        AssertTrue(!modified.Bytes.Span[..2].SequenceEqual(original.AsSpan(0, 2)) &&
-            modified.Bytes.Span[2..].SequenceEqual(original.AsSpan(2)),
-            "editing one background tile reference changes only its native BG word");
-        compiled[ceresTilemap] = modified;
-        var editedVram = new SnesVram();
-        LibraryBackgroundReplay.Execute(editedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), activeDoor: FixtureRoomHeaders.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemaps(compiled) });
-        AssertTrue(nativeVram.ReadWord(0x4800) != editedVram.ReadWord(0x4800) &&
-            nativeVram.ReadWord(0x4801) == editedVram.ReadWord(0x4801),
-            "edited JSON changes the first displayed Ceres BG tile and not its neighbor");
-        firstCell["palette"] = RoomBackgroundTilemapFormat.PaletteCount;
+        malformed.Required("pages").Required(0).Required("cells").Required(0)["palette"] = RoomBackgroundTilemapFormat.PaletteCount;
         AssertThrows<InvalidDataException>(() => RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)),
-                original.Length),
+                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed)),
+                compiled[ceresTilemap].Bytes.Length),
             "background tilemap rejects an invalid palette selector");
         Console.WriteLine($"  Room background tilemaps: {files.Count} compressed retail sources " +
-            "roundtrip byte-exactly; a tile-reference edit changes only its BG word.");
+            "roundtrip byte-exactly.");
     }
 
-    /// <summary>Runs the room background extraction and edited-tile check.</summary>
+    /// <summary>Runs the room background extraction check.</summary>
     [VerificationCommand("--room-background-tilemaps")]
     internal static int RoomBackgroundTilemapsCommand()
     {

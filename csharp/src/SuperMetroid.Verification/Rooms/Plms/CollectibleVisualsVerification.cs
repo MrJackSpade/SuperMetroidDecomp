@@ -15,7 +15,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks collectible PLM art, live pickup behavior, and visual-only edits.</summary>
+/// <summary>Checks collectible PLM art and live pickup behavior.</summary>
 internal static class CollectibleVisualsVerification
 {
     /// <summary>Compares 24 native draw lists, exercises all item kinds, and checks the stock tile's redraw.</summary>

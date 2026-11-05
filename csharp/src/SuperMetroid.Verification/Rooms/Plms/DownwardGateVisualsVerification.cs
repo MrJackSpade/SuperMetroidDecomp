@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks editable downward-gate PLM art without changing column or trigger collision.</summary>
+/// <summary>Checks downward-gate PLM art and its column and trigger collision.</summary>
 internal static class DownwardGateVisualsVerification
 {
     /// <summary>Checks the stock column tile through actual PLM drawing and later camera streaming, and catalog rejections.</summary>

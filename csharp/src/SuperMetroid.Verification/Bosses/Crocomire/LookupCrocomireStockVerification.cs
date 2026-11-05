@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// <summary>Checks Crocomire bridge and wall PLM visuals against native draw words.</summary>
 internal static class LookupCrocomireStockVerification
 {
-    /// <summary>Compares five frame shapes, stock and imported identity, edit ownership, and invalid entries.</summary>
+    /// <summary>Compares five frame shapes, stock and imported identity, and invalid entries.</summary>
     internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCrocomireVisualCatalog installed)
     {

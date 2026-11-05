@@ -35,7 +35,7 @@ internal static class MotherBrainCorpseArtworkVerification
             MotherBrainSourceDefinitions.Corpse.Characters,
             MotherBrainCorpseSheet.ByteCount);
 
-    /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
+    /// <summary>Compares six installed VRAM pages and corpse staging with native bytes.</summary>
     internal static void VerifyInstalledMotherBrainCorpseArtwork(InstalledEnemyArtwork stock)
     {
         RoomCharacterAtlas artwork = stock.Bosses.MotherBrainCorpse ??

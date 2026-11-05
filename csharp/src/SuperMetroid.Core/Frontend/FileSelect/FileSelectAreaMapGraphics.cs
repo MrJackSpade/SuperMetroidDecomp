@@ -134,27 +134,37 @@ public sealed class FileSelectAreaMapGraphics
         }
     }
 
-    /// <summary>Captures BG1/subscreen math followed by labels, preserving OBJ exclusion from color addition.</summary>
-    public LayeredScene CaptureRenderSnapshot(PersistentProgress progress, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
+    /// <summary>Captures the area map's foreground and its glowing background, then the labels drawn over both, unlit by the glow (#1514).</summary>
+    public LayeredScene CaptureRenderSnapshot(PersistentProgress progress, AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen)
     {
         PrepareLabels(progress);
-        LayeredScene backgrounds = CaptureBackgrounds(colorMath);
-        return new(backgrounds.Paint, [.. backgrounds.Layers, new SpritesLayer()], DisplayBrightness.Full);
+        LayeredScene backgrounds = CaptureBackgrounds(glow);
+        return new(backgrounds.Paint, [.. backgrounds.Layers, screen.Sprites()], DisplayBrightness.Full);
     }
 
-    /// <summary>The area map's BG1 foreground with its additive BG3 background, without the labels.</summary>
-    /// <param name="colorMath">Whether the background is also added to the backdrop.</param>
-    internal LayeredScene CaptureBackgrounds(AreaMapColorMath colorMath)
+    /// <summary>The area map's foreground with its background glowing over it, without the labels (#1514).</summary>
+    /// <param name="glow">Where the background glows: over the whole screen, or only over the foreground.</param>
+    internal LayeredScene CaptureBackgrounds(AreaMapBackgroundGlow glow)
     {
         // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512).
         InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
         AreaId area = AreaIds.At(SelectedArea);
         var foreground = new PicturedPlaneLayer(new PicturedPlane(MenuScreen.PageSize,
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), default, PictureShading.Standard)]), default, null);
+            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), default, PictureShading.Standard)]), default);
         var background = new PicturedPlane(MenuScreen.PageSize,
             [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), default, PictureShading.Standard)]);
         return new(screen.Paint(), new DisplayLayer[] {
             foreground,
-            new AddedPicturedPlaneLayer(background, colorMath == AreaMapColorMath.WithBackdrop ? null : foreground) }, DisplayBrightness.Full);
+            new AddedPicturedPlaneLayer(background, GlowsOver(glow, foreground)) }, DisplayBrightness.Full);
+    }
+
+    /// <summary>The plane <paramref name="glow"/> limits the background's glow to: none over the whole screen, or the foreground.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="glow"/> is undefined.</exception>
+    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) => glow switch
+    {
+        AreaMapBackgroundGlow.WholeScreen => null,
+        AreaMapBackgroundGlow.ForegroundOnly => foreground,
+        _ => throw new ArgumentOutOfRangeException(nameof(glow), glow, "Undefined area map glow."),
+    };
     }
 }

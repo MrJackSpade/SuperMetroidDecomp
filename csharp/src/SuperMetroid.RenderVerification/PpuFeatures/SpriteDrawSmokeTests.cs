@@ -66,7 +66,7 @@ internal static class SpriteDrawSmokeTests
                 new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 3), Frame(3), new(40, 30), SpriteMirror.Horizontal),
             ];
             var memory = FramePaint.FromNative(palette, draws);
-            RgbaPixel[] pixels = Check(memory, [new SpritesLayer()], "ordering and flip");
+            RgbaPixel[] pixels = Check(memory, [], "ordering and flip");
             RgbaPixel red = new(255, 0, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);
             ExpectPixel(11, 10, red, "the first draw alone");
             ExpectPixel(15, 10, red, "the first-emitted draw is in front of later ones");
@@ -126,19 +126,15 @@ internal static class SpriteDrawSmokeTests
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());
             PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,
                 new Extent16<TilemapCells>(32, 32));
-            Check(memory, [new SpritesLayer()], $"seeded scene {cases}");
-            Check(memory, [
-                new SpriteDepthLayer(0),
-                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), false),
-                new SpriteDepthLayer(1), new SpriteDepthLayer(2),
-                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), true),
-                new SpriteDepthLayer(3)], $"seeded priority ladder {cases}");
+            Check(memory, [], $"seeded scene {cases}");
+            Check(memory, [new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11))], $"seeded sprites over a plane {cases}");
         }
 
-        RgbaPixel[] Check(FramePaint memory, DisplayLayer[] layers, string label)
+        // Draws the frame's sprite draws as one sprite layer over `behind` (#1514).
+        RgbaPixel[] Check(FramePaint memory, DisplayLayer[] behind, string label)
         {
             cases++;
-            var frame = new DisplayPacket(0, new LayeredScene(memory, layers, 15));
+            var frame = new DisplayPacket(0, memory.SpritesScene(15, SpriteBlend.Drawn, behind));
             RgbaPixel[] expected = DisplayRendering.Render(frame);
             PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {label}");
             return expected;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
@@ -42,4 +43,7 @@ internal sealed record D3D11TileDispatch
 
     /// <summary>End scanline.</summary>
     public uint EndScanline { get; init; } = 224;
+
+    /// <summary>The screen pixels a layer pass draws within (#1514), or null for the whole screen.</summary>
+    public ScreenWindow? Window { get; init; } = null;
 }

@@ -75,7 +75,7 @@ internal static class FileSelectMapGraphicsPixelsAccess
         return progress;
     }
 
-    /// <summary>The area map's colour math: whether its background is also added to the backdrop.</summary>
-    private static AreaMapColorMath ColorMath(bool includeBackdropInColorMath) =>
-        includeBackdropInColorMath ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly;
+    /// <summary>Where the area map's background glows: over the whole screen, or only over its foreground.</summary>
+    private static AreaMapBackgroundGlow ColorMath(bool includeBackdropInColorMath) =>
+        includeBackdropInColorMath ? AreaMapBackgroundGlow.WholeScreen : AreaMapBackgroundGlow.ForegroundOnly;
 }

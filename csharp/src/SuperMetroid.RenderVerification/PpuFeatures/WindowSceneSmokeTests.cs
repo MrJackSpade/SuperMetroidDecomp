@@ -27,15 +27,17 @@ internal static class WindowSceneSmokeTests
         }
         var parentMemory = Memory(3); var childMemory = Memory(7);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(parentMemory.Vram, parentMemory.Colors, 0x4000, 0x6000, TileInkDepth.SixteenColours,
-            new Extent16<TilemapCells>(32, 32)), new Position16<TilePlanePixels>(3, 11), true);
+            new Extent16<TilemapCells>(32, 32)), new Position16<TilePlanePixels>(3, 11));
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Colors);
-        LayeredScene Child(byte brightness) => new(childMemory.Paint, new DisplayLayer[] {
+        LayeredScene Child(byte brightness) => new(new FramePaint(childMemory.Paint.Backdrop), new DisplayLayer[] {
             new TurningFloorLayer(new FloorView(0.27, 1.05, new(128, 112), new(13, -11), FloorOverflowMode.Wrap), childFloor),
-            new SpritesLayer() }, brightness);
+            new SpritesLayer(childMemory.Paint.SpriteDraws) }, brightness);
+        var parentSprites = new SpritesLayer(parentMemory.Paint.SpriteDraws);
+        var parentPaint = new FramePaint(parentMemory.Paint.Backdrop);
         // The parent's pictured plane and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
-        renderer.RenderForReadback(new DisplayPacket(0, new LayeredScene(parentMemory.Paint,
+        renderer.RenderForReadback(new DisplayPacket(0, new LayeredScene(parentPaint,
             [background, new InsetSceneLayer(Child(15), 0, 0, 256, 224)], 15)));
         // Each scene render uploads its memory and sprite-draw buffers once. The draw buffer uploads its grown capacity,
         // so a frame's bytes are fixed per window shape rather than computable from the scene alone.
@@ -47,10 +49,9 @@ internal static class WindowSceneSmokeTests
             LayeredScene child = Child(brightness);
             var window = new InsetSceneLayer(child, edges.Left, edges.Top, edges.Right, edges.Bottom);
             count++;
-            var frame = new DisplayPacket(0, new LayeredScene(parentMemory.Paint,
-                new DisplayLayer[] { new SpriteDepthLayer(0), window,
-                    background,
-                    new SpriteDepthLayer(3), window, new ScreenTintLayer(1,2,3) }, DisplayBrightness.Combine(13, 11)));
+            var frame = new DisplayPacket(0, new LayeredScene(parentPaint,
+                new DisplayLayer[] { parentSprites, window,
+                    background, window, new ScreenTintLayer(1,2,3) }, DisplayBrightness.Combine(13, 11)));
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
@@ -58,10 +59,10 @@ internal static class WindowSceneSmokeTests
             int children = edges.Left == edges.Right || edges.Top == edges.Bottom ? 0 : 2;
             // Each scene uploads at least its backdrop colour (#1408).
             long memoryAndConstantBytes = (1 + children) * sizeof(uint)
-                + (6 + children * 4) * D3D11ShaderLayout.ConstantWords * sizeof(uint);
-            // Each scene uploads its colours and sprite draws, then one constant buffer per composition pass; the sprite
-            // layer's quads draw without one (#1408).
-            long expectedCalls = (1 + children) * 2 + 6 + children * 4;
+                + (6 + children * 5) * D3D11ShaderLayout.ConstantWords * sizeof(uint);
+            // Each scene uploads its colours and sprite draws, then one constant buffer per composition pass and one for
+            // the run of draws its sprite layer is drawn with; each scene's one run is all its draws, drawn once (#1408, #1514).
+            long expectedCalls = (1 + children) * 2 + 6 + children * 5;
             long bytes = after.Bytes - before.Bytes;
             long firstBytes = bytesByChildren.TryGetValue(children, out long seen) ? seen : bytesByChildren[children] = bytes;
             if (after.Calls - before.Calls != expectedCalls || bytes <= memoryAndConstantBytes || bytes != firstBytes)

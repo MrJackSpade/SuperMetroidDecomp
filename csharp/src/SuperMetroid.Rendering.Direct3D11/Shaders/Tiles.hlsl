@@ -9,7 +9,8 @@ static const uint OpMessageText = 12;
 static const uint OpXrayRoom = 14;
 cbuffer TileParameters : register(b0)
 {
-    uint Operation, TilemapWord, Reserved1, HorizontalScroll;
+    // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds.
+    uint Operation, TilemapWord, LayerWindowed, HorizontalScroll;
     uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
     uint TransparentZero, Level, AddR, AddG;
     uint AddB, Reserved2, RoomSource, Reserved3;
@@ -412,30 +413,29 @@ uint2 LineScrollPair(uint horizontal, uint vertical, uint screenY)
 #include "Window.hlsli"
 #include "Xray.hlsli"
 
-// Whether the screen pixel lies where the plane covering a plane added behind it shows (#1467), or everywhere without
-// one. An opaque pixel of the covering plane's picture covers, in its picture's priority tier; where no picture lies,
-// nothing covers and the tier is the back one. The covering plane's table is in MatrixA, its scroll in MatrixC and
-// MatrixD, its priority filter in OffsetX, and OffsetY marks that it is present.
-bool MainCoverage(uint2 screen)
+// Whether a glowing plane (AddedPicturedPlaneLayer, #1467, #1514) covers the screen pixel: everywhere when it names
+// nothing it glows over. Where one of the sprites it glows over shows (AddG marks them; the sprite layer holds them), it
+// covers the pixel if the sprite takes part in blends and leaves it otherwise; elsewhere it covers the pixels where the
+// plane it glows over is opaque. That plane's table is in MatrixA, its scroll in MatrixC and MatrixD, and OffsetY marks
+// that it is present.
+bool GlowCovers(uint2 screen)
 {
-    uint4 geometry = uint4(CenterX, CenterY, OffsetX, OffsetY);
-    if (geometry.w == 0) return true;
+    bool overPlane = OffsetY != 0, overSprites = AddG != 0;
+    if (!overPlane && !overSprites) return true;
+    if (overSprites)
+    {
+        bool blends;
+        uint2 sprite = SpriteAt(screen, blends);
+        if (sprite.y != NoSprite) return blends;
+    }
+    if (!overPlane) return false;
     uint4 map = uint4(MatrixA, MatrixB, MatrixC, MatrixD);
     uint2 coverWithin;
     uint coverPicture;
     uint coverIndex = 0;
     bool coverHigh = false;
     bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
-    bool coverCovered = coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
-    if (geometry.z != 0 && (coverHigh ? 1u : 0u) != geometry.z - 1) return false;
-    if (AddG != 0)
-    {
-        bool coverBlends;
-        uint2 coverObj = SpriteAt(screen, coverBlends);
-        if (coverObj.y != NoSprite && (!coverCovered || coverObj.y >= (coverHigh ? 3 : 2)))
-            return coverBlends;
-    }
-    return coverCovered;
+    return coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
 }
 
 [numthreads(8, 8, 1)]
@@ -443,6 +443,7 @@ void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
     if (id.y < FirstScanline || id.y >= EndScanline) return;
+    if (Operation == OpLayer && LayerWindowed != 0 && !InWindow(id.xy)) return;
     if (Operation == OpXrayRoom) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessageText)
     {
@@ -535,7 +536,8 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint2 winner = SpriteAt(id.xy, blends);
         if (winner.y != NoSprite && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y))
         {
-            // AddR adds the sprite's colour to the screen's; the sums are of five-bit channels, before brightness.
+            // AddR makes the sprites glow, adding each one's colour to the screen's; AddG tints the sprites that blend by
+        // AddB's five-bit colour. The sums are of five-bit channels, before brightness (#1514).
             if (AddR != 0)
             {
                 uint3 color = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(winner.x) >> 3));
@@ -616,15 +618,10 @@ void Main(uint3 id : SV_DispatchThreadID)
     // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
     uint sampled = PicturePixel(picture, within, color, high);
     if (PriorityFilter != 0 && (high ? 1u : 0u) != PriorityFilter - 1) return;
-    bool objectSubscreen = Operation == OpAddLayerBehind && AddR != 0;
-    uint2 subObject = objectSubscreen ? SpriteAt(id.xy) : uint2(0, NoSprite);
-    bool objectWins = objectSubscreen && subObject.y != NoSprite &&
-        (color == 0 || subObject.y >= (high ? 3u : 2u));
-    if (color == 0 && TransparentZero != 0 && !objectWins) return;
-    if (objectWins) sampled = subObject.x;
+    if (color == 0 && TransparentZero != 0) return;
     if (Operation == OpAddLayerBehind)
     {
-        if (!MainCoverage(id.xy)) return;
+        if (!GlowCovers(id.xy)) return;
         uint3 sum = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(sampled) >> 3));
         Output[id.xy] = Pack((sum << 3) | (sum >> 2), 255);
     }

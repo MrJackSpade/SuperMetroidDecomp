@@ -74,7 +74,7 @@ internal sealed class PauseScreen
     }
 
     /// <summary>The pixel rows of each pause page, frame and equipment page alike, that lie above the screen's top.</summary>
-    private const int PageRowsAboveScreen = 1;
+    internal const int PageRowsAboveScreen = 1;
 
     /// <summary><paramref name="picture"/> placed on the frame's corner in the standard colours the import pre-coloured it in under the pause colours (#1512).</summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) => AtCorner(picture, PictureShading.Standard);
@@ -152,6 +152,9 @@ internal sealed class PauseScreen
         Backdrop = artwork.Backdrops.Pause;
     }
 
-    /// <summary>What the screen paints with: its backdrop and sprite entries, each sprite in the shading it names (#1512).</summary>
-    internal FramePaint Paint() => new(Backdrop, Objects.Draws);
+    /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
+    internal FramePaint Paint() => new(Backdrop);
+
+    /// <summary>The screen's sprite entries as one layer of sprites, each in the shading it names (#1512, #1514).</summary>
+    internal SpritesLayer Sprites() => new(Objects.Draws);
 }

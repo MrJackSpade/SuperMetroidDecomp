@@ -26,7 +26,7 @@ internal static class DisplayPassTests
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new DisplayPacket(0, new LayeredScene(FramePaint.FromNative(palette, []),
             [new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
-                new Position16<TilePlanePixels>(3, 11), null)], 15));
+                new Position16<TilePlanePixels>(3, 11))], 15));
         var native = DisplayRendering.Render(packet);
         int count = 0;
         using var timer = new D3D11GpuTimer(device);

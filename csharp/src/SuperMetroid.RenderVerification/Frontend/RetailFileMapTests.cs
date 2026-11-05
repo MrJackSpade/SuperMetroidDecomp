@@ -33,7 +33,7 @@ internal static class RetailFileMapTests
             foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
-                Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(masks), backdrop ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly), $"area={area}, labels/backdrop");
+                Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(masks), backdrop ? AreaMapBackgroundGlow.WholeScreen : AreaMapBackgroundGlow.ForegroundOnly), $"area={area}, labels/backdrop");
             }
             var room = new FileSelectRoomMapGraphics(new SharedGameState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");

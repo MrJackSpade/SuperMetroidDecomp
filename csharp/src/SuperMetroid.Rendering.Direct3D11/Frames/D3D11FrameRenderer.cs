@@ -57,8 +57,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>The scene's room planes at t3, repacked only when they change (#1346).</summary>
     private readonly D3D11RoomLevelBuffer roomLevels;
     /// <summary>
-    /// The sprite layer (#1408): per pixel, the frontmost sprite pixel's colour and its priority, drawn from the draws'
-    /// quads and read by every composition pass that inserts or blends sprites.
+    /// The sprite layer (#1408): per pixel, the frontmost sprite pixel's colour and whether it blends, drawn from a run of
+    /// the frame's draws' quads and read by every composition pass that inserts or blends sprites. A scene's sprite layer
+    /// draws its own run of draws into it before it is inserted (#1514); every other pass reads all the frame's draws.
     /// </summary>
     private readonly ID3D11Texture2D spriteLayer;
     /// <summary>Composition's view of the sprite layer.</summary>
@@ -81,6 +82,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     internal bool disposed;
     /// <summary>Reusable constant-buffer source cleared before each compute pass.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.ConstantWords];
+
+    /// <summary>The run of the packed draws the sprite layer holds now, or null before a frame has drawn any (#1514).</summary>
+    private SpriteRun? shownSprites;
 
     /// <summary>The pictured planes the frame being drawn shows, each once (#1467).</summary>
     private readonly List<PicturedPlane> framePlanes = [];
@@ -156,11 +160,14 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
         if (packet.Floor is { } mode7)
         {
+            // A turning-floor frame is a frontend screen's: its floor, its sprites in front of it, then its gradient.
+            if (mode7.Paint.Gameplay is not null)
+                throw new NotSupportedException("A turning-floor frame shows a frontend screen, not gameplay.");
             var operations = new List<DisplayLayer>();
             if (mode7.Background is { } background && mode7.Floor is { } shownFloor) operations.Add(new TurningFloorLayer(background, shownFloor));
-            operations.Add(new SpritesLayer());
+            operations.Add(new SpritesLayer(mode7.Paint.SpriteDraws));
             if (mode7.Gradient is { } gradient) operations.Add(gradient);
-            DrawLayers(packet, new LayeredScene(mode7.Paint,
+            DrawLayers(packet, new LayeredScene(new FramePaint(mode7.Paint.Backdrop),
                 operations.ToArray(), mode7.Brightness));
             return;
         }
@@ -449,8 +456,9 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Adds a pictured plane's colours where the plane covering it shows (#1467), each line pushed sideways by the plane's
-    /// wave, which the shader evaluates (#1468).
+    /// Adds a pictured plane's colours as a glow (#1467, #1514): everywhere, or only where the plane and the sprites it
+    /// glows over show, each line pushed sideways by the plane's wave, which the shader evaluates (#1468). The sprite layer
+    /// holds the sprites it glows over, if it names any.
     /// </summary>
     private unsafe void DispatchAddPlaneBehind(AddedPicturedPlaneLayer layer)
     {
@@ -459,16 +467,15 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[1] = roomLevels.PlaneTable(layer.Plane);
         data[5] = layer.Plane.Size.X; data[6] = layer.Plane.Size.Y; data[8] = 1; data[15] = 1; data[26] = 224;
         data[14] = (uint)D3D11RoomSource.PicturedPlane;
-        data[10] = layer.IncludeObjects ? 1u : 0u;
-        data[11] = layer.MainObjects ? 1u : 0u;
-        if (layer.MainCoverage is { } coverage)
+        data[11] = layer.GlowsOverSprites is null ? 0u : 1u;
+        if (layer.GlowsOver is { } covered)
         {
-            // This pass reads no floor transform, so the covering plane's table, scroll, size and priority go there.
+            // This pass reads no floor transform, so the covered plane's table, scroll and size go there.
             int offset = 16;
-            data[offset] = roomLevels.PlaneTable(coverage.Plane);
-            data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
-            data[offset + 4] = coverage.Plane.Size.X; data[offset + 5] = coverage.Plane.Size.Y;
-            data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
+            data[offset] = roomLevels.PlaneTable(covered.Plane);
+            data[offset + 2] = covered.Scroll.X; data[offset + 3] = covered.Scroll.Y;
+            data[offset + 4] = covered.Plane.Size.X; data[offset + 5] = covered.Plane.Size.Y;
+            data[offset + 7] = 1;
         }
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.HorizontalWave, 0, 0);
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, null, layer.VerticalScroll, 0);
@@ -476,21 +483,57 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>The pictured planes a layer draws (#1467): its own and, for a plane added behind, its covering plane.</summary>
+    /// <summary>The pictured planes a layer draws (#1467): its own and, for a glow, the plane it glows over.</summary>
     private static IEnumerable<PicturedPlane> PicturedPlanes(DisplayLayer layer) => layer switch
     {
         PicturedPlaneLayer bg => [bg.Plane],
-        AddedPicturedPlaneLayer { MainCoverage: { } coverage } sub => [sub.Plane, coverage.Plane],
-        AddedPicturedPlaneLayer sub => [sub.Plane],
+        AddedPicturedPlaneLayer { GlowsOver: { } covered } glow => [glow.Plane, covered.Plane],
+        AddedPicturedPlaneLayer glow => [glow.Plane],
         _ => [],
     };
+
+    /// <summary>
+    /// The run of the frame's packed draws each sprite layer of <paramref name="scene"/> shows (#1514), indexed as the
+    /// scene's layers are: the draws follow the paint's in <see cref="LayeredScene.SpriteDraws"/>, from the frontmost
+    /// sprite layer back. Every other layer has an empty run.
+    /// </summary>
+    private static SpriteRun[] SpriteRuns(LayeredScene scene)
+    {
+        ReadOnlySpan<DisplayLayer> layers = scene.Layers;
+        var runs = new SpriteRun[layers.Length];
+        int first = scene.Paint.SpriteDraws.Length;
+        for (int index = layers.Length - 1; index >= 0; index--)
+        {
+            if (layers[index] is SpritesLayer sprites)
+            {
+                runs[index] = new SpriteRun(first, sprites.Draws.Length);
+                first += sprites.Draws.Length;
+            }
+        }
+        if (first != scene.SpriteDraws.Length)
+            throw new InvalidOperationException("A scene's sprite layers do not account for its sprite draws.");
+        return runs;
+    }
+
+    /// <summary>The run of <paramref name="runs"/> belonging to <paramref name="sprites"/>, one of <paramref name="scene"/>'s layers.</summary>
+    /// <exception cref="InvalidOperationException">The sprite layer is not one of the scene's.</exception>
+    private static SpriteRun RunOf(LayeredScene scene, SpriteRun[] runs, SpritesLayer sprites)
+    {
+        ReadOnlySpan<DisplayLayer> layers = scene.Layers;
+        for (int index = 0; index < layers.Length; index++)
+        {
+            if (ReferenceEquals(layers[index], sprites))
+                return runs[index];
+        }
+        throw new InvalidOperationException("A glow names sprites that are not one of its scene's sprite layers.");
+    }
 
     /// <summary>Rejects unsupported layers, uploads the scene's images, colours and layers, then dispatches passes in scene order.</summary>
     private unsafe void DrawLayers(DisplayPacket packet, LayeredScene scene)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddWindowLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer or ScreenGradientLayer))
+            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or TurningFloorLayer or TurningRoomLayer or ColourAddWindowLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer or ScreenGradientLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -556,10 +599,14 @@ public sealed class D3D11FrameRenderer : IDisposable
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
-        D3D11SpriteDrawBuffer.Collect(scene.Paint.SpriteDraws.AsSpan(), images.Needed);
+        D3D11SpriteDrawBuffer.Collect(scene.SpriteDraws.AsSpan(), images.Needed);
         roomLevels.Collect(levels, images.Needed);
         images.Hold(images.Needed);
-        spriteDraws.Pack(scene.Paint.SpriteDraws.AsSpan(), images);
+        // Every draw the frame shows, the paint's then each sprite layer's, packed once; each sprite layer draws its own
+        // run of them (#1514).
+        spriteDraws.Pack(scene.SpriteDraws.AsSpan(), images);
+        SpriteRun[] runs = SpriteRuns(scene);
+        var allSprites = new SpriteRun(0, scene.SpriteDraws.Length);
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
         if (floorMap is not null)
             floorImage.Show(floorMap);
@@ -578,10 +625,20 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShaderResource(5, floorImage.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
-        DrawSpriteLayer();
+        shownSprites = null;
+        ShowSprites(allSprites);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
-        foreach (DisplayLayer layer in scene.Layers)
+        for (int index = 0; index < scene.Layers.Length; index++)
         {
+            DisplayLayer layer = scene.Layers[index];
+            // A sprite layer, and a glow over one, read that layer's own sprites; every other pass that reads sprites
+            // reads all the frame's draws.
+            ShowSprites(layer switch
+            {
+                SpritesLayer => runs[index],
+                AddedPicturedPlaneLayer { GlowsOverSprites: { } covered } => RunOf(scene, runs, covered),
+                _ => allSprites,
+            });
             switch (layer)
             {
                 case GameplayBlendLayer gameplayXray:
@@ -611,35 +668,42 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case TurningFloorLayer mode7:
                     DispatchFloor(mode7.Transform, subtractSprites: mode7.SubtractsSprites, addLayer1: mode7.AddsForeground);
                     break;
-                case SpritesLayer objLayer:
-                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0 });
-                    break;
-                case SpriteDepthLayer obj:
-                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = (uint)obj.Depth + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
+                case SpritesLayer sprites:
+                    // The layer's sprites over what lies behind them, or glowing over it; a tint brightens those that blend (#1514).
+                    DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch
+                    {
+                        Red = sprites.Blend switch
+                        {
+                            SpriteBlend.Drawn => 0u,
+                            SpriteBlend.Glows => 1u,
+                            _ => throw new InvalidOperationException($"Undefined sprite blend {sprites.Blend}."),
+                        },
+                        Green = sprites.Tint is not null ? 1u : 0u,
+                        Blue = sprites.Tint is { } tint ? (uint)(tint.Red | tint.Green << 5 | tint.Blue << 10) : 0,
+                    });
                     break;
                 case PictureGridLayer grid:
-                    // The grid's cell pictures, scrolled and wrapping at its edges (#1467).
+                    // The grid's cell pictures, scrolled and wrapping at its edges (#1467), within its window if it names one (#1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        Map = roomLevels.GridTable(grid.Grid), Scroll = grid.Scroll, Priority = Priority(grid.Priority),
-                        RoomSource = D3D11RoomSource.PictureGrid,
+                        Map = roomLevels.GridTable(grid.Grid), Scroll = grid.Scroll, RoomSource = D3D11RoomSource.PictureGrid,
+                        Window = grid.Window,
                     });
                     break;
                 case PicturedPlaneLayer pictured:
-                    // The plane's placed pictures, each pixel in its picture's priority tier (#1467).
+                    // The plane's placed pictures, every pixel of each (#1467, #1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll, MapSize = pictured.Plane.Size,
-                        Priority = Priority(pictured.Priority), RoomSource = D3D11RoomSource.PicturedPlane,
-                        TransparentZero = pictured.ShowsColourZero ? 0u : 1u,
+                        RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.ShowsColourZero ? 0u : 1u,
                     });
                     break;
                 case HudLayer hudLayer:
-                    // The HUD's placed pictures at the top of the screen, each pixel in its picture's priority tier (#1466).
+                    // The HUD's placed pictures at the top of the screen, every pixel of each (#1466, #1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         RoomSource = D3D11RoomSource.Hud, TransparentZero = hudLayer.TransparentColorZero ? 1u : 0u,
-                        Priority = Priority(hudLayer.Priority), EndScanline = D3D11Screen.HudHeight,
+                        EndScanline = D3D11Screen.HudHeight,
                     });
                     break;
                 case ScreenTintLayer add:
@@ -656,17 +720,31 @@ public sealed class D3D11FrameRenderer : IDisposable
         DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness });
     }
 
+    /// <summary>Draws <paramref name="run"/> into the sprite layer unless it holds that run already (#1514).</summary>
+    private void ShowSprites(SpriteRun run)
+    {
+        if (shownSprites == run)
+            return;
+        DrawSpriteLayer(run);
+        shownSprites = run;
+    }
+
     /// <summary>
-    /// Draws the sprite layer (#1408): clears it to no sprite, then draws each sprite draw's quad back to front, so each
-    /// pixel keeps the frontmost draw's opaque pixel. Leaves the composition's bindings as it found them.
+    /// Draws the sprite layer (#1408, #1514): clears it to no sprite, then draws each quad of <paramref name="run"/>'s draws
+    /// back to front, so each pixel keeps the frontmost draw's opaque pixel. The run's first draw and count go to the
+    /// vertex shader in the constant buffer. Leaves the composition's bindings as it found them.
     /// </summary>
-    private void DrawSpriteLayer()
+    private unsafe void DrawSpriteLayer(SpriteRun run)
     {
         const uint noSprite = 255;
         owner.Context.CSSetUnorderedAccessView(1, null);
         owner.Context.ClearUnorderedAccessView(objectView, new Int4(0, (int)noSprite, 0, 0));
-        if (spriteDraws.Count != 0)
+        if (run.Count != 0)
         {
+            var data = ClearUploadConstants();
+            data[0] = (uint)run.First; data[1] = (uint)run.Count;
+            fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
+            owner.Context.VSSetConstantBuffer(0, constants);
             owner.Context.OMSetRenderTargets(spriteTarget);
             owner.Context.RSSetViewport(0, 0, D3D11Screen.Width, D3D11Screen.Height);
             owner.Context.RSSetState(spriteRasterizer);
@@ -677,7 +755,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             owner.Context.PSSetShader(spritePixelShader);
             owner.Context.PSSetShaderResource(1, spriteDraws.View);
             owner.Context.PSSetShaderResource(4, images.View);
-            owner.Context.DrawInstanced(4, (uint)spriteDraws.Count, 0, 0);
+            owner.Context.DrawInstanced(4, (uint)run.Count, 0, 0);
+            owner.Context.VSSetConstantBuffer(0, null);
             owner.Context.VSUnsetShaderResource(1);
             owner.Context.PSUnsetShaderResource(1);
             owner.Context.PSUnsetShaderResource(4);
@@ -701,6 +780,12 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
+        // A layer drawn within a window (#1514) marks it in header word two and packs its shapes.
+        if (tile.Window is { } window)
+        {
+            data[2] = 1;
+            D3D11WindowPacking.Pack(data, window);
+        }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

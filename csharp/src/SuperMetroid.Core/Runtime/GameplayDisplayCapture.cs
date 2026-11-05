@@ -156,7 +156,7 @@ public static class GameplayDisplayCapture
     /// </summary>
     private static HudLayer Hud(GameplayDisplayLatch latched) => new(latched.PicturedHud
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
-        TransparentColorZero: false, Priority: null);
+        TransparentColorZero: false);
 
     /// <summary>The BG3 plane the frame boundary displays (#1348).</summary>
     private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms

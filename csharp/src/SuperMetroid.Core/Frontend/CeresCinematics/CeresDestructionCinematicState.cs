@@ -130,7 +130,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private WrappingCountdown explosionRepeatCountdown;
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
     private bool usesFloor = true;
-    /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
+    /// <summary>Whether the turning floor shows during the Mode 7 scenes, or only the sprites do.</summary>
     private ScreenLayers mainScreenLayers = ScreenLayers.Foreground | ScreenLayers.Sprites;
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
     internal bool WithSamus { get; }
@@ -828,15 +828,20 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actor.Position = actor.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), CoordinateAxis.Wrap(fixedPosition)));
     }
 
-    /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
+    /// <summary>
+    /// Captures the scene's ordered layers (#1514): over Ceres, the station's turning floor with the asteroids and blasts
+    /// in front of it; on the approach to Zebes, the planet and its stars behind the gunship's floor; or the Zebes reveal's
+    /// planet picture. The per-sprite-part priority tiers that once interleaved the sprites with the floor are a
+    /// presentation quirk the port does not keep.
+    /// </summary>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
+        var sprites = new SpritesLayer(objects.Draws);
         DisplayLayer[] layers;
         if (usesFloor && (mainScreenLayers & ScreenLayers.Foreground) == ScreenLayers.None)
         {
-            layers = [new SpriteDepthLayer(0), new SpriteDepthLayer(1),
-                new SpriteDepthLayer(2), new SpriteDepthLayer(3)];
+            layers = [sprites];
         }
         else if (usesFloor)
         {
@@ -846,10 +851,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
                 Background.Whole.AsSignedWord());
             // Before the station is set up, and after the explosion with Samus aboard clears it, the floor shows nothing.
-            layers = FloorShot is { } shot
-                ? [new SpriteDepthLayer(0), new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot).Shaded(EngineShading)),
-                    new SpriteDepthLayer(1), new SpriteDepthLayer(2), new SpriteDepthLayer(3)]
-                : [new SpriteDepthLayer(0), new SpriteDepthLayer(1), new SpriteDepthLayer(2), new SpriteDepthLayer(3)];
+            if (FloorShot is not { } shot)
+                layers = [sprites];
+            else
+            {
+                var turning = new TurningFloorLayer(floor, CeresFloors.Of(spriteSheets, shot).Shaded(EngineShading));
+                layers = CeresDestructionPhaseGroups.CeresScene.Contains(Phase) ? [turning, sprites] : [sprites, turning];
+            }
         }
         else
         {
@@ -857,11 +865,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // is a game-correctness change, not an implicit part of this extraction.
             // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
             layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed, EngineShading),
-                new Position16<TilePlanePixels>(0, 0), null)];
+                new Position16<TilePlanePixels>(0, 0))];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(new FramePaint(Backdrop, objects.Draws), layers, brightness);
+        return new(new FramePaint(Backdrop), layers, brightness);
     }
 
     /// <summary>

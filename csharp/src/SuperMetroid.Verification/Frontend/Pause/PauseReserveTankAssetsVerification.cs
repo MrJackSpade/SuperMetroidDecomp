@@ -35,13 +35,13 @@ internal static class PauseReserveTankAssetsVerification
                 nativeSamus.ReserveEnergy = installedSamus.ReserveEnergy = supply;
                 native.Step(0, 0, frameCounterByte: phase); installed.Step(0, 0, frameCounterByte: phase);
                 var expected = native.CaptureRenderSnapshot(); var actual = installed.CaptureRenderSnapshot();
-                AssertTrue(expected.Paint.SpriteParts().SequenceEqual(actual.Paint.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
+                AssertTrue(expected.SpriteParts().SequenceEqual(actual.SpriteParts()), "every legal reserve supply/flicker state matches native ordered OAM with reads forbidden");
                 AssertTrue(ScenePixels.Same(expected, actual), "every legal reserve supply/flicker state matches native pixels");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
                     // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
                     var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed); restored.BindFixtureArtwork(catalog);
-                    AssertTrue(actual.Paint.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().Paint.SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
+                    AssertTrue(actual.SpriteParts().SequenceEqual(restored.CaptureRenderSnapshot().SpriteParts()), "restored nonzero fill flicker phase retains exact OAM");
                 }
                 comparisons++;
             }

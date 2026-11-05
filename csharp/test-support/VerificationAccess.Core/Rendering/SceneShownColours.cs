@@ -82,7 +82,7 @@ internal static class SceneShownColours
         var shown = new List<ShownPictureInks>();
         foreach ((SpriteImage picture, PictureShading shading) in LayerPictures(scene))
             shown.Add(new ShownPictureInks(picture, shading, DrawRow: 0, [.. Enumerable.Range(0, picture.StandardColours.Length)]));
-        foreach (SpriteDraw draw in scene.Paint.SpriteDraws)
+        foreach (SpriteDraw draw in scene.SpriteDraws)
         {
             var image = (ImageSpriteDraw)draw;
             SpriteImage picture = image.Image.Sheet;
@@ -125,7 +125,7 @@ internal static class SceneShownColours
     private static List<(SpriteImage Picture, PictureShading Shading)> Pictures(LayeredScene scene)
     {
         List<(SpriteImage Picture, PictureShading Shading)> shown = LayerPictures(scene);
-        foreach (SpriteDraw draw in scene.Paint.SpriteDraws)
+        foreach (SpriteDraw draw in scene.SpriteDraws)
         {
             var image = (ImageSpriteDraw)draw;
             Add(shown, image.Image.Sheet, image.Shading);
@@ -153,8 +153,8 @@ internal static class SceneShownColours
                     foreach (PlacedPlanePicture placed in added.Plane.Pictures)
                         Add(shown, placed.Picture.Sheet, placed.Shading);
                     break;
-                case ColourAddWindowLayer or ScreenGradientLayer or ScreenTintLayer or SpriteDepthLayer or SpritesLayer:
-                    // These layers draw colours and depths, not pictures; the sprite draws are read from the paint below.
+                case ColourAddWindowLayer or ScreenGradientLayer or ScreenTintLayer or SpritesLayer:
+                    // These layers draw colours, or sprites, which are read from the scene's sprite draws below.
                     break;
                 case PictureGridLayer grid:
                     foreach (GridPicture? cell in grid.Grid.Cells)

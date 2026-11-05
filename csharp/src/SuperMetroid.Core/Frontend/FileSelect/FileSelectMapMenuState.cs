@@ -207,21 +207,21 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
-        LayeredScene Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(savedProgress, colorMath);
+        LayeredScene Area(AreaMapBackgroundGlow glow = AreaMapBackgroundGlow.WholeScreen) => areaGraphics.CaptureRenderSnapshot(savedProgress, glow);
         LayeredScene Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
         LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
             shownMarker, drawArrows ? animations : null);
         if (!entry.IsComplete)
         {
             LayeredScene areaScene = Area();
-            var black = new LayeredScene(new FramePaint(RgbColor.Black, []), [], DisplayBrightness.Full);
+            var black = new LayeredScene(new FramePaint(RgbColor.Black), [], DisplayBrightness.Full);
             return entry.Phase == FileSelectMapEntryPhase.Revealing
                 ? Insert(black, areaScene, entry.Left, entry.Top, entry.Right + 1, entry.Bottom) : black;
         }
         LayeredScene scene = Phase switch
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
-                Window(Area(AreaMapColorMath.ForegroundOnly), Frame(), navigation.ActiveWindow),
+                Window(Area(AreaMapBackgroundGlow.ForegroundOnly), Frame(), navigation.ActiveWindow),
             FileSelectMapNavigationPhase.Room when !markerDrawn => Room(null),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(marker),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(marker),

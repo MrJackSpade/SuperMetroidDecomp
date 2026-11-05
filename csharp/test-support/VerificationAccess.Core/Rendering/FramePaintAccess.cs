@@ -87,6 +87,16 @@ internal static class FramePaintAccess
 
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);
+
+        /// <summary>
+        /// A scene showing this frame's sprite draws as its one sprite layer (#1514), shown as <paramref name="blend"/> says,
+        /// over its backdrop and with <paramref name="before"/> behind them; a fixture builds its sprites as a frame's draws.
+        /// </summary>
+        /// <param name="brightness">The scene's brightness.</param>
+        /// <param name="blend">How the sprites show.</param>
+        /// <param name="before">The layers drawn behind the sprites, back to front.</param>
+        internal LayeredScene SpritesScene(int brightness, SpriteBlend blend = SpriteBlend.Drawn, params DisplayLayer[] before) =>
+            new(new FramePaint(memory.Backdrop), [.. before, new SpritesLayer(memory.SpriteDraws, blend)], brightness);
     }
 
     /// <summary>

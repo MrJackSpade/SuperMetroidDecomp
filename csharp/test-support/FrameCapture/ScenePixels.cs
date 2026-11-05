@@ -87,13 +87,13 @@ internal static class ScenePixels
             && leftInset.Top == rightInset.Top && leftInset.Right == rightInset.Right && leftInset.Bottom == rightInset.Bottom
             && SameScene(leftInset.Scene, rightInset.Scene),
         PictureGridLayer leftGrid => right is PictureGridLayer rightGrid && leftGrid.Scroll == rightGrid.Scroll
-            && leftGrid.Priority == rightGrid.Priority && SameGrid(leftGrid.Grid, rightGrid.Grid),
+            && Equals(leftGrid.Window, rightGrid.Window) && SameGrid(leftGrid.Grid, rightGrid.Grid),
         TurningFloorLayer leftFloor => right is TurningFloorLayer rightFloor && leftFloor.Transform == rightFloor.Transform
             && Equals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
             && leftFloor.AddsForeground == rightFloor.AddsForeground,
         HudLayer leftHud => right is HudLayer rightHud && leftHud.TransparentColorZero == rightHud.TransparentColorZero
-            && leftHud.Priority == rightHud.Priority && SameHud(leftHud.Hud, rightHud.Hud),
-        PicturedPlaneLayer or AddedPicturedPlaneLayer or SpritesLayer or SpriteDepthLayer or ScreenTintLayer or ScreenGradientLayer
+            && SameHud(leftHud.Hud, rightHud.Hud),
+        PicturedPlaneLayer or AddedPicturedPlaneLayer or SpritesLayer or ScreenTintLayer or ScreenGradientLayer
             or ColourAddWindowLayer => left.Equals(right),
         _ => false,
     };

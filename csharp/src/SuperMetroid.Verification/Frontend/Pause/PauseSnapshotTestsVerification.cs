@@ -51,7 +51,7 @@ internal static class PauseSnapshotTestsVerification
             AssertTrue(ScenePixels.Same(new DisplayPacket(0, expected), new DisplayPacket((ushort)frame, packet)),
                 $"Pause snapshot frame {frame} shows the direct capture's pixels");
             LayeredScene repeated = pause.CaptureRenderSnapshot();
-            AssertTrue(packet.Paint.SpriteParts().SequenceEqual(repeated.Paint.SpriteParts()), "repeat pause capture OAM");
+            AssertTrue(packet.SpriteParts().SequenceEqual(repeated.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
             levels.Add(packet.Brightness);
             ControllerButton input = frame == 8 ? ControllerButton.R
@@ -66,10 +66,8 @@ internal static class PauseSnapshotTestsVerification
         var captured = pause.CaptureRenderSnapshot();
         DisplayLayer[] layers = captured.Layers.ToArray();
         var owned = new LayeredScene(captured.Paint, layers, captured.Brightness);
-        layers[0] = new SpriteDepthLayer(3);
-        AssertEqual(captured.Layers[0], owned.Layers[0], "snapshot owns priority sequence");
-        AssertThrows<ArgumentException>(() => new LayeredScene(captured.Paint,
-            new DisplayLayer[] { new SpriteDepthLayer(4) }, 15), "reject invalid OBJ priority");
+        layers[0] = new SpritesLayer([]);
+        AssertEqual(captured.Layers[0], owned.Layers[0], "snapshot owns its layer order");
         Console.WriteLine("  Pause snapshots: 128 retail map/equipment/fade frames match exactly, including retained HUD and packet lifetime.");
     }
 

@@ -62,11 +62,10 @@ internal static class PauseReserveTanksVerification
                 // sprite draw must resolve to the cartridge's pause sprite colours, which the native OAM draws then show in.
                 var nativeColours = new SnesCgram();
                 CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
-                foreach (ImageSpriteDraw draw in capture.Paint.SpriteDraws.OfType<ImageSpriteDraw>().Where(draw => draw.Shading == PictureShading.Standard))
+                foreach (ImageSpriteDraw draw in capture.SpriteDraws.OfType<ImageSpriteDraw>().Where(draw => draw.Shading == PictureShading.Standard))
                     AssertTrue(PictureShading.Standard.InkColours(draw.Image.Sheet).SequenceEqual(nativeColours.Colors[SpriteImage.SpriteColourCount..].ToArray()),
                         $"pause sprite {draw.Image.Sheet.Name} shows the cartridge's pause sprite colours {capacity}/{supply}");
-                var memory = capture.Paint.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection);
-                var expected = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
+                var expected = DisplayRendering.Render(capture.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection));
                 // This rectangle encloses the tank strip and end-cap, but not the
                 // independently animated equipment selector. BG remains identical.
                 for (int y = 88; y < 120; y++)

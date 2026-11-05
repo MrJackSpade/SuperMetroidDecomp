@@ -22,7 +22,7 @@ internal static class ColorWindowSmokeTests
         var memory = FramePaint.FromNative(palette, []);
         Layer3Cells bg3 = Layer3CellsFixtures.FromVram(vram, palette, 0x7ff8);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
-            new Position16<TilePlanePixels>(3, 11), null);
+            new Position16<TilePlanePixels>(3, 11));
         PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedPicturedPlaneLayer.MapSize);
         int count = 0;
         // Seeded windows of every shape kind (#1468), whole and stepped colours.
@@ -63,17 +63,16 @@ internal static class ColorWindowSmokeTests
         }
         foreach (ushort width in new ushort[] { 32, 64 })
         foreach (ushort height in new ushort[] { 32, 64 })
-        foreach (bool? priority in new bool?[] { null, false, true })
         foreach (bool masked in new[] { false, true })
         {
             var coverage = masked ? new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours,
-                new Extent16<TilemapCells>(width, height)), new Position16<TilePlanePixels>(65535, 511), priority) : null;
+                new Extent16<TilemapCells>(width, height)), new Position16<TilePlanePixels>(65535, 511)) : null;
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
                     new ScreenTintLayer(1, 2, 3), new AddedPicturedPlaneLayer(subscreen, coverage) }, 13));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
-                $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
+                $"{device.Kind}: glow {count}, over a plane {masked}, geometry {width}x{height}");
         }
         for (int rows = 3; rows <= 6; rows++)
         for (int radius = 0; radius <= 24; radius++)

@@ -28,14 +28,12 @@ internal static class ObjSubscreenVerification
         byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 0);
-        var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new SpritesLayer(true) }, 15));
+        var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
+            new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, SpriteBlend.Glows) }, 15));
 
         var pixels = DisplayRendering.Render(packet);
-        AssertEqual(new RgbaPixel(255, 0, 255), pixels[8 * 256 + 8], "OBJ subscreen adds blue to red backdrop");
-        AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "transparent OBJ preserves backdrop");
-        var ordinary = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new SpritesLayer() }, 15));
+        AssertEqual(new RgbaPixel(255, 0, 255), pixels[8 * 256 + 8], "a glowing sprite adds its blue to the red backdrop");
+        AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glowing sprite's transparent pixels leave the backdrop");
     }
 
     /// <summary>Checks Mode 7 BG1 self-addition and OBJ palette eligibility after main-screen priority selection.</summary>
@@ -87,7 +85,7 @@ internal static class ObjSubscreenVerification
 
     }
 
-    /// <summary>Checks OBJ fixed-color addition, palette and priority filters, and legacy priority-packet decoding.</summary>
+    /// <summary>Checks a sprite layer's tint: added to the sprites that blend, five-bit channels expanded, never to the backdrop (#1514).</summary>
     private static void VerifyObjFixedColor()
     {
         byte[] vram = new byte[SnesVram.ByteCount];
@@ -99,28 +97,17 @@ internal static class ObjSubscreenVerification
         {
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
-            var packet = new DisplayPacket(0, new LayeredScene(
-                FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
-                new DisplayLayer[] { new SpritesLayer(FixedColor: new(8, 4, 2)) }, 15));
+            FramePaint memory = FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0);
+            var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
+                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(8, 4, 2)) }, 15));
             var pixels = DisplayRendering.Render(packet);
             AssertEqual(objPalette == 4 ? new RgbaPixel(123, 33, 16) : new RgbaPixel(57, 0, 0), pixels[8 * 256 + 8],
-                "OBJ fixed RGB addition respects palette eligibility and five-bit expansion");
-            AssertEqual(new RgbaPixel(0, 0, 255), pixels[0], "OBJ-only fixed color does not alter uncovered backdrop");
-
-            foreach (byte selectedPriority in new byte[] { 0, 1 })
-            {
-                var filtered = new DisplayPacket(0, new LayeredScene(
-                    FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0),
-                    new DisplayLayer[] { new SpriteDepthLayer(selectedPriority, new(8, 4, 2)) }, 15));
-                var filteredPixels = DisplayRendering.Render(filtered);
-                AssertEqual(selectedPriority == 0 ? pixels[8 * 256 + 8] : new RgbaPixel(0, 0, 255),
-                    filteredPixels[8 * 256 + 8], "fixed OBJ color obeys both priority filtering and palette eligibility");
-
-            }
+                "a sprite tint brightens only the sprites that blend, its five-bit channels expanded");
+            AssertEqual(new RgbaPixel(0, 0, 255), pixels[0], "a sprite tint does not alter the uncovered backdrop");
         }
     }
 
-    /// <summary>Checks four-bit BG subscreen decoding, object masking, and BG-versus-OBJ priority before addition.</summary>
+    /// <summary>Checks a glowing plane's four-bit decoding and where it glows over a plane and the sprites over it (#1514).</summary>
     private static void VerifyBg4SubscreenAddition()
     {
         byte[] vram = new byte[SnesVram.ByteCount];
@@ -146,29 +133,15 @@ internal static class ObjSubscreenVerification
         {
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
-            var masked = new DisplayPacket(0, new LayeredScene(
-                FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new DisplayLayer[] { new SpritesLayer(), new AddedPicturedPlaneLayer(Plane(0x7000),
-                    new PicturedPlaneLayer(Plane(0x6800), new Position16<TilePlanePixels>(0, 0), null), MainObjects: true) }, 15));
+            FramePaint sprites = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
+            var shown = new SpritesLayer(sprites.SpriteDraws);
+            var masked = new DisplayPacket(0, new LayeredScene(new FramePaint(sprites.Backdrop),
+                new DisplayLayer[] { shown, new AddedPicturedPlaneLayer(Plane(0x7000),
+                    new PicturedPlaneLayer(Plane(0x6800), new Position16<TilePlanePixels>(0, 0)), shown) }, 15));
             var pixels = DisplayRendering.Render(masked);
-            AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");
+            AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glow over a plane does not add to the backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],
-                "only winning OBJ palettes four through seven participate in main-screen color math");
-
-        }
-        foreach (byte priority in new byte[] { 1, 2, 3 })
-        foreach (bool highBackground in new[] { false, true })
-        {
-            byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
-            oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority << 4);
-            vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
-            var composite = new DisplayPacket(0, new LayeredScene(
-                FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3),
-                new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000), IncludeObjects: true) }, 15));
-            bool objectWins = priority >= (highBackground ? 3 : 2);
-            AssertEqual(objectWins ? new RgbaPixel(255, 255, 0) : new RgbaPixel(255, 0, 255),
-                DisplayRendering.Render(composite)[8 * 256 + 8],
-                "subscreen selects BG2 or OBJ by priority before addition, never sums both");
+                "a glow over the sprites covers only those that blend");
 
         }
     }

@@ -284,7 +284,7 @@ public static class GameplayDisplayCapture
                 : ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites,
         };
         // Reveal BG2 must not inherit the room's parallax or liquid per-line scroll. Excluded
-        // rooms retain their original map and per-line register values.
+        // rooms keep their background and its line scrolls.
         // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it.
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })

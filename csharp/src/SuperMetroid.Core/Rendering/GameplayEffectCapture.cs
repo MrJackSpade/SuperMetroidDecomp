@@ -210,20 +210,20 @@ public static class GameplayEffectCapture
     /// </summary>
     /// <param name="explosion">The blast as the frame shows it.</param>
     /// <param name="layer1">The camera, which places the blast on the screen.</param>
-    /// <param name="firstVisibleScanline">The first line the blast shows on: below the HUD in gameplay, the top of the screen in cinematics.</param>
+    /// <param name="firstLine">The first screen line the blast covers: the playfield's first line below the HUD in gameplay, the top of the screen in cinematics.</param>
     public static ColourAddWindowLayer? CapturePowerBombGlow(
         PowerBombRenderSnapshot explosion, Position16<RoomPixels> layer1,
-        int firstVisibleScanline = HudHeight)
+        int firstLine = HudHeight)
     {
-        if ((uint)firstVisibleScanline > Height)
-            throw new ArgumentOutOfRangeException(nameof(firstVisibleScanline));
+        if ((uint)firstLine > Height)
+            throw new ArgumentOutOfRangeException(nameof(firstLine));
         if (!explosion.IsActive) return null;
         int radius = PowerBombHorizontalRadius(explosion);
         int verticalRadius = radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
         ScreenWindow window = verticalRadius == 0 ? ScreenWindow.Closed
             : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(layer1),
                 new Extent16<ScreenPixels>(radius, verticalRadius)),
-                firstVisibleScanline);
+                firstLine);
         return new(window, explosion.FixedColor);
     }
 

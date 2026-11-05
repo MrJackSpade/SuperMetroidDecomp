@@ -878,10 +878,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <param name="Slot">The slot it holds.</param>
     private sealed record CeresActorSlot(IntroDiscoverySprite Actor, int Slot);
 
-    /// <summary>Captures the active station blast's scanline color addition as a render layer.</summary>
+    /// <summary>Captures the active station blast's added colour as a render layer, over the whole screen.</summary>
     private ColourAddWindowLayer? CaptureStationExplosion() =>
         GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(stationExplosion),
-            layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
+            layer1: Position16<RoomPixels>.Zero, firstLine: 0);
 
     /// <summary>Places live actors as sprite entries, retaining slot order when Ceres explosions recycle slots.</summary>
     private void PrepareRenderSprites()

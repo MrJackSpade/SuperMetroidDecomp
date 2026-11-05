@@ -501,13 +501,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Back),
             Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, TileDepth.Front),
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, TileDepth.Front),
-            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
-                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, Stage.Brightness);
 
         PicturedPlaneLayer Plane(EndingObjectFragmentId map, TileDepth priority) => new(ExplosionPlane(map),
-            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == TileDepth.Front);
+            Position16<TilePlanePixels>.Zero, priority == TileDepth.Front);
     }
 
     /// <summary>One screen of cells, the size of every whole-screen ending picture.</summary>
@@ -579,14 +578,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
         var main = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap),
-            new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), null);
+            Position16<TilePlanePixels>.Zero, null);
         DisplayLayer[] layers =
         [
             new SpriteDepthLayer(0), new SpriteDepthLayer(1),
             main with { Priority = false }, new SpriteDepthLayer(2),
             main with { Priority = true }, new SpriteDepthLayer(3),
-            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
-                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true),
         ];
         return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, Stage.Brightness);
     }

@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// Turns the Ceres escape shaft (<see cref="CeresShaftRotationDefinitions"/>): each rotation step's delay ramp and
-/// turning-floor coefficients.
+/// tilt.
 /// </summary>
 public static class CeresShaftRotation
 {
-    /// <summary>Quantized delay ramps for absolute sine magnitude zero through34.</summary>
+    /// <summary>Quantized delay ramps for a tilt of zero through 34 steps from level, either way.</summary>
     /// <remarks>
-    /// The authored delay table supplies 69 timers symmetric in absolute sine, represented here by
+    /// The authored delay table supplies 69 timers symmetric about the level step, represented here by
     /// 35 values. A loaded timer counts down through zero, so it lasts timer+1 room-main calls.
     /// The delay slope doubles across four linear bands: one tick per four magnitude
     /// steps through15 (ceiling), one per two at16..21 (floor), one at22..26,
@@ -37,9 +37,7 @@ public static class CeresShaftRotation
     {
         if ((uint)step >= RecordCount)
             throw new InvalidDataException($"Ceres shaft rotation step {step} is outside its {RecordCount} steps.");
-        int sine = step - CenterStep;
-        int magnitude = Math.Abs(sine);
-        int cosine = 256 - (magnitude * magnitude + 255) / 512;
-        return new(Timer(magnitude), sine, cosine);
+        int stepsFromLevel = step - CenterStep;
+        return new(Timer(Math.Abs(stepsFromLevel)), stepsFromLevel / StepsPerRadian);
     }
 }

@@ -52,7 +52,7 @@ internal static class ObjSubscreenVerification
             colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129 + palette * 16] = 12;
             byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
-            var registers = new AffineTransform(256, 0, 0, 256, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
+            var registers = new FloorView(0, FloorView.OwnSize, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
             var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
             var packet = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { new TurningFloorLayer(registers, AffineFloorFixtures.Floor(vram, ToColors(colors)), AddsForeground: true) }, 15));
@@ -80,7 +80,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new TurningFloorLayer(new(256, 0, 0, 256, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
+            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), true) }, 15));
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new RgbaPixel(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");

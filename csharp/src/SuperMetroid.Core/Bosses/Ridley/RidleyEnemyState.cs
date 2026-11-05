@@ -182,28 +182,20 @@ public sealed class RidleyEnemyState
     public bool GetawayFinished { get; internal set; }
     /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (byte offset twice this).</summary>
     public int GetawayFrameIndex { get; internal set; }
-    /// <summary>Gets the wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
+    /// <summary>Gets how far the Ceres getaway has turned its floor clockwise, wrapping at a full turn.</summary>
     public RotationAngle FloorAngle { get; internal set; }
-    /// <summary>Gets the signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
+    /// <summary>Gets the floor point the Ceres getaway places at the screen's top-left before turning and zooming the floor.</summary>
     public Offset16<FloorPixels> FloorOffset { get; internal set; }
     /// <summary>
-    /// Gets the getaway's zoom in 1/256 of unit scale, which scales its sine/cosine matrix: 2048 when the getaway
-    /// starts, then each table frame's zoom, which the table keeps from zero through 65535.
+    /// Gets the getaway's zoom in 256ths of a floor pixel per screen pixel: 2048 when the getaway starts, then each table
+    /// frame's zoom, which the table keeps from zero through 65535. It also selects the floor's shade.
     /// </summary>
     public int FloorZoom { get; internal set; }
-    /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 A coefficient, computed from zoom-scaled cosine.</summary>
-    public SignedEightEight FloorMatrixA { get; internal set; }
-    /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 B coefficient, computed from zoom-scaled sine.</summary>
-    public SignedEightEight FloorMatrixB { get; internal set; }
-    /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 C coefficient, the negated B coefficient.</summary>
-    public SignedEightEight FloorMatrixC { get; internal set; }
-    /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 D coefficient, equal to its A coefficient.</summary>
-    public SignedEightEight FloorMatrixD { get; internal set; }
-    /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 center, initialized to ($40,$40) and cleared on completion.</summary>
+    /// <summary>Gets the floor point the Ceres getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>
     public Position16<FloorPixels> FloorCenter { get; internal set; }
-    /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the Mode-7 getaway.</summary>
+    /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the getaway.</summary>
     public int GetawayBabyFrame { get; internal set; }
-    /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the Mode-7 getaway.</summary>
+    /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the getaway.</summary>
     public int GetawayWingFrame { get; internal set; }
 
     /// <summary>Which step of the Ceres self-destruct warning runs next; the getaway's end starts it.</summary>

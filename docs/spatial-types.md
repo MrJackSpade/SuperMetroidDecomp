@@ -19,7 +19,7 @@ wrapping coordinate family and its fixed-point axes:
 
 These types are each the single owner of their representation (`[EncodingOwner]`), and SME6347 allows a narrow
 width nowhere else in gameplay (`docs/cartridge-encoding.md`). A value that only passes through a coordinate (a
-local holding one axis, a parameter carrying a whole word, a Mode 7 matrix coefficient) is an `int`: the owner's
+local holding one axis, a parameter carrying a whole word) is an `int`: the owner's
 operations take `int` and check that the value is already a word (`Position16.WithX`, `FixedCoordinate.WithWhole`,
 `FixedPosition.WithWholeX`, `SignedSixteenSixteen.FromParts`), so the wrap stays in the arithmetic that produces
 the word, written where it happens, and never in the width of a variable. This is a statement about the game's
@@ -63,8 +63,8 @@ anchors are sprite placement coordinates. Game and cinematic state keeps on-scre
 ## Shapes
 
 There is one point/size family. Every coordinate, displacement and size is a wrapping sixteen-bit
-value; host-side values (image sizes, grid cells, authored anchors) use the same types. Values that are not
-coordinates (`AffineTransform`'s signed 8.8 matrix coefficients) store `int`.
+value; host-side values (image sizes, grid cells, authored anchors) use the same types. A turning floor's angle and
+scale (`FloorView`) are not coordinates and are `double`s.
 
 | Type | Representation | Use |
 |---|---|---|

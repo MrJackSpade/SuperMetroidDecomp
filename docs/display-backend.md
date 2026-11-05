@@ -56,11 +56,11 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   row (`D3D11Screen.LayerLineOffset`).
 - **Insert sprites.** Writes the sprite layer's pixels of one priority, or all, over the screen. Options: add the sprite's
   colour to the screen's, or add a fixed colour to a sprite that blends.
-- **Floor** (the perspective floor). For each screen pixel, the floor position is the transform's matrix applied to the
-  pixel, relative to its centre and scroll, with the screen's row counted from one. The products are truncated to whole
-  sixty-fourths before they are summed and the sum is taken in 1/256ths, exactly as the game's floor shows; the centre and
-  scroll are thirteen-bit signed values and the scroll's offset from the centre is ten-bit. Outside the floor it shows
-  nothing, its first tile, or repeats. Options: add the floor's colour to whichever of the floor and the sprites is in front
+- **Floor** (the perspective floor, `FloorView`). The display model describes the floor as an angle, a scale, a centre
+  and a scroll; the backend turns the angle and scale into a matrix of four floats. For each screen pixel, the floor
+  position is the centre plus that matrix applied to the pixel's distance from the centre once scrolled, rounded down to
+  the floor pixel. The shader computes it with `precise` arithmetic, so every device lands each pixel on the same floor
+  pixel. Outside the floor it shows nothing or repeats. Options: add the floor's colour to whichever of the floor and the sprites is in front
   (the floor shows over priority-zero sprites; a sprite that does not blend is left as it is), or subtract the sprite
   layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in five-bit channels, clamped.

@@ -91,7 +91,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal bool CopyrightRestored { get; private set; }
     /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<FloorPixels> panPosition;
-    /// <summary>8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
+    /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
     internal int Zoom { get; private set; }
     /// <summary>Current screen brightness applied after composing title layers.</summary>
     internal int Brightness { get; private set; }
@@ -371,8 +371,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         PrepareRenderSprites();
         return new(new FramePaint(Backdrop, objects.Draws),
             floorBackgroundEnabled
-                ? new AffineTransform(WordWrap.Signed(Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
-                    0, WordWrap.Signed(Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
+                ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
+                    panPosition.Whole.AsSignedWord())
                 : null,
             Ensure.BetweenInclusive(0, byte.MaxValue, Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
@@ -406,7 +406,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         ? PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Copyright)).With(TitleShades.RestoredCopyright)
         : PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Copyright));
 
-    /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
+    /// <summary>Resolves the installed title gradient at the floor's current zoom.</summary>
     private ScreenGradient ResolveTitleGradient()
     {
         if (titleGradientPresentation is null)

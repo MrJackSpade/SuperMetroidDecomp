@@ -62,8 +62,8 @@ internal static class TitleSequenceRomDataVerification
             maximumFrames: 2_500,
             "complete natural title sequence");
         AssertSequenceEqual(naturalOrder, observed, "natural title phase order");
-        AssertEqual(TitleSequenceDefinitions.Scenes.IdentityScale, state.Mode7MatrixScale,
-            "natural title reaches identity Mode-7 scale");
+        AssertEqual(TitleSequenceDefinitions.Scenes.IdentityScale, state.FloorZoom,
+            "natural title reaches the floor's own size");
         AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenNtscFrames,
             state.TitleScreenFramesRemaining,
             "natural title arms NTSC demo countdown");

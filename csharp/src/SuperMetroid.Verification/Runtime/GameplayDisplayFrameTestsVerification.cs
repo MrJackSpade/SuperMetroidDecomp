@@ -222,16 +222,16 @@ internal static class GameplayDisplayFrameTestsVerification
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
         getaway.GetawayActive = true;
-        getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
-        getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
+        getaway.FloorAngle = RotationAngle.FromTableIndex(5);
+        getaway.FloorZoom = 240;
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
-            "Ridley's M7A..M7Y and fake BGMODE wait for the NMI");
+            "Ridley's floor and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(240, mode7.Transform.MatrixA, "the accepted NMI publishes Ridley's M7A");
-        AssertEqual(33, mode7.Transform.MatrixB, "the accepted NMI publishes Ridley's M7B");
+        AssertEqual(RotationAngle.FromTableIndex(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
+        AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         getaway.GetawayActive = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

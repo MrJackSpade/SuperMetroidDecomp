@@ -32,7 +32,7 @@ internal static class RetailRidleyEscapeTests
             var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
-            var matrices = new HashSet<Mode7Matrix>();
+            var floorViews = new HashSet<FloorView>();
             var phases = new HashSet<RidleyAiFunction>();
             for (int tick = 0; tick < 6000; tick++)
             {
@@ -47,7 +47,7 @@ internal static class RetailRidleyEscapeTests
                 if (ridley.GetawayActive)
                 {
                     mixedFrames++;
-                    matrices.Add(new Mode7Matrix(ridley.FloorMatrixA, ridley.FloorMatrixB, ridley.FloorMatrixC, ridley.FloorMatrixD));
+                    floorViews.Add(CeresRidleyGetaway.FloorTransform(ridley) ?? throw new InvalidOperationException("An active getaway shows its floor."));
                 }
                 finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.GetawayFinished &&
                     !ridley.GetawayActive && !samus.CeresRidleyEjection.IsActive;
@@ -70,11 +70,11 @@ internal static class RetailRidleyEscapeTests
                 }
                 if (finished) break;
             }
-            if (!finished || mixedFrames == 0 || matrices.Count < 2 || runtime.EscapeTimer.Phase == EscapeTimerPhase.Inactive)
+            if (!finished || mixedFrames == 0 || floorViews.Count < 2 || runtime.EscapeTimer.Phase == EscapeTimerPhase.Inactive)
                 throw new InvalidOperationException($"Native escape coverage incomplete: triggered={triggered}, finished={finished}, " +
-                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function}, mode7={mixedFrames}, matrices={matrices.Count}.");
+                    $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function}, mode7={mixedFrames}, floor views={floorViews.Count}.");
             Console.WriteLine($"{device.Kind}: native Ridley escape hits={hitThreshold}: {samples} exact samples, " +
-                $"{mixedFrames} Mode-7 frames, {matrices.Count} matrices, {phases.Count} phases; timer/ejection handoff complete.");
+                $"{mixedFrames} Mode-7 frames, {floorViews.Count} floor views, {phases.Count} phases; timer/ejection handoff complete.");
         }
     }
 }

@@ -485,9 +485,9 @@ internal static void VerifyFrameRuntime()
     runtime.RoomLoader.InitializeStartingCeresRoom();
     runtime.EscapeTimer.RequestCeresStart();
 
-    // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
-    // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
-    var firstMode7 = new TurningFloorTransform(0x00f0, 0x0010, -0x0010, new Position16<RoomPixels>(0x0080, 0x03f0));
+    // The shaft's room main tilts its floor during the main loop. The tilt must become visible
+    // only at an accepted frame boundary, the same boundary as the displayed sprites.
+    var firstMode7 = new TurningFloorTransform(0.0625, new Position16<RoomPixels>(128, 1008));
     runtime.Display.ActiveTurningFloor = firstMode7;
 
     runtime.StepFrame(ControllerButton.Start);
@@ -497,7 +497,7 @@ internal static void VerifyFrameRuntime()
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll),
         runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
 
-    var secondMode7 = new TurningFloorTransform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
+    var secondMode7 = new TurningFloorTransform(0.125, new Position16<RoomPixels>(128, 1008));
     runtime.Display.ActiveTurningFloor = secondMode7;
     runtime.StepFrame(ControllerButton.Start);
     AssertEqual(ControllerButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");

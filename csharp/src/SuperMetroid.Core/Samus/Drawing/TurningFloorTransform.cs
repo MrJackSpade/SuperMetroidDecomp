@@ -1,64 +1,33 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// The Ceres elevator shaft's turning floor: how far the floor has rotated Samus's surroundings about its centre, which
+/// The Ceres elevator shaft's turning floor: how far the floor has turned Samus's surroundings about its centre, which
 /// her drawing (and every sprite drawn over the floor) applies to its origin while the shaft turns.
 /// </summary>
 /// <remarks>
-/// This is deliberately a presentation value, not part of Samus's kinematics. Retail
-/// temporarily replaces Samus's world point with the transformed point, calculates the
-/// spritemap origin, and restores both world coordinates immediately afterward. Keeping
-/// the transform immutable makes it difficult for drawing code to accidentally rotate
-/// collision, camera tracking, or the following gameplay frame's starting position.
-/// The second diagonal term is absent because this particular game routine uses A for both diagonal
-/// terms; B and C provide the two cross terms exactly as the shaft's routine writes them.
+/// This is deliberately a presentation value, not part of Samus's kinematics. The drawing turns a copy of the world
+/// point and places the sprite there; collision, camera tracking and the following frame's starting position keep the
+/// untransformed point. Keeping the transform immutable makes it difficult for drawing code to turn them by accident.
 /// </remarks>
-/// <param name="MatrixA">The rotation's step through room X per room X, also its step through room Y per room Y: a signed 8.8 fixed-point coefficient (256 is 1.0).</param>
-/// <param name="MatrixB">The rotation's step through room X per room Y: a signed 8.8 fixed-point coefficient.</param>
-/// <param name="MatrixC">The rotation's step through room Y per room X: a signed 8.8 fixed-point coefficient.</param>
-/// <param name="Center">The room point the shaft's turning floor rotates about.</param>
-/// <remarks>
-/// The coefficients are signed 8.8 values, -32768 through 32767, that the shaft's producers take from signed words and
-/// nothing wraps afterwards, so they are stored as integers. The wraps the transform reproduces are its own: each
-/// distance and each product is truncated to sixteen bits where the game truncates it.
-/// </remarks>
-public readonly record struct TurningFloorTransform(
-    int MatrixA,
-    int MatrixB,
-    int MatrixC,
-    Position16<RoomPixels> Center)
+/// <param name="Angle">How far the floor is turned clockwise on the screen, in radians; the sprites over it turn with it.</param>
+/// <param name="Center">The room point the shaft's turning floor turns about.</param>
+public readonly record struct TurningFloorTransform(double Angle, Position16<RoomPixels> Center)
 {
+    /// <summary>The floor of a shaft that has not turned.</summary>
+    /// <param name="center">The room point the shaft's turning floor turns about.</param>
+    public static TurningFloorTransform Level(Position16<RoomPixels> center) => new(0, center);
+
     /// <summary>
-    /// Applies the game's signed 8.8 matrix math, including every intermediate
-    /// 16-bit truncation that can be observed near a coordinate or arithmetic wrap.
+    /// Where <paramref name="world"/> shows once the floor has turned: the point turned clockwise by <see cref="Angle"/>
+    /// about <see cref="Center"/>, to the nearest pixel.
     /// </summary>
     public Position16<RoomPixels> Transform(Position16<RoomPixels> world)
     {
-        // The rotation forms both distances with 16-bit subtraction before treating the
-        // products as signed. In particular, vertical distance points upward: centre Y - Y.
-        int horizontalDistance = CoordinateAxis.Wrap(world.X - Center.X);
-        int verticalDistance = CoordinateAxis.Wrap(Center.Y - world.Y);
-
-        // The original helper multiplies two signed 16-bit values into a 32-bit result.
-        // Each product is shifted independently, truncated to a word, and only then added
-        // to the other term. Do not combine these into a wider host expression: overflow
-        // between the two additions is the original behavior.
-        int transformedHorizontalDistance = CoordinateAxis.Wrap(
-            MultiplySigned8Point8(horizontalDistance, MatrixA) +
-            MultiplySigned8Point8(verticalDistance, MatrixB));
-        int transformedVerticalDistance = CoordinateAxis.Wrap(
-            MultiplySigned8Point8(horizontalDistance, MatrixC) +
-            MultiplySigned8Point8(verticalDistance, MatrixA));
-
-        return new Position16<RoomPixels>(
-            CoordinateAxis.Wrap(Center.X + transformedHorizontalDistance),
-            CoordinateAxis.Wrap(Center.Y - transformedVerticalDistance));
-    }
-
-    /// <summary>Multiplies a distance word, read as signed, by a signed coefficient and truncates the shifted result to the game's 16-bit intermediate.</summary>
-    private static int MultiplySigned8Point8(int distance, int coefficient)
-    {
-        int product = CoordinateAxis.AsSigned(distance) * coefficient;
-        return CoordinateAxis.Wrap(EightEight.WholeOf(product));
+        Offset16<RoomPixels> fromCentre = world - Center;
+        double cosine = Math.Cos(Angle), sine = Math.Sin(Angle);
+        Offset16<RoomPixels> turned = Offset16<RoomPixels>.Wrapped(
+            (int)Math.Round(fromCentre.X * cosine - fromCentre.Y * sine),
+            (int)Math.Round(fromCentre.X * sine + fromCentre.Y * cosine));
+        return Center + turned;
     }
 }

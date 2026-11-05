@@ -119,7 +119,7 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }
 
-    /// <summary>Checks the shaft's 60-call rotation delay, forward/reverse matrix indexing, gameplay-gated trigger, and one-frame departure request.</summary>
+    /// <summary>Checks the shaft's 60-call rotation delay, forward/reverse step indexing, gameplay-gated trigger, and one-frame departure request.</summary>
     private static void VerifyCeresElevatorShaftRoomMain()
     {
         var bus = new TestAddressSpace();
@@ -141,16 +141,11 @@ internal static class CeresEscapeHandoffVerification
             state.RotationStep,
             "shaft index waits through first 60 calls");
 
-        CeresElevatorShaftRoomMainResult firstMatrix =
+        CeresElevatorShaftRoomMainResult firstTilt =
             state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover);
-        AssertTrue(firstMatrix.MatrixChanged, "61st shaft call underflows and consumes first matrix record");
+        AssertTrue(firstTilt.TiltChanged, "61st shaft call underflows and consumes the first rotation step");
         AssertEqual(35, state.RotationStep, "shaft index advances after record 34");
-        AssertEqual(0x0100, state.Transform.MatrixA, "shaft cosine comes from record 34");
-        AssertEqual(0, state.Transform.MatrixB, "shaft sine comes from record 34");
-        AssertEqual(
-            0,
-            state.Transform.MatrixC,
-            "shaft C matrix is native negated sine");
+        AssertEqual(0.0, state.Transform.Angle, "step 34 leaves the shaft level");
 
         // Consume records 35..67. The sweep then reverses at step 68, and one more call proves step 68 reads record 68.
         // The following room inherits the backward steps with the native phase word's sign bit.
@@ -162,8 +157,8 @@ internal static class CeresEscapeHandoffVerification
         StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(67, state.RotationStep, "shaft reverse sweep counts down");
         AssertEqual(0x8043, carryover.Countdown.RawValue, "the following room inherits the next reverse step as phase $8043");
-        AssertEqual(0x00fe, state.Transform.MatrixA, "reverse step 68 reads record 68");
-        AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
+        AssertEqual(34 / CeresShaftRotationDefinitions.StepsPerRadian, state.Transform.Angle,
+            "reverse step 68 reads record 68, the shaft's furthest clockwise tilt");
         Suite(nameof(VerifyCeresShaftCompiledRotation), () => VerifyCeresShaftCompiledRotation());
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.

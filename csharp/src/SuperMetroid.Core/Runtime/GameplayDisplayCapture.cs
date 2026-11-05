@@ -217,7 +217,7 @@ public static class GameplayDisplayCapture
         PerspectiveFloor perspective = latched.PerspectiveFloor
             ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
         // Room shake moves the floor with layer 1, wrapping as a sixteen-bit scroll.
-        AffineTransform transform = perspective.Transform with
+        FloorView transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(
                 CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Bg1.X),

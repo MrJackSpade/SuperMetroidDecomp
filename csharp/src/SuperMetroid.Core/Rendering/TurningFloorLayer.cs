@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="SubtractsSprites">Subtracts the frontmost sprite from the floor.</param>
 /// <param name="AddsForeground">Adds the floor's colour, unhalved, over the floor and the blending sprites; the backdrop and the sprites that do not blend are unchanged.</param>
 [IndependentFlag("independent blends: subtracting the sprites, and adding the floor")]
-public sealed record TurningFloorLayer(AffineTransform Transform, AffineFloor Floor, bool SubtractsSprites = false,
+public sealed record TurningFloorLayer(FloorView Transform, AffineFloor Floor, bool SubtractsSprites = false,
     bool AddsForeground = false) : DisplayLayer
 {
     /// <summary>The floor's map and tiles.</summary>

@@ -818,19 +818,15 @@ internal sealed class RoomLoader
         scope.CeresElevatorShaft = ceresElevatorShaft;
         scope.CeresFallingDebris = new CeresFallingDebrisRoomMainState(_room.RoomMainCarryover);
         scope.EscapeDiagonalQuake = new EscapeDiagonalQuakeState(_room.RoomMainCarryover);
-        // Ceres's elevator door setup writes these exact five matrix values before the fresh Ceres
+        // Ceres's elevator door setup levels the shaft about its centre before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
         // producer. Ordinary doors clear it so stale rotating-view math cannot leak across rooms.
         TurningFloorTransform? initialFloorTransform = door.EntersCeresElevatorShaft
-            ? new TurningFloorTransform(
-                MatrixA: 256, // 1.0 in Mode 7's 8.8 fixed point.
-                MatrixB: 0,
-                MatrixC: 0,
-                Center: CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
+            ? TurningFloorTransform.Level(CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
             : null;
         _display.ActiveTurningFloor = initialFloorTransform;
-        // The Ceres elevator door setup writes the initial matrix before the shaft is
+        // The Ceres elevator door setup levels the shaft before it is
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
         // reach it only when the frame's display is published, like every other floor change.
         _display.PublishDoorElevatorFloor(initialFloorTransform);

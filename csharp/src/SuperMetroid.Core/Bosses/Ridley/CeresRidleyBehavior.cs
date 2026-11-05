@@ -342,7 +342,4 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Wing frame deltas selected from Ridley's movement speed.</summary>
     internal static readonly ushort[] CeresRidleyWingAnimationDeltas =
         [12, 14, 16, 18, 28, 32, 40, 48];
-
-    /// <summary>A signed 8.8 coefficient of one, unit scale, as the getaway's setup installs it.</summary>
-    internal static readonly SignedEightEight FloorUnitCoefficient = SignedEightEight.FromSignedRaw(256);
 }

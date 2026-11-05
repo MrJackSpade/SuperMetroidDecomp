@@ -45,7 +45,7 @@ room state here", so this order is kept line for line.
 | Carry-over | `LoadRoom` | `RoomTransitionCarryOver` captured from the outgoing scope |
 | Header | `LoadRoom` | Scope construction begins with the door, room, assets and load station (none for a door) |
 | Room mains | `LoadRoom` | Treadmill, elevatube and Ceres shaft built (the shaft reads `RoomMainScratch`) |
-| Display | `LoadRoom` | Mode 7 transform: the Ceres elevator door publishes its matrix, other doors clear it |
+| Display | `LoadRoom` | Turning floor: the Ceres elevator door publishes the level shaft, other doors clear it |
 | Level and camera | `LoadRoom` | Level data; a new camera inheriting tracking state and fraction words |
 | Scroll | `LoadRoom` | Layer-2 scroll; previous blocks primed, or the door-opening destination prepared |
 | Streamers | `LoadRoom` | Background streamer, scrolling sky |

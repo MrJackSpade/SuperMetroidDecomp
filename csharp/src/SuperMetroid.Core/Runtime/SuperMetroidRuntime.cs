@@ -937,14 +937,14 @@ internal sealed class SuperMetroidRuntime
 
         // Execute the active room's room main at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
-        // Ceres routine publishes a matrix for the following frame's presentation and may
+        // Ceres routine publishes a tilt for the following frame's presentation and may
         // change the outer dispatcher to state $20 only when its caller is state eight.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
             Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: policy.AllowCeresElevatorDeparture,
             Room.RoomMainCarryover);
-        if (RoomMains.LastCeresElevatorShaftRoomMain.MatrixChanged)
+        if (RoomMains.LastCeresElevatorShaftRoomMain.TiltChanged)
             Display.ActiveTurningFloor = RoomMains.LastCeresElevatorShaftRoomMain.Transform;
 
         RoomMains.RunCeresFallingDebrisRoomMain(Room.LoadedScope);

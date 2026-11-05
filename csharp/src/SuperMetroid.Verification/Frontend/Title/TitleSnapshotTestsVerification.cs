@@ -74,7 +74,7 @@ internal static class TitleSnapshotTestsVerification
                 }
                 AssertEqual(control.Phase, scene.Phase, "capture does not advance title phase");
                 AssertEqual(control.Brightness, scene.Brightness, "capture does not advance brightness");
-                AssertEqual(control.Mode7MatrixScale, scene.Mode7MatrixScale, "capture does not advance zoom");
+                AssertEqual(control.FloorZoom, scene.FloorZoom, "capture does not advance zoom");
                 if (scene.FileSelectRequested)
                 {
                     AssertTrue(phases.Contains(TitleSequencePhase.SceneThreeZoom), "snapshot covers natural zoom");

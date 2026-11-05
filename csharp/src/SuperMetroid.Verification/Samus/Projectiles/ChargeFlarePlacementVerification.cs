@@ -49,7 +49,7 @@ internal static class ChargeFlarePlacementVerification
         })
         for (byte direction = 0; direction < ChargeFlarePlacementDefinitions.StandingDirectionCount; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 100, 255, ushort.MaxValue })
-        foreach (TurningFloorTransform? transform in new TurningFloorTransform?[] { null, new(240, 16, -16, new Position16<RoomPixels>(128, 112)) })
+        foreach (TurningFloorTransform? transform in new TurningFloorTransform?[] { null, new(0.0666, new Position16<RoomPixels>(128, 112)) })
         for (int component = 0; component < 3; component++)
         {
             // Exercise all original low-nibble operands at the renderer's metadata

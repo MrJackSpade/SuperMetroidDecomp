@@ -99,12 +99,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Signed 16.16 camera offset applied to the Mode-7 Ceres or Zebes scene.</summary>
     internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(WordWrap.Unsigned(-44), 0), new(WordWrap.Unsigned(-112), 0));
     /// <summary>
-    /// Mode-7 scene scale in 1/256 units (256 is identity). Every producer keeps it within zero through
+    /// The floor's zoom in 256ths of a floor pixel per screen pixel (256 shows it at its own size). Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
     /// is guarded by the minimum-scale test, so it never wraps.
     /// </summary>
     internal int Zoom { get; private set; } = CeresDestructionSceneDefinitions.Motion.IdentityScale;
-    /// <summary>Mode-7 rotation angle sampled from the compiled signed sine table.</summary>
+    /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
     /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
     [IntegerQuantity("screen brightness level, zero through fifteen")]
@@ -840,7 +840,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         else if (usesFloor)
         {
-            AffineTransform floor = FloorRotationMatrix.Transform(angle, Zoom,
+            FloorView floor = FloorView.Turned(angle, Zoom,
                 CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,

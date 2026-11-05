@@ -13,10 +13,10 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Hardware;
 
-/// <summary>Checks Mode 7 gameplay packets keep their registers, and a captured Ceres Ridley scene draws as the live frame did.</summary>
+/// <summary>Checks turning-floor gameplay packets keep their floor views, and a captured Ceres Ridley scene draws as the live frame did.</summary>
 internal static class Mode7GameplaySnapshotTestsVerification
 {
-    /// <summary>Checks the band layer across matrix and scroll variants, then packet retention after live scene data changes.</summary>
+    /// <summary>Checks the band layer across angle, scale and scroll variants, then packet retention after live scene data changes.</summary>
     internal static void VerifyMode7GameplaySnapshots()
     {
         var random = new Random(32109);
@@ -28,22 +28,22 @@ internal static class Mode7GameplaySnapshotTestsVerification
         var fixtureVram = new SnesVram();
         fixtureVram.LoadBytes(0, bytes);
         int samples = 0;
-        foreach (short matrix in new short[] { 0, 128, 256, -256, 511, short.MinValue })
+        foreach (double scale in new[] { 0, 0.5, 1, 2 })
         foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
             // The floor band below shows the room's layer-2 plane (#1403); the retail Ridley capture below draws it.
-            var m = new AffineTransform(matrix, 17, -33, matrix, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
+            var m = new FloorView(0.13, scale, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
             var layer = new TurningRoomLayer(m, AffineFloorFixtures.Floor(fixtureVram.Bytes, ToColors(palette)), ScreenGeometry.GameplayHudHeightPixels);
             samples++;
             var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
-            AssertEqual(layer, (TurningRoomLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the Mode-7 band layer keeps all register fields");
+            AssertEqual(layer, (TurningRoomLayer)(packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0], "the turning-floor band layer keeps its floor view");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,
                     new DisplayLayer[] { new SpritesLayer(), layer }, 15), "Mode-7 base cannot erase earlier layers");
             }
         }
-        // Retail room assets with explicitly constructed getaway registers exercise
+        // Retail room assets with an explicitly constructed getaway floor exercise
         // the runtime producer, without pretending this is a controller-driven battle.
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -52,22 +52,22 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
-        getaway.FloorMatrixA = SignedEightEight.FromSignedRaw(240); getaway.FloorMatrixB = SignedEightEight.FromSignedRaw(33);
-        getaway.FloorMatrixC = SignedEightEight.FromSignedRaw(-33); getaway.FloorMatrixD = SignedEightEight.FromSignedRaw(240);
+        getaway.FloorAngle = RotationAngle.FromTableIndex(5);
+        getaway.FloorZoom = 240;
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
-        // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
+        // The getaway's floor reaches the display at the accepted frame boundary (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = new DisplayPacket(0, GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
-        getaway.GetawayActive = false; getaway.FloorMatrixA = default;
+        getaway.GetawayActive = false; getaway.FloorZoom = 0;
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 32,
             new TurningRoomLowerBand(31, new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32), RoomBackgroundsFixtures.Blank().Bg1)),
             "floor cannot overlap HUD");
-        Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} matrix/scroll layers keep their registers; the Ridley packet is retained.");
+        Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} scale/scroll layers keep their floor views; the Ridley packet is retained.");
     }
 }

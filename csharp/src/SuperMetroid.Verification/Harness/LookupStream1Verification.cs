@@ -714,8 +714,10 @@ internal static class LookupStream1Verification
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.BodyFrames.BindBodyFixture(stockArt);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
-            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
-                "Actual drained drawing uses exact signed native correction");
+            // A frame outside the crouch's own pictures is placed as the picture it draws (#1513).
+            int picture = shown.PictureFrame(SamusPoseId.DrainedCrouchingLeftPose, frame);
+            AssertEqual(unchecked((ushort)(128 + native[picture])), samus.Presentation.SpritemapPosition.Y,
+                "Actual drained drawing uses the exact signed native correction of the picture it draws");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
         }

@@ -347,8 +347,8 @@ public sealed class SamusDrainedState
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
-            frame: 8,
-            timer: 16);
+            frame: SamusDrainedAnimationDefinitions.PutCrouchingFrame,
+            timer: SamusDrainedAnimationDefinitions.PutCrouchingTimer);
         Phase = DrainedSamusPhase.Crouching;
         samus.CommitPoseHistory();
     }

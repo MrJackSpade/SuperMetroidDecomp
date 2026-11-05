@@ -307,7 +307,7 @@ internal static void VerifySamusRenderingSlice()
     SeedBodyHalfRoutingTileAnimation(bus);
     SamusRenderingVerifySamusRenderingSliceCase[] routingCases =
     [
-        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 0, 1, "$D7 frame zero top-only"),
+        new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 1, 1, "$D7 frame one top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceLeftPose, 0x0a, 2, 1, "$D8 frame two top-only"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.DeathSequenceRightPose, 0x0a, 3, 2, "$D7 frame three split"),
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.CrouchingTransitionRightPose, 0x0f, 0, 2, "$35 basic crouch transition split"),
@@ -346,9 +346,10 @@ internal static void VerifySamusRenderingSlice()
         () => SamusPoseMetadata.ReadMovementType(samus),
         "movement-type API rejects a discriminator outside the complete retail domain");
     oamFrame.BeginFrame();
-    AssertThrows<InvalidDataException>(
+    // The body is drawn by the pose's own halves rule, and no path of the game shows a pose past the records (#1513).
+    AssertThrows<InvalidOperationException>(
         () => samus.Presentation.Draw(samus, oamFrame, layer1: samus.Position.Whole),
-        "movement type beyond complete bottom-half table is rejected as malformed pose data");
+        "a pose past the records is rejected before its malformed movement type is read");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values.

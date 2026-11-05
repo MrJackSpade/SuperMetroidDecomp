@@ -130,7 +130,7 @@ internal static class SheetInkRules
     /// image, whose red channel holds each pixel's ink.
     /// </summary>
     /// <exception cref="InvalidDataException">The palette-index image is malformed or not the size of the sheet image.</exception>
-    private static byte[] InkPlane(string directory, SpriteImage image)
+    internal static byte[] InkPlane(string directory, SpriteImage image)
     {
         string path = Path.Combine(directory, SpriteSheetStore.PaletteFile(image.Name));
         RgbaPixel[] plane;

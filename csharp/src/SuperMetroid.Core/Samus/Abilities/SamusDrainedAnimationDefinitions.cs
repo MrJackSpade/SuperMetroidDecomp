@@ -42,4 +42,10 @@ internal static class SamusDrainedAnimationDefinitions
 
     /// <summary>The frame the drained-fall controller initializes the drained crouch on.</summary>
     internal const int FallInitialFrame = 2;
+
+    /// <summary>The frame the crouching-or-falling controller writes the drained crouch on, the first of its held crouch.</summary>
+    internal const int PutCrouchingFrame = 8;
+
+    /// <summary>How many ticks the crouching-or-falling controller holds its first frame.</summary>
+    internal const int PutCrouchingTimer = 16;
 }

@@ -5,52 +5,44 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// Which body halves a pose's animation frame shows, where the body is drawn relative to Samus, and the chest cover the
+/// Which body halves a pose's picture frame shows, where the body is drawn relative to Samus, and the chest cover the
 /// forward-facing Power Suit body shows: the decisions that make the one full-body picture Samus's body draws each update
 /// (#1513). The draw and the import that composes the body sheet both make them here.
 /// </summary>
+/// <remarks>
+/// Every decision follows the pose's own movement type, never the movement Samus's gameplay carries. The drained-Samus
+/// commands write a drained pose without initializing it, so her movement stays the type of the pose she was last
+/// initialized in, and the game draws the drained pose's halves by that carried type: a carried spin draws a drained body
+/// without its legs, a carried ball draws only its top. Drawing half a body because of a carried movement type is a
+/// presentation quirk the port does not replicate (owner ruling on #1513: no sprite sheet frame shows half a Samus); the
+/// carried movement itself stays gameplay and still governs her movement, collisions and the wall contact's rewind.
+/// </remarks>
 internal static class SamusBodyDrawing
 {
     /// <summary>
-    /// The full body an update draws for <paramref name="pose"/> at <paramref name="animationFrame"/> while the pose's
-    /// movement is <paramref name="movementType"/>: its top half, its bottom half unless the top half is the complete body,
-    /// and the chest cover between them for the forward-facing Power Suit body.
+    /// The full body an update draws for <paramref name="pose"/> at picture frame <paramref name="pictureFrame"/>: its top
+    /// half, its bottom half unless the pose's own movement type makes the top half the complete body, and the chest cover
+    /// between them for the forward-facing Power Suit body. <see cref="SamusShownFrames.PictureFrame"/> gives the picture
+    /// frame an animation frame shows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The body's placement for the frame lacks installed art.</exception>
-    internal static SamusBodyFrame Frame(SamusMovementType movementType, SamusPoseId pose, int animationFrame,
-        InstalledSamusBodyArtwork artwork)
+    /// <exception cref="InvalidDataException">The pose has no movement type, or the body's placement lacks installed art.</exception>
+    internal static SamusBodyFrame Frame(SamusPoseId pose, int pictureFrame, InstalledSamusBodyArtwork artwork)
     {
         Ensure.NotNull(artwork);
         return new SamusBodyFrame(
-            new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, animationFrame),
-            ShowsBottomHalf(movementType, pose, animationFrame) ? new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, animationFrame) : null,
-            ChestCover(movementType, pose, animationFrame, artwork));
+            new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, pictureFrame),
+            ShowsBottomHalf(pose, pictureFrame) ? new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, pictureFrame) : null,
+            ChestCover(pose, pictureFrame, artwork));
     }
 
     /// <summary>
-    /// The movement types the drained poses are drawn with: the Baby Metroid's drained-Samus commands write a drained pose
-    /// without initializing it, so the movement type of the pose Samus was last initialized in stays in force, and nothing
-    /// in the commands checks which pose that was (the Mother Brain glitch recording carries a spin jump's movement into
-    /// the drained standing pose). They are the movement types of every pose Samus can be initialized in, the drained
-    /// poses' own among them: the poses some path of the game gives her.
+    /// Whether the body's picture frame shows its bottom half, porting the draw's complete lower-half dispatcher for the
+    /// pose's own movement type: a frame whose top half is the complete body shows none.
     /// </summary>
-    private static readonly SamusMovementType[] DrainedPoseMovementTypes =
-        [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
-
-    /// <summary>
-    /// Every movement type the body can be drawn with in <paramref name="pose"/>: the pose's own, except for the drained
-    /// poses, which the drained controllers write without initializing the pose, so they are drawn with the movement type
-    /// of whichever pose Samus was last initialized in (<see cref="DrainedPoseMovementTypes"/>).
-    /// </summary>
-    internal static IReadOnlyList<SamusMovementType> MovementTypesDrawnWith(SamusPoseId pose) =>
-        SamusPoseMetadata.IsDrainedPose(pose) ? DrainedPoseMovementTypes : [SamusPoseMetadata.ReadMovementType(pose)];
-
-    /// <summary>
-    /// Whether the body's frame shows its bottom half, porting the draw's complete lower-half dispatcher: a frame whose
-    /// top half is the complete body shows none.
-    /// </summary>
-    internal static bool ShowsBottomHalf(SamusMovementType movementType, SamusPoseId pose, int animationFrame)
+    /// <exception cref="InvalidDataException">The pose has no movement type.</exception>
+    private static bool ShowsBottomHalf(SamusPoseId pose, int animationFrame)
     {
+        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(pose);
         // The draw suppresses the ordinary spin-jump bottom half for art frames 1..A;
         // those frames' top spritemaps contain the complete curled body. Frame zero and
         // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
@@ -110,15 +102,16 @@ internal static class SamusBodyDrawing
     }
 
     /// <summary>
-    /// How far above Samus's drawn point the body's origin sits for <paramref name="pose"/> at
-    /// <paramref name="animationFrame"/>: movement type zero uses the standing position selector, `$0F/$1B` use their
-    /// explicit table-backed selectors, and every other pose the pose's graphics offset.
+    /// How far above Samus's drawn point the body's origin sits for <paramref name="pose"/> at picture frame
+    /// <paramref name="animationFrame"/>, by the pose's own movement type: movement type zero uses the standing position
+    /// selector, `$0F/$1B` use their explicit table-backed selectors, and every other pose the pose's graphics offset. The
+    /// origin goes with the picture: a mapped frame is placed as the picture frame it shows.
     /// </summary>
-    /// <exception cref="InvalidDataException">The frame's offset lacks installed art.</exception>
-    internal static int OriginRise(SamusMovementType movementType, SamusPoseId pose, int animationFrame,
-        InstalledSamusBodyArtwork artwork)
+    /// <exception cref="InvalidDataException">The pose has no movement type, or the frame's offset lacks installed art.</exception>
+    internal static int OriginRise(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork)
     {
         Ensure.NotNull(artwork);
+        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(pose);
         if (movementType == SamusMovementType.Standing &&
             pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             animationFrame >= 2)
@@ -181,12 +174,10 @@ internal static class SamusBodyDrawing
     /// <remarks>
     /// The game positions the cover from the unrotated world point while Ceres's turning floor rotates the body's;
     /// the full-body picture keeps the cover where it sits on the body, a presentation quirk the port does not replicate
-    /// (owner ruling on #1513). Only the drained poses are drawn with another pose's movement type, so the forward pose's
-    /// cover always follows its own.
+    /// (owner ruling on #1513).
     /// </remarks>
-    private static Offset16<ScreenPixels>? ChestCover(SamusMovementType movementType, SamusPoseId pose, int animationFrame,
-        InstalledSamusBodyArtwork artwork) =>
+    private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork) =>
         pose == SamusPoseId.ForwardFacingPowerSuitPose
-            ? Offset16<ScreenPixels>.Of(-7, OriginRise(movementType, pose, animationFrame, artwork) - 17)
+            ? Offset16<ScreenPixels>.Of(-7, OriginRise(pose, animationFrame, artwork) - 17)
             : null;
 }

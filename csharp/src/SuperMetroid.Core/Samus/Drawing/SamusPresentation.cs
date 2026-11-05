@@ -36,8 +36,15 @@ internal sealed class SamusPresentation
     /// Seeds pose/frame-zero graphics before the first displayed frame, as room/game setup must do
     /// before a visible normal-gameplay Samus can be constructed.
     /// </summary>
-    public void PrimeGraphics(SamusState samus) =>
-        BodyFrames.Select(samus.Pose, samus.AnimationFrame);
+    public void PrimeGraphics(SamusState samus) => SelectPictures(samus);
+
+    /// <summary>
+    /// Selects the pictures of the picture frame Samus's pose and animation frame draw (#1513): a frame outside the pose's
+    /// own pictures shows the pose's nearest picture before it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No path of the game shows the pose at that frame.</exception>
+    private void SelectPictures(SamusState samus) =>
+        BodyFrames.Select(samus.Pose, SamusShownFrames.Of(samus.AnimationContinuation).PictureFrame(samus.Pose, samus.AnimationFrame));
 
     /// <summary>
     /// Seeds the animation frame timer as <c>Set_Samus_AnimationFrame_if_PoseChanged</c>
@@ -340,9 +347,11 @@ internal sealed class SamusPresentation
     /// <remarks>
     /// The body's origin and the halves it shows come from <see cref="SamusBodyDrawing"/>, which keeps the complete
     /// position selectors and lower-half dispatcher, including all unused-but-valid movement types; the body sheet is
-    /// composed from the same decisions. The halves an update shows are drawn as one full-body picture (#1513).
+    /// composed from the same decisions. The halves an update shows are drawn as one full-body picture (#1513), by the
+    /// pose's own movement type at the picture frame <see cref="SamusShownFrames"/> gives the animation frame: the body is
+    /// always a whole Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>
-    public bool Draw(SamusState samus, 
+    public bool Draw(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         int frameCounter = 0,
@@ -350,7 +359,8 @@ internal sealed class SamusPresentation
     {
         Ensure.NotNull(sprites);
 
-        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
+        // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
+        int pictureFrame = SamusShownFrames.Of(samus.AnimationContinuation).PictureFrame(samus.Pose, samus.AnimationFrame);
 
         // The draw applies invincibility flicker to the body spritemaps, not to
         // animation or graphics streaming as a whole. An odd frame hides ordinary invincible
@@ -366,7 +376,7 @@ internal sealed class SamusPresentation
             // The game branches around every position/index/sprite write, then still falls
             // through to the graphics selection. Preserve the previous visible spritemap indices for
             // echo drawing while selecting this frame's tile definitions for the next displayed frame.
-            BodyFrames.Select(samus.Pose, samus.AnimationFrame);
+            BodyFrames.Select(samus.Pose, pictureFrame);
             return false;
         }
 
@@ -382,20 +392,18 @@ internal sealed class SamusPresentation
 
         InstalledSamusBodyArtwork artwork = BodyFrames.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork.");
-        // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
-        SamusShownFrames.Of(samus.AnimationContinuation).RequireShown(movementType, samus.Pose, samus.AnimationFrame);
         int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
         int spritemapY = CoordinateAxis.Wrap(
-            renderY - SamusBodyDrawing.OriginRise(movementType, samus.Pose, samus.AnimationFrame, artwork) - layer1.Y);
+            renderY - SamusBodyDrawing.OriginRise(samus.Pose, pictureFrame, artwork) - layer1.Y);
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
 
         // The body's top half, the chest cover the unsuited forward-facing body shows, and the bottom half unless the top
         // half is the complete body, are one full-body picture drawn at the spritemap origin (#1513).
-        SamusBodyFrame body = SamusBodyDrawing.Frame(movementType, samus.Pose, samus.AnimationFrame, artwork);
+        SamusBodyFrame body = SamusBodyDrawing.Frame(samus.Pose, pictureFrame, artwork);
         DrawnFrame = body;
         // The graphics selection follows these spritemaps, but it only chooses the artwork the next displayed frame shows with
         // them. Selecting first lets the draw bind the characters it is displayed with; nothing between reads it.
-        BodyFrames.Select(samus.Pose, samus.AnimationFrame);
+        BodyFrames.Select(samus.Pose, pictureFrame);
         ShownPictures = BodyFrames.Shown;
         sprites.AddSamusBody(body, SpritemapPosition, artwork.Spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus));
         return true;

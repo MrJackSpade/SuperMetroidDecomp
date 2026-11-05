@@ -7,11 +7,11 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// The animation frames Samus's body can show in each pose (#1513): the body sheet holds pictures for exactly these, and
-/// the draw rejects any other. A pose some path of the game gives Samus shows the frames its animation program holds a
-/// picture on, and the frames the paths that set her animation frame from outside the program publish for it while she
-/// can hold it, each followed on through the program as her animation advances it. A pose no path gives her shows
-/// nothing.
+/// The animation frames Samus's body can show in each pose, and the picture each of them draws (#1513): the body sheet
+/// holds a whole-body picture for exactly the picture frames, and the draw rejects any animation frame no path reaches.
+/// A pose some path of the game gives Samus shows the frames the paths that start her animation put it on and the
+/// frames the paths that set her animation frame from outside the program publish for it while she can hold it, each
+/// followed on through the program as her animation advances it. A pose no path gives her shows nothing.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -23,20 +23,44 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// update replaces it before the draw. A frame past the end of a program reads the program laid out after it.
 /// </para>
 /// <para>
-/// The paths that publish frames outside the program, each for the poses Samus can hold when it runs: the drained-Samus
-/// get-up handlers, the Hyper Beam acquisition's freeze, the rainbow stop, the drained landing and the release; and the
-/// wall contact that rewinds a spin, for every pose drawn with the spin's movement. A frame written with a timer of one
-/// just before the animation pass is advanced by it before the draw; any other written frame is drawn as it stands. Pose
-/// initialization starts a pose only on one of its
-/// delays, and the Crystal Flash, X-ray, death, fast-fall, standing-shot, Zebes-start, grapple-swing and Speed Booster
-/// paths publish only delays of their poses' programs; they add no frame, but a frame they start a pose on follows a
-/// frame of whatever Samus showed before.
+/// A pose's animation starts on the frames pose initialization and the Crystal Flash, X-ray, death, fast-fall,
+/// drained-crouch, Zebes-start and grapple-swing paths start it on. A pose write that keeps the animation running moves the
+/// frame to another pose of the same program, so every pose of a program starts on the frames any of them starts on. The
+/// frames of a program no start reaches, such as the second and third runs of the running program and the knockback
+/// program's later runs, show nothing: the body's tables for the pose do not reach them.
+/// </para>
+/// <para>
+/// The paths that publish frames outside the program are of two kinds. The authored paths are made for the poses they
+/// meet: the drained-Samus get-up handlers, the Hyper Beam acquisition's freeze, the rainbow stop, the drained landing and
+/// the release on the drained crouches, and the wall contact that rewinds a spin pose. The frames they reach, with the
+/// frames the starts reach, are the pose's own animation, whose delays and holds are the pose's picture frames. The
+/// unauthored paths meet poses they are not made for: the unable-to-stand handler meeting the poses Samus takes after the
+/// Baby Metroid's commands end, the Baby's freeze and rainbow stop meeting a Samus the drain has let go of, and the wall
+/// contact rewinding a drained pose that carries a spin's movement. The game draws their frames from the pose's tables
+/// past its own pictures, which show other poses' halves or nothing. A frame written with a timer of one just before the
+/// animation pass is advanced by it before the draw; any other written frame is drawn as it stands.
+/// </para>
+/// <para>
+/// Every frame the body shows that is not one of the pose's picture frames, whether an authored path wrote it on an
+/// instruction's place or past the program or an unauthored path wrote it, draws the pose's nearest picture frame at or
+/// before it: the picture the pose's own animation last showed before that frame in its program. This is a drawing
+/// decision, authorised by the owner's ruling on #1513 that every Samus body frame is a whole Samus of its pose; the
+/// animation frame itself, its timing and everything gameplay reads from it stay as the game computes them.
 /// </para>
 /// </remarks>
 internal sealed class SamusShownFrames
 {
     /// <summary>The frames computed for each continuation an animation reads past its programs with.</summary>
     private static readonly ConditionalWeakTable<LaidOutProgramContinuation<SamusPoseId>, SamusShownFrames> computed = new();
+
+    /// <summary>
+    /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
+    /// commands write a drained pose without initializing it, so her movement stays the type of whichever of these she was
+    /// last initialized in, and nothing in the commands checks which (the Mother Brain glitch recording carries a spin
+    /// jump's movement into the drained standing pose).
+    /// </summary>
+    private static readonly SamusMovementType[] InitializedMovementTypes =
+        [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
 
     /// <summary>What a frame past a program's end reads.</summary>
     private readonly LaidOutProgramContinuation<SamusPoseId> continuation;
@@ -53,7 +77,17 @@ internal sealed class SamusShownFrames
     /// <summary>The frames of its own pose each shown frame can follow as the animation advances.</summary>
     private readonly Dictionary<SamusPoseFrame, HashSet<int>> predecessors = [];
 
-    /// <summary>Follows every pose's program and every outside path through it until no further frame shows.</summary>
+    /// <summary>Each pose's picture frames: the delays and holds of its program its own animation shows.</summary>
+    private readonly Dictionary<SamusPoseId, SortedSet<int>> pictured = [];
+
+    /// <summary>The picture frame each shown frame draws.</summary>
+    private readonly Dictionary<SamusPoseFrame, int> pictureFrames = [];
+
+    /// <summary>
+    /// Follows every pose's starts and authored paths through its program to find its own animation and its picture
+    /// frames, then the unauthored paths, until no further frame shows; and maps every shown frame to its picture frame.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A shown frame has no picture frame of its pose at or before it.</exception>
     private SamusShownFrames(LaidOutProgramContinuation<SamusPoseId> continuation)
     {
         this.continuation = continuation;
@@ -61,20 +95,154 @@ internal sealed class SamusShownFrames
         foreach (SamusPoseId pose in Poses)
         {
             shown.Add(pose, []);
-            entries.Add(pose, [.. InitialFrames(pose)]);
+            entries.Add(pose, []);
         }
         foreach (SamusPoseId pose in Poses)
         {
-            SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
-            for (int frame = 0; frame < program.FrameCount; frame++)
+            foreach (int frame in Starts(pose))
             {
-                if (program.TryStepAt(frame) is SamusAnimationDelay or SamusAnimationHold)
-                    Show(pose, frame, pending);
+                entries[pose].Add(frame);
+                Show(pose, frame, pending);
             }
         }
-        // A publication can depend on the frames a pose shows, which publications add to, so they are applied until none
-        // is new.
         var published = new HashSet<PosePublication>();
+        Follow(pending, published, AuthoredPublications);
+        foreach (SamusPoseId pose in Poses)
+            pictured.Add(pose, [.. shown[pose].Where(frame => IsPicture(pose, frame))]);
+        Follow(pending, published, pose => [.. AuthoredPublications(pose), .. UnauthoredPublications(pose)]);
+        foreach (SamusPoseId pose in Poses)
+        {
+            foreach (int frame in shown[pose])
+                pictureFrames.Add(new SamusPoseFrame(pose, frame), NearestPicture(pose, frame));
+        }
+    }
+
+    /// <summary>The frames Samus's body can show, for the programs <paramref name="continuation"/> reads past.</summary>
+    internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId> continuation) =>
+        computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
+
+    /// <summary>Every pose some path of the game gives Samus, in the game's numbering: the poses the body can show.</summary>
+    private static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
+
+    /// <summary>Whether <paramref name="pose"/> can show animation frame <paramref name="frame"/>.</summary>
+    internal bool Shows(SamusPoseId pose, int frame) => pictureFrames.ContainsKey(new SamusPoseFrame(pose, frame));
+
+    /// <summary>
+    /// The picture frame the body draws for <paramref name="pose"/> at animation frame <paramref name="frame"/>: the frame
+    /// itself when it is one of the pose's picture frames, otherwise the pose's nearest picture frame at or before it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No path of the game shows that frame.</exception>
+    internal int PictureFrame(SamusPoseId pose, int frame) =>
+        pictureFrames.TryGetValue(new SamusPoseFrame(pose, frame), out int picture)
+            ? picture
+            : throw new InvalidOperationException($"Samus's body cannot show pose {pose} at animation frame {frame}: no path of the game reaches it.");
+
+    /// <summary>
+    /// Every full body Samus's body can be drawn as with <paramref name="body"/>'s pictures: each picture frame of each
+    /// pose that shows installed pictures, drawn by the pose's own halves rule, with every bottom picture the frame can
+    /// show, in pose, frame and bottom order.
+    /// </summary>
+    internal IEnumerable<SamusShownBody> Bodies(InstalledSamusBodyArtwork body)
+    {
+        Ensure.NotNull(body);
+        Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>> bottoms = BottomsShown(body);
+        foreach (SamusPoseId pose in Poses)
+        {
+            foreach (int frame in pictured[pose])
+            {
+                if (!body.TryFrame(pose, frame, out SamusBodyFramePictures pictures))
+                    continue;
+                SamusBodyFrame drawn = SamusBodyDrawing.Frame(pose, frame, body);
+                foreach (SamusBodyPicture? bottom in bottoms[new SamusPoseFrame(pose, frame)].OrderBy(bottom => bottom?.Ordinal ?? -1))
+                    yield return new SamusShownBody(drawn, new SamusBodyPictures(pictures.Top, bottom));
+            }
+        }
+    }
+
+    /// <summary>
+    /// The bottom pictures each picture frame with installed pictures can show (#1513): its own when it names one;
+    /// otherwise the bottom picture the picture before it showed, for the picture frames of its own pose it follows, and
+    /// for a picture frame a pose is started or published on any bottom picture a frame names, or none before any frame
+    /// has named one.
+    /// </summary>
+    private Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>> BottomsShown(InstalledSamusBodyArtwork body)
+    {
+        var pictures = new Dictionary<SamusPoseFrame, SamusBodyFramePictures>();
+        foreach (SamusPoseId pose in Poses)
+        {
+            foreach (int frame in pictured[pose])
+            {
+                if (body.TryFrame(pose, frame, out SamusBodyFramePictures framePictures))
+                    pictures.Add(new SamusPoseFrame(pose, frame), framePictures);
+            }
+        }
+        var named = new HashSet<SamusBodyPicture?> { null };
+        foreach (SamusBodyFramePictures framePictures in pictures.Values)
+        {
+            if (framePictures.Bottom is { } bottom)
+                named.Add(bottom);
+        }
+        var entered = new HashSet<SamusPoseFrame>();
+        foreach (KeyValuePair<SamusPoseId, HashSet<int>> pose in entries)
+        {
+            foreach (int frame in pose.Value)
+                entered.Add(new SamusPoseFrame(pose.Key, PictureFrame(pose.Key, frame)));
+        }
+        // The pictures shown one after another: the picture frames of the animation frames each shown frame follows.
+        var follows = new Dictionary<SamusPoseFrame, HashSet<int>>();
+        foreach (KeyValuePair<SamusPoseFrame, HashSet<int>> frame in predecessors)
+        {
+            var picture = new SamusPoseFrame(frame.Key.Pose, PictureFrame(frame.Key.Pose, frame.Key.Frame));
+            if (!follows.TryGetValue(picture, out HashSet<int>? before))
+            {
+                before = [];
+                follows.Add(picture, before);
+            }
+            foreach (int earlier in frame.Value)
+                before.Add(PictureFrame(frame.Key.Pose, earlier));
+        }
+        var bottoms = new Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>>();
+        foreach (KeyValuePair<SamusPoseFrame, SamusBodyFramePictures> frame in pictures)
+        {
+            var frameBottoms = new HashSet<SamusBodyPicture?>();
+            if (frame.Value.Bottom is { } own)
+                frameBottoms.Add(own);
+            else if (entered.Contains(frame.Key))
+                frameBottoms.UnionWith(named);
+            bottoms.Add(frame.Key, frameBottoms);
+        }
+        // A picture that names no bottom keeps the bottom of the picture before it, which may itself have kept an earlier one.
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (KeyValuePair<SamusPoseFrame, HashSet<SamusBodyPicture?>> frame in bottoms)
+            {
+                if (pictures[frame.Key].Bottom is not null || !follows.TryGetValue(frame.Key, out HashSet<int>? before))
+                    continue;
+                foreach (int earlier in before)
+                {
+                    // A picture that follows itself keeps what it already shows.
+                    if (earlier == frame.Key.Frame ||
+                        !bottoms.TryGetValue(new SamusPoseFrame(frame.Key.Pose, earlier), out HashSet<SamusBodyPicture?>? earlierBottoms))
+                        continue;
+                    foreach (SamusBodyPicture? bottom in earlierBottoms)
+                        changed |= frame.Value.Add(bottom);
+                }
+            }
+        }
+        while (changed);
+        return bottoms;
+    }
+
+    /// <summary>
+    /// Follows every pending frame on through its program, and applies <paramref name="publications"/> to every pose,
+    /// until no further frame shows. A publication can depend on the frames a pose shows, which publications add to, so
+    /// they are applied until none is new.
+    /// </summary>
+    private void Follow(Queue<SamusPoseFrame> pending, HashSet<PosePublication> published,
+        Func<SamusPoseId, List<SamusPublishedFrame>> publications)
+    {
         do
         {
             while (pending.TryDequeue(out SamusPoseFrame from))
@@ -87,7 +255,7 @@ internal sealed class SamusShownFrames
             }
             foreach (SamusPoseId pose in Poses)
             {
-                foreach (SamusPublishedFrame publication in Publications(pose))
+                foreach (SamusPublishedFrame publication in publications(pose))
                 {
                     if (published.Add(new PosePublication(pose, publication)))
                         Publish(pose, publication, pending);
@@ -95,111 +263,6 @@ internal sealed class SamusShownFrames
             }
         }
         while (pending.Count > 0);
-    }
-
-    /// <summary>The frames Samus's body can show, for the programs <paramref name="continuation"/> reads past.</summary>
-    internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId> continuation) =>
-        computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
-
-    /// <summary>Every pose some path of the game gives Samus, in the game's numbering: the poses the body can show.</summary>
-    private static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
-
-    /// <summary>Whether <paramref name="pose"/> can show animation frame <paramref name="frame"/>.</summary>
-    internal bool Shows(SamusPoseId pose, int frame) => shown.TryGetValue(pose, out SortedSet<int>? frames) && frames.Contains(frame);
-
-    /// <summary>
-    /// Requires the body to be able to show <paramref name="pose"/> at <paramref name="frame"/> while its movement is
-    /// <paramref name="movementType"/>.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">No path of the game shows that body.</exception>
-    internal void RequireShown(SamusMovementType movementType, SamusPoseId pose, int frame)
-    {
-        if (!Shows(pose, frame))
-            throw new InvalidOperationException($"Samus's body cannot show pose {pose} at animation frame {frame}: no path of the game reaches it.");
-        if (!SamusBodyDrawing.MovementTypesDrawnWith(pose).Contains(movementType))
-            throw new InvalidOperationException($"Samus's body cannot show pose {pose} while her movement is {movementType}.");
-    }
-
-    /// <summary>
-    /// Every full body Samus's body can be drawn as with <paramref name="body"/>'s pictures: each shown frame of each pose
-    /// that shows installed pictures, with every movement type the pose is drawn with and every bottom picture the frame
-    /// can show, in pose, frame, movement and bottom order.
-    /// </summary>
-    internal IEnumerable<SamusShownBody> Bodies(InstalledSamusBodyArtwork body)
-    {
-        Ensure.NotNull(body);
-        Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>> bottoms = BottomsShown(body);
-        foreach (SamusPoseId pose in Poses)
-        {
-            foreach (int frame in shown[pose])
-            {
-                if (!body.TryFrame(pose, frame, out SamusBodyFramePictures pictures))
-                    continue;
-                SamusBodyPicture?[] frameBottoms = [.. bottoms[new SamusPoseFrame(pose, frame)].OrderBy(bottom => bottom?.Ordinal ?? -1)];
-                foreach (SamusMovementType movementType in SamusBodyDrawing.MovementTypesDrawnWith(pose))
-                {
-                    SamusBodyFrame drawn = SamusBodyDrawing.Frame(movementType, pose, frame, body);
-                    foreach (SamusBodyPicture? bottom in frameBottoms)
-                        yield return new SamusShownBody(drawn, new SamusBodyPictures(pictures.Top, bottom));
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// The bottom pictures each shown frame with installed pictures can show (#1513): its own when it names one; otherwise
-    /// the bottom picture the frame before it showed, for the frames of its own pose it follows, and for a frame a pose is
-    /// started or published on any bottom picture a frame names, or none before any frame has named one.
-    /// </summary>
-    private Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>> BottomsShown(InstalledSamusBodyArtwork body)
-    {
-        var pictures = new Dictionary<SamusPoseFrame, SamusBodyFramePictures>();
-        foreach (SamusPoseId pose in Poses)
-        {
-            foreach (int frame in shown[pose])
-            {
-                if (body.TryFrame(pose, frame, out SamusBodyFramePictures framePictures))
-                    pictures.Add(new SamusPoseFrame(pose, frame), framePictures);
-            }
-        }
-        var named = new HashSet<SamusBodyPicture?> { null };
-        foreach (SamusBodyFramePictures framePictures in pictures.Values)
-        {
-            if (framePictures.Bottom is { } bottom)
-                named.Add(bottom);
-        }
-        var bottoms = new Dictionary<SamusPoseFrame, HashSet<SamusBodyPicture?>>();
-        foreach (KeyValuePair<SamusPoseFrame, SamusBodyFramePictures> frame in pictures)
-        {
-            var frameBottoms = new HashSet<SamusBodyPicture?>();
-            if (frame.Value.Bottom is { } own)
-                frameBottoms.Add(own);
-            else if (entries[frame.Key.Pose].Contains(frame.Key.Frame))
-                frameBottoms.UnionWith(named);
-            bottoms.Add(frame.Key, frameBottoms);
-        }
-        // A frame that names no bottom keeps the bottom of the frame before it, which may itself have kept an earlier one.
-        bool changed;
-        do
-        {
-            changed = false;
-            foreach (KeyValuePair<SamusPoseFrame, HashSet<SamusBodyPicture?>> frame in bottoms)
-            {
-                if (pictures[frame.Key].Bottom is not null || !predecessors.TryGetValue(frame.Key, out HashSet<int>? before))
-                    continue;
-                foreach (int earlier in before)
-                {
-                    // A frame that follows itself keeps what it already shows.
-                    if (earlier == frame.Key.Frame ||
-                        !bottoms.TryGetValue(new SamusPoseFrame(frame.Key.Pose, earlier), out HashSet<SamusBodyPicture?>? earlierBottoms))
-                        continue;
-                    foreach (SamusBodyPicture? bottom in earlierBottoms)
-                        changed |= frame.Value.Add(bottom);
-                }
-            }
-        }
-        while (changed);
-        return bottoms;
     }
 
     /// <summary>Shows <paramref name="frame"/> of <paramref name="pose"/>, following it on through the program when it is new.</summary>
@@ -233,6 +296,24 @@ internal sealed class SamusShownFrames
             Show(pose, frame, pending);
         }
     }
+
+    /// <summary>
+    /// The picture frame <paramref name="frame"/> of <paramref name="pose"/> draws: the pose's greatest picture frame at or
+    /// before it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The pose has no picture frame at or before the frame.</exception>
+    private int NearestPicture(SamusPoseId pose, int frame)
+    {
+        SortedSet<int> pictures = pictured[pose];
+        SortedSet<int> atOrBefore = pictures.GetViewBetween(int.MinValue, frame);
+        return atOrBefore.Count > 0
+            ? atOrBefore.Max
+            : throw new InvalidDataException($"Samus pose {pose} shows animation frame {frame} before any picture its own animation shows.");
+    }
+
+    /// <summary>Whether <paramref name="frame"/> is a delay or a hold of <paramref name="pose"/>'s own program.</summary>
+    private static bool IsPicture(SamusPoseId pose, int frame) =>
+        SamusAnimationDelays.ProgramForPose(pose).TryStepAt(frame) is SamusAnimationDelay or SamusAnimationHold;
 
     /// <summary>The frames the animation can show after <paramref name="frame"/> of <paramref name="pose"/> when its delay runs out.</summary>
     private int[] Next(SamusPoseId pose, int frame) => Reach(pose, frame + 1, FrameReach.Advancing);
@@ -272,44 +353,88 @@ internal sealed class SamusShownFrames
     }
 
     /// <summary>
-    /// The frames the paths outside <paramref name="pose"/>'s program can publish for it, given the frames it shows so far,
-    /// each as <see cref="SamusDrainedState"/> or the spin's wall contact writes it.
+    /// The frames the paths made for <paramref name="pose"/> publish for it, given the frames it shows so far, each as
+    /// <see cref="SamusDrainedState"/> or the spin's wall contact writes it. Their frames are the pose's own animation; a
+    /// frame they write on an instruction's place or past the program draws the pose's nearest picture frame before it.
     /// </summary>
-    private List<SamusPublishedFrame> Publications(SamusPoseId pose)
+    private List<SamusPublishedFrame> AuthoredPublications(SamusPoseId pose)
     {
         SortedSet<int> frames = shown[pose];
         var publications = new List<SamusPublishedFrame>();
         // The able-to-stand handler moves the left-facing drained crouch to its stand-up on Up, just before the animation.
         if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
             publications.Add(new(SamusDrainedAnimationDefinitions.AbleToStandFrame, PublishedFrameDrawing.AfterAdvancing));
-        // The unable-to-stand handler stays installed until Mother Brain dies and checks only the frame, so on Up it moves
-        // whatever pose shows one of its frames, just before the animation: the drained poses it is installed with and
-        // every pose Samus takes in the fight that follows. It never meets the other drained poses at those frames.
-        if (UnableToStandMeets(pose) && frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
-                SamusDrainedAnimationDefinitions.UnableToStandLastFrame).Count > 0)
+        // The unable-to-stand handler is installed with the left-facing drained crouch and moves it, on Up, to its failed
+        // attempt to stand, just before the animation.
+        if (pose == SamusPoseId.DrainedCrouchingLeftPose && ShowsUnableToStandFrame(frames))
             publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
             // The Baby Metroid's Hyper Beam and rainbow-stop commands write the frame during enemy AI, after the animation, so
-            // the draw shows it as written. Both run after the Baby has put Samus crouching at the ceiling, and nothing puts
-            // her standing again, so they meet a drained crouch.
+            // the draw shows it as written. The Baby puts Samus crouching at the ceiling before either. The left-facing
+            // crouch's Hyper Beam frame, and both crouches' rainbow-stop frame, land on an instruction's place, and the
+            // right-facing crouch's Hyper Beam frame past its program: the game's tables hold no composition there, so the
+            // body vanishes; the port draws the crouch's picture before it.
             publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
             // The drained fall lands on its landing frame for eight ticks; the release moves the crouch on during enemy AI.
             // The release follows the Tourian Metroid's drain, whose fall leaves Samus crouching, so it never meets a
-            // drained standing pose.
+            // drained standing pose. The right-facing crouch's landing frame is an instruction's place, drawn as the
+            // crouch's picture before it, the same picture the game's tables hold there.
             publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, PublishedFrameDrawing.AsWritten));
         }
-        // Wall contact rewinds whatever pose holds the spin's movement, during movement and with a timer of one.
-        if (SamusBodyDrawing.MovementTypesDrawnWith(pose).Contains(SamusMovementType.SpinJumping))
-        {
-            publications.Add(new(SamusPoseMetadata.IsScrewAttackPose(pose)
-                ? SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame
-                : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame, PublishedFrameDrawing.AfterAdvancing));
-        }
+        // Wall contact rewinds a spin pose, during movement and with a timer of one, into the program's frames.
+        if (SamusPoseMetadata.ReadMovementType(pose) == SamusMovementType.SpinJumping)
+            publications.Add(new(WallContactRewindFrame(pose), PublishedFrameDrawing.AfterAdvancing));
         return publications;
     }
+
+    /// <summary>
+    /// The frames paths not made for <paramref name="pose"/> publish for it, given the frames it shows so far. The game
+    /// draws them from the pose's tables past its own pictures: scattered halves of other poses, a Screw Attack's outline
+    /// without Samus, or nothing. Each draws the pose's nearest picture frame at or before it, the picture its own
+    /// animation last showed.
+    /// </summary>
+    private List<SamusPublishedFrame> UnauthoredPublications(SamusPoseId pose)
+    {
+        var publications = new List<SamusPublishedFrame>();
+        // The unable-to-stand handler stays installed until Mother Brain dies and checks only the frame, so on Up it moves
+        // whatever pose shows one of its frames, just before the animation: every pose Samus takes in the fight that follows.
+        if (pose != SamusPoseId.DrainedCrouchingLeftPose && UnableToStandMeets(pose) && ShowsUnableToStandFrame(shown[pose]))
+            publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
+        // The Baby's Hyper Beam freeze and rainbow stop write the frame without checking the pose, so a Samus the drain has
+        // let go of takes them in whatever pose she holds, drawn as written.
+        if (BabyCommandsMeetFree(pose))
+        {
+            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
+        }
+        // Wall contact rewinds whatever pose holds the spin's movement: a drained pose written over a spin keeps it.
+        if (SamusPoseMetadata.ReadMovementType(pose) != SamusMovementType.SpinJumping &&
+            MovementTypesHeldIn(pose).Contains(SamusMovementType.SpinJumping))
+            publications.Add(new(WallContactRewindFrame(pose), PublishedFrameDrawing.AfterAdvancing));
+        return publications;
+    }
+
+    /// <summary>Whether <paramref name="frames"/> holds a frame from which the unable-to-stand handler accepts Up.</summary>
+    private static bool ShowsUnableToStandFrame(SortedSet<int> frames) =>
+        frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
+            SamusDrainedAnimationDefinitions.UnableToStandLastFrame).Count > 0;
+
+    /// <summary>The frame the wall contact rewinds <paramref name="pose"/> to: the Screw Attack's longer run, or the spin's.</summary>
+    private static int WallContactRewindFrame(SamusPoseId pose) =>
+        SamusPoseMetadata.IsScrewAttackPose(pose)
+            ? SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame
+            : SamusWallContactAnimationDefinitions.SpinJumpRewindFrame;
+
+    /// <summary>
+    /// The movement types Samus's movement can be in while she holds <paramref name="pose"/>: the pose's own, except for the
+    /// drained poses, which the drained controllers write without initializing the pose, so her movement stays that of
+    /// whichever pose she was last initialized in (<see cref="InitializedMovementTypes"/>).
+    /// </summary>
+    private static SamusMovementType[] MovementTypesHeldIn(SamusPoseId pose) =>
+        SamusPoseMetadata.IsDrainedPose(pose) ? InitializedMovementTypes : [SamusPoseMetadata.ReadMovementType(pose)];
 
     /// <summary>
     /// Whether the unable-to-stand handler can meet <paramref name="pose"/>. Mother Brain installs it only with her rainbow
@@ -324,26 +449,54 @@ internal sealed class SamusShownFrames
             SamusPoseId.DrainedStandingLeftPose);
 
     /// <summary>
+    /// Whether the Baby's Hyper Beam freeze and rainbow stop can meet <paramref name="pose"/> on a Samus the drain has let go
+    /// of: any pose but the drained crouches, which the commands are made for, and the death poses, since enemy AI, which
+    /// runs the Baby's commands, stops while Samus dies.
+    /// </summary>
+    private static bool BabyCommandsMeetFree(SamusPoseId pose) =>
+        pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
+            SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose);
+
+    /// <summary>
+    /// The picture frames <paramref name="pose"/>'s animation starts on: the frames any pose animating by its program starts
+    /// on, since a pose write that keeps the animation running moves the frame between them.
+    /// </summary>
+    private static int[] Starts(SamusPoseId pose)
+    {
+        SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
+        return [.. Poses.Where(other => ReferenceEquals(SamusAnimationDelays.ProgramForPose(other), program))
+            .SelectMany(InitialFrames).Distinct().Order().Where(frame => IsPicture(pose, frame))];
+    }
+
+    /// <summary>
     /// The frames a pose can be started on from whatever Samus showed before: the frames pose initialization starts it on,
-    /// and the delays the Crystal Flash, X-ray, death, fast-fall, Zebes-start and grapple-swing paths publish for it.
+    /// and the frames the Crystal Flash, X-ray, death, fast-fall, drained-crouch, Zebes-start and grapple-swing paths start
+    /// it on.
     /// </summary>
     private static IEnumerable<int> InitialFrames(SamusPoseId pose)
     {
-        yield return 0;
+        bool dying = pose is SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose;
+        // Pose initialization starts a pose on its first frame; the death setup overwrites that frame before any draw.
+        if (!dying)
+            yield return 0;
         // A spin jump starts on its second frame; a standing pose aiming up entered from one keeps the gun raised on it.
         if (SamusPoseMetadata.IsSpinJumpPose(pose) ||
             (SamusPoseMetadata.ReadMovementType(pose) == SamusMovementType.Standing &&
              SamusPoseMetadata.ReadShotDirection(pose) is 0 or 9))
             yield return 1;
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
+        {
             yield return SamusDrainedAnimationDefinitions.FallInitialFrame;
+            yield return SamusDrainedAnimationDefinitions.PutCrouchingFrame;
+        }
         if (pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose)
             yield return SamusMovementDefinitions.FastFallAnimationFrame;
-        if (pose is SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose)
+        // The death pose starts on the frame the movement Samus dies in selects.
+        if (dying)
         {
-            foreach (int frame in SamusDeathSequenceDefinitions.InitialFrames.Values)
-                yield return frame;
+            foreach (SamusMovementType movementType in InitializedMovementTypes)
+                yield return SamusDeathSequenceFrames.InitialFrame(movementType);
         }
         // The angle, the Crystal Flash's stages and the Zebes start select these poses' frames directly.
         if (pose is SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or

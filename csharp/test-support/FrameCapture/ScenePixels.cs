@@ -49,7 +49,7 @@ internal static class ScenePixels
             return right.Layers is { } rightScene && SameScene(leftScene, rightScene);
         if (left.Floor is { } leftFloor)
             return right.Floor is { } rightFloor && SamePaint(leftFloor.Paint, rightFloor.Paint)
-                && Equals(leftFloor.Background, rightFloor.Background) && ReferenceEquals(leftFloor.Floor, rightFloor.Floor)
+                && Equals(leftFloor.Background, rightFloor.Background) && Equals(leftFloor.Floor, rightFloor.Floor)
                 && leftFloor.Brightness == rightFloor.Brightness && Equals(leftFloor.Gradient, rightFloor.Gradient);
         return right.Layers is null && right.Floor is null;
     }
@@ -76,7 +76,9 @@ internal static class ScenePixels
     /// Whether two layers describe the same pass. The frontend screens' layers are records whose every member compares by
     /// value: their planes, windows, gradients and tints. A HUD layer is compared by its placed pictures, an inset scene's
     /// scene by its description, a picture grid by each cell's picture, mirroring and shading, and a turning floor by its
-    /// transform and its floor instance. Any other layer, such as a gameplay room's, is the same pass only when it is the same instance.
+    /// transform and its floor: the same picture instances under an equal shading, as a screen that shades its floor each
+    /// frame publishes a new one. Any other layer, such as a gameplay room's, is the same pass only when it is the same
+    /// instance.
     /// </summary>
     private static bool SameLayer(DisplayLayer left, DisplayLayer right) => left switch
     {
@@ -87,7 +89,7 @@ internal static class ScenePixels
         PictureGridLayer leftGrid => right is PictureGridLayer rightGrid && leftGrid.Scroll == rightGrid.Scroll
             && leftGrid.Priority == rightGrid.Priority && SameGrid(leftGrid.Grid, rightGrid.Grid),
         TurningFloorLayer leftFloor => right is TurningFloorLayer rightFloor && leftFloor.Transform == rightFloor.Transform
-            && ReferenceEquals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
+            && Equals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
             && leftFloor.AddsForeground == rightFloor.AddsForeground,
         HudLayer leftHud => right is HudLayer rightHud && leftHud.TransparentColorZero == rightHud.TransparentColorZero
             && leftHud.Priority == rightHud.Priority && SameHud(leftHud.Hud, rightHud.Hud),

@@ -48,10 +48,16 @@ internal static class MapSaveMarkersVerification
             }
             AssertTrue(expectedIndices.SequenceEqual(MapSaveMarkers.Indices((AreaId)area)),
                 "lazy enumeration preserves native ascending station order");
+            // One station set holds each mask in turn, as a save's used stations would, rather than a whole new save's
+            // progress per mask (#1532).
+            var usedStations = new NumberedFlagSet(PersistentProgress.StationsPerArea);
             for (int mask = 0; mask <= ushort.MaxValue; mask++)
-                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker((AreaId)area,
-                        FileSelectMapGraphicsPixelsAccess.UsedStations([(ushort)mask]).UsedStations(AreaId.Crateria)),
+            {
+                for (int station = 0; station < PersistentProgress.StationsPerArea; station++)
+                    usedStations.Set(station, (mask & (1 << station)) != 0);
+                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker((AreaId)area, usedStations),
                     "every set of used stations retains native area-label eligibility");
+            }
             foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.IsUsable((AreaId)area, invalid),

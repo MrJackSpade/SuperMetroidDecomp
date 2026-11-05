@@ -52,6 +52,10 @@ internal static class EndingSnapshotTestsVerification
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
+                // The live ending's frame this update, captured once for every check of it: a capture does not advance the
+                // ending, which the capture-only control checks below (#1532).
+                LayeredScene? liveScene = null;
+                LayeredScene Live() => liveScene ??= EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
                 if (previousPacket is not null)
                     AssertTrue(previousHeld.AsSpan().SequenceEqual(GraphDigest(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
@@ -60,7 +64,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
-                    var explosion = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var explosion = Live();
                     // The screen names each group's fade level on the cartridge's cadence (#1512): the far background
                     // keeps the escape's colours until its first step, and the planet's sprite groups start at level zero.
                     ImmutableArray<PictureShade> shown = legacy.screen.Colours.Shading.Shades;
@@ -125,9 +129,9 @@ internal static class EndingSnapshotTestsVerification
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
                 if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
-                    EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.MainObjects))
+                    Live().LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.MainObjects))
                 {
-                    var burst = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var burst = Live();
                     var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
                     AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingObjectFragmentId.Segment7C)),
                         "F2B7 selects burst BG2 map");
@@ -138,9 +142,9 @@ internal static class EndingSnapshotTestsVerification
                     burstDisplayFrames++;
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.ZebesExplosionAnimation
-                    && EndingCreditsPresentation.CaptureRenderSnapshot(legacy).LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.IncludeObjects))
+                    && Live().LayersOf<AddedPicturedPlaneLayer>().Any(layer => layer.IncludeObjects))
                 {
-                    var finale = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var finale = Live();
                     var backgrounds = finale.LayersOf<PicturedPlaneLayer>();
                     AssertTrue(backgrounds.Zip(new[] { EndingObjectFragmentId.Segment78, EndingObjectFragmentId.Segment74, EndingObjectFragmentId.Segment78,
                             EndingObjectFragmentId.Segment74 }).All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures,
@@ -159,7 +163,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(308, phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture]
                         - phaseEntryFrames[EndingCreditsPhase.PostCreditsReward],
                         "gesture starts after two 64-frame reveals and the 180-frame copyright hold");
-                    var gestureFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var gestureFrame = Live();
                     AssertTrue(gestureFrame.Layers.All(layer => layer is SpritesLayer),
                         "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
                 }
@@ -173,7 +177,7 @@ internal static class EndingSnapshotTestsVerification
                         referenceJump = new EndingRewardJump(legacy.Stage.EndingReward, () => { });
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
-                    var jumpFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var jumpFrame = Live();
                     // The reference jump draws from the sheet the live ending draws the page it selects from.
                     var rewardArt = EndingSheetFixtures.Drawer(legacy, referenceJump.FallingSheetSelected
                         ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward, CinematicSpriteFamily.EndingReward);
@@ -205,7 +209,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash];
-                    var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var flash = Live();
                     var add = flash.LayersOf<ScreenTintLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
                     var textPlane = flash.LayersOf<PicturedPlaneLayer>().Single();
@@ -222,7 +226,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsShot)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
-                    var shotFrame = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var shotFrame = Live();
                     var mode = shotFrame.LayersOf<TurningFloorLayer>().Single();
                     AssertTrue(mode.SubtractsSprites, "live shot enables native BG1 minus OBJ blending");
                     AssertEqual((short)104, mode.Transform.Center.X, "post-shot matrix horizontal origin");
@@ -263,7 +267,7 @@ internal static class EndingSnapshotTestsVerification
                 if (phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int revealStart)
                     && tick - revealStart == 64)
                 {
-                    var copyright = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var copyright = Live();
                     AssertTrue(!copyright.Layers.Any(layer => layer is SpritesLayer),
                         "native E293 hides reward actors during copyright panel");
                     AssertTrue(ShowsOnly(legacy, copyright.LayersOf<PicturedPlaneLayer>().Single().Plane, SpriteSheetId.EndingPostCreditsPictures,
@@ -272,7 +276,7 @@ internal static class EndingSnapshotTestsVerification
                 }
                 if (legacy.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
                 {
-                    var flash = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var flash = Live();
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
                     AssertEqual(0x7fff, flash.Paint.Backdrop.ToWord(), "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
@@ -281,7 +285,7 @@ internal static class EndingSnapshotTestsVerification
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PostCreditsReward)
                 {
-                    var reveal = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var reveal = Live();
                     var backgrounds = reveal.LayersOf<PicturedPlaneLayer>();
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
                     if (hours < 10)
@@ -296,7 +300,7 @@ internal static class EndingSnapshotTestsVerification
                         .Where(shade => shade.Effect == PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion, new PaletteFxFrame(0)).Effect)));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
                     int expectedWhite = elapsed <= 192 ? 31 : Math.Max(0, 30 - (elapsed - 193) / 8);
-                    var flight = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var flight = Live();
                     var fixedColors = flight.LayersOf<ScreenTintLayer>();
                     AssertEqual(expectedWhite > 0 ? 1 : 0, fixedColors.Length, "native flyaway disables fixed color after final decrement");
                     if (expectedWhite > 0)
@@ -311,7 +315,7 @@ internal static class EndingSnapshotTestsVerification
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
-                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint;
+                    var memory = Live().Paint;
                     AssertTrue(memory.SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
@@ -324,13 +328,13 @@ internal static class EndingSnapshotTestsVerification
                     // The stars draw from the shooting scene's sheet, which the logo's scenes draw from.
                     stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
                     starOnlyOam.FinalizeFrame();
-                    var actual = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    var actual = Live();
                     AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Paint.SpriteParts()),
                         "native E58A leaves only the independent shooting stars before final percentage text");
                 }
                 if (legacy.Stage.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
                 {
-                    var memory = EndingCreditsPresentation.CaptureRenderSnapshot(legacy).Paint;
+                    var memory = Live().Paint;
                     byte[] vram = legacy.ShownVram();
                     byte[] characters = RomDataReader.Decompress(bus, 0x95a82f, 0x8000);
                     byte[] map = RomDataReader.Decompress(bus, 0x96fe69, 0x8000);
@@ -344,7 +348,7 @@ internal static class EndingSnapshotTestsVerification
                     if (firstPhaseFrame)
                     {
                         // Every picture coloured from the gunship's emergence colour shows it white (#1512).
-                        RgbColor[] emergence = SceneShownColours.ShownAt(EndingCreditsPresentation.CaptureRenderSnapshot(legacy), 81);
+                        RgbColor[] emergence = SceneShownColours.ShownAt(Live(), 81);
                         AssertTrue(emergence.Length > 0 && emergence.All(colour => colour == new RgbColor(31, 31, 31)),
                             "native gunship emergence palette starts white");
                     }
@@ -353,11 +357,12 @@ internal static class EndingSnapshotTestsVerification
                 {
                     // Every picture the blank shows, at every place of the native image it is coloured from, shows the
                     // cartridge's Intro4 colour there (#1512); a place no picture is coloured from is not shown.
-                    LayeredScene blank = EndingCreditsPresentation.CaptureRenderSnapshot(legacy);
+                    LayeredScene blank = Live();
+                    IReadOnlyList<IReadOnlyList<ShownColourSource>> blankSources = SceneShownColours.SourcesByPlace(blank);
                     for (int color = 4; color < 256; color++)
                     {
                         RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2));
-                        ShownColourSource[] wrong = [.. SceneShownColours.SourcesAt(blank, color).Where(source => source.Colour != native)];
+                        ShownColourSource[] wrong = [.. blankSources[color].Where(source => source.Colour != native)];
                         AssertTrue(wrong.Length == 0, $"native end-credits Intro4 palette colour {color} ({native}): " +
                             string.Join("; ", wrong.Select(source => $"{source.Picture} ink {source.Ink} under {source.Shading} shows {source.Colour}")));
                     }
@@ -373,7 +378,7 @@ internal static class EndingSnapshotTestsVerification
                     // IntroDiscoverySprite.Draw only writes OAM; it does not advance
                     // this ending's sprite state. Independent owners still guard against
                     // an accidental producer-side mutation introduced by extraction.
-                    var expected = new DisplayPacket(tick, EndingCreditsPresentation.CaptureRenderSnapshot(legacy));
+                    var expected = new DisplayPacket(tick, Live());
                     samples++;
                     packet = new(tick, EndingCreditsPresentation.CaptureRenderSnapshot(captured));
                     held = GraphDigest(packet);

@@ -15,7 +15,14 @@ internal static class FileSelectMapGraphicsPixelsAccess
         /// index, and draws it with the game's renderer.
         /// </summary>
         internal RgbaPixel[] Render(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true) =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(UsedStations(usedStationMasks), ColorMath(includeBackdropInColorMath)));
+            FrontendScenePixelsAccess.Pixels(graphics.Scene(usedStationMasks, includeBackdropInColorMath));
+
+        /// <summary>
+        /// The scene <c>Render(usedStationMasks, includeBackdropInColorMath)</c> draws, for a comparison of the pixels two
+        /// scenes show (#1532).
+        /// </summary>
+        internal LayeredScene Scene(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true) =>
+            graphics.CaptureRenderSnapshot(UsedStations(usedStationMasks), ColorMath(includeBackdropInColorMath));
 
         /// <summary>
         /// The area map's BG1 foreground with its additive BG3 background and no labels, drawn with the game's renderer.

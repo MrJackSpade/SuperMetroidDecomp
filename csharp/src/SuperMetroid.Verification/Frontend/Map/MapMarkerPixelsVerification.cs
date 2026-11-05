@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks calculated map-marker tiles against native pixels and independent artwork edits.</summary>
+/// <summary>Checks calculated map-marker tiles against native pixels.</summary>
 internal static class MapMarkerPixelsVerification
 {
     /// <summary>Checks the two file-map arrow glyphs.</summary>

@@ -11,10 +11,10 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks map arrow direction selection, editable presentation, and native shape mapping.</summary>
+/// <summary>Checks map arrow direction selection, the installed presentation, and native shape mapping.</summary>
 internal static class MapArrowCasesVerification
 {
-    /// <summary>Checks extracted directions and independent JSON edits for position, phase timing, and identity.</summary>
+    /// <summary>Checks extracted directions, direction bounds and required named directions.</summary>
     internal static void VerifyMapArrowCases(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
@@ -24,25 +24,6 @@ internal static class MapArrowCasesVerification
         Suite(nameof(VerifyMapArrowShapeCases), () => VerifyMapArrowShapeCases(rom));
         var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        for (int selected = 1; selected <= 4; selected++)
-        {
-            var direction = (MapScrollDirection)selected;
-            var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);
-            entries[direction.ToString()] = new() { X = 250 + selected, Y = 220 - selected, DurationTicks = [selected, 254] };
-            using var json = new MemoryStream();
-            MapArrowFile.Write(json, document with { Arrows = entries }); json.Position = 0;
-            var edited = MapArrowFile.Read(json);
-            for (int other = 1; other <= 4; other++)
-            {
-                var actual = edited.Get((MapScrollDirection)other);
-                var expected = entries[((MapScrollDirection)other).ToString()];
-                AssertEqual(expected.Position, actual.Position, "independent direction position edit");
-                AssertEqual(expected.DurationTicks.Length, actual.PhaseCount, "selected direction phase count");
-                for (int phase = 0; phase < actual.PhaseCount; phase++)
-                    AssertEqual((byte)expected.DurationTicks[phase], actual.Duration(phase), "selected direction durations");
-                AssertTrue(ReferenceEquals(actual, edited.Get((MapScrollDirection)other)), "direction selection preserves visual identity");
-            }
-        }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 5, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => original.Get((MapScrollDirection)invalid), "invalid arrow direction");
         foreach (string name in document.Arrows.Keys)

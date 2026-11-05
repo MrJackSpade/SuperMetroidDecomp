@@ -17,12 +17,10 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
-/// <summary>Checks native pause and file-select map colors,
-/// and palette rebinding through live map and pause presentation.</summary>
+/// <summary>Checks native pause, file-select and world-map colors.</summary>
 internal static class MapStaticPalettesVerification
 {
-    /// <summary>Compares stock palettes with the cartridge, then checks edited
-    /// colors survive state restoration, stock replacement, and an ongoing fade.</summary>
+    /// <summary>Compares stock palettes with the cartridge and the six stock world selections.</summary>
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus,
         AreaMapPresentation original, ImportedAreaMap[] rules)
     {

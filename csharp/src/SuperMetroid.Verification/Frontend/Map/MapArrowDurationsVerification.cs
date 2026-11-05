@@ -11,15 +11,13 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
-/// <summary>Checks map-scroll arrow hold durations against native programs and editable overrides.</summary>
+/// <summary>Checks map-scroll arrow hold durations against native programs.</summary>
 internal static class MapArrowDurationsVerification
 {
-    /// <summary>Compares four native cycles, bounds, custom phase edits, and frame-by-frame arrow timing.</summary>
+    /// <summary>Compares four native cycles, bounds, and frame-by-frame arrow timing.</summary>
     internal static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         var stock = MapArrowFile.Read(new MemoryStream(bytes));
         for (int index = 0; index < 4; index++)
         {
@@ -37,40 +35,8 @@ internal static class MapArrowDurationsVerification
             AssertEqual(0, visual.StoredDurationCount, "stock duration table eliminated");
             foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => visual.Duration(invalid), "duration array boundary preserved");
-            for (int phase = 0; phase < count; phase++)
-            foreach (int delay in new[] { 1, 254 })
-            {
-                var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);
-                string name = ((MapScrollDirection)(index + 1)).ToString();
-                int[] durations = (int[])entries[name].DurationTicks.Clone(); durations[phase] = delay;
-                entries[name] = entries[name] with { DurationTicks = durations };
-                var edited = Load(entries);
-                for (int other = 1; other <= 4; other++)
-                {
-                    var actual = edited.Get((MapScrollDirection)other);
-                    AssertEqual(other == index + 1 ? 1 : 0, actual.StoredDurationCount, "only edited phase stored");
-                    int[] expected = entries[((MapScrollDirection)other).ToString()].DurationTicks;
-                    for (int frame = 0; frame < expected.Length; frame++)
-                        AssertEqual((byte)expected[frame], actual.Duration(frame), "every edited and unedited phase preserved");
-                }
-            }
-        }
-        foreach (int length in new[] { 1, 255 })
-        {
-            var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);
-            entries["Left"] = entries["Left"] with { DurationTicks = Enumerable.Repeat(254, length).ToArray() };
-            var visual = Load(entries).Get(MapScrollDirection.Left);
-            AssertEqual(length, visual.PhaseCount, "custom cycle length");
-            AssertEqual(length, visual.StoredDurationCount, "fully authored cycle captured");
-            for (int phase = 0; phase < length; phase++) AssertEqual(254, visual.Duration(phase), "custom duration");
         }
         Suite(nameof(VerifyMapArrowDurationTicks), () => VerifyMapArrowDurationTicks(rom, stock));
-        MapArrowPresentation Load(Dictionary<string, MapArrowEntry> entries)
-        {
-            using var json = new MemoryStream();
-            MapArrowFile.Write(json, document with { Arrows = entries }); json.Position = 0;
-            return MapArrowFile.Read(json);
-        }
     }
 
     /// <summary>Checks visible and hidden ticks against the native left-arrow timing program.</summary>

@@ -43,38 +43,12 @@ internal static class IntroSpriteSheetComposer
     /// <exception cref="InvalidDataException">The reveal's actors show a pose no Ceres family composes.</exception>
     private static IEnumerable<ICinematicSpriteFrames> ZebesRevealFamilies(IntroCinematicArtwork intro)
     {
-        var shown = new HashSet<CinematicSpritePose>();
-        for (int actor = 0; actor < CeresDestructionActorDefinitions.ZebesActorCount; actor++)
-        {
-            foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Programs.FramesFrom(CeresDestructionActors.ZebesActor(actor).Program))
-            {
-                // The blank pose draws nothing.
-                if (pose != CinematicSpritePose.Blank)
-                    shown.Add(pose);
-            }
-        }
+        HashSet<CinematicSpritePose> shown = CinematicShownFrames.PosesOf(Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount)
+            .Select(actor => CeresDestructionActors.ZebesActor(actor).Program));
         var destruction = new HashSet<CinematicSpritePose>(CeresDestructionSpriteDefinitions.Poses);
-        var families = new List<ICinematicSpriteFrames>();
-        var composed = new HashSet<CinematicSpritePose>();
-        foreach (ICinematicSpriteFrames family in CeresDestructionFamilies(intro))
-        {
-            bool isDestruction = family.Family == CinematicSpriteFamily.CeresDestruction;
-            var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
-            foreach ((CinematicSpritePose pose, SpriteComposition composition) in family.Frames)
-            {
-                if (shown.Contains(pose) && destruction.Contains(pose) == isDestruction)
-                {
-                    frames.Add(pose, composition);
-                    composed.Add(pose);
-                }
-            }
-            families.Add(new ShownFrames(family.Family, frames));
-        }
-        foreach (CinematicSpritePose pose in shown)
-        {
-            if (!composed.Contains(pose))
-                throw new InvalidDataException($"The Zebes reveal shows pose {pose.Index}, which no Ceres family composes.");
-        }
+        ICinematicSpriteFrames[] families = [.. CeresDestructionFamilies(intro).Select(family => CinematicShownFrames.Of(family, shown,
+            pose => destruction.Contains(pose) == (family.Family == CinematicSpriteFamily.CeresDestruction)))];
+        CinematicShownFrames.RequireComposed("The Zebes reveal", shown, families);
         return families;
     }
 
@@ -177,10 +151,4 @@ internal static class IntroSpriteSheetComposer
     /// <summary>The frames a sheet of <paramref name="families"/> holds.</summary>
     internal static IEnumerable<string> FrameNames(IEnumerable<ICinematicSpriteFrames> families) =>
         families.SelectMany(family => family.Frames.Keys.Select(pose => CinematicSpriteSheet.FrameName(family.Family, pose)));
-
-    /// <summary>One family's compositions of the poses a scene shows.</summary>
-    /// <param name="Family">The family the compositions belong to.</param>
-    /// <param name="Frames">Each shown composition, by the pose that shows it.</param>
-    private sealed record ShownFrames(CinematicSpriteFamily Family, IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> Frames)
-        : ICinematicSpriteFrames;
 }

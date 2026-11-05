@@ -60,7 +60,6 @@ using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Frontend.Map.WorldMapLabelsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Hud;
@@ -94,7 +93,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Hud;
 
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks the installed map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
@@ -290,11 +288,11 @@ internal static class MapPresentationVerification
             AssertEqual(rules[area].RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), actual.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock slope parity");
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
-        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, rules.Values.ToArray(), MapCatalogFixture.FixtureAssets));
+        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(original, MapCatalogFixture.FixtureAssets));
         Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, original));
         Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, original,
             MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, original, rules.Values.ToArray()));
+        Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, original));
         Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, original));
         Suite(nameof(VerifyWorldMapLabels), () => VerifyWorldMapLabels(bus, original));
         Suite(nameof(VerifyMapStationLayout), () => VerifyMapStationLayout(original));
@@ -597,9 +595,11 @@ internal static class MapPresentationVerification
             "the year's first letter is the year card's first listed spritemap");
     }
 
-    /// <summary>Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers under a map-ROM read guard.</summary>
-    private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentation original,
-        ImportedAreaMap[] rules, MapPresentationInstalledRoomAssets fixtureAssets)
+    /// <summary>
+    /// Checks debugger rebinding and live Ceres HUD, pause, and file-select consumers of the bound catalog. The runtime is
+    /// built without a cartridge, so it cannot read map ROM.
+    /// </summary>
+    private static void VerifyLiveMapCatalog(AreaMapPresentation original, MapPresentationInstalledRoomAssets fixtureAssets)
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.BindArtwork(game.Artwork with
@@ -611,8 +611,7 @@ internal static class MapPresentationVerification
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
 
-        var guard = NewMapDataGuard(bus, rules);
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
+        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
         runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -628,7 +627,7 @@ internal static class MapPresentationVerification
         _ = pause.Render();
         Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(original));
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
-        Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind preserves scroll.");
+        Console.WriteLine("Live map catalog: cartridge-free Ceres room entry and pause consume the bound catalog; debugger rebind preserves scroll.");
     }
 
     /// <summary>Checks stock file-select map pixels, the projected BG1 words, and restoration of the graphics state.</summary>
@@ -660,34 +659,6 @@ internal static class MapPresentationVerification
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
-
-    /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
-    internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, ImportedAreaMap[] maps)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address =>
-                address is (>= MapSourceDefinitions.Artwork.PauseColors and < MapSourceDefinitions.Artwork.PauseColors + CgramPalettes.ByteCount)
-                    or (>= MapSourceDefinitions.Menu.Colors and < MapSourceDefinitions.Menu.Colors + CgramPalettes.ByteCount)
-                    or (>= MapSourceDefinitions.FileSelectMap.PaletteColors and < MapStaticPalettesNativeSources.WorldPaletteDataEnd),
-            address => $"Live presentation read static map palette ROM at {address:X6}.");
-        guard.Forbid(address =>
-                address is (>= MapSourceDefinitions.Animation.PaletteTiming
-                        and <= MapSourceDefinitions.Animation.PaletteTiming + MapAnimationNativeSources.PaletteFrameCount * MapSourceDefinitions.Animation.PaletteTimingStride)
-                    or (>= MapSourceDefinitions.Animation.PaletteColors
-                        and < MapSourceDefinitions.Animation.PaletteColors + MapAnimationNativeSources.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
-            address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
-        guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.HudCharacters and < (MapSourceDefinitions.Artwork.HudCharacters + HudTileAtlasFormat.ByteCount),
-            address => $"Live presentation read HUD atlas ROM at {address:X6}.");
-        guard.Forbid(address => address is >= MapSourceDefinitions.Artwork.MapCharacters and < (MapSourceDefinitions.Artwork.MapCharacters + MapTileAtlasFormat.ByteCount),
-            address => $"Live presentation read map atlas ROM at {address:X6}.");
-        guard.Forbid(address =>
-                (address >= MapSourceDefinitions.AreaMaps.TilemapPointers && address < MapSourceDefinitions.AreaMaps.TilemapPointers + AreaIds.RetailCount * 3) ||
-                (address >= MapSourceDefinitions.AreaMaps.StationRevealMaskPointers && address < MapSourceDefinitions.AreaMaps.StationRevealMaskPointers + AreaIds.RetailCount * 2) ||
-                maps.Any(map => (address >= map.TilemapSource && address < map.TilemapSource + MapSourceDefinitions.AreaMaps.TilemapBytes) ||
-                    (address >= map.StationRevealMaskSource && address < map.StationRevealMaskSource + MapSourceDefinitions.AreaMaps.StationRevealMaskBytes)),
-            address => $"Live presentation read map ROM at {address:X6}.");
-        return guard;
-    }
 
     /// <summary>
     /// The map and installed presentation family. Only the catalog suite writes, into a private copy of the map

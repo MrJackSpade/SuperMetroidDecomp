@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -14,9 +13,8 @@ internal static class MapPaletteCycleVerification
 {
     /// <summary>Compares native animation cadence and CGRAM with the installed highlight cycle.</summary>
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original, ImportedAreaMap[] rules)
+        AreaMapPresentation original)
     {
-        var guard = NewMapDataGuard(bus, rules);
         var arrows = new FileSelectMapAnimations(original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();

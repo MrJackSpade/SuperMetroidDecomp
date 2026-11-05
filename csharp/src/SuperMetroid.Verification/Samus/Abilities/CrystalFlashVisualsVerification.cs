@@ -86,23 +86,20 @@ internal static class CrystalFlashVisualsVerification
         // differ: a frame whose Samus draws carry no shading her beam inks take shows no body without drawing either.
         bool drawsBody = !ScenePixels.SameDescription(new DisplayPacket(0, frame.BeamsDark), new DisplayPacket(0, frame.BeamsLight));
         // The shown frame is drawn only to compare it with the frame without the color window, while one shows.
-        LayeredScene? withoutWindow = frame.WithoutWindow is { } scene &&
-            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, scene)) ? scene : null;
+        // The shown frame and the frame without the window, or nothing when no window shows or the two describe one frame.
+        LayeredScene[] windowPair = frame.WithoutWindow is { } scene &&
+            !ScenePixels.SameDescription(new DisplayPacket(0, frame.Shown), new DisplayPacket(0, scene)) ? [frame.Shown, scene] : [];
         var drawn = new List<LayeredScene>(4);
         if (drawsBody)
         {
             drawn.Add(frame.BeamsDark);
             drawn.Add(frame.BeamsLight);
         }
-        if (withoutWindow is not null)
-        {
-            drawn.Add(frame.Shown);
-            drawn.Add(withoutWindow);
-        }
+        drawn.AddRange(windowPair);
         RgbaPixel[][] pixels = ConcurrentSceneDrawing.Draw(CollectionsMarshal.AsSpan(drawn));
         bool bodyVisible = drawsBody && BodyRegionDiffers(frame, pixels[0], pixels[1]);
         bool windowVisible = false;
-        if (withoutWindow is not null)
+        if (windowPair.Length != 0)
         {
             int shownIndex = drawsBody ? 2 : 0;
             RgbaPixel[] shown = pixels[shownIndex], withoutWindowPixels = pixels[shownIndex + 1];

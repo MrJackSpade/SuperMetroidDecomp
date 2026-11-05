@@ -42,18 +42,22 @@ internal sealed class PauseScreen
 
     /// <summary>
     /// The frame <paramref name="area"/>'s pause screen shows under <paramref name="highlight"/> (#1467): the area's
-    /// backdrop, the button rows over its bottom rows and each label in the shade the highlight shows it in.
+    /// backdrop, the button rows over its bottom rows and each label in the shade the highlight shows it in; a picture the
+    /// installed pictures hold as showing nothing is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
     internal PicturedPlane Frame(AreaId area, PauseButtonHighlight highlight)
     {
         SpriteSheet pictures = Pictures;
-        PauseButtonLabel[] labels = Enum.GetValues<PauseButtonLabel>();
+        var frames = new List<string> { PauseFramePictures.BackdropFrame(area), PauseFramePictures.ButtonRowsFrame };
+        foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
+            frames.Add(PauseFramePictures.ButtonFrame(label, PauseFramePictures.ShadeOf(highlight, label)));
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
-        placed.Add(AtCorner(pictures.Frame(PauseFramePictures.BackdropFrame(area))));
-        placed.Add(AtCorner(pictures.Frame(PauseFramePictures.ButtonRowsFrame)));
-        foreach (PauseButtonLabel label in labels)
-            placed.Add(AtCorner(pictures.Frame(PauseFramePictures.ButtonFrame(label, PauseFramePictures.ShadeOf(highlight, label)))));
+        foreach (string frame in frames)
+        {
+            if (!pictures.ShowsNothing(frame))
+                placed.Add(AtCorner(pictures.Frame(frame)));
+        }
         return new PicturedPlane(MenuScreen.PageSize, placed.ToImmutable());
     }
 
@@ -70,15 +74,16 @@ internal sealed class PauseScreen
     /// <summary>
     /// The equipment page <paramref name="page"/> shows (#1467): the template's picture and, beside it, the picture of each
     /// label, the overrun tail, the wireframe, the reserve display and the arrow in the state the page shows it in, the
-    /// arrow in <paramref name="arrowShading"/> (#1512).
+    /// arrow in <paramref name="arrowShading"/> (#1512). A picture the installed pictures hold as showing nothing, such as
+    /// a blank label whose cells the page's data leaves clear, is not placed (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed pause pictures hold no such frame.</exception>
     internal PicturedPlane EquipmentPage(ShownEquipmentPage page, PictureShading arrowShading)
     {
         SpriteSheet pictures = Pictures;
         string arrow = PauseEquipmentPictures.ReserveArrowFrame(page.Arrow);
-        return new PicturedPlane(MenuScreen.PageSize, [.. PauseEquipmentPictures.Frames(page).Select(frame =>
-            AtCorner(pictures.Frame(frame), frame == arrow ? arrowShading : PictureShading.Standard))]);
+        return new PicturedPlane(MenuScreen.PageSize, [.. PauseEquipmentPictures.Frames(page).Where(frame => !pictures.ShowsNothing(frame))
+            .Select(frame => AtCorner(pictures.Frame(frame), frame == arrow ? arrowShading : PictureShading.Standard))]);
     }
 
     /// <summary>

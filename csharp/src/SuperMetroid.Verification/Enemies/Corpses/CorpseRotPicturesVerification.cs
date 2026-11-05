@@ -84,7 +84,7 @@ internal static class CorpseRotPicturesVerification
             string name = EnemySheetDefinitions.FrameName(frame);
             AssertEqual(rot.Kind.Name, sheets.RotCorpse(set, enemy, name), $"{context}: frame {name} shows its kind's rot");
             var corpseSource = new SpriteSource(SpriteSourceKind.Enemy, slot.SlotIndex);
-            if (sheets.RotShowsNothing(set, enemy, expected.PictureName(name)))
+            if (sheets.ShowsNothing(set, enemy, expected.PictureName(name)))
                 AssertDrawsNothing(sprites, corpseSource, $"{context} after update {updates}");
             else
                 painted += AssertSelected(runtime, sheets.For(set, enemy), expected.PictureName(name), sprites, corpseSource,
@@ -95,7 +95,7 @@ internal static class CorpseRotPicturesVerification
                 string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.HookFrame);
                 AssertEqual(rot.Kind.Name, sheets.SpawnedRotCorpse(set, SpawnedObjectOwner.Shared, hook), $"{context}: its hook shows its rot");
                 var hookSource = new SpriteSource(SpriteSourceKind.DeadTorizoHook);
-                if (sheets.SpawnedRotShowsNothing(set, SpawnedObjectOwner.Shared, expected.PictureName(hook)))
+                if (sheets.SpawnedShowsNothing(set, SpawnedObjectOwner.Shared, expected.PictureName(hook)))
                     AssertDrawsNothing(sprites, hookSource, $"{context}'s hook after update {updates}");
                 else
                     painted += AssertSelected(runtime, sheets.Spawned(set, SpawnedObjectOwner.Shared).Sheet, expected.PictureName(hook), sprites, hookSource,

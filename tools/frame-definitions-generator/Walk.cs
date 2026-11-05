@@ -23,8 +23,43 @@ internal sealed class Collected
     /// <summary>The RoomSpriteObjectKind member names.</summary>
     public HashSet<string> SpriteObjects { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>The projectile program families constructed, or started through a typed-start kind.</summary>
+    /// <summary>The projectile program families constructed, or started through a typed-start kind, in any of their programs.</summary>
     public HashSet<INamedTypeSymbol> Families { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>
+    /// The projectile program families started only in programs their starts name, with those programs (#1513); a family
+    /// also in <see cref="Families"/> may be started in any of its programs.
+    /// </summary>
+    public Dictionary<INamedTypeSymbol, HashSet<string>> Programs { get; } = new(SymbolEqualityComparer.Default);
+
+    /// <summary>Every family started here, in any program or in named ones.</summary>
+    public IEnumerable<INamedTypeSymbol> AllFamilies => Families.Concat(Programs.Keys).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+
+    /// <summary>The programs <paramref name="family"/> is started in here, or null when it may be started in any.</summary>
+    public IReadOnlySet<string>? ProgramsOf(INamedTypeSymbol family) =>
+        Families.Contains(family) ? null : Programs.TryGetValue(family, out HashSet<string>? named) ? named
+            : throw new InvalidOperationException($"{family.ToDisplayString()} is not started here.");
+
+    /// <summary>Records <paramref name="family"/> started in <paramref name="programs"/>, or in any of its programs when null.</summary>
+    public void AddFamily(INamedTypeSymbol family, IReadOnlySet<string>? programs)
+    {
+        if (programs is null)
+        {
+            Families.Add(family);
+            return;
+        }
+        if (!Programs.TryGetValue(family, out HashSet<string>? named))
+            Programs.Add(family, named = new HashSet<string>(StringComparer.Ordinal));
+        named.UnionWith(programs);
+    }
+
+    /// <summary>Adds every family <paramref name="source"/> starts, with the programs it starts them in.</summary>
+    public void AddFamiliesOf(Collected source)
+    {
+        Families.UnionWith(source.Families);
+        foreach ((INamedTypeSymbol family, HashSet<string> programs) in source.Programs)
+            AddFamily(family, programs);
+    }
 }
 
 /// <summary>Which kind of sheet a destination is.</summary>
@@ -351,7 +386,7 @@ internal sealed class Walk
     {
         target.ProjectileFrames.UnionWith(source.ProjectileFrames);
         target.SpriteObjects.UnionWith(source.SpriteObjects);
-        target.Families.UnionWith(source.Families);
+        target.AddFamiliesOf(source);
     }
 
     /// <summary>Reaches <paramref name="unit"/> from code running in <paramref name="context"/>, and every implementation it dispatches to.</summary>
@@ -378,19 +413,22 @@ internal sealed class Walk
                 if (!viaDispatch && origin is { } spawner)
                 {
                     UnitScan scan = ScanOf(spawner);
-                    Evidence(spawner).Families.Add(family);
+                    // The programs the code starts the family in (#1513): those its constructions name, or any when it
+                    // reaches the family otherwise or names a program no constant decides.
+                    IReadOnlySet<string>? programs = scan.FamilyPrograms.TryGetValue(family, out HashSet<string>? named) ? named : null;
+                    Evidence(spawner).AddFamily(family, programs);
                     if (scan.SpawnCalls.Count == 0 && scan.Reassignments.Count == 0)
                     {
-                        Of(_helperEvidence, spawner).Families.Add(family);
-                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.Families.Add(family)));
+                        Of(_helperEvidence, spawner).AddFamily(family, programs);
+                        _unspawnedNames.Add(new UnspawnedName(spawner, collected => collected.AddFamily(family, programs)));
                     }
                     else
                     {
                         foreach (SpawnTarget target in scan.UnitTargets)
-                            Collect(spawner, target)?.Families.Add(family);
+                            Collect(spawner, target)?.AddFamily(family, programs);
                     }
                     if (context == WalkContext.Own)
-                        Own.Families.Add(family);
+                        Own.AddFamily(family, programs);
                     Spawners.Add(spawner);
                 }
                 return;
@@ -490,9 +528,11 @@ internal sealed class Walk
         }
         else if (SymbolEqualityComparer.Default.Equals(type, _model.RoomEnemyProjectileKind) && _model.StartedFamily(member) is { } started)
         {
-            add = collected => collected.Families.Add(started);
+            // A typed start names the program its kind starts the family in, when its construction names one (#1513).
+            IReadOnlySet<string>? programs = _model.StartedPrograms(member);
+            add = collected => collected.AddFamily(started, programs);
             if (context == WalkContext.Own)
-                Own.Families.Add(started);
+                Own.AddFamily(started, programs);
         }
         if (add is null)
             return;
@@ -531,6 +571,9 @@ internal sealed class Walk
         INamedTypeSymbol? scope = target.Scope ?? _behaviour;
         switch (target.Source)
         {
+            // An object whose frame behaviour replaces its spawner's graphics before it first draws never draws with them.
+            case GraphicsSource.Spawner when RedrawnSpawns.IsRedrawn(_model, unit):
+                return (null, null);
             case GraphicsSource.Spawner:
                 return (scope is null ? CommonOf(unit) : new Destination(DestinationKind.Own, scope), null);
             case GraphicsSource.Shared:

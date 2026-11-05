@@ -31,7 +31,7 @@ internal sealed class SpawnAnalysis
 {
     private readonly CoreModel _model;
     private readonly Dictionary<INamedTypeSymbol, Walk> _familyWalks = new(SymbolEqualityComparer.Default);
-    private readonly Dictionary<INamedTypeSymbol, Collected> _familyClosures = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<(INamedTypeSymbol Family, string Programs), FamilyClosure> _familyClosures = [];
 
     /// <summary>Creates the analysis over <paramref name="model"/>.</summary>
     private SpawnAnalysis(CoreModel model) => _model = model;
@@ -65,6 +65,7 @@ internal sealed class SpawnAnalysis
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
         RequireEmptySpritemapFrames(model);
         RequireMembers(model.RoomSpriteObjectKind, Walk.ExcludedSpriteObjects);
+        RedrawnSpawns.Require(model);
         var analysis = new SpawnAnalysis(model);
         var scanner = new UnitScanner(model);
         var reached = new HashSet<Unit>();
@@ -89,7 +90,7 @@ internal sealed class SpawnAnalysis
             RootBehaviour(walk, model, behaviour);
             walk.Run();
             reached.UnionWith(walk.Reached);
-            IReadOnlySet<string> familyFrames = analysis.WithFamilies(walk.Own).EnemyFrames;
+            IReadOnlySet<string> familyFrames = analysis.WithFamilies(walk.Own, switchedToRoom: null).EnemyFrames;
             DefinitionFrameSplit frames = behaviour.Definitions.Count == 1
                 ? new DefinitionFrameSplit(new Dictionary<string, IReadOnlySet<string>> { [behaviour.Definitions[0]] = familyFrames }, [])
                 : new DefinitionFrames(model, scanner, behaviour, walk).Resolve(familyFrames);
@@ -169,10 +170,10 @@ internal sealed class SpawnAnalysis
         foreach (Walk walk in spawnWalks)
         {
             foreach (Collected spawned in walk.EvidenceByType.Values)
-                spawnedFamilies.UnionWith(spawned.Families);
+                spawnedFamilies.UnionWith(spawned.AllFamilies);
         }
         foreach (INamedTypeSymbol family in spawnedFamilies.ToList())
-            spawnedFamilies.UnionWith(analysis.Closure(family, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)).Families);
+            spawnedFamilies.UnionWith(analysis.Closure(family, programs: null, []).Shown.AllFamilies);
         foreach (INamedTypeSymbol family in model.ConstructedFamilies.Where(f => !spawnedFamilies.Contains(f)))
             unreadable.Add($"{family.ToDisplayString()} is constructed in code no walk records as spawning it");
         // The self-check: every spawn with copied or handed-on graphics is on every sheet the code deciding them names (a
@@ -185,7 +186,7 @@ internal sealed class SpawnAnalysis
                 {
                     Collected held = sheets.Of(destination);
                     if (!spawns.ProjectileFrames.IsSubsetOf(held.ProjectileFrames) || !spawns.SpriteObjects.IsSubsetOf(held.SpriteObjects)
-                        || !spawns.Families.IsSubsetOf(held.Families))
+                        || !spawns.AllFamilies.All(family => held.AllFamilies.Contains<INamedTypeSymbol>(family, SymbolEqualityComparer.Default)))
                     {
                         unreadable.Add($"{walk.PendingSites[key]}: spawns with graphics {Describe(key)} are missing from {destination}");
                     }
@@ -195,13 +196,19 @@ internal sealed class SpawnAnalysis
         // A spawn whose graphics name no sheet this generator can read would draw from a sheet that lacks it.
         if (unreadable.Count > 0)
             throw new InvalidDataException("Spawn graphics the generator cannot place on a sheet:\n" + string.Join('\n', unreadable));
-        analysis.BySheet = sheets.Sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value), StringComparer.Ordinal);
+        analysis.BySheet = sheets.Sheets.ToDictionary(pair => pair.Key, pair => analysis.WithFamilies(pair.Value, switchedToRoom: null), StringComparer.Ordinal);
 
         var behaviours = new List<BehaviourSpawns>();
         foreach ((Behaviour behaviour, Walk walk, DefinitionFrameSplit frames) in walks)
         {
-            Collected own = analysis.WithFamilies(sheets.Of(new Destination(DestinationKind.Own, behaviour.Type)));
-            Collected sharedSpawns = analysis.WithFamilies(sheets.Of(new Destination(DestinationKind.Shared, behaviour.Type)));
+            // What a behaviour spawns with its own graphics and shows after a cue switched it to the room's draws from its
+            // sets' shared sheet (#1513).
+            var switched = new Collected();
+            Collected own = analysis.WithFamilies(sheets.Of(new Destination(DestinationKind.Own, behaviour.Type)), switched);
+            var sharedSource = new Collected();
+            Merge(sharedSource, sheets.Of(new Destination(DestinationKind.Shared, behaviour.Type)));
+            sharedSource.ProjectileFrames.UnionWith(switched.ProjectileFrames);
+            Collected sharedSpawns = analysis.WithFamilies(sharedSource, switchedToRoom: null);
             behaviours.Add(new BehaviourSpawns(behaviour, frames.Frames, own.ProjectileFrames, own.SpriteObjects,
                 sharedSpawns.ProjectileFrames, sharedSpawns.SpriteObjects, walk.ForeignEntries, frames.Notes));
         }
@@ -209,7 +216,7 @@ internal sealed class SpawnAnalysis
         var common = new Dictionary<string, Collected>(StringComparer.Ordinal);
         foreach ((string spawner, Collected spawns) in sheets.Common)
         {
-            Collected held = analysis.WithFamilies(spawns);
+            Collected held = analysis.WithFamilies(spawns, switchedToRoom: null);
             if (held.ProjectileFrames.Count > 0 || held.SpriteObjects.Count > 0)
                 common.Add(spawner, held);
         }
@@ -326,21 +333,31 @@ internal sealed class SpawnAnalysis
         ? $"copied from objects {key.Key.ToDisplayString()}'s code spawns"
         : $"handed to {key.Key.ToDisplayString()}";
 
-    /// <summary><paramref name="collected"/> with everything the families it constructs or starts name added.</summary>
-    private Collected WithFamilies(Collected collected)
+    /// <summary>
+    /// <paramref name="collected"/> with everything the families it constructs or starts name added, each family's frames
+    /// those of the programs it is started in (#1513). The frames those programs show once a cue has switched an object to
+    /// the room's graphics go to <paramref name="switchedToRoom"/> when it is given (a behaviour's own sheet, whose
+    /// switched objects draw from the shared sheet), and stay with the rest otherwise.
+    /// </summary>
+    private Collected WithFamilies(Collected collected, Collected? switchedToRoom)
     {
         var result = new Collected();
         Merge(result, collected);
-        foreach (INamedTypeSymbol family in collected.Families)
-            Merge(result, Closure(family, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)));
-        // The self-check: a sheet holding a family holds every frame its programs can show (its walk's frames and the
-        // families it spawns in turn), so a family routed to a sheet without its later frames fails here rather than when
-        // it draws.
-        var incomplete = new List<string>();
-        foreach (INamedTypeSymbol family in result.Families)
+        var expected = new List<(INamedTypeSymbol Family, FamilyClosure Closure)>();
+        foreach (INamedTypeSymbol family in collected.AllFamilies.ToList())
         {
-            Collected closure = Closure(family, new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
-            if (!closure.ProjectileFrames.IsSubsetOf(result.ProjectileFrames) || !closure.SpriteObjects.IsSubsetOf(result.SpriteObjects))
+            FamilyClosure closure = Closure(family, collected.ProgramsOf(family), []);
+            expected.Add((family, closure));
+            Merge(result, closure.Shown);
+            (switchedToRoom ?? result).ProjectileFrames.UnionWith(closure.Room);
+        }
+        // The self-check: a sheet holding a family holds every frame its programs can show under the sheet's graphics (its
+        // walk's frames and the families it spawns in turn), so a family routed to a sheet without its later frames fails
+        // here rather than when it draws.
+        var incomplete = new List<string>();
+        foreach ((INamedTypeSymbol family, FamilyClosure closure) in expected)
+        {
+            if (!closure.Shown.ProjectileFrames.IsSubsetOf(result.ProjectileFrames) || !closure.Shown.SpriteObjects.IsSubsetOf(result.SpriteObjects))
                 incomplete.Add($"{family.ToDisplayString()} is routed to a sheet missing some of its frames");
         }
         if (incomplete.Count > 0)
@@ -348,26 +365,49 @@ internal sealed class SpawnAnalysis
         return result;
     }
 
-    /// <summary>Everything <paramref name="family"/>'s walk names, with the families it spawns in turn.</summary>
-    private Collected Closure(INamedTypeSymbol family, HashSet<INamedTypeSymbol> visiting)
+    /// <summary>
+    /// What <paramref name="family"/> shows when started in <paramref name="programs"/> (or any of its programs, when null),
+    /// with the families it spawns in turn: everything its walk names except the frames of its table its programs do not
+    /// show (#1513), and apart the frames its programs show only once a cue has switched the object to the room's graphics.
+    /// </summary>
+    private FamilyClosure Closure(INamedTypeSymbol family, IReadOnlySet<string>? programs, HashSet<INamedTypeSymbol> visiting)
     {
-        if (_familyClosures.TryGetValue(family, out Collected? cached))
+        (INamedTypeSymbol, string) key = (family, programs is null ? "*" : string.Join(',', programs.Order(StringComparer.Ordinal)));
+        if (_familyClosures.TryGetValue(key, out FamilyClosure? cached))
             return cached;
-        var result = new Collected();
+        var shown = new Collected();
+        var room = new HashSet<string>(StringComparer.Ordinal);
         if (!visiting.Add(family))
-            return result;
+            return new FamilyClosure(shown, room);
         Walk walk = _familyWalks[family];
-        // A family walk enters no behaviour code, so everything it names is its own, whatever graphics it spawns with.
-        Merge(result, walk.Own);
+        ProjectileProgramFrames programFrames = _model.ProgramFrames;
+        IReadOnlySet<string> table = programFrames.TableFrames(family);
+        ProgramFrameSplit split = programFrames.Split(family, programs);
+        // A family walk enters no behaviour code, so everything it names is its own, whatever graphics it spawns with; of
+        // its table, only what its programs show.
+        Merge(shown, walk.Own);
         foreach (Collected spawned in walk.AllSpawns)
-            Merge(result, spawned);
-        foreach (INamedTypeSymbol spawned in result.Families.ToList())
-            Merge(result, Closure(spawned, visiting));
+            Merge(shown, spawned);
+        shown.ProjectileFrames.ExceptWith(table);
+        shown.ProjectileFrames.UnionWith(split.Spawned.Where(frame => !Walk.ExcludedProjectileFrames.Contains(frame)));
+        room.UnionWith(split.Room.Where(frame => !Walk.ExcludedProjectileFrames.Contains(frame)));
+        foreach (INamedTypeSymbol spawned in shown.AllFamilies.ToList())
+        {
+            FamilyClosure nested = Closure(spawned, shown.ProgramsOf(spawned), visiting);
+            Merge(shown, nested.Shown);
+            room.UnionWith(nested.Room);
+        }
         visiting.Remove(family);
+        var result = new FamilyClosure(shown, room);
         if (visiting.Count == 0)
-            _familyClosures.Add(family, result);
+            _familyClosures.Add(key, result);
         return result;
     }
+
+    /// <summary>What a family started in some programs shows.</summary>
+    /// <param name="Shown">Everything it names and shows under the graphics it was spawned with, with the families it spawns.</param>
+    /// <param name="Room">The frames it shows only once a cue has switched it to the room's graphics.</param>
+    private sealed record FamilyClosure(Collected Shown, IReadOnlySet<string> Room);
 
     /// <summary>Adds everything <paramref name="source"/> names to <paramref name="target"/>.</summary>
     private static void Merge(Collected target, Collected source)
@@ -375,6 +415,6 @@ internal sealed class SpawnAnalysis
         target.EnemyFrames.UnionWith(source.EnemyFrames);
         target.ProjectileFrames.UnionWith(source.ProjectileFrames);
         target.SpriteObjects.UnionWith(source.SpriteObjects);
-        target.Families.UnionWith(source.Families);
+        target.AddFamiliesOf(source);
     }
 }

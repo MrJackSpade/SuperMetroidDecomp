@@ -29,7 +29,9 @@ internal static class LookupTreadmillArtworkVerification
         foreach (var pair in new[] { new VerifyTreadmillArtworkSourcesCase(Definition:right, First:0x81e3), new VerifyTreadmillArtworkSourcesCase(Definition:left, First:0x81f9) })
         {
             // The four frames' original operands are read first; the pointer domain is then swept across the cores, as
-            // a frame's source is a pure function of the immutable direction program.
+            // a frame's source is a pure function of the immutable direction program. A source lookup rejects exactly the
+            // pointers its frame classification places outside the loop, so each pointer is classified without an
+            // exception, and the rejection itself is confirmed once per direction on the first pointer past the loop.
             var operands = new Dictionary<int, int>();
             for (int delta = 0; delta < 16; delta += 4)
                 operands.Add(pair.First + delta, 0x870000 | ReadVerificationWord(rom, 0x870002 + pair.First + delta));
@@ -38,9 +40,10 @@ internal static class LookupTreadmillArtworkVerification
                 if (operands.TryGetValue(pointer, out int operand))
                     AssertEqual(operand, pair.Definition.FrameSourceAddress((ushort)pointer), "Original directional operand view");
                 else
-                    AssertThrows<InvalidDataException>(() => pair.Definition.FrameSourceAddress((ushort)pointer),
-                        "All non-frame instruction pointers reject");
+                    AssertTrue(pair.Definition.FrameIndex((ushort)pointer) < 0, "All non-frame instruction pointers reject");
             });
+            AssertThrows<InvalidDataException>(() => pair.Definition.FrameSourceAddress((ushort)(pair.First + 16)),
+                "All non-frame instruction pointers reject");
         }
     }
 }

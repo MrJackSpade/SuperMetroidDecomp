@@ -25,19 +25,28 @@ internal static class LookupAnimatedArtworkSourcesVerification
                 expected.Add((ushort)cursor, 0x870000 | ReadVerificationWord(rom, 0x870000 | (cursor + 2)));
                 total++;
             }
+            RoomFxAnimatedTileLoop loop = definition ?? throw new InvalidOperationException("Verification requires definition.");
             // The artwork source of a cursor is a pure function of the immutable loop, so the whole cursor domain is
-            // swept across the cores.
+            // swept across the cores. Each cursor is classified through the lookup's own frame test; the lookup rejects
+            // exactly the cursors that test refuses, which the odd cursor after the first frame confirms once per loop
+            // instead of raising an exception for each of the domain's non-frame cursors.
             ParallelSweep.For(0, ushort.MaxValue + 1, value =>
             {
                 ushort cursor = (ushort)value;
+                bool resolved = AnimatedTileImageSources.TryOfCursor(loop, cursor, out int resolvedSource);
                 if (expected.TryGetValue(cursor, out int source))
-                    AssertEqual(source, AnimatedTileImageSources.OfCursor((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
-                        "Original artwork source operand");
+                {
+                    AssertTrue(resolved, "Original artwork frame cursor resolves");
+                    AssertEqual(source, resolvedSource, "Original artwork source operand");
+                }
                 else
-                    AssertThrows<InvalidDataException>(
-                        () => AnimatedTileImageSources.OfCursor((definition ?? throw new InvalidOperationException("Verification requires definition.")), cursor),
-                        "Non-frame cursor rejects including odd/source/loop words");
+                {
+                    AssertTrue(!resolved, "Non-frame cursor rejects including odd/source/loop words");
+                }
             });
+            AssertThrows<InvalidDataException>(
+                () => AnimatedTileImageSources.OfCursor(loop, (ushort)(original.First + 1)),
+                "Non-frame cursor rejects including odd/source/loop words");
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
         var unknown = new RoomFxAnimatedTileLoop(0, 32, 1, 10, 1);

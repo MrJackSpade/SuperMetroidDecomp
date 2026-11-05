@@ -87,6 +87,18 @@ internal static class InstalledFixtures
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
     private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
+    /// <summary>The installed ending Mode 7 floors, loaded once for every ending fixture, as a host binds its content (#1532).</summary>
+    private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorArtwork> endingFloors =
+        Shared<SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorArtwork>("ending floors", () => RepositoryInstallation.Installation.LoadEndingMode7Art());
+
+    /// <summary>The installed ending object artwork, loaded once for every ending fixture (#1532).</summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork> endingObjects =
+        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork>("ending objects", () => RepositoryInstallation.Installation.LoadEndingObjectArt());
+
+    /// <summary>The installed ending palettes, loaded once for every ending fixture (#1532).</summary>
+    private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingPaletteSet> endingPalettes =
+        Shared<SuperMetroid.Core.Frontend.Ending.Artwork.EndingPaletteSet>("ending palettes", () => RepositoryInstallation.Installation.LoadEndingPalettes());
+
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
@@ -259,9 +271,9 @@ internal static class InstalledFixtures
     {
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
-        ending.Stage.BindFloorArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
-        ending.InstalledArtwork.BindFixtureObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
-        ending.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
+        ending.Stage.BindFloorArtwork(endingFloors.Value);
+        ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
+        ending.InstalledArtwork.BindPaletteArtwork(endingPalettes.Value);
         ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);
         ending.Stage.BindEndingFont(Maps.EndingFont);
         return ending;
@@ -327,6 +339,20 @@ internal static class InstalledFixtures
     /// named through its loader, so a catalog first loaded after a graph was indexed is named from then on.
     /// </summary>
     internal static object[] BoundContent => boundContent.Value;
+
+    /// <summary>
+    /// How many of <see cref="BoundContent"/>'s catalogs have loaded: a graph indexed over the bound content indexes a
+    /// catalog's objects once it has loaded (#1532).
+    /// </summary>
+    internal static int LoadedBoundContent =>
+        new[]
+        {
+            RepositoryInstallation.ArtworkLoader.IsValueCreated, samusOverreads.IsValueCreated, enemyOverreads.IsValueCreated,
+            bossAndIntroOverreads.IsValueCreated, roomAssets.IsValueCreated, roomCharacters.IsValueCreated,
+            blockCompositions.IsValueCreated, maps.IsValueCreated, enemyArtwork.IsValueCreated, projectiles.IsValueCreated,
+            samusBody.IsValueCreated, introArtwork.IsValueCreated, enemySheets.IsValueCreated, spriteSheets.IsValueCreated,
+            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated,
+        }.Count(loaded => loaded);
 
     /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
     private static readonly Lazy<object[]> boundContent = new(() =>

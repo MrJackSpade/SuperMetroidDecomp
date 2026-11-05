@@ -113,18 +113,79 @@ internal sealed class BoundObjectGraph
                 unloaded.Add(current);
             if (VersionReader(current.GetType()) is { } versionReader && trackedCollections.Add(current))
                 collections.Add(new GrowingCollection(current, versionReader));
-            foreach ((object child, string step) in Children(current))
-            {
-                if (origins.TryAdd(child, new Origin(current, step)))
-                    pending.Enqueue(child);
-            }
+            IndexChildren(current, pending);
         }
+    }
+
+    /// <summary>
+    /// Indexes every object <paramref name="value"/> holds that is not indexed yet, as <see cref="Children"/> names them
+    /// (#1532): a reference held by a field or an array element is reached directly, its step built only when a capture
+    /// names it, and only a value type walked through goes through <see cref="Reached"/>.
+    /// </summary>
+    private void IndexChildren(object value, Queue<object> pending)
+    {
+        Type type = value.GetType();
+        if (type == typeof(string) || value is Delegate || value is Type || value is MemberInfo || value is Pointer)
+            return;
+        if (IsLazy(type))
+        {
+            if (LazyValue(value, force: false) is { } loaded && !loaded.GetType().IsValueType)
+                Reach(loaded, new Origin(value, LazyValueStep), pending);
+            return;
+        }
+        if (value is Array array)
+        {
+            Type elementType = ReflectionBoundary.ElementType(type);
+            if (RawArrayElements.IsRaw(elementType) || elementType.IsPointer || !HoldsReferences(elementType))
+                return;
+            if (!elementType.IsValueType && array is object?[] items)
+            {
+                // A vector of references is an array of objects, read without boxing; an element that is itself a boxed
+                // value is walked through like any other value.
+                for (int index = 0; index < items.Length; index++)
+                {
+                    if (items[index] is not { } item)
+                        continue;
+                    if (item.GetType().IsValueType)
+                        ReachThrough(item, value, ElementStep + index.ToString(System.Globalization.CultureInfo.InvariantCulture), pending);
+                    else
+                        Reach(item, new Origin(value, Step: null, index), pending);
+                }
+                return;
+            }
+            foreach ((object child, string step) in Children(value))
+                Reach(child, new Origin(value, step), pending);
+            return;
+        }
+        foreach ((FieldInfo field, string step) in ReferenceFields(type))
+        {
+            if (field.GetValue(value) is not { } fieldValue)
+                continue;
+            if (fieldValue.GetType().IsValueType)
+                ReachThrough(fieldValue, value, step, pending);
+            else
+                Reach(fieldValue, new Origin(value, step), pending);
+        }
+    }
+
+    /// <summary>Indexes the references the value <paramref name="held"/> holds, each named through its step from <paramref name="parent"/>.</summary>
+    private void ReachThrough(object held, object parent, string step, Queue<object> pending)
+    {
+        foreach ((object child, string childStep) in Reached(held, step))
+            Reach(child, new Origin(parent, childStep), pending);
+    }
+
+    /// <summary>Indexes <paramref name="child"/> at <paramref name="origin"/> unless it is indexed already.</summary>
+    private void Reach(object child, Origin origin, Queue<object> pending)
+    {
+        if (origins.TryAdd(child, origin))
+            pending.Enqueue(child);
     }
 
     /// <summary>Whether <paramref name="value"/> is a bound object, and its path when it is.</summary>
     internal bool TryGetPath(object value, [NotNullWhen(true)] out string? path)
     {
-        if (!origins.TryGetValue(value, out Origin? origin))
+        if (!origins.TryGetValue(value, out Origin origin))
         {
             path = null;
             return false;
@@ -132,8 +193,8 @@ internal sealed class BoundObjectGraph
         if (!paths.TryGetValue(value, out path))
         {
             path = origin.Parent is { } parent && TryGetPath(parent, out string? parentPath)
-                ? parentPath + StepSeparator + origin.Step
-                : origin.Step;
+                ? parentPath + StepSeparator + origin.Named
+                : origin.Named;
             paths.Add(value, path);
         }
         return true;
@@ -366,8 +427,16 @@ internal sealed class BoundObjectGraph
         }
     }
 
-    /// <summary>Where an object was first reached: the object that holds it and the step from it.</summary>
+    /// <summary>
+    /// Where an object was first reached: the object that holds it and the step from it. An element of an array of
+    /// references keeps its index, whose step is built only when a capture names it (#1532).
+    /// </summary>
     /// <param name="Parent">The holding object, or null for a root.</param>
-    /// <param name="Step">The step from the parent, or the root's number.</param>
-    private sealed record Origin(object? Parent, string Step);
+    /// <param name="Step">The step from the parent, or the root's number; null for an array element named by its index.</param>
+    /// <param name="Element">The element's index in its array when <paramref name="Step"/> is null.</param>
+    private readonly record struct Origin(object? Parent, string? Step, int Element = 0)
+    {
+        /// <summary>The step from the parent, as a path names it.</summary>
+        internal string Named => Step ?? ElementStep + Element.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
 }

@@ -64,7 +64,8 @@ internal static class GraphDigestVerification
     /// </summary>
     private static BoundObjectGraph Bound(object[] content)
     {
-        if (content.Length == 0)
+        bool installed = content.Length == 0;
+        if (installed)
             content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
         lock (boundGraphs)
         {
@@ -74,14 +75,35 @@ internal static class GraphDigestVerification
                     // Content loaded since the list was indexed (a fixture catalog first used by a later suite in this
                     // process) is indexed now, so a graph names it by path whatever order the suites ran in. An object
                     // keeps the path it was first indexed under.
-                    graph.Refresh();
+                    if (installed && SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent != installedCatalogsIndexed)
+                        IndexInstalledContent(() =>
+                        {
+                            graph.Refresh();
+                            return graph;
+                        });
+                    else
+                        graph.Refresh();
                     return graph;
                 }
-            var indexed = new BoundObjectGraph(content);
+            BoundObjectGraph indexed = installed ? IndexInstalledContent(() => new BoundObjectGraph(content)) : new BoundObjectGraph(content);
             boundGraphs.Add(([.. content], indexed));
             return indexed;
         }
     }
+
+    /// <summary>
+    /// Indexes the installed content's catalogs loaded since they were last indexed, as the process's one shared index of
+    /// its installed content (#1532): every capture of the process names installed content through it, so its cost is a
+    /// shared fixture's, timed as its own entry, not a cost of whichever suite first captures after a catalog loads.
+    /// </summary>
+    private static BoundObjectGraph IndexInstalledContent(Func<BoundObjectGraph> index)
+    {
+        installedCatalogsIndexed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent;
+        return SuperMetroid.TestSupport.RepositoryInstallation.SharedFixtureTiming.Load("Fixture: installed content index", index);
+    }
+
+    /// <summary>How many installed catalogs had loaded when the installed content was last indexed.</summary>
+    private static int installedCatalogsIndexed = -1;
 
     /// <summary>Each content list indexed so far, with its graph.</summary>
     private static readonly List<(object[] Roots, BoundObjectGraph Graph)> boundGraphs = [];

@@ -33,6 +33,18 @@ internal static class EnemySheetRowDefinitions
     /// <summary>The row Ridley's initialization selects for his draws, in Ceres and in Norfair, which his encounter writes.</summary>
     internal const int Ridley = 7;
 
+    /// <summary>The row Draygon's initializations select for his body, tail and arms ($A5:8687, $A5:C599, $A5:C5AD).</summary>
+    internal const int Draygon = 7;
+
+    /// <summary>The row the gunship's initializations select for its top and bottom ($A2:A644, $A2:A6D2).</summary>
+    internal const int Gunship = 7;
+
+    /// <summary>The row Crocomire's tongue's initialization selects ($A4:F67A).</summary>
+    internal const int CrocomireTongue = 7;
+
+    /// <summary>The row Rinka's initialization selects ($A2:B602).</summary>
+    internal const int Rinka = 2;
+
     /// <summary>The row the Ninja Space Pirates' initialization loads the gold wall Pirate's colours into.</summary>
     internal const int NinjaGoldWall = 7;
 
@@ -62,10 +74,18 @@ internal static class EnemySheetRowDefinitions
 
     /// <summary>
     /// The enemy whose row each enemy that copies one draws in: a Baby Turtle its Mama's, Ki-Hunter wings their body's, an
-    /// Evir's projectile its Evir's and Phantoon's eye, tentacles and mouth her body's.
+    /// Evir's projectile its Evir's, Phantoon's eye, tentacles and mouth her body's, and Kraid's arm, lints, foot and
+    /// fingernails Kraid's, whose row their initializations copy ($A7:AB43 to $A7:ABF8, $A7:BCF2).
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, EnemyDefinitionId> DrawsInRowOf { get; } = new Dictionary<EnemyDefinitionId, EnemyDefinitionId>
     {
+        [EnemyDefinitionId.KraidArm] = EnemyDefinitionId.Kraid,
+        [EnemyDefinitionId.KraidLintTop] = EnemyDefinitionId.Kraid,
+        [EnemyDefinitionId.KraidLintMiddle] = EnemyDefinitionId.Kraid,
+        [EnemyDefinitionId.KraidLintBottom] = EnemyDefinitionId.Kraid,
+        [EnemyDefinitionId.KraidFoot] = EnemyDefinitionId.Kraid,
+        [EnemyDefinitionId.KraidNail] = EnemyDefinitionId.Kraid,
+        [EnemyDefinitionId.KraidNailBad] = EnemyDefinitionId.Kraid,
         [EnemyDefinitionId.BabyTurtle] = EnemyDefinitionId.MamaTurtle,
         [EnemyDefinitionId.KihunterGreenWings] = EnemyDefinitionId.KihunterGreen,
         [EnemyDefinitionId.KihunterYellowWings] = EnemyDefinitionId.KihunterYellow,
@@ -81,11 +101,19 @@ internal static class EnemySheetRowDefinitions
     /// Chozo statues', the Torizos', Mother Brain's body's and the escape Etecoons' common colours (each initialization
     /// clears the enemy's palette bits, so its parts show the rows their own bits name), Mother Brain's brain's row, the
     /// Shitroid's and the Zebetites' row, the Baby's cutscene row, Ridley's own row (his breakup's fragments too,
-    /// whose initialization writes it: $A6:C6A5), and Ceres's steam in the enemy
-    /// projectiles' colours.
+    /// whose initialization writes it: $A6:C6A5), Ceres's steam in the enemy projectiles' colours, Draygon's body, tail
+    /// and arms in his row (his eye keeps the row its spawn gives it), the gunship's top and bottom, Crocomire's tongue
+    /// and Rinka in the rows their initializations select.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> FixedRows { get; } = new Dictionary<EnemyDefinitionId, int>
     {
+        [EnemyDefinitionId.DraygonBody] = Draygon,
+        [EnemyDefinitionId.DraygonTail] = Draygon,
+        [EnemyDefinitionId.DraygonArms] = Draygon,
+        [EnemyDefinitionId.ShipTop] = Gunship,
+        [EnemyDefinitionId.ShipBottomEntrance] = Gunship,
+        [EnemyDefinitionId.CrocomireTongue] = CrocomireTongue,
+        [EnemyDefinitionId.Rinka] = Rinka,
         [EnemyDefinitionId.TourianStatue] = Common,
         [EnemyDefinitionId.Chozo] = Common,
         [EnemyDefinitionId.BombTorizo] = Common,

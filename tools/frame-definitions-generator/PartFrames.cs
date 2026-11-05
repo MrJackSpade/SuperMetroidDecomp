@@ -20,15 +20,22 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="KeySelectors">For a table split by key, the <c>Parameter=Value</c> selectors each definition's keys carry.</param>
 /// <param name="ExcludedType">The type declaring frames drawn on another layer than the sprites, or null.</param>
 /// <param name="ExcludedMember">That type's set of those frames.</param>
+/// <param name="PopulationChoices">
+/// The population parameters an entry program choice follows from, each checked against every room placement of its
+/// definition.
+/// </param>
 internal sealed record PartFrameConfiguration(
     string Behaviour, string TableType, string TableMember, string? ProgramsType, string? ProgramsMember, string? StartCue,
     IReadOnlyList<string> StartCueDefinitions, IReadOnlyDictionary<string, string[]> EntryPrograms,
-    IReadOnlyDictionary<string, string[]> KeySelectors, string? ExcludedType, string? ExcludedMember)
+    IReadOnlyDictionary<string, string[]> KeySelectors, string? ExcludedType, string? ExcludedMember,
+    IReadOnlyList<PopulationChoice> PopulationChoices)
 {
     /// <summary>
     /// The configured behaviours: Draygon's parts each show the programs its slot runs (the body, eye, tail and arms
     /// started together by <c>StartPartPrograms</c> and separately by the code each program start names), and none of his
     /// sprites shows a pose he draws on his body layer; Kraid's parts each show their own kind of pose, Kraid himself none.
+    /// The shutters, crawlers, pipe bugs and dead monsters each run their behaviour's one program set and frame table, of
+    /// which each definition shows only the programs its own code, or its rooms' population parameters, start it in.
     /// </summary>
     public static IReadOnlyList<PartFrameConfiguration> All { get; } =
     [
@@ -58,7 +65,7 @@ internal sealed record PartFrameConfiguration(
                     "ArmsFacingLeftGrab", "ArmsFacingRightGrab", "Sleep",
                 ],
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), "DraygonBodyLayerFrameDefinitions", "Frames"),
+            new Dictionary<string, string[]>(StringComparer.Ordinal), "DraygonBodyLayerFrameDefinitions", "Frames", []),
         new("KraidBehavior", "KraidPartFrameDefinitions", "ShownFrames", null, null, null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal),
             new Dictionary<string, string[]>(StringComparer.Ordinal)
@@ -72,9 +79,87 @@ internal sealed record PartFrameConfiguration(
                 ["KraidNail"] = ["Kind=Nail"],
                 ["KraidNailBad"] = ["Kind=Nail"],
             },
-            null, null),
+            null, null, []),
+        // A vertical shutter runs its forty-pixel program, Kamer its platform loop; a growing shutter grows through its
+        // three growth programs to the forty-pixel one; the horizontal shutter runs its own.
+        new("ShuttersBehavior", "ShutterFrameDefinitions", "ShownFrames", "ShutterAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Kamer"] = ["KamerPlatform"],
+                ["ShutterDestroyable"] = ["FortyPixels"],
+                ["ShutterShootable"] = ["FortyPixels"],
+                ["ShutterGrowing"] = ["GrowingTenPixels", "GrowingTwentyPixels", "GrowingThirtyPixels", "FortyPixels"],
+                ["ShutterHorizShootable"] = ["Horizontal"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        // Each crawler starts in its family's surface program and takes its later surfaces from the family its surface
+        // table offset selects: Sciser, Zero and Viola their own (offsets 8, 10 and 6), the shared crawlers the shared
+        // family their rooms' offsets 0, 2 and 4 select; the orange Zoomer chooses only among its own.
+        new("CrawlersBehavior", "CrawlerFrameDefinitions", "ShownFrames", "CrawlerAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Sciser"] = CrawlerFamily("Sciser"),
+                ["Zero"] = CrawlerFamily("Zero"),
+                ["Viola"] = CrawlerFamily("Viola"),
+                ["Zeela"] = CrawlerFamily("Shared"),
+                ["Sova"] = CrawlerFamily("Shared"),
+                ["Zoomer"] = CrawlerFamily("Shared"),
+                ["MZoomer"] = CrawlerFamily("Shared"),
+                ["HZoomer"] = CrawlerFamily("HZoomer"),
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
+            [
+                new("Zeela", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
+                new("Sova", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
+                new("Zoomer", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
+                new("MZoomer", "CrawlerSpawnSettings", "SurfaceTableOffset", ["0", "2", "4"]),
+            ]),
+        // A Brinstar pipe bug runs the weak or the strong programs its room's kind selects; Gamet and Geega their own.
+        new("PipeBugsBehavior", "PipeBugFrameDefinitions", "ShownFrames", "PipeBugAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["Zeb"] = ["ZebRisingLeft", "ZebShootingLeft", "ZebRisingRight", "ZebShootingRight"],
+                ["Zebbo"] = ["ZebboRisingLeft", "ZebboShootingLeft", "ZebboRisingRight", "ZebboShootingRight"],
+                ["Gamet"] = ["GametRisingLeft", "GametFlyingLeft", "GametRisingRight", "GametFlyingRight"],
+                ["Geega"] = ["GeegaFlyingLeft", "GeegaArcingLeft", "GeegaFlyingRight", "GeegaArcingRight"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
+            [
+                new("Zeb", "BrinstarPipeBugSpawnSettings", "Kind", ["Weak"]),
+                new("Zebbo", "BrinstarPipeBugSpawnSettings", "Kind", ["Strong"]),
+            ]),
+        // The dead Sidehopper idles, hops and lies as a corpse, or lies dead from the start; the dead Tourian monsters
+        // each lie as one of their own species' corpses. Both run the dead monsters' one program set.
+        new("DeadSidehopperBehavior", "DeadTourianFrameDefinitions", "ShownFrames", "DeadTourianAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["CorpseSidehopper"] = ["SidehopperIdle", "SidehopperHopping", "SidehopperCorpse", "SidehopperInitiallyDead"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
+        new("DeadTourianBehavior", "DeadTourianFrameDefinitions", "ShownFrames", "DeadTourianAnimations", "Programs", null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["CorpseZoomer"] = ["ZoomerCorpse0", "ZoomerCorpse1", "ZoomerCorpse2"],
+                ["CorpseRipper"] = ["RipperCorpse0", "RipperCorpse1"],
+                ["CorpseSkree"] = ["SkreeCorpse0", "SkreeCorpse1", "SkreeCorpse2"],
+            },
+            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
     ];
+
+    /// <summary>A crawler family's four surface programs, as <c>CrawlerAnimationDefinitions.Families</c> names them.</summary>
+    private static string[] CrawlerFamily(string family) =>
+        [$"{family}UpsideRight", $"{family}UpsideLeft", $"{family}UpsideDown", $"{family}UpsideUp"];
 }
+
+/// <summary>
+/// A population parameter an entry program choice follows from (#1513): every room placement of <paramref name="Definition"/>
+/// carries <paramref name="Settings"/> whose <paramref name="Parameter"/> is one of <paramref name="Values"/>.
+/// </summary>
+/// <param name="Definition">The definition placed.</param>
+/// <param name="Settings">The spawn-settings record its placements carry.</param>
+/// <param name="Parameter">The record's parameter the choice follows from.</param>
+/// <param name="Values">The parameter values the configured programs follow from: constants, or enum member names.</param>
+internal sealed record PopulationChoice(string Definition, string Settings, string Parameter, string[] Values);
 
 /// <summary>
 /// Evaluates a <see cref="PartFrameConfiguration"/> over Core's source: the frame table's entries by key, the program set's
@@ -105,6 +190,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         foreach (string definition in behaviour.Definitions.Where(definition => !keys.ContainsKey(definition)))
             problems.Add($"{definition} has no configured programs or selectors");
         CheckConstantKeys(table, keys, problems);
+        CheckPopulations(behaviour, problems);
         if (problems.Count > 0)
             throw new InvalidDataException($"{behaviour.Type.Name}'s part frames cannot be split:\n" + string.Join('\n', problems));
 
@@ -175,35 +261,114 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         (Dictionary<string, PartProgram> programs, INamedTypeSymbol programType, ExpressionSyntax initializer) = Programs(problems);
         var keys = configuration.EntryPrograms.Keys.Concat(configuration.StartCueDefinitions).Distinct(StringComparer.Ordinal)
             .ToDictionary(definition => definition, _ => new HashSet<string>(StringComparer.Ordinal), StringComparer.Ordinal);
+        HashSet<(string Definition, string Program)> reached = Closure(programs, problems);
+        foreach ((string definition, string reachedProgram) in reached)
+        {
+            foreach (string key in programs[reachedProgram].Keys)
+            {
+                if (!table.ContainsKey(key))
+                    problems.Add($"program {reachedProgram} shows key {key}, which {configuration.TableType}.{configuration.TableMember} lacks");
+                keys[definition].Add(key);
+            }
+        }
+        // The self-check: every program Core names outside the program set lies in some part's closure, this behaviour's
+        // or another configured behaviour's running the same program set, so no start the configuration missed leaves a
+        // part without the frames it shows.
+        var inClosure = new HashSet<string>(reached.Select(pair => pair.Program), StringComparer.Ordinal);
+        foreach (PartFrameConfiguration sibling in PartFrameConfiguration.All.Where(other => other.Behaviour != configuration.Behaviour
+                     && other.ProgramsType == configuration.ProgramsType && other.ProgramsMember == configuration.ProgramsMember))
+        {
+            // The sibling reports its own problems when its behaviour is split; here only its closure counts.
+            var siblingProblems = new List<string>();
+            PartFrames siblingFrames = new(model, sibling);
+            (Dictionary<string, PartProgram> siblingPrograms, _, _) = siblingFrames.Programs(siblingProblems);
+            inClosure.UnionWith(siblingFrames.Closure(siblingPrograms, siblingProblems).Select(pair => pair.Program));
+        }
+        foreach (string named in NamedOutside(programType, initializer).Where(program => !inClosure.Contains(program)))
+            problems.Add($"{programType.Name}.{named} is named outside the program set but no part's closure reaches it");
+        return keys;
+    }
+
+    /// <summary>
+    /// Every program each definition's slot runs, as definition and program: the closure of its entry programs over the
+    /// programs they continue into and start in other definitions' slots.
+    /// </summary>
+    private HashSet<(string Definition, string Program)> Closure(Dictionary<string, PartProgram> programs, List<string> problems)
+    {
         var reached = new HashSet<(string Definition, string Program)>();
         var pending = new Queue<(string Definition, string Program)>(
             configuration.EntryPrograms.SelectMany(pair => pair.Value.Select(program => (pair.Key, program))));
         while (pending.TryDequeue(out (string Definition, string Program) next))
         {
-            if (!reached.Add(next))
+            if (reached.Contains(next))
                 continue;
             if (!programs.TryGetValue(next.Program, out PartProgram? program))
             {
                 problems.Add($"{next.Definition}'s program {next.Program} is not in {configuration.ProgramsType}.{configuration.ProgramsMember}");
                 continue;
             }
-            foreach (string key in program.Keys)
-            {
-                if (!table.ContainsKey(key))
-                    problems.Add($"program {next.Program} shows key {key}, which {configuration.TableType}.{configuration.TableMember} lacks");
-                keys[next.Definition].Add(key);
-            }
+            reached.Add(next);
             foreach (string continuation in program.Continuations)
                 pending.Enqueue((next.Definition, continuation));
             foreach ((string definition, string started) in program.Starts)
                 pending.Enqueue((definition, started));
         }
-        // The self-check: every program Core names outside the program set lies in some part's closure, so no start the
-        // configuration missed leaves a part without the frames it shows.
-        var inClosure = new HashSet<string>(reached.Select(pair => pair.Program), StringComparer.Ordinal);
-        foreach (string named in NamedOutside(programType, initializer).Where(program => !inClosure.Contains(program)))
-            problems.Add($"{programType.Name}.{named} is named outside the program set but no part's closure reaches it");
-        return keys;
+        return reached;
+    }
+
+    /// <summary>
+    /// The self-check that each population-chosen program set is the one the rooms choose: every placement of a configured
+    /// definition carries spawn settings whose configured parameter is one of the configured values, and some placement
+    /// carries them.
+    /// </summary>
+    private void CheckPopulations(Behaviour behaviour, List<string> problems)
+    {
+        foreach (PopulationChoice choice in configuration.PopulationChoices)
+        {
+            if (!behaviour.Definitions.Contains(choice.Definition))
+                problems.Add($"population choice for {choice.Definition}, which {behaviour.Type.Name} does not serve");
+            int placements = 0;
+            foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+            {
+                SemanticModel semantic = model.ModelOf(tree);
+                foreach (BaseObjectCreationExpressionSyntax settings in tree.GetRoot().DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
+                {
+                    if (semantic.GetSymbolInfo(settings).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
+                        || constructor.ContainingType.Name != choice.Settings
+                        || settings.Parent is not ArgumentSyntax { Parent: ArgumentListSyntax { Parent: BaseObjectCreationExpressionSyntax placement } }
+                        || placement.ArgumentList is not { Arguments: [var first, ..] }
+                        || semantic.GetSymbolInfo(first.Expression).Symbol is not IFieldSymbol placed
+                        || !SymbolEqualityComparer.Default.Equals(placed.ContainingType, model.EnemyDefinitionId)
+                        || placed.Name != choice.Definition)
+                        continue;
+                    placements++;
+                    string? value = ParameterConstant(semantic, settings, constructor, choice.Parameter);
+                    if (value is null || !choice.Values.Contains(value, StringComparer.Ordinal))
+                    {
+                        problems.Add($"{model.RelativePath(tree)}: a {choice.Definition} placement's {choice.Settings}.{choice.Parameter} is "
+                            + $"{value ?? "not a constant"}, not one of {string.Join(", ", choice.Values)} its configured programs follow from");
+                    }
+                }
+            }
+            if (placements == 0)
+                problems.Add($"no room places {choice.Definition} with {choice.Settings}, so its configured choice is unchecked");
+        }
+    }
+
+    /// <summary>The constant the creation <paramref name="settings"/> passes for <paramref name="constructor"/>'s parameter <paramref name="parameter"/>, or null.</summary>
+    private static string? ParameterConstant(SemanticModel semantic, BaseObjectCreationExpressionSyntax settings, IMethodSymbol constructor, string parameter)
+    {
+        if (settings.ArgumentList is not { } arguments)
+            return null;
+        for (int index = 0; index < arguments.Arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments.Arguments[index];
+            string? name = argument.NameColon is { } named ? named.Name.Identifier.Text
+                : index < constructor.Parameters.Length ? constructor.Parameters[index].Name : null;
+            if (name == parameter)
+                return ConstantOf(semantic, argument.Expression);
+        }
+        return null;
     }
 
     /// <summary>The program set's programs by name, with the program identity type and the set's initializer.</summary>

@@ -95,10 +95,8 @@ internal static class GameplayDisplayFrameTestsVerification
         GameplaySceneView before = Registers(runtime);
         var kraid = new KraidEnemyState { ShowsBodyLayer = true, BodyLayerPlacement = new Position16<BackgroundPixels>(320, 88) };
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
-        AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize &&
-            registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on BG2");
-        AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(64, 64) &&
-            registers.BackgroundScroll == kraid.BodyLayerPlacement, "Kraid's body on BG2");
+        AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
+        AssertPublished(runtime, registers => registers.BackgroundScroll == kraid.BodyLayerPlacement, "Kraid's body on the background");
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
@@ -107,10 +105,9 @@ internal static class GameplayDisplayFrameTestsVerification
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { PlacesBodyLayer = true, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
-        AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize &&
-            registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain BG2SC and TM BG2 bit");
-        AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 32) &&
-            registers.MainScreenLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites), "Mother Brain BG2SC and TM BG2 bit");
+        AssertPending(runtime, registers => registers.MainScreenLayers == before.MainScreenLayers, "Mother Brain's hidden background");
+        AssertPublished(runtime, registers => registers.MainScreenLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
+            "Mother Brain's hidden background");
         AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.FixedColors.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
         runtime.Enemies.MotherBrainEncounter.MotherBrain = null;
@@ -118,17 +115,10 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
-    /// <summary>The FX blend selectors and the scrolling sky's BG2 shadows publish with the accepted NMI's latch.</summary>
+    /// <summary>The scrolling sky's background scroll publishes with the accepted frame's latch.</summary>
     private static void VerifySceneRegisterTiming(SuperMetroidRuntime runtime)
     {
-        GameplaySceneView before = Registers(runtime);
-        RoomFxType originalFx = runtime.RoomFxOverlay.Type;
-        runtime.RoomFxOverlay.Type = RoomFxType.TourianEntranceStatue;
-        AssertPending(runtime, registers => registers.BackgroundMapSize == before.BackgroundMapSize, "FX-selected BG2SC");
-        AssertPublished(runtime, registers => registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 64), "FX-selected BG2SC");
-        runtime.RoomFxOverlay.Type = originalFx;
-        runtime.FrameBoundary.BeginAcceptedFrame(0);
-
+        GameplaySceneView before;
         // $88:AFB2 writes the BG2VOFS mirror while the same pass rebuilds the band table.
         // HDMA reads the table during display; the mirror waits for the NMI upload. A sky room installs its sky, and
         // the sky's image, as it loads (#1403).
@@ -139,10 +129,8 @@ internal static class GameplayDisplayFrameTestsVerification
         sky.ProcessFrame(SkyLayer1Y, timeIsFrozen: false);
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.ScrollingSky is not null,
             "sky bands are read live during display");
-        AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y &&
-            registers.BackgroundMapSize == before.BackgroundMapSize, "sky BG2VOFS and BG2SC");
-        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == SkyLayer1Y &&
-            registers.BackgroundMapSize == new Extent16<TilemapCells>(32, 64), "sky BG2VOFS and BG2SC");
+        AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y, "the sky's vertical scroll");
+        AssertPublished(runtime, registers => registers.BackgroundScroll.Y == SkyLayer1Y, "the sky's vertical scroll");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

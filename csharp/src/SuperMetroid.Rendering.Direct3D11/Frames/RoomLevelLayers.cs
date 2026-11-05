@@ -10,7 +10,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <param name="Foreground">The room's layer-1 plane, or null.</param>
 /// <param name="Background">The room's layer-2 plane, or null.</param>
 /// <param name="Door">The door.</param>
-/// <param name="Overlay">What room actors wrote over layer 1, or null (#1403).</param>
+/// <param name="WrittenOverForeground">What room actors wrote over the foreground, or null (#1403).</param>
 /// <param name="Sky">The scrolling sky drawn from its image, or null (#1347, #1403).</param>
 /// <param name="FxOverlay">The layer-3 plane, the room effect's page, or null.</param>
 /// <param name="WrittenOverBackground">What room actors wrote over layer 2, or null (#1403).</param>
@@ -24,5 +24,5 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <param name="Grids">The picture grids the frame draws, or null (#1467).</param>
 /// <param name="HudColouring">How the HUD's pictures are coloured: gameplay's HUD shading, or the pause screen's own shading of each picture (#1512).</param>
 /// <param name="FloorColouring">How the turning floor's pictures are coloured: the gameplay room's shading, or the shading a frontend screen's floor names (#1512).</param>
-internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Foreground, RoomBackgroundLayer? Background, RoomDoorBackground? Door, RoomOverlayPictures? Overlay, SkyPictures? Sky, FxOverlayCells? FxOverlay, RoomOverlayPictures? WrittenOverBackground, AffineFloor? Floor, ShownBossBody? BossBody, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? BackgroundImage, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, PicturedHud? Hud, PicturedPlaneTables? Planes, PictureGridTables? Grids,
+internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Foreground, RoomBackgroundLayer? Background, RoomDoorBackground? Door, RoomOverlayPictures? WrittenOverForeground, SkyPictures? Sky, FxOverlayCells? FxOverlay, RoomOverlayPictures? WrittenOverBackground, AffineFloor? Floor, ShownBossBody? BossBody, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? BackgroundImage, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, PicturedHud? Hud, PicturedPlaneTables? Planes, PictureGridTables? Grids,
     D3D11PictureColouring HudColouring, D3D11PictureColouring FloorColouring);

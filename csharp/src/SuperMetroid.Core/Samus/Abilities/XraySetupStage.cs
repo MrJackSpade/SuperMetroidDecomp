@@ -19,13 +19,13 @@ public enum XraySetupStage
     /// <summary><c>XraySetup_3_ReadBG1Tilemap_1stScreen</c>, called.</summary>
     ReadForegroundFirstScreen = 3,
     /// <summary>
-    /// Call four, where the reveal is built: <c>XraySetup_4_BuildBG2Tilemap_ReadBG2Tilemap_1stScreen</c>
-    ///, called. The port builds the whole reveal here.
+    /// Call four, where the game builds the reveal (<c>XraySetup_4_BuildBG2Tilemap_ReadBG2Tilemap_1stScreen</c>, called);
+    /// the port shows the reveal from the room as each frame shows it, so the call only spends its update.
     /// </summary>
     BuildRevealFirstScreen = 4,
     /// <summary>
     /// Call five, where the game builds the reveal's second screen (<c>XraySetup_5_ReadBG2Tilemap_2ndScreen</c>,
-    /// called); the port has built it already, so the call only spends its update.
+    /// called); the call only spends its update.
     /// </summary>
     BuildRevealSecondScreen = 5,
     /// <summary><c>XraySetup_6_TransferXrayTilemap_1stScreen</c>, called.</summary>

@@ -66,7 +66,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 31), "HUD must cover complete tile rows");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), 32,
-            new TurningRoomLowerBand(31, new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32), RoomBackgroundsFixtures.Blank().Foreground)),
+            new TurningRoomLowerBand(31, new Position16<BackgroundPixels>(0, 0), RoomBackgroundsFixtures.Blank().Foreground)),
             "floor cannot overlap HUD");
         Console.WriteLine($"  Mode-7 gameplay snapshots: {samples} matrix/scroll layers keep their registers; the Ridley packet is retained.");
     }

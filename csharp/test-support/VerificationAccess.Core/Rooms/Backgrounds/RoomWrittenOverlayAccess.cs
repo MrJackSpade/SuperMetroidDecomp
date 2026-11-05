@@ -29,12 +29,12 @@ internal static class RoomWrittenOverlayAccess
         /// <exception cref="InvalidOperationException">A picture is one no writer writes, or a page is written with no pages given.</exception>
         internal ImmutableArray<int> WordsIn(CeresEscapeOverlays? pages)
         {
-            int[] words = [.. Enumerable.Repeat(UnwrittenWord, RoomWrittenOverlay.CellCount)];
+            int[] words = [.. Enumerable.Repeat(UnwrittenWord, TwoScreenTilemapCells.Count)];
             foreach (WrittenPicture written in overlay.Pictures)
             {
                 BackgroundTile[] tiles = TilesOf(written.Picture, pages);
                 for (int index = 0; index < tiles.Length; index++)
-                    words[written.Cell + index] = tiles[index].PackedWord;
+                    words[TwoScreenTilemapCells.IndexOf(written.Cell) + index] = tiles[index].PackedWord;
             }
             return [.. words];
         }

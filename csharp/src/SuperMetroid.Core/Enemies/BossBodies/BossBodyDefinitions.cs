@@ -20,4 +20,10 @@ internal static class BossBodyDefinitions
     /// side by side, one above another, or only the first.
     /// </summary>
     internal const int SharedBodyRows = 64;
+
+    /// <summary>The area a body's two pages cover where its room shows them side by side (#1514).</summary>
+    public static Extent16<BackgroundPixels> SideBySideArea { get; } = new(2 * ColumnCount * CellPixels, PageRows * CellPixels);
+
+    /// <summary>The area a body covers where its room shows only its first page (#1514).</summary>
+    public static Extent16<BackgroundPixels> FirstPageArea { get; } = new(ColumnCount * CellPixels, PageRows * CellPixels);
 }

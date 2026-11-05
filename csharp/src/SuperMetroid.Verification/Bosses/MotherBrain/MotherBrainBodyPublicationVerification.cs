@@ -52,7 +52,7 @@ internal static class MotherBrainBodyPublicationVerification
             "phase two publishes her body at her posture scroll");
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(new Extent16<TilemapCells>(32, 32), drawn.View.BackgroundMapSize, "her body shows on one 32x32 screen");
+        AssertEqual(SuperMetroid.Core.Enemies.BossBodies.BossBodyDefinitions.FirstPageArea, drawn.Rooms.BossBody?.Area, "her body shows its first page");
         AssertEqual(state.BodyLayerPlacement + runtime.Display.Latched.Scrolls.RoomShake.Background, drawn.View.BackgroundScroll, "her scroll places her body");
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws her body image");
         AssertTrue(drawn.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "her shown body keeps BG2 on the main screen");

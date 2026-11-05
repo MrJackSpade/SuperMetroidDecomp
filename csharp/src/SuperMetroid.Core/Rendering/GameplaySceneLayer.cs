@@ -22,17 +22,14 @@ public sealed record GameplaySceneLayer : DisplayLayer
     public ReadOnlySpan<ScreenLayers> LayersShownByLine => mainScreenLayersByLine;
 
     /// <summary>Captures the frame's view, its background's line scrolls and its optional per-line layers; this layer is drawn before any blend or overlay.</summary>
-    /// <param name="view">How the frame views the gameplay scene, with a background map of 32 or 64 cells on each axis.</param>
+    /// <param name="view">How the frame views the gameplay scene.</param>
     /// <param name="rooms">The room's foreground and background; the background shows its loaded map when the room gives it none.</param>
     /// <param name="backgroundLineScrolls">How the background's scroll changes line by line, if a room effect moves it.</param>
     /// <param name="mainScreenLayersByLine">Empty or exactly 192 per-line layer sets.</param>
-    /// <exception cref="ArgumentException">The background's map size is unsupported, or per-line layers are given for other than exactly 192 lines.</exception>
+    /// <exception cref="ArgumentException">Per-line layers are given for other than exactly 192 lines.</exception>
     public GameplaySceneLayer(GameplaySceneView view, RoomBackgrounds rooms,
         BackgroundLineScrolls backgroundLineScrolls = default, ReadOnlySpan<ScreenLayers> mainScreenLayersByLine = default)
     {
-        if (view.BackgroundMapSize.X is not (32 or 64) || view.BackgroundMapSize.Y is not (32 or 64)
-            || view.BackgroundMapSize.X * view.BackgroundMapSize.Y is not (1024 or 2048 or 4096))
-            throw new ArgumentException("The gameplay background's map is 32 or 64 tiles on each axis.", nameof(view));
         if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != BackgroundLineScrolls.GameplayLines)
             throw new ArgumentException("Per-line layers cover exactly 192 gameplay lines.");
         View = view;

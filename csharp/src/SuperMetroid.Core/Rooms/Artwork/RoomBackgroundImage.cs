@@ -20,6 +20,9 @@ public sealed class RoomBackgroundImage
     /// <summary>Pixels along a tilemap page's side.</summary>
     public const int PagePixels = PageTiles * 8;
 
+    /// <summary>The area two pages cover side by side, as a room shows a library background's (#1514).</summary>
+    public static Extent16<BackgroundPixels> PagesSideBySide { get; } = new(2 * PagePixels, PagePixels);
+
     /// <summary>The frame of an image's sheet that pictures its whole tilemap.</summary>
     public const string FrameName = "pages";
 
@@ -53,6 +56,9 @@ public sealed class RoomBackgroundImage
 
     /// <summary>The picture of both pages, the first above the second.</summary>
     public SpriteSheetFrame Picture { get; }
+
+    /// <summary>The area the image's pages cover one above another, as a sky's rows or a room showing them in a column (#1514).</summary>
+    public Extent16<BackgroundPixels> PagesInOneColumn => new(PagePixels, Picture.Size.Y);
 
     /// <summary>The image's 16x16 cells: two rows by two columns of tiles each.</summary>
     public int CellCount { get; }

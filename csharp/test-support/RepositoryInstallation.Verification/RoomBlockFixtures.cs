@@ -78,10 +78,10 @@ internal static class RoomBlockFixtures
     /// The library background a fixture loaded into BG2 (#1403): the two tilemap pages at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/>, the first above the second, each word painted from the four-bit characters at
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>, as extraction paints a room's
-    /// background image.
+    /// background image, its pages shown in one column when <paramref name="pagesInOneColumn"/> is set, otherwise side by side.
     /// </summary>
     internal static RoomBackgroundImagePlane LoadedBackground(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
-        int characterWord = 0)
+        int characterWord = 0, bool pagesInOneColumn = false)
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels));
@@ -118,6 +118,7 @@ internal static class RoomBlockFixtures
         SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "loaded-background-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities);
         var background = new RoomBackgroundImage("loaded-background-fixture", sheet, []);
-        return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount]);
+        return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount],
+            pagesInOneColumn ? background.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
     }
 }

@@ -20,13 +20,13 @@ internal static class MotherBrainDeathHandoffVerification
         var vram = new SnesVram();
         // The installed program keeps the same glyphs and destination; delay two is engine-owned.
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Zebes,
-            [new EscapeTypewriterLine(0, "A !")]);
+            [new EscapeTypewriterLine(default, "A !")]);
         var text = new EscapeTypewriterState(program);
         AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");
         AssertEqual(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, vram.ReadWord(0), "text glyph reaches its cell");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
-        AssertEqual(2, text.Cell, "space advances cursor without a tile");
+        AssertEqual(new Position16<TilemapCells>(2, 0), text.Cell, "space advances cursor without a tile");
         text.StepInto(vram);
         text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");

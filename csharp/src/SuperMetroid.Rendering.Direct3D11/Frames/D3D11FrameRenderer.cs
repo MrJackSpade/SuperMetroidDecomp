@@ -296,10 +296,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayRoom;
-        // Xray.hlsli reads layer 1's scroll, layer 2's map size and the blend from the layer header words.
+        // Xray.hlsli reads layer 1's scroll and the blend from the layer header words.
         data[3] = r.ForegroundScroll.X;
         data[4] = unchecked((ushort)(r.ForegroundScroll.Y + D3D11Screen.LayerLineOffset));
-        data[5] = r.BackgroundMapSize.X; data[6] = r.BackgroundMapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.Blend.Layers;
         data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
@@ -376,7 +375,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             Sprites(3);
 
             void Sprites(uint priority) => DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)floorStart });
-            void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
+            void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), Priority = Priority(high), FirstScanline = (uint)floorStart });
         }
     }
 
@@ -412,7 +411,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         void Background1(bool high)
         {
             if ((activeLayers & ScreenLayers.Foreground) != 0)
-                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
+                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
@@ -426,7 +425,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
-        data[5] = r.BackgroundMapSize.X; data[6] = r.BackgroundMapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.Layer2Of(layer.Rooms);
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);

@@ -44,7 +44,7 @@ internal static class BackgroundMosaicTests
         foreach (int size in Enumerable.Range(1, 16))
         foreach (int mode in Enumerable.Range(0, 4))
         {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Sprites | (mode == 2 ? ScreenLayers.None : ScreenLayers.Background) |
                     (mode == 3 ? ScreenLayers.Foreground : ScreenLayers.None),
                 BackgroundPixelation: new(size));

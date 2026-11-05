@@ -38,7 +38,7 @@ internal static class GameplaySnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new ScrollBands(0, [new ScrollBand(64, 0), new ScrollBand(64, 1)]),
             "each band begins below the one before it");
         var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
-            new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
+            ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
         var layer = new GameplaySceneLayer(registers, rooms, scrolls);
         AssertThrows<ArgumentException>(() => new LayeredScene(memory,
             new DisplayLayer[] { new SpritesLayer(), layer }, 15), "base cannot erase prior operations");

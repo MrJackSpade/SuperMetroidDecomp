@@ -46,7 +46,7 @@ internal static class XrayGameplayTests
             var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
             FxOverlayCells plane = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
             bg1 = bg1 with { FxOverlay = plane };
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             // The X-ray's window covers the screen's right half (#1468).
             var lines = ScreenWindow.Of(WindowRectangle.Spanning(128, 0, 255, 223));
@@ -132,7 +132,6 @@ internal static class XrayGameplayTests
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
             var registers = new GameplaySceneView(new Position16<RoomPixels>(Word(), Word()), new Position16<BackgroundPixels>(Word(), Word()),
-                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64),
                 (ScreenLayers)(random.Next(32) & 0x13));
             // Every fifth frame's planes draw from block pictures (#1392).
             var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(),
@@ -168,7 +167,7 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);
             var registers = new GameplaySceneView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
-                new Position16<BackgroundPixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
+                new Position16<BackgroundPixels>(Fine(), Fine()),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });

@@ -99,7 +99,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
 
         // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
         system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
-        var written = new bool[RoomWrittenOverlay.CellCount];
+        var written = new bool[TwoScreenTilemapCells.Count];
         for (int index = 0; index < 4; index++)
         {
             TileTransferDefinition expected = records[index];

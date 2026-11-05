@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// One picture something wrote over a room's background (#1466): its name in the room's written picture sheet and the
-/// tilemap cell its top-left tile is written at, counted row by row across the background's two screens.
+/// One picture something wrote over a room's layer (#1466, #1514): its name in the room's written picture sheet and where
+/// it shows: the eight-pixel cell of the layer its top-left corner lies on.
 /// </summary>
 /// <param name="Picture">The picture's name, as <c>WrittenPictureNames</c> spells it.</param>
-/// <param name="Cell">The cell its top-left tile is written at.</param>
-public readonly record struct WrittenPicture(string Picture, int Cell);
+/// <param name="Cell">The cell of the layer, its column and row from the layer's top-left, the picture's corner lies on.</param>
+public readonly record struct WrittenPicture(string Picture, Position16<TilemapCells> Cell);

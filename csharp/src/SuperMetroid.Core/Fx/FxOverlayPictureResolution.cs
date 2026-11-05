@@ -22,7 +22,7 @@ internal static class FxOverlayPictureResolution
             throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no effect overlay pictures.");
         var page = new List<WrittenPicture>();
         if (plane.EffectPage is { } type)
-            page.Add(new WrittenPicture(FxOverlayPlane.EffectPagePicture(type), FxOverlayPlane.EffectPageFirstRow * FxOverlayPlane.Columns));
-        return resolver.ResolvePlaced(plane, FxOverlayPlane.Columns * FxOverlayPlane.Rows, FxOverlayPlane.ClearedPicture, page, appearance);
+            page.Add(new WrittenPicture(FxOverlayPlane.EffectPagePicture(type), new Position16<TilemapCells>(0, FxOverlayPlane.EffectPageFirstRow)));
+        return resolver.ResolvePlaced(plane, new Extent16<TilemapCells>(FxOverlayPlane.Columns, FxOverlayPlane.Rows), FxOverlayPlane.ClearedPicture, page, appearance);
     }
 }

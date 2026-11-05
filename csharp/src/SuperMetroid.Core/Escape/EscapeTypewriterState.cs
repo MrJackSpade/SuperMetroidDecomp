@@ -23,10 +23,10 @@ public sealed class EscapeTypewriterState
     }
 
     /// <summary>
-    /// The overlay cell the next character is typed over: reset at each line's first character and advanced for both
-    /// written glyphs and spaces (#1406).
+    /// The cell of the layer the next character is typed over: reset at each line's first character and advanced one cell
+    /// right for both written glyphs and spaces (#1406, #1514).
     /// </summary>
-    public int Cell { get; private set; }
+    public Position16<TilemapCells> Cell { get; private set; }
     /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
     public int Delay { get; private set; }
     /// <summary>Calls still to skip before interpreting another character; a call that decrements it to zero still performs no character work.</summary>
@@ -116,7 +116,7 @@ public sealed class EscapeTypewriterState
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }
-        Cell++;
+        Cell += new Offset16<TilemapCells>(1, 0);
         return glyph;
     }
 }

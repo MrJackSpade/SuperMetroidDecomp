@@ -39,8 +39,6 @@ internal sealed class SamusFramePhases
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the shared game state consulted by movement handlers.</summary>
     private readonly SharedGameState _system;
-    /// <summary>Builds X-ray's reveal tilemap at its setup stage.</summary>
-    private readonly XrayReveal _xray;
     /// <summary>UpdateSamusPose after normal beta's animation.</summary>
     private readonly SamusPoseTransitionPhase _transitions;
 
@@ -49,7 +47,6 @@ internal sealed class SamusFramePhases
     {
         _artwork = dependencies.Artwork;
         _attractDemo = dependencies.AttractDemo;
-        _xray = dependencies.Xray;
         _controller1 = dependencies.Controller1;
         _freeze = dependencies.Freeze;
         _gameTime = dependencies.GameTime;
@@ -255,7 +252,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
-        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room.Plms, room);
+        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room);
         frame.SampleMovementEnabled(_player.GroundedSamusMovementEnabled);
         if (frame.MovementEnabled)
             RunAlphaTail(frame, gameState, samus, camera, room);
@@ -1152,18 +1149,16 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// refresh, pose-input lookup and the lookup-failure pose.
     /// </summary>
     private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
-        FixedPosition<RoomPixels>? cameraPointAtFrameStart, ISamusRoomPlms plms, RoomScope room)
+        FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
         // X-ray's per-line effect object is not part of the Samus handler. Advance its explicit
         // setup/beam/deactivation state before alpha so state five can restore the
         // ordinary pose and handler pair before this frame samples pose input. The
-        // revealed-block BG2 copies/window table remain a separate renderer boundary.
+        // reveal and the beam's window are the frame boundary's to show.
         _player.LastXrayBeamStep = null;
         _player.LastDeathSequenceStep = null;
         if (samus.Xray.IsActive && !samus.DeathSequence.IsActive)
         {
-            if (samus.Xray.SetupStage == XraySetupStage.BuildRevealFirstScreen)
-                _xray.BuildXrayRevealMap(plms);
             _player.LastXrayBeamStep = samus.Xray.StepBeam(
                 samus,
                 _controller1.Current);

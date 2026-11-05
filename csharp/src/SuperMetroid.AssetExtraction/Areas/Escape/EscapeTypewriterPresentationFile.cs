@@ -1,6 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Escape.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
@@ -56,7 +56,7 @@ public static class EscapeTypewriterPresentationFile
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} line {index} has invalid text or placement.");
                 }
-                var supplied = new EscapeTypewriterLine(line.Cell, line.Text);
+                var supplied = new EscapeTypewriterLine(CellOf(line.Cell), line.Text);
                 if (index >= EscapeTypewriterLines.LineCount(id) || supplied != EscapeTypewriterLines.Line(id, index))
                     differences.Add(index, supplied);
             }
@@ -66,7 +66,21 @@ public static class EscapeTypewriterPresentationFile
         return new(programs);
     }
 
+    /// <summary>The cells of the two side-by-side tilemap screens a document's overlay cell counts across.</summary>
+    private const int OverlayCells = 2 * ScreenGeometry.TilemapScreenCellCount;
+
     /// <summary>Whether a line of <paramref name="length"/> glyphs typed from <paramref name="cell"/> stays inside the overlay.</summary>
     private static bool LineFitsOverlay(int cell, int length) =>
-        cell >= 0 && cell + length <= RoomWrittenOverlay.CellCount;
+        cell >= 0 && cell + length <= OverlayCells;
+
+    /// <summary>
+    /// Where a document's overlay cell shows on its layer (#1514): the document counts cells row by row through the
+    /// left screen and then through the right one.
+    /// </summary>
+    private static Position16<TilemapCells> CellOf(int cell)
+    {
+        int screen = cell / ScreenGeometry.TilemapScreenCellCount, within = cell % ScreenGeometry.TilemapScreenCellCount;
+        return new(screen * ScreenGeometry.TilemapScreenWidthInTiles + within % ScreenGeometry.TilemapScreenWidthInTiles,
+            within / ScreenGeometry.TilemapScreenWidthInTiles);
+    }
 }

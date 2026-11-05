@@ -85,7 +85,7 @@ internal static class RoomBackgroundsFixtures
         var blocks = new RevealedBlock?[SuperMetroid.Core.Samus.Abilities.XrayRevealLayout.Cells];
         for (int block = 0; block < blocks.Length; block++)
             blocks[block] = new RevealedBlock(random.Next(Definitions), arrangements[random.Next(arrangements.Length)]);
-        return new SuperMetroid.Core.Samus.Abilities.XrayRevealPlane(blocks, pictures);
+        return new SuperMetroid.Core.Samus.Abilities.XrayRevealPlane(default, blocks, pictures);
     }
 
     /// <summary>
@@ -110,10 +110,10 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// A seeded boss body of <paramref name="rows"/> rows (#1466): every four rows one part, showing a seeded block
-    /// picture repeated across them.
+    /// A seeded boss body of <paramref name="rows"/> rows (#1466) whose pages cover <paramref name="area"/>: every four rows
+    /// one part, showing a seeded block picture repeated across them.
     /// </summary>
-    internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows)
+    internal static ShownBossBody SeededBody(Random random, RgbColor[] scene, int rows, Extent16<BackgroundPixels> area)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         const int partRows = 4;
@@ -123,7 +123,7 @@ internal static class RoomBackgroundsFixtures
             parts.Add(new ShownBossBodyPart(blocks.Picture(random.Next(Definitions))
                 ?? throw new InvalidOperationException("A seeded block has no picture."), top, BossBodyFootprint.OfRows(top, Math.Min(partRows, rows - top))));
         }
-        return new ShownBossBody(rows, [.. parts]);
+        return new ShownBossBody(rows, [.. parts], area);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ internal static class RoomBackgroundsFixtures
             parts.Add(new ShownBossBodyPart(painted.Picture(index) ?? throw new InvalidOperationException("A painted word has no picture."), 0,
                 new BossBodyFootprint(0, [.. masks])));
         }
-        return new ShownBossBody(words.Length / BossBodyDefinitions.ColumnCount, [.. parts]);
+        return new ShownBossBody(words.Length / BossBodyDefinitions.ColumnCount, [.. parts], AreaOf(size));
     }
 
     /// <summary>
@@ -173,8 +173,12 @@ internal static class RoomBackgroundsFixtures
         SpriteSheetFrame block = RoomBlockFixtures.Pictures(definition, image, palette, characterWord).Picture(0)
             ?? throw new InvalidOperationException("The painted block has no picture.");
         int rows = size.X * size.Y / BossBodyDefinitions.ColumnCount;
-        return new ShownBossBody(rows, [new ShownBossBodyPart(block, 0, BossBodyFootprint.OfRows(0, rows))]);
+        return new ShownBossBody(rows, [new ShownBossBodyPart(block, 0, BossBodyFootprint.OfRows(0, rows))], AreaOf(size));
     }
+
+    /// <summary>The area a body loaded as a <paramref name="size"/> tilemap covers.</summary>
+    private static Extent16<BackgroundPixels> AreaOf(Extent16<TilemapCells> size) =>
+        new(checked((ushort)(size.X * BossBodyDefinitions.CellPixels)), checked((ushort)(size.Y * BossBodyDefinitions.CellPixels)));
 
     /// <summary>
     /// A seeded run of words written over a background (#1392, #1403), drawn from seeded pictures as
@@ -183,15 +187,21 @@ internal static class RoomBackgroundsFixtures
     internal static RoomOverlayPictures SeededPicturedOverlay(Random random, RgbColor[] scene) =>
         SeededOverlayRun(random, scene, random.Next(64, 256));
 
-    /// <summary>A seeded run of <paramref name="count"/> words written over a background, as <see cref="SeededPicturedOverlay"/> seeds them.</summary>
+    /// <summary>
+    /// <paramref name="count"/> seeded block pictures written over a background, as <see cref="SeededPicturedOverlay"/> seeds
+    /// them, each at a seeded cell of the background's first two screens (#1514).
+    /// </summary>
     private static RoomOverlayPictures SeededOverlayRun(Random random, RgbColor[] scene, int count)
     {
-        int first = random.Next(RoomWrittenOverlay.CellCount - count);
-        System.Collections.Immutable.ImmutableArray<BgTilePicture?> written = SeededBodyPictures(random, scene, count);
-        var pictures = new BgTilePicture?[RoomWrittenOverlay.CellCount];
+        RoomBlockPictureTable blocks = SeededPictures(random, scene);
+        var pictures = System.Collections.Immutable.ImmutableArray.CreateBuilder<PlacedWrittenPicture>(count);
         for (int index = 0; index < count; index++)
-            pictures[first + index] = random.Next(8) == 0 ? null : written[index];
-        return new RoomOverlayPictures([.. pictures]);
+        {
+            pictures.Add(new PlacedWrittenPicture(blocks.Picture(random.Next(Definitions))
+                ?? throw new InvalidOperationException("A seeded block has no picture."),
+                new Position16<TilemapCells>(random.Next(64), random.Next(32))));
+        }
+        return new RoomOverlayPictures(pictures.MoveToImmutable());
     }
 
     /// <summary>
@@ -229,10 +239,13 @@ internal static class RoomBackgroundsFixtures
 
     /// <summary>A seeded image of the scrolling sky's rows, with rebound cells as <see cref="SeededBackground"/> has (#1392).</summary>
     internal static RoomBackgroundImagePlane SeededSky(Random random, RgbColor[] scene) =>
-        SeededImage(random, scene, SuperMetroid.AssetExtraction.Rooms.SkyTilemap.Rows);
+        SeededImage(random, scene, SuperMetroid.AssetExtraction.Rooms.SkyTilemap.Rows, sky: true);
 
-    /// <summary>A seeded background image <paramref name="tileRows"/> 32-tile rows tall, about one cell in four rebound.</summary>
-    private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows)
+    /// <summary>
+    /// A seeded background image <paramref name="tileRows"/> 32-tile rows tall, about one cell in four rebound: its pages in
+    /// one column for a sky, side by side otherwise.
+    /// </summary>
+    private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows, bool sky = false)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
         var size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, (ushort)(tileRows * 8));
@@ -242,7 +255,7 @@ internal static class RoomBackgroundsFixtures
         var cells = new SpriteSheetFrame?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
-        return new RoomBackgroundImagePlane(image, cells);
+        return new RoomBackgroundImagePlane(image, cells, sky ? image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
     }
 
     /// <summary>Block pictures on one seeded sheet.</summary>

@@ -112,7 +112,6 @@ public static class GameplayDisplayCapture
         ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
             ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
-        bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ScreenLayers displayedMainScreen = latched.MainScreen;
         var view = new GameplaySceneView(foregroundScroll,
             new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Background.X)
@@ -120,19 +119,15 @@ public static class GameplayDisplayCapture
                 kraidBody is { } kraidY ? Add(kraidY.Y, shake.Background.Y)
                 : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Background.Y)
                 : sky is { } latchedSky ? Add(latchedSky.BackgroundScroll.Y, shake.Background.Y) : backgroundScroll.Y),
-            kraidBody is not null ? KraidBackgroundDefinitions.BodyPlaneSize
-                : bosses.MotherBrainBody is { LayerPlacement: not null } ? new Extent16<TilemapCells>(32, 32)
-                : sky?.ShowsBands != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
-                : new Extent16<TilemapCells>(32, 64),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedMainScreen),
             backgroundLines.FirstLine, backgroundLines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
-        // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
+        // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
         LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : lavaX ?? waterX ?? (LineScroll?)skyX;
-        // Crocomire's melt owns the BG2 vertical scroll while it shows on his body layer; otherwise lava's does.
+        // Crocomire's melt owns the background's vertical scroll while it shows on his body layer; otherwise lava's does.
         LineScroll? backgroundVertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
@@ -158,13 +153,13 @@ public static class GameplayDisplayCapture
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
         TransparentColorZero: false, Priority: null);
 
-    /// <summary>The BG3 plane the frame boundary displays (#1348).</summary>
+    /// <summary>The effect overlay the frame boundary displays (#1348).</summary>
     private static FxOverlayCells FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
-        ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownFxOverlay;
+        ?? throw new InvalidOperationException("A gameplay frame shows the effect overlay only once a room is loaded.")).ShownFxOverlay;
 
     /// <summary>
-    /// The sky's bands of BG2 horizontal scroll (#1468) with the latched room shake added, or null without a sky. Room
-    /// shake is added to BG2's horizontal scroll after each band's value is supplied.
+    /// The sky's bands of the background's horizontal scroll (#1468) with the latched room shake added, or null without a
+    /// sky. Room shake is added to the background's horizontal scroll after each band's value is supplied.
     /// </summary>
     internal static ScrollBands? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake) =>
         live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Background.X) : null;
@@ -225,7 +220,6 @@ public static class GameplayDisplayCapture
         };
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background,
-                new Extent16<TilemapCells>(64, 32),
                 latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
         var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
@@ -233,7 +227,7 @@ public static class GameplayDisplayCapture
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
-    /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
+    /// <summary>Removes the background when Phantoon is hidden, or adds it when the body is semitransparent.</summary>
     private static DisplayLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
     {
         var ordinary = (GameplaySceneLayer)basis.Layers[0];
@@ -265,16 +259,15 @@ public static class GameplayDisplayCapture
         var scrolls = latched.Scrolls;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
-        // The reveal shows once a frame boundary has latched it; until then BG2 shows what the room shows (#1403).
+        // The reveal shows once a frame boundary has latched it; until then the background shows what the room shows (#1403).
         XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;
         var view = ordinary.View;
         if (shownReveal is not null)
         {
+            // The reveal lies over the room's own blocks (#1514), so the background it is drawn on moves with the foreground.
             view = view with
             {
-                // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
-                BackgroundScroll = new Position16<BackgroundPixels>(CoordinateAxis.Wrap(scrolls.ForegroundScroll.X & 15), CoordinateAxis.Wrap(scrolls.ForegroundScroll.Y & 15)),
-                BackgroundMapSize = new Extent16<TilemapCells>(64, 32),
+                BackgroundScroll = new Position16<BackgroundPixels>(view.ForegroundScroll.X, view.ForegroundScroll.Y),
             };
         }
         view = view with
@@ -285,24 +278,14 @@ public static class GameplayDisplayCapture
         };
         // Reveal BG2 must not inherit the room's parallax or liquid per-line scroll. Excluded
         // rooms retain their original map and per-line register values.
-        // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it.
+        // The reveal is drawn on the background from block pictures (#1392), so the room's layer-2 plane is not shown under it.
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = null, Sky = null, XrayReveal = shownReveal })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
             ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownFxOverlay) : null;
-        if (mode != XrayRoomBlendMode.Fireflea && sub is null)
-        {
-            // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
-            // actor. Room initialization supplies zero scroll and the 32x64 BG3 map;
-            // capture its real pixels rather than substituting transparent backdrop.
-            sub = new OverlayBlendLayer(
-                ordinary.Rooms.ShownFxOverlay, 0,
-                FxOverlayPlane.Rows,
-                ScreenGeometry.GameplayHudHeightPixels,
-                BlendOperation.Add,
-                ScrollBands.Uniform(0), ScrollBands.Uniform(0));
-        }
+        // A room with no visible effect blends with nothing behind (#1514): the cleared effect area the original game left
+        // opaque is a presentation quirk the port does not keep.
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
         bool subtract = scene.LayerBlendConfiguration is

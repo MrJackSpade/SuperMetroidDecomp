@@ -52,7 +52,7 @@ internal static class Mode7SmokeTests
         foreach (short scale in new short[] { 256, -113, 511, 0 })
         {
             var band = floorStart is { } start
-                ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
+                ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), floorRoom)
                 : (TurningRoomLowerBand?)null;
             var layer = new TurningRoomLayer(
                 new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),

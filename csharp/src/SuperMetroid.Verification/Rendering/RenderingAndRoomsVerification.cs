@@ -903,7 +903,7 @@ internal static void VerifyCartridgeRoomStateSelection()
         "  Room states: complete selector catalog, operands, priority, and failures agree.");
 }
 
-/// <summary>Checks that the gameplay layer shows BG2 through its map's real screen layout: the vertical second screen and Kraid's 64x64 map.</summary>
+/// <summary>Checks that the background shows its content across the area it covers: a library background's pages in one column and Kraid's four pages.</summary>
 internal static void VerifyBg2ScreenLayout()
 {
     // BG2SC=$4A means a 32x64-tile map rooted at word $4800. Once VOFS bit eight
@@ -928,11 +928,12 @@ internal static void VerifyBg2ScreenLayout()
     RgbaPixel[] gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0x00e0),
-                new Extent16<TilemapCells>(32, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // BG2 shows the tilemap just loaded, as its library background's image (#1403).
             RoomBackgroundsFixtures.Blank() with
             {
-                BackgroundImage = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord),
+                BackgroundImage = RoomBlockFixtures.LoadedBackground(gameplayVram.Bytes, gameplayCgram.Colors, GameplayVramLayout.Bg2TilemapWord,
+                    pagesInOneColumn: true),
             },
             // The sky's first gameplay line scrolls eight pixels; the rest keep BG2's own scroll (#1468).
             new BackgroundLineScrolls { Horizontal = new ScrollBands(0, [new ScrollBand(DisplayScreen.HudHeight, 8), new ScrollBand(DisplayScreen.HudHeight + 1, 0)]) }));
@@ -953,7 +954,7 @@ internal static void VerifyBg2ScreenLayout()
     gameplayFrame = RenderOrdinaryGameplay(gameplayCgram,
         new GameplaySceneLayer(
             new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
-                new Extent16<TilemapCells>(64, 64), ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites),
             // Kraid's body is the 64x64 map he loads at $4000, drawn from its pictures (#1403).
             RoomBackgroundsFixtures.Blank() with
             {

@@ -102,7 +102,7 @@ internal static class Layer3PlaneVerification
     internal static void VerifyTypewriterGlyphs()
     {
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
-            [new EscapeTypewriterLine(0x105, "AB C!")]);
+            [new EscapeTypewriterLine(new Position16<TilemapCells>(5, 8), "AB C!")]);
         var text = new EscapeTypewriterState(program);
         var typed = new List<EscapeTypewriterGlyph>();
         bool completed = false;
@@ -116,7 +116,7 @@ internal static class Layer3PlaneVerification
             AssertEqual(typed.Count, text.GlyphsWritten, $"step {steps} reports every glyph it has typed");
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
-        int[] cells = [0x105, 0x106, 0x108, 0x109];
+        Position16<TilemapCells>[] cells = [new(5, 8), new(6, 8), new(8, 8), new(9, 8)];
         // Each glyph names the picture of its character (#1466); the import composes that picture from the character's tile.
         char[] characters = ['A', 'B', 'C', '!'];
         for (int index = 0; index < typed.Count; index++)

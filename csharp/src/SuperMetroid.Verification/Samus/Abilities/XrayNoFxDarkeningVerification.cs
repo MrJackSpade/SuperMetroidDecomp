@@ -16,10 +16,10 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.FrameRendering;
-/// <summary>Checks X-ray color math in a room without visible layer-three FX.</summary>
+/// <summary>Checks X-ray color math in a room without a visible room effect.</summary>
 internal static class XrayNoFxDarkeningVerification
 {
-    /// <summary>Confirms opaque BG3 halving, transparent fixed-color fallback, and Fireflea subtraction.</summary>
+    /// <summary>Confirms the fixed colour adds without halving where no effect lies behind, and Fireflea subtraction.</summary>
     internal static void VerifyXrayNoFxDarkening()
     {
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
@@ -40,29 +40,19 @@ internal static class XrayNoFxDarkeningVerification
         // The closed-beam setup state makes the selected pixels unambiguously outside.
         samus.Xray.SetupStage = XraySetupStage.ReadForegroundFirstScreen;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
-        // The room's own foreground is the main screen colour math works on (#1433): BG1 draws from the room's block
+        // The room's own foreground is the main screen colour math works on (#1433): it draws from the room's block
         // pictures, so each expectation is derived from the colour the frame shows before blending.
         LayeredScene snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         RgbaPixel[] unblended = Unblended(snapshot);
         int[] samples = [.. new[] { 80, 120, 180 }.Select(row => FirstLitPixel(unblended, row))];
+        var math = (GameplayBlendLayer)snapshot.Layers[0];
+        // A room with no visible effect blends with nothing behind (#1514): the cleared effect area is not drawn.
+        AssertTrue(math.BlendPlane is null, "no-FX X-ray blends with no effect overlay");
+        // Where nothing lies behind, colour math takes the fixed colour without halving.
         RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
         foreach (int index in samples)
-            AssertEqual(Channels(unblended[index], channel => channel / 2), pixels[index],
-                "opaque black BG3 halves outside-beam foreground instead of brightening");
-        var math = (GameplayBlendLayer)snapshot.Layers[0];
-        AssertTrue(math.BlendPlane is not null, "no-FX X-ray retains the actual BG3 plane");
-        // Clear_FX_Tilemap leaves the effect area of a room without FX in the cleared cell, which the subscreen shows.
-        FxOverlayPlane layer3 = runtime.AcceptedFxOverlayPlane;
-        AssertTrue(layer3.EffectPage is null,
-            "capture retains the cleared BG3 effect area");
-        // Where the subscreen shows nothing, colour math takes the fixed colour without halving: the blend with its BG3
-        // operand removed is the transparent case.
-        LayeredScene transparentScene = Replace(snapshot, new GameplayBlendLayer(math.Gameplay, math.Window, math.RevealBlocks, math.Blend));
-        RgbaPixel[] transparent = DisplayRendering.Render(transparentScene);
-        foreach (int index in samples)
-            AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), transparent[index],
-                "transparent BG3 preserves native fixed-color fallback without halving");
+            AssertEqual(Channels(unblended[index], channel => Math.Min(MaximumChannel, channel + FixedColorChannel)), pixels[index],
+                "the fixed colour adds to the outside-beam foreground without halving");
         runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -75,7 +65,7 @@ internal static class XrayNoFxDarkeningVerification
         foreach (int index in samples)
             AssertEqual(Channels(firefleaMain[index], channel => Math.Max(0, channel - FixedColorChannel)), darkPixels[index],
                 "Fireflea subtracts seven without halving");
-        Console.WriteLine("X-ray no-FX capture: opaque BG3 darkening, transparent fallback and Fireflea exception verified.");
+        Console.WriteLine("X-ray no-FX capture: fixed-colour addition without an effect behind and Fireflea exception verified.");
     }
 
     /// <summary>The five-bit fixed colour each channel of the X-ray's fixed-colour operand holds.</summary>

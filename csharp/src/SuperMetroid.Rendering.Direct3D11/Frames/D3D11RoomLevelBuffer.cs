@@ -42,18 +42,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Header word of the door window's scrolled origin.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
-    /// Header word of the layer-1 overlay's pictures (#1403), or zero without an overlay: two words per tilemap cell, its
-    /// picture's offset, zero where nothing was written, then its corner in the picture, x below y.
+    /// Header word of the pictures written over the foreground (#1403, #1514), or zero without any: their count, then two
+    /// words each in the order written, the picture's offset and the foreground pixel its corner lies on, x below y.
     /// </summary>
     private const int OverlayWord = DoorWindowWord + 1;
     /// <summary>Header word of the sky's rows, one word each, nonzero where a row selects a page, or zero without a sky (#1347, #1403).</summary>
     private const int SkyWord = OverlayWord + 1;
     /// <summary>
-    /// Header word of the layer-3 plane's pictures (#1403), laid out as <see cref="OverlayWord"/>'s, or zero without
-    /// a plane.
+    /// Header word of the effect overlay's cell pictures (#1403), or zero without one: two words per cell, its picture's
+    /// offset, then its corner in the picture, x below y.
     /// </summary>
     private const int Bg3Word = SkyWord + 1;
-    /// <summary>Header word of the layer-2 overlay's pictures, laid out as <see cref="OverlayWord"/>'s, or zero without one (#1348).</summary>
+    /// <summary>Header word of the pictures written over the background, laid out as <see cref="OverlayWord"/>'s, or zero without any (#1348).</summary>
     private const int Bg2OverlayWord = Bg3Word + 1;
     /// <summary>
     /// Header word of the perspective floor's pictures' colour slots, one word each in the order the floor image numbers
@@ -61,7 +61,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// </summary>
     private const int FloorSheetsWord = Bg2OverlayWord + 1;
     /// <summary>
-    /// Header word of a boss body's parts (#1352, #1466), or zero without one: the count of parts, then four words each (its
+    /// Header word of a boss body's parts (#1352, #1466), or zero without one: the count of parts, the area its pages cover,
+    /// x below y (#1514), then four words each (its
     /// picture's offset, the layer row its picture's top edge lies on, its first row shown with the rows it spans in the
     /// high half, and the offset of its row masks), then each part's row masks, a bit per cell it shows.
     /// </summary>
@@ -69,13 +70,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Words of a boss body part's record.</summary>
     private const int BossBodyPartWords = 4;
     /// <summary>
-    /// Header word of the X-ray reveal's first block, or zero without one (#1392): each block its picture's offset, with its
-    /// arrangement in the top four bits.
+    /// Header word of the X-ray reveal, or zero without one (#1392, #1514): the foreground pixel its first block lies on, x
+    /// below y, then each block row by row, its picture's offset with its arrangement in the top four bits.
     /// </summary>
     private const int XrayRevealWord = BossBodyWord + 1;
     /// <summary>
-    /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, then each
-    /// 16x16 cell's picture offset, zero where the image shows.
+    /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, the area its
+    /// pages cover, x below y (#1514), then each 16x16 cell's picture offset, zero where the image shows.
     /// </summary>
     private const int Bg2ImageWord = XrayRevealWord + 1;
     /// <summary>Header word of the scrolling sky's image, laid out as <see cref="Bg2ImageWord"/>'s, or zero without one (#1392).</summary>
@@ -167,7 +168,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     {
         RoomBackgroundLayer? bg1 = frame.Foreground, bg2 = frame.Background;
         RoomDoorBackground? door = frame.Door;
-        RoomOverlayPictures? overlay = frame.Overlay, writtenOverBackground = frame.WrittenOverBackground;
+        RoomOverlayPictures? writtenOverForeground = frame.WrittenOverForeground, writtenOverBackground = frame.WrittenOverBackground;
         SkyPictures? sky = frame.Sky;
         FxOverlayCells? bg3 = frame.FxOverlay;
         AffineFloor? mode7 = frame.Floor;
@@ -224,23 +225,30 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         int revealOffset = reveal is null ? 0 : words;
         if (reveal is not null)
-            words += reveal.Blocks.Length;
+            words += 1 + reveal.Blocks.Length;
         int imageOffset = image is null ? 0 : words;
         if (image is not null)
-            words += 1 + image.CellCount;
+            words += 2 + image.CellCount;
         int skyImageOffset = skyImage is null ? 0 : words;
         if (skyImage is not null)
-            words += 1 + skyImage.CellCount;
+            words += 2 + skyImage.CellCount;
         int hudOffset = hud is null ? 0 : words;
         if (hud is not null)
             words += 1 + hud.Pictures.Length * HudPictureWords;
         int bossBodyOffset = bossBody is null ? 0 : words;
         if (bossBody is not null)
-            words += 1 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
-        ImmutableArray<BgTilePicture?> bg2OverlayPictures = writtenOverBackground?.Pictures ?? default;
-        int bg2OverlayOffset = ReserveTilePictures(bg2OverlayPictures, RoomWrittenOverlay.CellCount);
-        ImmutableArray<BgTilePicture?> overlayPictures = overlay?.Pictures ?? default;
-        int overlayOffset = ReserveTilePictures(overlayPictures, RoomWrittenOverlay.CellCount);
+            words += 2 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
+        int backgroundWrittenOffset = ReserveWritten(writtenOverBackground);
+        int foregroundWrittenOffset = ReserveWritten(writtenOverForeground);
+        // Reserves the count and two words for each written picture; zero without any.
+        int ReserveWritten(RoomOverlayPictures? written)
+        {
+            if (written is null)
+                return 0;
+            int offset = words;
+            words += 1 + 2 * written.Pictures.Length;
+            return offset;
+        }
         ImmutableArray<BgTilePicture?> fxOverlayPictures = bg3 is null ? default : [.. bg3.Pictures.Select(picture => (BgTilePicture?)picture)];
         int bg3PicturesOffset = ReserveTilePictures(fxOverlayPictures, FxOverlayPlane.Rows * FxOverlayPlane.Columns);
         // Reserves two words for each of `count` tile pictures; zero without pictures.
@@ -326,19 +334,20 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             if (plane is null)
                 continue;
             upload[offset] = (uint)pictureWords[new(plane.Picture, D3D11PictureColouring.Room)];
+            upload[offset + 1] = D3D11ConstantPacking.Halves(plane.Area.X, plane.Area.Y);
             for (int cell = 0; cell < plane.CellCount; cell++)
-                upload[offset + 1 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] : 0;
+                upload[offset + 2 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] : 0;
         }
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
-        upload[OverlayWord] = (uint)overlayOffset;
-        PackTilePictures(upload, overlayPictures, overlayOffset, RoomWrittenOverlay.CellCount, pictureWords, D3D11PictureColouring.Room);
+        upload[OverlayWord] = (uint)foregroundWrittenOffset;
+        PackWritten(upload, writtenOverForeground, foregroundWrittenOffset, pictureWords);
         upload[SkyWord] = (uint)skyOffset;
         if (sky is not null)
             for (int row = 0; row < SkyPictures.Rows; row++)
                 upload[skyOffset + row] = sky.RowsShown[row] ? 1u : 0u;
-        upload[Bg2OverlayWord] = (uint)bg2OverlayOffset;
-        PackTilePictures(upload, bg2OverlayPictures, bg2OverlayOffset, RoomWrittenOverlay.CellCount, pictureWords, D3D11PictureColouring.Room);
+        upload[Bg2OverlayWord] = (uint)backgroundWrittenOffset;
+        PackWritten(upload, writtenOverBackground, backgroundWrittenOffset, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;
         if (mode7 is not null)
         {
@@ -349,6 +358,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[XrayRevealWord] = (uint)revealOffset;
         if (reveal is not null)
         {
+            upload[revealOffset] = D3D11ConstantPacking.Halves(reveal.Origin.X, reveal.Origin.Y);
             ReadOnlySpan<RevealedBlock?> blocks = reveal.Blocks;
             for (int block = 0; block < blocks.Length; block++)
             {
@@ -357,7 +367,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     continue;
                 SpriteSheetFrame picture = reveal.Pictures.Picture(shown.Definition)
                     ?? throw new InvalidOperationException($"The X-ray reveal's block definition {shown.Definition} has no picture.");
-                upload[revealOffset + block] = (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
+                upload[revealOffset + 1 + block] = (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] | ShaderArrangement(shown.Arrangement) << ArrangementShift;
             }
         }
         upload[HudWord] = (uint)hudOffset;
@@ -382,11 +392,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     {
         ImmutableArray<ShownBossBodyPart> parts = body.Parts;
         upload[offset] = (uint)parts.Length;
-        int masks = offset + 1 + parts.Length * BossBodyPartWords;
+        upload[offset + 1] = D3D11ConstantPacking.Halves(body.Area.X, body.Area.Y);
+        int masks = offset + 2 + parts.Length * BossBodyPartWords;
         for (int index = 0; index < parts.Length; index++)
         {
             ShownBossBodyPart part = parts[index];
-            int record = offset + 1 + index * BossBodyPartWords;
+            int record = offset + 2 + index * BossBodyPartWords;
             upload[record] = (uint)pictureWords[new(part.Picture, D3D11PictureColouring.BossBody)];
             upload[record + 1] = (uint)part.Top;
             upload[record + 2] = D3D11ConstantPacking.Halves(checked((ushort)part.Shows.Top), checked((ushort)part.Shows.Rows.Length));
@@ -461,14 +472,30 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     internal uint PlaneTable(PicturedPlane plane) => planeTables.TryGetValue(plane, out int offset) ? (uint)offset
         : throw new InvalidOperationException("A pictured plane was not packed with its frame.");
 
-    /// <summary>The tile pictures of an overlay, or none.</summary>
-    private static ImmutableArray<BgTilePicture?> Tiles(ImmutableArray<BgTilePicture?>? pictures) =>
-        pictures is { IsDefault: false } shown ? shown : [];
+    /// <summary>
+    /// Packs <paramref name="written"/>'s pictures from <paramref name="offset"/>, as <see cref="OverlayWord"/> describes:
+    /// the count, then each picture's offset and the layer pixel its corner lies on; nothing without pictures.
+    /// </summary>
+    private static void PackWritten(Span<uint> upload, RoomOverlayPictures? written, int offset, Dictionary<ShownPicture, int> pictureWords)
+    {
+        if (written is null)
+            return;
+        ImmutableArray<PlacedWrittenPicture> pictures = written.Pictures;
+        upload[offset] = (uint)pictures.Length;
+        for (int index = 0; index < pictures.Length; index++)
+        {
+            PlacedWrittenPicture placed = pictures[index];
+            int record = offset + 1 + index * 2;
+            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.Room)];
+            upload[record + 1] = D3D11ConstantPacking.Halves(checked((ushort)(placed.Cell.X * ScreenGeometry.BackgroundTileSizePixels)),
+                checked((ushort)(placed.Cell.Y * ScreenGeometry.BackgroundTileSizePixels)));
+        }
+    }
 
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
     /// block pictures, the background images, the message, the boss body's parts, the HUD's pictures, the pictured planes'
-    /// and the picture grids' pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more
+    /// and the picture grids' pictures, then the written pictures and the effect overlay's tile pictures. A picture may appear more
     /// than once, and under more than one colouring (#1512).
     /// </summary>
     private static IEnumerable<ShownPicture> Pictures(RoomLevelLayers frame)
@@ -523,11 +550,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     yield return new(shown.Picture, D3D11PictureColouring.OwnShading, shown.Shading);
             }
         }
-        foreach (BgTilePicture? tile in Tiles(frame.WrittenOverBackground?.Pictures).Concat(Tiles(frame.Overlay?.Pictures)))
-        {
-            if (tile is { } shown)
-                yield return new(shown.Picture, D3D11PictureColouring.Room);
-        }
+        foreach (PlacedWrittenPicture placed in (frame.WrittenOverBackground?.Pictures ?? []).Concat(frame.WrittenOverForeground?.Pictures ?? []))
+            yield return new(placed.Picture, D3D11PictureColouring.Room);
         foreach (BgTilePicture picture in frame.FxOverlay?.Pictures ?? [])
             yield return new(picture.Picture, D3D11PictureColouring.FxOverlay);
     }

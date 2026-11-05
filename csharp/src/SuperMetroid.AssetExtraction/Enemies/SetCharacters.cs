@@ -30,6 +30,9 @@ internal sealed class SetCharacters
     /// <summary>Each picture's characters, by the steps or rot it shows.</summary>
     private readonly Dictionary<string, SpriteArtwork> pages = new(StringComparer.Ordinal);
 
+    /// <summary>Each rot's character table, by the rot it shows.</summary>
+    private readonly Dictionary<string, byte[]> rotTables = new(StringComparer.Ordinal);
+
     /// <summary>
     /// The table as the room load leaves it, the artwork sequences the set's encounters play, and the corpses of a kind that
     /// rot in the set's rooms.
@@ -117,32 +120,67 @@ internal sealed class SetCharacters
                 variations.Add(new FrameArtworkVariation(sequence.Sequence, [.. pictures], [.. drawnAt], drawn.DrawnBeforeFirstStep));
         }
         if (variations.Count == 0)
-            return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null);
+            return new FramePictures(name, [new SheetFrameSource(name, frame, Loaded)], [], null, []);
         return new FramePictures(name, [.. FrameVariationPictures.Combinations(variations).Select(combination =>
-            new SheetFrameSource(FrameArtworkVariation.PictureName(name, combination), frame, Page(combination)))], [.. variations], null);
+            new SheetFrameSource(FrameArtworkVariation.PictureName(name, combination), frame, Page(combination)))], [.. variations], null, []);
     }
 
     /// <summary>
     /// The pictures of a frame drawn over the rows of <paramref name="corpse"/> (#1406): the frame whole over the set's
-    /// characters, which it shows before the corpse's kind first rots, then over each rot the kind can show.
+    /// characters, which it shows before the corpse's kind first rots, then over each rot the kind can show at which a
+    /// character it reads holds a pixel; at a rot that leaves every character it reads blank it shows nothing, so that rot
+    /// is one of its blank rots and on no sheet (#1513).
     /// </summary>
-    private FramePictures RotPictures(string name, SpriteFrame frame, CorpseRotSimulation corpse) =>
-        new(name, [new SheetFrameSource(name, frame, Loaded), .. corpse.States.Select(state =>
-            new SheetFrameSource(state.View.PictureName(name), frame, RotPage(corpse, state)))], [], corpse.Flesh);
+    private FramePictures RotPictures(string name, SpriteFrame frame, CorpseRotSimulation corpse)
+    {
+        int[] read = [.. frame.Parts.SelectMany(Read).Distinct().Order()];
+        var sources = new List<SheetFrameSource> { new(name, frame, Loaded) };
+        var blank = new List<string>();
+        foreach (CorpseRotState state in corpse.States)
+        {
+            string picture = state.View.PictureName(name);
+            if (ShowsNothing(RotTable(corpse, state), read))
+                blank.Add(picture);
+            else
+                sources.Add(new SheetFrameSource(picture, frame, RotPage(corpse, state)));
+        }
+        return new FramePictures(name, sources, [], corpse.Flesh, blank);
+    }
+
+    /// <summary>Whether every character <paramref name="read"/> names holds only blank bytes in <paramref name="characters"/>.</summary>
+    private static bool ShowsNothing(byte[] characters, int[] read)
+    {
+        foreach (int first in read)
+        {
+            if (characters.AsSpan(first, SpriteArtwork.CharacterByteCount).ContainsAnyExcept((byte)0))
+                return false;
+        }
+        return true;
+    }
 
     /// <summary>The characters with each of <paramref name="corpse"/>'s rows showing the step <paramref name="state"/> gives it.</summary>
-    private SpriteArtwork RotPage(CorpseRotSimulation corpse, CorpseRotState state)
+    private byte[] RotTable(CorpseRotSimulation corpse, CorpseRotState state)
     {
         string key = state.View.PictureName(corpse.Flesh);
-        if (pages.TryGetValue(key, out SpriteArtwork? page))
-            return page;
+        if (rotTables.TryGetValue(key, out byte[]? known))
+            return known;
         byte[] shown = [.. table];
         foreach ((CorpseRotRow row, int? step) in state.Steps)
         {
             if (step is int taken)
                 corpse.RowBytes(row, taken).CopyTo(shown.AsSpan(row.FirstByte));
         }
-        page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), shown);
+        rotTables.Add(key, shown);
+        return shown;
+    }
+
+    /// <summary>The page of <see cref="RotTable"/>'s characters.</summary>
+    private SpriteArtwork RotPage(CorpseRotSimulation corpse, CorpseRotState state)
+    {
+        string key = state.View.PictureName(corpse.Flesh);
+        if (pages.TryGetValue(key, out SpriteArtwork? page))
+            return page;
+        page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), RotTable(corpse, state));
         pages.Add(key, page);
         return page;
     }

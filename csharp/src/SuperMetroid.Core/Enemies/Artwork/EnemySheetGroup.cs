@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <param name="Sheets">The sheets by key.</param>
 /// <param name="Variations">How each frame of each sheet follows the sequences that change it, by frame name.</param>
 /// <param name="RotPictures">The corpse each frame of each sheet shows the rot of, by frame name.</param>
+/// <param name="BlankRotPictures">Each sheet's frames' pictures of the rots at which they show nothing, which it does not hold.</param>
 public sealed record EnemySheetGroup<TKey, TSheet>(
     IReadOnlyDictionary<TKey, TSheet> Sheets,
     IReadOnlyDictionary<TKey, IReadOnlyDictionary<string, FrameArtworkVariation[]>> Variations,
-    IReadOnlyDictionary<TKey, IReadOnlyDictionary<string, string>> RotPictures)
+    IReadOnlyDictionary<TKey, IReadOnlyDictionary<string, string>> RotPictures,
+    IReadOnlyDictionary<TKey, IReadOnlySet<string>> BlankRotPictures)
     where TKey : notnull;

@@ -156,7 +156,8 @@ internal static class SpawnedObjectSheetComposer
             frames.Where(pictures => pictures.Variations.Length > 0)
                 .ToDictionary(pictures => pictures.Name, pictures => pictures.Variations, StringComparer.Ordinal),
             frames.Where(pictures => pictures.RotCorpse is not null)
-                .ToDictionary(pictures => pictures.Name, pictures => pictures.RotCorpse ?? string.Empty, StringComparer.Ordinal));
+                .ToDictionary(pictures => pictures.Name, pictures => pictures.RotCorpse ?? string.Empty, StringComparer.Ordinal),
+            frames.SelectMany(pictures => pictures.BlankRots).ToHashSet(StringComparer.Ordinal));
     }
 
     /// <summary>

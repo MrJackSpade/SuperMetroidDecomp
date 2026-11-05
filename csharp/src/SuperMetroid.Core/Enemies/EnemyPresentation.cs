@@ -99,6 +99,9 @@ internal sealed class EnemyPresentation
         PictureShading shading = draw.Shading ?? PictureShading.Standard;
         SpriteSheet sheet = Sheets.For(LoadedSet, enemy);
         string picture = Picture(frame, Sheets.Variations(LoadedSet, enemy, frame), Sheets.RotCorpse(LoadedSet, enemy, frame), rot);
+        // A corpse's frame at a rot that leaves every character it reads blank shows nothing then (#1513).
+        if (rot is not null && Sheets.RotShowsNothing(LoadedSet, enemy, picture))
+            return;
         sprites.Add(new ImageSpriteDraw(source, sheet.Frame(picture), origin, SpriteMirror.None) { Shading = shading });
     }
 
@@ -122,6 +125,9 @@ internal sealed class EnemyPresentation
         SpawnedObjectSheet sheet = Sheets.Spawned(LoadedSet, owner);
         string picture = Picture(frame, Sheets.SpawnedVariations(LoadedSet, owner, frame),
             Sheets.SpawnedRotCorpse(LoadedSet, owner, frame), rot);
+        // A frame drawn over a rotting corpse's rows at a rot that leaves every character it reads blank shows nothing then (#1513).
+        if (rot is not null && Sheets.SpawnedRotShowsNothing(LoadedSet, owner, picture))
+            return;
         sprites.Add(new ImageSpriteDraw(source, sheet.Sheet.Frame(picture), origin, SpriteMirror.None) { Shading = graphics.Shading });
     }
 

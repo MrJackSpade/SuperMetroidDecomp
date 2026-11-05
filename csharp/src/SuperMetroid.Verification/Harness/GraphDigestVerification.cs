@@ -86,9 +86,20 @@ internal static class GraphDigestVerification
     /// <summary>Each content list indexed so far, with its graph.</summary>
     private static readonly List<(object[] Roots, BoundObjectGraph Graph)> boundGraphs = [];
 
-    /// <summary>Write-only stream that feeds serialized graph bytes directly into an incremental SHA-256 hash.</summary>
+    /// <summary>
+    /// Write-only stream that feeds serialized graph bytes into an incremental SHA-256 hash. The serializer writes a graph
+    /// as many writes of a few bytes each (a marker, a length, a name, one primitive), and every append to the hash is a
+    /// call into the platform's hash provider, so the bytes are gathered into a buffer and appended a buffer at a time
+    /// (#1532). The hash sees the same bytes in the same order, so the digest is unchanged.
+    /// </summary>
     internal sealed class HashingStream(IncrementalHash hash) : Stream
     {
+        /// <summary>Bytes written since the last append to the hash.</summary>
+        private readonly byte[] pending = new byte[64 * 1024];
+
+        /// <summary>How many bytes of <see cref="pending"/> are written.</summary>
+        private int pendingCount;
+
         /// <summary>Hashing accepts writes only.</summary>
         public override bool CanRead => false;
         /// <summary>Serialized bytes cannot be repositioned in the hash.</summary>
@@ -99,18 +110,47 @@ internal static class GraphDigestVerification
         public override long Length => throw new NotSupportedException();
         /// <summary>A streamed hash has no seekable position.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        /// <summary>Hash updates are immediate and need no buffered flush.</summary>
-        public override void Flush() { }
+        /// <summary>Appends the buffered bytes to the hash.</summary>
+        public override void Flush()
+        {
+            if (pendingCount == 0)
+                return;
+            hash.AppendData(pending, 0, pendingCount);
+            pendingCount = 0;
+        }
         /// <summary>Rejects reads from the write-only digest stream.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
         /// <summary>Rejects repositioning serialized input within the digest.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         /// <summary>Rejects changing a digest stream's length after bytes were hashed.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
-        /// <summary>Appends an array segment directly to the digest.</summary>
-        public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
-        /// <summary>Appends a span directly to the digest.</summary>
-        public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
+        /// <summary>Appends an array segment to the digest.</summary>
+        public override void Write(byte[] buffer, int offset, int count) => Write(new ReadOnlySpan<byte>(buffer, offset, count));
+        /// <summary>Appends one byte to the digest.</summary>
+        public override void WriteByte(byte value) => Write(new ReadOnlySpan<byte>(in value));
+        /// <summary>Appends a span to the digest: gathered while it fits the buffer, appended directly when larger.</summary>
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            if (buffer.Length > pending.Length - pendingCount)
+            {
+                Flush();
+                if (buffer.Length >= pending.Length)
+                {
+                    hash.AppendData(buffer);
+                    return;
+                }
+            }
+            buffer.CopyTo(pending.AsSpan(pendingCount));
+            pendingCount += buffer.Length;
+        }
+
+        /// <summary>Appends what is still buffered before the stream closes, so the digest covers every byte written.</summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                Flush();
+            base.Dispose(disposing);
+        }
     }
     /// <summary>
     /// True when every instance field of two objects of one type holds equal state: arrays of
@@ -148,12 +188,10 @@ internal static class GraphDigestVerification
                                 ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(rightArray), Buffer.ByteLength(rightArray))))
                             return false;
                     }
-                    else
+                    else if (!ValueArrayComparer(element)(leftArray, rightArray))
                     {
                         // Value elements (typed blocks, behaviours) compare by their own equality, one by one.
-                        for (int index = 0; index < leftArray.Length; index++)
-                            if (!Equals(leftArray.GetValue(index), rightArray.GetValue(index)))
-                                return false;
+                        return false;
                     }
                 }
                 else if (left is not null && right is not null && !Equals(left, right) && left.GetType() == right.GetType() &&
@@ -167,6 +205,24 @@ internal static class GraphDigestVerification
             }
         return true;
     }
+    /// <summary>
+    /// Compares two arrays of one value element type element by element with that type's own equality, as
+    /// <see cref="object.Equals(object?, object?)"/> compares each pair, without boxing every element (#1532): a room's
+    /// block arrays hold thousands of elements, and a check restoring a room per case compares them per case.
+    /// </summary>
+    [ReflectionAudit("structural equality: each value element type's arrays compare through that type's own equality")]
+    private static Func<Array, Array, bool> ValueArrayComparer(Type element) => valueArrayComparers.GetOrAdd(element, static type =>
+        (typeof(GraphDigestVerification).GetMethod(nameof(ValueArraysEqual), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+            ?? throw new InvalidOperationException("The value-array comparison is missing."))
+            .MakeGenericMethod(type).CreateDelegate<Func<Array, Array, bool>>());
+
+    /// <summary>Each value element type's array comparison, made once.</summary>
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<Array, Array, bool>> valueArrayComparers = new();
+
+    /// <summary>Whether two arrays of <typeparamref name="T"/> hold equal elements by <typeparamref name="T"/>'s equality.</summary>
+    private static bool ValueArraysEqual<T>(Array left, Array right) =>
+        new ReadOnlySpan<T>((T[])left).SequenceEqual((T[])right, EqualityComparer<T>.Default);
+
     /// <summary>The pixels a packet shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>
         DisplayRendering.Render(frame);
@@ -174,4 +230,26 @@ internal static class GraphDigestVerification
     /// <summary>The pixels a layered scene shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredScene frame) =>
         DisplayRendering.Render(frame);
+
+    /// <summary>
+    /// Whether two packets show the same pixels (#1532). A packet holds everything the renderer draws and nothing else, so
+    /// two packets whose descriptions compare equal, or whose scenes' whole graphs digest alike naming
+    /// <paramref name="content"/> by path, show the same pixels without drawing either; this answers for a gameplay frame,
+    /// whose room layer compares only by instance. Only packets that differ in both are drawn and compared pixel by pixel.
+    /// The frame number names the publication, not what it shows, so it is not compared.
+    /// </summary>
+    internal static bool SamePixels(SuperMetroid.Core.Rendering.DisplayPacket left, SuperMetroid.Core.Rendering.DisplayPacket right,
+        params object[] content)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        if (ScenePixels.SameDescription(left, right))
+            return true;
+        object? leftScene = (object?)left.Layers ?? left.Floor, rightScene = (object?)right.Layers ?? right.Floor;
+        if (left.Brightness == right.Brightness && left.Size == right.Size && left.SolidColor == right.SolidColor
+            && leftScene is not null && rightScene is not null && leftScene.GetType() == rightScene.GetType()
+            && GraphDigest(leftScene, content).AsSpan().SequenceEqual(GraphDigest(rightScene, content)))
+            return true;
+        return ScenePixels.Same(left, right);
+    }
 }

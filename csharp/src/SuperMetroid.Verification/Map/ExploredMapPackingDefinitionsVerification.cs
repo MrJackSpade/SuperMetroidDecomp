@@ -110,7 +110,9 @@ internal static class ExploredMapPackingDefinitionsVerification
         {
             MapPresentation = original,
         });
-        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game, [game.Artwork, original, .. InstalledFixtures.BoundContent]);
+        // The installed content, the map presentation among it, is named by path through the shared index, which
+        // every round trip of the process reuses, instead of indexing all loaded content again for this game (#1532).
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         var restoredSaves = restored.Saves;
         AssertTrue(ReferenceEquals(original, restored.Artwork.MapPresentation), "debugger graph names its bound map provider");
         AssertTrue(restoredSaves.ReadSlot(0) is not null, "the restored graph keeps the decoded slot");

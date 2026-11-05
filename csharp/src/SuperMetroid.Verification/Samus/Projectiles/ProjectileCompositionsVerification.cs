@@ -17,7 +17,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend;
 
@@ -181,7 +180,7 @@ internal static class ProjectileCompositionsVerification
         game.BindArtwork(game.Artwork with { SpriteSheets = sheets });
         string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
         // A sheet set loaded apart from the bound one, which each pass must reach once rebound.
-        InstalledSpriteSheets rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
+        InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
         // Seed only a visible timed composition. The shared production actor draw, not
         // a duplicate test emitter, must bind all three owner passes to host content.
         foreach (ushort family in new ushort[] { 0x10, 0x700, 0x500 })

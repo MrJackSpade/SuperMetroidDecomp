@@ -11,7 +11,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hud;
 
 using SuperMetroid.Verification.Harness;
@@ -152,9 +151,8 @@ internal static class ReserveAutoFrontendVerification
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
         samus.HealthWarning.Update(30, audio);
-        using var saved = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(saved, samus); saved.Position = 0;
-        AssertTrue(DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved).HealthWarning.IsActive,
+        // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+        AssertTrue(SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(samus).HealthWarning.IsActive,
             "Samus debugger graph retains warning latch");
         // Continue in actual state eight: ordinary beta must own the same latch,
         // while a generic locked handler must not acquire that responsibility.

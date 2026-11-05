@@ -42,8 +42,7 @@ internal static class EndingFlyawayArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actualColours.SequenceEqual(expectedColours) &&
-                        DisplayRendering.Render(actual).SequenceEqual(
-                            DisplayRendering.Render(expected)),
+                        ScenePixels.Same(actual, expected),
                     $"ending floor and visible pixels match at hold update {holdUpdates}");
                 holdUpdates++;
             }

@@ -16,9 +16,10 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -81,16 +82,16 @@ internal static class MapSpritesVerification
             var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var nativeRoom = new FileSelectRoomMapGraphics(system,
                 AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-            var before = nativeRoom.Render(new(0, 0), marker);
-            AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
-            using var capture = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(capture, room); capture.Position = 0;
-            room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
+            // Each comparison draws only scenes whose descriptions differ (#1532).
+            LayeredScene before = nativeRoom.CaptureRenderSnapshot(new(0, 0), marker);
+            AssertTrue(ScenePixels.Same(before, room.CaptureRenderSnapshot(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
+            // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+            room = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(room);
             room.BindFixtureArtwork(original);
-            AssertTrue(before.SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources keep the installed pixels");
+            AssertTrue(ScenePixels.Same(before, room.CaptureRenderSnapshot(new(0, 0), marker)), "restored sprite resources keep the installed pixels");
             var pauseNative = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-            var pauseBefore = pauseNative.Render();
-            AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
+            AssertTrue(ScenePixels.Same(pauseNative.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "pause map sprite pixels match with source reads blocked");
         }
     }
 

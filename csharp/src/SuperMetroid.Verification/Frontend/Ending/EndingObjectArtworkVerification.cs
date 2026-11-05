@@ -211,8 +211,7 @@ internal static class EndingObjectArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actualColours.SequenceEqual(expectedColours) &&
-                        DisplayRendering.Render(actual).SequenceEqual(
-                            DisplayRendering.Render(expected)),
+                        ScenePixels.Same(actual, expected),
                     $"ending OBJ PNGs preserve native VRAM/pixels at frame {frame}");
             }
             native.Step();

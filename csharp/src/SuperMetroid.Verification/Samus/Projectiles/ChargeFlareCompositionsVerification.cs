@@ -12,10 +12,9 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -28,14 +27,14 @@ internal static class ChargeFlareCompositionsVerification
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
-        GameInstallation installation = RepositoryInstallation.Installation;
-        InstalledSamusBodyArtwork body = installation.LoadSamusBodyArt();
+        // The shared installed fixtures, which a capture names by path rather than copies.
+        InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
         var roomAssets = MapPresentationInstalledRoomAssets.Shared;
-        var maps = installation.LoadMaps();
+        var maps = InstalledFixtures.Maps;
         Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, body,
             roomAssets, maps));
         Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, body,
-            roomAssets, maps, installation.LoadProjectiles().GrappleTiles));
+            roomAssets, maps, InstalledFixtures.Projectiles.GrappleTiles));
         if (!flareOnly)
         {
             VerifyGrapplePointAnimation(bus);

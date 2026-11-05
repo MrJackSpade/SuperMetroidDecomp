@@ -22,16 +22,22 @@ internal static class TitleFixtureVerification
     internal static TitleFixtureContent ReadTitleFixtureContent(ISnesAddressSpace source,
         TitleGradientPresentation? titleGradientPresentation = null)
     {
-        var files = TitleGraphicsExtractor.Extract(source);
-        var graphics = TitleGraphicsCharacters.Read(
-            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
-            new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
-            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
-            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
+        var graphics = TitleFixtureGraphics(source);
         var palette = TitlePaletteFile.Read(new MemoryStream(TitlePaletteExtractor.Extract(source)));
         var gradient = titleGradientPresentation ?? TitleGradientFile.Read(
             new MemoryStream(TitleGradientExtractor.Extract(source)));
         return new TitleFixtureContent(graphics, palette.Backdrop, gradient, MenuSheetFixtures.WithTitle(graphics));
+    }
+
+    /// <summary>The title graphics <paramref name="source"/>'s title fixture draws, read from its extraction.</summary>
+    private static TitleGraphicsCharacters TitleFixtureGraphics(ISnesAddressSpace source)
+    {
+        var files = TitleGraphicsExtractor.Extract(source);
+        return TitleGraphicsCharacters.Read(
+            new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
+            new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
+            new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
     }
 }
 

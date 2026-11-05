@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
@@ -82,7 +81,7 @@ internal static class ChargeFlareProductionVerification
         SpriteImage PowerBeamSheet(InstalledSpriteSheets sheets) => sheets.Get(SpriteSheetId.ProjectilesPower).Image;
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(InstalledFixtures.SpriteSheets), draw.Image.Sheet)),
             "Runtime actor pass draws the flare from the bound power-beam sheet");
-        InstalledSpriteSheets rebound = RepositoryInstallation.Installation.LoadSpriteSheets();
+        InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
         game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(rebound), draw.Image.Sheet)),
             "Rebinding the sprite sheets reaches the actor pass");

@@ -64,8 +64,7 @@ internal static class EndingMode7ArtworkVerification
                 byte[] actualVram = installed.ShownVram();
                 AssertTrue(actualVram.SequenceEqual(expectedVram) &&
                         actualColours.SequenceEqual(expectedColours) &&
-                        DisplayRendering.Render(actual).SequenceEqual(
-                            DisplayRendering.Render(expected)),
+                        ScenePixels.Same(actual, expected),
                     $"installed ending art preserves native VRAM and pixels at frame {frame}");
             }
             native.Step();

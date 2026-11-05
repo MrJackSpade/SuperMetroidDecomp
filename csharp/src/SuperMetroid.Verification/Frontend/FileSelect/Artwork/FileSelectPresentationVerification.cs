@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
@@ -97,7 +98,7 @@ internal static class FileSelectPresentationVerification
                 $"installed file-select selection matches frame {comparedFrames}");
             AssertTrue(native.BackgroundTilemap(original).SequenceEqual(installed.BackgroundTilemap(original)),
                 $"installed file-select tilemap matches frame {comparedFrames}");
-            AssertTrue(native.Render().SequenceEqual(installed.Render()),
+            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
                 $"installed file-select pixels match frame {comparedFrames}");
             native.Step(input);
             installed.Step(input);

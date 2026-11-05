@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
@@ -95,7 +96,7 @@ internal static class GameOptionsPresentationVerification
                 AssertTrue(LastSpriteX(installed.CaptureRenderSnapshot()) >= 256,
                     $"editable options hides cursor in {installed.Phase}");
             }
-            AssertTrue(native.Render().SequenceEqual(installed.Render()),
+            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
                 $"installed options frame {comparedFrames} matches cartridge pixels");
             native.Step(input);
             installed.Step(input);

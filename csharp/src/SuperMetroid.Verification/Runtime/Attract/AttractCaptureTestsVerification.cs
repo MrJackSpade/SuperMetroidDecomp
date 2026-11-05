@@ -8,7 +8,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 
@@ -34,6 +33,9 @@ internal static class AttractCaptureTestsVerification
             {
                 MapPresentation = presentation,
             });
+            // The demo's gameplay frames are compared by description, then by graph naming the installed content by path,
+            // and drawn only when both differ (#1532).
+            object[] content = [presentation, .. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent];
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false, bounded = false;
             DisplayPacket? held = null;
@@ -58,7 +60,7 @@ internal static class AttractCaptureTestsVerification
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot),
+                    AssertTrue(SuperMetroid.Verification.Harness.GraphDigestVerification.SamePixels(legacy.GetRetainedDisplay(), actual.Snapshot, content),
                         $"demo frame {tick} pixel parity");
                     samples++;
                 }
@@ -66,11 +68,13 @@ internal static class AttractCaptureTestsVerification
                 {
                     sawHold = true;
                     held ??= legacy.GetRetainedDisplay();
-                    AssertTrue(ScenePixels.Same(held, legacy.GetRetainedDisplay()), "demo final-image hold stays pixel-identical");
+                    AssertTrue(SuperMetroid.Verification.Harness.GraphDigestVerification.SamePixels(held, legacy.GetRetainedDisplay(), content),
+                        "demo final-image hold stays pixel-identical");
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot), "demo return title frame");
+                    AssertTrue(SuperMetroid.Verification.Harness.GraphDigestVerification.SamePixels(legacy.GetRetainedDisplay(), actual.Snapshot, content),
+                        "demo return title frame");
                     returned = true; break;
                 }
             }

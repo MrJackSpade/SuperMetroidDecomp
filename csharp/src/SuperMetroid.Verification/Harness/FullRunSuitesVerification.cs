@@ -399,6 +399,7 @@ using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeFadeVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
+using System.Collections.Frozen;
 
 namespace SuperMetroid.Verification.Harness;
 /// <summary>Registers the portable render-contract checks and the independent suites of the full verifier run.</summary>
@@ -406,6 +407,15 @@ internal static class FullRunSuitesVerification
 {
     /// <summary>One outermost suite of the full no-argument run.</summary>
     internal sealed record RegisteredSuite(string Name, Action Body);
+
+    /// <summary>The six full-movie parity replays: the only suites exempt from the suite time limit (#1532).</summary>
+    internal static readonly FrozenSet<string> MovieReplaySuites = FrozenSet.Create(
+        nameof(VerifyRidleyFullMovie),
+        nameof(VerifyMotherBrainGlitchMovie),
+        nameof(VerifyLowPercentPlaythroughMovie),
+        nameof(VerifyFullPlaythroughMovie),
+        nameof(VerifyDrunkPlaythroughMovie),
+        nameof(VerifyLowcPlaythroughMovie));
 
     /// <summary>
     /// The portable render contract (<c>--render-contract</c>): every snapshot, codec, publication

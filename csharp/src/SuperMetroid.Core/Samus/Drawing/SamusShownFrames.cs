@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
 /// The animation frames Samus's body can show in each pose (#1513): the body sheet holds pictures for exactly these, and
-/// the draw rejects any other. A pose shows the frames its animation program holds a picture on, and the frames the
-/// paths that set her animation frame from outside the program publish for it, each followed on through the program as
-/// her animation advances it.
+/// the draw rejects any other. A pose some path of the game gives Samus shows the frames its animation program holds a
+/// picture on, and the frames the paths that set her animation frame from outside the program publish for it while she
+/// can hold it, each followed on through the program as her animation advances it. A pose no path gives her shows
+/// nothing.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -22,10 +23,11 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// update replaces it before the draw. A frame past the end of a program reads the program laid out after it.
 /// </para>
 /// <para>
-/// The paths that publish frames outside the program: the drained-Samus get-up handlers, the Hyper Beam acquisition's
-/// freeze, the rainbow stop, the drained landing and the release; and the wall contact that rewinds a spin, for every pose
-/// drawn with the spin's movement. A frame written with a timer of one just before the animation pass is advanced by it
-/// before the draw; any other written frame is drawn as it stands. Pose initialization starts a pose only on one of its
+/// The paths that publish frames outside the program, each for the poses Samus can hold when it runs: the drained-Samus
+/// get-up handlers, the Hyper Beam acquisition's freeze, the rainbow stop, the drained landing and the release; and the
+/// wall contact that rewinds a spin, for every pose drawn with the spin's movement. A frame written with a timer of one
+/// just before the animation pass is advanced by it before the draw; any other written frame is drawn as it stands. Pose
+/// initialization starts a pose only on one of its
 /// delays, and the Crystal Flash, X-ray, death, fast-fall, standing-shot, Zebes-start, grapple-swing and Speed Booster
 /// paths publish only delays of their poses' programs; they add no frame, but a frame they start a pose on follows a
 /// frame of whatever Samus showed before.
@@ -99,9 +101,8 @@ internal sealed class SamusShownFrames
     internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId> continuation) =>
         computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
 
-    /// <summary>Every pose with a record, in the game's numbering.</summary>
-    private static IEnumerable<SamusPoseId> Poses =>
-        Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(SamusPoseNumbering.FromNumber);
+    /// <summary>Every pose some path of the game gives Samus, in the game's numbering: the poses the body can show.</summary>
+    private static IReadOnlyList<SamusPoseId> Poses => SamusPoseMetadata.ReachablePoses;
 
     /// <summary>Whether <paramref name="pose"/> can show animation frame <paramref name="frame"/>.</summary>
     internal bool Shows(SamusPoseId pose, int frame) => shown.TryGetValue(pose, out SortedSet<int>? frames) && frames.Contains(frame);
@@ -282,25 +283,24 @@ internal sealed class SamusShownFrames
         if (pose == SamusPoseId.DrainedCrouchingLeftPose && frames.Max >= SamusDrainedAnimationDefinitions.AbleToStandFirstFrame)
             publications.Add(new(SamusDrainedAnimationDefinitions.AbleToStandFrame, PublishedFrameDrawing.AfterAdvancing));
         // The unable-to-stand handler stays installed until Mother Brain dies and checks only the frame, so on Up it moves
-        // whatever pose shows one of its frames, just before the animation.
-        if (frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
+        // whatever pose shows one of its frames, just before the animation: the drained poses it is installed with and
+        // every pose Samus takes in the fight that follows. It never meets the other drained poses at those frames.
+        if (UnableToStandMeets(pose) && frames.GetViewBetween(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame,
                 SamusDrainedAnimationDefinitions.UnableToStandLastFrame).Count > 0)
             publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
-        if (SamusPoseMetadata.IsDrainedPose(pose))
-        {
-            // The Baby Metroid's Hyper Beam and rainbow-stop commands write the drained pose's frame during enemy AI, after
-            // the animation, so the draw shows it as written.
-            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
-            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
-        }
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
+            // The Baby Metroid's Hyper Beam and rainbow-stop commands write the frame during enemy AI, after the animation, so
+            // the draw shows it as written. Both run after the Baby has put Samus crouching at the ceiling, and nothing puts
+            // her standing again, so they meet a drained crouch.
+            publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
+            publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
             // The drained fall lands on its landing frame for eight ticks; the release moves the crouch on during enemy AI.
+            // The release follows the Tourian Metroid's drain, whose fall leaves Samus crouching, so it never meets a
+            // drained standing pose.
             publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, PublishedFrameDrawing.AsWritten));
         }
-        if (pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
-            publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseStandingFrame, PublishedFrameDrawing.AsWritten));
         // Wall contact rewinds whatever pose holds the spin's movement, during movement and with a timer of one.
         if (SamusBodyDrawing.MovementTypesDrawnWith(pose).Contains(SamusMovementType.SpinJumping))
         {
@@ -310,6 +310,18 @@ internal sealed class SamusShownFrames
         }
         return publications;
     }
+
+    /// <summary>
+    /// Whether the unable-to-stand handler can meet <paramref name="pose"/>. Mother Brain installs it only with her rainbow
+    /// beam, which turns Samus to the left-facing knockback and lets her fall into the left-facing drained crouch that she
+    /// is held in until the Baby Metroid stands her up and puts her crouching again, both facing left; so the right-facing
+    /// drained poses never meet it. The fall initializes the crouch, so the standing pose the Baby writes keeps the
+    /// crouch's own movement: no wall contact rewinds it into the handler's frames. Once the Baby's commands end, Samus
+    /// takes her ordinary poses for the rest of the fight, each of which the handler can meet.
+    /// </summary>
+    private static bool UnableToStandMeets(SamusPoseId pose) =>
+        pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose or
+            SamusPoseId.DrainedStandingLeftPose);
 
     /// <summary>
     /// The frames a pose can be started on from whatever Samus showed before: the frames pose initialization starts it on,

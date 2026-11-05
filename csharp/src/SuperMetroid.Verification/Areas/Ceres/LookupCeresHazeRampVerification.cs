@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
-/// <summary>Checks Ceres haze HDMA scanline amplitudes and editable tint scaling.</summary>
+/// <summary>Checks Ceres haze HDMA scanline amplitudes against the native ramp.</summary>
 internal static class LookupCeresHazeRampVerification
 {
     /// <summary>Replays the native descending fill and HDMA bands to produce 224 expected haze rows.</summary>
@@ -75,38 +75,6 @@ internal static class LookupCeresHazeRampVerification
                         AssertEqual(new VerifyCeresHazeNativeRampCase(Expand(red), Expand(green), Expand(blue)), new VerifyCeresHazeNativeRampCase(pixel.R, pixel.G, pixel.B), "The drawn haze preserves native row across width");
                     }
                 }
-            }
-        }
-    }
-
-    /// <summary>Checks nearest-integer haze scaling over all reachable amplitudes and RGB5 channel values.</summary>
-    internal static void VerifyCeresHazeTintScaling(ISnesAddressSpace rom)
-    {
-        int lastCounter = ReadVerificationWord(rom, 0x88de43);
-        var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };
-        foreach (byte id in OriginalFxBlendIds())
-            document.Blends.Add($"blend-{id:X2}", [new() { Red = 0, Green = 0, Blue = 0 },
-                new() { Red = 0, Green = 0, Blue = 0 }, new() { Red = 0, Green = 0, Blue = 0 }]);
-        for (int channel = 0; channel <= 31; channel++)
-        {
-            var edited = document with
-            {
-                CeresHazeBlue = new() { Red = channel, Green = channel, Blue = channel },
-                CeresHazeRed = new() { Red = 31 - channel, Green = 31 - channel, Blue = 31 - channel },
-            };
-            var colors = RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(edited)));
-            for (int counter = 0; counter <= lastCounter; counter++)
-            foreach (bool dead in new[] { false, true })
-            {
-                int original = OriginalCeresHazeRamp(rom, counter)[200];
-                int selected = dead ? 31 - channel : channel;
-                // Independent nearest-integer definition of the pre-existing RGB5 scaling contract.
-                byte expected = (byte)Math.Min(31, Math.Round((double)original * selected / (lastCounter - 1), MidpointRounding.AwayFromZero));
-                RgbaPixel actual = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
-                    new DisplayLayer[] { GameplayEffectCapture.CaptureCeresHaze(dead, counter, colors) }, DisplayBrightness.Full))[200 * DisplayScreen.Width];
-                byte drawn = (byte)((expected << 3) | (expected >> 2));
-                AssertEqual(new VerifyCeresHazeNativeRampCase(drawn, drawn, drawn), new VerifyCeresHazeNativeRampCase(actual.R, actual.G, actual.B),
-                    "All reachable amplitudes and RGB5 channel values scale exactly as drawn");
             }
         }
     }

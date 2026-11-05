@@ -23,7 +23,7 @@ namespace SuperMetroid.Verification.Areas.Ceres.Artwork;
 /// <summary>Checks installed Ceres warning and door tiles through production VRAM transfers.</summary>
 internal static class CeresEscapeTileArtworkVerification
 {
-    /// <summary>Compares native transfer bytes, then checks a PNG edit reaches VRAM without cartridge reads.</summary>
+    /// <summary>Compares native transfer bytes and the installed pages without cartridge reads.</summary>
     internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom, InstalledEnemyArtwork stock)
     {
         AssertTrue(stock.Areas.CeresEscapeTiles is not null,

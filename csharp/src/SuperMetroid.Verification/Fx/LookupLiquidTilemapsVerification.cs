@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -53,15 +54,16 @@ internal static class LookupLiquidTilemapsVerification
     private static void VerifyLiquidTilemapDomainAndStorage(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         var valid = new HashSet<RoomFxType> { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water };
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        // A liquid page's layout is a pure function of its identity, so the identity domain is swept across the cores (#1532).
+        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
         {
             var type = (RoomFxType)value;
-            if (valid.Contains(type)) continue;
+            if (valid.Contains(type)) return;
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.Cell(type, 0),
                 "Only three liquid identities have stock layout algorithms");
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.ComposePage(type),
                 "Transfer rejects unsupported type without expanding domain");
-        }
+        });
         foreach (RoomFxType type in valid)
         {
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));

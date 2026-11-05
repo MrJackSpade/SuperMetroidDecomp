@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -22,32 +23,36 @@ internal static class LookupAnimatedAreasVerification
     /// <summary>Checks each area/bit selection and preserves the distinct native and retail validation order.</summary>
     internal static void VerifyAnimatedAreaObjectSelection(SuperMetroidAddressSpace rom)
     {
-        for (int area = 0; area < 256; area++)
-        for (int bit = 0; bit < 256; bit++)
+        // A selection is a pure function of its area and bit, and the retail image is only read, so the areas are swept
+        // across the cores (#1532).
+        ParallelSweep.For(0, 256, area =>
         {
-            if (area < 8 && bit < 8)
+            for (int bit = 0; bit < 256; bit++)
             {
-                ushort pointer = ReadVerificationWord(rom, 0x83ac56 + 2 * area);
-                ushort expected = ReadVerificationWord(rom, 0x830000 | (pointer + 2 * bit));
-                AssertEqual(expected, AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit),
-                    "Original native animation area/bit selection");
-                if (area < 7)
-                    AssertEqual(expected, FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjects.Read((AreaId)area, bit)),
-                        "Retail view shares original selection");
+                if (area < 8 && bit < 8)
+                {
+                    ushort pointer = ReadVerificationWord(rom, 0x83ac56 + 2 * area);
+                    ushort expected = ReadVerificationWord(rom, 0x830000 | (pointer + 2 * bit));
+                    AssertEqual(expected, AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit),
+                        "Original native animation area/bit selection");
+                    if (area < 7)
+                        AssertEqual(expected, FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjects.Read((AreaId)area, bit)),
+                            "Retail view shares original selection");
+                }
+                else
+                {
+                    var failure = AssertThrows<ArgumentOutOfRangeException>(
+                        () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit), "Native selection rejects");
+                    AssertEqual(area >= 8 ? "nativeAreaIndex" : "bit", failure.ParamName, "Native area-first validation");
+                }
+                if (area >= 7 || bit >= 8)
+                {
+                    var failure = AssertThrows<ArgumentOutOfRangeException>(
+                        () => AreaAnimatedTileObjects.Read((AreaId)area, bit), "Retail selection rejects");
+                    AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
+                }
             }
-            else
-            {
-                var failure = AssertThrows<ArgumentOutOfRangeException>(
-                    () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit), "Native selection rejects");
-                AssertEqual(area >= 8 ? "nativeAreaIndex" : "bit", failure.ParamName, "Native area-first validation");
-            }
-            if (area >= 7 || bit >= 8)
-            {
-                var failure = AssertThrows<ArgumentOutOfRangeException>(
-                    () => AreaAnimatedTileObjects.Read((AreaId)area, bit), "Retail selection rejects");
-                AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
-            }
-        }
+        });
         foreach (int invalid in new[] { int.MinValue, -1, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(

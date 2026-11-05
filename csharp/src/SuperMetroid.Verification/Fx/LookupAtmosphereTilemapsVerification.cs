@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using System.Buffers.Binary;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -41,13 +42,14 @@ internal static class LookupAtmosphereTilemapsVerification
     /// <summary>Checks rain/fog domain, the stock page, and exact page bounds.</summary>
     private static void VerifyAtmosphereTilemapDomain(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        // An atmosphere cell's fields are a pure function of its identity, so the identity domain is swept across the cores (#1532).
+        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
         {
             var type = (RoomFxType)value;
-            if (type is RoomFxType.Rain or RoomFxType.Fog) continue;
+            if (type is RoomFxType.Rain or RoomFxType.Fog) return;
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, 0),
                 "Only rain/fog have these field rules");
-        }
+        });
         foreach (RoomFxType type in new[] { RoomFxType.Rain, RoomFxType.Fog })
         {
             int mask = type == RoomFxType.Rain ? 0x1c00 : 0x3c00;

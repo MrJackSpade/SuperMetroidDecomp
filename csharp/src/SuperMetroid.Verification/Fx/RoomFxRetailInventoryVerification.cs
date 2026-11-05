@@ -107,6 +107,9 @@ internal static class RoomFxRetailInventoryVerification
         int auditedEntryPaths = 0;
         int doorSpecificRecords = 0;
         int tidalEntryPaths = 0;
+        var entryPathFrames = new EntryPathFrames();
+        // The tidal entry paths, in audit order, whose tides are checked once every path is classified.
+        var tidalPaths = new List<(SelectedRoom Room, ushort Door)>();
 
         foreach (RetailFxRoomState namedState in states)
         {
@@ -141,7 +144,8 @@ internal static class RoomFxRetailInventoryVerification
                 RetailFxPathAudit pathAudit = AuditRetailFxEntryPath(
                     bus,
                     room,
-                    doorPointer);
+                    doorPointer,
+                    entryPathFrames);
                 RetailLiquidClassification classification = pathAudit.Classification;
                 classifications[classification] =
                     classifications.GetValueOrDefault(classification) + 1;
@@ -178,7 +182,7 @@ internal static class RoomFxRetailInventoryVerification
                             (RoomFxNativeSources.SmallTideOption |
                              RoomFxNativeSources.LargeTideOption)) != 0)
                     {
-                        VerifyRetailLiquidTide(bus, room, doorPointer);
+                        tidalPaths.Add((room, doorPointer));
                         tidalEntryPaths++;
                     }
                 }
@@ -195,6 +199,9 @@ internal static class RoomFxRetailInventoryVerification
             }
         }
 
+        // Each tide runs its own FX owner over the bus's extracted catalogs, which the audit above has already extracted,
+        // and reads nothing another tide writes, so the tidal paths run across cores (#1532).
+        ParallelSweep.For(0, tidalPaths.Count, path => VerifyRetailLiquidTide(bus, tidalPaths[path].Room, tidalPaths[path].Door));
         AssertEqual(RetailRoomFxStateCount, auditedStatePointers.Count,
             "every retail room state has an FX classification");
         AssertKnownRetailLiquidExamples(knownExamples);
@@ -224,7 +231,8 @@ internal static class RoomFxRetailInventoryVerification
     private static RetailFxPathAudit AuditRetailFxEntryPath(
         SuperMetroidAddressSpace bus,
         SelectedRoom room,
-        ushort doorPointer)
+        ushort doorPointer,
+        EntryPathFrames frames)
     {
         ushort expectedRecord = SelectFxRecordIndependently(
             bus,
@@ -326,7 +334,7 @@ internal static class RoomFxRetailInventoryVerification
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
-            RgbaPixel[] hiddenFrame = RenderRoomFx(vram, cgram, hiddenSnapshot, EffectPlane(actual));
+            RgbaPixel[] hiddenFrame = frames.Render(vram, cgram, hiddenSnapshot, EffectPlane(actual));
             AssertTrue(hiddenFrame.SequenceEqual(SeededBackdrop.Value),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} negative liquid surface is visually absent");
@@ -353,7 +361,7 @@ internal static class RoomFxRetailInventoryVerification
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} visible liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
-            RgbaPixel[] visibleFrame = RenderRoomFx(vram, cgram, visibleSnapshot, EffectPlane(actual));
+            RgbaPixel[] visibleFrame = frames.Render(vram, cgram, visibleSnapshot, EffectPlane(actual));
             AssertTrue(!visibleFrame.SequenceEqual(SeededBackdrop.Value),
                 $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
                 $"$83:{doorPointer:X4} visibly composes {expectedType}");
@@ -473,12 +481,66 @@ internal static class RoomFxRetailInventoryVerification
         SnesVram vram,
         RgbColor[] cgram,
         RoomLayer3FxRenderSnapshot snapshot,
+        ushort[] plane) =>
+        RenderRoomFx(ComposedImage(vram), cgram, snapshot, plane);
+
+    /// <summary>The VRAM image a capture of <paramref name="vram"/> shows: its bytes with what was bound over them.</summary>
+    private static byte[] ComposedImage(SnesVram vram) => BgArtworkFixtures.Composed(vram, new BgArtworkBytes());
+
+    /// <summary>
+    /// The frame the display renderer draws of a captured BG3 FX layer alone over the backdrop, from the VRAM image
+    /// <paramref name="image"/> a capture shows and <paramref name="cgram"/>'s colours.
+    /// </summary>
+    private static RgbaPixel[] RenderRoomFx(
+        byte[] image,
+        RgbColor[] cgram,
+        RoomLayer3FxRenderSnapshot snapshot,
         ushort[] plane)
     {
         OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
-            Layer3CellsFixtures.FromWords(plane, BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes()).Bytes, cgram));
+            Layer3CellsFixtures.FromWords(plane, image, cgram));
         return DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
+    }
+
+    /// <summary>
+    /// The frames the entry-path audit has drawn, one per distinct input (#1532). Many entry paths select one record and
+    /// show one picture; the renderer draws the same pixels from the same snapshot, plane, VRAM image and colours, so each
+    /// distinct input is drawn once and every path that shows it compares that frame. Inputs are matched on their whole
+    /// values: the hash only narrows which drawn inputs are compared.
+    /// </summary>
+    private sealed class EntryPathFrames
+    {
+        /// <summary>Each drawn input and its frame, by snapshot and the hash of its VRAM image.</summary>
+        private readonly Dictionary<(RoomLayer3FxRenderSnapshot Snapshot, int ImageHash), List<DrawnFrame>> drawn = [];
+
+        /// <summary>The frame <see cref="RenderRoomFx(SnesVram, RgbColor[], RoomLayer3FxRenderSnapshot, ushort[])"/> draws of these inputs.</summary>
+        internal RgbaPixel[] Render(SnesVram vram, RgbColor[] cgram, RoomLayer3FxRenderSnapshot snapshot, ushort[] plane)
+        {
+            byte[] image = ComposedImage(vram);
+            var hash = new HashCode();
+            hash.AddBytes(image);
+            (RoomLayer3FxRenderSnapshot, int) key = (snapshot, hash.ToHashCode());
+            if (!drawn.TryGetValue(key, out List<DrawnFrame>? candidates))
+            {
+                candidates = [];
+                drawn.Add(key, candidates);
+            }
+            foreach (DrawnFrame candidate in candidates)
+                if (candidate.Image.AsSpan().SequenceEqual(image) && candidate.Plane.AsSpan().SequenceEqual(plane) &&
+                    candidate.Colours.AsSpan().SequenceEqual(cgram))
+                    return candidate.Frame;
+            RgbaPixel[] frame = RenderRoomFx(image, cgram, snapshot, plane);
+            candidates.Add(new DrawnFrame(image, [.. plane], [.. cgram], frame));
+            return frame;
+        }
+
+        /// <summary>One drawn input and the frame drawn of it.</summary>
+        /// <param name="Image">The VRAM image.</param>
+        /// <param name="Plane">The BG3 plane's tile words.</param>
+        /// <param name="Colours">The colours.</param>
+        /// <param name="Frame">The frame drawn.</param>
+        private sealed record DrawnFrame(byte[] Image, ushort[] Plane, RgbColor[] Colours, RgbaPixel[] Frame);
     }
 
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>

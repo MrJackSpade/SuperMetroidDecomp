@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
@@ -31,7 +32,8 @@ internal static class LookupFxTilemapSourcesVerification
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,
             type => 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type)));
         original.Add(RoomFxType.TourianEntranceStatue, 0x8a0000 | ReadVerificationWord(rom, 0x83ac16));
-        for (int value = 0; value <= ushort.MaxValue; value++)
+        // A page's source is a pure function of its identity, so the identity domain is swept across the cores (#1532).
+        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
         {
             var type = (RoomFxType)value;
             if (original.TryGetValue(type, out int expected))
@@ -39,6 +41,6 @@ internal static class LookupFxTilemapSourcesVerification
             else
                 AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapSources.Page(type).Value,
                     "All unsupported ushort identities reject, including odd types");
-        }
+        });
     }
 }

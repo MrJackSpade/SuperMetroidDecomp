@@ -115714,10 +115714,6 @@
       "namespace": "SuperMetroid.Verification.Harness",
       "assemblies": [
         "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/test-support/FrameRendering",
-        "csharp/test-support/RepositoryInstallation"
       ]
     },
     {

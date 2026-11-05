@@ -41,11 +41,13 @@ internal static class GraphDigestVerification
     {
         MemoryStream written = leftGraph ??= new MemoryStream();
         written.SetLength(0);
-        DebuggerObjectGraphSerializer.Serialize(written, left, Bound(leftContent));
+        BoundObjectGraph leftBound = Bound(leftContent);
+        DebuggerObjectGraphSerializer.Serialize(written, left, leftBound);
         if (!written.TryGetBuffer(out ArraySegment<byte> expected))
             throw new InvalidOperationException("The reused graph buffer exposes its bytes.");
         using var comparing = new ComparingStream(expected);
-        DebuggerObjectGraphSerializer.Serialize(comparing, right, Bound(rightContent));
+        // Both graphs bound to one list name its content through the one index, refreshed once for the pair.
+        DebuggerObjectGraphSerializer.Serialize(comparing, right, ReferenceEquals(leftContent, rightContent) ? leftBound : Bound(rightContent));
         return comparing.Same;
     }
 

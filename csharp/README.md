@@ -531,9 +531,8 @@ reveals and copyright from `title`, the intro's cinematic actors and caret from 
 revealed, `zebes-reveal-sprites`, and the ending's actors from a sheet for each of its scenes:
 `ending-cloud-sprites`, `ending-explosion-sprites`, `ending-suited-reward-sprites` or
 `ending-suitless-reward-sprites`, then `ending-shooting-sprites`, which also holds the logo the shooting scene ends
-on. The escape countdown's layout, `escape-timer.json` in `overrides/maps`, now holds only the
-anchors and digit spacing; a layout written for the earlier version, which also held the frames and
-palette, is rejected until it is rewritten.
+on. The escape countdown's layout, `escape-timer.json` in `game/maps`, holds only the anchors and
+digit spacing.
 
 Room blocks are drawn from pre-coloured block sheets in `game/room-block-sheets`, one for each tileset
 (`{blocks}.{characters}.{palette}`, for example `Norfair.Norfair.HeatedNorfair`), in the same three files as a sprite

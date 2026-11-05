@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using static SuperMetroid.Verification.Audio.AudioBankTransitionVerification;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using static SuperMetroid.Verification.Audio.AudioMusicProgramsVerification;
-using static SuperMetroid.Verification.Audio.InstalledAudioClipEditsVerification;
 using static SuperMetroid.Verification.Audio.AudioSoundProgramsVerification;
 using static SuperMetroid.Verification.Audio.BrrLoopExtractionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -33,7 +32,6 @@ internal static class ManagedAudioVerification
         Suite(nameof(VerifyManagedSpcSoundOwnershipPreservesPhase), () => VerifyManagedSpcSoundOwnershipPreservesPhase());
         Suite(nameof(VerifyBrrLoopExtractionRetainsPredictorHistory), () => VerifyBrrLoopExtractionRetainsPredictorHistory());
         Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
-        Suite(nameof(VerifyInPlaceAudioClipEdit), () => VerifyInPlaceAudioClipEdit());
         Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
         Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     }

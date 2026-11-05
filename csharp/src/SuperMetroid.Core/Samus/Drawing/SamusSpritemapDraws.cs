@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public static class SamusSpritemapDraws
 {
     /// <summary>
-    /// Ports <c>AddSamusSpritemap</c> for Samus's body as one pre-coloured draw (#1392, #1463): the
-    /// picture <paramref name="frame"/> shows, with the half pictures it shows.
+    /// Ports <c>AddSamusSpritemap</c> for Samus's whole body as one pre-coloured draw (#1392, #1463, #1513): the
+    /// full-body picture <paramref name="frame"/> shows, with the half pictures it shows.
     /// </summary>
     /// <param name="sprites">The frame receiving the draw after everything already emitted.</param>
-    /// <param name="frame">The pose half and animation frame whose picture is drawn.</param>
+    /// <param name="frame">The full body whose picture is drawn.</param>
     /// <param name="origin">Screen-space origin produced by Samus's draw.</param>
     /// <param name="spritemaps">The compositions each pose half shows.</param>
     /// <param name="sheets">The installed sheets.</param>
@@ -19,7 +19,7 @@ public static class SamusSpritemapDraws
     /// <param name="source">The Samus element the draw shows.</param>
     public static void AddSamusBody(
         this SpriteFrameBuffer sprites,
-        SamusBodyHalfFrame frame,
+        SamusBodyFrame frame,
         Position16<ScreenPixels> origin,
         InstalledSamusSpritemaps spritemaps,
         InstalledSpriteSheets sheets,
@@ -29,10 +29,10 @@ public static class SamusSpritemapDraws
         Ensure.NotNull(sprites);
         Ensure.NotNull(spritemaps);
         Ensure.NotNull(sheets);
-        // A frame with no composition draws nothing (owner decision on #1318).
-        if (!spritemaps.TryGetFrameKey(frame, pictures, out SamusBodyFrameKey key))
+        // A body with no composition draws nothing (owner decision on #1318).
+        if (!spritemaps.TryGetFrameKey(frame.Top, frame.Bottom, frame.ChestCover, pictures, out SamusBodyFrameKey key))
             return;
-        SpriteSheetFrame image = sheets.Get(SamusBodySheets.Sheet(key)).Frame(key.Name);
+        SpriteSheetFrame image = sheets.Get(SpriteSheetId.SamusBody).Frame(key.Name);
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None));
     }
 }

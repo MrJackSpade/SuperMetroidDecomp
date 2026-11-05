@@ -125,7 +125,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(samus.Presentation.BodyFrames.Artwork?.Spritemaps ??
             throw new InvalidOperationException("Verification requires installed Samus spritemaps."), drawn);
         BodyRecordResult BodyRecord() =>
-            new BodyRecordResult(SpritemapIndex(samus.Presentation.TopSpritemap), SpritemapIndex(samus.Presentation.BottomSpritemap),
+            new BodyRecordResult(SpritemapIndex(samus.Presentation.DrawnFrame?.Top), SpritemapIndex(samus.Presentation.DrawnFrame?.Bottom),
                 samus.Presentation.SpritemapPosition.X, samus.Presentation.SpritemapPosition.Y);
         var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
@@ -222,8 +222,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // origin/indices. Compare newly published records when both draws execute.
                 if (frame == 0 || (nativeBodyVisible && normalizedBodyVisible))
                 {
-                    Check("Samus top spritemap", SpritemapIndex(samus.Presentation.TopSpritemap), NativeSnapshotMemory.SamusTopSpritemap);
-                    Check("Samus bottom spritemap", SpritemapIndex(samus.Presentation.BottomSpritemap), NativeSnapshotMemory.SamusBottomSpritemap);
+                    Check("Samus top spritemap", SpritemapIndex(samus.Presentation.DrawnFrame?.Top), NativeSnapshotMemory.SamusTopSpritemap);
+                    Check("Samus bottom spritemap", SpritemapIndex(samus.Presentation.DrawnFrame?.Bottom), NativeSnapshotMemory.SamusBottomSpritemap);
                     Check("Samus sprite X", samus.Presentation.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
                     // A landing frame's native position word carries the table byte after its own, which the drawn origin
                     // never shows (#1500); the oracle gives the row the cartridge draws at.

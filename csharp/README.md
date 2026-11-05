@@ -504,9 +504,9 @@ the sheet. Edit these files in place; an
 edited frame list must keep every frame the family draws. The escape countdown (`escape-timer`) is drawn
 this way, as are Samus's projectiles, bombs, charge flare and trails: one sheet per beam combination
 (`projectiles-power`, `projectiles-plasma-ice-wave` and so on), whose characters and beam colours differ,
-and `intro-projectiles` for the intro's flashbacks, the grapple beam's endpoint and rope (`grapple`), Samus's body (`samus-body-top` and `samus-body-bottom`, in
-the Power Suit's colours; the other suits recolour it through its palette map), the arm cannon's covers and the
-chest cover drawn over it (`samus-overlays`, coloured likewise), and her footstep splashes, lava spray, dust, diving
+and `intro-projectiles` for the intro's flashbacks, the grapple beam's endpoint and rope (`grapple`), Samus's body (`samus-body`, one full-body frame per drawn body, in
+the Power Suit's colours; the other suits recolour it through its palette map), the arm cannon's covers
+drawn over it (`samus-overlays`, coloured likewise), and her footstep splashes, lava spray, dust, diving
 splash and bubbles (`samus-atmosphere`), and her suit explosion as she dies (`samus-death`; the death palette recolours
 it). Ordinary enemies are drawn from `enemy-sheets`: one sheet for each enemy as a room's graphics set loads it, in the
 colours its palette row holds there, so an enemy shown in another palette has a sheet of its own; `enemy-sheets.json`

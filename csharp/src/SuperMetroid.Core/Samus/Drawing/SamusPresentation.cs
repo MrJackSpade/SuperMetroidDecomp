@@ -11,14 +11,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// <summary>Samus's presentation: spritemap selection, tile transfers, suit, cycle and charge palettes, and the animation-frame sequencing that drives them.</summary>
 internal sealed class SamusPresentation
 {
-    /// <summary>The top-half picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.</summary>
-    public SamusBodyHalfFrame? TopSpritemap { get; internal set; }
-
     /// <summary>
-    /// The bottom-half picture the body last drew, which the speed-booster echoes repeat; none when the last drawn frame
-    /// was a complete top-half picture, so an echo never repeats a bottom half left from an earlier frame.
+    /// The full body the body last drew, which the speed-booster echoes repeat; none before the body is drawn. A frame
+    /// whose top half is the complete body has no bottom half, so an echo never repeats a bottom half left from an
+    /// earlier frame.
     /// </summary>
-    public SamusBodyHalfFrame? BottomSpritemap { get; internal set; }
+    public SamusBodyFrame? DrawnFrame { get; internal set; }
 
     /// <summary>
     /// The half pictures the body showed when its pictures were last chosen, which the speed-booster echoes show
@@ -340,12 +338,9 @@ internal sealed class SamusPresentation
     /// Ports the standing and ordinary-running portions of <c>Samus_Draw</c>.
     /// </summary>
     /// <remarks>
-    /// Movement type zero uses the standing position selector, `$0F/$1B` use their explicit
-    /// table-backed selectors, and every other slot through `$1B` uses the usual
-    /// pose offset. The complete lower-half dispatcher is retained, including
-    /// all unused-but-valid movement types. Morph types `$04/$08` draw only their complete
-    /// top spritemap; spin-jump `$03` retains its own conditional bottom rule. Draygon's
-    /// ten type-`$1A` bodies have ordinary split top/bottom spritemaps and no draw-time offset.
+    /// The body's origin and the halves it shows come from <see cref="SamusBodyDrawing"/>, which keeps the complete
+    /// position selectors and lower-half dispatcher, including all unused-but-valid movement types; the body sheet is
+    /// composed from the same decisions. The halves an update shows are drawn as one full-body picture (#1513).
     /// </remarks>
     public bool Draw(SamusState samus, 
         SpriteFrameBuffer sprites,
@@ -385,164 +380,22 @@ internal sealed class SamusPresentation
         int renderX = renderPoint.X;
         int renderY = renderPoint.Y;
 
-        // The draw sign-extends the byte at pose-definition offset four. FacingRightNormalPose stores
-        // +6, moving the art origin six pixels above Samus's world-space center.
-        int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
+        InstalledSamusBodyArtwork artwork = BodyFrames.Artwork ?? throw new InvalidOperationException(
+            "Samus pose presentation requires installed body artwork.");
         int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
-        int spritemapY;
-        if (movementType == SamusMovementType.Standing &&
-            samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
-            samus.AnimationFrame >= 2)
-        {
-            // The front-facing draw uses the ordinary pose graphics offset for front-facing
-            // frames zero/one, then pins every later frame exactly one pixel above Samus's
-            // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
-            spritemapY = CoordinateAxis.Wrap(renderY - 1 - layer1.Y);
-        }
-        else if (movementType == SamusMovementType.Standing &&
-            SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
-        {
-            // The landing offset indexes sixteen packed bytes. The game reads a word there, whose high byte, the next
-            // frame's byte, the drawn position never shows (#1397), so the body is placed by the frame's own byte (#1500).
-            int landingOffsetIndex = SamusPoseNumbering.Offset(samus.Pose, SamusPoseId.NormalLandingRightPose) * 4 +
-                samus.AnimationFrame;
-            if (BodyFrames.Artwork is not { } landingArt ||
-                !landingArt.TryLandingYOffset(landingOffsetIndex, out int landingOffset))
-                throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
-            spritemapY = CoordinateAxis.Wrap(
-                renderY - landingOffset - layer1.Y);
-        }
-        else if (movementType == SamusMovementType.PostureTransition &&
-            !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) &&
-            SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.MorphBallGroundLeftPose))
-        {
-            // The posture-transition offset indexes a signed byte by `2*(pose-$35)+animation frame` instead
-            // of using the pose-definition graphics offset. Installed visual bytes
-            // retain ordinary crouch/morph/stand/unmorph values and the four
-            // valid-but-unused zero records `$39/$3A/$3F/$40`. An out-of-range
-            // selection rejects; neighboring bytes are not a runtime fallback.
-            int postureIndex = SamusPoseNumbering.Offset(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) * 2 + samus.AnimationFrame;
-            if (BodyFrames.Artwork is not { } postureArt ||
-                !postureArt.TryPostureYOffset(postureIndex, out int transitionOffset))
-                throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
-            spritemapY = CoordinateAxis.Wrap(renderY + transitionOffset - layer1.Y);
-        }
-        else if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-        {
-            // The drained-body offset indexes a shared 32-byte table directly with the
-            // animation byte index. Several indices intentionally name command operands,
-            // because the external controller can publish those literal indices for a
-            // visible frame. The installed 32-byte table preserves that odd layout.
-            if (BodyFrames.Artwork is not { } drainedArt ||
-                !drainedArt.TryDrainedYOffset(samus.AnimationFrame, out int drainedOffset))
-                throw new InvalidDataException($"Samus drained offset {samus.AnimationFrame} lacks installed art.");
-            spritemapY = CoordinateAxis.Wrap(renderY + drainedOffset - layer1.Y);
-        }
-        else if ((samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose) &&
-                 samus.AnimationFrame >= 5)
-        {
-            // The drained-body draw replaces the usual pose graphics offset with -3 after
-            // standing drained art reaches byte index five.
-            spritemapY = CoordinateAxis.Wrap(renderY - 3 - layer1.Y);
-        }
-        else
-        {
-            spritemapY = CoordinateAxis.Wrap(renderY - graphicsYOffset - layer1.Y);
-        }
+        int spritemapY = CoordinateAxis.Wrap(
+            renderY - SamusBodyDrawing.OriginRise(movementType, samus.Pose, samus.AnimationFrame, artwork) - layer1.Y);
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
-        Position16<ScreenPixels> drawOrigin = SpritemapPosition;
 
-        var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
-            "Samus rendering requires installed spritemap artwork.");
-        var top = new SamusBodyHalfFrame(samus.Pose, SamusBodyHalf.Top, samus.AnimationFrame);
-        TopSpritemap = top;
+        // The body's top half, the chest cover the unsuited forward-facing body shows, and the bottom half unless the top
+        // half is the complete body, are one full-body picture drawn at the spritemap origin (#1513).
+        SamusBodyFrame body = SamusBodyDrawing.Frame(movementType, samus.Pose, samus.AnimationFrame, artwork);
+        DrawnFrame = body;
         // The graphics selection follows these spritemaps, but it only chooses the artwork the next displayed frame shows with
-        // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
+        // them. Selecting first lets the draw bind the characters it is displayed with; nothing between reads it.
         BodyFrames.Select(samus.Pose, samus.AnimationFrame);
         ShownPictures = BodyFrames.Shown;
-        sprites.AddSamusBody(top, drawOrigin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus, 0));
-
-        // The draw writes one small sprite directly between the top and bottom
-        // spritemaps when the unsuited Samus faces the screen. This is not a visor:
-        // the tile covers the left side of the power-suit chest. The suited
-        // front-facing body has that shape in its ordinary spritemap and
-        // deliberately skips this write. Coordinates use Samus's world center directly,
-        // not SpritemapPosition.Y (which has already applied pose graphics offset `$08`).
-        if (samus.Pose == SamusPoseId.ForwardFacingPowerSuitPose)
-        {
-            int chestX = CoordinateAxis.Wrap(samus.Position.X.Whole - 7 - layer1.X);
-            int chestY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 17 - layer1.Y);
-            sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChest),
-                BodySheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ChestCoverFrame),
-                Position16<ScreenPixels>.Of(chestX, chestY), SpriteMirror.None));
-        }
-
-        // The draw suppresses the ordinary spin-jump bottom half for art frames 1..A;
-        // those frames' top spritemaps contain the complete curled body. Frame zero and
-        // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
-        // separate rule and always draw the bottom half at every animation frame.
-        bool ordinarySpinBottom = movementType != SamusMovementType.SpinJumping ||
-            samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
-                SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose ||
-            samus.AnimationFrame == 0 || samus.AnimationFrame >= 11;
-
-        // The Crystal-Flash-end body is movement type `$0A`'s only exception. The first three frames of
-        // the `$D7/$D8` Crystal-Flash-end/fatal-damage body are complete top spritemaps;
-        // all other knockback-family poses and later frames retain an ordinary lower half.
-        bool knockbackBottom = movementType != SamusMovementType.Knockback ||
-            samus.Pose is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose) ||
-            samus.AnimationFrame >= 3;
-
-        // The posture-transition draw is a pose-and-frame dispatcher, not a blanket type-$0F
-        // policy. Basic crouch/stand transitions always use a lower half. Morph/unmorph
-        // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
-        // only on frame two, and the aimed transition family `$F1+` always draws it.
-        bool transitionBottom = movementType != SamusMovementType.PostureTransition ||
-            !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
-            samus.Pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
-                SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ||
-            (samus.Pose is SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc &&
-                samus.AnimationFrame == 0) ||
-            (!SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.UnusedPoseDd) &&
-                SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionAimUpRightPose) && samus.AnimationFrame == 2);
-
-        // The otherwise-unused movement type `$0D` still has executable game logic
-        // in the draw: UnusedPose65 and UnusedPose66 draw a lower half only on frame zero, while every
-        // other type-`$0D` pose follows the ordinary always-split return.
-        bool unusedTypeDBottom = movementType != SamusMovementType.Unused0D ||
-            samus.Pose is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66) ||
-            samus.AnimationFrame < 1;
-
-        bool wallJumpBottom = movementType != SamusMovementType.WallJumping ||
-            samus.AnimationFrame < 3 || samus.AnimationFrame >= 13;
-        bool damageBoostBottom = movementType != SamusMovementType.DamageBoost ||
-            samus.AnimationFrame < 2 || samus.AnimationFrame >= 9;
-        // The draw suppresses the lower half for vertical shinesparks and for drained
-        // crouch/fall byte indices zero and one. Every other type-$1B record draws it.
-        bool specialType1BBottom = movementType != SamusMovementType.Special ||
-            (samus.Pose is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
-             (samus.Pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose) ||
-              samus.AnimationFrame >= 2));
-        bool drawBottom = movementType is not (
-            SamusMovementType.MorphBallGround or
-            SamusMovementType.UnusedGlitchBall or
-            SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or
-            SamusMovementType.SpringBallGround or
-            SamusMovementType.SpringBallInAir or
-            SamusMovementType.SpringBallFalling) &&
-            ordinarySpinBottom && knockbackBottom && transitionBottom && unusedTypeDBottom &&
-            wallJumpBottom && damageBoostBottom && specialType1BBottom;
-        // A complete top-half frame clears the bottom picture, so the following echo renderer
-        // never reuses a bottom half left by an earlier animation frame.
-        BottomSpritemap = null;
-        if (drawBottom)
-        {
-            var bottom = new SamusBodyHalfFrame(samus.Pose, SamusBodyHalf.Bottom, samus.AnimationFrame);
-            BottomSpritemap = bottom;
-            sprites.AddSamusBody(bottom, drawOrigin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus, 1));
-        }
-
+        sprites.AddSamusBody(body, SpritemapPosition, artwork.Spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus));
         return true;
     }
 
@@ -690,10 +543,8 @@ internal sealed class SamusPresentation
             "Samus speed-booster echo requires installed spritemap artwork.");
         int screenX = CoordinateAxis.Wrap(echo.X - layer1.X);
         var origin = Position16<ScreenPixels>.Of(screenX, CoordinateAxis.Wrap(screenY));
-        // An echo repeats the pictures the body last drew; before the body has been drawn there is nothing to repeat.
-        if (TopSpritemap is { } top)
-            sprites.AddSamusBody(top, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
-        if (BottomSpritemap is { } bottom)
-            sprites.AddSamusBody(bottom, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
+        // An echo repeats the full-body picture the body last drew; before the body has been drawn there is nothing to repeat.
+        if (DrawnFrame is { } body)
+            sprites.AddSamusBody(body, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot));
     }
 }

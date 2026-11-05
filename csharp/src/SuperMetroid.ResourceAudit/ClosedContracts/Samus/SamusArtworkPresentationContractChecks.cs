@@ -32,8 +32,8 @@ internal static class SamusArtworkPresentationContractChecks
                     body.Frame(0, 0);
                     sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
                     sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Top, 0), out _);
-                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Bottom, 0), default, out _);
-                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Bottom, 0), default, out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), null, null, default, out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Top, 0), null, null, default, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount - 1, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);

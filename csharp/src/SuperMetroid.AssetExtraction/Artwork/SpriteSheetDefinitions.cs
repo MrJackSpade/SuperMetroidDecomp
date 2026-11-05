@@ -13,8 +13,7 @@ public static class SpriteSheetDefinitions
     {
         [SpriteSheetId.EscapeTimer] = "escape-timer",
         [SpriteSheetId.Grapple] = "grapple",
-        [SpriteSheetId.SamusBodyTop] = "samus-body-top",
-        [SpriteSheetId.SamusBodyBottom] = "samus-body-bottom",
+        [SpriteSheetId.SamusBody] = "samus-body",
         [SpriteSheetId.SamusOverlays] = "samus-overlays",
         [SpriteSheetId.SamusAtmosphere] = "samus-atmosphere",
         [SpriteSheetId.SamusDeath] = "samus-death",

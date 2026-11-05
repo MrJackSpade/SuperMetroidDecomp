@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
@@ -14,12 +15,23 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 internal static class MenuScreenMemory
 {
-    /// <summary>The character image of <paramref name="screen"/>'s bound artwork.</summary>
+    /// <summary>Character images already composed, by world-map artwork (#1532): installed artwork never changes once read.</summary>
+    private static readonly ConditionalWeakTable<WorldMapArtwork, byte[]> composedCharacters = new();
+
+    /// <summary>The character image of <paramref name="screen"/>'s bound artwork: a copy the caller owns.</summary>
     [WholeImageFixture("the menu's character image")]
-    internal static byte[] Characters(MenuScreen screen)
+    internal static byte[] Characters(MenuScreen screen) =>
+        (byte[])composedCharacters.GetValue(Ensure.NotNull(screen).WorldArtwork, ComposeCharacters).Clone();
+
+    /// <summary>
+    /// Composes the character image a menu showing <paramref name="worldArtwork"/> holds: its world characters with the
+    /// installed map characters and sprite page.
+    /// </summary>
+    [WholeImageFixture("the menu's character image")]
+    private static byte[] ComposeCharacters(WorldMapArtwork worldArtwork)
     {
         var image = new SnesVram();
-        screen.WorldArtwork.LoadTo(image);
+        worldArtwork.LoadTo(image);
         // The menu's map characters and sprite page are installed artwork, the same for every menu screen (#1463, #1466).
         MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Map
             .LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));

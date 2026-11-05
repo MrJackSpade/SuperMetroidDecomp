@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -34,7 +35,7 @@ internal static class PauseReserveUiAssetsVerification
                 "installed reserve labels/digits/arrow tile palettes match native with their ROM sources forbidden");
             AssertTrue(PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(installed)),
                 "all 32 reserve-arrow color phases match native");
-            AssertTrue(native.Render().SequenceEqual(installed.Render()),
+            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
                 "reserve UI migration retains native pixels");
         }
 

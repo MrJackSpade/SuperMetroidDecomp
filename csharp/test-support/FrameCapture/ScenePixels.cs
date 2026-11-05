@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.TestSupport.FrameRendering;
@@ -23,11 +24,14 @@ internal static class ScenePixels
     internal static bool Same(LayeredScene left, LayeredScene right) => Same(new DisplayPacket(0, left), new DisplayPacket(0, right));
 
     /// <summary>
-    /// Whether two packets describe the same frame. The frame number names the publication, not what it shows, so it is not
-    /// compared.
+    /// Whether two packets describe the same frame, and so show the same pixels, without drawing either. The frame number
+    /// names the publication, not what it shows, so it is not compared. False does not mean the pixels differ: a layer this
+    /// does not compare by value, such as a gameplay room's, describes the same pass only as the same instance.
     /// </summary>
-    private static bool SameDescription(DisplayPacket left, DisplayPacket right)
+    internal static bool SameDescription(DisplayPacket left, DisplayPacket right)
     {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
         if (left.Brightness != right.Brightness || left.Size != right.Size || left.SolidColor != right.SolidColor)
             return false;
         if (left.Layers is { } leftScene)
@@ -59,9 +63,9 @@ internal static class ScenePixels
 
     /// <summary>
     /// Whether two layers describe the same pass. The frontend screens' layers are records whose every member compares by
-    /// value: their planes, windows, gradients, tints and HUD instances. An inset scene's scene is compared by its description,
-    /// a picture grid by each cell's picture, mirroring and shading, and a turning floor by its transform and its floor
-    /// instance. Any other layer, such as a gameplay room's, is the same pass only when it is the same instance.
+    /// value: their planes, windows, gradients and tints. A HUD layer is compared by its placed pictures, an inset scene's
+    /// scene by its description, a picture grid by each cell's picture, mirroring and shading, and a turning floor by its
+    /// transform and its floor instance. Any other layer, such as a gameplay room's, is the same pass only when it is the same instance.
     /// </summary>
     private static bool SameLayer(DisplayLayer left, DisplayLayer right) => left switch
     {
@@ -74,10 +78,19 @@ internal static class ScenePixels
         TurningFloorLayer leftFloor => right is TurningFloorLayer rightFloor && leftFloor.Transform == rightFloor.Transform
             && ReferenceEquals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
             && leftFloor.AddsForeground == rightFloor.AddsForeground,
+        HudLayer leftHud => right is HudLayer rightHud && leftHud.TransparentColorZero == rightHud.TransparentColorZero
+            && leftHud.Priority == rightHud.Priority && SameHud(leftHud.Hud, rightHud.Hud),
         PicturedPlaneLayer or AddedPicturedPlaneLayer or SpritesLayer or SpriteDepthLayer or ScreenTintLayer or ScreenGradientLayer
-            or ColourAddWindowLayer or HudLayer => left.Equals(right),
+            or ColourAddWindowLayer => left.Equals(right),
         _ => false,
     };
+
+    /// <summary>
+    /// Whether two pictured HUDs place the same pictures at the same cells in the same shadings and order. A pictured HUD
+    /// compares by reference, so two screens resolving the same HUD hold different instances of the same content.
+    /// </summary>
+    private static bool SameHud(PicturedHud left, PicturedHud right) =>
+        ReferenceEquals(left, right) || left.Pictures.AsSpan().SequenceEqual(right.Pictures.AsSpan());
 
     /// <summary>Whether two picture grids show the same picture in every cell, mirrored and shaded alike.</summary>
     private static bool SameGrid(PictureGrid left, PictureGrid right) =>

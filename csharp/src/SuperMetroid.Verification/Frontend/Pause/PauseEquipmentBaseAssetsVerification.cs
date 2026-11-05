@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>
@@ -37,7 +38,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             var shownInstalled = installed.ShownVram();
             AssertTrue(shownNative.SequenceEqual(shownInstalled),
                 "equipment base migration retains exact native VRAM through both page transitions");
-            AssertTrue(native.Render().SequenceEqual(installed.Render()),
+            AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), installed.CaptureRenderSnapshot()),
                 "equipment base migration retains native pixels with its source forbidden");
         }
         AssertEqual(PauseScreenMode.Map, installed.ScreenMode, "equipment base fixture returns to the map page");

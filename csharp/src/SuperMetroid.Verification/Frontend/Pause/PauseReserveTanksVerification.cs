@@ -38,8 +38,10 @@ internal static class PauseReserveTanksVerification
             {
                 samus.ReserveEnergy = supply;
                 pause.Step(0, 0, frameCounterByte: phase);
-                var actual = pause.Render();
+                // The frame is captured once and drawn once; the repaint and restore checks compare descriptions,
+                // drawing only one that differs (#1532).
                 var capture = pause.CaptureRenderSnapshot();
+                var actual = DisplayRendering.Render(capture);
                 byte[] captureVram = pause.ShownVram();
                 var native = new OamBuffer();
                 native.BeginFrame();
@@ -71,19 +73,13 @@ internal static class PauseReserveTanksVerification
                 for (int y = 88; y < 120; y++)
                 for (int x = 16; x < 72; x++)
                     AssertEqual(expected[y * 256 + x], actual[y * 256 + x], $"reserve tank pixels {capacity}/{supply}/phase{phase} at {x},{y}");
-                AssertTrue(actual.SequenceEqual(pause.Render()), "rendering tank strip does not advance fill flicker");
+                AssertTrue(ScenePixels.Same(capture, pause.CaptureRenderSnapshot()), "rendering tank strip does not advance fill flicker");
                 if (capacity == 100 && supply == 1 && phase == 4)
                 {
-                    using var saved = new MemoryStream();
-                    DebuggerObjectGraphSerializer.Serialize(saved, pause);
-                    saved.Position = 0;
-                    var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(saved);
+                    // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+                    var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
                     restored.BindFixtureArtwork(RetailPresentationFixture());
-                    AssertTrue(actual.SequenceEqual(restored.Render()), "saved pause preserves nonzero native tank-flicker phase");
-                }
-                if (capacity == 400 && supply == 199 && phase == 0)
-                {
-
+                    AssertTrue(ScenePixels.Same(capture, restored.CaptureRenderSnapshot()), "saved pause preserves nonzero native tank-flicker phase");
                 }
                 cases++;
 

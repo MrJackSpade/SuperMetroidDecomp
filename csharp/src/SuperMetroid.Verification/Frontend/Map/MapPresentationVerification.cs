@@ -637,10 +637,8 @@ internal static class MapPresentationVerification
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
                 shownInstalled.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select writes the exact projected tilemap");
-        using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
-        snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics>(snapshot);
+        // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
+        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed);
         restored.BindFixtureArtwork(original);
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
             "restored file-select graphics keep the installed pixels");

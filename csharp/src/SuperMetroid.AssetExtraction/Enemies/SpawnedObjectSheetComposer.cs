@@ -145,9 +145,10 @@ internal static class SpawnedObjectSheetComposer
                     EncounterFrameDefinitions.DrawnInRowOf.TryGetValue(frame, out EnemyDefinitionId rowOwner) ? rowOf(rowOwner)
                         : EncounterFrameDefinitions.DrawnInEncounterRow.Contains(frame) ? EncounterRow(frame, plan.Spawners, rowOf) : 0),
                 Drawn(FrameDrawings.Of(frame)), RotEncounterFrames.Contains(frame))))];
-        // Each spawner whose encounter sets colours leaves them in the rows they write, and a frame family always drawn in
-        // one colouring is coloured in it (#1513).
-        RgbColor[] colours = shades.WithFrameColourings(shades.FirstShownColours(plan.Spawners), frames, plan.Palette);
+        // Each spawner whose encounter sets colours leaves them in the rows they write, the enemies spawning onto the shared
+        // sheet with the room's graphics among them (the statue fragments and orbs a Torizo's colours show, Spore Spawn's
+        // spores), and a frame family always drawn in one colouring is coloured in it (#1513).
+        RgbColor[] colours = shades.WithFrameColourings(shades.FirstShownColours(plan.Spawners.Concat(plan.SharedSpawners)), frames, plan.Palette);
         return new SpawnedObjectSheetSource(plan,
             new SpriteSheetSources([.. frames.SelectMany(pictures => pictures.Sources)], colours,
                 ObjectSelectionCodec.GameplaySizes, plan.Palette,

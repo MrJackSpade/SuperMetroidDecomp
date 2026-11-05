@@ -708,7 +708,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2167,
+      "files": 2168,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -111948,7 +111948,6 @@
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/test-support/Assertions",
-        "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -115707,6 +115706,20 @@
       "namespace": "SuperMetroid.Verification.Harness",
       "assemblies": [
         "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Harness/ConcurrentSceneDrawing.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Harness",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Rendering",
+        "csharp/test-support/FrameRendering"
       ]
     },
     {
@@ -121386,7 +121399,6 @@
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/Assertions",
         "csharp/test-support/FrameCapture",
-        "csharp/test-support/FrameRendering",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -139395,7 +139407,9 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
-        "csharp/src/SuperMetroid.Core/Frontend"
+        "csharp/src/SuperMetroid.Core/Frontend",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Map"
       ]
     },
     {

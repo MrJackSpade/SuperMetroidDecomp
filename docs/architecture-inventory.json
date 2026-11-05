@@ -161972,6 +161972,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification.EntryPathFrames",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Fx/RoomFxRetailInventoryVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification.EntryPathFrames.DrawnFrame",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Fx/RoomFxRetailInventoryVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification.RetailFxCatalogs",
       "kind": "record",
       "scope": "test",
@@ -162773,6 +162799,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Harness/BindCase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.ConcurrentSceneDrawing",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/ConcurrentSceneDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.ConcurrentSceneDrawing.DrawingCompanion",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/ConcurrentSceneDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Harness.ConcurrentSceneDrawing.SceneDraw",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/ConcurrentSceneDrawing.cs"
       ],
       "partial": "none",
       "disposition": "value"

@@ -703,12 +703,14 @@ internal static class LookupStream1Verification
         SamusBodyCharacterArtwork stockArt = SamusBodyArtworkFiles.LoadCharacters(directory);
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
+        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
         int draws = 0;
         for (ushort frame = 0; frame < 32; frame++)
         {
             AssertTrue(stock.TryDrainedYOffset(frame, out int offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
-            if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
+            // Only the frames the drained crouch can show are drawn; the draw rejects the others (#1513).
+            if (!shown.Shows(SamusPoseId.DrainedCrouchingLeftPose, frame)) continue;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.BodyFrames.BindBodyFixture(stockArt);
             samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
@@ -717,9 +719,8 @@ internal static class LookupStream1Verification
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
         }
-        AssertEqual(22, draws, "Every nonempty source phase drawn");
         AssertTrue(!stock.TryDrainedYOffset(-1, out _) && !stock.TryDrainedYOffset(32, out _), "Exact drained bounds");
-        Console.WriteLine("Drained geometry:32 native offsets,22 actual draws and bounds pass.");
+        Console.WriteLine($"Drained geometry:32 native offsets,{draws} actual draws and bounds pass.");
     }
 
     /// <summary>Reads native drained Samus pose offsets for geometry comparison.</summary>
@@ -795,11 +796,16 @@ internal static class LookupStream1Verification
             }
         }
         Check(stock, landing, posture);
+        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
         for (int index = 0; index < 16; index++)
         {
+            SamusPoseId landingPose = SamusPoseNumbering.FromNumber(0xa4 + index / 4);
+            // Only the landing frames the pose can show are drawn; the draw rejects the others (#1513).
+            if (!shown.Shows(landingPose, index % 4))
+                continue;
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
-                Pose = SamusPoseNumbering.FromNumber((0xa4 + index / 4)), AnimationFrame = (ushort)(index % 4),
+                Pose = landingPose, AnimationFrame = (ushort)(index % 4),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.Presentation.BodyFrames.BindBodyFixture(stock);

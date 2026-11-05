@@ -198,8 +198,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.CrocomireTongueMeltingPose4,
     ];
 
-    /// <summary>The frames <c>Bosses/Draygon/DraygonBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Draygon =
+    /// <summary>The frames <c>Bosses/Draygon/DraygonBehavior.cs</c> shows for <c>DraygonArms</c>.</summary>
+    private static readonly EnemyFrameId[] DraygonArmsFrames =
     [
         EnemyFrameId.DraygonFrame0,
         EnemyFrameId.DraygonFrame1,
@@ -211,6 +211,21 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.DraygonFrame24,
         EnemyFrameId.DraygonFrame25,
         EnemyFrameId.DraygonFrame26,
+        EnemyFrameId.DraygonFrame41,
+        EnemyFrameId.DraygonFrame42,
+        EnemyFrameId.DraygonFrame43,
+        EnemyFrameId.DraygonFrame44,
+        EnemyFrameId.DraygonFrame45,
+        EnemyFrameId.DraygonFrame46,
+        EnemyFrameId.DraygonFrame64,
+        EnemyFrameId.DraygonFrame65,
+        EnemyFrameId.DraygonFrame66,
+        EnemyFrameId.DraygonFrame67,
+    ];
+
+    /// <summary>The frames <c>Bosses/Draygon/DraygonBehavior.cs</c> shows for <c>DraygonTail</c>.</summary>
+    private static readonly EnemyFrameId[] DraygonTailFrames =
+    [
         EnemyFrameId.DraygonFrame27,
         EnemyFrameId.DraygonFrame28,
         EnemyFrameId.DraygonFrame29,
@@ -225,16 +240,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.DraygonFrame38,
         EnemyFrameId.DraygonFrame39,
         EnemyFrameId.DraygonFrame40,
-        EnemyFrameId.DraygonFrame41,
-        EnemyFrameId.DraygonFrame42,
-        EnemyFrameId.DraygonFrame43,
-        EnemyFrameId.DraygonFrame44,
-        EnemyFrameId.DraygonFrame45,
-        EnemyFrameId.DraygonFrame46,
-        EnemyFrameId.DraygonFrame64,
-        EnemyFrameId.DraygonFrame65,
-        EnemyFrameId.DraygonFrame66,
-        EnemyFrameId.DraygonFrame67,
         EnemyFrameId.DraygonFrame68,
         EnemyFrameId.DraygonFrame69,
         EnemyFrameId.DraygonFrame70,
@@ -249,40 +254,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.DraygonFrame79,
         EnemyFrameId.DraygonFrame80,
         EnemyFrameId.DraygonFrame81,
-        EnemyFrameId.DraygonFrame6,
-        EnemyFrameId.DraygonFrame7,
-        EnemyFrameId.DraygonFrame8,
-        EnemyFrameId.DraygonFrame9,
-        EnemyFrameId.DraygonFrame10,
-        EnemyFrameId.DraygonFrame11,
-        EnemyFrameId.DraygonFrame12,
-        EnemyFrameId.DraygonFrame13,
-        EnemyFrameId.DraygonFrame14,
-        EnemyFrameId.DraygonFrame15,
-        EnemyFrameId.DraygonFrame16,
-        EnemyFrameId.DraygonFrame17,
-        EnemyFrameId.DraygonFrame18,
-        EnemyFrameId.DraygonFrame19,
-        EnemyFrameId.DraygonFrame20,
-        EnemyFrameId.DraygonFrame21,
-        EnemyFrameId.DraygonFrame22,
-        EnemyFrameId.DraygonFrame47,
-        EnemyFrameId.DraygonFrame48,
-        EnemyFrameId.DraygonFrame49,
-        EnemyFrameId.DraygonFrame50,
-        EnemyFrameId.DraygonFrame51,
-        EnemyFrameId.DraygonFrame52,
-        EnemyFrameId.DraygonFrame53,
-        EnemyFrameId.DraygonFrame54,
-        EnemyFrameId.DraygonFrame55,
-        EnemyFrameId.DraygonFrame56,
-        EnemyFrameId.DraygonFrame57,
-        EnemyFrameId.DraygonFrame58,
-        EnemyFrameId.DraygonFrame59,
-        EnemyFrameId.DraygonFrame60,
-        EnemyFrameId.DraygonFrame61,
-        EnemyFrameId.DraygonFrame62,
-        EnemyFrameId.DraygonFrame63,
     ];
 
     /// <summary>The frames <c>Bosses/Kraid/FakeKraidBehavior.cs</c> shows.</summary>
@@ -304,19 +275,9 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.FakeKraidSpitRight2,
     ];
 
-    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows.</summary>
-    private static readonly EnemyFrameId[] Kraid =
+    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidArm</c>.</summary>
+    private static readonly EnemyFrameId[] KraidArmFrames =
     [
-        EnemyFrameId.KraidNail0,
-        EnemyFrameId.KraidNail1,
-        EnemyFrameId.KraidNail2,
-        EnemyFrameId.KraidNail3,
-        EnemyFrameId.KraidNail4,
-        EnemyFrameId.KraidNail5,
-        EnemyFrameId.KraidNail6,
-        EnemyFrameId.KraidNail7,
-        EnemyFrameId.KraidLint00,
-        EnemyFrameId.KraidLint01,
         EnemyFrameId.KraidArm0,
         EnemyFrameId.KraidArm1,
         EnemyFrameId.KraidArm2,
@@ -339,6 +300,11 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KraidArm19,
         EnemyFrameId.KraidArm20,
         EnemyFrameId.KraidArm21,
+    ];
+
+    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidFoot</c>.</summary>
+    private static readonly EnemyFrameId[] KraidFootFrames =
+    [
         EnemyFrameId.KraidFoot0,
         EnemyFrameId.KraidFoot1,
         EnemyFrameId.KraidFoot2,
@@ -374,6 +340,26 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.KraidFoot32,
         EnemyFrameId.KraidFoot33,
         EnemyFrameId.KraidFootStanding,
+    ];
+
+    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidLintBottom</c>, <c>KraidLintMiddle</c>, <c>KraidLintTop</c>.</summary>
+    private static readonly EnemyFrameId[] KraidLintBottomFrames =
+    [
+        EnemyFrameId.KraidLint00,
+        EnemyFrameId.KraidLint01,
+    ];
+
+    /// <summary>The frames <c>Bosses/Kraid/KraidBehavior.cs</c> shows for <c>KraidNail</c>, <c>KraidNailBad</c>.</summary>
+    private static readonly EnemyFrameId[] KraidNailFrames =
+    [
+        EnemyFrameId.KraidNail0,
+        EnemyFrameId.KraidNail1,
+        EnemyFrameId.KraidNail2,
+        EnemyFrameId.KraidNail3,
+        EnemyFrameId.KraidNail4,
+        EnemyFrameId.KraidNail5,
+        EnemyFrameId.KraidNail6,
+        EnemyFrameId.KraidNail7,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> shows.</summary>
@@ -484,35 +470,8 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.Zebetite09,
     ];
 
-    /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows for <c>PhantoonBody</c>.</summary>
-    private static readonly EnemyFrameId[] PhantoonBodyFrames =
-    [
-        EnemyFrameId.PhantoonInvulnerableBody0,
-        EnemyFrameId.PhantoonFullHitboxBody0,
-        EnemyFrameId.PhantoonEyeHitboxBody0,
-        EnemyFrameId.PhantoonClosedEye0,
-        EnemyFrameId.PhantoonOpeningEye0,
-        EnemyFrameId.PhantoonOpeningEye1,
-        EnemyFrameId.PhantoonOpeningEye2,
-        EnemyFrameId.PhantoonCenteredEye0,
-        EnemyFrameId.PhantoonGaze0,
-        EnemyFrameId.PhantoonGaze4,
-        EnemyFrameId.PhantoonGaze6,
-        EnemyFrameId.PhantoonGaze2,
-        EnemyFrameId.PhantoonGaze5,
-        EnemyFrameId.PhantoonGaze3,
-        EnemyFrameId.PhantoonGaze7,
-        EnemyFrameId.PhantoonGaze1,
-        EnemyFrameId.PhantoonTentacle0,
-        EnemyFrameId.PhantoonTentacle1,
-        EnemyFrameId.PhantoonTentacle2,
-        EnemyFrameId.PhantoonMouth0,
-        EnemyFrameId.PhantoonMouth1,
-        EnemyFrameId.PhantoonMouth2,
-    ];
-
-    /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows for <c>PhantoonEye</c>, <c>PhantoonMouth</c>, <c>PhantoonTentacles</c>.</summary>
-    private static readonly EnemyFrameId[] PhantoonEyeFrames =
+    /// <summary>The frames <c>Bosses/Phantoon/PhantoonBehavior.cs</c> shows.</summary>
+    private static readonly EnemyFrameId[] Phantoon =
     [
         EnemyFrameId.PhantoonInvulnerableBody0,
         EnemyFrameId.PhantoonFullHitboxBody0,
@@ -2298,19 +2257,16 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Botwoon] = Botwoon,
             [EnemyDefinitionId.Crocomire] = CrocomireFrames,
             [EnemyDefinitionId.CrocomireTongue] = CrocomireTongueFrames,
-            [EnemyDefinitionId.DraygonArms] = Draygon,
-            [EnemyDefinitionId.DraygonBody] = Draygon,
-            [EnemyDefinitionId.DraygonEye] = Draygon,
-            [EnemyDefinitionId.DraygonTail] = Draygon,
+            [EnemyDefinitionId.DraygonArms] = DraygonArmsFrames,
+            [EnemyDefinitionId.DraygonTail] = DraygonTailFrames,
             [EnemyDefinitionId.MiniKraid] = FakeKraid,
-            [EnemyDefinitionId.Kraid] = Kraid,
-            [EnemyDefinitionId.KraidArm] = Kraid,
-            [EnemyDefinitionId.KraidFoot] = Kraid,
-            [EnemyDefinitionId.KraidLintBottom] = Kraid,
-            [EnemyDefinitionId.KraidLintMiddle] = Kraid,
-            [EnemyDefinitionId.KraidLintTop] = Kraid,
-            [EnemyDefinitionId.KraidNail] = Kraid,
-            [EnemyDefinitionId.KraidNailBad] = Kraid,
+            [EnemyDefinitionId.KraidArm] = KraidArmFrames,
+            [EnemyDefinitionId.KraidFoot] = KraidFootFrames,
+            [EnemyDefinitionId.KraidLintBottom] = KraidLintBottomFrames,
+            [EnemyDefinitionId.KraidLintMiddle] = KraidLintBottomFrames,
+            [EnemyDefinitionId.KraidLintTop] = KraidLintBottomFrames,
+            [EnemyDefinitionId.KraidNail] = KraidNailFrames,
+            [EnemyDefinitionId.KraidNailBad] = KraidNailFrames,
             [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,
             [EnemyDefinitionId.MotherBrainBody] = MotherBrainBodyFrames,
             [EnemyDefinitionId.MotherBrainHead] = MotherBrainHeadFrames,
@@ -2318,10 +2274,10 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Rinka] = Rinka,
             [EnemyDefinitionId.BabyMetroid] = Shitroid,
             [EnemyDefinitionId.Zebetite] = Zebetite,
-            [EnemyDefinitionId.PhantoonBody] = PhantoonBodyFrames,
-            [EnemyDefinitionId.PhantoonEye] = PhantoonEyeFrames,
-            [EnemyDefinitionId.PhantoonMouth] = PhantoonEyeFrames,
-            [EnemyDefinitionId.PhantoonTentacles] = PhantoonEyeFrames,
+            [EnemyDefinitionId.PhantoonBody] = Phantoon,
+            [EnemyDefinitionId.PhantoonEye] = Phantoon,
+            [EnemyDefinitionId.PhantoonMouth] = Phantoon,
+            [EnemyDefinitionId.PhantoonTentacles] = Phantoon,
             [EnemyDefinitionId.Ridley] = RidleyFrames,
             [EnemyDefinitionId.RidleyCeres] = RidleyFrames,
             [EnemyDefinitionId.RidleyExplosion] = RidleyExplosionFrames,

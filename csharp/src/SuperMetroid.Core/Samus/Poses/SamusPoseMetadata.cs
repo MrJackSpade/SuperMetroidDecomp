@@ -504,6 +504,14 @@ internal static class SamusPoseMetadata
     /// <returns>Whether the pose is a left-to-right aerial turn admitted by the transition selector.</returns>
     public static bool IsLeftToRightAerialTurnPose(SamusPoseId pose) => IsRightToLeftAerialTurnPose(SamusPoseMirror.Of(pose));
 
+    /// <summary>
+    /// Every pose some path of the game gives Samus, in the game's numbering: each pose with a record except
+    /// <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
+    /// </summary>
+    internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
+        [.. Enumerable.Range(0, SamusPoseNumbering.RecordCount).Select(SamusPoseNumbering.FromNumber)
+            .Except(SamusUnreachablePoseDefinitions.Poses)];
+
     /// <summary>True for the four drained bodies $E8-$EB that Mother Brain's controllers install.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is
         SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or

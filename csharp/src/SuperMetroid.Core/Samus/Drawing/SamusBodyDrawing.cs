@@ -32,11 +32,10 @@ internal static class SamusBodyDrawing
     /// without initializing it, so the movement type of the pose Samus was last initialized in stays in force, and nothing
     /// in the commands checks which pose that was (the Mother Brain glitch recording carries a spin jump's movement into
     /// the drained standing pose). They are the movement types of every pose Samus can be initialized in, the drained
-    /// poses' own among them.
+    /// poses' own among them: the poses some path of the game gives her.
     /// </summary>
     private static readonly SamusMovementType[] DrainedPoseMovementTypes =
-        [.. Enumerable.Range(0, InstalledSamusBodyArtwork.PoseCount).Select(SamusPoseNumbering.FromNumber)
-            .Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
+        [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
 
     /// <summary>
     /// Every movement type the body can be drawn with in <paramref name="pose"/>: the pose's own, except for the drained

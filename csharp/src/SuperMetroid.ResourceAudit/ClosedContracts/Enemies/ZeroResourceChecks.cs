@@ -10,5 +10,5 @@ internal static class ZeroResourceChecks
     public static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Zero", ZeroVisualDefinitions.Bank,
         EnemyCompositionSchemaTooling.Family("zero_crawler_").Select(frame => frame.Pointer),
         ZeroVisualDefinitions.FrameCount,
-        EnemySpritemapDefinitions.PreZeroFrameCount);
+        EnemySpritemapToolingDefinitions.PreZeroFrameCount);
 }

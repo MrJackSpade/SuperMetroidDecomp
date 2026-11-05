@@ -125,163 +125,163 @@ internal static class EnemySpritemapArtworkVerification
     {
         AssertTrue(stock.Enemies.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount,
-            EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount,
+            EnemySpritemapDefinitionsConstants.PreDisplayBindingsFrameCount,
             "Ceres-door expansion retains the previous display-binding identities");
-        AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount + 15,
-            EnemySpritemapDefinitions.PreCeresBabyFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresDoorFrameCount + 15,
+            EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount,
             "Ceres door adds its thirteen selected poses, initial pose, and private overlay");
-        AssertEqual(EnemySpritemapDefinitions.PreCeresBabyFrameCount + 3,
-            EnemySpritemapDefinitions.PreRioFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreCeresBabyFrameCount + 3,
+            EnemySpritemapDefinitionsConstants.PreRioFrameCount,
             "Ceres Baby adds its three authored OAM poses");
-        AssertEqual(EnemySpritemapDefinitions.PreRioFrameCount + 8,
-            EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRioFrameCount + 8,
+            EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount,
             "Rio adds its eight distinct OAM compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreLowerNorfairRioFrameCount + 18,
-            EnemySpritemapDefinitions.PreNorfairRioFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount + 18,
+            EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount,
             "Lower Norfair Rio adds its eighteen parent and flame compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreNorfairRioFrameCount + 20,
-            EnemySpritemapDefinitions.PrePuyoFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount + 20,
+            EnemySpritemapDefinitionsConstants.PrePuyoFrameCount,
             "Norfair Rio adds its twenty parent and flame compositions");
-        AssertEqual(EnemySpritemapDefinitions.PrePuyoFrameCount + 8,
-            EnemySpritemapDefinitions.PreBullFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PrePuyoFrameCount + 8,
+            EnemySpritemapDefinitionsConstants.PreBullFrameCount,
             "Puyo adds its eight distinct ground and airborne compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreBullFrameCount + 3,
-            EnemySpritemapDefinitions.PreAlcoonFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreBullFrameCount + 3,
+            EnemySpritemapDefinitionsConstants.PreAlcoonFrameCount,
             "Bull adds its three distinct normal and immune-shot compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreAlcoonFrameCount + 18,
-            EnemySpritemapDefinitions.PreBeetomFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreAlcoonFrameCount + 18,
+            EnemySpritemapDefinitionsConstants.PreBeetomFrameCount,
             "Alcoon adds eighteen left/right walking, firing, and airborne compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreBeetomFrameCount + 22,
-            EnemySpritemapDefinitions.PreHopperFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreBeetomFrameCount + 22,
+            EnemySpritemapDefinitionsConstants.PreHopperFrameCount,
             "Beetom adds twenty-two distinct crawl, hop, and drain compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreHopperFrameCount + 24,
-            EnemySpritemapDefinitions.PreChootFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreHopperFrameCount + 24,
+            EnemySpritemapDefinitionsConstants.PreChootFrameCount,
             "Hoppers add twenty-four distinct floor/ceiling compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreChootFrameCount + 4,
-            EnemySpritemapDefinitions.PreHZoomerFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreChootFrameCount + 4,
+            EnemySpritemapDefinitionsConstants.PreHZoomerFrameCount,
             "Choot adds four idle, jumping, and falling compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreHZoomerFrameCount + 20,
-            EnemySpritemapDefinitions.PreSbugFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreHZoomerFrameCount + 20,
+            EnemySpritemapDefinitionsConstants.PreSbugFrameCount,
             "HZoomer adds five frames in each of four surface orientations");
-        AssertEqual(EnemySpritemapDefinitions.PreSbugFrameCount + 24,
-            EnemySpritemapDefinitions.PreFuneNamiheFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreSbugFrameCount + 24,
+            EnemySpritemapDefinitionsConstants.PreFuneNamiheFrameCount,
             "Sbug adds three distinct frames in each of eight facing directions");
-        AssertEqual(EnemySpritemapDefinitions.PreFuneNamiheFrameCount + 22,
-            EnemySpritemapDefinitions.PreKamerFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreFuneNamiheFrameCount + 22,
+            EnemySpritemapDefinitionsConstants.PreKamerFrameCount,
             "Fune/Namihe add all left/right idle and active OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreKamerFrameCount + 4,
-            EnemySpritemapDefinitions.PreElevatorFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreKamerFrameCount + 4,
+            EnemySpritemapDefinitionsConstants.PreElevatorFrameCount,
             "Kamer platform adds its four native OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreElevatorFrameCount + 2,
-            EnemySpritemapDefinitions.PreDraygonIntroFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreElevatorFrameCount + 2,
+            EnemySpritemapDefinitionsConstants.PreDraygonIntroFrameCount,
             "elevator adds its two native OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreDraygonIntroFrameCount + 4,
-            EnemySpritemapDefinitions.PreDraygonBreathFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonIntroFrameCount + 4,
+            EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount,
             "Draygon intro adds its four native Evir sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitions.PreDraygonBreathFrameCount + 9,
-            EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreDraygonBreathFrameCount + 9,
+            EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount,
             "Draygon breath bubble adds its nine native sprite-object frames");
-        AssertEqual(EnemySpritemapDefinitions.PreRoomSpriteObjectFrameCount + 263,
-            EnemySpritemapDefinitions.PreYappingMawFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRoomSpriteObjectFrameCount + 263,
+            EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount,
             "remaining room sprite-object programs add 263 distinct visual frames");
-        AssertEqual(EnemySpritemapDefinitions.PreYappingMawFrameCount + 24,
-            EnemySpritemapDefinitions.PreKiHunterFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount + 24,
+            EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount,
             "Yapping Maw adds 24 distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreKiHunterFrameCount + 41,
-            EnemySpritemapDefinitions.PreMotherBrainFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount + 41,
+            EnemySpritemapDefinitionsConstants.PreMotherBrainFrameCount,
             "KiHunter adds 41 distinct body and wing OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreMotherBrainFrameCount + 18,
-            EnemySpritemapDefinitions.PreDeadTorizoFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreMotherBrainFrameCount + 18,
+            EnemySpritemapDefinitionsConstants.PreDeadTorizoFrameCount,
             "Mother Brain adds eighteen head, neck, and falling-tube OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoFrameCount + 1,
-            EnemySpritemapDefinitions.PreRidleySupplementFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTorizoFrameCount + 1,
+            EnemySpritemapDefinitionsConstants.PreRidleySupplementFrameCount,
             "Dead Torizo adds its private corpse OAM frame");
-        AssertEqual(EnemySpritemapDefinitions.PreRidleySupplementFrameCount + 31,
-            EnemySpritemapDefinitions.PreSciserFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRidleySupplementFrameCount + 31,
+            EnemySpritemapDefinitionsConstants.PreSciserFrameCount,
             "Ridley adds sixteen tips, twelve wings, and three tail segment OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreSciserFrameCount + 12,
-            EnemySpritemapDefinitions.PreFlyFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreSciserFrameCount + 12,
+            EnemySpritemapDefinitionsConstants.PreFlyFrameCount,
             "Sciser adds twelve distinct surface-animation OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreFlyFrameCount + 4,
-            EnemySpritemapDefinitions.PreKagoFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreFlyFrameCount + 4,
+            EnemySpritemapDefinitionsConstants.PreKagoFrameCount,
             "Mellow, Mella and Memu share four flight OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreKagoFrameCount + 3,
-            EnemySpritemapDefinitions.PreFaceBlockFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreKagoFrameCount + 3,
+            EnemySpritemapDefinitionsConstants.PreFaceBlockFrameCount,
             "Kago adds three OAM frames shared by its slow and fast loops");
-        AssertEqual(EnemySpritemapDefinitions.PreFaceBlockFrameCount + 5,
-            EnemySpritemapDefinitions.PreMorphBallEyeFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreFaceBlockFrameCount + 5,
+            EnemySpritemapDefinitionsConstants.PreMorphBallEyeFrameCount,
             "face block adds five distinct neutral and directional OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreMorphBallEyeFrameCount + 22,
-            EnemySpritemapDefinitions.PreShutterFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreMorphBallEyeFrameCount + 22,
+            EnemySpritemapDefinitionsConstants.PreShutterFrameCount,
             "Morph Ball eye and mount add twenty-two distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreShutterFrameCount + 5,
-            EnemySpritemapDefinitions.PreMetroidFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreShutterFrameCount + 5,
+            EnemySpritemapDefinitionsConstants.PreMetroidFrameCount,
             "growing, vertical and horizontal shutters share five distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreMetroidFrameCount + 4,
-            EnemySpritemapDefinitions.PreShaktoolFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreMetroidFrameCount + 4,
+            EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount,
             "both ordinary-Metroid loops share four distinct body OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreShaktoolFrameCount + 15,
-            EnemySpritemapDefinitions.PreTripperKamerFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount + 15,
+            EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount,
             "Shaktool's saw, arm, and head programs select fifteen OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreTripperKamerFrameCount + 18,
-            EnemySpritemapDefinitions.PreDragonFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount + 18,
+            EnemySpritemapDefinitionsConstants.PreDragonFrameCount,
             "Tripper/Kamer add sixteen animated and two frozen OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreDragonFrameCount + 12,
-            EnemySpritemapDefinitions.PreMultiviolaFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreDragonFrameCount + 12,
+            EnemySpritemapDefinitionsConstants.PreMultiviolaFrameCount,
             "Dragon adds twelve distinct body and wing OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreMultiviolaFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreMultiviolaFrameCount +
                 MultiviolaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount,
+            EnemySpritemapDefinitionsConstants.PreNorfairLavaJumperFrameCount,
             "Multiviola adds eight distinct spinning OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreNorfairLavaJumperFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairLavaJumperFrameCount +
                 NorfairLavaJumperVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreChozoStatueFrameCount,
+            EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount,
             "Norfair lava jumper adds ten visible and one empty OAM frame");
-        AssertEqual(EnemySpritemapDefinitions.PreChozoStatueFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount +
                 ChozoStatueVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreViolaFrameCount,
+            EnemySpritemapDefinitionsConstants.PreViolaFrameCount,
             "Lower Norfair and Wrecked Ship Chozo share twenty-six OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreViolaFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreViolaFrameCount +
                 ViolaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreRinkaFrameCount,
+            EnemySpritemapDefinitionsConstants.PreRinkaFrameCount,
             "Viola adds eight distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitions.PreRinkaFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreRinkaFrameCount +
                 RinkaVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount,
+            EnemySpritemapDefinitionsConstants.PreDeadTorizoStationaryFrameCount,
             "Rinka adds five OAM frames shared by ordinary and boss loops");
-        AssertEqual(EnemySpritemapDefinitions.PreDeadTorizoStationaryFrameCount + 1,
-            EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTorizoStationaryFrameCount + 1,
+            EnemySpritemapDefinitionsConstants.PreDeadTourianCorpseFrameCount,
             "Dead Torizo adds its stationary corpse composition after version 53");
-        AssertEqual(EnemySpritemapDefinitions.PreDeadTourianCorpseFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTourianCorpseFrameCount +
                 DeadTourianCorpseVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreMochtroidFrameCount,
+            EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount,
             "dead Zoomer, Ripper, Skree, and Sidehopper add thirteen compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreMochtroidFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount +
                 MochtroidVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreEvirFrameCount,
+            EnemySpritemapDefinitionsConstants.PreEvirFrameCount,
             "Mochtroid adds six free-flight and attached OAM compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreEvirFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreEvirFrameCount +
                 EvirVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreWorkRobotFrameCount,
+            EnemySpritemapDefinitionsConstants.PreWorkRobotFrameCount,
             "Evir adds 24 body, arms, and projectile compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreWorkRobotFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreWorkRobotFrameCount +
                 WorkRobotVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreYardFrameCount,
+            EnemySpritemapDefinitionsConstants.PreYardFrameCount,
             "Work Robot adds 27 powered and unpowered compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreYardFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreYardFrameCount +
                 YardVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreBotwoonFrameCount,
+            EnemySpritemapDefinitionsConstants.PreBotwoonFrameCount,
             "Yard adds 104 crawling, turn, hiding, and airborne compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreBotwoonFrameCount +
                 BotwoonVisualDefinitionsConstants.Frames().Length,
-            EnemySpritemapDefinitions.PreGunshipFrameCount,
+            EnemySpritemapDefinitionsConstants.PreGunshipFrameCount,
             "Botwoon adds sixteen distinct visible head compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreGunshipFrameCount +
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreGunshipFrameCount +
                 GunshipVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.PreMamaTurtleFrameCount,
+            EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount,
             "Gunship adds two hull and eleven entrance-pad compositions");
-        AssertEqual(EnemySpritemapDefinitions.PreMamaTurtleFrameCount +
+        AssertEqual(EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount +
                 MamaTurtleVisualDefinitions.FrameCount + ZeroVisualDefinitions.FrameCount +
                 FriendlyAnimalVisualDefinitions.EtecoonFrameCount +
                 FriendlyAnimalVisualDefinitions.DachoraFrameCount +

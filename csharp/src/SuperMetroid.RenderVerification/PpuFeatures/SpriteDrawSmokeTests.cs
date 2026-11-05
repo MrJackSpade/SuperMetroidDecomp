@@ -53,7 +53,7 @@ internal static class SpriteDrawSmokeTests
                 priorities[pixel] = 3;
                 sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgbaPixel();
             }
-            var sheet = new SpriteImage("Ordering", size, sheetPixels, indices,
+            var sheet = SpriteImageFixtures.Copied("Ordering", size, sheetPixels, indices,
                 new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), priorities);
             SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default,
                 ImageColourGroups.Of(ImageColourGroup.Numbered(frame)));
@@ -111,7 +111,7 @@ internal static class SpriteDrawSmokeTests
                 sheetPriorities[pixel] = (byte)random.Next(4);
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();
             }
-            var sheet = new SpriteImage("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
+            var sheet = SpriteImageFixtures.Copied("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
                 sheetPriorities);
             for (int index = random.Next(1, 6); index > 0; index--)
             {

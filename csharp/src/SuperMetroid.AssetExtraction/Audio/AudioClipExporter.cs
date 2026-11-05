@@ -186,16 +186,14 @@ internal static class AudioClipExporter
         {
             return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, null,
                 [.. layers.Select(layer => new InstalledSoundEffectLayer(
-                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart,
-                    SoundEffectVoicesCodec.FromVoiceMask(layer.Voice), layer.KeyOnFrames))]);
+                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart, layer.KeyOnFrames))]);
         }
         var shot = (SoundEffectRendering.OneShot)share.Rendering;
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
         return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, shot.ActiveFrames,
             shot.Clip.Length == 0
                 ? []
-                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null,
-                    SoundEffectVoicesCodec.FromVoiceMask(shot.Voices), shot.KeyOnFrames)]);
+                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null, shot.KeyOnFrames)]);
     }
 
     /// <summary>

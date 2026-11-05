@@ -17,7 +17,7 @@ internal static class FramePaintTestsVerification
         var sprites = new SpriteFrameBuffer();
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 97)));
-        var image = new SpriteImage("Fixture", new(8, 8), new RgbaPixel[64], new byte[64],
+        var image = SpriteImageFixtures.Copied("Fixture", new(8, 8), new RgbaPixel[64], new byte[64],
             new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]), new byte[64]);
         // The fixture picture is kept as an installed sprite sheet's would be, with no palette bits, so a capture colours
         // its inks from the cartridge colours as the loader's pictures are (#1512).

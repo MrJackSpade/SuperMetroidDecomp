@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Fx;

@@ -6,7 +6,6 @@ using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.MaridiaSnails;

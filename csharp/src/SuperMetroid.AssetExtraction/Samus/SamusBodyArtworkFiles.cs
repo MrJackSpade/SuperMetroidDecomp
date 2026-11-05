@@ -172,7 +172,7 @@ public static class SamusBodyArtworkFiles
                 for (int i = 0; i < byteCount; i++)
                     planar[position * SamusBodyCharacterArtwork.BytesPerDefinitionSlot + i] =
                         bus.ReadCartridgeByte(sourceAddress + i);
-                sets[set][position] = new DefinitionEntry(sourceAddress, firstSize, secondSize);
+                sets[set][position] = new DefinitionEntry(firstSize, secondSize);
             }
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, TileWidth / 8,
                 out Extent16<ImagePixels> size);
@@ -324,7 +324,7 @@ public static class SamusBodyArtworkFiles
         Dictionary<string, string> Hashes);
 
     /// <summary>Retains one native DMA source address and the two transfer lengths sharing its PNG slot.</summary>
-    internal sealed record DefinitionEntry(int SourceAddress, int FirstSize, int SecondSize)
+    internal sealed record DefinitionEntry(int FirstSize, int SecondSize)
     {
         /// <summary>The first transfer's byte count, 0 through 65535 (a DMA size).</summary>
         public int FirstSize { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, FirstSize);

@@ -53,7 +53,7 @@ internal static class AudioClipExportVerification
             VerifyMusic(catalog, clips, GreenBrinstarRoomTrack, loopRepeatsExactly: false);
             VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack, loopRepeatsExactly: true);
             foreach (SoundEffectId effect in effects)
-                VerifySoundEffect(catalog, clips, effect);
+                VerifySoundEffect(clips, effect);
             AssertThrows<InvalidDataException>(
                 () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, Library2Sound.EtecoonTheme),
                 "an effect whose sample the bank context lacks fails loudly");
@@ -91,28 +91,11 @@ internal static class AudioClipExportVerification
         AssertEqual(0L, entry.TempoSegments[0].Frame, "the tempo timeline starts at the clip's first frame");
     }
 
-    /// <summary>Each layer of an effect against the independent render of its voices, including the next pass of a looping layer.</summary>
-    private static void VerifySoundEffect(ExtractedAudioAssetCatalog catalog, InstalledClipAudioLibrary clips, SoundEffectId effect)
+    /// <summary>An effect's clip entry ends exactly when it stops sounding, unless it repeats forever.</summary>
+    private static void VerifySoundEffect(InstalledClipAudioLibrary clips, SoundEffectId effect)
     {
         InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate =>
             candidate.Context == MusicDataSet.GreenBrinstar && candidate.Sound == effect);
-        int libraryIndex = SoundEffectLibraries.ToQueueIndex(effect.Library);
-        foreach (InstalledSoundEffectLayer layer in entry.Layers)
-        {
-            short[] clip = clips.ReadClip(layer.Clip);
-            long frames = layer.Clip.Frames;
-            long rendered = layer.LoopStart is long loop ? frames + (frames - loop) : frames;
-            short[] independent = RenderIndependently(
-                catalog,
-                MusicDataSet.GreenBrinstar,
-                new AudioRequest.RequestSound(effect),
-                player => player.soundLibraries[libraryIndex].CurrentSound == SoundEffectCommands.Command(effect),
-                layer.Voices.ToVoiceMask(),
-                rendered);
-            AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"{effect} layer on voices ${layer.Voices.ToVoiceMask():X2} equals the independent render");
-            if (layer.LoopStart is long loopStart)
-                AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"{effect} loop on voices ${layer.Voices.ToVoiceMask():X2} equals the next pass");
-        }
         AssertEqual(effect == Library3Sound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
 

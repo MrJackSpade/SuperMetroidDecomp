@@ -44,7 +44,7 @@ internal static class NativeColouredPictures
             indices[pixel] = checked((byte)ink.PaletteIndex);
             priorities[pixel] = checked((byte)ink.Priority);
         }
-        return new SpriteImage(picture.Name, picture.Size, shown, indices,
+        return SpriteImageFixtures.Copied(picture.Name, picture.Size, shown, indices,
             new SpriteImagePalette(picture.Colours, [.. standard]), priorities);
     }
 

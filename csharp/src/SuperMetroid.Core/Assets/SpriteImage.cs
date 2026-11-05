@@ -22,30 +22,14 @@ public sealed class SpriteImage
     /// <summary>The colours the image was coloured with.</summary>
     private readonly RgbColor[] standardColours;
 
-    /// <summary>Copies the pixels, palette indices and standard colours of a named image.</summary>
-    /// <param name="name">The image's installed name, which names it in diagnostics.</param>
-    /// <param name="size">The image's width and height in pixels; both are positive.</param>
-    /// <param name="pixels">Width times height pixels, row by row from the top; a pixel with zero alpha is transparent.</param>
-    /// <param name="paletteIndices">Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</param>
-    /// <param name="palette">Which half of the colour table the palette indices name, and the 128 colours of it the pixels were coloured with.</param>
-    /// <param name="priorities">Each pixel's priority against the backgrounds 0..3, or a background pixel's tile priority 0..1.</param>
-    /// <exception cref="ArgumentException">
-    /// The name is empty, a dimension is zero, a length does not match or a priority exceeds 3.
-    /// </exception>
-    public SpriteImage(string name, Extent16<ImagePixels> size, ReadOnlySpan<RgbaPixel> pixels, ReadOnlySpan<byte> paletteIndices,
-        SpriteImagePalette palette, ReadOnlySpan<byte> priorities)
-        : this(name, size, palette, new Lazy<Content>(Check(name, size, pixels, paletteIndices, priorities)))
-    {
-    }
-
     /// <summary>
     /// Names an image whose pixels <paramref name="decode"/> produces when they are first read. The layers are checked
-    /// then, as the copying constructor checks them now.
+    /// then.
     /// </summary>
     /// <param name="name">The image's installed name, which names it in diagnostics.</param>
     /// <param name="size">The image's width and height in pixels; both are positive.</param>
     /// <param name="palette">Which half of the colour table the palette indices name, and the colours of it the pixels were coloured with.</param>
-    /// <param name="decode">Produces the image's layers, as the copying constructor takes them.</param>
+    /// <param name="decode">Produces the image's layers.</param>
     /// <exception cref="ArgumentException">The name is empty or a dimension is zero.</exception>
     public SpriteImage(string name, Extent16<ImagePixels> size, SpriteImagePalette palette, Func<SpriteImageLayers> decode)
         : this(name, size, palette, Deferred(name, size, decode))

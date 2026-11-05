@@ -329,7 +329,7 @@ internal static class RoomBackgroundsFixtures
             BackgroundSets = [.. InstalledPictureColours.CartridgeOrderSets],
             Frames = frames,
         };
-        return SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
+        return SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
             indices, priorities);
     }
 

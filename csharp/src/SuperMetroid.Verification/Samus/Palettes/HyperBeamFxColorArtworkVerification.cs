@@ -11,10 +11,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Samus.Palettes;

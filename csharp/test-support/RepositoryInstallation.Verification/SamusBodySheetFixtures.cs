@@ -168,7 +168,7 @@ internal static class SamusBodySheetFixtures
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(sheet => sheet, basis.Get);
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
-        SpriteSheet loaded = SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
+        SpriteSheet loaded = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
             $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.Priorities);
         SheetFrameSources.Register(loaded, sources);
         sheets[id] = loaded;

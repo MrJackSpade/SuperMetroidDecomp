@@ -10,7 +10,7 @@ internal static class OrdinaryEnemyResourceChecks
     /// <summary>Selects the reported family and its appended schema range before checking installed ordinary compositions.</summary>
     public static void Run(string family)
     {
-        int previousCount = EnemySpritemapDefinitions.PreAuditOrdinaryFrameCount;
+        int previousCount = EnemySpritemapToolingDefinitions.PreAuditOrdinaryFrameCount;
         // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
         OrdinaryEnemyResourceFamily[] families =
         [

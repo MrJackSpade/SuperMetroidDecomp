@@ -35,19 +35,5 @@ internal static class ImportSpanQueries
             return result;
         }
 
-        /// <summary>A new array of the elements satisfying <paramref name="predicate"/>, in element order.</summary>
-        /// <remarks>Counts first, then fills one exactly sized array, so <paramref name="predicate"/> runs twice per element.</remarks>
-        internal T[] WhereToArray(Func<T, bool> predicate)
-        {
-            Ensure.NotNull(predicate);
-            var result = new T[span.Count(predicate)];
-            int next = 0;
-            foreach (T item in span)
-            {
-                if (predicate(item))
-                    result[next++] = item;
-            }
-            return result;
-        }
     }
 }

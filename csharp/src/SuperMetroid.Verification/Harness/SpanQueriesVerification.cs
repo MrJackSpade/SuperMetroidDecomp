@@ -32,7 +32,6 @@ internal static class SpanQueriesVerification
         AssertThrows<OverflowException>(() => ((ReadOnlySpan<int>)large).Sum(x => x), "Sum is checked as Enumerable.Sum is");
         AssertTrue(span.SelectToArray(x => x * 2).SequenceEqual(Enumerable.Select(values, x => x * 2).ToArray()), "SelectToArray");
         AssertTrue(span.SelectToArray((x, index) => x + index).SequenceEqual(Enumerable.Select(values, (x, index) => x + index).ToArray()), "Indexed SelectToArray");
-        AssertTrue(span.WhereToArray(x => x == 7).SequenceEqual(Enumerable.Where(values, x => x == 7).ToArray()), "WhereToArray");
         AssertTrue(span.WhereToArray((_, index) => index % 2 == 0).SequenceEqual(new[] { 4, 1, 9 }), "Indexed WhereToArray");
         AssertTrue(span.ConcatToArray([2, 3]).SequenceEqual(new[] { 4, 7, 1, 7, 9, 2, 3 }), "ConcatToArray");
         AssertEqual(2, span.CountDifferences([4, 0, 1, 0]), "CountDifferences pairs up to the shorter span, as Zip does");

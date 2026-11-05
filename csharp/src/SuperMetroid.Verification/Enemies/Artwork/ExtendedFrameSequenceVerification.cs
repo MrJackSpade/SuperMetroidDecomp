@@ -26,12 +26,12 @@ internal static class ExtendedFrameSequenceVerification
         foreach (int prefix in new[] { 0, 37, 55, 131, 142, 202, 230, 260, 269, 319,
             320, 321, 343, 349, 359, 370, 373, 379, 400, 401, 406, 408, 420, 447, 464, 520, 553, 588 })
         {
-            AssertTrue(frames[..prefix].SequenceEqual(sequence[..prefix]), "legacy schema prefix");
-            AssertTrue(frames[prefix..].SequenceEqual(sequence[prefix..]), "schema suffix");
+            AssertTrue(frames[..prefix].SequenceEqual(sequence.Slice(..prefix)), "legacy schema prefix");
+            AssertTrue(frames[prefix..].SequenceEqual(sequence.Slice(prefix..)), "schema suffix");
         }
-        AssertTrue(frames[447..464].SequenceEqual(sequence[420..520][27..44]), "nested range offsets");
+        AssertTrue(frames[447..464].SequenceEqual(sequence.Slice(420..520).Slice(27..44)), "nested range offsets");
         bool badRangeRejected = false;
-        try { _ = sequence[..589]; }
+        try { _ = sequence.Slice(..589); }
         catch (ArgumentOutOfRangeException) { badRangeRejected = true; }
         AssertTrue(badRangeRejected, "invalid sequence range rejected");
         Console.WriteLine("Extended-frame sequence: original 588 entries, ordering, legacy prefixes, ranges and bounds pass.");

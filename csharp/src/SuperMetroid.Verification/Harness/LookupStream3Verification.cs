@@ -68,7 +68,6 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -504,8 +503,8 @@ internal static class LookupStream3Verification
         AssertEqual(originalNamedIdentity, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
             System.Text.Encoding.UTF8.GetBytes(identity))), "enemy named registration exact ordered source identities");
         var all = EnemySpritemapDefinitions.Frames.ToArray();
-        AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Length, "enemy calculated registry count");
-        AssertTrue(EnemySpritemapDefinitions.Frames[..472].SequenceEqual(named), "enemy legacy named prefix slice");
+        AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Count, "enemy calculated registry count");
+        AssertTrue(EnemySpritemapDefinitions.Frames.Take(472).SequenceEqual(named), "enemy legacy named prefix slice");
         for (int index = 0; index < 472; index++)
             AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
         var additionalPointers = new SortedSet<ushort>();

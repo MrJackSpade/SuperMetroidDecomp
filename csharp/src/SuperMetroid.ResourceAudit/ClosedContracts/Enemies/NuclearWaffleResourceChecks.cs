@@ -10,5 +10,5 @@ internal static class NuclearWaffleResourceChecks
     internal static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Nuclear Waffle/Puromi",
         NuclearWaffleVisualDefinitions.Bank, NuclearWaffleVisualDefinitions.Spritemaps(),
         NuclearWaffleVisualDefinitions.FrameCount,
-        EnemySpritemapDefinitions.PreNuclearWaffleFrameCount);
+        EnemySpritemapToolingDefinitions.PreNuclearWaffleFrameCount);
 }

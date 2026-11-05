@@ -10,7 +10,7 @@ internal static class FriendlyAnimalResourceChecks
     /// <summary>Selects each friendly-animal family's bank, the poses its typed programs show (#641), and appended schema range for composition checks.</summary>
     public static void Run(string family)
     {
-        int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;
+        int previousCount = EnemySpritemapToolingDefinitions.PreFriendlyAnimalFrameCount;
         int escapeStart = previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount + FriendlyAnimalVisualDefinitions.DachoraFrameCount;
         switch (family)
         {

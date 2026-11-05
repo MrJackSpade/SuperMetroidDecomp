@@ -12,5 +12,5 @@ internal static class MamaTurtleResourceChecks
         MamaTurtleVisualDefinitions.Bank,
         MamaTurtleAnimationsTooling.Spritemaps(Enum.GetValues<MamaTurtleProgram>()),
         MamaTurtleVisualDefinitions.FrameCount,
-        EnemySpritemapDefinitions.PreMamaTurtleFrameCount);
+        EnemySpritemapToolingDefinitions.PreMamaTurtleFrameCount);
 }

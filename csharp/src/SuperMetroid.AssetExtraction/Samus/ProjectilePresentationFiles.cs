@@ -54,8 +54,7 @@ public static class ProjectilePresentationFiles
         File.WriteAllBytes(Path.Combine(directory, HyperBeamFxColorFormat.FileName), hyperBeamFxColors);
         foreach (var file in beams) File.WriteAllBytes(Path.Combine(directory, file.Key), file.Value);
         File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
-            new Manifest(Version, SupportedCartridge.Sha256, Hash(bytes),
-                beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)), Hash(palettes), Hash(hyperBeamFxColors), Hash(trails), Hash(trailTiles), Hash(flarePlacement), Hash(flareCompositions), Hash(grappleTiles), Hash(grappleSprites), Hash(grappleFlare), Hash(grappleSwing), Hash(frameBindings)), Options));
+            new Manifest(Version, SupportedCartridge.Sha256), Options));
     }
 
     /// <summary>
@@ -136,7 +135,7 @@ public static class ProjectilePresentationFiles
         return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(files.Palettes.Bytes) + Hash(files.HyperBeamFxColors.Bytes) + Hash(files.Trails.Bytes) + Hash(files.TrailTiles.Bytes) + Hash(files.FlarePlacement.Bytes) + Hash(files.FlareCompositions.Bytes) + Hash(files.GrappleTiles.Bytes) + Hash(files.GrappleSprites.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
     /// <summary>Cartridge provenance and expected hashes for every extracted projectile presentation asset.</summary>
-    private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);
+    private sealed record Manifest(int Version, string RomSha256);
 
     /// <summary>The extracted projectile presentation files whose contents form the presentation identity (#633).</summary>
     [ArchitectureReview("context-bag", "The projectile presentation's source files read for one extraction; every member is file content, not a service.")]

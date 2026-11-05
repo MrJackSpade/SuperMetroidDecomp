@@ -12,7 +12,6 @@ using SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Enemies.Boulder;
 using SuperMetroid.Verification.Enemies.Bull;
-using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
@@ -287,18 +286,13 @@ using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.ZebesPla
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationDefinitionsVerification;
 using SuperMetroid.Verification.Enemies.Zoa;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Harness;
 

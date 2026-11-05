@@ -45,7 +45,7 @@ internal static class PicturedHudFixtures
             ["hud"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.Bg3),
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
-        SpriteSheet sheet = SpriteSheetFile.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "hud-fixture",
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "hud-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities);
         // The fixture's HUD shows the colours it was composed in, in gameplay and frontend frames alike (#1512).
         return new PicturedHud([new PlacedHudPicture(sheet.Frame("hud"), new Position16<TilemapCells>(0, 0), PictureShading.Standard)]);

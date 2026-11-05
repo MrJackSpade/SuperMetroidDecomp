@@ -70,7 +70,7 @@ internal static class ObjCharacterImageConstants
                     pixels[pixel] = black;
                 }
             }
-            var image = new SpriteImage($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
+            var image = SpriteImageFixtures.Copied($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})", new(size.X, size.Y),
                 pixels, indices, standard, priorities);
             // Each ink is the record's own palette row and colour, with no palette bits ORed in, as an installed sheet's
             // manifest would record it (#1512).

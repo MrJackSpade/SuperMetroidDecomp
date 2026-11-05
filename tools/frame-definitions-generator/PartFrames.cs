@@ -80,6 +80,16 @@ internal sealed record PartFrameConfiguration(
                 ["KraidNailBad"] = ["Kind=Nail"],
             },
             null, null, []),
+        // Mother Brain's body poses are her body's: its slot draws their sprite limbs; her head and tubes draw none.
+        new("MotherBrainBehavior", "MotherBrainBodyVisualDefinitions", "ShownFrames", null, null, null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal),
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["MotherBrainBody"] = [.. Enumerable.Range(0, 17).Select(index => $"Index={index}")],
+                ["MotherBrainHead"] = [],
+                ["MotherBrainTubes"] = [],
+            },
+            null, null, []),
         // A vertical shutter runs its forty-pixel program, Kamer its platform loop; a growing shutter grows through its
         // three growth programs to the forty-pixel one; the horizontal shutter runs its own.
         new("ShuttersBehavior", "ShutterFrameDefinitions", "ShownFrames", "ShutterAnimations", "Programs", null, [],

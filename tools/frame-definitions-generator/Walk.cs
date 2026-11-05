@@ -96,8 +96,16 @@ internal sealed class Walk
     /// </summary>
     public static readonly string[] ExcludedEnemyFrames = ["Empty", "EmptyExtended", "NorfairLavaJumperPose0"];
 
-    /// <summary>EnemyProjectileFrameId members that draw nothing.</summary>
-    public static readonly string[] ExcludedProjectileFrames = ["Blank"];
+    /// <summary>
+    /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, and the program frames Core's
+    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames</c> lists as showing the empty projectile spritemap.
+    /// </summary>
+    public static readonly string[] ExcludedProjectileFrames =
+    [
+        "Blank", "EnemyDeathFrame00", "EnemyDeathFrame01", "EnemyDeathFrame02", "FallingSparkFrame04", "FallingSparkFrame06",
+        "FallingSparkFrame08", "FallingSparkFrame10", "FallingSparkFrame12", "PhantoonFrame19", "PhantoonFrame21", "PhantoonFrame23",
+        "TorizoDroolFrame00", "TorizoDroolFrame01", "GoldenTorizoEyeBeamFrame05", "TourianStatueFrame13", "BotwoonFrame40",
+    ];
 
     /// <summary>RoomSpriteObjectKind members that are no object.</summary>
     public static readonly string[] ExcludedSpriteObjects = ["None"];

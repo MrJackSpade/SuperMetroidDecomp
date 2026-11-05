@@ -32,10 +32,11 @@ public static class SamusSpritemapDraws
         // A body with no composition draws nothing (owner decision on #1318).
         if (!spritemaps.TryGetFrameKey(frame.Top, frame.Bottom, frame.ChestCover, pictures, out SamusBodyFrameKey key))
             return;
-        // The body sheet holds the picture of every body the game can show that shows anything (#1513). A body whose
-        // selected characters are blank wherever its compositions read them shows nothing, is on no sheet and draws nothing.
-        if (!sheets.Get(SpriteSheetId.SamusBody).frames.TryGetValue(key.Name, out SpriteSheetFrame? image))
+        // A body whose selected characters are blank wherever its compositions read them shows nothing (#1513): the body
+        // sheet holds it without a picture, and it draws nothing.
+        SpriteSheet body = sheets.Get(SpriteSheetId.SamusBody);
+        if (body.ShowsNothing(key.Name))
             return;
-        sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(source, body.Frame(key.Name), origin, SpriteMirror.None));
     }
 }

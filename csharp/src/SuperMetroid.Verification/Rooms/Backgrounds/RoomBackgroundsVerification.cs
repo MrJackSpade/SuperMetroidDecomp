@@ -123,22 +123,22 @@ internal static class RoomBackgroundsVerification
             RoomBackgrounds published = runtime.Display.Latched.Rooms
                 ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.");
             RoomLevelData level = runtime.Room.LoadedLevelData;
-            AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Bg1.Blocks), $"{room.Name} BG1 is the room's foreground plane");
-            AssertEqual(runtime.BackgroundScroll.Bg1Offset.AsBgPlaneOffset(), published.Bg1.ScrollOffset, $"{room.Name} BG1 offset");
-            AssertEqual(streams, published.Bg2 is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
-            if (published.Bg2 is { } bg2)
+            AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Foreground.Blocks), $"{room.Name} BG1 is the room's foreground plane");
+            AssertEqual(runtime.BackgroundScroll.ForegroundOffset.AsBgPlaneOffset(), published.Foreground.ScrollOffset, $"{room.Name} BG1 offset");
+            AssertEqual(streams, published.Background is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
+            if (published.Background is { } bg2)
             {
                 AssertTrue(ReferenceEquals(level.BackgroundPlane.Cells, bg2.Blocks), $"{room.Name} BG2 is the room's layer-2 plane");
-                AssertEqual(runtime.BackgroundScroll.Bg2Offset.AsBgPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
+                AssertEqual(runtime.BackgroundScroll.BackgroundOffset.AsBgPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
             }
-            Position16<TilePlanePixels> scroll = runtime.BackgroundScroll.Bg1Scroll.AsBgPlaneScroll();
+            Position16<TilePlanePixels> scroll = runtime.BackgroundScroll.ForegroundScroll.AsBgPlaneScroll();
             Position16<TilePlanePixels> camera = runtime.BackgroundScroll.Layer1Position.AsBgPlaneScroll();
             for (int y = 0; y < 192; y += 37)
             for (int x = 0; x < 256; x += 41)
             {
                 // The block BG1 shows at a screen pixel, through its scroll and offset, is the level's block at the camera.
                 var screen = new Offset16<TilePlanePixels>((short)x, (short)y);
-                AssertTrue(published.Bg1.Blocks.TryCellAt(scroll - published.Bg1.ScrollOffset + screen, out RoomBlockCell shown, out var shownWithin) &&
+                AssertTrue(published.Foreground.Blocks.TryCellAt(scroll - published.Foreground.ScrollOffset + screen, out RoomBlockCell shown, out var shownWithin) &&
                         level.ForegroundPlane.Cells.TryCellAt(camera + screen, out RoomBlockCell expected, out var expectedWithin)
                         && shown == expected && shownWithin == expectedWithin,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");

@@ -153,7 +153,7 @@ internal static class InstalledArtworkContentIdentity
                 content.AppendName("messages", messages.Name);
                 messages.Sheet.AppendIdentity(content);
             }
-            foreach (WrittenPictureSheet pictures in artwork.Written.Values.Concat(artwork.Bg3Pictures.Values).OrderBy(pictures => pictures.Name, StringComparer.Ordinal))
+            foreach (WrittenPictureSheet pictures in artwork.Written.Values.Concat(artwork.FxOverlayPictures.Values).OrderBy(pictures => pictures.Name, StringComparer.Ordinal))
             {
                 content.AppendName("written", pictures.Name);
                 pictures.Sheet.AppendIdentity(content);

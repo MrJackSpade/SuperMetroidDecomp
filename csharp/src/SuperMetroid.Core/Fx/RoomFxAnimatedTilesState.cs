@@ -45,7 +45,7 @@ internal sealed class RoomFxAnimatedTilesState
     /// </summary>
     public void Load(RoomFxType type) => LoadDefinition(ObjectOf(type));
 
-    /// <summary>The animated-tile object a room effect of <paramref name="type"/> animates BG3's characters with, or none.</summary>
+    /// <summary>The animated-tile object a room effect of <paramref name="type"/> animates effect overlay's characters with, or none.</summary>
     /// <exception cref="InvalidOperationException">The type is undefined.</exception>
     public static AnimatedTileObject ObjectOf(RoomFxType type) =>
         type switch

@@ -80,7 +80,7 @@ internal sealed class RoomLoader
     private readonly SamusOverreadServices _samusOverreads;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's layer-3 FX reads.</summary>
+    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect-overlay FX reads.</summary>
     private readonly RoomFxSession _roomFx;
     /// <summary>The palette-FX handler state each room's palette FX reads.</summary>
     private readonly PaletteFxSessionState _paletteFxSession;
@@ -422,8 +422,8 @@ internal sealed class RoomLoader
         if (_room.DoorTransitionMainScreenLayers is not null)
             throw new InvalidOperationException("The door-transition display is already active.");
 
-        bool suppressBg1 = sourceIsolated || destinationIsolated;
-        _room.DoorTransitionMainScreenLayers = suppressBg1
+        bool suppressForeground = sourceIsolated || destinationIsolated;
+        _room.DoorTransitionMainScreenLayers = suppressForeground
             ? ScreenLayers.Sprites
             : ScreenLayers.Foreground | ScreenLayers.Sprites;
     }
@@ -531,13 +531,13 @@ internal sealed class RoomLoader
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
         Position16<RoomPixels> stagedLayer1 = _doorOpeningScroll.CameraPosition + layer1Staging;
-        Position16<RoomPixels> retainedBg1Scroll = direction == DoorDirection.Down
-            ? sourceScroll.Bg1Scroll + new Offset16<RoomPixels>(0, 1)
-            : sourceScroll.Bg1Scroll;
-        _backgroundScroll.ConfigureDoorOpeningOffsets(retainedBg1Scroll, stagedLayer1);
+        Position16<RoomPixels> retainedForegroundScroll = direction == DoorDirection.Down
+            ? sourceScroll.ForegroundScroll + new Offset16<RoomPixels>(0, 1)
+            : sourceScroll.ForegroundScroll;
+        _backgroundScroll.ConfigureDoorOpeningOffsets(retainedForegroundScroll, stagedLayer1);
         _pendingDoorOpeningSourceView = null;
         // The source screen stays where it was while the destination scrolls in around it.
-        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.Bg1Scroll.AsBgPlaneScroll());
+        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsBgPlaneScroll());
         PublishDoorOpeningLayers(_doorOpeningScroll);
         // Each directional setup immediately takes its first step, which recomputes the
         // layer scrolls from the already-advanced layer positions. Down's first update
@@ -782,8 +782,8 @@ internal sealed class RoomLoader
         DoorOpeningSourceView? doorOpeningSourceView = viewportLoadMode switch
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
-            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.Bg1Scroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(),
+            RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsBgPlaneOffset(),
                     SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
@@ -852,7 +852,7 @@ internal sealed class RoomLoader
             _backgroundScroll.CalculateScrolls();
         else
         {
-            // Up calculates BG2 from destination+$1F before changing the scroll's camera
+            // Up calculates background from destination+$1F before changing the scroll's camera
             // endpoint to destination+$20. Keeping those adjacent positions distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
             Position16<RoomPixels> parallaxBasis = door.Orientation.Direction == DoorDirection.Up
@@ -861,7 +861,7 @@ internal sealed class RoomLoader
             _backgroundScroll.PrepareDoorOpeningDestination(camera, parallaxBasis);
         }
 
-        // The main callback runs even in Crateria's rock room, whose BG2 stays its own background.
+        // The main callback runs even in Crateria's rock room, whose background stays its own background.
         // The sky's banded horizontal motion belongs to the separately spawned sky effect, which the room's FX or
         // setup callback starts, not to the room's main callback.
         RoomFxRecordDefinition? selectedFx = room.State.Fx?.Select(door);
@@ -878,16 +878,16 @@ internal sealed class RoomLoader
         scope.Floor = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloor() : null;
 
         // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
-        // blend, chooses the effect page the BG3 plane shows, and creates the type-owned per-line
+        // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line
         // effect and animtile state before palette-FX objects and enemies begin running.
-        var roomLayer3Fx = RoomLayer3FxState.ForRoom(
+        var roomFxOverlay = RoomFxOverlayState.ForRoom(
             _roomFx,
             room.State.Fx,
             door,
             _system.RandomNumber,
             room.Definition);
-        scope.Layer3Fx = roomLayer3Fx;
-        roomLayer3Fx.PrimeViewport(destinationCamera.PixelPosition);
+        scope.FxOverlay = roomFxOverlay;
+        roomFxOverlay.PrimeViewport(destinationCamera.PixelPosition);
         scope.CeresHaze = new CeresHazeState(RoomCallbackDefinitions.CeresHazeSetups.Contains(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
@@ -898,7 +898,7 @@ internal sealed class RoomLoader
         scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door,
             room.AreaIndex);
         if (_player.Samus is not null)
-            _player.Samus.LiquidPhysics.ConfigureFor(roomLayer3Fx);
+            _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
         // Loading calls LoadFXHeader after room setup and before enemies. Its selected
         // sixteen-byte record owns two independent object bitsets. The half must
@@ -948,7 +948,7 @@ internal sealed class RoomLoader
             Bosses = progress,
             Events = progress,
             TourianStatue = plmServices,
-            RoomFx = roomLayer3Fx is { } fx ? new RoomPlmFx(fx, () => _player.Samus) : null,
+            RoomFx = roomFxOverlay is { } fx ? new RoomPlmFx(fx, () => _player.Samus) : null,
             Earthquake = plmServices,
             Enemies = plmServices,
         };
@@ -1031,8 +1031,8 @@ internal sealed class RoomLoader
         // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomLayer3Fx, roomPaletteFx, enemies);
-        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomLayer3Fx, roomPaletteFx, plms, enemies);
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, plms, roomFxOverlay, roomPaletteFx, enemies);
+        scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, plms, enemies);
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.
         enemies.ResumeDoorTransitionGates(carryOver.DoorGates);
 
@@ -1188,7 +1188,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// The pictures the outgoing room's BG1 blocks show as a door begins (#1392), which its screen keeps through the
+    /// The pictures the outgoing room's foreground blocks show as a door begins (#1392), which its screen keeps through the
     /// door's opening scroll.
     /// </summary>
     private RoomBlockPictureTable SourceScreenPictures()

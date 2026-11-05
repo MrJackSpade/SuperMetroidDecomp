@@ -23,9 +23,11 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     /// <summary>The background's image.</summary>
     public RoomBackgroundImage Image { get; } = Ensure.NotNull(image);
 
-    /// <summary>The background as BG2 shows it while the room's appearance inputs take the values <paramref name="appearance"/> reads.</summary>
+    /// <summary>The background as the background shows it while the room's appearance inputs take the values <paramref name="appearance"/> reads.</summary>
+    /// <param name="appearance">What the room's appearance inputs read.</param>
+    /// <param name="area">The area the image's pages cover in the room before it repeats (#1514).</param>
     /// <exception cref="InvalidDataException">A cell whose inputs changed has no picture for their values.</exception>
-    public RoomBackgroundImagePlane Resolve(RoomAppearanceView appearance)
+    public RoomBackgroundImagePlane Resolve(RoomAppearanceView appearance, Extent16<BackgroundPixels> area)
     {
         SpriteSheetFrame?[]? next = resolved ? null : new SpriteSheetFrame?[Image.CellCount];
         for (int index = 0; index < Image.Cells.Count; index++)
@@ -48,6 +50,6 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
         resolved = true;
         if (next is not null)
             cells = next;
-        return new RoomBackgroundImagePlane(Image, cells);
+        return new RoomBackgroundImagePlane(Image, cells, area);
     }
 }

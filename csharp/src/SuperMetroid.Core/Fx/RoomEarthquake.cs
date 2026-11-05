@@ -75,19 +75,19 @@ internal sealed class RoomEarthquake
             return false;
 
         RoomShakeDefinition definition = RoomShakes.ForType(EarthquakeType);
-        Offset16<RoomPixels> bg1 = definition.Bg1;
-        Offset16<BackgroundPixels> bg2 = definition.Bg2;
+        Offset16<RoomPixels> foreground = definition.Foreground;
+        Offset16<BackgroundPixels> background = definition.Background;
 
         // The timer alternates which side of the origin is shown. The game forms the
         // negative half by negating the same table word.
         if (ShowsOppositeSide)
         {
-            bg1 = -bg1;
-            bg2 = -bg2;
+            foreground = -foreground;
+            background = -background;
         }
 
         EarthquakeTimer = EarthquakeTimer.Decrement().Remaining;
-        LastRoomShake = new RoomShakeFrameResult(bg1, bg2);
+        LastRoomShake = new RoomShakeFrameResult(foreground, background);
         // Types $12-$23 shake every actor selected by DetermineWhichEnemiesToProcess.
         return EarthquakeType >= RoomEarthquakeDefinitions.FirstEnemyShakingType;
     }

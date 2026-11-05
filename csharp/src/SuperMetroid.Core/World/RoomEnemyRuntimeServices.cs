@@ -38,7 +38,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public IRoomScrollZoneAccess RoomScroll => this;
     /// <summary>Exposes Samus's script control lock to enemy commands.</summary>
     public ISamusControlLock SamusControls => this;
-    /// <summary>Exposes Mother Brain's glass, blending, and BG2 room effects.</summary>
+    /// <summary>Exposes Mother Brain's glass, blending, and the background room effects.</summary>
     public IMotherBrainRoomEffects MotherBrain => this;
 
     /// <summary>Advances the shared system RNG once for an enemy request.</summary>
@@ -82,10 +82,10 @@ internal sealed class RoomEnemyRuntimeServices(
         display.LayerBlendingDefaultConfig = configuration;
 
     /// <inheritdoc />
-    public void WriteBg1Picture(WrittenPicture picture) => room.LoadedScope.WriteBg1Picture(picture);
+    public void WriteForegroundPicture(WrittenPicture picture) => room.LoadedScope.WriteForegroundPicture(picture);
 
     /// <inheritdoc />
-    public void WriteBg2Picture(WrittenPicture picture) => room.LoadedScope.WriteBg2Picture(picture);
+    public void WriteBackgroundPicture(WrittenPicture picture) => room.LoadedScope.WriteBackgroundPicture(picture);
 
     /// <inheritdoc />
     public void DrawFloor(string picture) =>

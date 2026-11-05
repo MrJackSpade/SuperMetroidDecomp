@@ -70,7 +70,7 @@ internal static class SuperMetroidRuntimeAccess
         }
 
         /// <summary>The loaded room's layer-3 FX.</summary>
-        internal RoomLayer3FxState RoomLayer3Fx => self.Room.LoadedScope.Layer3Fx;
+        internal RoomFxOverlayState RoomFxOverlay => self.Room.LoadedScope.FxOverlay;
 
         /// <summary>The loaded room's palette FX.</summary>
         internal RoomPaletteFxSystem RoomPaletteFx => self.Room.LoadedScope.PaletteFx;

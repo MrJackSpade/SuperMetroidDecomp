@@ -274,15 +274,15 @@ internal static class NativeSnapshotImport
         bool lavaAcidObjectLive = Enumerable.Range(0, NativeSnapshotMemory.HdmaObjectCount).Any(slot =>
             W(NativeSnapshotMemory.HdmaObjectChannelBitflags + slot * 2) != 0 &&
             W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
-        VerificationAssertions.AssertTrue(runtime.RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid,
+        VerificationAssertions.AssertTrue(runtime.RoomFxOverlay.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomLayer3Fx.LavaAcidBg3FrameBehaviorInstalled = true;
-        runtime.RoomLayer3Fx.LiquidMotionStopped = !lavaAcidObjectLive;
-        runtime.RoomLayer3Fx.TidePhase = W(NativeSnapshotMemory.TidePhase);
-        runtime.RoomLayer3Fx.TideFixedOffset = unchecked((int)(SixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
-        runtime.RoomLayer3Fx.BaseY = runtime.RoomLayer3Fx.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
-        runtime.RoomLayer3Fx.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
-        samus.LiquidPhysics.ConfigureFor(runtime.RoomLayer3Fx);
+        runtime.RoomFxOverlay.LavaAcidOverlayFrameBehaviorInstalled = true;
+        runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
+        runtime.RoomFxOverlay.TidePhase = W(NativeSnapshotMemory.TidePhase);
+        runtime.RoomFxOverlay.TideFixedOffset = unchecked((int)(SixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
+        runtime.RoomFxOverlay.BaseY = runtime.RoomFxOverlay.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
+        runtime.RoomFxOverlay.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
+        samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and

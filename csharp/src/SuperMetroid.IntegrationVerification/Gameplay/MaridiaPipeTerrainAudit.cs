@@ -31,8 +31,8 @@ internal static class MaridiaPipeTerrainAudit
         {
             if (background && !(scroll.Layer2Scroll.Horizontal.Streams && scroll.Layer2Scroll.Vertical.Streams)) continue;
             // The audit compares wrapped register words, so take each offset as its native word.
-            int offsetX = unchecked((ushort)(background ? scroll.Bg2Offset.X : scroll.Bg1Offset.X));
-            int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));
+            int offsetX = unchecked((ushort)(background ? scroll.BackgroundOffset.X : scroll.ForegroundOffset.X));
+            int offsetY = unchecked((ushort)(background ? scroll.BackgroundOffset.Y : scroll.ForegroundOffset.Y));
             int registerX = background ? r.BackgroundScroll.X : r.ForegroundScroll.X;
             int registerY = background ? r.BackgroundScroll.Y : r.ForegroundScroll.Y;
             int tilemap = background ? GameplayVramLayout.Bg2TilemapWord : GameplayVramLayout.Bg1TilemapWord;

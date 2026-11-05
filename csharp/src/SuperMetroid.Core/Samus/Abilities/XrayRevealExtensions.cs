@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class XrayRevealExtensions
 {
     /// <summary>
-    /// Returns the replacement metatile, or null to retain copied BG1 art. Unlike collision,
+    /// Returns the replacement metatile, or null to retain copied foreground art. Unlike collision,
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
     public static int? Resolve(RoomLevelData level, int blockIndex,

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// The scrolling sky as BG2 shows it in a frame (#1347, #1403): its image and the pictures of the cells the room rebound
+/// The scrolling sky as the background shows it in a frame (#1347, #1403): its image and the pictures of the cells the room rebound
 /// (#1392), the row a vertical position selects repeating every 2048 pixels down and 256 across, and nothing on a row that
 /// selects no sky page.
 /// </summary>

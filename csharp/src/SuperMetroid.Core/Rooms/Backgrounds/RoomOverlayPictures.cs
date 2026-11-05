@@ -3,21 +3,21 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// What a room actor wrote over a background shows in a frame (#1403): the picture of each written word, in the room's
-/// tile word sheet over what its character shows (#1392), by the tilemap position it was written at; nothing where
-/// nothing was written, which leaves the background showing.
+/// What a room actor wrote over a layer shows in a frame (#1403, #1514): each written picture's frame in the room's
+/// written picture sheet (#1392), where it shows on the layer, in the order written; a later picture covers an earlier one
+/// wherever they overlap. The layer shows through where nothing was written.
 /// </summary>
 public sealed class RoomOverlayPictures
 {
-    /// <summary>Holds each tilemap position's picture.</summary>
-    /// <exception cref="ArgumentException">There is not one picture slot for each tilemap position.</exception>
-    public RoomOverlayPictures(ImmutableArray<BgTilePicture?> pictures)
+    /// <summary>Holds the pictures, in the order written.</summary>
+    /// <exception cref="ArgumentException">No pictures are given.</exception>
+    public RoomOverlayPictures(ImmutableArray<PlacedWrittenPicture> pictures)
     {
-        if (pictures.IsDefault || pictures.Length != RoomWrittenOverlay.CellCount)
-            throw new ArgumentException($"An overlay needs a picture slot for each of its {RoomWrittenOverlay.CellCount} positions.", nameof(pictures));
+        if (pictures.IsDefault)
+            throw new ArgumentException("An overlay needs its pictures.", nameof(pictures));
         Pictures = pictures;
     }
 
-    /// <summary>Each tilemap position's picture, or null where nothing was written.</summary>
-    public ImmutableArray<BgTilePicture?> Pictures { get; }
+    /// <summary>The pictures, in the order written.</summary>
+    public ImmutableArray<PlacedWrittenPicture> Pictures { get; }
 }

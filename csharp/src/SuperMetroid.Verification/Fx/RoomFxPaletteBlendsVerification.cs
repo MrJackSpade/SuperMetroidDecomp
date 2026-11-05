@@ -64,7 +64,7 @@ internal static class RoomFxPaletteBlendsVerification
             for (int index = 0; index < compiled.Length; index++)
                 AssertEqual(compiled[index], shade.Colours[index], $"room-FX blend {id} shade colour {index}");
 
-            (RoomLayer3FxState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);
+            (RoomFxOverlayState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);
             AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} load names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} load does not read bank-$89");
 
@@ -72,7 +72,7 @@ internal static class RoomFxPaletteBlendsVerification
             AssertEqual<RoomFxPaletteBlend?>(id, state.PaletteBlend, $"room-FX blend {id} FX entry names its blend");
             AssertEqual(0, bus.ForbiddenReadAttempts, $"room-FX blend {id} FX entry does not read bank-$89");
         }
-        (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus) = ConstructBlendLoad(RoomFxPaletteBlend.None);
+        (RoomFxOverlayState emptyState, CartridgeReadGuard emptyBus) = ConstructBlendLoad(RoomFxPaletteBlend.None);
         AssertEqual<RoomFxPaletteBlend?>(RoomFxPaletteBlend.None, emptyState.PaletteBlend, "zero blend names the empty blend");
         SheetShade empty = BlendShade(catalog, RoomFxPaletteBlend.None);
         AssertTrue(empty.Inks.SequenceEqual([RoomFxNativeSources.PaletteBlendDestinationIndex + 2]) && empty.Colours.SequenceEqual([RgbColor.Black]),
@@ -134,7 +134,7 @@ internal static class RoomFxPaletteBlendsVerification
         RoomFxRecordDefinition record = SelectCompiledBlendRecord(selection);
         var memory = new TestAddressSpace();
         var bus = NewForbiddenRoomFxPaletteBus(memory);
-        var state = RoomLayer3FxState.ForDefinition(new RoomFxSession(), record, randomNumber: 0);
+        var state = RoomFxOverlayState.ForDefinition(new RoomFxSession(), record, randomNumber: 0);
         return new ConstructBlendLoadResult(state, bus);
     }
 

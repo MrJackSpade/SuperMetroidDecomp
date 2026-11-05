@@ -21,6 +21,6 @@ internal static class GameplayDisplayStateAccess
         /// </summary>
         public GameplayRenderSnapshot DisplayedGameplayScrolls => self.Latched.Scrolls;
         /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
-        public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx => self.Latched.RoomLayer3Fx;
+        public RoomFxOverlayRenderSnapshot? DisplayedRoomFxOverlay => self.Latched.RoomFxOverlay;
     }
 }

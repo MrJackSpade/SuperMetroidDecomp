@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The installed pre-coloured pictures written over one tileset's rooms after they load (#1392, #1466): each picture
-/// something writes over BG1 or BG2 (typed text, the Ceres warning) or that BG3 shows (an effect's page, the cleared cell,
+/// something writes over the foreground or the background (typed text, the Ceres warning) or that effect overlay shows (an effect's page, the cleared cell,
 /// the HUD's images), coloured with the tileset's standard palette over what the rooms load, pictured again for each value
 /// of the appearance inputs it depends on and named by <see cref="AppearancePictureNames"/>; with the inputs each picture
 /// depends on, which choose among them.
@@ -73,9 +73,9 @@ public sealed class WrittenPictureSheet
 
     /// <summary>The installed name of the sheet of pictures written over <paramref name="layer"/> in <paramref name="tileset"/>'s rooms.</summary>
     public static string NameOf(WrittenPictureLayer layer, TilesetDefinition tileset) =>
-        $"{(layer == WrittenPictureLayer.Bg3 ? "Bg3Pictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
+        $"{(layer == WrittenPictureLayer.FxOverlayAndHud ? "Bg3Pictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
 
-    /// <summary>How the pictures of <paramref name="layer"/> are coloured: BG3's from colour sets of four.</summary>
+    /// <summary>How the pictures of <paramref name="layer"/> are coloured: effect overlay's from colour sets of four.</summary>
     public static SpriteImageColours ColoursOf(WrittenPictureLayer layer) =>
-        layer == WrittenPictureLayer.Bg3 ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
+        layer == WrittenPictureLayer.FxOverlayAndHud ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
 }

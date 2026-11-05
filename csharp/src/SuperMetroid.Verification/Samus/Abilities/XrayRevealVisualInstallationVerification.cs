@@ -81,7 +81,7 @@ internal static class XrayRevealVisualInstallationVerification
         // Each reveal cell is the whole block shown and its arrangement (#1431).
         RevealedBlock?[] originalMap = XrayRevealMap.Build(level, new(16, 16), default, AreaId.Brinstar, stock);
         AssertEqual(Defined(originalTop), originalMap[0], "stock tall reveal top-left metatile");
-        AssertEqual(Defined(0xb8), originalMap[XrayRevealLayout.MetatileColumns],
+        AssertEqual(Defined(0xb8), originalMap[XrayRevealLayout.Columns],
             "stock tall reveal copies the native lower block");
         AssertEqual(before, level.GetPlmCollisionBlockByIndex(33),
             "X-ray reveal leaves collision type and BTS untouched");

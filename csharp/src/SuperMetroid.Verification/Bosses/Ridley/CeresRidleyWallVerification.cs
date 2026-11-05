@@ -34,9 +34,9 @@ internal static class CeresRidleyWallVerification
         AssertEqual(33, runtime.Enemies.Earthquake.EarthquakeType, "Ceres left impact requests native quake type");
         AssertEqual(11, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "first draw consumes one of twelve quake frames");
         AssertTrue(runtime.Enemies.Earthquake.LastRoomShake != default, "impact reaches room shaking consumer");
-        AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Bg1.X, "native impact does not shift BG1 X");
-        AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Bg1.Y, "native impact does not shift BG1 Y");
-        AssertEqual(3, runtime.Enemies.Earthquake.LastRoomShake.Bg2.X, "native impact shifts BG2 three pixels on first frame");
+        AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.X, "native impact does not shift BG1 X");
+        AssertEqual(0, runtime.Enemies.Earthquake.LastRoomShake.Foreground.Y, "native impact does not shift BG1 Y");
+        AssertEqual(3, runtime.Enemies.Earthquake.LastRoomShake.Background.X, "native impact shifts BG2 three pixels on first frame");
         AssertTrue(!body.ShakeTimer.IsZero, "native impact also shakes selected enemies");
         AssertEqual(runtime.Enemies.Earthquake.LastRoomShake, runtime.Display.DisplayedGameplayScrolls.RoomShake,
             "accepted display snapshot carries the wall-impact displacement");

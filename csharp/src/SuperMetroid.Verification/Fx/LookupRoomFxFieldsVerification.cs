@@ -102,7 +102,7 @@ internal static class LookupRoomFxFieldsVerification
     /// <summary>Checks ordinary layer blend settings at offset ten.</summary>
     private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => RoomFxRecordEncoding.LayerBlendByte(record.DefaultLayerBlend));
     /// <summary>Checks the layer-three blend override at offset eleven.</summary>
-    private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => RoomFxRecordEncoding.LayerBlendByte(record.Layer3LayerBlend));
+    private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => RoomFxRecordEncoding.LayerBlendByte(record.EffectLayerBlend));
     /// <summary>Checks liquid rendering flags at offset twelve.</summary>
     private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordEncoding.LiquidOptionsByte(record.LiquidOptions));
     /// <summary>Checks selected palette effect bits at offset thirteen.</summary>

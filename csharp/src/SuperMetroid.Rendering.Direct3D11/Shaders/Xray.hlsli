@@ -4,29 +4,29 @@
 static const uint BehindLayer3 = 1;
 static const uint BehindLayer2 = 2;
 static const uint BehindLayer2AndLayer3 = 3;
-// A room layer (RoomTile) or the layer-3 plane from row `map`; a position the room does not cover is transparent.
-// Words written over layer 2 cover it when roomSource carries SourceLayer2Overlay.
-uint2 XrayBackground(uint roomSource, uint map, uint2 size, uint2 position)
+// A room layer (RoomTile) or the effect overlay's `rows` rows from row `map`; a position the room does not cover is
+// transparent. Pictures written over the background cover it when roomSource carries SourceLayer2Overlay.
+uint2 XrayBackground(uint roomSource, uint map, uint rows, uint2 position)
 {
     uint entry = 0;
     uint picture = 0;
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
-    bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, size, picture, within);
+    bool overlaid = (roomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(position & 65535, picture, within);
     if (!overlaid)
     {
-        if (source == SourceLayer3)
-            shown = Bg3Picture(map, size.y, position & 65535, within, picture);
+        if (source == SourceFxOverlay)
+            shown = Bg3Picture(map, rows, position & 65535, within, picture);
         else if (source == SourceBossBody)
         {
-            BossBodyPicture(position, size, within, picture);
+            BossBodyPicture(position, within, picture);
             shown = picture != 0;
         }
         else if (source == SourceXrayReveal)
             shown = RevealPicture(position & 65535, picture, within);
         else if (source == SourceLibraryBackground)
-            shown = Bg2ImagePicture(position & 65535, size, picture, within);
+            shown = Bg2ImagePicture(position & 65535, picture, within);
         else
             shown = RoomTile(source, position, entry, within, picture);
     }
@@ -61,19 +61,19 @@ uint XrayGameplay(uint2 screen)
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
     // Layer 2's line scroll, from its described line scrolls (#1468).
-    uint2 bg2Scroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
+    uint2 backgroundScroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
     // Inside the window (the X-ray cone, #1468) the room shows unblended.
     bool inside = InWindow(screen);
     uint source = 32;
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
-        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll);
+        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, 0, bg2Screen + backgroundScroll);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
     {
-        uint2 bg = XrayBackground(SourceLayer1, 0, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll));
+        uint2 bg = XrayBackground(SourceLayer1, 0, 0, screen + uint2(HorizontalScroll,VerticalScroll));
         XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
     }
     if ((mainScreen & 16) != 0)
@@ -87,10 +87,10 @@ uint XrayGameplay(uint2 screen)
     {
         uint sub = 0;
         if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
-            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll).x;
+            sub = XrayBackground(RoomSource, (uint)MatrixA, 0, bg2Screen + backgroundScroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
-            uint2 bg3 = XrayBackground(SourceLayer3, (uint)MatrixC, uint2(32,(uint)CenterX),
+            uint2 bg3 = XrayBackground(SourceFxOverlay, (uint)MatrixC, (uint)CenterX,
                 screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
             if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
         }

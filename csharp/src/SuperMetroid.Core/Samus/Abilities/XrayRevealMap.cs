@@ -6,8 +6,9 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Builds the game's copied-BG1/revealed-BG2 screens in write order, one whole 16x16 block at a time (#1431):
-/// each cell is the block it shows and how it lays the block's picture out.
+/// Builds what the X-ray reveals over the screen, one whole 16x16 block at a time (#1431, #1514): each revealed block is
+/// the block it shows and how it lays the block's picture out. A reveal that writes more than one block writes those that
+/// lie inside the revealed area.
 /// </summary>
 public static class XrayRevealMap
 {
@@ -15,28 +16,28 @@ public static class XrayRevealMap
     /// Runs the reveal's base-copy and terrain-reveal passes. Item and special-room
     /// overlays are applied afterwards by their respective owners, as on the game.
     /// </summary>
-    /// <param name="level">The room whose blocks the reveal resolves and whose BG1 plane the base copy reads.</param>
+    /// <param name="level">The room whose blocks the reveal resolves and whose foreground plane the base copy reads.</param>
     /// <param name="layer1Position">Layer one's position, which selects the revealed blocks.</param>
-    /// <param name="bg1Offset">
-    /// BG1's scroll less layer one's position. The base copy reads the BG1 plane's block at each cell's scrolled position
-    /// (#1351), from the block holding the screen's left and top edges onwards, where the game read the BG1 tilemap
-    /// back out of the displayed layer; a cell beyond the room shows nothing.
+    /// <param name="foregroundOffset">
+    /// The foreground's scroll less layer one's position. The base copy reads the foreground plane's block at each revealed
+    /// block's scrolled position (#1351), from the block holding the screen's left and top edges onwards; a block beyond
+    /// the room shows nothing.
     /// </param>
     /// <param name="area">The room's area; only Brinstar shows Brinstar-only reveals.</param>
     /// <param name="visuals">Installed reveal art, or null for the stock table.</param>
-    /// <returns>The shown cells, row by row, <see cref="XrayRevealLayout.MetatileColumns"/> to a row; null beyond the room.</returns>
+    /// <returns>The revealed blocks, row by row, <see cref="XrayRevealLayout.Columns"/> to a row; null beyond the room.</returns>
     public static RevealedBlock?[] Build(RoomLevelData level, Position16<RoomPixels> layer1Position,
-        Offset16<RoomPixels> bg1Offset, AreaId area, InstalledXrayReveals? visuals = null)
+        Offset16<RoomPixels> foregroundOffset, AreaId area, InstalledXrayReveals? visuals = null)
     {
         Ensure.NotNull(level);
-        RoomBlockCells bg1 = level.ForegroundPlane.Cells;
-        Position16<RoomPixels> bg1Scroll = layer1Position + bg1Offset;
+        RoomBlockCells foreground = level.ForegroundPlane.Cells;
+        Position16<RoomPixels> foregroundScroll = layer1Position + foregroundOffset;
         var result = new RevealedBlock?[XrayRevealLayout.Cells];
-        for (int row = 0; row < XrayRevealLayout.MetatileRows; row++)
-        for (int col = 0; col < XrayRevealLayout.MetatileColumns; col++)
+        for (int row = 0; row < XrayRevealLayout.Rows; row++)
+        for (int col = 0; col < XrayRevealLayout.Columns; col++)
             Place(col, row, Copied(col, row));
         int firstBlock = WordWrap.LowByte(layer1Position.Y >> 4) * level.Size.X + (layer1Position.X >> 4);
-        for (int row = 0; row < XrayRevealLayout.MetatileRows; row++)
+        for (int row = 0; row < XrayRevealLayout.Rows; row++)
         {
             int first = firstBlock + row * level.Size.X;
             // The prior column may own a 2-wide reveal crossing the left edge. Its
@@ -48,7 +49,7 @@ public static class XrayRevealMap
                 if (predecessor.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
                     CopyMetatile(0, row, predecessor.TopRight);
             }
-            for (int col = 0; col < XrayRevealLayout.MetatileColumns; col++)
+            for (int col = 0; col < XrayRevealLayout.Columns; col++)
             {
                 int index = first + col;
                 if (Lookup(index) is not { } reveal) continue;
@@ -61,14 +62,11 @@ public static class XrayRevealMap
                 if (reveal.Command == XrayRevealCommand.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
                 CopyMetatile(col, row, reveal.TopLeft);
-                // The last column of screen one suppresses right-hand writes. Screen
-                // two is visited separately with remaining-count zero, not one.
-                bool right = col != XrayRevealLayout.MetatileColumns - 2;
-                if (right && reveal.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
+                if (reveal.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
                     CopyMetatile(col + 1, row, reveal.TopRight);
                 if (reveal.Command is XrayRevealCommand.CopyTall or XrayRevealCommand.CopySquare)
                     CopyMetatile(col, row + 1, reveal.BottomLeft);
-                if (right && reveal.Command == XrayRevealCommand.CopySquare)
+                if (reveal.Command == XrayRevealCommand.CopySquare)
                     CopyMetatile(col + 1, row + 1, reveal.BottomRight);
             }
         }
@@ -81,26 +79,37 @@ public static class XrayRevealMap
                 ? visuals.Apply(block.CollisionType, block.Behavior)
                 : XrayRevealTable.Find(block.CollisionType, block.Behavior);
         }
-        // The BG1 block shown at the cell's scrolled position, mirrored as the level mirrors it.
+        // The foreground block shown at the revealed block's scrolled position, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)
         {
-            int x = CoordinateAxis.Wrap(((bg1Scroll.X >> 4) + col) * RoomLevelPlane.BlockPixels - bg1Offset.X);
-            int y = CoordinateAxis.Wrap(((bg1Scroll.Y >> 4) + row) * RoomLevelPlane.BlockPixels - bg1Offset.Y);
-            if (x >= bg1.Size.X * RoomLevelPlane.BlockPixels || y >= bg1.Size.Y * RoomLevelPlane.BlockPixels)
+            int x = CoordinateAxis.Wrap(((foregroundScroll.X >> 4) + col) * RoomLevelPlane.BlockPixels - foregroundOffset.X);
+            int y = CoordinateAxis.Wrap(((foregroundScroll.Y >> 4) + row) * RoomLevelPlane.BlockPixels - foregroundOffset.Y);
+            if (x >= foreground.Size.X * RoomLevelPlane.BlockPixels || y >= foreground.Size.Y * RoomLevelPlane.BlockPixels)
                 return null;
-            RoomBlockCell cell = bg1.Cells[y / RoomLevelPlane.BlockPixels * bg1.Size.X + x / RoomLevelPlane.BlockPixels];
+            RoomBlockCell cell = foreground.Cells[y / RoomLevelPlane.BlockPixels * foreground.Size.X + x / RoomLevelPlane.BlockPixels];
             return new RevealedBlock(cell.Definition, Mirrored(cell.Flips));
         }
         // A reveal block is placed as it is defined; its number is validated as a room block.
         void CopyMetatile(int col, int row, int metatile) =>
             Place(col, row, new RevealedBlock(RoomBlockAppearance.Of(metatile).Block, RevealedBlockArrangement.AsDefined));
+        // Only blocks inside the revealed area are shown.
         void Place(int col, int row, RevealedBlock? block)
         {
-            // Bottom-edge multi-block commands can write past the two transferred screens, into
-            // the game's scratch memory; only the shown cells belong to this display projection.
-            int cell = XrayRevealCells.CellOf(col, row);
-            if (cell >= 0) result[cell] = block;
+            if (col < XrayRevealLayout.Columns && row < XrayRevealLayout.Rows)
+                result[row * XrayRevealLayout.Columns + col] = block;
         }
+    }
+
+    /// <summary>
+    /// The foreground pixel the revealed area's first block lies on: the top-left corner of the block the foreground's
+    /// scroll lies in, so every revealed block lies over the room's own.
+    /// </summary>
+    /// <param name="layer1Position">Layer one's position.</param>
+    /// <param name="foregroundOffset">The foreground's scroll less layer one's position.</param>
+    public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> layer1Position, Offset16<RoomPixels> foregroundOffset)
+    {
+        Position16<RoomPixels> foregroundScroll = layer1Position + foregroundOffset;
+        return new(CoordinateAxis.Wrap(foregroundScroll.X >> 4 << 4), CoordinateAxis.Wrap(foregroundScroll.Y >> 4 << 4));
     }
 
     /// <summary>How a copied block lays out its picture: mirrored as the room mirrors it.</summary>
@@ -110,6 +119,6 @@ public static class XrayRevealMap
         BlockMirroring.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
         BlockMirroring.Vertical => RevealedBlockArrangement.MirroredVertically,
         BlockMirroring.Horizontal | BlockMirroring.Vertical => RevealedBlockArrangement.MirroredBoth,
-        _ => throw new InvalidDataException($"A BG1 block has undefined flips {flips}."),
+        _ => throw new InvalidDataException($"A foreground block has undefined flips {flips}."),
     };
 }

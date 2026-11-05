@@ -44,7 +44,7 @@ internal sealed class PrePhantoonRoomBehavior
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphics: default);
         projectile.StartAnimation(new PrePhantoonRoomAnimation());
-        backgroundScroll.Bg2Offset = backgroundScroll.Bg2Offset.WithY(0);
+        backgroundScroll.BackgroundOffset = backgroundScroll.BackgroundOffset.WithY(0);
     }
 
     /// <summary>Registers the projectile pre-instruction that pins the runtime BG2 Y offset to zero.</summary>
@@ -53,7 +53,7 @@ internal sealed class PrePhantoonRoomBehavior
         table.AddFrameBehavior(context =>
         {
             BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
-            scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
+            scroll.BackgroundOffset = scroll.BackgroundOffset.WithY(0);
         }, EnemyProjectileFrameBehavior.PrePhantoonBackgroundPin);
         table.AddCue<PrePhantoonRoomCue>((context, cue) =>
         {

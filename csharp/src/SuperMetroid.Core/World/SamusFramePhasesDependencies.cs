@@ -47,6 +47,4 @@ internal sealed record SamusFramePhasesDependencies
     public required SharedGameState System { get; init; }
 
 
-    /// <summary>Xray.</summary>
-    public required XrayReveal Xray { get; init; }
 }

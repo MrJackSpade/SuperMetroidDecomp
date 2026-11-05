@@ -275,7 +275,7 @@ internal static class RoomFxRetailInventoryVerification
                 RoomFxRomDataRecordTooling.YVelocityOffset);
 
         var actualSession = CreateRetailFxSession(bus);
-        var actual = RoomLayer3FxState.ForRoom(actualSession,
+        var actual = RoomFxOverlayState.ForRoom(actualSession,
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
@@ -330,8 +330,8 @@ internal static class RoomFxRetailInventoryVerification
         if (unchecked((short)expectedBase) < 0)
         {
             actual.PrimeViewport(new Position16<RoomPixels>(0, 0));
-            actual.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-            RoomLayer3FxRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
+            actual.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            RoomFxOverlayRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
@@ -350,7 +350,7 @@ internal static class RoomFxRetailInventoryVerification
             : (ushort)0;
         actual.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         var liquidFrames = new ArtworkFrameSelections();
-        actual.Step(liquidFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        actual.Step(liquidFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         // The liquid's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         if (RoomFxAnimatedTilesState.ObjectOf(expectedType) is var liquidTiles and not AnimatedTileObject.None)
             AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, actualSession.AnimatedTileArtwork
@@ -358,7 +358,7 @@ internal static class RoomFxRetailInventoryVerification
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
-            RoomLayer3FxRenderSnapshot visibleSnapshot = actual.CaptureForDisplay()
+            RoomFxOverlayRenderSnapshot visibleSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} visible liquid record $83:{expectedRecord:X4} " +
                     "published no render snapshot.");
@@ -416,7 +416,7 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new RgbColor[SnesCgram.ColorCount];
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, room.State.Fx, door: null, randomNumber: 0);
+        var fx = RoomFxOverlayState.ForRoom(fxSession, room.State.Fx, door: null, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -429,10 +429,10 @@ internal static class RoomFxRetailInventoryVerification
         // The lava's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         var lavaFrames = new ArtworkFrameSelections();
         RoomFxAnimatedTileAtlas lavaArtwork = fxSession.AnimatedTileArtwork ?? throw new InvalidOperationException("The retail FX session has no animated tiles.");
-        fx.Step(lavaFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, AnimatedTileObject.Lava);
 
-        RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
+        RoomFxOverlayRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
         // The BG3 plane the room shows under a blank HUD: the lava page its effect chose (#1348).
         ushort[] plane = EffectPlane(fx);
@@ -457,7 +457,7 @@ internal static class RoomFxRetailInventoryVerification
              frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
              frame++)
         {
-            fx.Step(lavaFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         }
         AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, AnimatedTileObject.Lava);
         RgbaPixel[] second = RenderRoomFx(
@@ -481,7 +481,7 @@ internal static class RoomFxRetailInventoryVerification
     private static RgbaPixel[] RenderRoomFx(
         SnesVram vram,
         RgbColor[] cgram,
-        RoomLayer3FxRenderSnapshot snapshot,
+        RoomFxOverlayRenderSnapshot snapshot,
         ushort[] plane) =>
         RenderRoomFx(ComposedImage(vram), cgram, snapshot, plane);
 
@@ -495,11 +495,11 @@ internal static class RoomFxRetailInventoryVerification
     private static RgbaPixel[] RenderRoomFx(
         byte[] image,
         RgbColor[] cgram,
-        RoomLayer3FxRenderSnapshot snapshot,
+        RoomFxOverlayRenderSnapshot snapshot,
         ushort[] plane)
     {
-        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot,
-            Layer3CellsFixtures.FromWords(plane, image, cgram));
+        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(snapshot,
+            FxOverlayCellsFixtures.FromWords(plane, image, cgram));
         return DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }
@@ -513,15 +513,15 @@ internal static class RoomFxRetailInventoryVerification
     private sealed class EntryPathFrames
     {
         /// <summary>Each drawn input and its frame, by snapshot and the hash of its VRAM image.</summary>
-        private readonly Dictionary<(RoomLayer3FxRenderSnapshot Snapshot, int ImageHash), List<DrawnFrame>> drawn = [];
+        private readonly Dictionary<(RoomFxOverlayRenderSnapshot Snapshot, int ImageHash), List<DrawnFrame>> drawn = [];
 
-        /// <summary>The frame <see cref="RenderRoomFx(SnesVram, RgbColor[], RoomLayer3FxRenderSnapshot, ushort[])"/> draws of these inputs.</summary>
-        internal RgbaPixel[] Render(SnesVram vram, RgbColor[] cgram, RoomLayer3FxRenderSnapshot snapshot, ushort[] plane)
+        /// <summary>The frame <see cref="RenderRoomFx(SnesVram, RgbColor[], RoomFxOverlayRenderSnapshot, ushort[])"/> draws of these inputs.</summary>
+        internal RgbaPixel[] Render(SnesVram vram, RgbColor[] cgram, RoomFxOverlayRenderSnapshot snapshot, ushort[] plane)
         {
             byte[] image = ComposedImage(vram);
             var hash = new HashCode();
             hash.AddBytes(image);
-            (RoomLayer3FxRenderSnapshot, int) key = (snapshot, hash.ToHashCode());
+            (RoomFxOverlayRenderSnapshot, int) key = (snapshot, hash.ToHashCode());
             if (!drawn.TryGetValue(key, out List<DrawnFrame>? candidates))
             {
                 candidates = [];
@@ -563,7 +563,7 @@ internal static class RoomFxRetailInventoryVerification
     /// The tile words of the BG3 plane a room effect shows under a blank HUD: the page its effect chose (#1348), as the
     /// installed pages spell it (#1466).
     /// </summary>
-    private static ushort[] EffectPlane(RoomLayer3FxState fx) => fx.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
+    private static ushort[] EffectPlane(RoomFxOverlayState fx) => fx.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
 
     /// <summary>Copies a vertical frame band so the audit can compare the animated liquid boundary.</summary>
     private static RgbaPixel[] ReadRows(RgbaPixel[] frame, int firstRow, int endRow) =>
@@ -694,7 +694,7 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession,
+        var fx = RoomFxOverlayState.ForRoom(fxSession,
             room.State.Fx,
             door,
             randomNumber: 0,
@@ -715,7 +715,7 @@ internal static class RoomFxRetailInventoryVerification
         var risenFrames = new ArtworkFrameSelections();
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
-            fx.Step(risenFrames, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            fx.Step(risenFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
             if (fx.YVelocity.RawValue == 0)
                 break;
         }
@@ -727,7 +727,7 @@ internal static class RoomFxRetailInventoryVerification
         AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, fxSession.AnimatedTileArtwork
             ?? throw new InvalidOperationException("The retail FX session has no animated tiles."), AnimatedTileObject.Lava);
         ushort[] finalPlane = EffectPlane(fx);
-        RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
+        RoomFxOverlayRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(
                 $"Room {definition.Room} rising lava published no final snapshot.");
         AssertTrue(finalSnapshot.WaterSurfaceScreenY is >= DisplayScreen.HudHeight and
@@ -779,7 +779,7 @@ internal static class RoomFxRetailInventoryVerification
             runtime.StepFrame(0);
             // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
             // earthquake cadence only.
-            AssertEqual(expectedRequests, runtime.RoomLayer3Fx.SoundRequests.Count(request =>
+            AssertEqual(expectedRequests, runtime.RoomFxOverlay.SoundRequests.Count(request =>
                     request.SoundEffect == Library2Sound.Lavaquake),
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
@@ -793,20 +793,20 @@ internal static class RoomFxRetailInventoryVerification
 
         runtime.StepFrame(0);
         AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
-        AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "room $02/$28 callback install pass is silent");
+        AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "room $02/$28 callback install pass is silent");
 
         StepAndVerifySound(0);
         RoomShakeFrameResult dormantShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertTrue(!Shook(dormantShake),
             "room $02/$28 dormant rise initializer does not shake one frame early");
-        AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count,
+        AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count,
             "room $02/$28 dormant rise initializer does not sound one frame early");
 
         StepAndVerifySound(1);
         RoomShakeFrameResult firstActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
-        AssertEqual(1, runtime.RoomLayer3Fx.SoundRequests.Count,
+        AssertEqual(1, runtime.RoomFxOverlay.SoundRequests.Count,
             "room $02/$28 first wait frame emits one earthquake sound");
-        SoundRequest sound = runtime.RoomLayer3Fx.SoundRequests[0];
+        SoundRequest sound = runtime.RoomFxOverlay.SoundRequests[0];
         AssertEqual(Library2Sound.Lavaquake, sound.SoundEffect,
             "room $02/$28 earthquake sound identity");
         AssertEqual(SoundRequestPriority.Normal, sound.Priority,
@@ -821,33 +821,33 @@ internal static class RoomFxRetailInventoryVerification
             RoomEarthquakeDefinitions.RisingLiquidType *
             RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
-            firstActiveShake.Bg1.X, "room $02/$28 first shake BG1 X");
+            firstActiveShake.Foreground.X, "room $02/$28 first shake BG1 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
-            firstActiveShake.Bg1.Y, "room $02/$28 first shake BG1 Y");
+            firstActiveShake.Foreground.Y, "room $02/$28 first shake BG1 Y");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
-            firstActiveShake.Bg2.X, "room $02/$28 first shake BG2 X");
+            firstActiveShake.Background.X, "room $02/$28 first shake BG2 X");
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
-            firstActiveShake.Bg2.Y, "room $02/$28 first shake BG2 Y");
+            firstActiveShake.Background.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);
         RoomShakeFrameResult secondActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
-        AssertEqual(unchecked((short)-firstActiveShake.Bg1.X), secondActiveShake.Bg1.X,
+        AssertEqual(unchecked((short)-firstActiveShake.Foreground.X), secondActiveShake.Foreground.X,
             "room $02/$28 alternating shake BG1 X");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg1.Y), secondActiveShake.Bg1.Y,
+        AssertEqual(unchecked((short)-firstActiveShake.Foreground.Y), secondActiveShake.Foreground.Y,
             "room $02/$28 alternating shake BG1 Y");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg2.X), secondActiveShake.Bg2.X,
+        AssertEqual(unchecked((short)-firstActiveShake.Background.X), secondActiveShake.Background.X,
             "room $02/$28 alternating shake BG2 X");
-        AssertEqual(unchecked((short)-firstActiveShake.Bg2.Y), secondActiveShake.Bg2.Y,
+        AssertEqual(unchecked((short)-firstActiveShake.Background.Y), secondActiveShake.Background.Y,
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;
-        int EarthquakeSounds() => runtime.RoomLayer3Fx.SoundRequests.Count(request =>
+        int EarthquakeSounds() => runtime.RoomFxOverlay.SoundRequests.Count(request =>
             request.SoundEffect == Library2Sound.Lavaquake);
         int emittedSounds = 1 + EarthquakeSounds();
         int firstMovementFrame = -1;
         int targetFrame = -1;
         int lastShakeFrame = 2;
-        ushort initialY = runtime.RoomLayer3Fx.BaseY.Whole;
+        ushort initialY = runtime.RoomFxOverlay.BaseY.Whole;
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
             StepAndVerifySound(frame);
@@ -857,9 +857,9 @@ internal static class RoomFxRetailInventoryVerification
                 lastShakeFrame = frame;
             }
             emittedSounds += EarthquakeSounds();
-            if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseY.Whole != initialY)
+            if (firstMovementFrame < 0 && runtime.RoomFxOverlay.BaseY.Whole != initialY)
                 firstMovementFrame = frame;
-            if (targetFrame < 0 && runtime.RoomLayer3Fx.YVelocity.RawValue == 0)
+            if (targetFrame < 0 && runtime.RoomFxOverlay.YVelocity.RawValue == 0)
                 targetFrame = frame;
             if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer.IsZero)
                 break;
@@ -884,8 +884,8 @@ internal static class RoomFxRetailInventoryVerification
         ushort doorPointer)
     {
         var fxSession = CreateRetailFxSession(bus);
-        RoomLayer3FxState fx;
-        fx = RoomLayer3FxState.ForRoom(fxSession,
+        RoomFxOverlayState fx;
+        fx = RoomFxOverlayState.ForRoom(fxSession,
             room.State.Fx,
             EntryDoor(doorPointer),
             randomNumber: 0);
@@ -897,7 +897,7 @@ internal static class RoomFxRetailInventoryVerification
             // A fresh VRAM object is sufficient here because the assertion targets the
             // liquid position, not animation output. The production animated-tile owner
             // still executes and therefore remains covered by fail-loud dispatch.
-            fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
             int offset = unchecked((short)(fx.Surface.Y - fx.BaseY.Whole));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
@@ -929,23 +929,23 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new RgbColor[SnesCgram.ColorCount];
         SeedVisibleRoomFxPalette(cgram);
         var fxSession = CreateRetailFxSession(bus);
-        var fx = RoomLayer3FxState.ForRoom(fxSession, visibleRoom.State.Fx, door: null, randomNumber: 0);
+        var fx = RoomFxOverlayState.ForRoom(fxSession, visibleRoom.State.Fx, door: null, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx = RoomLayer3FxState.ForRoom(fxSession, fx: null, door: null, randomNumber: 0);
+        fx = RoomFxOverlayState.ForRoom(fxSession, fx: null, door: null, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx = RoomLayer3FxState.ForRoom(fxSession, hiddenRoom.State.Fx, door: null, randomNumber: 0);
+        fx = RoomFxOverlayState.ForRoom(fxSession, hiddenRoom.State.Fx, door: null, randomNumber: 0);
         ushort[] hiddenPlane = EffectPlane(fx);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         RgbaPixel[] frame = RenderRoomFx(vram, cgram,
             (fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")), hiddenPlane);
         AssertTrue(frame.SequenceEqual(RenderRoomFxBackdrop(cgram)),

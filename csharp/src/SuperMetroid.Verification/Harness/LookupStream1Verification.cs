@@ -1880,7 +1880,7 @@ internal static class LookupStream1Verification
             AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
             for (int index = 0; index < original.Length; index++)
             {
-                var expected = new EscapeTypewriterLine(original[index].Cell, original[index].Text);
+                var expected = new EscapeTypewriterLine(SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(original[index].Cell), original[index].Text);
                 AssertEqual(expected, EscapeTypewriterLines.Line(id, index), "escape text direct original placement and wording");
                 AssertEqual(expected, program.Lines[index], "escape text installed line");
             }
@@ -1919,7 +1919,7 @@ internal static class LookupStream1Verification
                     }
                 }
                 AssertEqual(done, actual.StepInto(actualVram), "escape text native completion");
-                AssertEqual(destination - tilemapWord, actual.Cell, "escape text native cell");
+                AssertEqual(destination - tilemapWord, SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.IndexOf(actual.Cell), "escape text native cell");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
                 AssertEqual(timer, actual.DelayTimer.RawValue, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The scrolling sky's 23 parallax bands and BG2 vertical scroll (#1347).
+/// The scrolling sky's 23 parallax bands and the background vertical scroll (#1347).
 /// </summary>
 /// <remarks>
 /// <see cref="ProcessFrame"/> advances the bands and the sky's vertical scroll. The sky's rows are
@@ -47,10 +47,10 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
             : throw new ArgumentOutOfRangeException(nameof(callback), callback, "The room main runs no scrolling sky.");
 
     /// <summary>
-    /// The BG2 scroll the sky publishes: the sky copies layer-one Y, with its sixteen-bit wrap, into Y.
+    /// The background scroll the sky publishes: the sky copies layer-one Y, with its sixteen-bit wrap, into Y.
     /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
     /// </summary>
-    public Position16<BackgroundPixels> Bg2Scroll { get; private set; }
+    public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
 
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
     public bool BandsShown { get; private set; } = hasBands;
@@ -63,7 +63,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         return FixedCoordinate.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
     }
 
-    /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the BG2 vertical scroll.</summary>
+    /// <summary>Advances the fixed-point sky bands and copies layer-one Y into the background vertical scroll.</summary>
     public void ProcessFrame(int layer1YPosition, bool timeIsFrozen)
     {
         if (timeIsFrozen)
@@ -76,12 +76,12 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
         BandsShown = HasBands;
         if (HasBands) AdvanceHorizontalScrolls();
-        Bg2Scroll = new Position16<BackgroundPixels>(0, layer1YPosition);
+        BackgroundScroll = new Position16<BackgroundPixels>(0, layer1YPosition);
     }
 
     /// <summary>
     /// The sky layer the frame shows, positioned from <paramref name="layer1YPosition"/>; null when the room spawned no
-    /// band per-line effect object, whose BG2 is the room's own background.
+    /// band per-line effect object, whose background is the room's own background.
     /// </summary>
     /// <param name="layer1YPosition">The camera's layer-one Y the bands are positioned from.</param>
     public ScrollingSkyLayer? Publish(int layer1YPosition)

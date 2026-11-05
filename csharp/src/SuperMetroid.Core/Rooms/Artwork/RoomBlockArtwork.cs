@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Artwork;
 
-/// <summary>Which artwork a room's BG1 and BG2 blocks show (#1357, #1466).</summary>
+/// <summary>Which artwork a room's foreground and the background blocks show (#1357, #1466).</summary>
 public enum RoomBlockArtwork
 {
     /// <summary>The room tileset's artwork, as every room but the Ceres Ridley arena shows it.</summary>

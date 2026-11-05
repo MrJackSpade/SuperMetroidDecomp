@@ -100,7 +100,7 @@ internal static class ScreenPictureSheetComposer
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(widest * TilePixels)), checked((ushort)(rows * TilePixels))));
         RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        WrittenPictureLayer depth = characters.Depth == TileInkDepth.SixteenColours ? WrittenPictureLayer.Bg12 : WrittenPictureLayer.Bg3;
+        WrittenPictureLayer depth = characters.Depth == TileInkDepth.SixteenColours ? WrittenPictureLayer.WrittenOverRoom : WrittenPictureLayer.FxOverlayAndHud;
         for (int index = 0; index < subjects.Count; index++)
         {
             ScreenPictureSubject subject = subjects[index];

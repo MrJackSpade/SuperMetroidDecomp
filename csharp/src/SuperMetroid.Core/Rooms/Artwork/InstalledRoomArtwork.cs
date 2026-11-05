@@ -16,7 +16,7 @@ public sealed class InstalledRoomArtwork
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public InstalledRoomArtwork(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> written,
-        IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> bg3Pictures, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
+        IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> fxOverlayPictures, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
         IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> floors)
     {
         Floors = Ensure.NotNull(floors);
@@ -34,13 +34,13 @@ public sealed class InstalledRoomArtwork
         Sheets = Ensure.NotNull(sheets);
         Backgrounds = Ensure.NotNull(backgrounds);
         Written = Ensure.NotNull(written);
-        Bg3Pictures = Ensure.NotNull(bg3Pictures);
-        foreach ((TilesetDefinition tileset, WrittenPictureSheet pictures) in written.Concat(bg3Pictures))
+        FxOverlayPictures = Ensure.NotNull(fxOverlayPictures);
+        foreach ((TilesetDefinition tileset, WrittenPictureSheet pictures) in written.Concat(fxOverlayPictures))
         {
             if (pictures.Tileset != tileset)
                 throw new ArgumentException($"{pictures.Name} is filed under {tileset}.", nameof(written));
         }
-        if (written.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.Bg12) || bg3Pictures.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.Bg3))
+        if (written.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.WrittenOverRoom) || fxOverlayPictures.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.FxOverlayAndHud))
             throw new ArgumentException("A written picture sheet is filed under another layer's sheets.", nameof(written));
         foreach ((string name, RoomBackgroundImage background) in backgrounds)
         {
@@ -60,11 +60,11 @@ public sealed class InstalledRoomArtwork
     /// <summary>The library background images by name.</summary>
     public IReadOnlyDictionary<string, RoomBackgroundImage> Backgrounds { get; }
 
-    /// <summary>The sheets of pictures written over BG1 and BG2, by the tileset whose rooms the pictures are written in.</summary>
+    /// <summary>The sheets of pictures written over the foreground and the background, by the tileset whose rooms the pictures are written in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Written { get; }
 
-    /// <summary>The sheets of the HUD's and room effects' BG3 pictures, by the tileset whose colours they show in.</summary>
-    public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Bg3Pictures { get; }
+    /// <summary>The sheets of the HUD's and room effects' effect overlay pictures, by the tileset whose colours they show in.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> FxOverlayPictures { get; }
 
     /// <summary>The turning floor of each Ceres tileset.</summary>
     public IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> Floors { get; }
@@ -83,10 +83,10 @@ public sealed class InstalledRoomArtwork
         MessageBoxes.TryGetValue(tileset, out MessageBoxSheet? messages) ? messages
             : throw new InvalidDataException($"No message box images are installed for {tileset}.");
 
-    /// <summary>The BG3 picture sheet of <paramref name="tileset"/>.</summary>
+    /// <summary>The effect overlay picture sheet of <paramref name="tileset"/>.</summary>
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
-    public WrittenPictureSheet Bg3(TilesetDefinition tileset) =>
-        Bg3Pictures.TryGetValue(tileset, out WrittenPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No BG3 picture sheet is installed for {tileset}.");
+    public WrittenPictureSheet FxOverlay(TilesetDefinition tileset) =>
+        FxOverlayPictures.TryGetValue(tileset, out WrittenPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No effect overlay picture sheet is installed for {tileset}.");
 
     /// <summary>The library background image named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>

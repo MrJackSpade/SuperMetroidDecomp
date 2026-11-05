@@ -12,7 +12,7 @@ public static class XrayRevealOverlays
 {
     /// <summary>Applies the item overlays in descending PLM slot order, then room-authored record order.</summary>
     /// <param name="level">The room, whose size places the overlays' blocks.</param>
-    /// <param name="blocks">The reveal's shown cells, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
+    /// <param name="blocks">The revealed blocks, as <see cref="XrayRevealMap.Build"/> lays them out.</param>
     /// <param name="items">The room's collectibles.</param>
     /// <param name="system">The collected-item record.</param>
     /// <param name="roomOverlay">The room state's special overlay, or null.</param>
@@ -68,12 +68,12 @@ public static class XrayRevealOverlays
         // The overlay's metatile within the visible window, relative to the camera's block.
         Offset16<RoomBlocks> visible = block - layer1Position.ToRoomBlock();
         int x = visible.X, y = visible.Y;
-        // The overlay admits only the first 16x16 blocks, not the fine-scroll column.
-        if ((uint)x >= XrayRevealLayout.MetatileColumns - 1 || (uint)y >= XrayRevealLayout.MetatileRows) return;
+        // Only an overlay inside the revealed area shows.
+        if ((uint)x >= XrayRevealLayout.Columns || (uint)y >= XrayRevealLayout.Rows) return;
         // The overlay swaps the two tile rows for vertical mirroring. It neither toggles each tile's mirroring nor
         // implements horizontal mirroring; preserve that game behaviour.
         bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
-        blocks[XrayRevealCells.CellOf(x, y)] = new RevealedBlock(appearance.Block,
+        blocks[y * XrayRevealLayout.Columns + x] = new RevealedBlock(appearance.Block,
             flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
     }
 }

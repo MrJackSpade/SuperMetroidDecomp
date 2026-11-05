@@ -12,8 +12,8 @@ internal static class RoomFxSharedRandomVerification
     /// Confirms lava and acid byte swaps, frozen callback installation, and a fresh callback after leaving or reloading a
     /// liquid room; returns the freshly loaded effect for the caller's visual checks.
     /// </summary>
-    internal static RoomLayer3FxState VerifyRoomFxSharedRandomState(TestAddressSpace bus,
-        RoomFxSession session, RoomLayer3FxState fx, ushort record, RoomFxType type)
+    internal static RoomFxOverlayState VerifyRoomFxSharedRandomState(TestAddressSpace bus,
+        RoomFxSession session, RoomFxOverlayState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;
         var system = new SharedGameState();
@@ -33,7 +33,7 @@ internal static class RoomFxSharedRandomVerification
         fx.AdvanceLiquidMotion(system, true);
         fx.AdvanceLiquidMotion(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
-        fx = RoomLayer3FxState.ForRoom(session, null, null, 0);
+        fx = RoomFxOverlayState.ForRoom(session, null, null, 0);
         system.SetRandomNumber(0x1234);
         fx.AdvanceLiquidMotion(system, false);
         fx.AdvanceLiquidMotion(system, false);

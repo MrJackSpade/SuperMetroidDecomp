@@ -64,7 +64,7 @@ internal static class InstalledSporesTests
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             byte[] initialRam = memory.WorkRam.ToArray();
             var baselineFrames = new ArtworkFrameSelections();
-            RoomLayer3FxState baseline = RoomLayer3FxState.ForDefinition(Create(stock), definition, 0);
+            RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(Create(stock), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -78,8 +78,8 @@ internal static class InstalledSporesTests
             {
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
-                RoomLayer3FxRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
-                baseline.Step(baselineFrames, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None });
+                RoomFxOverlayRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
+                baseline.Step(baselineFrames, new RoomFxOverlayFrame { Camera = camera, TimeIsFrozen = frozen, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None });
                 var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else
@@ -109,7 +109,7 @@ internal static class InstalledSporesTests
                     var gameplay = new GameplaySceneLayer(new(default, default, new Extent16<TilemapCells>(64, 32),
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            Bg3 = Layer3CellsFixtures.FromWords(baseline.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(stock)),
+                            FxOverlay = FxOverlayCellsFixtures.FromWords(baseline.EffectPlane.WordsIn(InstalledAreaMapPresentation.RoomFxPagesOf(stock)),
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureSpores(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
@@ -202,12 +202,12 @@ internal static class InstalledSporesTests
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5c00, 1);
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(objPriority << 4 | palette << 1);
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
             var layer = GameplayEffectCapture.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
-                    Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, colors, 0x4000),
+                    FxOverlay = FxOverlayCellsFixtures.FromVram(vram.Bytes, colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors, oam, 1, 0), [layer], 15);

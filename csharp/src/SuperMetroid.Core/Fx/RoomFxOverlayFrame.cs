@@ -2,8 +2,8 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>What one layer-3 FX step reads from the frame: camera, freeze, the power-on rumble delay, RNG, darkness and the power bomb (#633).</summary>
-public sealed record RoomLayer3FxFrame
+/// <summary>What one effect-overlay FX step reads from the frame: camera, freeze, the power-on rumble delay, RNG, darkness and the power bomb (#633).</summary>
+public sealed record RoomFxOverlayFrame
 {
     /// <summary>Camera.</summary>
     public required Position16<RoomPixels> Camera { get; init; }

@@ -38,7 +38,7 @@ internal static class PauseHudLocationVerification
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = runtime.AcceptedHud });
             // The centre tile sits in the HUD's mutable rows, which follow the static top row on BG3.
-            const int centerWord = Layer3Plane.Columns + 60;
+            const int centerWord = FxOverlayPlane.Columns + 60;
             // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.
             int inks = ((center >> 10) & 7) * 4;
             RgbColor[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => RgbColor.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];

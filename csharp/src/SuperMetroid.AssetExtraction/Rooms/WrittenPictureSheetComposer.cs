@@ -49,7 +49,7 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(uploads);
         List<WrittenSubject> subjects = [.. Ensure.NotNull(writers).Order().SelectMany(writer => Subjects(inputs, writer))];
         // Pictures over the sprites' artwork show only what its load and encounters place there, never the tileset's.
-        return Compose(inputs, tileset, WrittenPictureLayer.Bg12, new WrittenSubjects(subjects, [], []), content, new WrittenOptions(
+        return Compose(inputs, tileset, WrittenPictureLayer.WrittenOverRoom, new WrittenSubjects(subjects, [], []), content, new WrittenOptions(
             new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads));
     }
 
@@ -67,10 +67,10 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(GameplayHudArtwork.Of(inputs.Maps.GameplayHud), HudImageSheet.Maps(inputs.Maps));
-        List<WrittenSubject> subjects = [new WrittenSubject(Layer3Plane.ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
-            .. uploads.FxTypes.Order().Select(type => new WrittenSubject(Layer3Plane.EffectPagePicture(type),
+        List<WrittenSubject> subjects = [new WrittenSubject(FxOverlayPlane.ClearedPicture, [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(Layer3ClearedCellDefinitions.ClearedCell)))]),
+            .. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPlane.EffectPagePicture(type),
                 Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
-        return Compose(inputs, tileset, WrittenPictureLayer.Bg3, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
+        return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             new WrittenOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []));
     }
@@ -219,7 +219,7 @@ internal static class WrittenPictureSheetComposer
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
             int left = cell.X * RoomTileCanvas.CharacterPixels, top = cell.Y * RoomTileCanvas.CharacterPixels;
-            if (layer == WrittenPictureLayer.Bg3)
+            if (layer == WrittenPictureLayer.FxOverlayAndHud)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
                 canvas.PaintTile(left, top, word.Word, character, colours);
@@ -228,7 +228,7 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>VRAM words in one of <paramref name="layer"/>'s characters: BG3's are two-bit, BG1's and BG2's four-bit.</summary>
     private static int CharacterWordsOf(WrittenPictureLayer layer) =>
-        (layer == WrittenPictureLayer.Bg3 ? BgCharacterSet.Layer3 : BgCharacterSet.Tiles).CharacterBytes() / sizeof(ushort);
+        (layer == WrittenPictureLayer.FxOverlayAndHud ? BgCharacterSet.Layer3 : BgCharacterSet.Tiles).CharacterBytes() / sizeof(ushort);
 
     /// <summary>The pixel corner of the tile at <paramref name="cell"/>.</summary>
     private static Position16<ImagePixels> Corner(Position16<TilemapCells> cell) =>
@@ -243,7 +243,7 @@ internal static class WrittenPictureSheetComposer
     internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, WrittenPictureLayer layer)
     {
         Ensure.NotNull(canvas);
-        int rowColours = layer == WrittenPictureLayer.Bg3 ? 4 : 16;
+        int rowColours = layer == WrittenPictureLayer.FxOverlayAndHud ? 4 : 16;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
@@ -276,7 +276,7 @@ internal static class WrittenPictureSheetComposer
             ?? throw new InvalidDataException("The installed area artwork has no Ceres warning tilemaps.");
         foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayPages.All)
         {
-            if (page.Cell % SheetTiles + page.WordCount > SheetTiles)
+            if (page.Cell.X % SheetTiles + page.WordCount > SheetTiles)
                 throw new InvalidDataException($"The Ceres warning page {page.Name} runs past the end of its row.");
             if (!overlays.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles))
                 throw new InvalidDataException($"The installed Ceres warning tilemaps hold no {page.Name} page.");

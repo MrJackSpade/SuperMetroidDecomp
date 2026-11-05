@@ -1,19 +1,15 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The X-ray reveal's blocks (#1431): two screens of 16x16 blocks, written in whole blocks by the reveal and its
-/// overlays, of which BG2 shows the first screen and the second screen's first column.
+/// The area the X-ray reveals (#1431, #1514): the room's 16x16 blocks covering the screen from the block its top-left
+/// corner lies in, written in whole blocks by the reveal and its overlays.
 /// </summary>
 public static class XrayRevealLayout
 {
-    /// <summary>Sixteen rows of blocks are constructed, including offscreen rows.</summary>
-    public const int MetatileRows = 16;
-    /// <summary>Sixteen complete columns plus the right-hand fine-scroll column.</summary>
-    public const int MetatileColumns = 17;
-    /// <summary>The blocks BG2 shows, row by row, <see cref="MetatileColumns"/> to a row.</summary>
-    public const int Cells = MetatileColumns * MetatileRows;
-    /// <summary>Blocks across and down one of the reveal's two screens.</summary>
-    internal const int ScreenBlocks = 16;
-    /// <summary>The screens the reveal writes.</summary>
-    internal const int Screens = 2;
+    /// <summary>Rows of blocks revealed: every row the gameplay area shows, at any scroll within a block.</summary>
+    public const int Rows = 16;
+    /// <summary>Columns of blocks revealed: the screen's sixteen and the one a scroll within a block also shows.</summary>
+    public const int Columns = 17;
+    /// <summary>The blocks revealed, row by row, <see cref="Columns"/> to a row.</summary>
+    public const int Cells = Columns * Rows;
 }

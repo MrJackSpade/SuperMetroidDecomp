@@ -25,7 +25,7 @@ public sealed class SamusLiquidPhysicsState
     /// movement therefore consume one game-owned surface instead of independently
     /// configured debug values.
     /// </summary>
-    public void ConfigureFor(RoomLayer3FxState fx)
+    public void ConfigureFor(RoomFxOverlayState fx)
     {
         Ensure.NotNull(fx);
         switch (fx.Type)

@@ -39,10 +39,10 @@ internal static class SpringBallEquipmentJumpVerification
             var samus = runtime.Player.IntroducedSamus;
             samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
             samus.CollectedItems = (samus.EquippedItems | SamusEquipmentFlags.SpringBall);
-            samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.Surface.Y + 96)));
+            samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomFxOverlay.Surface.Y + 96)));
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            samus.LiquidPhysics.ConfigureFor(runtime.RoomLayer3Fx);
+            samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
             SamusPresentation.InitializeAnimation(samus, 3);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;

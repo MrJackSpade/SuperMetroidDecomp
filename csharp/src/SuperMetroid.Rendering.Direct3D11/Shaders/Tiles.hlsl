@@ -34,7 +34,7 @@ StructuredBuffer<uint> RoomLevels : register(t3);
 // RoomSource: what a layer pass draws: the room's layer 1 or 2 as level data shows it, the sky's rows, the layer-3
 // plane, a boss body, the X-ray reveal, a library background, the HUD, a pictured plane or a picture grid.
 // SourceLayer2Overlay added to it lays words written over layer 2 on top.
-static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceLayer3 = 4;
+static const uint SourceLayer1 = 1, SourceLayer2 = 2, SourceSky = 3, SourceFxOverlay = 4;
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
@@ -58,8 +58,9 @@ static const uint RoomMessagePictureWord = 28;
 // The HUD's placed pictures (#1466): their count, then two words each in drawing order, the picture's offset and its
 // upper-left screen pixel, x below y.
 static const uint RoomHudWord = 29;
-// The X-ray reveal (XrayRevealPlane): 17 block columns by 16 rows, each its picture's offset with its arrangement in the
-// top four bits: as defined, mirrored horizontally, vertically or both, or its tile rows swapped.
+// The X-ray reveal (XrayRevealPlane, #1514): the foreground pixel its first block lies on, x below y, then 17 block columns
+// by 16 rows, each its picture's offset with its arrangement in the top four bits: as defined, mirrored horizontally,
+// vertically or both, or its tile rows swapped.
 static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
@@ -97,17 +98,18 @@ bool RoomPlaneTile(uint slot, uint2 scrolled, out uint entry, out uint2 within, 
     return inside;
 }
 // What the scrolling sky (SkyPictures, #1403) shows: its image or a rebound cell's picture as `picture`, with `within`
-// its pixel, repeating every 2048 pixels down and 256 across; a row selecting no page shows nothing.
+// its pixel, repeating every 2048 pixels down and 256 across; a row selecting no page shows nothing. Its image's record is
+// a library background's: the picture, its area, then its cells.
 bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
 {
     uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
     uint skyImage = RoomLevels[RoomSkyImageWord];
-    uint cell = RoomLevels[skyImage + 1 + (position.y >> 4) * 16 + (position.x >> 4)];
+    uint cell = RoomLevels[skyImage + 2 + (position.y >> 4) * 16 + (position.x >> 4)];
     picture = cell != 0 ? cell : RoomLevels[skyImage];
     within = cell != 0 ? (position & 15) : position;
     return RoomLevels[RoomLevels[RoomSkyWord] + (position.y >> 3)] != 0;
 }
-// The layer-3 plane (Layer3Plane): 32 by 64 cells. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
+// The layer-3 plane (FxOverlayPlane): 32 by 64 cells. A window of `rows` rows from `firstRow` repeats every 256 pixels across.
 // Where the plane's pictures are resolved (#1392), `picture` is the word's picture and `within` its pixel in it.
 bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out uint picture)
 {
@@ -179,43 +181,58 @@ bool GridPicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
         (entry & GridFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7);
     return picture != 0;
 }
-// The picture of a word written over layer 2 (RoomOverlayPictures, #1403) at the cell a `size` layout places the
-// scrolled position, laid out as a boss body's pictures with none where nothing was written; `within` its pixel in it.
-bool Bg2OverlayPicture(uint2 scrolled, uint2 size, out uint picture, out uint2 within)
+// A picture written over a room's layer (RoomOverlayPictures, #1403, #1514) at a scrolled position of that layer, from the
+// table at room level word `table`: its count, then two words each in the order written, the picture's offset and the
+// layer pixel its corner lies on, x below y. The last written picture covering the position gives `picture`, with
+// `within` its pixel there; false where none does, which leaves the layer showing.
+bool WrittenPicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
 {
-    uint2 tile = (scrolled & (size * 8 - 1)) >> 3;
-    uint index = ((tile.y >> 5) * (size.x >> 5) + (tile.x >> 5)) * 1024 + (tile.y & 31) * 32 + (tile.x & 31);
-    uint pictures = RoomLevels[RoomBg2OverlayWord];
-    within = scrolled & 7;
-    picture = pictures != 0 && index < 2048 ? RoomLevels[pictures + 2 * index] : 0;
-    if (picture != 0)
+    picture = 0;
+    within = uint2(0, 0);
+    if (table == 0) return false;
+    for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
-        uint corner = RoomLevels[pictures + 2 * index + 1];
-        within += uint2(corner & 65535, corner >> 16);
+        uint record = table + 1 + (placed - 1) * 2;
+        uint shown = RoomLevels[record];
+        uint corner = RoomLevels[record + 1];
+        uint2 offset = (scrolled - uint2(corner & 65535, corner >> 16)) & 65535;
+        uint extent = RoomLevels[shown + PictureSizeWord];
+        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
+        picture = shown;
+        within = offset;
+        return true;
     }
-    return picture != 0;
+    return false;
 }
-// A boss body (ShownBossBody, #1466) at a scrolled position of its layer at the pass's map size: the map size lays the
-// layer's 32-row pages out, and the part showing the position's cell gives `picture` and `within`, its pixel there. Each
-// part is four words: its picture's offset, the layer row its picture's top edge lies on, its first row shown and the
-// rows it spans (that in the high half), and the offset of one word per row, a bit per cell it shows. A picture repeats
-// across and down from the layer's left edge and its top row, as the one-cell blank does. Every layer-2 sampler reads the
-// boss through this, so a color-math pass shows the same body as an ordinary one (#1426).
-void BossBodyPicture(uint2 scrolled, uint2 size, out uint2 within, out uint picture)
+// The picture written over the background at a scrolled position (#1348, #1514), as WrittenPicture finds it.
+bool Bg2OverlayPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
-    uint2 position = scrolled & 65535 & (size * 8 - 1);
+    return WrittenPicture(RoomLevels[RoomBg2OverlayWord], scrolled, within, picture);
+}
+// A boss body (ShownBossBody, #1466) at a scrolled position of its layer: the body's area (#1514), in its table's second
+// word, x below y, repeats beyond its edges and holds the layer's 32-row pages left to right and then downward, and the part
+// showing the position's cell gives `picture` and `within`, its pixel there. Each part is four words: its picture's
+// offset, the layer row its picture's top edge lies on, its first row shown and the rows it spans (that in the high
+// half), and the offset of one word per row, a bit per cell it shows. A picture repeats across and down from the layer's
+// left edge and its top row, as the one-cell blank does. Every layer-2 sampler reads the boss through this, so a
+// color-math pass shows the same body as an ordinary one (#1426).
+void BossBodyPicture(uint2 scrolled, out uint2 within, out uint picture)
+{
+    uint table = RoomLevels[RoomBossBodyWord];
+    uint area = RoomLevels[table + 1];
+    uint2 size = uint2(area & 65535, area >> 16) >> 3;
+    uint2 position = (scrolled & 65535) % (size * 8);
     uint2 tile = position >> 3;
     uint page = (tile.y >> 5) * (size.x >> 5) + (tile.x >> 5);
     uint column = tile.x & 31;
     uint row = page * 32 + (tile.y & 31);
     uint2 layerPixel = uint2(column * 8 + (position.x & 7), row * 8 + (position.y & 7));
-    uint table = RoomLevels[RoomBossBodyWord];
     uint parts = RoomLevels[table];
     picture = 0;
     within = uint2(0, 0);
     for (uint part = 0; part < parts; part++)
     {
-        uint record = table + 1 + part * 4;
+        uint record = table + 2 + part * 4;
         uint shows = RoomLevels[record + 2];
         uint first = shows & 65535;
         if (row < first || row >= first + (shows >> 16)) continue;
@@ -226,16 +243,18 @@ void BossBodyPicture(uint2 scrolled, uint2 size, out uint2 within, out uint pict
         return;
     }
 }
-// The X-ray reveal's block picture and pixel at a scrolled layer-2 position (#1392); false past the blocks it builds,
-// which layer 2's scroll never shows.
+// The X-ray reveal's block picture and pixel at a scrolled position of the foreground (#1392, #1514), the background
+// moving with the foreground while it shows the reveal; false outside the blocks it reveals.
 bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
-    uint2 position = uint2(scrolled.x & 511, scrolled.y & 255);
+    uint table = RoomLevels[RoomXrayRevealWord];
+    uint origin = RoomLevels[table];
+    uint2 position = (scrolled - uint2(origin & 65535, origin >> 16)) & 65535;
     uint2 block = position >> 4;
     picture = 0;
     within = position & 15;
     if (block.x >= RevealColumns || block.y >= RevealRows) return false;
-    uint entry = RoomLevels[RoomLevels[RoomXrayRevealWord] + block.y * RevealColumns + block.x];
+    uint entry = RoomLevels[table + 1 + block.y * RevealColumns + block.x];
     uint arrangement = entry >> 28;
     picture = entry & 0x0FFFFFFF;
     if (arrangement == 1 || arrangement == 3) within.x = 15 - within.x;
@@ -244,19 +263,21 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
     // A block copied from beyond the room has no picture and shows nothing.
     return picture != 0;
 }
-// The picture and pixel a room's library background shows at a scrolled layer-2 position through a `size` map (#1392): a
-// rebound cell's picture, or the image of both pages; false on a page past the two the image pictures.
-bool Bg2ImagePicture(uint2 scrolled, uint2 size, out uint picture, out uint2 within)
+// The picture and pixel a room's library background shows at a scrolled position of the background (#1392): the image's
+// area (#1514), in its record's second word, x below y, repeats beyond its edges and holds its 256-pixel pages left to right
+// and then downward; a rebound cell's picture, or the image of the pages.
+bool Bg2ImagePicture(uint2 scrolled, out uint picture, out uint2 within)
 {
-    uint2 position = scrolled & (size * 8 - 1);
-    uint2 tile = position >> 3;
-    uint page = (tile.y >> 5) * (size.x >> 5) + (tile.x >> 5);
-    uint2 pagePixel = position & 255;
     uint image = RoomLevels[RoomBg2ImageWord];
-    uint cell = RoomLevels[image + 1 + page * 256 + (pagePixel.y >> 4) * 16 + (pagePixel.x >> 4)];
+    uint area = RoomLevels[image + 1];
+    uint2 extent = uint2(area & 65535, area >> 16);
+    uint2 position = (scrolled & 65535) % extent;
+    uint page = (position.y >> 8) * (extent.x >> 8) + (position.x >> 8);
+    uint2 pagePixel = position & 255;
+    uint cell = RoomLevels[image + 2 + page * 256 + (pagePixel.y >> 4) * 16 + (pagePixel.x >> 4)];
     picture = cell != 0 ? cell : RoomLevels[image];
     within = cell != 0 ? (pagePixel & 15) : uint2(pagePixel.x, page * 256 + pagePixel.y);
-    return page < 2;
+    return true;
 }
 // Layer 2 from the room's layer-2 plane or the sky's rows, or layer 1 as RoomBackgrounds resolves it: a door's source
 // screen, then words written over layer 1, then the level plane.
@@ -272,23 +293,11 @@ bool RoomTile(uint source, uint2 scrolled, out uint entry, out uint2 within, out
     {
         uint door = RoomLevels[RoomDoorWindowWord];
         uint2 doorWithin = (scrolled - uint2(door & 65535, door >> 16)) & 65535;
-        uint overlay = RoomLevels[RoomOverlayWord];
         if (RoomLevels[RoomDoorSlot * RoomRecordWords + 1] != 0 && doorWithin.x < 256 && doorWithin.y < 192)
             slot = RoomDoorSlot;
-        else if (overlay != 0)
-        {
-            // A word written over layer 1 draws from its picture (#1403); none where nothing was written.
-            uint2 cell = uint2((scrolled.x >> 3) & 63, (scrolled.y >> 3) & 31);
-            uint index = (cell.x >> 5) * 1024 + cell.y * 32 + (cell.x & 31);
-            picture = RoomLevels[overlay + 2 * index];
-            overlaid = picture != 0;
-            within = scrolled & 7;
-            if (overlaid)
-            {
-                uint corner = RoomLevels[overlay + 2 * index + 1];
-                within += uint2(corner & 65535, corner >> 16);
-            }
-        }
+        else
+            // A picture written over the foreground draws where it lies (#1403, #1514); none where nothing was written.
+            overlaid = WrittenPicture(RoomLevels[RoomOverlayWord], scrolled, within, picture);
     }
     bool shown = overlaid;
     if (source == SourceSky)
@@ -577,22 +586,22 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint2 scrolled = (sampleScreen + scroll) & 65535;
     uint source = RoomSource & 255;
     // A word written over layer 2 shows its picture over whatever layer 2 shows there (#1403).
-    bool overlaid = (RoomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(scrolled, uint2(MapWidth, MapHeight), picture, within);
+    bool overlaid = (RoomSource & SourceLayer2Overlay) != 0 && Bg2OverlayPicture(scrolled, picture, within);
     if (!overlaid)
     {
-        if (source == SourceLayer3)
+        if (source == SourceFxOverlay)
         {
             if (!Bg3Picture(TilemapWord, MapHeight, scrolled, within, picture)) return;
         }
         else if (source == SourceBossBody)
-            BossBodyPicture(scrolled, uint2(MapWidth, MapHeight), within, picture);
+            BossBodyPicture(scrolled, within, picture);
         else if (source == SourceXrayReveal)
         {
             if (!RevealPicture(scrolled, picture, within)) return;
         }
         else if (source == SourceLibraryBackground)
         {
-            if (!Bg2ImagePicture(scrolled, uint2(MapWidth, MapHeight), picture, within)) return;
+            if (!Bg2ImagePicture(scrolled, picture, within)) return;
         }
         else if (source == SourceHud)
         {

@@ -12,7 +12,7 @@ internal enum D3D11RoomSource : uint
     /// <summary>The scrolling sky's rows (#1347).</summary>
     Sky = 3,
     /// <summary>Layer 3: the room effect (#1348).</summary>
-    Layer3 = 4,
+    FxOverlay = 4,
     /// <summary>A boss body's tilemap, which layer 2 shows (#1352).</summary>
     BossBody = 6,
     /// <summary>The X-ray reveal's blocks, drawn from block pictures (#1392).</summary>

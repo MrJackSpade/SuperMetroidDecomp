@@ -85,7 +85,7 @@ internal static class RetailElevatorReturnTests
         ushort expectedCameraY = unchecked((ushort)(samus.Position.Y.Whole - runtime.Room.ActiveRoom.UpScroller));
         if (runtime.Room.LoadedCamera.PixelPosition.Y != expectedCameraY || runtime.Room.LoadedCamera.IdealPosition.Y != expectedCameraY ||
             runtime.BackgroundScroll.Layer1Position.Y != expectedCameraY ||
-            runtime.BackgroundScroll.Bg1Scroll.Y != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.Bg1Offset.Y)))
+            runtime.BackgroundScroll.ForegroundScroll.Y != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.ForegroundOffset.Y)))
             throw new InvalidOperationException("Settled elevator camera and BG1 disagree with the room up-scroller target.");
         Console.WriteLine($"{device.Kind}: upward elevator {samples} exact frames, {scrolling} scroll frames, " +
             $"{arrivalFrames} return frames, {cameraPositions.Count} camera positions; control released.");

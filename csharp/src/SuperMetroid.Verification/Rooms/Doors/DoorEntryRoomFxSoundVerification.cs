@@ -37,7 +37,7 @@ internal static class DoorEntryRoomFxSoundVerification
                 var candidate = LoadRisingTide(door, new SharedRandom());
                 for (int frame = 0; frame < 4; frame++)
                     candidate.StepFrame(0);
-                return candidate.RoomLayer3Fx.EarthquakeRequest.HasValue;
+                return candidate.RoomFxOverlay.EarthquakeRequest.HasValue;
             });
         var random = new SharedRandom();
         var runtime = LoadRisingTide(entry, random);
@@ -59,8 +59,8 @@ internal static class DoorEntryRoomFxSoundVerification
         }
 
         // Run real frames until the rising lava's rumble timer will fire on the next HDMA pass.
-        StepUntil(() => runtime.RoomLayer3Fx.EarthquakeRequest.HasValue &&
-                runtime.RoomLayer3Fx.EarthquakeSoundTimer.IsZero,
+        StepUntil(() => runtime.RoomFxOverlay.EarthquakeRequest.HasValue &&
+                runtime.RoomFxOverlay.EarthquakeSoundTimer.IsZero,
             _ => game.Step(0), maximumFrames: 600, context: "Rising Tide rumble timer reaches zero");
 
         var level = runtime.Room.LoadedLevelData;

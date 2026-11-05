@@ -145,21 +145,21 @@ internal static class RoomFxRomDataVerification
         var stateSession = new RoomFxSession{
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
-        var state = new RoomLayer3FxState(stateSession);
+        var state = new RoomFxOverlayState(stateSession);
         const ushort record = 0x9400;
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             RoomFxRecordEncoding.LayerBlendByte(LayerBlendingConfiguration.NormalGameplay));
 
-        RoomFxType[] nonLayer3Types =
+        RoomFxType[] nonFxOverlayTypes =
         [
             RoomFxType.ScrollingSky,
             RoomFxType.CeresHaze,
             RoomFxType.CeresRidley,
             RoomFxType.CeresElevator,
         ];
-        foreach (RoomFxType type in nonLayer3Types)
+        foreach (RoomFxType type in nonFxOverlayTypes)
         {
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordEncoding.TypeByte(type));
             state = LoadSyntheticRoomFx(stateSession, bus, record);
@@ -207,10 +207,10 @@ internal static class RoomFxRomDataVerification
         SeedSyntheticRoomFxByte(bus, record,
             RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset, RoomFxRecordEncoding.LayerBlendByte(layerBlend));
 
-        RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, record);
+        RoomFxOverlayState state = LoadSyntheticRoomFx(session, bus, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, session, state, record, type));
-        AssertEqual(Layer3PlaneConstants.ClearedCell.PackedWord,
-            state.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(RetailPresentationFixture()))[Layer3PlaneConstants.HudRows * Layer3Plane.Columns],
+        AssertEqual(FxOverlayPlaneConstants.ClearedCell.PackedWord,
+            state.EffectPlane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(RetailPresentationFixture()))[FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns],
             $"{type} room shows the cleared word in the first gameplay BG3 FX word");
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -225,7 +225,7 @@ internal static class RoomFxRomDataVerification
         }
         AssertEqual(type, state.Type, $"{type} layer-three type");
         AssertTrue(state.IsRenderable, $"{type} owns a translated layer-three plane");
-        RoomLayer3FxRenderSnapshot snapshot = (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay()."));
+        RoomFxOverlayRenderSnapshot snapshot = (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay()."));
         AssertEqual(
             layerBlend,
             snapshot.LayerBlendConfiguration,
@@ -237,8 +237,8 @@ internal static class RoomFxRomDataVerification
                 $"{type} surface retains room-relative scanline");
             // The seeded records select a drifting, BG2-waving water surface and lava/acid's vertical heat wave.
             RoomLiquidOptions expectedOptions = type == RoomFxType.Water
-                ? RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.Bg2Wave
-                : RoomLiquidOptions.Bg2Wave;
+                ? RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave
+                : RoomLiquidOptions.BackgroundWave;
             AssertEqual(expectedOptions, snapshot.LiquidOptions,
                 $"{type} render snapshot retains its wave options");
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
@@ -246,7 +246,7 @@ internal static class RoomFxRomDataVerification
 
             // Negative liquid positions are the cartridge's deliberate "no visible
             // surface" sentinel: the capture shows no BG3 liquid plane at all.
-            AssertTrue(GameplayEffectCapture.CaptureRoomLayer3Fx(snapshot with
+            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with
                 {
                     Surface = new(0, ushort.MaxValue),
                     WaterSurfaceScreenY = -1,
@@ -254,41 +254,41 @@ internal static class RoomFxRomDataVerification
                 $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             // The described BG2 wave (#1468), evaluated on each gameplay line.
-            ushort[] bg2Scroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
+            ushort[] backgroundScroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
                 ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(
                     snapshot,
-                    bg2Scroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
+                    backgroundScroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
                         "Wavy water did not publish a BG2 HDMA scroll table.")
                 : GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(
                     snapshot,
                     bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
                         $"{type} did not publish its BG2 HDMA scroll table."));
             AssertEqual(DisplayScreen.Height - DisplayScreen.HudHeight,
-                bg2Scroll.Length,
+                backgroundScroll.Length,
                 $"{type} BG2 wave table covers gameplay scanlines");
             if (type == RoomFxType.Water)
             {
                 AssertEqual((ushort)0x0200,
-                    bg2Scroll[90 - DisplayScreen.HudHeight],
+                    backgroundScroll[90 - DisplayScreen.HudHeight],
                     "water leaves BG2 undistorted above the surface");
                 AssertTrue(
-                    bg2Scroll.Skip(101 - DisplayScreen.HudHeight).Distinct().Count() > 1,
+                    backgroundScroll.Skip(101 - DisplayScreen.HudHeight).Distinct().Count() > 1,
                     "water distorts BG2 below the surface");
             }
             else
             {
-                AssertEqual(3, bg2Scroll.Distinct().Count(),
+                AssertEqual(3, backgroundScroll.Distinct().Count(),
                     $"{type} uses the native three-value heat waveform");
                 for (int frameNumber = 0;
                      frameNumber < LavaAcidWaveDefinitions.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
-                    state.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-                    AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
+                    state.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+                    AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBackgroundWavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
-                state.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-                AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
+                state.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+                AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBackgroundWavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
         }
@@ -310,15 +310,15 @@ internal static class RoomFxRomDataVerification
             _ => LayerBlendingConfiguration.Rain,
         };
         AssertThrows<InvalidDataException>(
-            () => GameplayEffectCapture.CaptureRoomLayer3Fx(
+            () => GameplayEffectCapture.CaptureRoomFxOverlay(
                 snapshot with { LayerBlendConfiguration = wrongBlend }, RoomBackgroundsFixtures.BlankBg3()),
             $"{type} rejects another FX type's layer-blending route");
     }
 
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
-    internal static RoomLayer3FxState LoadSyntheticRoomFx(RoomFxSession session, TestAddressSpace bus,
+    internal static RoomFxOverlayState LoadSyntheticRoomFx(RoomFxSession session, TestAddressSpace bus,
         ushort pointer) =>
-        RoomLayer3FxState.ForDefinition(session, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
+        RoomFxOverlayState.ForDefinition(session, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
     private static RoomFxRecordDefinition ReadSyntheticRoomFxRecord(TestAddressSpace bus, ushort pointer)

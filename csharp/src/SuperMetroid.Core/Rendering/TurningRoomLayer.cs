@@ -30,8 +30,7 @@ public sealed record TurningRoomLayer : DisplayLayer
         if (hudScanlines < 0 || hudScanlines > ScreenGeometry.ScreenHeightPixels ||
             hudScanlines % ScreenGeometry.BackgroundTileSizePixels != 0)
             throw new ArgumentOutOfRangeException(nameof(hudScanlines));
-        if (floor is { } f && (f.FirstLine < hudScanlines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels ||
-            f.MapSize.X is not (32 or 64) || f.MapSize.Y is not (32 or 64)))
+        if (floor is { } f && (f.FirstLine < hudScanlines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels))
             throw new ArgumentOutOfRangeException(nameof(floor));
         Transform = transform;
         Map = Ensure.NotNull(map);

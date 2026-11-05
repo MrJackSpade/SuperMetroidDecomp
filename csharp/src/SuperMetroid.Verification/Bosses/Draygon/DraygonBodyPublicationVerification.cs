@@ -28,7 +28,7 @@ internal static class DraygonBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
         DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads Draygon.");
-        Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.Bg2Scroll;
+        Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.BackgroundScroll;
 
         foreach (Position16<RoomPixels> body in new Position16<RoomPixels>[] { new(256, 160), new(352, 288) })
         {
@@ -42,12 +42,12 @@ internal static class DraygonBodyPublicationVerification
             DraygonBodyPlacement placement = runtime.Display.Latched.Bosses.DraygonBody
                 ?? throw new InvalidOperationException("Draygon publishes his body placement.");
             AssertEqual(new DraygonBodyPlacement(body, expected, false), placement, $"Draygon at {body} publishes his body position and placement");
-            AssertEqual(roomScroll, runtime.BackgroundScroll.Bg2Scroll, "Draygon leaves the room's BG2 scroll alone");
+            AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Draygon leaves the room's BG2 scroll alone");
             _ = runtime.Display.Latched.Bosses.Body
                 ?? throw new InvalidOperationException("Draygon publishes his body layer.");
             var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), $"Draygon at {body} shows his body image on BG2");
-            AssertEqual(expected + runtime.Display.Latched.Scrolls.RoomShake.Bg2, drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
+            AssertEqual(expected + runtime.Display.Latched.Scrolls.RoomShake.Background, drawn.View.BackgroundScroll, $"Draygon at {body} places the image at his body");
             AssertEqual(DraygonBodyBand.ShownLines(placement, runtime.Display.Latched.Scrolls.Layer1Position),
                 new ScreenLineBand(drawn.View.BackgroundFirstLine, drawn.View.BackgroundEndLine), $"Draygon at {body} shows BG2 on the band of lines around his body");
         }

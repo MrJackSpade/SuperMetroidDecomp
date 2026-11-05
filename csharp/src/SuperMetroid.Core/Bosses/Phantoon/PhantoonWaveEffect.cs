@@ -61,8 +61,8 @@ public sealed class PhantoonWaveEffect
     /// A fatal hit flattens the wave: every line shows the base scroll, a wave of
     /// zero amplitude, without advancing setup or changing the latched display.
     /// </summary>
-    /// <param name="bg2HorizontalScroll">The second background layer's base horizontal scroll in whole pixels, which every line shows.</param>
-    public void InitializeDeathScroll(int bg2HorizontalScroll) => _built = new(_built.Phase, 0, bg2HorizontalScroll);
+    /// <param name="backgroundHorizontalScroll">The second background layer's base horizontal scroll in whole pixels, which every line shows.</param>
+    public void InitializeDeathScroll(int backgroundHorizontalScroll) => _built = new(_built.Phase, 0, backgroundHorizontalScroll);
 
     /// <summary>Requests a new wave; its setup runs at the next update of the per-line effect phase.</summary>
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
@@ -73,7 +73,7 @@ public sealed class PhantoonWaveEffect
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once the eye's length is cleared or advance its phase and rebuild its shape.</summary>
-    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and base BG2 scroll remain boss-owned inputs.</param>
+    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and base background scroll remain boss-owned inputs.</param>
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {

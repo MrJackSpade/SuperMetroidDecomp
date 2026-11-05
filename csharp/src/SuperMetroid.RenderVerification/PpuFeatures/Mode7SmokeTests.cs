@@ -29,7 +29,7 @@ internal static class Mode7SmokeTests
         var hudLayer = new HudLayer(hudPictures, TransparentColorZero: false);
         AffineFloor map = AffineFloorFixtures.Floor(vram, palette);
         // Below the floor band, the room's layer-2 plane drawn from its block pictures (#1403).
-        RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Bg2
+        RoomBackgroundLayer floorRoom = RoomBackgroundsFixtures.Seeded(random, default, new Position16<TilePlanePixels>(17, 65535), pictureColours: palette).Background
             ?? throw new InvalidOperationException("A seeded room with a BG2 scroll has a layer-2 plane.");
         int count = 0;
         foreach (double angle in new[] { 0, 0.4, Math.PI / 2, -2.5 })
@@ -53,7 +53,7 @@ internal static class Mode7SmokeTests
         foreach (double scale in new[] { 1, 0.5, 2, 0 })
         {
             var band = floorStart is { } start
-                ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
+                ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), floorRoom)
                 : (TurningRoomLowerBand?)null;
             var layer = new TurningRoomLayer(
                 new FloorView(0.27, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),

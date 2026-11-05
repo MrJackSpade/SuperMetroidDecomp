@@ -159,7 +159,7 @@ internal interface IGameplayArtwork
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
 
-    /// <summary>The bosses' melts, BG2 frames, corpse characters and colors.</summary>
+    /// <summary>The bosses' melts, background frames, corpse characters and colors.</summary>
     BossArtworkCatalog? BossArtwork { get; }
 
     /// <summary>Every boss's pre-assembled body frames (#1466).</summary>

@@ -27,65 +27,65 @@ public static class GameplayEffectCapture
     private static readonly int OnePixelPerSample = EightEight.FromWhole(1);
 
     /// <summary>
-    /// Describes water's optional BG2 wave (#1468): below the surface, BG2's horizontal scroll follows
+    /// Describes water's optional background wave (#1468): below the surface, background's horizontal scroll follows
     /// the water waveform one sample a line, counted from the line below the surface and advanced by the wave's phase and
-    /// BG2's fine vertical scroll; the lines above keep BG2's own scroll. Null without the wave.
+    /// The background's fine vertical scroll; the lines above keep background's own scroll. Null without the wave.
     /// </summary>
     public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
-        RoomLayer3FxRenderSnapshot fx,
-        Position16<BackgroundPixels> bg2Scroll)
+        RoomFxOverlayRenderSnapshot fx,
+        Position16<BackgroundPixels> backgroundScroll)
     {
-        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
+        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
             return null;
         int belowSurface = fx.WaterSurfaceScreenY + 1;
-        return new SampledScrollWave(bg2Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
-            SampledScrollWave.PhaseWhere(fx.WaterBg2WavePhase + (bg2Scroll.Y & 15), belowSurface, LiquidEffects.WaterWaveform.Length),
+        return new SampledScrollWave(backgroundScroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
+            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + (backgroundScroll.Y & 15), belowSurface, LiquidEffects.WaterWaveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
 
     /// <summary>
-    /// Describes the optional lava/acid BG2HOFS heat haze (#1468), or null without it. Vertical
+    /// Describes the optional lava/acid the background's horizontal scroll heat haze (#1468), or null without it. Vertical
     /// distortion takes priority when both option bits are set, as the game checks it first.
     /// </summary>
     public static SampledScrollWave? BuildLavaAcidBackgroundHorizontalScrolls(
-        RoomLayer3FxRenderSnapshot fx,
-        Position16<BackgroundPixels> bg2Scroll)
+        RoomFxOverlayRenderSnapshot fx,
+        Position16<BackgroundPixels> backgroundScroll)
     {
         bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
         bool usesVertical =
-            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) != RoomLiquidOptions.None;
+            (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) != RoomLiquidOptions.None;
         bool usesHorizontal =
             (fx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
         if (!isLavaAcid || usesVertical || !usesHorizontal)
             return null;
 
-        return HeatHaze(bg2Scroll.X, bg2Scroll.Y, fx.LavaAcidBg2WavePhase, LiquidEffects.HeatHorizontalWaveform);
+        return HeatHaze(backgroundScroll.X, backgroundScroll.Y, fx.LavaAcidBackgroundWavePhase, LiquidEffects.HeatHorizontalWaveform);
     }
 
-    /// <summary>Describes the Norfair heat-haze BG2VOFS wave (#1468), or null without it.</summary>
+    /// <summary>Describes the Norfair heat-haze the background's vertical scroll wave (#1468), or null without it.</summary>
     public static SampledScrollWave? BuildLavaAcidBackgroundVerticalScrolls(
-        RoomLayer3FxRenderSnapshot fx,
-        int bg2VerticalScroll)
+        RoomFxOverlayRenderSnapshot fx,
+        int backgroundVerticalScroll)
     {
         if (fx.Type is not (RoomFxType.Lava or RoomFxType.Acid) ||
-            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == RoomLiquidOptions.None)
+            (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
         {
             return null;
         }
 
         // The vertical haze repeats the water wave's samples.
-        return HeatHaze(bg2VerticalScroll, bg2VerticalScroll, fx.LavaAcidBg2WavePhase, LiquidEffects.WaterWaveform);
+        return HeatHaze(backgroundVerticalScroll, backgroundVerticalScroll, fx.LavaAcidBackgroundWavePhase, LiquidEffects.WaterWaveform);
     }
 
     /// <summary>
     /// The rotating sixteen-sample heat haze over every gameplay line (#1468). The haze is sixteen one-line
-    /// entries repeated through the frame: it starts at BG2VOFS's low nibble, while each frame
+    /// entries repeated through the frame: it starts at the background's vertical scroll's low nibble, while each frame
     /// the sixteen resident words backward through A, so the first gameplay line reaches the sample at that nibble plus the
     /// wave's phase.
     /// </summary>
-    private static SampledScrollWave HeatHaze(int baseScroll, int bg2VerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
+    private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
         new(baseScroll, waveform, OnePixelPerSample,
-            SampledScrollWave.PhaseWhere((bg2VerticalScroll & 15) + wavePhase, HudHeight, waveform.Length),
+            SampledScrollWave.PhaseWhere((backgroundVerticalScroll & 15) + wavePhase, HudHeight, waveform.Length),
             HudHeight, Height);
 
     /// <summary>Converts the eye's aim and half-width into the cone its beam lights.</summary>
@@ -117,17 +117,17 @@ public static class GameplayEffectCapture
         return new(ScreenWindow.Of(cone, MotherBrainBeamDefinitions.FirstLine), beam.Color);
     }
 
-    /// <summary>Composes layer-blend configuration $16 with both BG2 and BG3 on the subscreen.</summary>
+    /// <summary>Composes layer-blend configuration $16 with both background and the effect overlay on the subscreen.</summary>
     public static GameplayBlendLayer CaptureWaterfall(GameplaySceneLayer gameplay,
-        RoomLayer3FxRenderSnapshot fx)
+        RoomFxOverlayRenderSnapshot fx)
     {
         if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
-        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
+        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
-    public static OverlayBlendLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx, Layer3Cells plane)
+    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayCells plane)
     {
         LayerBlendingConfiguration required = fx.Type switch
         {
@@ -142,8 +142,8 @@ public static class GameplayEffectCapture
                 RoomFxType.Fireflea or
                 RoomFxType.CeresRidley or
                 RoomFxType.CeresElevator or
-                RoomFxType.CeresHaze => throw new NotSupportedException($"Room FX type {fx.Type} has no captured BG3 compositor."),
-            _ => throw new NotSupportedException($"Room FX type {fx.Type} has no captured BG3 compositor."),
+                RoomFxType.CeresHaze => throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor."),
+            _ => throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor."),
         };
         if (RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is not
             (LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive or
@@ -158,7 +158,7 @@ public static class GameplayEffectCapture
         int belowSurface = fx.WaterSurfaceScreenY + 1;
         LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
             ? new SampledScrollWave(fx.Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
-                SampledScrollWave.PhaseWhere(-fx.WaterBg3WavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
+                SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
             : ScrollBands.Uniform(fx.Scroll.X);
         // A liquid's lines above the tile row holding its surface show the plane's top row.
@@ -167,8 +167,8 @@ public static class GameplayEffectCapture
         bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         // Liquids sample the whole plane; atmospheres repeat its lower 32 rows.
-        return new(plane, atmosphere ? Layer3Plane.Rows / 2 : 0,
-            atmosphere ? Layer3Plane.Rows / 2 : Layer3Plane.Rows,
+        return new(plane, atmosphere ? FxOverlayPlane.Rows / 2 : 0,
+            atmosphere ? FxOverlayPlane.Rows / 2 : FxOverlayPlane.Rows,
             HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add, horizontal, vertical);
     }
 
@@ -178,11 +178,11 @@ public static class GameplayEffectCapture
     /// Use the same literal Mode-1 composition as the other source-aware effects.
     /// </summary>
     public static GameplayBlendLayer CaptureSpores(GameplaySceneLayer gameplay,
-        RoomLayer3FxRenderSnapshot fx)
+        RoomFxOverlayRenderSnapshot fx)
     {
         if (fx.Type != RoomFxType.Spores)
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
-        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
+        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay));
     }
 
     /// <summary>

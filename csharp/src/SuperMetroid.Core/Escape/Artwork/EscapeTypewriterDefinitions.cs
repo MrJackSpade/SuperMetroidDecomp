@@ -11,7 +11,7 @@ public static class EscapeTypewriterDefinitions
 
     /// <summary>The delay between typed characters; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const int CharacterDelayFrames = 2;
-    /// <summary>Maximum authored warning length and BG tilemap row width, in character cells.</summary>
+    /// <summary>Maximum authored warning length, in character cells.</summary>
     public const int MaximumLineLength = 32;
 
     /// <summary>Chosen English warning wording, retained as lexical content.</summary>

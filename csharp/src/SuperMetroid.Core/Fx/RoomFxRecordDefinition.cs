@@ -21,7 +21,7 @@ public sealed record RoomFxRecordDefinition(
     int Timer,
     RoomFxType Type,
     LayerBlendingConfiguration DefaultLayerBlend,
-    LayerBlendingConfiguration Layer3LayerBlend,
+    LayerBlendingConfiguration EffectLayerBlend,
     RoomLiquidOptions LiquidOptions,
     RoomFxEffectSlots PaletteFxSlots,
     RoomFxEffectSlots AnimatedTileSlots,

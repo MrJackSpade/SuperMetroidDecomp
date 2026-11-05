@@ -3,10 +3,10 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The scrolling sky's bands as a frame shows them (#1347): 23 bands that each shift horizontally by their own offset. The game draws the bands with a per-line table of BG2 horizontal scrolls; this is
+/// The scrolling sky's bands as a frame shows them (#1347): 23 bands that each shift horizontally by their own offset. The game draws the bands with a per-line table of the background horizontal scrolls; this is
 /// that table's source, published as layer state, from which the display describes the screen's bands (#1468).
 /// </summary>
-/// <param name="VerticalScroll">The layer-one Y the bands are positioned from; the sky's BG2 vertical scroll, wrapping at 16 bits.</param>
+/// <param name="VerticalScroll">The layer-one Y the bands are positioned from; the sky's background vertical scroll, wrapping at 16 bits.</param>
 /// <param name="BandOffsets">The whole-pixel horizontal offset in each of the 23 band data slots.</param>
 /// <param name="BandsShown">False on a frozen frame, whose terminated table leaves every band unshifted.</param>
 public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> BandOffsets, bool BandsShown)

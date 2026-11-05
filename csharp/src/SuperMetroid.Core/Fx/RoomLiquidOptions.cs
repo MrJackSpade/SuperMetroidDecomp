@@ -8,21 +8,21 @@ namespace SuperMetroid.Core.Fx;
 [Flags]
 public enum RoomLiquidOptions
 {
-    /// <summary>No option: a still liquid with no BG2 wave and no tide.</summary>
+    /// <summary>No option: a still liquid with no background wave and no tide.</summary>
     None = 0,
 
-    /// <summary>Water: the BG3 surface texture drifts right by a quarter pixel every frame.</summary>
+    /// <summary>Water: the effect overlay surface texture drifts right by a quarter pixel every frame.</summary>
     SurfaceDrift = 1 << 0,
 
     /// <summary>
-    /// Water: BG2 ripples with the horizontal water wave below the surface. Lava and acid: BG2 ripples with the
+    /// Water: background ripples with the horizontal water wave below the surface. Lava and acid: background ripples with the
     /// vertical heat-haze wave, which takes priority over the horizontal one.
     /// </summary>
-    Bg2Wave = 1 << 1,
+    BackgroundWave = 1 << 1,
 
     /// <summary>
     /// Water: Samus's movement ignores the water surface until a PLM clears this option (the n00b tube's glass).
-    /// Lava and acid: BG2 ripples with the horizontal heat wave when the vertical one is not selected.
+    /// Lava and acid: background ripples with the horizontal heat wave when the vertical one is not selected.
     /// </summary>
     WaterPhysicsDisabledOrHorizontalHeatWave = 1 << 2,
 

@@ -37,7 +37,7 @@ public static class GameplayDisplayCapture
             // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
             // color window replaces room liquid/fog blending while the beam owns the per-line effects.
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
-            if (rainbow?.Active != true && latched.RoomLayer3Fx is { } fx)
+            if (rainbow?.Active != true && latched.RoomFxOverlay is { } fx)
             {
                 if (fx.Type == RoomFxType.Spores)
                 {
@@ -51,7 +51,7 @@ public static class GameplayDisplayCapture
                         throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
                     layers[0] = GameplayEffectCapture.CaptureWaterfall(ordinary, fx);
                 }
-                else AddLayer(GameplayEffectCapture.CaptureRoomLayer3Fx(fx, Bg3(latched)));
+                else AddLayer(GameplayEffectCapture.CaptureRoomFxOverlay(fx, FxOverlay(latched)));
             }
             if (live.CeresHaze is { } haze)
                 AddLayer(GameplayEffectCapture.CaptureCeresHaze(haze.IsRed, haze.Intensity, live.RoomFxPaletteBlends));
@@ -88,52 +88,47 @@ public static class GameplayDisplayCapture
         GameplayLatchedScene scene = latched.Scene;
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
-        Position16<RoomPixels> bg1Scroll = scrolls.Bg1Scroll + shake.Bg1;
+        Position16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
         // Draygon (#1354) and Mother Brain (#1356) place their body images at their body layers' placements, which the room's
         // water waves then displace.
-        Position16<BackgroundPixels> bg2Scroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.Bg2Scroll) + shake.Bg2;
+        Position16<BackgroundPixels> backgroundScroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.BackgroundScroll) + shake.Background;
         if (live.TourianStatuesEnabled)
             // The statues' descent supplies BG2's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. Type 13 also gives the statue OBJ zero quake displacement.
-            bg2Scroll = bg2Scroll.WithY(CoordinateAxis.Wrap(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset));
-        RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
+            backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset));
+        RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
 
         SampledScrollWave? waterX = fx is { } water
-            ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(water, bg2Scroll) : null;
+            ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(water, backgroundScroll) : null;
         SampledScrollWave? lavaX = fx is { } lava
-            ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, bg2Scroll) : null;
+            ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, backgroundScroll) : null;
         SampledScrollWave? lavaY = fx is { } vertical
-            ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, bg2Scroll.Y) : null;
+            ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, backgroundScroll.Y) : null;
         Position16<BackgroundPixels>? kraidBody = bosses.KraidBodyPlacement;
         // Draygon's body shows only on the band of lines around it, placed against the frame's camera (#1354, #1468).
-        ScreenLineBand bg2Lines = bosses.DraygonBody is { } draygon
+        ScreenLineBand backgroundLines = bosses.DraygonBody is { } draygon
             ? DraygonBodyBand.ShownLines(draygon, scrolls.Layer1Position) : ScreenLineBand.Gameplay;
         Position16<BackgroundPixels>? crocomireBody = bosses.CrocomireBodyPlacement;
-        bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ScreenLayers displayedMainScreen = latched.MainScreen;
-        var view = new GameplaySceneView(bg1Scroll,
-            new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Bg2.X)
-                : crocomireBody is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
-                kraidBody is { } kraidY ? Add(kraidY.Y, shake.Bg2.Y)
-                : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
-                : sky is { } latchedSky ? Add(latchedSky.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
-            kraidBody is not null ? KraidBackgroundDefinitions.BodyPlaneSize
-                : bosses.MotherBrainBody is { LayerPlacement: not null } ? new Extent16<TilemapCells>(32, 32)
-                : sky?.ShowsBands != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
-                : new Extent16<TilemapCells>(32, 64),
+        var view = new GameplaySceneView(foregroundScroll,
+            new Position16<BackgroundPixels>(kraidBody is { } kraidX ? Add(kraidX.X, shake.Background.X)
+                : crocomireBody is { } crocomireX ? Add(crocomireX.X, shake.Background.X) : backgroundScroll.X,
+                kraidBody is { } kraidY ? Add(kraidY.Y, shake.Background.Y)
+                : crocomireBody is { } crocomireY ? Add(crocomireY.Y, shake.Background.Y)
+                : sky is { } latchedSky ? Add(latchedSky.BackgroundScroll.Y, shake.Background.Y) : backgroundScroll.Y),
             live.DoorTransitionMainScreenLayers ??
                 (bosses.MotherBrainBody is { Hidden: true }
                     ? ScreenLayers.Foreground | ScreenLayers.Sprites
                     : displayedMainScreen),
-            bg2Lines.FirstLine, bg2Lines.EndLine,
+            backgroundLines.FirstLine, backgroundLines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
-        // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
-        LineScroll? bg2Horizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : lavaX ?? waterX ?? (LineScroll?)skyX;
-        // Crocomire's melt owns the BG2 vertical scroll while it shows on his body layer; otherwise lava's does.
-        LineScroll? bg2Vertical = crocomireBody is null ? lavaY
+        // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
+        LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : lavaX ?? waterX ?? (LineScroll?)skyX;
+        // Crocomire's melt owns the background's vertical scroll while it shows on his body layer; otherwise lava's does.
+        LineScroll? backgroundVertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).
@@ -143,7 +138,7 @@ public static class GameplayDisplayCapture
                 BossBody = bosses.Body is null ? null
                     : bosses.ShownBody ?? throw new InvalidOperationException("A boss body is shown once the accepted frame resolves its pictures."),
             };
-        var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls { Horizontal = bg2Horizontal, Vertical = bg2Vertical },
+        var layer = new GameplaySceneLayer(view, rooms, new BackgroundLineScrolls { Horizontal = backgroundHorizontal, Vertical = backgroundVertical },
             live.DoorTransitionMainScreenLayers is null && live.MotherBrainAscentShowing
                 ? MotherBrainAscentDisplay.BuildGameplayLayers() : default);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) },
@@ -158,16 +153,16 @@ public static class GameplayDisplayCapture
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
         TransparentColorZero: false);
 
-    /// <summary>The BG3 plane the frame boundary displays (#1348).</summary>
-    private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
-        ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
+    /// <summary>The effect overlay the frame boundary displays (#1348).</summary>
+    private static FxOverlayCells FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
+        ?? throw new InvalidOperationException("A gameplay frame shows the effect overlay only once a room is loaded.")).ShownFxOverlay;
 
     /// <summary>
-    /// The sky's bands of BG2 horizontal scroll (#1468) with the latched room shake added, or null without a sky. Room
-    /// shake is added to BG2's horizontal scroll after each band's value is supplied.
+    /// The sky's bands of the background's horizontal scroll (#1468) with the latched room shake added, or null without a
+    /// sky. Room shake is added to the background's horizontal scroll after each band's value is supplied.
     /// </summary>
     internal static ScrollBands? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake) =>
-        live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Bg2.X) : null;
+        live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Background.X) : null;
 
     /// <summary>The rainbow beam's live window description drawn in the colour the accepted frame latched.</summary>
     internal static MotherBrainRainbowBeamRenderSnapshot? RainbowBeam(GameplayDisplayFrame frame)
@@ -220,20 +215,19 @@ public static class GameplayDisplayCapture
         FloorView transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(
-                CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Bg1.X),
-                CoordinateAxis.AsSigned(perspective.Transform.Scroll.Y + shake.Bg1.Y)),
+                CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Foreground.X),
+                CoordinateAxis.AsSigned(perspective.Transform.Scroll.Y + shake.Foreground.Y)),
         };
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.Layer2
-            ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.Bg2Scroll + shake.Bg2,
-                new Extent16<TilemapCells>(64, 32),
-                latched.Rooms?.Bg2 ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
+            ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background,
+                latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its layer-2 plane below the Mode 7 floor."))
             : null;
         var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("A Mode 7 gameplay frame shows a Ceres room's Mode 7 map.")), ScreenGeometry.GameplayHudHeightPixels, floor);
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
-    /// <summary>Removes BG2 when Phantoon is hidden, or uses it as an additive subscreen when the body is semitransparent.</summary>
+    /// <summary>Removes the background when Phantoon is hidden, or adds it when the body is semitransparent.</summary>
     private static DisplayLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
     {
         var ordinary = (GameplaySceneLayer)basis.Layers[0];
@@ -265,16 +259,15 @@ public static class GameplayDisplayCapture
         var scrolls = latched.Scrolls;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
-        // The reveal shows once a frame boundary has latched it; until then BG2 shows what the room shows (#1403).
+        // The reveal shows once a frame boundary has latched it; until then the background shows what the room shows (#1403).
         XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;
         var view = ordinary.View;
         if (shownReveal is not null)
         {
+            // The reveal lies over the room's own blocks (#1514), so the background it is drawn on moves with the foreground.
             view = view with
             {
-                // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
-                BackgroundScroll = new Position16<BackgroundPixels>(CoordinateAxis.Wrap(scrolls.Bg1Scroll.X & 15), CoordinateAxis.Wrap(scrolls.Bg1Scroll.Y & 15)),
-                BackgroundMapSize = new Extent16<TilemapCells>(64, 32),
+                BackgroundScroll = new Position16<BackgroundPixels>(view.ForegroundScroll.X, view.ForegroundScroll.Y),
             };
         }
         view = view with
@@ -285,24 +278,14 @@ public static class GameplayDisplayCapture
         };
         // Reveal BG2 must not inherit the room's parallax or liquid per-line scroll. Excluded
         // rooms keep their background and its line scrolls.
-        // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it.
+        // The reveal is drawn on the background from block pictures (#1392), so the room's own background is not shown under it.
         var gameplay = shownReveal is not null
-            ? new GameplaySceneLayer(view, ordinary.Rooms with { Bg2 = null, Sky = null, XrayReveal = shownReveal })
+            ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = null, Sky = null, XrayReveal = shownReveal })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomLayer3Fx is { } fx
-            ? GameplayEffectCapture.CaptureRoomLayer3Fx(fx, ordinary.Rooms.ShownBg3) : null;
-        if (mode != XrayRoomBlendMode.Fireflea && sub is null)
-        {
-            // Clear_FX_Tilemap leaves an opaque BG3 plane even without a visible FX
-            // actor. Room initialization supplies zero scroll and the 32x64 BG3 map;
-            // capture its real pixels rather than substituting transparent backdrop.
-            sub = new OverlayBlendLayer(
-                ordinary.Rooms.ShownBg3, 0,
-                Layer3Plane.Rows,
-                ScreenGeometry.GameplayHudHeightPixels,
-                BlendOperation.Add,
-                ScrollBands.Uniform(0), ScrollBands.Uniform(0));
-        }
+        var sub = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
+            ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownFxOverlay) : null;
+        // A room with no visible effect blends with nothing behind (#1514): the cleared effect area the original game left
+        // opaque is a presentation quirk the port does not keep.
         // The arithmetic sign belongs to the room's blend configuration, even when
         // its liquid plane is currently offscreen/disabled and supplies no pixels.
         bool subtract = scene.LayerBlendConfiguration is

@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// One installed pre-coloured room background (#1392, #1466): the full picture of a 32-tile-wide tilemap a room shows on
-/// BG2, coloured with its tileset's palette over what the room loads, and the cells whose pictures change with the room's
-/// appearance inputs. A library background pictures the two BG2 pages it loads, the first above the second; the scrolling
+/// The background, coloured with its tileset's palette over what the room loads, and the cells whose pictures change with the room's
+/// appearance inputs. A library background pictures the two background pages it loads, the first above the second; the scrolling
 /// sky pictures all its rows.
 /// </summary>
 public sealed class RoomBackgroundImage
@@ -19,6 +19,9 @@ public sealed class RoomBackgroundImage
 
     /// <summary>Pixels along a tilemap page's side.</summary>
     public const int PagePixels = PageTiles * 8;
+
+    /// <summary>The area two pages cover side by side, as a room shows a library background's (#1514).</summary>
+    public static Extent16<BackgroundPixels> PagesSideBySide { get; } = new(2 * PagePixels, PagePixels);
 
     /// <summary>The frame of an image's sheet that pictures its whole tilemap.</summary>
     public const string FrameName = "pages";
@@ -53,6 +56,9 @@ public sealed class RoomBackgroundImage
 
     /// <summary>The picture of both pages, the first above the second.</summary>
     public SpriteSheetFrame Picture { get; }
+
+    /// <summary>The area the image's pages cover one above another, as a sky's rows or a room showing them in a column (#1514).</summary>
+    public Extent16<BackgroundPixels> PagesInOneColumn => new(PagePixels, Picture.Size.Y);
 
     /// <summary>The image's 16x16 cells: two rows by two columns of tiles each.</summary>
     public int CellCount { get; }

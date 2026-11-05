@@ -33,9 +33,9 @@ internal static class TourianStatueWaterVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
-        AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomLayer3Fx.Type, "Actual four-statues room owns special FX 26");
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseY.Whole, "Retail statues water begins at Y=B0");
-        AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");
+        AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomFxOverlay.Type, "Actual four-statues room owns special FX 26");
+        AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.BaseY.Whole, "Retail statues water begins at Y=B0");
+        AssertEqual(true, runtime.RoomFxOverlay.IsRenderable, "Statue special FX must supply its water plane");
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 120));
@@ -52,7 +52,7 @@ internal static class TourianStatueWaterVerification
         samus.LiquidPhysics.InitializeRememberedMedium(samus);
         AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
             "Native low-nibble FX dispatch selects water below the statue surface");
-        var displayed = runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("No displayed water snapshot");
+        var displayed = runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual(0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
         AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
         var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
@@ -73,22 +73,22 @@ internal static class TourianStatueWaterVerification
         var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayScrolls.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
-        AssertEqual(0xb0, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
+        AssertEqual(0xb0, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
-        runtime.RoomLayer3Fx.SetLiquidMotion(targetYPosition: 0xb4,
+        runtime.RoomFxOverlay.SetLiquidMotion(targetYPosition: 0xb4,
             packedYVelocity: 0x0100, timer: 1);
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.Surface.Y, "Water motion first arms its native wait");
+        AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.Surface.Y, "Water motion first arms its native wait");
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.Surface.Y, "Water wait expires before movement");
+        AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.Surface.Y, "Water wait expires before movement");
         game.Step(0);
-        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Special water follows the native one-pixel velocity");
+        AssertEqual((ushort)0xb1, runtime.RoomFxOverlay.Surface.Y, "Special water follows the native one-pixel velocity");
         AssertEqual(0xb1, samus.LiquidPhysics.FxYPosition, "The moved water surface reaches live Samus physics");
-        AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomLayer3Fx.EarthquakeRequest,
+        AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomFxOverlay.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
-        AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
-        runtime.RoomLayer3Fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Frozen HDMA retains the current water surface");
+        AssertEqual(0, runtime.RoomFxOverlay.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
+        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        AssertEqual((ushort)0xb1, runtime.RoomFxOverlay.Surface.Y, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;
     }

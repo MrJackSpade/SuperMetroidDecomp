@@ -59,7 +59,7 @@ internal static class NoobTubePlmVerification
             new RoomBlockBehavior[roomWidth * 16]);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         samus.Position = samus.Position.WithWholeY(0x0100);
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
+        RoomFxOverlayState roomFx = CreateNoobTubeWaterFx();
         samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
@@ -313,7 +313,7 @@ internal static class NoobTubePlmVerification
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
         samus.Control.Unlock();
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
+        RoomFxOverlayState roomFx = CreateNoobTubeWaterFx();
         samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = PlmFixtures.Unbound();
@@ -347,13 +347,13 @@ internal static class NoobTubePlmVerification
     /// Loads the Glass Tunnel's relevant FX words: water at Y $0010 with the small-tide
     /// option and the bit that suppresses water physics until the tube breaks.
     /// </summary>
-    internal static RoomLayer3FxState CreateNoobTubeWaterFx()
+    internal static RoomFxOverlayState CreateNoobTubeWaterFx()
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel
         // record and import its presentation dependencies at this verification boundary.
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var roomFxSession = CreateRetailFxSession(rom);
-        var roomFx = RoomLayer3FxState.ForRoom(roomFxSession, RoomFxDefinitions.Suffix(0x9c94), door: null,
+        var roomFx = RoomFxOverlayState.ForRoom(roomFxSession, RoomFxDefinitions.Suffix(0x9c94), door: null,
             randomNumber: 0);
         return roomFx;
     }

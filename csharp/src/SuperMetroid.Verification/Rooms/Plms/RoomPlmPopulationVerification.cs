@@ -600,10 +600,10 @@ internal static class RoomPlmPopulationVerification
             new RoomTerrainBlock[width * height],
             new RoomBlockBehavior[width * height]);
 
-        RoomLayer3FxState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
+        RoomFxOverlayState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
         {
             var fxSession = new RoomFxSession();
-            var fx = new RoomLayer3FxState(fxSession);
+            var fx = new RoomFxOverlayState(fxSession);
             fx.SetLiquidMotion(baseY, targetY, velocity, timer);
             return fx;
         }
@@ -611,7 +611,7 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSystem Load(
             SharedGameState system,
             SamusState samus,
-            RoomLayer3FxState fx,
+            RoomFxOverlayState fx,
             RoomLevelData level,
             Action<int> writeEarthquake)
         {
@@ -635,7 +635,7 @@ internal static class RoomPlmPopulationVerification
 
         var unequippedSystem = new SharedGameState();
         var unequippedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        RoomLayer3FxState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
+        RoomFxOverlayState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
         int earthquakeTimer = 7;
         RoomLevelData unequippedLevel = CreateLevel();
         RoomPlmSystem unequipped = Load(
@@ -680,7 +680,7 @@ internal static class RoomPlmPopulationVerification
             CollectedItems = SamusEquipmentFlags.SpeedBooster,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0ae1, 0)),
         };
-        RoomLayer3FxState activeFx = CreateFx(0x0300, 0x0100, 0, 0);
+        RoomFxOverlayState activeFx = CreateFx(0x0300, 0x0100, 0, 0);
         RoomLevelData activeLevel = CreateLevel();
         RoomPlmSystem active = Load(
             activeSystem,

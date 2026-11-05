@@ -224,7 +224,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>The one layer-3 plane a frame shows (#1348): every layer that reads layer 3 reads the same plane.</summary>
-    private static Layer3Cells SameBg3(Layer3Cells? shown, Layer3Cells plane) =>
+    private static FxOverlayCells SameBg3(FxOverlayCells? shown, FxOverlayCells plane) =>
         shown is null || ReferenceEquals(shown, plane) ? plane
             : throw new InvalidOperationException("A frame's layers show two different layer-3 planes.");
 
@@ -237,7 +237,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // The plane's rows shown: the first in the layer word, how many in the map height (#1348).
         data[1] = (uint)layer.FirstRow;
         data[5] = 32; data[6] = (uint)layer.MapHeightTiles; data[8] = 1;
-        data[14] = (uint)D3D11RoomSource.Layer3;
+        data[14] = (uint)D3D11RoomSource.FxOverlay;
         data[25] = (uint)layer.FirstLine; data[26] = 224;
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0, 0);
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.Vertical, 0, 0);
@@ -303,10 +303,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.Gameplay.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayRoom;
-        // Xray.hlsli reads layer 1's scroll, layer 2's map size and the blend from the layer header words.
+        // Xray.hlsli reads layer 1's scroll and the blend from the layer header words.
         data[3] = r.ForegroundScroll.X;
         data[4] = unchecked((ushort)(r.ForegroundScroll.Y + D3D11Screen.LayerLineOffset));
-        data[5] = r.BackgroundMapSize.X; data[6] = r.BackgroundMapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.Blend.Layers;
         data[10] = (uint)layer.Blend.FixedColor.Red; data[11] = (uint)layer.Blend.FixedColor.Green; data[12] = (uint)layer.Blend.FixedColor.Blue;
@@ -383,7 +382,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             Sprites(3);
 
             void Sprites(uint priority) => DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = priority + 1, FirstScanline = (uint)floorStart });
-            void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), MapSize = floor.MapSize, Priority = Priority(high), FirstScanline = (uint)floorStart });
+            void Background(bool high) => DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer2, Scroll = floor.Scroll.AsBgPlaneScroll(), Priority = Priority(high), FirstScanline = (uint)floorStart });
         }
     }
 
@@ -419,7 +418,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         void Background1(bool high)
         {
             if ((activeLayers & ScreenLayers.Foreground) != 0)
-                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), MapSize = new Extent16<TilemapCells>(64, 32), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
+                DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch { RoomSource = D3D11RoomSource.Layer1, Scroll = r.ForegroundScroll.AsBgPlaneScroll() + new Offset16<TilePlanePixels>(0, D3D11Screen.LayerLineOffset), Priority = Priority(high), FirstScanline = (uint)first, EndScanline = (uint)end });
         }
         void Background2(bool high)
         {
@@ -433,7 +432,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         var r = layer.View;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Layer;
-        data[5] = r.BackgroundMapSize.X; data[6] = r.BackgroundMapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.Layer2Of(layer.Rooms);
         data[25] = (uint)Math.Max(r.BackgroundFirstLine, first); data[26] = (uint)Math.Min(r.BackgroundEndLine, end);
@@ -555,7 +553,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             _ => null,
         };
         RoomBackgroundLayer? floor = null;
-        Layer3Cells? bg3 = rooms?.Bg3;
+        FxOverlayCells? bg3 = rooms?.FxOverlay;
         AffineFloor? floorMap = null;
         // A gameplay room's turning floor shows the room's shading; a frontend screen's the shading its floor names (#1512).
         D3D11PictureColouring floorColouring = D3D11PictureColouring.OwnShading;
@@ -592,8 +590,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             else if (layer is GameplayBlendLayer { BlendPlane: { } sub })
                 bg3 = SameBg3(bg3, sub.Plane);
         }
-        var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
-            rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
+        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.WrittenOverForeground, rooms?.Sky, bg3,
+            rooms?.WrittenOverBackground, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);

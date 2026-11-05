@@ -98,24 +98,25 @@ internal static class CeresRidleyPicturesVerification
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.Bg1Overlay
+        RoomWrittenOverlay overlay = runtime.Room.LoadedScope.WrittenOverForeground
             ?? throw new InvalidOperationException("Ceres Ridley's getaway wrote no warning over BG1.");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
-        RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.Bg1Overlay
+        RoomOverlayPictures shown = runtime.Display.Latched.Rooms?.WrittenOverForeground
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
+        BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
         ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet.LoadedSet, UploadedPictureChecks.Reached(runtime)).Characters;
         int written = 0;
-        for (int index = 0; index < RoomWrittenOverlay.CellCount; index++)
+        for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {
             if (words[index] == RoomWrittenOverlay.Unwritten)
             {
-                AssertTrue(shown.Pictures[index] is null, $"Nothing written at word {index} shows nothing over BG1");
+                AssertTrue(shownCells[index] is null, $"Nothing written at word {index} shows nothing over BG1");
                 continue;
             }
             written++;
             var word = new SnesBgTilemapWord((ushort)words[index]);
-            BgTilePicture picture = shown.Pictures[index]
+            BgTilePicture picture = shownCells[index]
                 ?? throw new InvalidOperationException($"The warning's word {index}, ${word.Raw:X4}, shows no picture.");
             SpriteImage sheet = picture.Picture.Sheet;
             for (int y = 0; y < CharacterPixels; y++)

@@ -759,7 +759,7 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks and prefix bounds.");
         if (definitionsOnly) return;
         var tideSession = new RoomFxSession();
-        var tide = new RoomLayer3FxState(tideSession);
+        var tide = new RoomFxOverlayState(tideSession);
         var step = new Action(tide.StepLiquidTide);
         foreach (RoomLiquidOptions option in new[] { RoomLiquidOptions.None, RoomLiquidOptions.LargeTide,
             RoomLiquidOptions.SmallTide, RoomLiquidOptions.SmallTide | RoomLiquidOptions.LargeTide })

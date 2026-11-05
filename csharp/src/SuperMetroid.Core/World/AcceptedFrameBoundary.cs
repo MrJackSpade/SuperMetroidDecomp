@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.Kraid;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -28,7 +29,7 @@ internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
-    /// <summary>Captures the BG1 and BG2 scroll registers visible with the frame boundary.</summary>
+    /// <summary>Captures the foreground and the background scroll registers visible with the frame boundary.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Retains the frame-boundary display latch.</summary>
     private readonly GameplayDisplayState _display;
@@ -53,7 +54,7 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
     /// <summary>
-    /// The pictures of the HUD's images in the room's BG3 sheet, looked up once per sheet (#1466): a lookup of the bound
+    /// The pictures of the HUD's images in the room's effect overlay sheet, looked up once per sheet (#1466): a lookup of the bound
     /// sheet's frames, remade from the sheet when absent, not game state.
     /// </summary>
     [NonSerialized]
@@ -63,7 +64,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>Supplies the suit pickup whose colour is latched.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Supplies the frozen X-ray reveal map the publication latches.</summary>
+    /// <summary>Builds what the X-ray reveals when a frame shows it.</summary>
     private readonly XrayReveal _xray;
 
     /// <summary>Connects the controller, display, sprite and frame-clock owners to the frame boundary.</summary>
@@ -125,22 +126,22 @@ internal sealed class AcceptedFrameBoundary
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
             _backgroundScroll.Layer1Position,
-            _backgroundScroll.Bg1Scroll,
-            _backgroundScroll.Bg2Scroll,
+            _backgroundScroll.ForegroundScroll,
+            _backgroundScroll.BackgroundScroll,
             // Before the first room no enemy earthquake shakes the room.
             _room.Enemies?.Earthquake.LastRoomShake ?? default);
-        RoomLayer3FxRenderSnapshot? roomLayer3Fx = _room.Layer3Fx?.CaptureForDisplay();
+        RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
         Displays?.Phantoon?.Wave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
-        ImmutableArray<RevealedBlock?>? reveal = CaptureXrayReveal(scene);
+        XrayRevealedBlocks? reveal = CaptureXrayReveal(scene);
         _display.Latched = new GameplayDisplayLatch(
             displayScroll,
             _screenLayers.Displayed,
-            CapturePerspectiveFloor(displayScroll.Bg1Scroll),
-            roomLayer3Fx,
+            CapturePerspectiveFloor(displayScroll.ForegroundScroll),
+            roomFxOverlay,
             // Before the first room no eye beam is shown.
             _room.Enemies?.DisplaySources.MorphBallEyeBeam.LatchDisplay(),
             Displays?.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
@@ -152,7 +153,7 @@ internal sealed class AcceptedFrameBoundary
             // The reveal and the room's planes are drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds(),
-            _room.Scope is null ? null : CaptureLayer3Plane(),
+            _room.Scope is null ? null : CaptureFxOverlayPlane(),
             // The HUD's images as gameplay last placed them, which this frame boundary shows.
             _hud.Shown());
         // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
@@ -168,8 +169,8 @@ internal sealed class AcceptedFrameBoundary
         var room = _room.ActiveRoom;
         return new(
             // Before the first room no FX record is selected and no blending is configured.
-            _room.Layer3Fx?.Type ?? RoomFxType.None,
-            _room.Layer3Fx?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
+            _room.FxOverlay?.Type ?? RoomFxType.None,
+            _room.FxOverlay?.LayerBlendConfiguration ?? LayerBlendingConfiguration.Unconfigured,
             LatchedScrollingSky.Capture(_room.ScrollingSky),
             room?.Definition,
             // Before the first room no boss is loaded.
@@ -207,9 +208,9 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room backgrounds this frame boundary displays (#1346): BG1 from the level plane through the BG1 offset, BG2 from the
-    /// layer-2 plane when that layer streams (otherwise BG2 shows the tilemap its owner loaded), the source screen of a
-    /// door's opening scroll, and the room's BG1 overlay. The planes are shared until gameplay changes level data.
+    /// The room backgrounds this frame boundary displays (#1346): foreground from the level plane through the foreground offset, background from the
+    /// layer-2 plane when that layer streams (otherwise background shows the tilemap its owner loaded), the source screen of a
+    /// door's opening scroll, and the room's foreground overlay. The planes are shared until gameplay changes level data.
     /// </summary>
     private RoomBackgrounds? CaptureRoomBackgrounds()
     {
@@ -220,25 +221,25 @@ internal sealed class AcceptedFrameBoundary
         Layer2ScrollModes layer2 = _backgroundScroll.Layer2Scroll;
         // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.Bg1Offset.AsBgPlaneOffset(), null),
+            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsBgPlaneOffset(), null),
             layer2.Horizontal.Streams || layer2.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.Bg2Offset.AsBgPlaneOffset(), null)
+                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsBgPlaneOffset(), null)
                 : null,
             null,
             _room.DoorSourceBackground,
-            // What actors wrote over BG1 and BG2 is drawn once this frame boundary's uploads have bound (WithBlockPictures).
+            // What actors wrote over the foreground and the background is drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             Floor: scope.Floor?.Publish(),
             BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));
     }
 
     /// <summary>
-    /// <paramref name="latched"/> with <paramref name="rooms"/>' BG1 and BG2 planes, and the X-ray reveal showing
+    /// <paramref name="latched"/> with <paramref name="rooms"/>' foreground and the background planes, and the X-ray reveal showing
     /// <paramref name="reveal"/>'s blocks (#1431), showing the pictures their blocks show for the values the room's
     /// appearance inputs take now (#1392, #1466); X-ray is never used while the blocks show the sprites' artwork.
     /// </summary>
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose blocks show the sprites' artwork.</exception>
-    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<RevealedBlock?>? reveal)
+    private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, XrayRevealedBlocks? reveal)
     {
         // While a Ceres room shows its turning floor, the floor draws its installed pictures (#1467); Ceres Ridley's getaway
         // writes its warning and doors over the arena once his floor ends.
@@ -250,62 +251,74 @@ internal sealed class AcceptedFrameBoundary
         var appearance = new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.ArtworkProgress);
         // The planes the latch shows are the level data's, which nothing changes before this frame boundary's pictures resolve.
         RoomBlockPictureTable pictures = scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane,
-            rooms.Bg2 is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
-            reveal?.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
-        // A sky room's BG2 shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
-        // sky's bands; without them, BG2 shows the room's own background.
+            rooms.Background is null ? null : scope.LevelData.BackgroundPlane, rooms.BlockArtwork, appearance,
+            reveal?.Blocks.OfType<RevealedBlock>().Select(block => block.Definition) ?? []);
+        // A sky room's background shows the sky's rows, drawn from their image (#1392, #1403), once the room has configured the
+        // sky's bands; without them, background shows the room's own background.
         SkyPictures? sky = null;
         if (scope.ScrollingSky is { HasBands: true } scrollingSky)
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            sky = new SkyPictures(skyImage.Resolve(appearance), scrollingSky.Variant);
+            sky = new SkyPictures(skyImage.Resolve(appearance, skyImage.Image.PagesInOneColumn), scrollingSky.Variant);
         }
-        // Where BG2 shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
-        // streaming layer-2 plane, the sky's rows or a boss body that owns BG2.
+        // Where background shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
+        // streaming layer-2 plane, the sky's rows or a boss body that owns background.
         RoomBackgroundImagePlane? image = null;
-        if (rooms.Bg2 is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
+        if (rooms.Background is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {
-            image = background.Resolve(appearance);
+            // The Tourian entrance's statues descend through a background whose pages lie one above the other; every other
+            // room shows its library background's pages side by side.
+            image = background.Resolve(appearance, latched.Scene.FxType == RoomFxType.TourianEntranceStatue
+                ? background.Image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
         }
         // A boss body shows each part's picture for the frame its animation selected (#1466).
-        ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames);
-        // Pictures written over BG2 draw from the written picture sheet's frames for the inputs they depend on (#1466).
-        RoomOverlayPictures? bg2Overlay = scope.Bg2Overlay is { } overlay
-            ? new RoomOverlayPictures((scope.Bg2OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG2 with no installed written picture sheet.")).Resolve(overlay, appearance))
+        ShownBossBody? shownBody = latched.Bosses.Body?.Show(scope.ArtworkFrames, BossBodyArea(latched.Bosses));
+        // Pictures written over the background draw from the written picture sheet's frames for the inputs they depend on (#1466).
+        RoomOverlayPictures? writtenOverBackground = scope.WrittenOverBackground is { } overlay
+            ? new RoomOverlayPictures((scope.BackgroundWrittenPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} writes over the background with no installed written picture sheet.")).Resolve(overlay, appearance))
             : null;
-        // Pictures written over BG1, as the Ceres escape's warning, draw from the sheet the same way.
-        RoomOverlayPictures? bg1Overlay = scope.Bg1Overlay is { } written
-            ? new RoomOverlayPictures((scope.Bg1OverlayPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over BG1 with no installed written picture sheet.")).Resolve(written, appearance))
+        // Pictures written over the foreground, as the Ceres escape's warning, draw from the sheet the same way.
+        RoomOverlayPictures? writtenOverForeground = scope.WrittenOverForeground is { } written
+            ? new RoomOverlayPictures((scope.ForegroundWrittenPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} writes over the foreground with no installed written picture sheet.")).Resolve(written, appearance))
             : null;
         return latched with
         {
             Bosses = latched.Bosses with { ShownBody = shownBody },
             Rooms = rooms with
             {
-                Bg1 = rooms.Bg1 with { Pictures = pictures },
-                Bg2 = rooms.Bg2 is { } bg2 ? bg2 with { Pictures = pictures } : null,
-                Bg2Image = image,
+                Foreground = rooms.Foreground with { Pictures = pictures },
+                Background = rooms.Background is { } bg2 ? bg2 with { Pictures = pictures } : null,
+                BackgroundImage = image,
                 Sky = sky,
-                Bg2Overlay = bg2Overlay,
-                Bg1Overlay = bg1Overlay,
-                // The room effect's page draws from the BG3 sheet's pictures, as the effects' animations select them; the
+                WrittenOverBackground = writtenOverBackground,
+                WrittenOverForeground = writtenOverForeground,
+                // The room effect's page draws from the effect overlay sheet's pictures, as the effects' animations select them; the
                 // plane holds nothing else (#1466).
-                Bg3 = new Layer3Cells(scope.Bg3Pictures.Resolve(latched.Layer3 ?? throw new InvalidOperationException("A room's frame boundary latches its BG3 plane."),
+                FxOverlay = new FxOverlayCells(scope.FxOverlayPictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its effect overlay plane."),
                     appearance)),
             },
             // The HUD's images draw from the same sheet, on the HUD's own layer (#1466).
-            PicturedHud = HudPicturesIn(scope.Bg3Pictures.Sheet.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
-            XrayReveal = reveal is null ? null : new XrayRevealPlane(reveal.Value.AsSpan(), pictures),
+            PicturedHud = HudPicturesIn(scope.FxOverlayPictures.Sheet.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
+            XrayReveal = reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Blocks.AsSpan(), pictures) : null,
         };
     }
 
-    /// <summary>The BG3 plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
-    internal Layer3Plane CaptureLayer3Plane() => _room.Layer3Fx?.EffectPlane ?? Layer3Plane.Cleared;
+    /// <summary>
+    /// The area a boss body's pages cover (#1514): Kraid's four, two across and two down; Mother Brain's first while she
+    /// places her body; any other body's two side by side.
+    /// </summary>
+    private static Extent16<BackgroundPixels> BossBodyArea(GameplayLatchedBossBackgrounds bosses) =>
+        bosses.KraidBodyPlacement is not null ? KraidBackgroundDefinitions.BodyArea
+        : bosses.MotherBrainBody is { LayerPlacement: not null } ? BossBodyDefinitions.FirstPageArea
+        : BossBodyDefinitions.SideBySideArea;
 
-    /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>
+    /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
+    internal FxOverlayPlane CaptureFxOverlayPlane() => _room.FxOverlay?.EffectPlane ?? FxOverlayPlane.Cleared;
+
+    /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's effect overlay sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
         _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
 
@@ -322,12 +335,12 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The reveal's blocks the X-ray setup calls queue for display (#1431). They are copied while X-ray
-    /// is active; otherwise the displayed BG2 is the room's own.
+    /// What the X-ray reveals in the frame this boundary shows (#1431, #1514), built from the room as it is now, while
+    /// X-ray is active in a room it reveals blocks in; otherwise null, and the background is the room's own.
     /// </summary>
-    private ImmutableArray<RevealedBlock?>? CaptureXrayReveal(GameplayLatchedScene scene) =>
-        // Where X-ray preserves the backgrounds its setup copies no blocks: the tiles are another room's.
+    private XrayRevealedBlocks? CaptureXrayReveal(GameplayLatchedScene scene) =>
+        // Where X-ray preserves the backgrounds it reveals no blocks: the tiles are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.Boss)
-            ? ImmutableArray.Create(_xray.RevealedBlocks)
+            ? _xray.Reveal((_room.Scope ?? throw new InvalidOperationException("The X-ray reveals no loaded room.")).Plms)
             : null;
 }

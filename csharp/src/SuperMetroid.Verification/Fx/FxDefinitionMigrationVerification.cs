@@ -62,7 +62,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x50, RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Rain).FrameByteCount, "rain frame size");
 
         // RoomFxRomData's effect motion, waves and tides.
-        AssertEqual(10, WaterWaveDefinitions.Bg3WavePhaseDuration, "water layer-three wave step");
+        AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");
         AssertEqual(0x40, WaterWaveDefinitions.HorizontalSubscrollVelocity, "water drift");
         AssertEqual(16, WaterWaveDefinitions.WaveDisplacementCount, "water wave steps");
         AssertEqual(-1, LiquidEffects.WaterWaveDisplacement(5), "water wave sample 5");
@@ -96,7 +96,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(RoomHeaderDefinitions.BombTorizo, RoomEarthquakeDefinitions.SoundSuppressedRooms[0], "first silent quake room");
 
         // RoomFxRomData's layer-three values, and the import's pages and blends.
-        AssertEqual(0x184e, Layer3PlaneConstants.ClearedCell.PackedWord, "cleared effect cell");
+        AssertEqual(0x184e, FxOverlayPlaneConstants.ClearedCell.PackedWord, "cleared effect cell");
         AssertEqual(3, RoomFxPaletteBlendDefinitions.ColorCount, "palette blend colours");
         AssertEqual(0x8a8000 + 5 * 0x840, RoomFxLayer3TilemapSources.Page(RoomFxType.Fog).Value, "fog page source");
         AssertEqual(RoomFxLayer3TilemapSources.Page(RoomFxType.Water), RoomFxLayer3TilemapSources.Page(RoomFxType.TourianEntranceStatue),
@@ -105,11 +105,11 @@ internal static class FxDefinitionMigrationVerification
         // The FX records hold decoded fields; the record codec encodes them back to the bytes the catalog held before.
         RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbState2.Records[0];
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
-        AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.Layer3LayerBlend, "Climb layer-three blend");
+        AssertEqual(LayerBlendingConfiguration.LavaAcidAdditive, climb.EffectLayerBlend, "Climb layer-three blend");
         AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
         AssertEqual(RoomFxEffectSlots.Slot3 | RoomFxEffectSlots.Slot4 | RoomFxEffectSlots.Slot5, climb.PaletteFxSlots, "Climb palette-effect slots");
         AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
-        AssertEqual((byte)0x1e, RoomFxRecordEncoding.LayerBlendByte(climb.Layer3LayerBlend), "Climb blend byte");
+        AssertEqual((byte)0x1e, RoomFxRecordEncoding.LayerBlendByte(climb.EffectLayerBlend), "Climb blend byte");
         AssertEqual((byte)0x38, RoomFxRecordEncoding.SlotsByte(climb.PaletteFxSlots), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
         AssertEqual(0x34, RoomFxRecordCodec.LayerBlends.Word(LayerBlendingConfiguration.MotherBrainPhaseTwo), "Mother Brain blend byte");

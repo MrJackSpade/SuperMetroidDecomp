@@ -200,25 +200,25 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        WrittenPictureSheet sheet = (runtime.Room.Scope?.Bg2OverlayPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
+        WrittenPictureSheet sheet = (runtime.Room.Scope?.BackgroundWrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
             ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
         RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
-        var typedWords = new int[RoomWrittenOverlay.CellCount];
+        var typedWords = new int[TwoScreenTilemapCells.Count];
         Array.Fill(typedWords, RoomWrittenOverlay.Unwritten);
         while (!typewriter.Step(out EscapeTypewriterGlyph? glyph))
         {
             if (glyph is { } typed)
             {
                 overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Cell));
-                typedWords[typed.Cell] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
+                typedWords[TwoScreenTilemapCells.IndexOf(typed.Cell)] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
             }
         }
-        ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));
+        BgTilePicture?[] pictures = TwoScreenTilemapCells.Lay(new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames)));
         int glyphs = 0;
-        for (int index = 0; index < RoomWrittenOverlay.CellCount; index++)
+        for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {
             if (typedWords[index] == RoomWrittenOverlay.Unwritten)
             {
@@ -302,10 +302,10 @@ internal static class RoomBlockPicturesVerification
             SuperMetroidRuntime runtime = LoadRoom(room, stocked);
             runtime.StepFrame(0);
             GameplayDisplayLatch latched = runtime.Display.Latched;
-            Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
+            FxOverlayPlane plane = latched.FxOverlay ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             // The plane names its pictures (#1466); the installed pages spell the words the cartridge writes for them.
             ushort[] planeWords = plane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
-            AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
+            AssertTrue(latched.Rooms?.FxOverlay is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = BgCharacterSet.Layer3;
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
@@ -314,8 +314,8 @@ internal static class RoomBlockPicturesVerification
             RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
                 ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
             ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver((runtime.Room.Scope
-                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
-            for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
+                ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).FxOverlayPictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
+            for (int index = 0; index < FxOverlayPlane.Columns * FxOverlayPlane.Rows; index++)
             {
                 BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
                 var word = new SnesBgTilemapWord(planeWords[index]);
@@ -402,7 +402,7 @@ internal static class RoomBlockPicturesVerification
         IReadOnlyList<AppearanceOption> options = UploadsOf(runtime).AllOptions;
         RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
             ?? throw new InvalidOperationException($"{where}: the runtime has no installed animated tiles.");
-        RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.Bg2Image
+        RoomBackgroundImagePlane plane = runtime.Display.Latched.Rooms?.BackgroundImage
             ?? throw new InvalidOperationException($"{where}: BG2 shows no library background image.");
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         // The room's load selects the image by name (#1406); its tilemap words are the pages the library list builds, as
@@ -527,7 +527,7 @@ internal static class RoomBlockPicturesVerification
         RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
             ?? throw new InvalidOperationException("The runtime has no installed animated tiles.");
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException($"{where}: no room backgrounds are displayed.");
-        RoomBlockPictureTable table = rooms.Bg1.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
+        RoomBlockPictureTable table = rooms.Foreground.Pictures ?? throw new InvalidOperationException($"{where}: BG1 shows no block pictures.");
         RoomAppearanceView appearance = AppearanceOf(runtime, latched);
         // The Ceres Ridley arena's blocks read the OBJ character page its uploads compose; any other room's, the bound tiles,
         // and the frames its animations paint over them.

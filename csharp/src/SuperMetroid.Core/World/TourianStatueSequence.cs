@@ -26,7 +26,7 @@ public sealed class TourianStatueSequence
     /// <summary>Identifies the statue room setup and controls its two logical scroll cells.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
-    private readonly RoomLayer3FxState _roomLayer3Fx;
+    private readonly RoomFxOverlayState _roomFxOverlay;
     /// <summary>Creates the palette effect selected by a statue animated-tile instruction.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Tracks boss and statue events, area boss bits, RNG, and the final Tourian unlock event.</summary>
@@ -38,18 +38,18 @@ public sealed class TourianStatueSequence
 
     /// <summary>Builds one room's statue sequence over the session services that run its tile and BG2 descent programs.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
-    /// <param name="roomLayer3Fx">The room's layer-3 FX, whose earthquake sound the descent publishes.</param>
+    /// <param name="roomFxOverlay">The room's layer-3 FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
     /// <param name="plms">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
     /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
-    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomLayer3FxState roomLayer3Fx,
+    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomFxOverlayState roomFxOverlay,
         RoomPaletteFxSystem roomPaletteFx, RoomPlmSystem plms, RoomEnemySystem enemies)
     {
 
         _enemies = Ensure.NotNull(enemies);
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _roomLayer3Fx = Ensure.NotNull(roomLayer3Fx);
+        _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
         _roomPaletteFx = Ensure.NotNull(roomPaletteFx);
         _system = dependencies.System;
         _assists = dependencies.Assists;
@@ -259,7 +259,7 @@ public sealed class TourianStatueSequence
     public void StepDescent(RoomPlmSystem plms)
     {
         if (!Enabled) return;
-        _enemies.TourianStatue.WaterSurface = new(0, _roomLayer3Fx.Surface.Y);
+        _enemies.TourianStatue.WaterSurface = new(0, _roomFxOverlay.Surface.Y);
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {
@@ -272,7 +272,7 @@ public sealed class TourianStatueSequence
         }
         _enemies.Earthquake.EarthquakeType = TourianStatueSequenceDefinitions.DescentEarthquakeType;
         _enemies.Earthquake.AddTimerBits(TourianStatueSequenceDefinitions.DescentEarthquakeTimer);
-        _roomLayer3Fx.PublishStatueEarthquakeSound(
+        _roomFxOverlay.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.EarthquakeSoundDelay);
         if (delay >= 0)
         {

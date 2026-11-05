@@ -44,7 +44,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
 
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1. The getaway writes
         // each page's picture by name (#1466); its words are the installed page's.
-        int[] native = [.. Enumerable.Repeat(RoomWrittenOverlay.Unwritten, RoomWrittenOverlay.CellCount)];
+        int[] native = [.. Enumerable.Repeat(RoomWrittenOverlay.Unwritten, TwoScreenTilemapCells.Count)];
         CeresEscapeOverlayTilemapDefinition title =
             CeresEscapeOverlayTilemapDefinitions.Emergency;
         // $A6:C136 writes the title at BG1 tilemap word $50CB.
@@ -78,7 +78,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var shownEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: shownOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         shownEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
-        int titleWord = CeresEscapeOverlayTilemapDefinitions.Emergency.Cell;
+        int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeOverlayTilemapDefinitions.Emergency.Cell);
         AssertEqual(native[titleWord], shownOverlay.Overlay.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.

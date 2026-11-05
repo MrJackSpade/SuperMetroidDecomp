@@ -35,15 +35,15 @@ internal static class PauseHudPlaneVerification
         ShownHud accepted = Hud(7);
         pause.SynchronizeAcceptedHud(accepted);
         ushort[] shown = HudWords(pause);
-        AssertTrue(shown[..Layer3Plane.Columns].SequenceEqual(HudWords(pause, entered)[..Layer3Plane.Columns]),
+        AssertTrue(shown[..FxOverlayPlane.Columns].SequenceEqual(HudWords(pause, entered)[..FxOverlayPlane.Columns]),
             "the static top row stays as pause entered");
-        AssertTrue(shown[Layer3Plane.Columns..].SequenceEqual(HudWords(pause, accepted)[Layer3Plane.Columns..]),
+        AssertTrue(shown[FxOverlayPlane.Columns..].SequenceEqual(HudWords(pause, accepted)[FxOverlayPlane.Columns..]),
             "the three drawn rows mirror the latched HUD");
         Console.WriteLine("  Pause HUD: entry and accepted HUD rows come from the HUD gameplay latched.");
     }
 
     /// <summary>The four HUD rows' words.</summary>
-    private const int HudWordCount = Layer3PlaneConstants.HudRows * Layer3Plane.Columns;
+    private const int HudWordCount = FxOverlayPlaneConstants.HudRows * FxOverlayPlane.Columns;
 
     /// <summary>
     /// A HUD with its top row, its template and energy digits <paramref name="numeral"/> placed in the drawn rows, each

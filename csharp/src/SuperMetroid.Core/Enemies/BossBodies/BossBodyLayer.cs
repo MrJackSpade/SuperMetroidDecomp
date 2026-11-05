@@ -15,10 +15,11 @@ public sealed record BossBodyLayer(int Rows, ImmutableArray<BossBodyPlacement> P
     /// <summary>
     /// The layer as the frame shows it: each part's picture for the frame its animation shows in
     /// <paramref name="selections"/>, which hold what the room's animations had selected when the frame was accepted. A
-    /// part that clears its cells has no picture there, so the cells it shows draw nothing.
+    /// part that clears its cells has no picture there, so the cells it shows draw nothing. Its pages cover
+    /// <paramref name="area"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">An animated part does not picture its animation's selected frame.</exception>
-    public ShownBossBody Show(ArtworkFrameSelections selections)
+    public ShownBossBody Show(ArtworkFrameSelections selections, Extent16<BackgroundPixels> area)
     {
         var parts = ImmutableArray.CreateBuilder<ShownBossBodyPart>(Placements.Length);
         foreach (BossBodyPlacement placement in Placements)
@@ -26,6 +27,6 @@ public sealed record BossBodyLayer(int Rows, ImmutableArray<BossBodyPlacement> P
             if (placement.Part.Shown(selections) is { } picture)
                 parts.Add(new ShownBossBodyPart(picture, placement.Part.Top, placement.Shows));
         }
-        return new(Rows, parts.ToImmutable());
+        return new(Rows, parts.ToImmutable(), area);
     }
 }

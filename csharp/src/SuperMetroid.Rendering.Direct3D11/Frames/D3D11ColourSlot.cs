@@ -14,7 +14,7 @@ internal enum D3D11PictureColouring
     /// <summary>In the shading of the HUD's pictures.</summary>
     Hud,
     /// <summary>In the shading of the room effect's layer-3 pages.</summary>
-    Layer3,
+    FxOverlay,
     /// <summary>In the shading of the message box's pictures.</summary>
     MessageBox,
     /// <summary>In the shading of the boss body on layer 2.</summary>
@@ -41,7 +41,7 @@ internal readonly record struct D3D11ColourSlot(SpriteImage Sheet, D3D11PictureC
         D3D11PictureColouring.Room => GameplayPictures.Room,
         D3D11PictureColouring.DoorSourceRoom => GameplayPictures.DoorSourceRoom,
         D3D11PictureColouring.Hud => GameplayPictures.Hud,
-        D3D11PictureColouring.Layer3 => GameplayPictures.Layer3,
+        D3D11PictureColouring.FxOverlay => GameplayPictures.FxOverlay,
         D3D11PictureColouring.MessageBox => GameplayPictures.MessageBox,
         D3D11PictureColouring.BossBody => GameplayPictures.BossBody,
         _ => throw new InvalidDataException($"Unknown picture colouring {colouring}."),

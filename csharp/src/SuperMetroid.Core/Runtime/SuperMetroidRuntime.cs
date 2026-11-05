@@ -196,7 +196,7 @@ internal sealed class SuperMetroidRuntime
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
-        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Xray = Xray, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
 
         // Gameplay starts with Samus in her starting shades; every other picture shows its standard colours (#1512).
         Player.Colours.ShowStarting();
@@ -471,7 +471,7 @@ internal sealed class SuperMetroidRuntime
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
         scope.Plms.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
         Player.Samus?.Shinespark.BindProjectileOwners(BeamCharge, scope.BombProjectiles.PowerBombExplosion);
-        EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.Layer3Fx, Room.LoadedScope.Enemies);
+        EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 
     /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
@@ -545,8 +545,8 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.Layer3Fx.Step(Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidBeforeMainLoop });
-            if (Room.LoadedScope.Layer3Fx.EarthquakeRequest is { } roomFxEarthquake)
+            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
+            if (Room.LoadedScope.FxOverlay.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
                 // type $15. Apply that global side effect before the ordinary shake handler
@@ -554,9 +554,9 @@ internal sealed class SuperMetroidRuntime
                 Room.LoadedScope.Enemies.Earthquake.EarthquakeType = roomFxEarthquake.Type;
                 Room.LoadedScope.Enemies.Earthquake.AddTimerBits(roomFxEarthquake.TimerBits);
             }
-            if (Player.Samus is not null && Room.LoadedScope.Layer3Fx.Type is
+            if (Player.Samus is not null && Room.LoadedScope.FxOverlay.Type is
                     RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
-                Player.Samus.LiquidPhysics.ConfigureFor(Room.LoadedScope.Layer3Fx);
+                Player.Samus.LiquidPhysics.ConfigureFor(Room.LoadedScope.FxOverlay);
         }
     }
 
@@ -1040,7 +1040,7 @@ internal sealed class SuperMetroidRuntime
     private IEnumerable<IGameplayShadingSource> ShadingSources()
     {
         yield return Room.LoadedScope.PaletteFx;
-        yield return Room.LoadedScope.Layer3Fx;
+        yield return Room.LoadedScope.FxOverlay;
         foreach (IGameplayShadingSource boss in Room.LoadedScope.Enemies.DisplaySources.ShadingSources)
             yield return boss;
         yield return DoorFade;

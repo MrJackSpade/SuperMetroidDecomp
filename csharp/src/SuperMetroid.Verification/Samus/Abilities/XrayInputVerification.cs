@@ -90,11 +90,11 @@ internal static class XrayInputVerification
         AssertEqual(ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop | ColorBlend.Half, reveal.Blend.Layers,
             "a reveal room halves its added blend over both backgrounds, the sprites and the backdrop");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
-        // BG2 shows the setup-owned reveal map's blocks and arrangements (#1403, #1431).
-        RevealedBlock?[] frozenBlocks = XraySetupMemory.ReadReveal(runtime.Xray);
+        // The background shows the reveal over the room's own blocks (#1403, #1431, #1514).
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.XrayReveal
             ?? throw new InvalidOperationException("The captured X-ray frame shows no reveal.");
-        AssertTrue(Enumerable.SequenceEqual(shownReveal.Blocks.ToArray(), frozenBlocks), "captured BG2 is the setup-owned reveal map");
+        AssertEqual(XrayRevealMap.OriginOf(runtime.BackgroundScroll.Layer1Position, runtime.BackgroundScroll.ForegroundOffset),
+            shownReveal.Origin, "the captured reveal lies over the room's own blocks");
 
         RevealedBlock?[] beforeRelease = shownReveal.Blocks.ToArray();
         runtime.StepFrame(0);
@@ -144,8 +144,8 @@ internal static class XrayInputVerification
             var excluded = (GameplayBlendLayer)excludedFrame.Layers[0];
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             var baseRooms = ((GameplaySceneLayer)baseFrame.Layers[0]).Rooms;
-            AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Bg2 == baseRooms.Bg2
-                    && excluded.Gameplay.Rooms.Bg2Image == baseRooms.Bg2Image, "excluded room retains the room's own BG2");
+            AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Background == baseRooms.Background
+                    && excluded.Gameplay.Rooms.BackgroundImage == baseRooms.BackgroundImage, "excluded room retains the room's own BG2");
             AssertTrue((excluded.Blend.Layers & ColorBlend.Sprites) == 0, "an excluded room's blend leaves Samus color unchanged");
             AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
                 excluded.Gameplay.View.MainScreenLayers.HasFlag(ScreenLayers.Background), "CEFB alone removes BG2");

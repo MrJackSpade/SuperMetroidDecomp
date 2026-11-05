@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The room-FX state and installed artwork that outlive each room: the Fireflea darkness state and the fixed
-/// colour, which room loading never clears, and the host's FX catalogs. Each room's <see cref="RoomLayer3FxState"/>
+/// colour, which room loading never clears, and the host's FX catalogs. Each room's <see cref="RoomFxOverlayState"/>
 /// reads them here.
 /// </summary>
 public sealed class RoomFxSession

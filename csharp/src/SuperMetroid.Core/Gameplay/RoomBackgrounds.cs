@@ -7,35 +7,35 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: BG1 from the room's
-/// level plane, BG2 from its layer-2 plane when that layer streams, the source room's screen during a door's opening
-/// scroll, and words a room actor wrote over BG1. A null <see cref="Bg2"/> leaves BG2 to the sky's rows, a boss body
-/// that owns BG2 (#1352), or the tilemap its owner loaded (a library background or the X-ray reveal) until that
+/// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: foreground from the room's
+/// level plane, background from its layer-2 plane when that layer streams, the source room's screen during a door's opening
+/// scroll, and words a room actor wrote over the foreground. A null <see cref="Background"/> leaves background to the sky's rows, a boss body
+/// that owns background (#1352), or the tilemap its owner loaded (a library background or the X-ray reveal) until that
 /// owner gets its own layer.
 /// </summary>
-/// <param name="Bg1">The room's level plane on BG1.</param>
-/// <param name="Bg2">The room's layer-2 plane on BG2, or null when BG2 shows a loaded tilemap.</param>
-/// <param name="Bg3">The room effect plane on BG3 (#1348), as its cells' pictures (#1403); null until the frame boundary that latched it resolves them. The HUD is its own layer (#1466).</param>
-/// <param name="DoorSource">The source room's BG1 screen during a door's opening scroll, or null.</param>
-/// <param name="Bg1Overlay">Words a room actor wrote over BG1, or null.</param>
+/// <param name="Foreground">The room's level plane on the foreground.</param>
+/// <param name="Background">The room's layer-2 plane on the background, or null when background shows a loaded tilemap.</param>
+/// <param name="FxOverlay">The room effect plane on the effect overlay (#1348), as its cells' pictures (#1403); null until the frame boundary that latched it resolves them. The HUD is its own layer (#1466).</param>
+/// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
+/// <param name="WrittenOverForeground">Words a room actor wrote over the foreground, or null.</param>
 /// <param name="Sky">
-/// The scrolling sky on BG2 when the room has no layer-2 plane, drawn from its image (#1347, #1403); null without a sky,
+/// The scrolling sky on the background when the room has no layer-2 plane, drawn from its image (#1347, #1403); null without a sky,
 /// and until the frame boundary that latched the room resolves its pictures.
 /// </param>
-/// <param name="Bg2Overlay">Words a room actor wrote over BG2, or null (#1348).</param>
+/// <param name="WrittenOverBackground">Words a room actor wrote over the background, or null (#1348).</param>
 /// <param name="Floor">The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</param>
 /// <param name="BossBody">The boss body layer shown while a boss shows one, as its parts' pictures, or null (#1352, #1466).</param>
-/// <param name="BlockArtwork">Which artwork BG1's and BG2's blocks show (#1357, #1466).</param>
-/// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
-/// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
+/// <param name="BlockArtwork">Which artwork foreground's and the background's blocks show (#1357, #1466).</param>
+/// <param name="XrayReveal">The X-ray reveal background shows in place of the room's own background, or null (#1392).</param>
+/// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the tilemap it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
-public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
-    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyPictures? Sky = null,
-    RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
+public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayCells? FxOverlay,
+    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? WrittenOverForeground = null, SkyPictures? Sky = null,
+    RoomOverlayPictures? WrittenOverBackground = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
     RoomBlockArtwork BlockArtwork = RoomBlockArtwork.Tileset, XrayRevealPlane? XrayReveal = null,
-    RoomBackgroundImagePlane? Bg2Image = null)
+    RoomBackgroundImagePlane? BackgroundImage = null)
 {
-    /// <summary>The BG3 plane the frame shows (#1403).</summary>
+    /// <summary>The effect overlay plane the frame shows (#1403).</summary>
     /// <exception cref="InvalidOperationException">The plane's pictures are not yet resolved.</exception>
-    public Layer3Cells ShownBg3 => Bg3 ?? throw new InvalidOperationException("BG3 is shown once the frame boundary that latched it resolves its pictures.");
+    public FxOverlayCells ShownFxOverlay => FxOverlay ?? throw new InvalidOperationException("The effect overlay is shown once the frame boundary that latched it resolves its pictures.");
 }

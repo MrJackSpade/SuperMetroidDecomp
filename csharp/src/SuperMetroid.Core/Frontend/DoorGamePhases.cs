@@ -88,7 +88,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     {
         if (source.AttractDemo.IsAttractDemo)
             return;
-        foreach (var request in source.Room.LoadedScope.Layer3Fx.SoundRequests)
+        foreach (var request in source.Room.LoadedScope.FxOverlay.SoundRequests)
             session.audio.QueueSound(request);
     }
 

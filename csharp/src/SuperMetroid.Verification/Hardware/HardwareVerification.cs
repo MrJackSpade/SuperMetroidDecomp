@@ -494,7 +494,7 @@ internal static void VerifyFrameRuntime()
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
     AssertEqual(ControllerButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerPhase.InitialDelay, runtime.EscapeTimer.Phase, "runtime dispatches timer after NMI");
-    AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll),
+    AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayScrolls.ForegroundScroll),
         runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
 
     var secondMode7 = new TurningFloorTransform(0.125, new Position16<RoomPixels>(128, 1008));
@@ -504,7 +504,7 @@ internal static void VerifyFrameRuntime()
     AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
     AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");
-    AssertEqual(CeresPerspectiveFloors.ElevatorShaft(secondMode7, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll),
+    AssertEqual(CeresPerspectiveFloors.ElevatorShaft(secondMode7, runtime.Display.DisplayedGameplayScrolls.ForegroundScroll),
         runtime.Display.DisplayedPerspectiveFloor, "the following accepted frame shows the changed transform");
 
     // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.

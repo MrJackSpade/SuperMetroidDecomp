@@ -44,15 +44,15 @@ internal static class XrayGameplayTests
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
-            Layer3Cells plane = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
-            bg1 = bg1 with { Bg3 = plane };
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0), new Extent16<TilemapCells>(64, 32),
+            FxOverlayCells plane = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000);
+            bg1 = bg1 with { FxOverlay = plane };
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             // The X-ray's window covers the screen's right half (#1468).
             var lines = ScreenWindow.Of(WindowRectangle.Spanning(128, 0, 255, 223));
             var controls = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop
                 | (half ? ColorBlend.Half : 0) | (subtract ? ColorBlend.Subtract : 0);
-            var bg3 = sub ? new OverlayBlendLayer(plane, Layer3Plane.Rows / 2, 32, 32,
+            var bg3 = sub ? new OverlayBlendLayer(plane, FxOverlayPlane.Rows / 2, 32, 32,
                 BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0)) : null;
             var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new SceneBlend { Layers = controls, BlendsWithLayersBehind = true, FixedColor = new RgbColor(7, 7, 7) }, bg3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
@@ -111,7 +111,7 @@ internal static class XrayGameplayTests
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { Bg3 = Layer3CellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = new RgbColor(18, 18, 18) });
+                var dark = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(8, 8, new(4)), new TilemapCell(9, 8, new(4))) with { FxOverlay = FxOverlayCellsFixtures.FromVram(vram.Bytes, cgram.Colors, 0x1000) }), ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg2 | ColorBlend.Backdrop | ColorBlend.Subtract, BlendsWithLayersBehind = false, FixedColor = new RgbColor(18, 18, 18) });
                 var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
@@ -132,7 +132,6 @@ internal static class XrayGameplayTests
             // The OBSEL is drawn after the layer below, keeping the seeded stream; the OAM converts under it then.
             ushort Word() => (ushort)random.Next(65536);
             var registers = new GameplaySceneView(new Position16<RoomPixels>(Word(), Word()), new Position16<BackgroundPixels>(Word(), Word()),
-                frame % 2 == 0 ? new Extent16<TilemapCells>(64, 32) : new Extent16<TilemapCells>(32, 64),
                 (ScreenLayers)(random.Next(32) & 0x13));
             // Every fifth frame's planes draw from block pictures (#1392).
             var gameplay = new GameplaySceneLayer(registers, RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(),
@@ -146,7 +145,7 @@ internal static class XrayGameplayTests
                 });
             var lines = RandomWindow(random);
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
-            var bg3 = new OverlayBlendLayer(gameplay.Rooms.ShownBg3, random.Next(Layer3Plane.Rows - bg3Rows + 1), bg3Rows, 32,
+            var bg3 = new OverlayBlendLayer(gameplay.Rooms.ShownFxOverlay, random.Next(FxOverlayPlane.Rows - bg3Rows + 1), bg3Rows, 32,
                 // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
                 BlendOperation.Add, new ScrollWave(Word(), random.Next(65536), new ByteAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224),
                 new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536)));
@@ -168,7 +167,7 @@ internal static class XrayGameplayTests
             var colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
             ushort Fine() => (ushort)random.Next(16);
             var registers = new GameplaySceneView(new Position16<RoomPixels>((ushort)random.Next(65536), (ushort)random.Next(65536)),
-                new Position16<BackgroundPixels>(Fine(), Fine()), new Extent16<TilemapCells>(64, 32),
+                new Position16<BackgroundPixels>(Fine(), Fine()),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             SuperMetroid.Core.Gameplay.RoomBackgrounds seeded = RoomBackgroundsFixtures.Seeded(random, registers.ForegroundScroll.AsBgPlaneScroll(), pictureColours: colors);
             var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });

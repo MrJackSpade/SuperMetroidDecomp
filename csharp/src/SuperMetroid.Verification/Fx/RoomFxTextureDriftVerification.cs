@@ -18,7 +18,7 @@ internal static class RoomFxTextureDriftVerification
     internal static void VerifyRoomFxTextureDrift()
     {
         // 1100 quarter-pixel steps carry water's accumulator through its sign change and past its wrap.
-        RoomLayer3FxState water = Load(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive,
+        RoomFxOverlayState water = Load(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive,
             RoomLiquidOptions.SurfaceDrift, randomNumber: 0);
         ushort expectedWater = 0;
         for (int frame = 0; frame < 1100; frame++)
@@ -28,7 +28,7 @@ internal static class RoomFxTextureDriftVerification
             expectedWater = unchecked((ushort)(expectedWater + WaterWaveDefinitions.HorizontalSubscrollVelocity));
         }
 
-        RoomLayer3FxState stillWater = Load(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive,
+        RoomFxOverlayState stillWater = Load(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive,
             RoomLiquidOptions.None, randomNumber: 0);
         for (int frame = 0; frame < 600; frame++)
         {
@@ -39,7 +39,7 @@ internal static class RoomFxTextureDriftVerification
         // Each of the four wind speeds the random number selects, through enough six-pixel falls to wrap.
         for (int selection = 0; selection < 4; selection++)
         {
-            RoomLayer3FxState rain = Load(RoomFxType.Rain, LayerBlendingConfiguration.Rain,
+            RoomFxOverlayState rain = Load(RoomFxType.Rain, LayerBlendingConfiguration.Rain,
                 RoomLiquidOptions.None, randomNumber: selection * 4);
             ushort expectedX = 0;
             ushort expectedY = 0;
@@ -56,24 +56,24 @@ internal static class RoomFxTextureDriftVerification
         // An accumulator's whole pixels: its signed high byte, sign-extended into the scroll word.
         static ushort WholePixels(ushort accumulator) => unchecked((ushort)(sbyte)LittleEndianBytes.HighByte(accumulator));
 
-        static RoomLayer3FxFrame Frame() =>
+        static RoomFxOverlayFrame Frame() =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None };
     }
 
     /// <summary>A room-FX owner loaded from a synthetic record of <paramref name="type"/> with the installed presentation.</summary>
-    private static RoomLayer3FxState Load(RoomFxType type, LayerBlendingConfiguration blend, RoomLiquidOptions options,
+    private static RoomFxOverlayState Load(RoomFxType type, LayerBlendingConfiguration blend, RoomLiquidOptions options,
         int randomNumber)
     {
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
-        RoomLayer3FxState state;
+        RoomFxOverlayState state;
         var record = new RoomFxRecordDefinition(Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
-            YVelocity: default, Timer: 0, Type: type, DefaultLayerBlend: blend, Layer3LayerBlend: blend,
+            YVelocity: default, Timer: 0, Type: type, DefaultLayerBlend: blend, EffectLayerBlend: blend,
             LiquidOptions: options, PaletteFxSlots: RoomFxEffectSlots.None, AnimatedTileSlots: RoomFxEffectSlots.None,
             PaletteBlend: RoomFxPaletteBlend.None);
-        state = RoomLayer3FxState.ForDefinition(stateSession, record, checked((ushort)randomNumber));
+        state = RoomFxOverlayState.ForDefinition(stateSession, record, checked((ushort)randomNumber));
         AssertEqual(type, state.Type, $"synthetic {type} record loads");
         return state;
     }

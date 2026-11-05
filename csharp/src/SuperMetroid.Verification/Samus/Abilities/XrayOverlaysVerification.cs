@@ -60,7 +60,6 @@ internal static class XrayOverlaysVerification
         AssertEqual(Defined(3), map[1], "an overlay's horizontal flip is not drawn, as natively");
         AssertEqual(new RevealedBlock(4, RevealedBlockArrangement.RowsSwapped), map[2],
             "an overlay flipped both ways only swaps the block's rows");
-        AssertEqual(null, map[XrayRevealLayout.MetatileColumns - 1], "special-room overlay excludes the fine-scroll seventeenth column");
         Array.Clear(map);
         items[0] = items[0] with { ItemBit = null };
         system.SetCollectedItemBit(2);

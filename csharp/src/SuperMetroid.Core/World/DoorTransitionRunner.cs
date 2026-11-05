@@ -312,8 +312,8 @@ internal sealed class DoorTransitionRunner
         if (_perLineEffects.RunsThisUpdate)
         {
             _perLineEffects.Advance(plms, room);
-            if (_player.Samus is not null && room.Layer3Fx.MovesLiquidBeforeMainLoop)
-                _player.Samus.LiquidPhysics.ConfigureFor(room.Layer3Fx);
+            if (_player.Samus is not null && room.FxOverlay.MovesLiquidBeforeMainLoop)
+                _player.Samus.LiquidPhysics.ConfigureFor(room.FxOverlay);
         }
         _system.NextRandom();
     }

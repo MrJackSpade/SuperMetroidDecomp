@@ -68,7 +68,7 @@ internal static class PhantoonPositionVerification
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual(phantoon.BodyLayerPlacement, runtime.BackgroundScroll.Bg2Scroll,
+            AssertEqual(phantoon.BodyLayerPlacement, runtime.BackgroundScroll.BackgroundScroll,
                 $"Phantoon live BG2 handoff frame {frame}");
             if (frame == 0) continue;
             var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];

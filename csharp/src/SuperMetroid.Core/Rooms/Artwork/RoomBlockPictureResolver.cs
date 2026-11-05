@@ -13,11 +13,11 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <param name="sheet">The room tileset's block sheet.</param>
 public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
 {
-    /// <summary>The BG1 plane whose used blocks <see cref="used"/> holds.</summary>
-    private RoomLevelPlane? bg1Plane;
+    /// <summary>The foreground plane whose used blocks <see cref="used"/> holds.</summary>
+    private RoomLevelPlane? foregroundPlane;
 
     /// <summary>The layer-2 plane whose used blocks <see cref="used"/> holds, or null.</summary>
-    private RoomLevelPlane? bg2Plane;
+    private RoomLevelPlane? backgroundPlane;
 
     /// <summary>The artwork the blocks in <see cref="used"/> were resolved over.</summary>
     private RoomBlockArtwork artwork;
@@ -38,32 +38,32 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     public RoomBlockSheet Sheet { get; } = Ensure.NotNull(sheet);
 
     /// <summary>
-    /// The pictures the blocks of <paramref name="bg1"/> and <paramref name="bg2"/> show over <paramref name="blockArtwork"/>
+    /// The pictures the blocks of <paramref name="foreground"/> and <paramref name="background"/> show over <paramref name="blockArtwork"/>
     /// while the room's appearance inputs take the values <paramref name="appearance"/> reads.
     /// </summary>
-    /// <param name="bg1">The room's BG1 plane.</param>
-    /// <param name="bg2">The room's layer-2 plane, which shows the same tileset's blocks, or null when BG2 shows none.</param>
+    /// <param name="foreground">The room's foreground plane.</param>
+    /// <param name="background">The room's layer-2 plane, which shows the same tileset's blocks, or null when background shows none.</param>
     /// <param name="blockArtwork">The artwork the room's blocks show.</param>
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="alsoShown">Further blocks the frame shows, as the X-ray reveal's blocks; none when empty.</param>
     /// <exception cref="InvalidDataException">
     /// A block is not among those the tileset loads, or the sheet holds no picture of a block for its inputs' values.
     /// </exception>
-    public RoomBlockPictureTable Resolve(RoomLevelPlane bg1, RoomLevelPlane? bg2, RoomBlockArtwork blockArtwork, RoomAppearanceView appearance,
+    public RoomBlockPictureTable Resolve(RoomLevelPlane foreground, RoomLevelPlane? background, RoomBlockArtwork blockArtwork, RoomAppearanceView appearance,
         IEnumerable<int> alsoShown)
     {
-        Ensure.NotNull(bg1);
+        Ensure.NotNull(foreground);
         int[] also = [.. Ensure.NotNull(alsoShown).Distinct().Order()];
         RoomBlockPictureTable? previous = table;
-        bool fresh = previous is null || !ReferenceEquals(bg1Plane, bg1) || !ReferenceEquals(bg2Plane, bg2) || artwork != blockArtwork
+        bool fresh = previous is null || !ReferenceEquals(foregroundPlane, foreground) || !ReferenceEquals(backgroundPlane, background) || artwork != blockArtwork
             || !also.SequenceEqual(further);
         if (fresh)
         {
-            bg1Plane = bg1;
-            bg2Plane = bg2;
+            foregroundPlane = foreground;
+            backgroundPlane = background;
             artwork = blockArtwork;
             further = also;
-            used = [.. Uses(bg1).Concat(bg2 is null ? [] : Uses(bg2)).Concat(also).Distinct().Order()];
+            used = [.. Uses(foreground).Concat(background is null ? [] : Uses(background)).Concat(also).Distinct().Order()];
             values = [.. used.Select(block => new string[Sheet.Inputs.Of(block, blockArtwork).Length])];
         }
         SpriteSheetFrame?[]? pictures = fresh ? new SpriteSheetFrame?[Sheet.Inputs.Count] : null;

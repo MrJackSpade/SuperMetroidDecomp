@@ -44,12 +44,12 @@ internal static class RoomFxRecordDefinitionsVerification
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
         var nativeFxSession = new RoomFxSession();
-        RoomLayer3FxState nativeFx;
+        RoomFxOverlayState nativeFx;
         var compiledFxSession = new RoomFxSession();
-        RoomLayer3FxState compiledFx;
-        nativeFx = RoomLayer3FxState.ForRoom(nativeFxSession, room.State.Fx,
+        RoomFxOverlayState compiledFx;
+        nativeFx = RoomFxOverlayState.ForRoom(nativeFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        compiledFx = RoomLayer3FxState.ForRoom(compiledFxSession, room.State.Fx,
+        compiledFx = RoomFxOverlayState.ForRoom(compiledFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");

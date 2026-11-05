@@ -126,7 +126,7 @@ left unwrapped fails where it is stored instead of being truncated there.
   - `BackgroundBlockConversions.ToTilemapBlocks` / `ToSourceBlocks`: layer pixels to the wrapping
     tilemap block and to the room source block (sign-extended), as the bank-$80 streamer does.
   - `BgPlaneConversions.AsBgPlaneScroll`: a BG1, BG2 or area-map scroll as the generic plane's scroll words.
-  - `Bg3FxConversions.AsBg3Scroll` / `WholePixels`: the layer-one anchor of a BG3 effect plane and
+  - `FxOverlayConversions.AsOverlayScroll` / `WholePixels`: the layer-one anchor of the room effect overlay and
     the signed high bytes of its 8.8 drift.
   - `FloorConversions.AsFloorWord`: a layer-one room point as a signed floor offset;
     `AsSignedWord`: a floor position as its signed floor offset.

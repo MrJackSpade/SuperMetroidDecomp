@@ -212,9 +212,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     if (nativeBodyVisible)
                         VerificationAssertions.AssertEqual(new RidleyNativeBodyRecordResult(W(NativeSnapshotMemory.SamusTopSpritemap), W(NativeSnapshotMemory.SamusBottomSpritemap),
                                 W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)),
-                            nativeDraw, $"update {frame}: cartridge draw oracle matches native visible records");
+                            nativeDraw.Records, $"update {frame}: cartridge draw oracle matches native visible records");
                     if (normalizedBodyVisible)
-                        VerificationAssertions.AssertEqual(new BodyRecordResult(nativeDraw.Top, nativeDraw.Bottom, nativeDraw.X, nativeDraw.Y), BodyRecord(),
+                        VerificationAssertions.AssertEqual(new BodyRecordResult(nativeDraw.Records.Top, nativeDraw.Records.Bottom, nativeDraw.Records.X, nativeDraw.DrawnY), BodyRecord(),
                             $"update {frame}: visible body matches cartridge draw oracle regardless of flicker phase");
                 }
                 // Flicker deliberately follows the retained NMI clock. Removed hardware
@@ -225,7 +225,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check("Samus top spritemap", SpritemapIndex(samus.Presentation.TopSpritemap), NativeSnapshotMemory.SamusTopSpritemap);
                     Check("Samus bottom spritemap", SpritemapIndex(samus.Presentation.BottomSpritemap), NativeSnapshotMemory.SamusBottomSpritemap);
                     Check("Samus sprite X", samus.Presentation.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
-                    Check("Samus sprite Y", samus.Presentation.SpritemapPosition.Y, NativeSnapshotMemory.SamusSpriteY);
+                    // A landing frame's native position word carries the table byte after its own, which the drawn origin
+                    // never shows (#1500); the oracle gives the row the cartridge draws at.
+                    ushort nativeSpriteY = frame == 0 ? W(NativeSnapshotMemory.SamusSpriteY) : RidleyNativeBodyRecord(bus, memory).DrawnY;
+                    if (samus.Presentation.SpritemapPosition.Y != nativeSpriteY)
+                        mismatches.Add($"Samus sprite Y: native={nativeSpriteY:X4} port={samus.Presentation.SpritemapPosition.Y:X4}");
                 }
                 if (frame != 0)
                 {

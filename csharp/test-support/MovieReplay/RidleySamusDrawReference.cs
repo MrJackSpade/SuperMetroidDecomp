@@ -65,7 +65,7 @@ internal static class RidleySamusDrawReference
     /// and original ROM definitions, never production draw methods or extracted art.
     /// Validated against visible native records before covering opposite NMI phases.
     /// </summary>
-    internal static RidleyNativeBodyRecordResult RidleyNativeBodyRecord(
+    internal static RidleyNativeBodyDraw RidleyNativeBodyRecord(
         ISnesAddressSpace rom, NativeCheckpointMemory checkpoint)
     {
         ushort W(int address) => checkpoint.Word(address);
@@ -75,6 +75,8 @@ internal static class RidleySamusDrawReference
         SamusPoseId poseId = SamusPoseNumbering.FromNumber(pose);
         SamusMovementType movement = SamusMovementTypeNumbers.Of(checkpoint[NativeSnapshotMemory.SamusMovementType]);
         int yOffset = -unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4));
+        // A landing frame's position word holds the next table byte above its own; the drawn origin shows its own byte.
+        int? landingDrawnYOffset = null;
         if (movement == SamusMovementType.Standing)
         {
             if (poseId is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
@@ -82,8 +84,12 @@ internal static class RidleySamusDrawReference
                 if (frame >= 2) yOffset = -1;
             }
             else if (SamusPoseNumbering.InRange(poseId, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
-                yOffset = -CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
+            {
+                int landingWord = CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
                     SamusPoseNumbering.Offset(poseId, SamusPoseId.NormalLandingRightPose) * 4 + frame));
+                yOffset = -landingWord;
+                landingDrawnYOffset = -LittleEndianBytes.LowByte(unchecked((ushort)landingWord));
+            }
         }
         else if (movement == SamusMovementType.PostureTransition &&
             !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CrouchingTransitionRightPose) &&
@@ -137,9 +143,11 @@ internal static class RidleySamusDrawReference
                 SamusMovementType.DraygonHeld => throw new InvalidDataException($"Unknown native body movement type {movement}"),
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),
         };
-        return new RidleyNativeBodyRecordResult(unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
+        var records = new RidleyNativeBodyRecordResult(unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
             bottom ? unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.BottomSpritemapBases + pose * 2)) + frame)) : (ushort)0,
             unchecked((ushort)(W(NativeSnapshotMemory.X) - W(NativeSnapshotMemory.CameraX))),
             unchecked((ushort)(W(NativeSnapshotMemory.Y) + yOffset - W(NativeSnapshotMemory.CameraY))));
+        return new RidleyNativeBodyDraw(records,
+            unchecked((ushort)(W(NativeSnapshotMemory.Y) + (landingDrawnYOffset ?? yOffset) - W(NativeSnapshotMemory.CameraY))));
     }
 }
